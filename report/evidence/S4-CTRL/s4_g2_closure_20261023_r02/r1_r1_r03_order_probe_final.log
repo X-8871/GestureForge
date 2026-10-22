@@ -1,0 +1,40 @@
+{
+  "phase": "final",
+  "head_expected": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "head_actual": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "head_match": true,
+  "snapshot_manifest_sha256": "f3f1d0224fcbf8bd6c3ce4d22e96ff9824c70d5bd65abf136610206a45528fc4",
+  "source_files_listed": 19,
+  "source_files_matched": 19,
+  "source_hash_mismatches": [],
+  "runbook_sha256": "1daa2595635617d37d8a7cee22367048ade912d51bbd4ecdb52286321f3efe59",
+  "checker_sha256": "b942e87eb46444c8491faca18a57b85229936d03504797284395867f9d3950ce",
+  "cache_order_checks": [
+    {
+      "name": "actual_runbook_positive",
+      "pass": true,
+      "detail": "errors=[]"
+    },
+    {
+      "name": "summary_input_invalidate_after_start",
+      "pass": true,
+      "detail": "errors=['运行书摘要未明确输入帧在 consumer_start 前 invalidate + DSB']"
+    },
+    {
+      "name": "summary_heads_read_before_invalidate",
+      "pass": true,
+      "detail": "errors=['运行书摘要未明确 PL done 后 heads invalidate + DSB 再读取']"
+    },
+    {
+      "name": "detail_heads_read_before_invalidate",
+      "pass": true,
+      "detail": "errors=['运行书实现依据未按 PL done→heads invalidate+DSB→读 heads 描述']"
+    },
+    {
+      "name": "template_heads_invalidate_before_done",
+      "pass": true,
+      "detail": "errors=['运行书板上模板的 done/invalidate/读 heads/停止确认/释放顺序错误']"
+    }
+  ],
+  "status": "PASS"
+}

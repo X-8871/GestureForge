@@ -1,0 +1,11 @@
+region name=mock base=0x10000000 len=0x02000000
+ring slots=2
+frame id=100 w=4 h=4 stride=12 offset=0 payload=pattern:1
+bind
+frame id=101 w=4 h=4 stride=12 offset=0 payload=pattern:2
+try bind
+advance slot=0 ev=producer_write_complete
+advance slot=0 ev=cache_flush_by_producer
+advance slot=0 ev=ownership_publish_to_consumer
+mock_fault name=skip_barrier
+consume slot=0

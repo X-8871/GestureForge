@@ -1,0 +1,23 @@
+{
+  "review_id": "R2-02",
+  "status": "CHANGES_REQUIRED",
+  "base_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "source_snapshot": "final_source_snapshot.json",
+  "frozen_hash_matches": "19/19",
+  "original_findings_closed": ["写前重叠及FAILED保护", "frame/drop/session单调与保留回绕值", "null payload、capture真值及CLI严格解析", "帧算术及CHW三平面统计", "mock三视图与屏障", "timeout停止确认及abort", "声明范围内的回调/region/descriptor生命周期"],
+  "blockers": [
+    {"path": "vitis/stage4/s4_inject_frame.c", "line": 1145, "problem": "通用consumer_read未证明ddr_length、offset和offset+length不超过SIZE_MAX便做指针加法。", "close_condition": "指针运算前受检所有范围；补适用边界用例，真实32位行为仍需对应运行环境。"},
+    {"path": "vitis/stage4/s4_inject_frame.c", "line": 696, "problem": "无效region初始化失败已改变magic/session，纠正参数同session重试被拒绝。", "close_condition": "完整预校验或失败保留原状态；覆盖首次及空闲ring失败重试。"}
+  ],
+  "independent_commands": [
+    {"name": "状态探针", "build_exit": 0, "run_exit": 0, "checks": 12, "source": "r2_review_state_probe.c", "log": "r2_review_state_run.log"},
+    {"name": "host编译", "exit_code": 0, "log": "r2_review_host_build.log"},
+    {"name": "重叠写入保护", "exit_code": 0, "result": "r2_review_overlap_bytes.json"},
+    {"name": "invalidate屏障故障", "expected_exit": 24, "actual_exit": 24, "result": "r2_review_cache_order_v02.json"},
+    {"name": "非法capture", "expected_exit": 26, "actual_exit": 26, "result": "r2_review_bad_capture.json"},
+    {"name": "camera零时间戳", "expected_exit": 20, "actual_exit": 20, "result": "r2_review_camera_zero.json"},
+    {"name": "CHW padding", "exit_code": 0, "valid_bytes": 519168, "padding_bytes": 19968, "result": "r2_review_chw_consumer_v02.json"},
+    {"name": "初始化失败同session重试", "build_exit": 0, "run_exit": 0, "observed": "ERR_REGION_UNKNOWN→ERR_SESSION→新session成功", "source": "r2_review_init_retry.c", "log": "r2_review_init_retry.log"}
+  ],
+  "limitations": ["所有测试及写入已停止；仅隔离tmp内轻量主机验证。", "26条既有API检查中含64位平台不适用提示，不代表32位行为覆盖。", "32位编译通过、链接缺运行库退出1、行为NOT_RUN；真实PS/BSP/PL/板卡/UART/camera未验证。", "R1运行书两项仍未关闭。", "r2_归档为原始字节复制；可重建exe留在tmp，不进入交付。"]
+}

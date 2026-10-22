@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段4↔阶段5 共享输入/结果契约（s4-shared-io）只读自检（r02）。
+"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r04）。
 
 退出码：0 = 全部 PASS，1 = 存在 FAIL，2 = 输入/环境错误。
 
@@ -16,7 +16,8 @@
  10. PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)；
  11. stale 规则存在、状态为 DRAFT_PENDING_APPROVAL、声明唯一常量来源（修复 N6）；
  12. 三范围冻结齐全（allowed/forbidden）；
- 13. 消费边界（阶段5 只读/版本化/变更流程）。
+ 13. 消费边界（阶段5 只读/版本化/变更流程）；
+ 14. 运行书摘要、缓存说明和板上模板的输入/输出 invalidate 顺序一致，并拒绝反序变异。
 
 本脚本只读；`--evidence-dir` 把结果清单（含命令、退出码、版本、时间戳、脚本自身 SHA）写入证据目录。
 通过不代表契约已冻结或任何实物验收。
@@ -25,6 +26,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import platform
@@ -35,6 +37,9 @@ from pathlib import Path
 WORKTREE = Path(__file__).resolve().parents[2]
 CONTRACT = WORKTREE / "docs" / "stage4" / "s4b_shared_input_result_contract.json"
 HUMAN_DOC = WORKTREE / "docs" / "stage4" / "S4B_shared_input_result_contract.md"
+ADDRESS_MAP = WORKTREE / "docs" / "stage4" / "S4B_stage4_address_map.json"
+S4A_MD = WORKTREE / "docs" / "stage4" / "S4A_stage4_g0_tracking_and_timing_draft.md"
+RUNBOOK = WORKTREE / "docs" / "stage4" / "S4B_injection_path_runbook.md"
 CN = timezone(timedelta(hours=8))
 
 REQUIRED_TOP_KEYS = (
@@ -59,8 +64,8 @@ REQUIRED_INPUT_FIELDS = (
 
 EVENT_ORDER = (
     "producer_write_start", "producer_write_complete", "cache_flush_by_producer",
-    "ownership_publish_to_consumer", "consumer_start", "consumer_done",
-    "consumer_invalidate", "buffer_release_to_producer",
+    "ownership_publish_to_consumer", "consumer_invalidate", "consumer_start",
+    "consumer_done", "buffer_release_to_producer",
 )
 
 HUD_FIELDS = (
@@ -105,6 +110,122 @@ def find_key(obj: object, key: str):
     return None
 
 
+def contains_in_order(text: str, tokens: tuple[str, ...]) -> bool:
+    """按给定顺序查找运行书中的缓存可见性步骤。"""
+    positions = [text.find(token) for token in tokens]
+    return all(position >= 0 for position in positions) and positions == sorted(positions)
+
+
+def validate_runbook_cache_order(runbook: str) -> list[str]:
+    """检查摘要、实现依据和板上模板分别描述正确的读前维护顺序。"""
+    errors: list[str] = []
+    summary = next((line for line in runbook.splitlines() if line.startswith("- 覆盖：")), "")
+    if "输入帧在 `consumer_start` 前执行 invalidate + DSB" not in summary:
+        errors.append("运行书摘要未明确输入帧在 consumer_start 前 invalidate + DSB")
+    pl_done_index = summary.find("PL done")
+    output_summary = summary[pl_done_index:] if pl_done_index >= 0 else ""
+    if not contains_in_order(output_summary, ("PL done", "输出 heads", "invalidate + DSB", "再读取")):
+        errors.append("运行书摘要未明确 PL done 后 heads invalidate + DSB 再读取")
+
+    output_rule = next((line for line in runbook.splitlines() if "PL 输出 heads：" in line), "")
+    if not contains_in_order(output_rule, ("PL done", "invalidate", "DSB", "再读取 heads")):
+        errors.append("运行书实现依据未按 PL done→heads invalidate+DSB→读 heads 描述")
+
+    template = next((line for line in runbook.splitlines() if line.startswith("# 4) 单帧注入")), "")
+    if not contains_in_order(
+        template,
+        ("等 PL done", "输出 heads invalidate + DSB", "读 heads", "确认消费者停止/复位", "释放"),
+    ):
+        errors.append("运行书板上模板的 done/invalidate/读 heads/停止确认/释放顺序错误")
+    return errors
+
+
+def validate_r03_semantics(contract: dict, doc: str, address_map: dict, s4a: dict) -> list[str]:
+    """检查 r03 新增的接口和缓存语义约束。"""
+    errors: list[str] = []
+    fields = {field.get("name"): field for field in contract["input_frame_contract"]["fields"]}
+    if fields.get("session_id", {}).get("type") != "uint32":
+        errors.append("session_id 必须与 S4-A 一致使用 uint32")
+    if "u32" not in fields.get("session_id", {}).get("semantics", ""):
+        errors.append("session_id 缺 S4-A u32 分配/重置语义")
+
+    source_map = contract["input_frame_contract"]["vocabulary_mapping"].get("source_kind", {}).get("map")
+    expected_map = {
+        "file_injection": "BOARD_INJECTION",
+        "synthetic": "OFFLINE_REGRESSION",
+        "camera": "CAMERA",
+    }
+    if source_map != expected_map:
+        errors.append("source_kind 必须严格一一映射到三个 S4-A source_kind")
+
+    truth = contract["input_frame_contract"]["vocabulary_mapping"].get("capture_time_truth_table")
+    expected_truth = {
+        "file_injection": {
+            "capture_time_available": False,
+            "capture_time_ns": 0,
+            "unavailable_fields_contains_capture_time_ns": True,
+        },
+        "synthetic": {
+            "capture_time_available": False,
+            "capture_time_ns": 0,
+            "unavailable_fields_contains_capture_time_ns": True,
+        },
+        "camera": {
+            "capture_time_available": True,
+            "capture_time_ns": "nonzero",
+            "unavailable_fields_contains_capture_time_ns": False,
+        },
+    }
+    if truth != expected_truth:
+        errors.append("capture_time 真值表必须完整覆盖三种来源")
+    capture_available = fields.get("capture_time_available", {}).get("semantics", "")
+    capture_ns = fields.get("capture_time_ns", {}).get("semantics", "")
+    if not all(token in capture_available for token in ("synthetic", "camera", "false", "true")):
+        errors.append("capture_time_available 语义缺 synthetic/camera 完整约束")
+    if not all(token in capture_ns for token in ("synthetic", "camera", "0 哨兵", "非零")):
+        errors.append("capture_time_ns 语义缺 synthetic/camera 哨兵与真值约束")
+
+    order = contract["input_frame_contract"]["events"].get("order")
+    if tuple(order or ()) != EVENT_ORDER:
+        errors.append("消费者必须在 start 前完成 input invalidate")
+
+    roles = contract["result_contract"]["ps_side_log"].get("mapping_key_roles", {})
+    bypass = s4a.get("uart_plan_b_freeze", {}).get("result_bypass_log_mapping", {})
+    expected_roles = {
+        "stage4a_join_key": bypass.get("join_key"),
+        "ps_log_primary_key": bypass.get("ps_log_primary_key"),
+        "uart_observable_key": bypass.get("uart_observable_key"),
+    }
+    if any(roles.get(name, {}).get("fields") != value for name, value in expected_roles.items()):
+        errors.append("S4-A join_key/PS 主键/UART 可观测键未逐项保持原用途")
+    if not all(name in roles.get("bridge_log_fields", []) for name in
+               ("session_id", "frame_id", "repeat_index", "result_seq", "sequence")):
+        errors.append("桥接日志字段未同时保留 S4-A 键字段")
+
+    if address_map.get("status") != "DRAFT_PENDING_REVIEW":
+        errors.append("地址图 status 必须保持 DRAFT_PENDING_REVIEW")
+    address_space = address_map.get("address_space", {})
+    if address_space.get("hardware_cache_line_bytes") != 32:
+        errors.append("地址图硬件缓存行必须为冻结 2B BSP 的 32 B")
+    if address_space.get("maintenance_alignment_bytes") != 64:
+        errors.append("地址图维护对齐策略必须独立声明为 64 B")
+    facts = {fact.get("id"): fact for fact in address_map.get("factsources", [])}
+    app_fact = facts.get("W2B-APP", {})
+    if app_fact.get("sha256") != "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39":
+        errors.append("32 B 缓存行事实未绑定冻结 2B BSP 源码 SHA")
+
+    cdc = contract["input_frame_contract"].get("cache_and_dma_rules", {})
+    if cdc.get("hardware_cache_line_bytes") != 32 or cdc.get("maintenance_alignment_bytes") != 64:
+        errors.append("共享契约未区分 2B BSP 缓存行参数与维护对齐策略")
+    if "PL 输出" not in cdc.get("pl_output_visibility", ""):
+        errors.append("PL 输出 done 后 invalidate 未与输入帧事件分开说明")
+    if "DRAFT_PENDING_REVIEW" not in doc or "由 4-B 任务冻结" in doc:
+        errors.append("人读契约错误声称地址图已冻结")
+    if "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84" not in doc:
+        errors.append("人读契约未绑定当前 S4-A r06 镜像 SHA")
+    return errors
+
+
 def main() -> int:
     """执行全部检查。"""
     parser = argparse.ArgumentParser(description="共享输入/结果契约只读自检")
@@ -115,8 +236,9 @@ def main() -> int:
     passes: list[str] = []
     details: dict[str, object] = {}
 
-    if not CONTRACT.is_file() or not HUMAN_DOC.is_file():
-        print(f"[FAIL] 契约文件缺失：{CONTRACT} / {HUMAN_DOC}")
+    if (not CONTRACT.is_file() or not HUMAN_DOC.is_file() or not ADDRESS_MAP.is_file()
+            or not S4A_MD.is_file() or not RUNBOOK.is_file()):
+        print(f"[FAIL] 契约/地址图/S4-A 镜像/注入运行书缺失：{CONTRACT} / {HUMAN_DOC} / {ADDRESS_MAP} / {S4A_MD} / {RUNBOOK}")
         return 2
     try:
         contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
@@ -124,6 +246,33 @@ def main() -> int:
         print(f"[FAIL] 契约 JSON 无法解析：{exc}")
         return 2
     doc = HUMAN_DOC.read_text(encoding="utf-8")
+    address_map = json.loads(ADDRESS_MAP.read_text(encoding="utf-8"))
+    runbook = RUNBOOK.read_text(encoding="utf-8")
+
+    runbook_errors = validate_runbook_cache_order(runbook)
+    details["runbook_cache_order_errors"] = runbook_errors
+    if runbook_errors:
+        failures.extend(runbook_errors)
+    else:
+        passes.append("运行书摘要/缓存说明/板上模板的输入与 heads 输出维护顺序一致")
+    mutated_runbook = runbook.replace(
+        "等 PL done → 输出 heads invalidate + DSB",
+        "输出 heads invalidate + DSB → 等 PL done",
+        1,
+    )
+    mutation_errors = validate_runbook_cache_order(mutated_runbook)
+    mutation_detected = mutated_runbook != runbook and bool(mutation_errors)
+    details["runbook_negative_controls"] = {
+        "output_invalidate_before_pl_done": {
+            "mutated": mutated_runbook != runbook,
+            "detected": mutation_detected,
+            "errors": mutation_errors,
+        }
+    }
+    if mutation_detected:
+        passes.append("运行书 PL done/输出 invalidate 反序变异 1/1 被拒绝")
+    else:
+        failures.append("运行书 PL done/输出 invalidate 反序变异未检出")
 
     # 1. 顶层键
     missing = [k for k in REQUIRED_TOP_KEYS if k not in contract]
@@ -162,6 +311,48 @@ def main() -> int:
     w5_path = resolve(bindings["stage5_display_g0_fields"]["path"]) if "stage5_display_g0_fields" in bindings else None
     s4a = json.loads(s4a_path.read_text(encoding="utf-8")) if s4a_path and s4a_path.is_file() else None
     w5 = json.loads(w5_path.read_text(encoding="utf-8")) if w5_path and w5_path.is_file() else None
+    if s4a is None:
+        failures.append("无法读取 S4-A 权威以检查 r03 接口语义")
+    else:
+        semantic_errors = validate_r03_semantics(contract, doc, address_map, s4a)
+        if semantic_errors:
+            failures.extend(semantic_errors)
+        else:
+            passes.append("r03 session/source/time/key/cache 语义与 S4-A、地址图一致")
+        current_s4a_md_sha = sha256_of(S4A_MD)
+        if current_s4a_md_sha not in doc:
+            failures.append(f"S4-A 人读镜像 SHA 漂移：契约文档未绑定 {current_s4a_md_sha}")
+        else:
+            passes.append("S4-A 人读镜像 SHA 与当前 r06 文件一致")
+
+        mutations: list[tuple[str, dict, dict]] = []
+        changed = copy.deepcopy(contract)
+        next(field for field in changed["input_frame_contract"]["fields"]
+             if field["name"] == "session_id")["type"] = "string"
+        mutations.append(("session_id_type", changed, address_map))
+        changed = copy.deepcopy(contract)
+        changed["input_frame_contract"]["vocabulary_mapping"]["source_kind"]["map"]["synthetic"] = "synthetic"
+        mutations.append(("extra_source_mapping", changed, address_map))
+        changed = copy.deepcopy(contract)
+        changed["input_frame_contract"]["vocabulary_mapping"]["capture_time_truth_table"]["synthetic"]["capture_time_available"] = True
+        mutations.append(("synthetic_capture_truth", changed, address_map))
+        changed = copy.deepcopy(contract)
+        changed["input_frame_contract"]["events"]["order"][4:7] = [
+            "consumer_start", "consumer_done", "consumer_invalidate"
+        ]
+        mutations.append(("invalidate_after_read", changed, address_map))
+        changed_map = copy.deepcopy(address_map)
+        changed_map["status"] = "FROZEN"
+        mutations.append(("address_map_frozen", copy.deepcopy(contract), changed_map))
+        mutation_results = {
+            name: bool(validate_r03_semantics(candidate, doc, mutated_map, s4a))
+            for name, candidate, mutated_map in mutations
+        }
+        details["r03_negative_controls"] = mutation_results
+        if all(mutation_results.values()):
+            passes.append("r03 检查器变异反例 5/5 均被拒绝")
+        else:
+            failures.append(f"r03 检查器变异反例未全部检出：{mutation_results}")
 
     # 3. 输入字段与 capture_time 语义
     inputs = contract["input_frame_contract"]["fields"]
@@ -318,7 +509,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4B-contract",
         "checker": "verify_shared_io_contract",
-        "checker_version": "r02",
+        "checker_version": "r04",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),
@@ -329,6 +520,9 @@ def main() -> int:
         "artifact_sha256": {
             "contract_json": sha256_of(CONTRACT),
             "contract_md": sha256_of(HUMAN_DOC),
+            "address_map": sha256_of(ADDRESS_MAP),
+            "s4a_md_mirror": sha256_of(S4A_MD),
+            "injection_runbook": sha256_of(RUNBOOK),
             "checker_script": sha256_of(script_path),
         },
         "passes": passes,

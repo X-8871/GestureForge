@@ -1,0 +1,467 @@
+{
+  "review": "S4-G2-R1-02",
+  "head": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "branch": "stage4-infer-prep",
+  "contract_json_sha256": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e",
+  "contract_md_sha256": "7b9c9d387d7adcfbbc4d0301b0a4303960783f6e6793939fdd34a2deec5b4b77",
+  "s4a_json_sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+  "s4a_md_sha256": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+  "address_map_sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+  "runbook_sha256": "7f4ef283e52b80120bf46ea9b943132027dd6ebfaf8529d80afe8f6769c0c168",
+  "checks": [
+    {
+      "name": "contract_identity",
+      "status": "PASS",
+      "evidence": {
+        "revision": "r03",
+        "status": "DRAFT_PENDING_REVIEW"
+      }
+    },
+    {
+      "name": "s4a_r06_identity",
+      "status": "PASS",
+      "evidence": {
+        "status": "G0_ROUND_FROZEN_R06",
+        "revision": "r06",
+        "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
+      }
+    },
+    {
+      "name": "s4a_markdown_binding",
+      "status": "PASS",
+      "evidence": {
+        "actual_sha256": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+        "contract_line": 13
+      }
+    },
+    {
+      "name": "address_map_remains_draft",
+      "status": "PASS",
+      "evidence": {
+        "address_status": "DRAFT_PENDING_REVIEW",
+        "contract_line": 14,
+        "address_sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+      }
+    },
+    {
+      "name": "session_id_u32_and_c_binding",
+      "status": "PASS",
+      "evidence": {
+        "contract_type": "uint32",
+        "C_header_line": 147
+      }
+    },
+    {
+      "name": "source_kind_bijection",
+      "status": "FAIL",
+      "evidence": {
+        "contract_map": {
+          "file_injection": "BOARD_INJECTION",
+          "synthetic": "OFFLINE_REGRESSION",
+          "camera": "CAMERA"
+        },
+        "s4a_scopes": {
+          "offline_regression": "OFFLINE_REGRESSION",
+          "board_injection": "BOARD_INJECTION",
+          "camera": "CAMERA"
+        }
+      }
+    },
+    {
+      "name": "capture_time_truth_table",
+      "status": "PASS",
+      "evidence": {
+        "truth_table": {
+          "file_injection": {
+            "capture_time_available": false,
+            "capture_time_ns": 0,
+            "unavailable_fields_contains_capture_time_ns": true
+          },
+          "synthetic": {
+            "capture_time_available": false,
+            "capture_time_ns": 0,
+            "unavailable_fields_contains_capture_time_ns": true
+          },
+          "camera": {
+            "capture_time_available": true,
+            "capture_time_ns": "nonzero",
+            "unavailable_fields_contains_capture_time_ns": false
+          }
+        },
+        "contract_lines": [
+          36,
+          38,
+          41,
+          56
+        ]
+      }
+    },
+    {
+      "name": "key_roles_match_s4a",
+      "status": "PASS",
+      "evidence": {
+        "s4a": {
+          "problem": "s2bu/1.1 既不携带 session_id 也不携带 result_seq：运输 sequence 是请求/响应配对序号，epoch 是 PL 事务 epoch，均不足以在同一 PS 会话内唯一关联『结果记录』与『PS 旁路日志』。",
+          "local_only_fields": [
+            "session_id（u32，PS 本地分配，不传输）",
+            "result_seq（u32，PS 结果记录本地单调递增，从 1 起，不传输）"
+          ],
+          "join_key": [
+            "session_id",
+            "frame_id",
+            "repeat_index"
+          ],
+          "ps_log_primary_key": [
+            "session_id",
+            "result_seq"
+          ],
+          "uart_observable_key": [
+            "frame_id",
+            "repeat_index",
+            "sequence"
+          ],
+          "session_id_rule": "session_id 在 PS 每次启动、每次复位 frame_id 计数、或每次以相同请求 frame_id 重开 RUN 时重新分配；同一 session_id 内禁止复用 frame_id。",
+          "uniqueness_argument": "s2bu/1.1 第 49 行规定响应 frame 为请求 frame+index，故同一 RUN 内每个结果的 frame_id 互不相同；(session_id, frame_id, repeat_index) 在同一 session_id 内唯一。result_seq 单调递增且拒绝回绕，构成 PS 日志主键。主机侧只用 UART 可观测的 frame_id/repeat_index/sequence 做连接，不依赖时钟接近度。",
+          "conflict_policy": {
+            "ps_log_duplicate_key": "PS 日志出现重复 (session_id, frame_id, repeat_index) 时判为日志损坏：LOG_DUPLICATE_KEY，禁止发布该结果，保留原始两行。",
+            "uart_orphan": "UART 收到但 PS 日志无对应行：记为 uart_orphan，逐条计数，不推测归属、不合并。",
+            "log_orphan": "PS 日志有行但 UART 无对应记录：记为 log_orphan（运输丢弃或主机漏收），逐条计数。",
+            "ambiguous_match": "一条 UART 记录匹配到多于一条日志行：记为 AMBIGUOUS，不归属，保留原始证据并停止自动对账。",
+            "rule": "0 匹配或多匹配都必须显式记录，不得按时间邻近、序号邻近或『最新一条』猜测归属。"
+          },
+          "sequence_role": "运输 sequence 只作配对与一致性核对（连续递增、拒绝回绕），不作唯一键；冲突时以 ps_log_primary_key 为准。"
+        },
+        "contract_roles": {
+          "stage4a_join_key": {
+            "fields": [
+              "session_id",
+              "frame_id",
+              "repeat_index"
+            ],
+            "role": "S4-A 结果记录与同一请求重复项的连接键。"
+          },
+          "ps_log_primary_key": {
+            "fields": [
+              "session_id",
+              "result_seq"
+            ],
+            "role": "PS 旁路结果日志主键；result_seq 从 1 单调递增且按 S4-A 拒绝回绕。"
+          },
+          "uart_observable_key": {
+            "fields": [
+              "frame_id",
+              "repeat_index",
+              "sequence"
+            ],
+            "role": "UART 可观测的请求/响应配对键；sequence 只作配对与一致性核对，不是唯一键。"
+          },
+          "bridge_log_fields": [
+            "session_id",
+            "frame_id",
+            "repeat_index",
+            "result_seq",
+            "sequence",
+            "source_kind",
+            "frame_integrity",
+            "ownership_events"
+          ],
+          "contract_result_key": {
+            "fields": [
+              "session_id",
+              "frame_id",
+              "result_seq"
+            ],
+            "role": "阶段4/5 共享契约中唯一标识一条结果记录；不得替代上述各键在其各自日志/协议中的用途。"
+          }
+        },
+        "contract_unique_key": [
+          "session_id",
+          "frame_id",
+          "result_seq"
+        ]
+      }
+    },
+    {
+      "name": "uart_option_b_preserved",
+      "status": "PASS",
+      "evidence": {
+        "s4a": {
+          "freeze_id": "S4A-FREEZE-UART-B",
+          "interface": "s2bu/1.1",
+          "interface_owner": "2B 总控（本阶段不得修改其正文）",
+          "interface_unchanged": true,
+          "extension_closed": true,
+          "extension_closed_note": "方案 A（新 op 或 TLV 尾块）本轮关闭：不实现、不预埋、不改 s2bu/1.1 既有字段语义。",
+          "side_channel": "PS 侧旁路日志（本地方案，不进 UART payload）",
+          "result_bypass_log_mapping": {
+            "problem": "s2bu/1.1 既不携带 session_id 也不携带 result_seq：运输 sequence 是请求/响应配对序号，epoch 是 PL 事务 epoch，均不足以在同一 PS 会话内唯一关联『结果记录』与『PS 旁路日志』。",
+            "local_only_fields": [
+              "session_id（u32，PS 本地分配，不传输）",
+              "result_seq（u32，PS 结果记录本地单调递增，从 1 起，不传输）"
+            ],
+            "join_key": [
+              "session_id",
+              "frame_id",
+              "repeat_index"
+            ],
+            "ps_log_primary_key": [
+              "session_id",
+              "result_seq"
+            ],
+            "uart_observable_key": [
+              "frame_id",
+              "repeat_index",
+              "sequence"
+            ],
+            "session_id_rule": "session_id 在 PS 每次启动、每次复位 frame_id 计数、或每次以相同请求 frame_id 重开 RUN 时重新分配；同一 session_id 内禁止复用 frame_id。",
+            "uniqueness_argument": "s2bu/1.1 第 49 行规定响应 frame 为请求 frame+index，故同一 RUN 内每个结果的 frame_id 互不相同；(session_id, frame_id, repeat_index) 在同一 session_id 内唯一。result_seq 单调递增且拒绝回绕，构成 PS 日志主键。主机侧只用 UART 可观测的 frame_id/repeat_index/sequence 做连接，不依赖时钟接近度。",
+            "conflict_policy": {
+              "ps_log_duplicate_key": "PS 日志出现重复 (session_id, frame_id, repeat_index) 时判为日志损坏：LOG_DUPLICATE_KEY，禁止发布该结果，保留原始两行。",
+              "uart_orphan": "UART 收到但 PS 日志无对应行：记为 uart_orphan，逐条计数，不推测归属、不合并。",
+              "log_orphan": "PS 日志有行但 UART 无对应记录：记为 log_orphan（运输丢弃或主机漏收），逐条计数。",
+              "ambiguous_match": "一条 UART 记录匹配到多于一条日志行：记为 AMBIGUOUS，不归属，保留原始证据并停止自动对账。",
+              "rule": "0 匹配或多匹配都必须显式记录，不得按时间邻近、序号邻近或『最新一条』猜测归属。"
+            },
+            "sequence_role": "运输 sequence 只作配对与一致性核对（连续递增、拒绝回绕），不作唯一键；冲突时以 ps_log_primary_key 为准。"
+          },
+          "option_b_consequence": "选项 B 下 capture_time_ns/result_time_ns/inference_time_ns/end_to_end_latency_ns/stale/dropped_frames 不出现在 UART 记录中；主机侧拿不到 PS 侧真实采集/结果/推理耗时。因此阶段计划第 88 行的『每条结果包含…采集与结果时间、推理耗时和状态』只能由 PS 侧旁路日志方案满足（日志落点与采集方式须在正式 G0 声明），不得据选项 B 直接宣称已满足。"
+        },
+        "contract_md_lines": [
+          84,
+          85
+        ]
+      }
+    },
+    {
+      "name": "display_semantics_matches_w5",
+      "status": "PASS",
+      "evidence": {
+        "contract_values": [
+          "B_latest_result_overlay"
+        ],
+        "w5_value": "B_latest_result_overlay",
+        "w5_sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+      }
+    },
+    {
+      "name": "hud_13_fields_match_w5",
+      "status": "PASS",
+      "evidence": {
+        "contract_count": 13,
+        "w5_count": 13,
+        "keys": [
+          "age_frame_ns",
+          "age_result_ns",
+          "boxes",
+          "capture_fps",
+          "display_fps",
+          "display_semantics",
+          "dropped_frames",
+          "frame_id",
+          "inference_fps",
+          "inference_time_ns",
+          "stale_cleared",
+          "timeouts",
+          "warmup_state"
+        ]
+      }
+    },
+    {
+      "name": "stale_200ms_not_approved",
+      "status": "PASS",
+      "evidence": {
+        "contract": {
+          "expression": "stale_effective = stale_flag OR age_frame_ns > stale_limit_ns",
+          "stage4_stale_definition": "stale=true 当结果年龄（发布时刻 − result_time_ns）超过 stale_limit_ns，且仅 state ∈ {OK, NO_HAND}；与阶段5 G0 的 stage4_stale_definition 同义",
+          "dual_basis_note": "两个基准必须同时可复算：结果年龄（S4-A 的 stale）与 age_frame_ns（阶段5 显示）；二者共享**同一数值常量**，不得各造一份。",
+          "stale_limit_ns": null,
+          "stale_limit_status": "DRAFT_PENDING_APPROVAL",
+          "stale_limit_draft_value_ms": 200,
+          "single_source_of_truth": "阶段5 G0 字段 `STALE_AGE_LIMIT_NS`（当前 w5 记为 G0_FIXED_OFFLINE，值 200000000 ns）；阶段4 侧若使用该常量必须引用同一值并记录其来源与状态；阶段4 正式 G0 批准前不得作为验收门槛",
+          "per_result_rule": "每结果只计一次 stale，原因留日志"
+        },
+        "s4a_status": "DRAFT_PENDING_APPROVAL",
+        "s4a_lines": [
+          90,
+          97,
+          901
+        ]
+      }
+    },
+    {
+      "name": "candidate_boundary_spec",
+      "status": "PASS",
+      "evidence": {
+        "limit": 12675,
+        "exact": {
+          "candidate_count": 12675,
+          "append_attempt": "无（恰好达到上限）",
+          "expected": "可行：不报错、不截断，按稳定 tie 顺序继续到 NMS 前对 15 的截断与类别内 NMS",
+          "expected_error": null
+        },
+        "over": {
+          "candidate_count": 12676,
+          "append_attempt": 12676,
+          "expected_error": "S2A_T62_INVALID_ARGUMENT",
+          "csr_error_code": 1,
+          "csr_error_name": "BAD_ARGUMENT",
+          "record_state": "ERROR",
+          "candidate_overflow": true,
+          "detections": [],
+          "detection_count": 0
+        },
+        "deprecated_4096": {
+          "value": 4096,
+          "enabled": false,
+          "reason": "低于 tiny416 理论最大候选数，会引入 2A D9 与 2B 参考实现中都不存在的候选截断，破坏与 T29 黄金的逐框等价；已废弃，禁止启用。"
+        }
+      }
+    },
+    {
+      "name": "contract_and_address_input_order",
+      "status": "PASS",
+      "evidence": {
+        "contract_order": [
+          "producer_write_start",
+          "producer_write_complete",
+          "cache_flush_by_producer",
+          "ownership_publish_to_consumer",
+          "consumer_invalidate",
+          "consumer_start",
+          "consumer_done",
+          "buffer_release_to_producer"
+        ],
+        "address_consumer_rule": "注入帧的消费者 = 执行 D2 预处理的那个所有者；所有权发布后，消费者必须先对输入帧区间 invalidate + DSB，再开始读取；消费者完成读取后显式释放，超时不推断停止。"
+      }
+    },
+    {
+      "name": "4d_runbook_heads_order",
+      "status": "FAIL",
+      "evidence": {
+        "line": 84,
+        "text": "# 4) 单帧注入（PS 侧）：装载 → flush → 发布 → 等 PL done → 读结果 → invalidate → 释放",
+        "required": "等 PL done → invalidate + DSB → 读结果 → 释放"
+      }
+    },
+    {
+      "name": "runbook_scope_summary_clear",
+      "status": "FAIL",
+      "evidence": {
+        "line": 8,
+        "text": "- 覆盖：阶段4 单帧注入通路（装载 → flush → 发布所有权 → 消费者完成 → 读取结果/invalidate → 释放）及有限序列/背压/故障语义。",
+        "detail_lines": [
+          45,
+          47,
+          51,
+          52
+        ]
+      }
+    },
+    {
+      "name": "six_upstream_hashes",
+      "status": "PASS",
+      "evidence": [
+        {
+          "id": "s4a_g0_contract",
+          "expected": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+          "actual": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+          "status": "MATCH"
+        },
+        {
+          "id": "stage4_address_map",
+          "expected": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+          "actual": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+          "status": "MATCH"
+        },
+        {
+          "id": "cdx_010_stage4_runbook",
+          "expected": "4cd61ee0021440fd252bf06371bde87488c24941d78681992e40fc2d9521cf89",
+          "actual": "4cd61ee0021440fd252bf06371bde87488c24941d78681992e40fc2d9521cf89",
+          "status": "MATCH"
+        },
+        {
+          "id": "cdx_014_stage5_runbook_r02",
+          "expected": "f25e5ebb2e99c1b47a6e0e3aad3b8e903a496072c3c5fe148d129e353895a141",
+          "actual": "f25e5ebb2e99c1b47a6e0e3aad3b8e903a496072c3c5fe148d129e353895a141",
+          "status": "MATCH"
+        },
+        {
+          "id": "cdx_015_execution_index_r02",
+          "expected": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7",
+          "actual": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7",
+          "status": "MATCH"
+        },
+        {
+          "id": "stage5_display_g0_fields",
+          "expected": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+          "actual": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+          "status": "MATCH"
+        }
+      ]
+    }
+  ],
+  "mutation_probes": [
+    {
+      "name": "session_id_string",
+      "rejected": true
+    },
+    {
+      "name": "synthetic_wrong_target",
+      "rejected": true
+    },
+    {
+      "name": "synthetic_capture_available_true",
+      "rejected": true
+    },
+    {
+      "name": "ps_log_key_role_swapped",
+      "rejected": true
+    }
+  ],
+  "mutation_probes_all_rejected": true,
+  "failures": [
+    {
+      "name": "source_kind_bijection",
+      "status": "FAIL",
+      "evidence": {
+        "contract_map": {
+          "file_injection": "BOARD_INJECTION",
+          "synthetic": "OFFLINE_REGRESSION",
+          "camera": "CAMERA"
+        },
+        "s4a_scopes": {
+          "offline_regression": "OFFLINE_REGRESSION",
+          "board_injection": "BOARD_INJECTION",
+          "camera": "CAMERA"
+        }
+      }
+    },
+    {
+      "name": "4d_runbook_heads_order",
+      "status": "FAIL",
+      "evidence": {
+        "line": 84,
+        "text": "# 4) 单帧注入（PS 侧）：装载 → flush → 发布 → 等 PL done → 读结果 → invalidate → 释放",
+        "required": "等 PL done → invalidate + DSB → 读结果 → 释放"
+      }
+    },
+    {
+      "name": "runbook_scope_summary_clear",
+      "status": "FAIL",
+      "evidence": {
+        "line": 8,
+        "text": "- 覆盖：阶段4 单帧注入通路（装载 → flush → 发布所有权 → 消费者完成 → 读取结果/invalidate → 释放）及有限序列/背压/故障语义。",
+        "detail_lines": [
+          45,
+          47,
+          51,
+          52
+        ]
+      }
+    }
+  ],
+  "status": "CHANGES_REQUIRED",
+  "limits": [
+    "32-bit behavior and real board/PS/BSP/PL/UART/camera execution were not performed."
+  ]
+}

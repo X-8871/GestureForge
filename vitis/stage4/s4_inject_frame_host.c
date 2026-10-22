@@ -34,6 +34,7 @@
 
 #include "s4_inject_frame.h"
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,16 +53,27 @@ typedef struct {
 } mock_range;
 
 typedef struct {
+    unsigned char *producer_cache;
     unsigned char *ddr;
-    unsigned char *dirty;
-    unsigned char *valid;
+    unsigned char *consumer_view;
+    unsigned char *dirty_lines;
+    unsigned char *consumer_valid_lines;
     unsigned long long dirty_lost;
     mock_range flush_ranges[MAX_CACHE_EVENTS];
     mock_range invalidate_ranges[MAX_CACHE_EVENTS];
+    mock_range write_ranges[MAX_CACHE_EVENTS];
+    uint32_t write_crc32[MAX_CACHE_EVENTS];
+    unsigned long write_count;
     unsigned long flush_count;
     unsigned long invalidate_count;
     unsigned long long flushed_bytes;
     unsigned long long invalidated_bytes;
+    unsigned long barrier_count;
+    unsigned long barrier_failures;
+    int skip_next_flush;
+    int skip_next_invalidate;
+    int skip_next_barrier;
+    int shift_next_invalidate;
 } mock_cache;
 
 typedef struct {
@@ -96,6 +108,8 @@ static unsigned long long g_consumer_padding_bytes = 0u;
 static unsigned long long g_consumer_busy_ticks = 0u;
 static unsigned long long g_consumer_reads = 0u;
 static char g_last_reason[192] = "";
+static int g_numeric_parse_error = 0;
+static char g_numeric_parse_field[64] = "";
 
 /* ------------------------------------------------------------------ */
 /* mock cache / DDR                                                    */
@@ -108,11 +122,11 @@ static int mock_ok(unsigned long long addr, unsigned long long len) {
 
 static void mock_mark(unsigned long long addr, unsigned long long len, int dirty) {
     unsigned long long line;
-    for (line = (addr - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES;
-         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES; ++line) {
-        g_mock.valid[line] = 1u;
+    for (line = (addr - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES; ++line) {
+        g_mock.consumer_valid_lines[line] = 0u;
         if (dirty) {
-            g_mock.dirty[line] = 1u;
+            g_mock.dirty_lines[line] = 1u;
         }
     }
 }
@@ -122,8 +136,14 @@ static int mock_write(unsigned long long addr, const unsigned char *data,
     if (!mock_ok(addr, len)) {
         return 0;
     }
-    memcpy(g_mock.ddr + (addr - MOCK_BASE), data, (size_t)len);
+    memcpy(g_mock.producer_cache + (addr - MOCK_BASE), data, (size_t)len);
     mock_mark(addr, len, 1);
+    if (g_mock.write_count < MAX_CACHE_EVENTS) {
+        g_mock.write_ranges[g_mock.write_count].base = addr;
+        g_mock.write_ranges[g_mock.write_count].len = len;
+        g_mock.write_crc32[g_mock.write_count] = s4_inject_crc32(data, (size_t)len);
+    }
+    g_mock.write_count += 1u;
     return 1;
 }
 
@@ -132,10 +152,15 @@ static void mock_flush(unsigned long long addr, unsigned long long len) {
     if (!mock_ok(addr, len)) {
         return;
     }
-    for (line = (addr - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES;
-         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES; ++line) {
-        g_mock.dirty[line] = 0u;
-        g_mock.valid[line] = 1u;
+    if (g_mock.skip_next_flush) {
+        g_mock.skip_next_flush = 0;
+        return;
+    }
+    memcpy(g_mock.ddr + (addr - MOCK_BASE), g_mock.producer_cache + (addr - MOCK_BASE),
+           (size_t)len);
+    for (line = (addr - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES; ++line) {
+        g_mock.dirty_lines[line] = 0u;
     }
     if (g_mock.flush_count < MAX_CACHE_EVENTS) {
         g_mock.flush_ranges[g_mock.flush_count].base = addr;
@@ -150,13 +175,26 @@ static void mock_invalidate(unsigned long long addr, unsigned long long len) {
     if (!mock_ok(addr, len)) {
         return;
     }
-    for (line = (addr - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES;
-         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES; ++line) {
-        if (g_mock.dirty[line] != 0u) {
+    if (g_mock.skip_next_invalidate) {
+        g_mock.skip_next_invalidate = 0;
+        return;
+    }
+    if (g_mock.shift_next_invalidate) {
+        g_mock.shift_next_invalidate = 0;
+        if (addr > MOCK_BASE && mock_ok(addr - S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES, len)) {
+            addr -= S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+        } else if (mock_ok(addr + S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES, len)) {
+            addr += S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+        }
+    }
+    memcpy(g_mock.consumer_view + (addr - MOCK_BASE), g_mock.ddr + (addr - MOCK_BASE),
+           (size_t)len);
+    for (line = (addr - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES; ++line) {
+        if (g_mock.dirty_lines[line] != 0u) {
             g_mock.dirty_lost += 1u; /* 未 flush 就 invalidate：真实数据会丢 */
         }
-        g_mock.dirty[line] = 0u;
-        g_mock.valid[line] = 0u;
+        g_mock.consumer_valid_lines[line] = 1u;
     }
     if (g_mock.invalidate_count < MAX_CACHE_EVENTS) {
         g_mock.invalidate_ranges[g_mock.invalidate_count].base = addr;
@@ -172,13 +210,13 @@ static unsigned long long mock_dirty_bytes(unsigned long long addr, unsigned lon
     if (!mock_ok(addr, len)) {
         return len;
     }
-    for (line = (addr - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES;
-         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_CACHE_LINE_BYTES; ++line) {
-        const unsigned long long line_addr = MOCK_BASE + line * S4_INJECT_CACHE_LINE_BYTES;
-        const unsigned long long line_end = line_addr + S4_INJECT_CACHE_LINE_BYTES;
+    for (line = (addr - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES; ++line) {
+        const unsigned long long line_addr = MOCK_BASE + line * S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+        const unsigned long long line_end = line_addr + S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
         const unsigned long long overlap_start = line_addr > addr ? line_addr : addr;
         const unsigned long long overlap_end = line_end < addr + len ? line_end : addr + len;
-        if (g_mock.dirty[line] != 0u && overlap_start < overlap_end) {
+        if (g_mock.dirty_lines[line] != 0u && overlap_start < overlap_end) {
             total += overlap_end - overlap_start;
         }
     }
@@ -193,6 +231,31 @@ static void cache_flush_adapter(void *ctx, uint64_t addr, uint64_t len) {
 static void cache_invalidate_adapter(void *ctx, uint64_t addr, uint64_t len) {
     (void)ctx;
     mock_invalidate((unsigned long long)addr, (unsigned long long)len);
+}
+
+static int cache_barrier_adapter(void *ctx) {
+    (void)ctx;
+    if (g_mock.skip_next_barrier) {
+        g_mock.skip_next_barrier = 0;
+        g_mock.barrier_failures += 1u;
+        return 0;
+    }
+    g_mock.barrier_count += 1u;
+    return 1;
+}
+
+static int mock_consumer_range_valid(unsigned long long addr, unsigned long long len) {
+    unsigned long long line;
+    if (!mock_ok(addr, len)) {
+        return 0;
+    }
+    for (line = (addr - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES;
+         line <= (addr + len - 1u - MOCK_BASE) / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES; ++line) {
+        if (g_mock.consumer_valid_lines[line] == 0u) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 /* ------------------------------------------------------------------ */
@@ -210,13 +273,50 @@ static const char *token_value(char **tokens, unsigned count, const char *key) {
     return NULL;
 }
 
-static unsigned long long value_u64(char **tokens, unsigned count, const char *key,
-                                    unsigned long long fallback) {
-    const char *value = token_value(tokens, count, key);
+static void copy_text(char *destination, size_t capacity, const char *source);
+
+static unsigned long long parse_u64_text(const char *value, const char *key,
+                                         unsigned long long fallback) {
+    char *end = NULL;
+    unsigned long long parsed;
+    int base = 10;
     if (value == NULL) {
         return fallback;
     }
-    return strtoull(value, NULL, 0);
+    if (value[0] == '\0' || value[0] == '-' || value[0] == '+' ||
+        value[0] == ' ' || value[0] == '\t') {
+        g_numeric_parse_error = 1;
+        copy_text(g_numeric_parse_field, sizeof(g_numeric_parse_field), key);
+        return fallback;
+    }
+    if (value[0] == '0' && (value[1] == 'x' || value[1] == 'X')) {
+        base = 16;
+    }
+    errno = 0;
+    parsed = strtoull(value, &end, base);
+    if (errno == ERANGE || end == value || end == NULL || *end != '\0') {
+        g_numeric_parse_error = 1;
+        copy_text(g_numeric_parse_field, sizeof(g_numeric_parse_field), key);
+        return fallback;
+    }
+    return parsed;
+}
+
+static unsigned long long value_u64(char **tokens, unsigned count, const char *key,
+                                    unsigned long long fallback) {
+    return parse_u64_text(token_value(tokens, count, key), key, fallback);
+}
+
+static int cli_numeric_failure(s4_inject_validation_report *report) {
+    if (!g_numeric_parse_error) {
+        return 0;
+    }
+    report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+    report->field = g_numeric_parse_field;
+    report->reason = "CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数";
+    report->expected = 0u;
+    report->actual = 0u;
+    return 1;
 }
 
 static const char *value_str(char **tokens, unsigned count, const char *key,
@@ -231,6 +331,10 @@ static const char *const k_format_names[S4_FMT_COUNT] = {
     "RGB888", "RGB565", "GRAY8", "INT8_CHW_416"};
 static const char *const k_scope_names[S4_SCOPE_COUNT] = {
     "MEASURED", "NOT_EXECUTED_OFFLINE"};
+static const char *const k_integrity_names[S4_INTEGRITY_COUNT] = {
+    "crc32_ieee", "sha256"};
+static const char *const k_measurement_source_names[S4_MEAS_SCOPE_SOURCE_COUNT] = {
+    "OFFLINE_REGRESSION", "BOARD_INJECTION", "CAMERA"};
 
 static int lookup_enum(const char *value, const char *const *names, int count) {
     int index;
@@ -317,37 +421,94 @@ static void copy_text(char *destination, size_t capacity, const char *source) {
     destination[capacity - 1u] = '\0';
 }
 
+static int copy_text_checked(char *destination, size_t capacity, const char *source,
+                             const char *field, s4_inject_validation_report *report) {
+    if (source == NULL || strlen(source) >= capacity) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = field;
+        report->reason = "文本 CLI 参数为空或超出字段容量";
+        return 0;
+    }
+    copy_text(destination, capacity, source);
+    return 1;
+}
+
+static int parse_hex_digit(char value) {
+    if (value >= '0' && value <= '9') {
+        return value - '0';
+    }
+    if (value >= 'a' && value <= 'f') {
+        return value - 'a' + 10;
+    }
+    if (value >= 'A' && value <= 'F') {
+        return value - 'A' + 10;
+    }
+    return -1;
+}
+
 static int op_region(char **tokens, unsigned count, s4_inject_validation_report *report) {
     const char *name = value_str(tokens, count, "name", NULL);
+    const unsigned long long base = value_u64(tokens, count, "base", 0u);
+    const unsigned long long length = value_u64(tokens, count, "len", 0u);
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
     if (name == NULL || g_region_count >= S4_INJECT_MAX_REGIONS) {
         report->status = S4_INJECT_ERR_NULL_ARG;
         report->field = "region.name";
         report->reason = "region 名称缺失或超出上限";
         return (int)report->status;
     }
-    copy_text(g_region_names[g_region_count], S4_INJECT_REGION_NAME_MAX, name);
+    if (!copy_text_checked(g_region_names[g_region_count], S4_INJECT_REGION_NAME_MAX,
+                           name, "region.name", report)) {
+        return (int)report->status;
+    }
     g_regions[g_region_count].name = g_region_names[g_region_count];
-    g_regions[g_region_count].base_addr = value_u64(tokens, count, "base", 0u);
-    g_regions[g_region_count].length_bytes = value_u64(tokens, count, "len", 0u);
+    g_regions[g_region_count].base_addr = (uint64_t)base;
+    g_regions[g_region_count].length_bytes = (uint64_t)length;
     g_region_count += 1u;
     return S4_INJECT_OK;
 }
 
 static int op_ring(char **tokens, unsigned count, s4_inject_validation_report *report) {
-    /* 环只保存指针（s4_inject_ring_init 不复制结构），因此这里必须是静态存储期，
-     * 否则 op_ring 返回后 cache 适配指针悬垂。 */
+    /* ring_init 按值复制回调结构；cache_ctx 本身须在 ring 生命周期内保持有效。 */
     static s4_inject_cache_ops ops;
     const unsigned long long slots = value_u64(tokens, count, "slots", 2u);
+    const unsigned long long session_id = value_u64(tokens, count, "session", 1u);
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (slots > UINT32_MAX || session_id > UINT32_MAX) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = slots > UINT32_MAX ? "slots" : "session";
+        report->reason = "slots/session 超出 uint32 表示范围";
+        return (int)report->status;
+    }
     ops.flush = cache_flush_adapter;
     ops.invalidate = cache_invalidate_adapter;
-    return (int)s4_inject_ring_init(&g_ring, (uint32_t)slots, g_regions, g_region_count, &ops,
-                                    NULL, report);
+    ops.barrier = cache_barrier_adapter;
+    return (int)s4_inject_ring_init(&g_ring, (uint32_t)slots, (uint32_t)session_id,
+                                    g_regions, g_region_count, &ops, NULL, report);
 }
 
 static int op_frame(char **tokens, unsigned count, pending_frame *frame,
                     s4_inject_validation_report *report) {
     const unsigned long long width = value_u64(tokens, count, "w", 3u);
     const unsigned long long height = value_u64(tokens, count, "h", 2u);
+    const unsigned long long frame_id = value_u64(tokens, count, "id", 1u);
+    const unsigned long long session_id = value_u64(tokens, count, "session", 1u);
+    const unsigned long long base_addr = value_u64(tokens, count, "base", MOCK_BASE);
+    const unsigned long long offset = value_u64(tokens, count, "offset", 0u);
+    const unsigned long long requested_length = value_u64(tokens, count, "len", ULLONG_MAX);
+    const unsigned long long alignment = value_u64(tokens, count, "align", 64u);
+    const unsigned long long capture_available = value_u64(tokens, count, "capture_avail", 0u);
+    const unsigned long long injection_start = value_u64(tokens, count, "inject_ns", 1000000u);
+    const unsigned long long clock_freq = value_u64(tokens, count, "freq", 100000000u);
+    const unsigned long long capture_ns =
+        (token_value(tokens, count, "capture") != NULL &&
+         strcmp(value_str(tokens, count, "capture", "unavailable"), "unavailable") != 0)
+            ? value_u64(tokens, count, "capture", 0u)
+            : 0u;
     const int format = parse_enum(value_str(tokens, count, "fmt", "RGB888"), k_format_names,
                                   (int)S4_FMT_COUNT);
     unsigned long long stride = value_u64(tokens, count, "stride", 0u);
@@ -357,21 +518,90 @@ static int op_frame(char **tokens, unsigned count, pending_frame *frame,
     const char *payload_spec;
     const char *digest_spec;
     s4_inject_status derived_status = S4_INJECT_OK;
-    unsigned long long index;
+    unsigned long long payload_length_arg;
+    unsigned long long pattern_seed;
+    const char *contract_version;
+    const char *source_text;
+    const char *scope_source_text;
+    const char *clock_text;
+    const char *wrap_text;
+    const char *epoch_text;
+    const char *domain_text;
+    int source;
+    int scope_source;
+    int algorithm;
+    unsigned index;
 
     if (frame->payload != NULL) {
         free(frame->payload);
         frame->payload = NULL;
         frame->payload_length = 0u;
     }
+    frame->valid = 0;
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (width > UINT32_MAX || height > UINT32_MAX || frame_id > UINT32_MAX ||
+        session_id > UINT32_MAX || stride > UINT32_MAX || alignment > UINT32_MAX ||
+        capture_available > 1u) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = width > UINT32_MAX ? "width" :
+                        height > UINT32_MAX ? "height" :
+                        frame_id > UINT32_MAX ? "frame_id" :
+                        session_id > UINT32_MAX ? "session_id" :
+                        stride > UINT32_MAX ? "stride_bytes" :
+                        alignment > UINT32_MAX ? "alignment" : "capture_time_available";
+        report->reason = "数值超出字段位宽或 capture_time_available 不是 0/1";
+        return (int)report->status;
+    }
     memset(&frame->desc, 0, sizeof(frame->desc));
-    frame->desc.contract_version = value_str(tokens, count, "contract", S4_INJECT_CONTRACT_VERSION);
-    frame->desc.source_kind = (s4_inject_source_kind)parse_enum(
-        value_str(tokens, count, "source", "file_injection"), k_source_names,
-        (int)S4_SRC_KIND_COUNT);
-    copy_text(frame->desc.session_id, S4_INJECT_SESSION_ID_MAX,
-              value_str(tokens, count, "session", "0123456789abcdef0123456789abcdef"));
-    frame->desc.frame_id = (uint32_t)value_u64(tokens, count, "id", 1u);
+    source_text = value_str(tokens, count, "source", "file_injection");
+    source = lookup_enum(source_text, k_source_names, (int)S4_SRC_KIND_COUNT);
+    scope_source_text = value_str(tokens, count, "scope_source", NULL);
+    if (scope_source_text == NULL) {
+        scope_source = source == (int)S4_SRC_CAMERA ? (int)S4_MEAS_SCOPE_CAMERA
+                       : source == (int)S4_SRC_SYNTHETIC ? (int)S4_MEAS_SCOPE_OFFLINE_REGRESSION
+                                                        : (int)S4_MEAS_SCOPE_BOARD_INJECTION;
+    } else {
+        scope_source = lookup_enum(scope_source_text, k_measurement_source_names,
+                                   (int)S4_MEAS_SCOPE_SOURCE_COUNT);
+    }
+    contract_version = value_str(tokens, count, "contract", S4_INJECT_CONTRACT_VERSION);
+    clock_text = value_str(tokens, count, "clock", "XTime_GlobalTimer");
+    wrap_text = value_str(tokens, count, "wrap", "reject_wrap_explicit_reset");
+    epoch_text = value_str(tokens, count, "epoch", "relative_to_ps_boot");
+    domain_text = value_str(tokens, count, "domain", "PS 100MHz global timer");
+    if (source < 0 || scope_source < 0) {
+        report->status = source < 0 ? S4_INJECT_ERR_SOURCE_KIND : S4_INJECT_ERR_MEASUREMENT_SCOPE;
+        report->field = source < 0 ? "source" : "measurement_scope.source_kind";
+        report->reason = "source_kind 或 measurement_scope.source_kind 不在契约词表内";
+        return (int)report->status;
+    }
+    if (format < 0 || format >= (int)S4_FMT_COUNT) {
+        report->status = S4_INJECT_ERR_PIXEL_FORMAT;
+        report->field = "pixel_format";
+        report->reason = "pixel_format 不在契约词表内";
+        return (int)report->status;
+    }
+    if (!copy_text_checked(frame->desc.contract_version, sizeof(frame->desc.contract_version),
+                           contract_version, "contract_version", report) ||
+        !copy_text_checked(frame->desc.region_name, sizeof(frame->desc.region_name),
+                           region_name == NULL && g_region_count > 0u ? g_regions[0].name
+                                                                     : (region_name == NULL ? "" : region_name),
+                           "region_name", report) ||
+        !copy_text_checked(frame->desc.clock_name, sizeof(frame->desc.clock_name),
+                           clock_text, "clock", report) ||
+        !copy_text_checked(frame->desc.wrap_handling, sizeof(frame->desc.wrap_handling),
+                           wrap_text, "wrap_handling", report) ||
+        !copy_text_checked(frame->desc.epoch_note, sizeof(frame->desc.epoch_note),
+                           epoch_text, "epoch_note", report) ||
+        !copy_text_checked(frame->desc.clock_domain, sizeof(frame->desc.clock_domain),
+                           domain_text, "clock_domain", report)) {
+        return (int)report->status;
+    }
+    frame->desc.source_kind = (s4_inject_source_kind)source;
+    frame->desc.session_id = (uint32_t)session_id;
+    frame->desc.frame_id = (uint32_t)frame_id;
     frame->desc.width = (uint32_t)width;
     frame->desc.height = (uint32_t)height;
     frame->desc.pixel_format = (s4_inject_pixel_format)format;
@@ -379,38 +609,27 @@ static int op_frame(char **tokens, unsigned count, pending_frame *frame,
         stride = s4_inject_min_stride((s4_inject_pixel_format)format, (uint32_t)width);
     }
     frame->desc.stride_bytes = (uint32_t)stride;
-    if (region_name == NULL) {
-        region_name = g_region_count > 0u ? g_regions[0].name : "";
-    }
-    copy_text(frame->desc.region_name, S4_INJECT_REGION_NAME_MAX, region_name);
-    frame->desc.base_addr = value_u64(tokens, count, "base", 0u);
-    frame->desc.offset_bytes = value_u64(tokens, count, "offset", 0u);
+    frame->desc.base_addr = (uint64_t)base_addr;
+    frame->desc.offset_bytes = (uint64_t)offset;
     if (format >= 0 && format < (int)S4_FMT_COUNT) {
         derived = s4_inject_expected_frame_bytes((s4_inject_pixel_format)format, (uint32_t)stride,
                                                  (uint32_t)width, (uint32_t)height,
                                                  &derived_status);
     }
-    length = value_u64(tokens, count, "len", derived);
+    length = token_value(tokens, count, "len") == NULL ? derived : requested_length;
     frame->desc.length_bytes = length;
-    frame->desc.alignment = (uint32_t)value_u64(tokens, count, "align", 64u);
-    /* 注意：token_present 只匹配孤立 key，无法匹配 "capture=<ns>"；
-     * 这里必须用 token_value 判断 key 是否存在，否则 capture=<ns> 永远被忽略，
-     * 注入模式“伪造采集时间必须被拒绝”的路径将无法被测验到。 */
+    frame->desc.alignment = (uint32_t)alignment;
     if (token_value(tokens, count, "capture") != NULL &&
         strcmp(value_str(tokens, count, "capture", "unavailable"), "unavailable") != 0) {
         frame->desc.capture_time_state = S4_CAPTURE_PROVIDED;
-        frame->desc.capture_time_ns = value_u64(tokens, count, "capture", 0u);
+        frame->desc.capture_time_ns = (uint64_t)capture_ns;
     } else {
         frame->desc.capture_time_state = S4_CAPTURE_UNAVAILABLE;
         frame->desc.capture_time_ns = 0u;
     }
-    frame->desc.injection_start_ns = value_u64(tokens, count, "inject_ns", 1000000u);
-    copy_text(frame->desc.clock_name, S4_INJECT_CLOCK_NAME_MAX,
-              value_str(tokens, count, "clock", "XTime_GlobalTimer"));
-    frame->desc.clock_freq_hz = value_u64(tokens, count, "freq", 100000000u);
-    frame->desc.wrap_handling = value_str(tokens, count, "wrap", "reject_wrap_explicit_reset");
-    frame->desc.epoch_note = value_str(tokens, count, "epoch", "relative_to_ps_boot");
-    frame->desc.clock_domain = value_str(tokens, count, "domain", "PS 100MHz global timer");
+    frame->desc.injection_start_ns = (uint64_t)injection_start;
+    frame->desc.clock_freq_hz = (uint64_t)clock_freq;
+    frame->desc.measurement_scope_source_kind = (s4_measurement_scope_source_kind)scope_source;
     frame->desc.scope_pl_timing = (s4_inject_scope_value)parse_enum(
         value_str(tokens, count, "scope_pl", "NOT_EXECUTED_OFFLINE"), k_scope_names,
         (int)S4_SCOPE_COUNT);
@@ -423,18 +642,25 @@ static int op_frame(char **tokens, unsigned count, pending_frame *frame,
     /* 契约字段是 capture_time_available（true=有真实采集时间）；
      * C 侧字段 unavailable_capture_time 表示“capture_time 已列入 unavailable_fields”，
      * 二者互补：capture_avail=0（注入）=> unavailable=1，capture_avail=1（camera）=> unavailable=0。 */
-    {
-        uint64_t capture_available = value_u64(tokens, count, "capture_avail", 0u);
-        frame->desc.unavailable_capture_time = (capture_available == 0u) ? 1u : 0u;
-    }
+    frame->desc.unavailable_capture_time = capture_available == 0u ? 1u : 0u;
 
     payload_spec = value_str(tokens, count, "payload", "pattern:1");
     if (strncmp(payload_spec, "file:", 5u) == 0) {
         frame->payload = read_file_bytes(payload_spec + 5u, &frame->payload_length);
     } else if (strncmp(payload_spec, "pattern:", 8u) == 0) {
-        const unsigned long long seed = strtoull(payload_spec + 8u, NULL, 0);
-        frame->payload_length = value_u64(tokens, count, "payload_len", length);
-        frame->payload = pattern_bytes(seed, frame->payload_length);
+        pattern_seed = parse_u64_text(payload_spec + 8u, "payload.seed", 0u);
+        payload_length_arg = value_u64(tokens, count, "payload_len", length);
+        if (cli_numeric_failure(report)) {
+            return (int)report->status;
+        }
+        if (payload_length_arg > MAX_PAYLOAD || payload_length_arg > (unsigned long long)SIZE_MAX - 1u) {
+            report->status = S4_INJECT_ERR_LENGTH;
+            report->field = "payload_len";
+            report->reason = "主机 payload 超出离线 harness 容量或 size_t 范围";
+            return (int)report->status;
+        }
+        frame->payload_length = payload_length_arg;
+        frame->payload = pattern_bytes(pattern_seed, frame->payload_length);
     } else {
         frame->payload = NULL;
     }
@@ -445,7 +671,15 @@ static int op_frame(char **tokens, unsigned count, pending_frame *frame,
         return (int)report->status;
     }
     frame->desc.integrity_algorithm = S4_INTEGRITY_CRC32_IEEE;
-    if (strcmp(value_str(tokens, count, "algorithm", "crc32_ieee"), "sha256") == 0) {
+    algorithm = lookup_enum(value_str(tokens, count, "algorithm", "crc32_ieee"),
+                            k_integrity_names, (int)S4_INTEGRITY_COUNT);
+    if (algorithm < 0) {
+        report->status = S4_INJECT_ERR_INTEGRITY;
+        report->field = "frame_integrity.algorithm";
+        report->reason = "algorithm 必须是 crc32_ieee 或 sha256";
+        return (int)report->status;
+    }
+    if (algorithm == (int)S4_INTEGRITY_SHA256) {
         frame->desc.integrity_algorithm = S4_INTEGRITY_SHA256;
     }
     frame->desc.integrity_crc32 =
@@ -460,16 +694,29 @@ static int op_frame(char **tokens, unsigned count, pending_frame *frame,
         frame->desc.integrity_crc32 ^= 0x5A5A5A5Au;
         frame->desc.integrity_sha256[0] ^= 0xFFu;
     } else if (strcmp(digest_spec, "auto") != 0) {
-        for (index = 0u; index < 64u && digest_spec[index] != '\0' &&
-                         digest_spec[index + 1u] != '\0';
-             index += 2u) {
-            char pair[3];
-            pair[0] = digest_spec[index];
-            pair[1] = digest_spec[index + 1u];
-            pair[2] = '\0';
-            frame->desc.integrity_sha256[index / 2u] = (uint8_t)strtoul(pair, NULL, 16);
+        const size_t expected_hex = frame->desc.integrity_algorithm == S4_INTEGRITY_SHA256 ? 64u : 8u;
+        if (strlen(digest_spec) != expected_hex) {
+            report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+            report->field = "digest";
+            report->reason = "digest 必须为与 algorithm 匹配的完整十六进制摘要";
+            return (int)report->status;
         }
-        frame->desc.integrity_crc32 = (uint32_t)strtoul(digest_spec, NULL, 16);
+        for (index = 0u; index < expected_hex; index += 2u) {
+            const int high = parse_hex_digit(digest_spec[index]);
+            const int low = parse_hex_digit(digest_spec[index + 1u]);
+            if (high < 0 || low < 0) {
+                report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+                report->field = "digest";
+                report->reason = "digest 含非十六进制字符";
+                return (int)report->status;
+            }
+            if (frame->desc.integrity_algorithm == S4_INTEGRITY_SHA256) {
+                frame->desc.integrity_sha256[index / 2u] = (uint8_t)((high << 4) | low);
+            } else {
+                frame->desc.integrity_crc32 =
+                    (frame->desc.integrity_crc32 << 8) | (uint32_t)((high << 4) | low);
+            }
+        }
     }
     frame->valid = 1;
     return S4_INJECT_OK;
@@ -480,10 +727,26 @@ static int op_bind(char **tokens, unsigned count, pending_frame *frame,
     unsigned long long slot = value_u64(tokens, count, "slot", (unsigned long long)-1);
     uint32_t target = 0u;
     s4_inject_status status;
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
     if (!frame->valid) {
         report->status = S4_INJECT_ERR_NULL_ARG;
         report->field = "frame";
         report->reason = "尚未用 frame op 描述帧";
+        return (int)report->status;
+    }
+    status = s4_inject_validate(&frame->desc, g_regions, g_region_count, frame->payload,
+                                (uint64_t)frame->payload_length, report);
+    if (status != S4_INJECT_OK) {
+        return (int)status;
+    }
+    if (frame->desc.base_addr > UINT64_MAX - frame->desc.offset_bytes ||
+        !mock_ok(frame->desc.base_addr + frame->desc.offset_bytes,
+                 frame->payload_length)) {
+        report->status = S4_INJECT_ERR_BUFFER_RANGE;
+        report->field = "mock_ddr";
+        report->reason = "帧区间不在 mock DDR 窗口内；未修改 mock DDR";
         return (int)report->status;
     }
     if (slot == (unsigned long long)-1) {
@@ -492,6 +755,12 @@ static int op_bind(char **tokens, unsigned count, pending_frame *frame,
             return (int)status;
         }
     } else {
+        if (slot > UINT32_MAX) {
+            report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+            report->field = "slot";
+            report->reason = "slot 超出 uint32 表示范围";
+            return (int)report->status;
+        }
         target = (uint32_t)slot;
     }
     status = s4_inject_ring_bind(&g_ring, target, &frame->desc, frame->payload,
@@ -526,6 +795,15 @@ static int op_advance(char **tokens, unsigned count, s4_inject_validation_report
     const char *event_name = value_str(tokens, count, "ev", "");
     int event = -1;
     int index;
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (slot > UINT32_MAX) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "slot";
+        report->reason = "slot 超出 uint32 表示范围";
+        return (int)report->status;
+    }
     for (index = 0; index < (int)S4_EV_COUNT; ++index) {
         if (strcmp(event_name, s4_inject_event_name((s4_inject_event)index)) == 0) {
             event = index;
@@ -567,18 +845,47 @@ static int op_consume(char **tokens, unsigned count, s4_inject_validation_report
     uint32_t crc = 0u;
     uint64_t valid_bytes = 0u;
     uint64_t padding_bytes = 0u;
-    g_consumer_busy_ticks += busy;
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (busy > ULLONG_MAX - g_consumer_busy_ticks) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "busy";
+        report->reason = "累计 busy ticks 超出 uint64 范围";
+        return (int)report->status;
+    }
+    if (slot > UINT32_MAX) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "slot";
+        report->reason = "slot 超出 uint32 表示范围";
+        return (int)report->status;
+    }
     if (slot >= g_ring.slot_count) {
         report->status = S4_INJECT_ERR_NULL_ARG;
         report->field = "slot";
         report->reason = "槽位越界";
         return (int)report->status;
     }
+    g_consumer_busy_ticks += busy;
+    status = s4_inject_ring_advance(&g_ring, (uint32_t)slot, S4_EV_INVALIDATE, report);
+    if (status != S4_INJECT_OK) {
+        return (int)status;
+    }
+    if (!mock_consumer_range_valid(g_ring.slots[slot].addr_start,
+                                   g_ring.slots[slot].desc.length_bytes)) {
+        report->status = S4_INJECT_ERR_CACHE_VISIBILITY;
+        report->field = "consumer_invalidate";
+        report->reason = "消费者视图无效：invalidate 范围/顺序缺失或 backing DDR 未可见";
+        report->expected = 1u;
+        report->actual = 0u;
+        return (int)report->status;
+    }
     status = s4_inject_ring_advance(&g_ring, (uint32_t)slot, S4_EV_CONSUMER_START, report);
     if (status != S4_INJECT_OK) {
         return (int)status;
     }
-    status = s4_inject_ring_consumer_read(&g_ring, (uint32_t)slot, g_mock.ddr, MOCK_LEN, MOCK_BASE,
+    status = s4_inject_ring_consumer_read(&g_ring, (uint32_t)slot, g_mock.consumer_view,
+                                          MOCK_LEN, MOCK_BASE,
                                           &crc, &valid_bytes, &padding_bytes, report);
     if (status != S4_INJECT_OK) {
         return (int)status;
@@ -591,23 +898,82 @@ static int op_consume(char **tokens, unsigned count, s4_inject_validation_report
 }
 
 static int op_timeout(char **tokens, unsigned count, s4_inject_validation_report *report) {
-    return (int)s4_inject_ring_timeout(&g_ring, (uint32_t)value_u64(tokens, count, "slot", 0u),
-                                       report);
+    const unsigned long long slot = value_u64(tokens, count, "slot", 0u);
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (slot > UINT32_MAX) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "slot";
+        report->reason = "slot 超出 uint32 表示范围";
+        return (int)report->status;
+    }
+    return (int)s4_inject_ring_timeout(&g_ring, (uint32_t)slot, report);
 }
 
 static int op_abort(char **tokens, unsigned count, s4_inject_validation_report *report) {
-    return (int)s4_inject_ring_abort(&g_ring, (uint32_t)value_u64(tokens, count, "slot", 0u),
-                                     report);
+    const unsigned long long slot = value_u64(tokens, count, "slot", 0u);
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (slot > UINT32_MAX) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "slot";
+        report->reason = "slot 超出 uint32 表示范围";
+        return (int)report->status;
+    }
+    return (int)s4_inject_ring_abort(&g_ring, (uint32_t)slot, report);
 }
 
-static int op_mock_maintenance(char **tokens, unsigned count, int is_flush) {
+static int op_consumer_stopped(char **tokens, unsigned count,
+                               s4_inject_validation_report *report) {
+    const unsigned long long slot = value_u64(tokens, count, "slot", 0u);
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
+    if (slot > UINT32_MAX) {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "slot";
+        report->reason = "slot 超出 uint32 表示范围";
+        return (int)report->status;
+    }
+    return (int)s4_inject_ring_confirm_consumer_stopped(&g_ring, (uint32_t)slot, report);
+}
+
+static int op_mock_maintenance(char **tokens, unsigned count, int is_flush,
+                               s4_inject_validation_report *report) {
     const unsigned long long base = value_u64(tokens, count, "base", 0u);
     const unsigned long long len = value_u64(tokens, count, "len", 0u);
+    if (cli_numeric_failure(report)) {
+        return (int)report->status;
+    }
     if (is_flush) {
         mock_flush(base, len);
     } else {
         mock_invalidate(base, len);
     }
+    return S4_INJECT_OK;
+}
+
+static int op_mock_fault(char **tokens, unsigned count, s4_inject_validation_report *report) {
+    const char *fault = value_str(tokens, count, "name", "");
+    if (strcmp(fault, "skip_flush") == 0) {
+        g_mock.skip_next_flush = 1;
+    } else if (strcmp(fault, "skip_invalidate") == 0) {
+        g_mock.skip_next_invalidate = 1;
+    } else if (strcmp(fault, "shift_invalidate") == 0) {
+        g_mock.shift_next_invalidate = 1;
+    } else if (strcmp(fault, "skip_barrier") == 0) {
+        g_mock.skip_next_barrier = 1;
+    } else {
+        report->status = S4_INJECT_ERR_CLI_ARGUMENT;
+        report->field = "mock_fault.name";
+        report->reason = "未知 mock fault；允许 skip_flush/skip_invalidate/shift_invalidate/skip_barrier";
+        return (int)report->status;
+    }
+    report->status = S4_INJECT_OK;
+    report->field = NULL;
+    report->reason = "mock fault 已安排，仅用于离线反例";
     return S4_INJECT_OK;
 }
 
@@ -632,6 +998,23 @@ static void record_op(unsigned index, const char *op, int status,
             g_first_error = status;
         }
     }
+}
+
+static void print_json_string(const char *value) {
+    const unsigned char *cursor = (const unsigned char *)(value == NULL ? "" : value);
+    putchar('"');
+    while (*cursor != 0u) {
+        if (*cursor == '"' || *cursor == '\\') {
+            putchar('\\');
+            putchar((int)*cursor);
+        } else if (*cursor < 0x20u) {
+            printf("\\u%04x", (unsigned)*cursor);
+        } else {
+            putchar((int)*cursor);
+        }
+        cursor += 1;
+    }
+    putchar('"');
 }
 
 static int run_script(FILE *handle) {
@@ -683,6 +1066,8 @@ static int run_script(FILE *handle) {
         if (index >= MAX_OPS) {
             break;
         }
+        g_numeric_parse_error = 0;
+        g_numeric_parse_field[0] = '\0';
         joined[0] = '\0';
         for (part = 0u; part < count; ++part) {
             if (part > 0u) {
@@ -709,10 +1094,14 @@ static int run_script(FILE *handle) {
             status = op_timeout(tokens, count, &report);
         } else if (strcmp(tokens[0], "abort") == 0) {
             status = op_abort(tokens, count, &report);
+        } else if (strcmp(tokens[0], "consumer_stopped") == 0) {
+            status = op_consumer_stopped(tokens, count, &report);
+        } else if (strcmp(tokens[0], "mock_fault") == 0) {
+            status = op_mock_fault(tokens, count, &report);
         } else if (strcmp(tokens[0], "mock_flush") == 0) {
-            status = op_mock_maintenance(tokens, count, 1);
+            status = op_mock_maintenance(tokens, count, 1, &report);
         } else if (strcmp(tokens[0], "mock_invalidate") == 0) {
-            status = op_mock_maintenance(tokens, count, 0);
+            status = op_mock_maintenance(tokens, count, 0, &report);
         } else if (strcmp(tokens[0], "note") == 0) {
             status = S4_INJECT_OK;
         } else {
@@ -721,15 +1110,27 @@ static int run_script(FILE *handle) {
             report.reason = "未知 op";
             status = (int)report.status;
         }
+        if (g_numeric_parse_error && status == S4_INJECT_OK) {
+            status = (int)S4_INJECT_ERR_CLI_ARGUMENT;
+            (void)cli_numeric_failure(&report);
+        }
         if (index > 0u) {
             printf(",\n");
         }
-        printf("{\"index\": %u, \"try\": %s, \"op\": \"%s\", \"status\": %d, "
-               "\"status_name\": \"%s\", \"field\": %s, \"reason\": \"%s\", \"actual\": %llu}",
-               index, is_try ? "true" : "false", joined, status,
-               s4_inject_status_name((s4_inject_status)status),
-               report.field == NULL ? "null" : "\"见 field 名\"",
-               report.reason, report.actual);
+        printf("{\"index\": %u, \"try\": %s, \"op\": ", index,
+               is_try ? "true" : "false");
+        print_json_string(joined);
+        printf(", \"status\": %d, \"status_name\": ", status);
+        print_json_string(s4_inject_status_name((s4_inject_status)status));
+        printf(", \"field\": ");
+        if (report.field == NULL) {
+            printf("null");
+        } else {
+            print_json_string(report.field);
+        }
+        printf(", \"reason\": ");
+        print_json_string(report.reason);
+        printf(", \"actual\": %llu}", report.actual);
         record_op(index, joined, status, &report, is_try);
         index += 1u;
         if (status != S4_INJECT_OK && !is_try) {
@@ -749,18 +1150,32 @@ static void print_ring(void) {
     printf("    \"slot_count\": %u, \"in_flight\": %u, \"held\": %u,\n", g_ring.slot_count,
            g_ring.in_flight, s4_inject_ring_held_count(&g_ring));
     printf("    \"last_released_frame_id\": %u, \"flush_events\": %llu, "
+           "\"has_released_frame\": %u, \"session_id\": %u, \"session_initialized\": %u, "
+           "\"last_accepted_frame_id\": %u, \"has_accepted_frame\": %u, "
            "\"invalidate_events\": %llu, \"timeout_events\": %llu, \"dropped_frames\": %llu,\n",
            g_ring.last_released_frame_id, (unsigned long long)g_ring.flush_events,
+           g_ring.has_released_frame, g_ring.session_id, g_ring.session_initialized,
+           g_ring.last_accepted_frame_id, g_ring.has_accepted_frame,
            (unsigned long long)g_ring.invalidate_events,
            (unsigned long long)g_ring.timeout_events, (unsigned long long)g_ring.dropped_frames);
     printf("    \"last_bind_slot\": %llu,\n", g_bind_slot);
     printf("    \"slots\": [");
     for (index = 0u; index < g_ring.slot_count; ++index) {
         const s4_inject_slot *slot = &g_ring.slots[index];
-        printf("%s{\"slot\": %u, \"state\": \"%s\", \"frame_id\": %u, \"events_mask\": %u, "
+        printf("%s{\"slot\": %u, \"state\": \"%s\", \"session_id\": %u, "
+               "\"frame_id\": %u, \"source_kind\": \"%s\", \"measurement_scope_source_kind\": \"%s\", "
+               "\"capture_time_ns\": %llu, \"unavailable_capture_time\": %u, "
+               "\"consumer_stopped_confirmed\": %u, \"events_mask\": %u, "
                "\"integrity_checked\": %u, \"flush_bytes\": %llu, \"invalidate_bytes\": %llu}",
                index == 0u ? "" : ", ", index, s4_inject_slot_state_name(slot->state),
-               slot->state == S4_SLOT_FREE ? 0u : slot->desc.frame_id, slot->observed_events,
+               slot->state == S4_SLOT_FREE ? 0u : slot->desc.session_id,
+               slot->state == S4_SLOT_FREE ? 0u : slot->desc.frame_id,
+               slot->state == S4_SLOT_FREE ? "none" : s4_inject_source_kind_name(slot->desc.source_kind),
+               slot->state == S4_SLOT_FREE ? "none" :
+                   k_measurement_source_names[slot->desc.measurement_scope_source_kind],
+               (unsigned long long)(slot->state == S4_SLOT_FREE ? 0u : slot->desc.capture_time_ns),
+               slot->state == S4_SLOT_FREE ? 0u : slot->desc.unavailable_capture_time,
+               slot->consumer_stopped_confirmed, slot->observed_events,
                slot->integrity_checked, (unsigned long long)slot->flush_rounded_bytes,
                (unsigned long long)slot->invalidate_rounded_bytes);
     }
@@ -771,9 +1186,11 @@ static void print_mock(void) {
     unsigned index;
     printf("  \"mock_cache\": {\n");
     printf("    \"flush_count\": %lu, \"invalidate_count\": %lu, \"flushed_bytes\": %llu, "
-           "\"invalidated_bytes\": %llu, \"dirty_lost_lines\": %llu,\n",
+           "\"invalidated_bytes\": %llu, \"dirty_lost_lines\": %llu, "
+           "\"barrier_count\": %lu, \"barrier_failures\": %lu,\n",
            g_mock.flush_count, g_mock.invalidate_count, (unsigned long long)g_mock.flushed_bytes,
-           (unsigned long long)g_mock.invalidated_bytes, (unsigned long long)g_mock.dirty_lost);
+           (unsigned long long)g_mock.invalidated_bytes, (unsigned long long)g_mock.dirty_lost,
+           g_mock.barrier_count, g_mock.barrier_failures);
     printf("    \"flush_ranges\": [");
     for (index = 0u; index < g_mock.flush_count && index < MAX_CACHE_EVENTS; ++index) {
         printf("%s[%llu, %llu]", index == 0u ? "" : ", ", g_mock.flush_ranges[index].base,
@@ -783,6 +1200,13 @@ static void print_mock(void) {
     for (index = 0u; index < g_mock.invalidate_count && index < MAX_CACHE_EVENTS; ++index) {
         printf("%s[%llu, %llu]", index == 0u ? "" : ", ", g_mock.invalidate_ranges[index].base,
                g_mock.invalidate_ranges[index].base + g_mock.invalidate_ranges[index].len);
+    }
+    printf("],\n    \"write_count\": %lu, \"write_records\": [", g_mock.write_count);
+    for (index = 0u; index < g_mock.write_count && index < MAX_CACHE_EVENTS; ++index) {
+        printf("%s{\"range\": [%llu, %llu], \"length\": %llu, \"crc32\": %u}",
+               index == 0u ? "" : ", ", g_mock.write_ranges[index].base,
+               g_mock.write_ranges[index].base + g_mock.write_ranges[index].len,
+               g_mock.write_ranges[index].len, g_mock.write_crc32[index]);
     }
     printf("]\n  },\n");
 }
@@ -795,10 +1219,14 @@ int main(int argc, char **argv) {
         fprintf(stderr, "usage: %s <op_script>\n", argv[0]);
         return (int)S4_INJECT_ERR_NULL_ARG;
     }
+    g_mock.producer_cache = (unsigned char *)calloc((size_t)MOCK_LEN, 1u);
     g_mock.ddr = (unsigned char *)calloc((size_t)MOCK_LEN, 1u);
-    g_mock.dirty = (unsigned char *)calloc((size_t)(MOCK_LEN / S4_INJECT_CACHE_LINE_BYTES), 1u);
-    g_mock.valid = (unsigned char *)calloc((size_t)(MOCK_LEN / S4_INJECT_CACHE_LINE_BYTES), 1u);
-    if (g_mock.ddr == NULL || g_mock.dirty == NULL || g_mock.valid == NULL) {
+    g_mock.consumer_view = (unsigned char *)calloc((size_t)MOCK_LEN, 1u);
+    g_mock.dirty_lines = (unsigned char *)calloc((size_t)(MOCK_LEN / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES), 1u);
+    g_mock.consumer_valid_lines =
+        (unsigned char *)calloc((size_t)(MOCK_LEN / S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES), 1u);
+    if (g_mock.producer_cache == NULL || g_mock.ddr == NULL || g_mock.consumer_view == NULL ||
+        g_mock.dirty_lines == NULL || g_mock.consumer_valid_lines == NULL) {
         fprintf(stderr, "mock allocation failed\n");
         return (int)S4_INJECT_ERR_NULL_ARG;
     }
@@ -825,8 +1253,10 @@ int main(int argc, char **argv) {
     for (index = 0u; index < g_op_count; ++index) {
         /* 保持 g_ops 可读（JSON 已逐条写出），无额外动作 */
     }
+    free(g_mock.producer_cache);
     free(g_mock.ddr);
-    free(g_mock.dirty);
-    free(g_mock.valid);
+    free(g_mock.consumer_view);
+    free(g_mock.dirty_lines);
+    free(g_mock.consumer_valid_lines);
     return status;
 }

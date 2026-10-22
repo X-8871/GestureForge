@@ -1,0 +1,19 @@
+{
+  "review_id": "R2-03",
+  "status": "PASS",
+  "base_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "source_snapshot": "final_source_snapshot.json",
+  "hash_matches": "19/19，无不匹配",
+  "closed_findings": [
+    {"path": "vitis/stage4/s4_inject_frame.c", "lines": [1163,1190], "reason": "在指针加法前限制ddr_length、基址相加、offset、剩余长度及SIZE_MAX，使用受检减法避免溢出。"},
+    {"path": "vitis/stage4/s4_inject_frame.c", "lines": [662,722], "reason": "region/cache先暂存，完成全部参数及session校验后才改写ring；错误保持原态且可修正后重试。"}
+  ],
+  "bounds_proof": "合法ring及前置检查保证offset<=ddr_length、length<=ddr_length-offset、ddr_length<=SIZE_MAX，故offset和offset+length两个后置SIZE_MAX守卫无需破坏内部状态强行覆盖；未声称其被独立执行。",
+  "independent_checks": [
+    {"name": "初始化失败/重试正反探针", "build_exit": 0, "run_exit": 0, "checks": "7/7", "source": "r2_independent_init_bounds_probe.c", "log": "r2_independent_init_bounds_probe.log"},
+    {"name": "冻结API测试独立编译运行", "build_exit": 0, "run_exit": 0, "checks": "30/30，含两个64位branch_not_applicable", "log": "r2_api_direct.log"},
+    {"name": "32位两个编译单元", "core_exit": 0, "api_exit": 0, "logs": ["r2_compile_core_32.log","r2_compile_api_32.log"], "mode": "compile_only"}
+  ],
+  "scope": "主机离线实现与规格，继承前轮已关闭项的独立检查并核对新增差异无回退。",
+  "limitations": ["32位实际行为NOT_RUN；r08链接退出1，缺兼容i686 CRT/libgcc。", "真实PS/BSP/PL/板卡/UART/camera均NOT_RUN或UNKNOWN，不代表G3/G5。", "Reviewer已停止全部审查和测试，所有归档为原始字节复制。"]
+}

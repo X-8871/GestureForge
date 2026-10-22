@@ -40,6 +40,10 @@ static const char *const k_status_names[S4_INJECT_ERR_STATUS_COUNT] = {
     "ERR_MEASUREMENT_SCOPE",
     "ERR_DROPPED_FRAME",
     "ERR_FLUSH_COVERAGE",
+    "ERR_SESSION",
+    "ERR_CACHE_BARRIER",
+    "ERR_CACHE_VISIBILITY",
+    "ERR_CLI_ARGUMENT",
 };
 
 static const char *const k_event_names[S4_EV_COUNT] = {
@@ -47,9 +51,9 @@ static const char *const k_event_names[S4_EV_COUNT] = {
     "producer_write_complete",
     "cache_flush_by_producer",
     "ownership_publish_to_consumer",
+    "consumer_invalidate",
     "consumer_start",
     "consumer_done",
-    "consumer_invalidate",
     "buffer_release_to_producer",
 };
 
@@ -287,8 +291,14 @@ uint32_t s4_inject_planes(s4_inject_pixel_format format) {
 uint32_t s4_inject_min_stride(s4_inject_pixel_format format, uint32_t width) {
     switch (format) {
         case S4_FMT_RGB888:
+            if (width > UINT32_MAX / 3u) {
+                return 0u;
+            }
             return width * 3u;
         case S4_FMT_RGB565:
+            if (width > UINT32_MAX / 2u) {
+                return 0u;
+            }
             return width * 2u;
         case S4_FMT_GRAY8:
         case S4_FMT_INT8_CHW_416:
@@ -301,7 +311,9 @@ uint32_t s4_inject_min_stride(s4_inject_pixel_format format, uint32_t width) {
 uint64_t s4_inject_expected_frame_bytes(s4_inject_pixel_format format, uint32_t stride_bytes,
                                         uint32_t width, uint32_t height,
                                         s4_inject_status *status) {
-    const uint32_t minimum = s4_inject_min_stride(format, width);
+    uint32_t minimum;
+    uint64_t rows;
+    uint64_t planes;
     if (status != NULL) {
         *status = S4_INJECT_OK;
     }
@@ -317,13 +329,34 @@ uint64_t s4_inject_expected_frame_bytes(s4_inject_pixel_format format, uint32_t 
         }
         return 0u;
     }
+    if (format == S4_FMT_INT8_CHW_416 && (width != 416u || height != 416u)) {
+        if (status != NULL) {
+            *status = S4_INJECT_ERR_GEOMETRY;
+        }
+        return 0u;
+    }
+    minimum = s4_inject_min_stride(format, width);
+    if (minimum == 0u) {
+        if (status != NULL) {
+            *status = S4_INJECT_ERR_STRIDE;
+        }
+        return 0u;
+    }
     if (stride_bytes == 0u || stride_bytes < minimum) {
         if (status != NULL) {
             *status = S4_INJECT_ERR_STRIDE;
         }
         return 0u;
     }
-    return (uint64_t)stride_bytes * (uint64_t)height * (uint64_t)s4_inject_planes(format);
+    rows = (uint64_t)stride_bytes * (uint64_t)height;
+    planes = (uint64_t)s4_inject_planes(format);
+    if (planes != 0u && rows > UINT64_MAX / planes) {
+        if (status != NULL) {
+            *status = S4_INJECT_ERR_LENGTH;
+        }
+        return 0u;
+    }
+    return rows * planes;
 }
 
 int s4_inject_intervals_overlap(uint64_t a0, uint64_t a1, uint64_t b0, uint64_t b1) {
@@ -340,10 +373,18 @@ uint64_t s4_inject_round_down(uint64_t value, uint64_t alignment) {
 }
 
 uint64_t s4_inject_round_up(uint64_t value, uint64_t alignment) {
+    uint64_t remainder;
     if (alignment == 0u) {
         return value;
     }
-    return ((value + alignment - 1u) / alignment) * alignment;
+    remainder = value % alignment;
+    if (remainder == 0u) {
+        return value;
+    }
+    if (value > UINT64_MAX - (alignment - remainder)) {
+        return UINT64_MAX;
+    }
+    return value + (alignment - remainder);
 }
 
 /* ------------------------------------------------------------------ */
@@ -367,24 +408,28 @@ static int text_non_empty(const char *value) {
     return value != NULL && value[0] != '\0';
 }
 
-static int session_id_valid(const char *value) {
-    size_t index;
-    if (value == NULL || value[0] == '\0') {
-        return 0;
+static s4_inject_status fail(s4_inject_validation_report *report, s4_inject_status status,
+                             const char *field, const char *reason, uint64_t expected,
+                             uint64_t actual);
+
+static s4_inject_status validate_source_mapping(const s4_inject_frame_desc *desc,
+                                                s4_inject_validation_report *report) {
+    s4_measurement_scope_source_kind expected;
+    if (desc->source_kind == S4_SRC_FILE_INJECTION) {
+        expected = S4_MEAS_SCOPE_BOARD_INJECTION;
+    } else if (desc->source_kind == S4_SRC_CAMERA) {
+        expected = S4_MEAS_SCOPE_CAMERA;
+    } else {
+        expected = S4_MEAS_SCOPE_OFFLINE_REGRESSION;
     }
-    if (strlen(value) >= (size_t)S4_INJECT_SESSION_ID_MAX) {
-        return 0;
+    if ((int)desc->measurement_scope_source_kind < 0 ||
+        desc->measurement_scope_source_kind >= S4_MEAS_SCOPE_SOURCE_COUNT ||
+        desc->measurement_scope_source_kind != expected) {
+        return fail(report, S4_INJECT_ERR_MEASUREMENT_SCOPE, "measurement_scope.source_kind",
+                    "顶层 source_kind 与 measurement_scope.source_kind 映射不一致",
+                    (uint64_t)expected, (uint64_t)desc->measurement_scope_source_kind);
     }
-    for (index = 0u; value[index] != '\0'; ++index) {
-        const char character = value[index];
-        const int is_digit = character >= '0' && character <= '9';
-        const int is_lower = character >= 'a' && character <= 'f';
-        const int is_upper = character >= 'A' && character <= 'F';
-        if (!is_digit && !is_lower && !is_upper) {
-            return 0;
-        }
-    }
-    return 1;
+    return S4_INJECT_OK;
 }
 
 static const s4_inject_region *find_region(const s4_inject_region *regions, uint32_t count,
@@ -434,9 +479,10 @@ s4_inject_status s4_inject_validate(const s4_inject_frame_desc *desc,
         return fail(report, S4_INJECT_ERR_SOURCE_KIND, "source_kind",
                     "source_kind 不在契约枚举内", 0u, (uint64_t)desc->source_kind);
     }
-    if (!session_id_valid(desc->session_id)) {
-        return fail(report, S4_INJECT_ERR_CONTRACT_VERSION, "session_id",
-                    "session_id 必须为非空十六进制串（<40 字符）", 0u, 0u);
+    if (desc->frame_id == UINT32_MAX) {
+        return fail(report, S4_INJECT_ERR_OUT_OF_ORDER, "frame_id",
+                    "frame_id=0xFFFFFFFF 为保留回绕值；必须开启新会话前停止分配",
+                    UINT32_MAX - 1u, desc->frame_id);
     }
     if ((int)desc->pixel_format < 0 || desc->pixel_format >= S4_FMT_COUNT) {
         return fail(report, S4_INJECT_ERR_PIXEL_FORMAT, "pixel_format",
@@ -447,6 +493,7 @@ s4_inject_status s4_inject_validate(const s4_inject_frame_desc *desc,
                     "geometry 宽高必须大于 0", 1u, 0u);
     }
     if (desc->stride_bytes == 0u ||
+        s4_inject_min_stride(desc->pixel_format, desc->width) == 0u ||
         desc->stride_bytes < s4_inject_min_stride(desc->pixel_format, desc->width)) {
         return fail(report, S4_INJECT_ERR_STRIDE, "stride_bytes",
                     "stride_bytes 小于该格式每行有效字节数",
@@ -477,14 +524,15 @@ s4_inject_status s4_inject_validate(const s4_inject_frame_desc *desc,
                     "offset 溢出", 0u, desc->offset_bytes);
     }
     addr_end = addr_start + desc->length_bytes;
-    if (addr_end < addr_start || addr_end > region->base_addr + region->length_bytes) {
+    if (region->length_bytes > UINT64_MAX - region->base_addr || addr_end < addr_start ||
+        addr_end > region->base_addr + region->length_bytes) {
         return fail(report, S4_INJECT_ERR_BUFFER_RANGE, "buffer",
                     "帧区间超出所属 region", region->base_addr + region->length_bytes, addr_end);
     }
-    if (desc->alignment < S4_INJECT_CACHE_LINE_BYTES ||
+    if (desc->alignment < S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES ||
         (desc->alignment & (desc->alignment - 1u)) != 0u) {
         return fail(report, S4_INJECT_ERR_ALIGNMENT, "buffer.alignment",
-                    "alignment 必须为 >=64 的 2 的幂", S4_INJECT_CACHE_LINE_BYTES,
+                    "alignment 必须为 >=64 的 2 的幂", S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES,
                     desc->alignment);
     }
     if ((addr_start % (uint64_t)desc->alignment) != 0u) {
@@ -515,10 +563,14 @@ s4_inject_status s4_inject_validate(const s4_inject_frame_desc *desc,
         return fail(report, S4_INJECT_ERR_MEASUREMENT_SCOPE, "measurement_scope",
                     "measurement_scope 取值不在契约枚举内", 0u, 0u);
     }
+    if (validate_source_mapping(desc, report) != S4_INJECT_OK) {
+        return report != NULL ? report->status : S4_INJECT_ERR_MEASUREMENT_SCOPE;
+    }
     if (desc->source_kind == S4_SRC_FILE_INJECTION) {
-        if (desc->capture_time_state != S4_CAPTURE_UNAVAILABLE) {
+        if (desc->capture_time_state != S4_CAPTURE_UNAVAILABLE || desc->capture_time_ns != 0u) {
             return fail(report, S4_INJECT_ERR_CAPTURE_TIME_FORGED, "capture_time_ns",
-                        "注入模式禁止提供 capture_time_ns", 0u, desc->capture_time_ns);
+                        "注入模式 capture_time_available=false，capture_time_ns 必须为 0 哨兵",
+                        0u, desc->capture_time_ns);
         }
         if (desc->unavailable_capture_time != 1u) {
             return fail(report, S4_INJECT_ERR_MEASUREMENT_SCOPE,
@@ -531,36 +583,47 @@ s4_inject_status s4_inject_validate(const s4_inject_frame_desc *desc,
                         "注入模式必须记录非零 injection_start_ns", 1u, 0u);
         }
     } else if (desc->source_kind == S4_SRC_CAMERA) {
-        if (desc->capture_time_state != S4_CAPTURE_PROVIDED || desc->capture_time_ns == 0u) {
+        if (desc->capture_time_state != S4_CAPTURE_PROVIDED || desc->capture_time_ns == 0u ||
+            desc->unavailable_capture_time != 0u) {
             return fail(report, S4_INJECT_ERR_MEASUREMENT_SCOPE, "capture_time_ns",
-                        "camera 模式必须提供真实 capture_time_ns", 1u, desc->capture_time_ns);
+                        "camera 模式要求可用且非零采集时间，unavailable_fields 不得包含该字段",
+                        1u, desc->capture_time_ns);
         }
     } else {
         if (desc->capture_time_state != S4_CAPTURE_UNAVAILABLE ||
-            desc->unavailable_capture_time != 1u) {
+            desc->capture_time_ns != 0u || desc->unavailable_capture_time != 1u) {
             return fail(report, S4_INJECT_ERR_CAPTURE_TIME_FORGED, "capture_time_ns",
-                        "synthetic 模式不得伪造 capture_time_ns", 0u, desc->capture_time_ns);
+                        "synthetic 模式 capture_time_available=false，capture_time_ns 必须为 0 哨兵并列入 unavailable_fields",
+                        0u, desc->capture_time_ns);
         }
     }
-    if (payload != NULL) {
-        if (payload_length != desc->length_bytes) {
-            return fail(report, S4_INJECT_ERR_LENGTH, "frame_integrity.length_bytes",
-                        "实际写入字节数与 length_bytes 不一致", desc->length_bytes,
-                        payload_length);
+    if (payload == NULL) {
+        return fail(report, S4_INJECT_ERR_NULL_ARG, "payload",
+                    "非零帧长必须提供可读 payload，禁止跳过 CRC/SHA 校验", desc->length_bytes,
+                    payload_length);
+    }
+    if (sizeof(size_t) < sizeof(uint64_t) && payload_length > (uint64_t)SIZE_MAX) {
+        return fail(report, S4_INJECT_ERR_LENGTH, "payload_length",
+                    "payload_length 超出 size_t 可表示范围", (uint64_t)SIZE_MAX,
+                    payload_length);
+    }
+    if (payload_length != desc->length_bytes) {
+        return fail(report, S4_INJECT_ERR_LENGTH, "frame_integrity.length_bytes",
+                    "实际写入字节数与 length_bytes 不一致", desc->length_bytes,
+                    payload_length);
+    }
+    if (desc->integrity_algorithm == S4_INTEGRITY_CRC32_IEEE) {
+        const uint32_t actual = s4_inject_crc32(payload, (size_t)payload_length);
+        if (actual != desc->integrity_crc32) {
+            return fail(report, S4_INJECT_ERR_INTEGRITY, "frame_integrity.value",
+                        "CRC32 与声明不一致", desc->integrity_crc32, actual);
         }
-        if (desc->integrity_algorithm == S4_INTEGRITY_CRC32_IEEE) {
-            const uint32_t actual = s4_inject_crc32(payload, (size_t)payload_length);
-            if (actual != desc->integrity_crc32) {
-                return fail(report, S4_INJECT_ERR_INTEGRITY, "frame_integrity.value",
-                            "CRC32 与声明不一致", desc->integrity_crc32, actual);
-            }
-        } else {
-            uint8_t digest[32];
-            s4_inject_sha256(payload, (size_t)payload_length, digest);
-            if (memcmp(digest, desc->integrity_sha256, sizeof(digest)) != 0) {
-                return fail(report, S4_INJECT_ERR_INTEGRITY, "frame_integrity.value",
-                            "SHA-256 与声明不一致", 0u, 0u);
-            }
+    } else {
+        uint8_t digest[32];
+        s4_inject_sha256(payload, (size_t)payload_length, digest);
+        if (memcmp(digest, desc->integrity_sha256, sizeof(digest)) != 0) {
+            return fail(report, S4_INJECT_ERR_INTEGRITY, "frame_integrity.value",
+                        "SHA-256 与声明不一致", 0u, 0u);
         }
     }
     return S4_INJECT_OK;
@@ -579,12 +642,12 @@ s4_inject_event s4_inject_expected_event(s4_inject_slot_state state) {
         case S4_SLOT_FLUSHED:
             return S4_EV_PUBLISH;
         case S4_SLOT_PUBLISHED:
+            return S4_EV_INVALIDATE;
+        case S4_SLOT_INVALIDATED:
             return S4_EV_CONSUMER_START;
         case S4_SLOT_CONSUMING:
             return S4_EV_CONSUMER_DONE;
         case S4_SLOT_CONSUMED:
-            return S4_EV_INVALIDATE;
-        case S4_SLOT_INVALIDATED:
             return S4_EV_RELEASE;
         default:
             return S4_EV_COUNT;
@@ -592,12 +655,26 @@ s4_inject_event s4_inject_expected_event(s4_inject_slot_state state) {
 }
 
 s4_inject_status s4_inject_ring_init(s4_inject_ring *ring, uint32_t slot_count,
+                                     uint32_t session_id,
                                      const s4_inject_region *regions, uint32_t region_count,
                                      const s4_inject_cache_ops *cache, void *cache_ctx,
                                      s4_inject_validation_report *report) {
+    s4_inject_region staged_regions[S4_INJECT_MAX_REGIONS];
+    char staged_region_names[S4_INJECT_MAX_REGIONS][S4_INJECT_REGION_NAME_MAX];
+    s4_inject_cache_ops staged_cache;
     uint32_t index;
+    uint32_t previous_session_id = 0u;
+    uint32_t has_previous_session_id = 0u;
     if (ring == NULL) {
         return fail(report, S4_INJECT_ERR_NULL_ARG, NULL, "ring 为空", 0u, 0u);
+    }
+    if (ring->initialized_magic == S4_INJECT_RING_INITIALIZED_MAGIC) {
+        const uint32_t held_count = s4_inject_ring_held_count(ring);
+        if (held_count != 0u) {
+            return fail(report, S4_INJECT_ERR_EVENT_ORDER, "ring.reset",
+                        "在途或 FAILED 槽仍持有帧，不能通过重初始化释放；须先完成或确认停止并 abort",
+                        0u, held_count);
+        }
     }
     if (slot_count == 0u || slot_count > S4_INJECT_MAX_SLOTS) {
         return fail(report, S4_INJECT_ERR_NO_FREE_BUFFER, "slot_count", "槽位数超出上限",
@@ -607,13 +684,60 @@ s4_inject_status s4_inject_ring_init(s4_inject_ring *ring, uint32_t slot_count,
         return fail(report, S4_INJECT_ERR_NULL_ARG, "regions", "区域表为空或超出上限", 0u,
                     region_count);
     }
+    if (cache == NULL || cache->flush == NULL || cache->invalidate == NULL ||
+        cache->barrier == NULL) {
+        return fail(report, S4_INJECT_ERR_NULL_ARG, "cache_ops",
+                    "必须提供 flush、invalidate 与 barrier 回调", 1u, 0u);
+    }
+    staged_cache = *cache;
+    for (index = 0u; index < region_count; ++index) {
+        size_t name_length;
+        size_t name_index;
+        if (regions[index].name == NULL) {
+            return fail(report, S4_INJECT_ERR_NULL_ARG, "regions.name",
+                        "region 名称为空", 1u, 0u);
+        }
+        name_length = strlen(regions[index].name);
+        if (name_length == 0u || name_length >= S4_INJECT_REGION_NAME_MAX) {
+            return fail(report, S4_INJECT_ERR_REGION_UNKNOWN, "regions.name",
+                        "region 名称为空或超出固定缓冲区", S4_INJECT_REGION_NAME_MAX - 1u,
+                        name_length);
+        }
+        for (name_index = 0u; name_index <= name_length; ++name_index) {
+            staged_region_names[index][name_index] = regions[index].name[name_index];
+        }
+        staged_regions[index] = regions[index];
+        staged_regions[index].name = staged_region_names[index];
+    }
+    if (ring->initialized_magic == S4_INJECT_RING_INITIALIZED_MAGIC) {
+        if (session_id == ring->session_id ||
+            (ring->has_previous_session_id != 0u && session_id == ring->previous_session_id)) {
+            return fail(report, S4_INJECT_ERR_SESSION, "session_id",
+                        "ring 重置必须使用新 u32 session_id；PS 分配器须保证会话标识不复用",
+                        ring->session_id, session_id);
+        }
+        previous_session_id = ring->session_id;
+        has_previous_session_id = 1u;
+    }
     memset(ring, 0, sizeof(*ring));
     ring->slot_count = slot_count;
+    ring->initialized_magic = S4_INJECT_RING_INITIALIZED_MAGIC;
+    ring->session_id = session_id;
+    ring->session_initialized = 1u;
+    ring->previous_session_id = previous_session_id;
+    ring->has_previous_session_id = has_previous_session_id;
     ring->region_count = region_count;
     for (index = 0u; index < region_count; ++index) {
-        ring->regions[index] = regions[index];
+        size_t name_length = strlen(staged_regions[index].name);
+        size_t name_index;
+        for (name_index = 0u; name_index <= name_length; ++name_index) {
+            ring->region_name_storage[index][name_index] = staged_regions[index].name[name_index];
+        }
+        ring->regions[index] = staged_regions[index];
+        ring->regions[index].name = ring->region_name_storage[index];
     }
-    ring->cache = cache;
+    ring->cache_ops = staged_cache;
+    ring->cache_configured = 1u;
     ring->cache_ctx = cache_ctx;
     for (index = 0u; index < slot_count; ++index) {
         ring->slots[index].state = S4_SLOT_FREE;
@@ -629,7 +753,7 @@ uint32_t s4_inject_ring_held_count(const s4_inject_ring *ring) {
     }
     for (index = 0u; index < ring->slot_count; ++index) {
         const s4_inject_slot_state state = ring->slots[index].state;
-        if (state != S4_SLOT_FREE && state != S4_SLOT_FAILED) {
+        if (state != S4_SLOT_FREE) {
             held += 1u;
         }
     }
@@ -652,14 +776,53 @@ s4_inject_status s4_inject_ring_acquire(s4_inject_ring *ring, uint32_t *out_slot
                 "队列满：所有槽位仍被持有，生产者不得覆盖", 0u, ring->slot_count);
 }
 
-static int frame_id_already_dropped(const s4_inject_ring *ring, uint32_t frame_id) {
+static s4_inject_status validate_ring_sequence(const s4_inject_ring *ring,
+                                               const s4_inject_frame_desc *desc,
+                                               s4_inject_validation_report *report) {
     uint32_t index;
-    for (index = 0u; index < ring->dropped_id_count; ++index) {
-        if (ring->dropped_ids[index] == frame_id) {
-            return 1;
+    if (ring->session_initialized != 0u && ring->session_id != desc->session_id) {
+        return fail(report, S4_INJECT_ERR_SESSION, "session_id",
+                    "同一 ring 会话内 session_id 不得变化；重启/复位需用新 u32 session_id 重新初始化",
+                    ring->session_id, desc->session_id);
+    }
+    if (desc->frame_id == UINT32_MAX) {
+        return fail(report, S4_INJECT_ERR_OUT_OF_ORDER, "frame_id",
+                    "frame_id=0xFFFFFFFF 为保留回绕值，须以新 session_id 重开会话",
+                    UINT32_MAX - 1u, desc->frame_id);
+    }
+    for (index = 0u; index < ring->slot_count; ++index) {
+        const s4_inject_slot *other = &ring->slots[index];
+        if (other->state != S4_SLOT_FREE && other->desc.frame_id == desc->frame_id) {
+            return fail(report, S4_INJECT_ERR_DUPLICATE_FRAME, "frame_id",
+                        "同一 session_id 内 frame_id 已接纳且仍占有槽位",
+                        0u, desc->frame_id);
         }
     }
-    return 0;
+    if (ring->has_accepted_frame != 0u && desc->frame_id <= ring->last_accepted_frame_id) {
+        const s4_inject_status status = desc->frame_id == ring->last_accepted_frame_id
+                                            ? S4_INJECT_ERR_DUPLICATE_FRAME
+                                            : S4_INJECT_ERR_OUT_OF_ORDER;
+        return fail(report, status, "frame_id",
+                    "frame_id 必须在同一会话内严格递增；回绕前必须重新分配 session_id",
+                    ring->last_accepted_frame_id, desc->frame_id);
+    }
+    return S4_INJECT_OK;
+}
+
+static s4_inject_status validate_no_frame_overlap(const s4_inject_ring *ring, uint32_t slot,
+                                                  uint64_t start, uint64_t end,
+                                                  s4_inject_validation_report *report) {
+    uint32_t index;
+    for (index = 0u; index < ring->slot_count; ++index) {
+        const s4_inject_slot *other = &ring->slots[index];
+        if (index != slot && other->state != S4_SLOT_FREE &&
+            s4_inject_intervals_overlap(start, end, other->addr_start, other->addr_end)) {
+            return fail(report, S4_INJECT_ERR_BUFFER_OVERLAP, "buffer",
+                        "写入前拒绝与在途或 FAILED 槽位相交的帧区间",
+                        other->addr_start, start);
+        }
+    }
+    return S4_INJECT_OK;
 }
 
 s4_inject_status s4_inject_ring_bind(s4_inject_ring *ring, uint32_t slot,
@@ -668,7 +831,8 @@ s4_inject_status s4_inject_ring_bind(s4_inject_ring *ring, uint32_t slot,
                                      s4_inject_validation_report *report) {
     s4_inject_status status;
     const uint64_t now_events = 1u << (unsigned)S4_EV_WRITE_START;
-    uint32_t index;
+    uint64_t addr_start;
+    uint64_t addr_end;
     if (ring == NULL || desc == NULL) {
         return fail(report, S4_INJECT_ERR_NULL_ARG, NULL, "ring/desc 为空", 0u, 0u);
     }
@@ -686,32 +850,34 @@ s4_inject_status s4_inject_ring_bind(s4_inject_ring *ring, uint32_t slot,
     if (status != S4_INJECT_OK) {
         return status;
     }
-    for (index = 0u; index < ring->slot_count; ++index) {
-        const s4_inject_slot_state state = ring->slots[index].state;
-        if (state != S4_SLOT_FREE && state != S4_SLOT_FAILED &&
-            ring->slots[index].desc.frame_id == desc->frame_id) {
-            return fail(report, S4_INJECT_ERR_DUPLICATE_FRAME, "frame_id",
-                        "同一 frame_id 已在环内", 0u, desc->frame_id);
-        }
+    status = validate_ring_sequence(ring, desc, report);
+    if (status != S4_INJECT_OK) {
+        return status;
     }
-    if (frame_id_already_dropped(ring, desc->frame_id)) {
-        return fail(report, S4_INJECT_ERR_DROPPED_FRAME, "frame_id",
-                    "该 frame_id 已被记为丢帧，不可再消费", 0u, desc->frame_id);
+    addr_start = desc->base_addr + desc->offset_bytes;
+    addr_end = addr_start + desc->length_bytes;
+    status = validate_no_frame_overlap(ring, slot, addr_start, addr_end, report);
+    if (status != S4_INJECT_OK) {
+        return status;
     }
-    if (ring->last_released_frame_id != 0u && desc->frame_id <= ring->last_released_frame_id) {
-        return fail(report, S4_INJECT_ERR_OUT_OF_ORDER, "frame_id",
-                    "frame_id 必须单调递增（乱序/重复历史帧）", ring->last_released_frame_id + 1u,
-                    desc->frame_id);
+    if (ring->session_initialized != 0u && ring->session_id != desc->session_id) {
+        return fail(report, S4_INJECT_ERR_SESSION, "session_id", "ring 会话标识不匹配",
+                    ring->session_id, desc->session_id);
     }
+    ring->session_id = desc->session_id;
+    ring->session_initialized = 1u;
+    ring->last_accepted_frame_id = desc->frame_id;
+    ring->has_accepted_frame = 1u;
     ring->slots[slot].desc = *desc;
-    ring->slots[slot].addr_start = desc->base_addr + desc->offset_bytes;
-    ring->slots[slot].addr_end = ring->slots[slot].addr_start + desc->length_bytes;
+    ring->slots[slot].addr_start = addr_start;
+    ring->slots[slot].addr_end = addr_end;
     ring->slots[slot].written_bytes = desc->length_bytes;
     ring->slots[slot].observed_events = (uint32_t)now_events;
     ring->slots[slot].integrity_checked = 1u;
     ring->slots[slot].flush_rounded_bytes = 0u;
     ring->slots[slot].invalidate_rounded_bytes = 0u;
     ring->slots[slot].consumer_started = 0u;
+    ring->slots[slot].consumer_stopped_confirmed = 0u;
     ring->slots[slot].state = S4_SLOT_LOADING;
     ring->in_flight += 1u;
     return S4_INJECT_OK;
@@ -723,15 +889,16 @@ static s4_inject_status rounded_maintenance_range(const s4_inject_ring *ring,
                                                   s4_inject_validation_report *report) {
     const s4_inject_region *region = find_region(ring->regions, ring->region_count,
                                                  slot->desc.region_name);
-    const uint64_t start = s4_inject_round_down(slot->addr_start, S4_INJECT_CACHE_LINE_BYTES);
-    const uint64_t end = s4_inject_round_up(slot->addr_end, S4_INJECT_CACHE_LINE_BYTES);
+    const uint64_t start = s4_inject_round_down(slot->addr_start, S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES);
+    const uint64_t end = s4_inject_round_up(slot->addr_end, S4_INJECT_MAINTENANCE_ALIGNMENT_BYTES);
     if (region == NULL) {
         return fail(report, S4_INJECT_ERR_REGION_UNKNOWN, "buffer.region_name",
                     "region_name 不在地址图内", 0u, 0u);
     }
-    if (start < region->base_addr || end > region->base_addr + region->length_bytes) {
+    if (end < slot->addr_end || region->length_bytes > UINT64_MAX - region->base_addr ||
+        start < region->base_addr || end > region->base_addr + region->length_bytes) {
         return fail(report, S4_INJECT_ERR_FLUSH_COVERAGE, "cache_maintenance",
-                    "对外 64 B 取整后的维护范围超出所属 region", 
+                    "对外 64 B 取整后的维护范围超出所属 region",
                     region->base_addr + region->length_bytes, end);
     }
     *out_start = start;
@@ -778,7 +945,8 @@ s4_inject_status s4_inject_ring_advance(s4_inject_ring *ring, uint32_t slot, s4_
             uint64_t start = 0u;
             uint64_t end = 0u;
             s4_inject_status status;
-            if (ring->cache == NULL || ring->cache->flush == NULL) {
+            if (ring->cache_configured == 0u || ring->cache_ops.flush == NULL ||
+                ring->cache_ops.barrier == NULL) {
                 return fail(report, S4_INJECT_ERR_NULL_ARG, "cache_ops",
                             "未提供 flush 适配，禁止跳过缓存维护", 0u, 0u);
             }
@@ -786,33 +954,48 @@ s4_inject_status s4_inject_ring_advance(s4_inject_ring *ring, uint32_t slot, s4_
             if (status != S4_INJECT_OK) {
                 return status;
             }
-            ring->cache->flush(ring->cache_ctx, start, end - start);
+            ring->cache_ops.flush(ring->cache_ctx, start, end - start);
+            if (ring->cache_ops.barrier(ring->cache_ctx) == 0) {
+                return fail(report, S4_INJECT_ERR_CACHE_BARRIER, "cache.flush_barrier",
+                            "producer flush 后 DSB/barrier 失败，禁止发布所有权", 1u, 0u);
+            }
             ring->flush_events += 1u;
             entry->flush_rounded_bytes = end - start;
             entry->state = S4_SLOT_FLUSHED;
             break;
         }
         case S4_EV_PUBLISH: {
-            uint32_t index;
-            for (index = 0u; index < ring->slot_count; ++index) {
-                const s4_inject_slot *other = &ring->slots[index];
-                if (index == slot) {
-                    continue;
-                }
-                if (other->state == S4_SLOT_FREE || other->state == S4_SLOT_FAILED) {
-                    continue;
-                }
-                if (s4_inject_intervals_overlap(entry->addr_start, entry->addr_end,
-                                                other->addr_start, other->addr_end)) {
-                    return fail(report, S4_INJECT_ERR_BUFFER_OVERLAP, "buffer",
-                                "帧区间与在途帧重叠（缓冲冲突）", other->addr_start,
-                                entry->addr_start);
-                }
-            }
             entry->state = S4_SLOT_PUBLISHED;
             break;
         }
+        case S4_EV_INVALIDATE: {
+            uint64_t start = 0u;
+            uint64_t end = 0u;
+            s4_inject_status status;
+            if (ring->cache_configured == 0u || ring->cache_ops.invalidate == NULL ||
+                ring->cache_ops.barrier == NULL) {
+                return fail(report, S4_INJECT_ERR_NULL_ARG, "cache_ops",
+                            "未提供 invalidate 与 barrier 适配", 0u, 0u);
+            }
+            status = rounded_maintenance_range(ring, entry, &start, &end, report);
+            if (status != S4_INJECT_OK) {
+                return status;
+            }
+            ring->cache_ops.invalidate(ring->cache_ctx, start, end - start);
+            if (ring->cache_ops.barrier(ring->cache_ctx) == 0) {
+                return fail(report, S4_INJECT_ERR_CACHE_BARRIER, "cache.invalidate_barrier",
+                            "consumer invalidate 后 DSB/barrier 失败，禁止读取帧", 1u, 0u);
+            }
+            ring->invalidate_events += 1u;
+            entry->invalidate_rounded_bytes = end - start;
+            entry->state = S4_SLOT_INVALIDATED;
+            break;
+        }
         case S4_EV_CONSUMER_START: {
+            if (entry->invalidate_rounded_bytes == 0u) {
+                return fail(report, S4_INJECT_ERR_CACHE_VISIBILITY, "consumer_invalidate",
+                            "消费者 start 前必须完成输入帧 invalidate 与 barrier", 1u, 0u);
+            }
             entry->consumer_started = 1u;
             entry->state = S4_SLOT_CONSUMING;
             break;
@@ -825,26 +1008,15 @@ s4_inject_status s4_inject_ring_advance(s4_inject_ring *ring, uint32_t slot, s4_
             entry->state = S4_SLOT_CONSUMED;
             break;
         }
-        case S4_EV_INVALIDATE: {
-            uint64_t start = 0u;
-            uint64_t end = 0u;
-            s4_inject_status status;
-            if (ring->cache == NULL || ring->cache->invalidate == NULL) {
-                return fail(report, S4_INJECT_ERR_NULL_ARG, "cache_ops",
-                            "未提供 invalidate 适配", 0u, 0u);
-            }
-            status = rounded_maintenance_range(ring, entry, &start, &end, report);
-            if (status != S4_INJECT_OK) {
-                return status;
-            }
-            ring->cache->invalidate(ring->cache_ctx, start, end - start);
-            ring->invalidate_events += 1u;
-            entry->invalidate_rounded_bytes = end - start;
-            entry->state = S4_SLOT_INVALIDATED;
-            break;
-        }
         case S4_EV_RELEASE: {
+            if (ring->has_released_frame != 0u &&
+                entry->desc.frame_id <= ring->last_released_frame_id) {
+                return fail(report, S4_INJECT_ERR_OUT_OF_ORDER, "frame_id",
+                            "释放结果必须遵循 S4-A 同一会话内递增 frame_id 顺序",
+                            ring->last_released_frame_id, entry->desc.frame_id);
+            }
             ring->last_released_frame_id = entry->desc.frame_id;
+            ring->has_released_frame = 1u;
             entry->state = S4_SLOT_FREE;
             if (ring->in_flight > 0u) {
                 ring->in_flight -= 1u;
@@ -874,19 +1046,39 @@ s4_inject_status s4_inject_ring_timeout(s4_inject_ring *ring, uint32_t slot,
                     slot);
     }
     entry = &ring->slots[slot];
-    if (entry->state != S4_SLOT_PUBLISHED && entry->state != S4_SLOT_CONSUMING) {
+    if (entry->state != S4_SLOT_PUBLISHED && entry->state != S4_SLOT_INVALIDATED &&
+        entry->state != S4_SLOT_CONSUMING) {
         return fail(report, S4_INJECT_ERR_EVENT_ORDER, "state",
                     "仅已发布/消费中的帧可判超时", (uint64_t)S4_SLOT_PUBLISHED,
                     (uint64_t)entry->state);
     }
     entry->state = S4_SLOT_FAILED;
     ring->timeout_events += 1u;
-    if (ring->in_flight > 0u) {
-        ring->in_flight -= 1u;
-    }
     return fail(report, S4_INJECT_ERR_CONSUMER_TIMEOUT, "consumer_done",
-                "消费者未在期限内完成：该帧不可消费，不得用超时推断完成", 0u,
+                "消费者未在期限内完成：FAILED 槽仍占有帧，须另取消费者停止确认，不得用超时推断完成", 0u,
                 entry->desc.frame_id);
+}
+
+s4_inject_status s4_inject_ring_confirm_consumer_stopped(
+    s4_inject_ring *ring, uint32_t slot, s4_inject_validation_report *report) {
+    if (ring == NULL || slot >= ring->slot_count) {
+        return fail(report, S4_INJECT_ERR_NULL_ARG, "slot",
+                    "ring 为空或槽位越界", ring == NULL ? 0u : ring->slot_count, slot);
+    }
+    if (ring->slots[slot].state != S4_SLOT_FAILED) {
+        return fail(report, S4_INJECT_ERR_EVENT_ORDER, "state",
+                    "仅 FAILED 槽可记录消费者停止/复位确认",
+                    (uint64_t)S4_SLOT_FAILED, (uint64_t)ring->slots[slot].state);
+    }
+    ring->slots[slot].consumer_stopped_confirmed = 1u;
+    if (report != NULL) {
+        report->status = S4_INJECT_OK;
+        report->field = NULL;
+        report->reason = "主机 mock 或外部适配器确认消费者已停止或复位";
+        report->expected = 0u;
+        report->actual = 0u;
+    }
+    return S4_INJECT_OK;
 }
 
 s4_inject_status s4_inject_ring_abort(s4_inject_ring *ring, uint32_t slot,
@@ -898,7 +1090,14 @@ s4_inject_status s4_inject_ring_abort(s4_inject_ring *ring, uint32_t slot,
         return fail(report, S4_INJECT_ERR_EVENT_ORDER, "state", "仅失败槽位可 abort",
                     (uint64_t)S4_SLOT_FAILED, (uint64_t)ring->slots[slot].state);
     }
+    if (ring->slots[slot].consumer_stopped_confirmed == 0u) {
+        return fail(report, S4_INJECT_ERR_EVENT_ORDER, "consumer_stopped_confirmed",
+                    "未收到消费者停止或复位确认，FAILED 槽不得释放", 1u, 0u);
+    }
     ring->slots[slot].state = S4_SLOT_FREE;
+    if (ring->in_flight > 0u) {
+        ring->in_flight -= 1u;
+    }
     return S4_INJECT_OK;
 }
 
@@ -916,22 +1115,17 @@ s4_inject_status s4_inject_ring_drop(s4_inject_ring *ring, const s4_inject_frame
                         "该 frame_id 已在环内，不能同时记为丢帧", 0u, desc->frame_id);
         }
     }
-    if (frame_id_already_dropped(ring, desc->frame_id)) {
-        return fail(report, S4_INJECT_ERR_DUPLICATE_FRAME, "frame_id",
-                    "该 frame_id 已被记为丢帧", 0u, desc->frame_id);
+    {
+        const s4_inject_status sequence = validate_ring_sequence(ring, desc, report);
+        if (sequence != S4_INJECT_OK) {
+            return sequence;
+        }
     }
-    if (ring->last_released_frame_id != 0u && desc->frame_id <= ring->last_released_frame_id) {
-        return fail(report, S4_INJECT_ERR_OUT_OF_ORDER, "frame_id",
-                    "丢帧 frame_id 必须大于已发布帧", ring->last_released_frame_id, desc->frame_id);
-    }
-    if (ring->dropped_id_count >= S4_INJECT_MAX_SLOTS) {
-        return fail(report, S4_INJECT_ERR_NO_FREE_BUFFER, "dropped_ids",
-                    "丢帧记录已满，需先完成/释放在途帧", S4_INJECT_MAX_SLOTS,
-                    ring->dropped_id_count);
-    }
-    ring->dropped_ids[ring->dropped_id_count] = desc->frame_id;
-    ring->dropped_id_count += 1u;
     ring->dropped_frames += 1u;
+    ring->session_id = desc->session_id;
+    ring->session_initialized = 1u;
+    ring->last_accepted_frame_id = desc->frame_id;
+    ring->has_accepted_frame = 1u;
     if (report != NULL) {
         report->status = S4_INJECT_OK;
         report->field = NULL;
@@ -951,6 +1145,8 @@ s4_inject_status s4_inject_ring_consumer_read(s4_inject_ring *ring, uint32_t slo
     const s4_inject_slot *entry;
     const uint8_t *frame_bytes;
     uint64_t offset;
+    uint64_t ddr_end;
+    const uint64_t size_max = (uint64_t)SIZE_MAX;
     const uint64_t valid_row = (uint64_t)s4_inject_min_stride(
         ring != NULL && slot < ring->slot_count ? ring->slots[slot].desc.pixel_format
                                                : S4_FMT_RGB888,
@@ -959,17 +1155,39 @@ s4_inject_status s4_inject_ring_consumer_read(s4_inject_ring *ring, uint32_t slo
         return fail(report, S4_INJECT_ERR_NULL_ARG, NULL, "参数为空或槽位越界", 0u, slot);
     }
     entry = &ring->slots[slot];
-    if (entry->state != S4_SLOT_CONSUMING) {
+    if (entry->state != S4_SLOT_CONSUMING || entry->invalidate_rounded_bytes == 0u) {
         return fail(report, S4_INJECT_ERR_EVENT_ORDER, "consumer_start",
-                    "消费者必须在 ownership_publish 之后、且先 start 才能读", 
+                    "消费者必须先完成 input invalidate/barrier，再 start 后读取",
                     (uint64_t)S4_SLOT_CONSUMING, (uint64_t)entry->state);
     }
-    if (entry->addr_start < ddr_base || entry->addr_end > ddr_base + ddr_length) {
+    if (ddr_length > size_max) {
+        return fail(report, S4_INJECT_ERR_LENGTH, "ddr_length",
+                    "DDR 影像长度超出 size_t 可表示范围", size_max, ddr_length);
+    }
+    if (ddr_length > UINT64_MAX - ddr_base) {
         return fail(report, S4_INJECT_ERR_BUFFER_RANGE, "buffer",
-                    "帧区间超出提供的 DDR 影像范围", ddr_base + ddr_length, entry->addr_end);
+                    "DDR 基址与影像长度相加溢出", UINT64_MAX - ddr_base, ddr_length);
+    }
+    ddr_end = ddr_base + ddr_length;
+    if (entry->addr_start < ddr_base || entry->addr_end > ddr_end) {
+        return fail(report, S4_INJECT_ERR_BUFFER_RANGE, "buffer",
+                    "帧区间超出提供的 DDR 影像范围", ddr_end, entry->addr_end);
     }
     offset = entry->addr_start - ddr_base;
-    frame_bytes = ddr_bytes + offset;
+    if (offset > size_max) {
+        return fail(report, S4_INJECT_ERR_LENGTH, "offset",
+                    "消费者读取偏移超出 size_t 可表示范围", size_max, offset);
+    }
+    if (offset > ddr_length || entry->desc.length_bytes > ddr_length - offset) {
+        return fail(report, S4_INJECT_ERR_BUFFER_RANGE, "buffer.length_bytes",
+                    "消费者读取区间超出 DDR 影像长度", ddr_length, offset);
+    }
+    if (entry->desc.length_bytes > size_max - offset) {
+        return fail(report, S4_INJECT_ERR_LENGTH, "length_bytes",
+                    "消费者偏移与读取长度之和超出 size_t 可表示范围",
+                    size_max - offset, entry->desc.length_bytes);
+    }
+    frame_bytes = ddr_bytes + (size_t)offset;
     if (entry->desc.integrity_algorithm == S4_INTEGRITY_CRC32_IEEE) {
         const uint32_t actual = s4_inject_crc32(frame_bytes, (size_t)entry->desc.length_bytes);
         if (out_crc32 != NULL) {
@@ -991,11 +1209,13 @@ s4_inject_status s4_inject_ring_consumer_read(s4_inject_ring *ring, uint32_t slo
         }
     }
     if (out_valid_bytes != NULL) {
-        *out_valid_bytes = valid_row * (uint64_t)entry->desc.height;
+        *out_valid_bytes = valid_row * (uint64_t)entry->desc.height *
+                           (uint64_t)s4_inject_planes(entry->desc.pixel_format);
     }
     if (out_padding_bytes != NULL) {
         *out_padding_bytes =
-            ((uint64_t)entry->desc.stride_bytes - valid_row) * (uint64_t)entry->desc.height;
+            ((uint64_t)entry->desc.stride_bytes - valid_row) * (uint64_t)entry->desc.height *
+            (uint64_t)s4_inject_planes(entry->desc.pixel_format);
     }
     if (report != NULL) {
         report->status = S4_INJECT_OK;

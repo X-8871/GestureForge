@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-A",
+  "run_id": "s4a_g0_20261023_r03",
+  "source_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "evidence_dir": "report/evidence/S4-A/s4a_g0_20261023_r03",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r03/command.json",
+      "sha256": "e0c27828d029c07fcdfa4bb780f6827f0bc7eb01db9fc68bc3e6807889cb4d5b",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r03/console.txt",
+      "sha256": "ea6b4559218d6c10f004130b01f09037ca86f794fb383c978f4d4733e07dfaa8",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r03/upstream_sha_recompute.json",
+      "sha256": "08e7e3b68333ed81248fbbf1b6aebdc9d2d527859f07ddc1dfa8258b71579327",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r03/verify_s4a_draft_result.json",
+      "sha256": "26716e47c439294360af87a4aaedb762cfadaf88a5c5b9e8f46d86cdff2cf511",
+      "role": "result"
+    },
+    {
+      "path": "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md",
+      "sha256": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+      "role": "source"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "source"
+    },
+    {
+      "path": "scripts/stage4_s4a/verify_s4a_draft.py",
+      "sha256": "dab618610eefdad015ffd80f9a3655b57cf6b0ccc7f21377336ea36140718f66",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "s4a_g0_r06_selfcheck",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_g0_20261023_r03",
+      "exit_code": 0,
+      "reason": "UTF8新RunId：18项PASS/0FAIL，23上游文件与109分片SHA一致。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "limitations": [
+    "只读语义自检不代表独立G2、真实PS/PL或阶段验收。",
+    "原始R02环境失败已保留；R03只因该环境失败必要重跑。",
+    "峰值内存未测。"
+  ]
+}

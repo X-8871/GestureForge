@@ -6,11 +6,13 @@
   "generated_utc8": "2026-10-22T19:40:00+08:00",
   "status": "DRAFT_PENDING_REVIEW",
   "authority": "本图是共享契约 `docs/stage4/s4b_shared_input_result_contract.json` 中 `buffer.region_name` / region 方向语义的权威来源；契约只引用 region 名称，不重复数字。",
-  "revision_note": "r01 初版：以 2B 已冻结产物为事实来源；显示缓冲在阶段3/阶段5 未建立权威事实，按 w5 规定不得猜地址，记为 UNRESOLVED。",
+  "revision_note": "r02：纠正输入读前 invalidate 顺序；拆分 2B BSP 确认的 32 B 硬件缓存行与本图采用的 64 B 维护对齐策略；地址图仍为 DRAFT_PENDING_REVIEW。显示缓冲未建立权威事实，仍不得猜地址。",
   "address_space": {
     "half_open": true,
     "byte_order": "little",
-    "cache_line_bytes": 64,
+    "hardware_cache_line_bytes": 32,
+    "maintenance_alignment_bytes": 64,
+    "cache_line_basis": "冻结 2B BSP vitis/s2b_inference_app.c:71 声明 S2B_BSP_CACHELINE_BYTES==32U；64 B 是本图采用的保守维护区间/缓冲对齐策略，不代表物理缓存行大小。",
     "spaces": [
       {
         "name": "ddr",
@@ -84,8 +86,8 @@
         "why_rejected": "只覆盖显示；且该缓冲地址/所有权在阶段3/阶段5 未建立权威事实。"
       }
     ],
-    "consumer_rule": "注入帧的消费者 = 执行 D2 预处理的那个所有者；消费者在 ownership_publish_to_consumer 事件之前不得读取，且不得在注入模式下产生 capture_time_ns。",
-    "time_rule": "注入模式只记录 injection_start_ns（单调、声明时钟域）并列入 measurement_scope.unavailable_fields：capture_time_ns 不可用（非 0、非注入起点）。"
+    "consumer_rule": "注入帧的消费者 = 执行 D2 预处理的那个所有者；所有权发布后，消费者必须先对输入帧区间 invalidate + DSB，再开始读取；消费者完成读取后显式释放，超时不推断停止。",
+    "time_rule": "file_injection 与 synthetic 必须 capture_time_available=false、capture_time_ns=0 哨兵并列入 measurement_scope.unavailable_fields；camera 必须有非零真实 capture_time_ns 且不得标记 unavailable。file_injection 的 injection_start_ns 单独记录，不得冒充采集时间。"
   },
   "regions": [
     {
@@ -108,7 +110,7 @@
       "cache_maintenance": {
         "direction": "ps_cacheable_writeback",
         "when": "该区域是 PS 私有工作区；向任何 DMA/PL 消费者移交前必须先 clean（写回）",
-        "line_bytes": 64,
+        "maintenance_alignment_bytes": 64,
         "outward_floor": true
       },
       "dma_completion_order": [
@@ -146,13 +148,13 @@
       "cache_maintenance": {
         "direction": "flush_writeback_before_publish",
         "when": "装载完成 → DSB → 对外 64 B 取整 flush → DSB；该 tensor 由 PL 只读，PS 侧不使用 invalidate",
-        "line_bytes": 64,
+        "maintenance_alignment_bytes": 64,
         "outward_floor": true
       },
       "dma_completion_order": [
         "PL 读取前必须已 flush 完成；PL 不写该区域"
       ],
-      "notes": "该 region 是 INT8_CHW_416 注入（网络+后处理覆盖）的落点，不是被验收预处理的覆盖证明点。",
+      "notes": "INT8_CHW_416 严格限定为 416x416、3 平面 CHW INT8，519,168 B；该 region 是网络+后处理覆盖的落点，不是被验收预处理的覆盖证明点。",
       "sources": [
         "W2B-INTERFACE",
         "W2B-APP"
@@ -178,7 +180,7 @@
       "cache_maintenance": {
         "direction": "flush_writeback_before_publish",
         "when": "装载完成 → DSB → 对外 64 B 取整 flush → DSB",
-        "line_bytes": 64,
+        "maintenance_alignment_bytes": 64,
         "outward_floor": true
       },
       "dma_completion_order": [
@@ -210,16 +212,16 @@
       "cache_maintenance": {
         "direction": "flush_writeback_then_consumer_invalidate",
         "when": "生产者写完最后一字节 → flush（对外 64 B 取整）→ DSB → 发布所有权；消费者读取前 invalidate（对外 64 B 取整）→ DSB",
-        "line_bytes": 64,
+        "maintenance_alignment_bytes": 64,
         "outward_floor": true
       },
       "dma_completion_order": [
         "producer_write_complete",
         "cache_flush_by_producer",
         "ownership_publish_to_consumer",
+        "consumer_invalidate",
         "consumer_start",
         "consumer_done",
-        "consumer_invalidate",
         "buffer_release_to_producer"
       ],
       "geometry_capacity": {
@@ -270,7 +272,7 @@
       "cache_maintenance": {
         "direction": "flush_and_invalidate_before_start_then_invalidate_after_done",
         "when": "START 前：对外 64 B 取整 flush 再 invalidate（清除旧脏输出行）；done 之后：invalidate（对外 64 B 取整）→ DSB → 读结果",
-        "line_bytes": 64,
+        "maintenance_alignment_bytes": 64,
         "outward_floor": true
       },
       "dma_completion_order": [
@@ -307,7 +309,7 @@
       "cache_maintenance": {
         "direction": "no_cache_device_strongly_ordered",
         "when": "禁止 cache 维护；写后 DSB SY 保证顺序",
-        "line_bytes": 64,
+        "maintenance_alignment_bytes": null,
         "outward_floor": false
       },
       "dma_completion_order": [
@@ -468,13 +470,13 @@
     "steps": [
       "1 producer 写 injection_frame_rgb（write_start→write_complete，逐帧记录 CRC32/SHA-256 与 length_bytes）",
       "2 producer flush（对外 64 B 取整）→ DSB → ownership_publish_to_consumer",
-      "3 consumer_start；consumer 只消费有效行字节，行尾 padding 内容未定义、帧尾之外不读",
+      "3 consumer 对 input_frame 区间 invalidate（64 B maintenance_alignment_bytes 向外取整）→ DSB → consumer_start；consumer 只消费有效行字节，行尾 padding 内容未定义、帧尾之外不读",
       "4 PS 侧写入前置对象：network_input_tensor 与 gf8_weight_package flush；feature_envelope flush+invalidate；均 DSB",
       "5 PS 写 pl_control_csr 参数 → DSB → 写 START → DSB",
       "6 PL 取得 buffer 所有权，读输入/权重、写 feature_envelope（HP0）",
       "7 PL 提交 done（operator_result_valid 且 error_code 稳定）；PL 对 DDR 的写必须在该事件可见前完成",
-      "8 PS invalidate feature_envelope（对外 64 B 取整）→ DSB → 读 head13/head26 → 解码/NMS → 结果记录",
-      "9 consumer_done → consumer_invalidate → buffer_release_to_producer（此后生产者的该 buffer 才能复用）",
+      "8 PL done 事件已可见后，PS 独立 invalidate feature_envelope/head13/head26（对外 64 B 取整）→ DSB → 读 head13/head26 → 解码/NMS → 结果记录；此输出维护不属于输入帧事件序列",
+      "9 consumer_done → buffer_release_to_producer（此后生产者的该 buffer 才能复用；消费者未确认停止时仍保持占用）",
       "10 任一事件缺失即该帧不可消费；不得用超时推断完成；不得覆盖仍被持有的帧"
     ]
   },

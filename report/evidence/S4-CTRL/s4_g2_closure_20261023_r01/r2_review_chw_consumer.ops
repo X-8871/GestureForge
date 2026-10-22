@@ -1,0 +1,10 @@
+region name=mock base=0x10000000 len=0x02000000
+ring slots=1
+frame id=1 fmt=INT8_CHW_416 w=416 h=416 stride=432 offset=0 payload=pattern:3
+bind
+advance slot=0 ev=producer_write_complete
+advance slot=0 ev=cache_flush_by_producer
+advance slot=0 ev=ownership_publish_to_consumer
+consume slot=0
+advance slot=0 ev=consumer_done
+advance slot=0 ev=buffer_release_to_producer

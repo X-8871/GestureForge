@@ -1,0 +1,152 @@
+{
+  "review_id": "R1-02",
+  "status": "CHANGES_REQUIRED",
+  "snapshot_sha256": "8999e87470a1e29a20e5f85d395b283699adbbbb683ddb1828f579b5195684e9",
+  "scope": "当前契约与运行书；不冒充未找到的旧rev-spec T1–T4原始关闭条件",
+  "independent_checks": {
+    "frozen_files_match": "19/19",
+    "semantic_probe": "17项中2项失败，4/4变异被拒绝",
+    "s4a_checker": "exit0，18/18",
+    "shared_checker": "exit0，21/21"
+  },
+  "blockers": [
+    {
+      "path": "docs/stage4/S4B_injection_path_runbook.md",
+      "line": 84,
+      "problem": "PL done后先读取结果再invalidate，输出heads应先invalidate+DSB再读。",
+      "close_condition": "修正模板并增加人读运行步骤一致性检查。"
+    },
+    {
+      "path": "docs/stage4/S4B_injection_path_runbook.md",
+      "line": 8,
+      "problem": "输入帧与输出heads的维护顺序混合，范围摘要有歧义。",
+      "close_condition": "分开描述输入读前invalidate与输出done后读前invalidate+DSB。"
+    }
+  ],
+  "files": [
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe.log",
+      "original_sha256": "d4b499b1d0efe7f1d85eafa476f741b2f9e8a8b9c5b8829c2ee0ef65bb7fda06",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe.log",
+      "archive_sha256": "7554a32cbcf5c851cac204aef080452dfbdd9cd2d0b07e3972263bbd7b94cd0d",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe.py",
+      "original_sha256": "494100a84e85034cd05d765fbd9adddafc8422ca5b96cc54c12bcdc2adcf6b88",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe.py",
+      "archive_sha256": "28d68bbe05212db25216caedd3bfc9e703e897320008150cdc34dcc23d291dd0",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v2.log",
+      "original_sha256": "18a80859bd94dbd5d2219a323d175355be2783b6b7767682d8b16760ea17f941",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v2.log",
+      "archive_sha256": "62f74db3d352d970717d4aaadfe95f369e41c1e1699550b01e4ed2da6b1f7d23",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v2.py",
+      "original_sha256": "b7909c72e78ed03a197107163b49d1bd0123cf6f60fa6198f3711a18455933ab",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v2.py",
+      "archive_sha256": "ea54439f257a61dbd86660d553152e453c948b511846a697112abff5d9a46e61",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v3.log",
+      "original_sha256": "9dff31154fb3731a4602f386bc7cad3c245e76e7db39de420b43e433e410c750",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v3.log",
+      "archive_sha256": "5a9c995399bd26e64fff3187749756a43a9218a6db46e1280e48022f3c16a6a3",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v3.py",
+      "original_sha256": "a33979358cbd70ae1a312144b6c00823c723b8c62306f82401469fe81b2f639f",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v3.py",
+      "archive_sha256": "5d98325c8cc8f2fff177ddfe32fd9218213bed3c14b9f6c72f3c9900ab034f83",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v4.json",
+      "original_sha256": "0e26069b306750c6a4e3eae42f79453655977055a7f4667b9060f8856f1d8846",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v4.json",
+      "archive_sha256": "3810f24e5afa73f79a00ef94cc2757567054ef036bc49acc7b8624178efda393",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v4.log",
+      "original_sha256": "89168c7fe0655447088ed6bbffc53ae6c1af836455ae356a3420d05786bd58c6",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v4.log",
+      "archive_sha256": "9654fa3e7b7b2de6f392028dbcd29ac0efb58af6df314b8a99c656ae201b53a3",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v4.py",
+      "original_sha256": "38db63872d6dd51a1d7064c8aa6beae68e00b4519c1b473899a40517457cef4a",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v4.py",
+      "archive_sha256": "0a95dd79647112f08af843f464be9fc3db70d5e01ce50ed2869bfaa885644f82",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v5.json",
+      "original_sha256": "8778651630b9f6eb05e5d4458c4fa8917312423c09426407f9a06a0c31aa358f",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v5.json",
+      "archive_sha256": "37782e4c692f85968fd1c884282b05e6468ea523a445efbea2988d3ee4b57288",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v5.log",
+      "original_sha256": "2fed02fbfa2c6dfce4deec9f8ab464afcf272bbfaf5f5df32ae3f0e12d8d8b12",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v5.log",
+      "archive_sha256": "57ed432c84943be8e96aab4a0dd28806dc041d74b6fa5c9147bcde7fdccd3f6d",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/r1_r03_semantic_probe_v5.py",
+      "original_sha256": "0bbcf6e55aa3f8a3ffbc8a6d8a03a870dd318712b13cc7b1d16cd1face63ccea",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_r1_r03_semantic_probe_v5.py",
+      "archive_sha256": "ce8176f810c6d1cde361ab6bb16c44b54ff77d85bf95f1270b9f922118418031",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/s4_shared_r03_checker.log",
+      "original_sha256": "18094275abc9145bf5245e3afaff460fd5165b19192eb47acc5e009d1e2f937c",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_s4_shared_r03_checker.log",
+      "archive_sha256": "c531f176d1669090c7f5079e5332b1e9c296cfea9dec6ed3943ec6d3c5ae1329",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/s4a_r03_checker.log",
+      "original_sha256": "aedcd33c61116cf965dbdd06c7e2756631a709facf7ebf2f6b3f9b7905264419",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_s4a_r03_checker.log",
+      "archive_sha256": "507af669b2baa21d09492954bc66df6626a55074f03fc7e30c7fe837cd80e937",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/snapshot_hash_verification.json",
+      "original_sha256": "80884a775fa846a73f5bcfb303c025d7f29c2c3f59bea94cc60b765a7861e9ea",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_snapshot_hash_verification.json",
+      "archive_sha256": "32e42c9a11c6fc86dc2f24ffb84a785e04006a415dadac7d12decadeeb17858e",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/snapshot_hash_verification.log",
+      "original_sha256": "24ea62ec88d9df8d1090c15c0730bcf7ff77ac6ca9aff51b261ba3039c64e8e9",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_snapshot_hash_verification.log",
+      "archive_sha256": "90563e7e7a2f02bdda97ab4fb4c4f5aeae33736bda4543ea139db23b5cac484f",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    },
+    {
+      "executed_original_path": "tmp/4/codex_review/s4_r1_20261023_r01/verify_snapshot_hashes.py",
+      "original_sha256": "f34e93f88de8f81ffbe987150bf7e92d763f6e6c98376be8f1c435ddd7753d91",
+      "archive_path": "report/evidence/S4-CTRL/s4_g2_closure_20261023_r01/r1_verify_snapshot_hashes.py",
+      "archive_sha256": "5c65f0b4138d2214d335346b565c5eca0e86732023eda48cf9c47ba42daa3e34",
+      "archive_policy": "UTF-8文本归档，换行统一为LF；原文件仍保留于隔离tmp；命令/结果内容未改写。"
+    }
+  ],
+  "limitations": [
+    "探针命令exit0但JSON结论CHANGES_REQUIRED；不能据退出码认定G2通过。",
+    "v1–v4探针构造/枚举比较失败均保留，v5才是最终本轮结论。",
+    "32位行为和硬件均未执行。"
+  ]
+}

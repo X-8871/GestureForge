@@ -1,8 +1,8 @@
-# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r02）
+# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r03）
 
-- 日期：2026-10-22（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`）；消费方：阶段5（**只读**消费冻结交付）。
+- 日期：2026-10-23（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`）；消费方：阶段5（**只读**消费冻结交付）。
 - 机器可读：[`s4b_shared_input_result_contract.json`](s4b_shared_input_result_contract.json)。
-- 修订 r02：按 rev-spec 独立审查修复 T1（权威绑定）/T2（词表对齐 S4-A）/T3（显示语义取值）/T4（HUD 映射混键），并处理 N1/N3/N4/N5/N6。
+- 修订 r03：仅修正未冻结草案与 S4-A r06 权威的冲突；保留 r02 及其证据。session_id 统一为 u32，补充键角色、source_kind 一一映射和完整采集时间真值表，并纠正读前 invalidate 顺序；阶段5显示/HUD语义及 s2bu/1.1 不变。
 - 来源标注：`[CDX-010 §3]`=4-B 共享契约与注入要求；`[CDX-014 §4]`=阶段5 五元组；`[CDX-014 §5.4]`=HUD 13 字段；`[CDX-015 §3/§5]`=执行与判定口径；`[S4-A]`=`docs/stage4/s4a_stage4_g0_fields.json`；`[w5-G0]`=`D:\codex-worktrees\w5\docs\stage5\s5a_stage5_display_g0_fields.json`。
 
 ## 0. 权威绑定与规则（T1）
@@ -10,8 +10,8 @@
 | 权威 | 路径 | SHA-256 | 状态 |
 |---|---|---|---|
 | S4-A G0 契约（机器权威） | `docs/stage4/s4a_stage4_g0_fields.json` | `657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5` | `G0_ROUND_FROZEN_R06`（r06） |
-| S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `314335cd…4a371`（r05 内容，r06 同步由 S4-A 任务完成） | 只读引用 |
-| 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | `416c02419ebe93e15bed0093a5e8c3bb8bca966395aa0c0febdf63d1646db6c3` | 由 4-B 任务冻结 |
+| S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
+| 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定 | `DRAFT_PENDING_REVIEW`，未冻结 |
 | CDX-010 阶段4 运行书 | 邮箱 `CDX-20261022-010-…md` | `4cd61ee0…1cf89` | 只读 |
 | CDX-014 阶段5 运行书 r02 | 邮箱 `CDX-20261022-014-…md` | `f25e5ebb…5a141` | 只读 |
 | CDX-015 执行总入口 r02 | 邮箱 `CDX-20261022-015-…md` | `a3ce50d2…170a7` | 只读 |
@@ -25,7 +25,7 @@
 |---|---|---|---|
 | `contract_version` | string | 是 | 固定 `s4-shared-io/1.1.0`；不匹配即拒绝消费 |
 | `source_kind` | enum | 是 | `file_injection` / `camera` / `synthetic`（与 C 实现/CLI 同名）；映射到 S4-A `source_kind`（`BOARD_INJECTION`↔`file_injection`、`CAMERA`↔`camera`、`OFFLINE_REGRESSION`↔`synthetic`），证据中必须可互相换算 |
-| `session_id` | string | 是 | PS 会话唯一标识（建议 32 hex）；唯一映射键之一，会话内不变 |
+| `session_id` | uint32 | 是 | 沿用 S4-A u32。PS 每次启动、复位 `frame_id` 计数或同一请求重开 RUN 时重新分配；会话内不变且 `frame_id` 不复用，按 S4-A 规则拒绝回绕 |
 | `frame_id` | u32 | 是 | PS 侧 +1 单调分配（沿用 S4-A `frame_id_allocation`），与送入 PL 的 `FRAME_ID` 同值 |
 | `width` / `height` | u32 | 是 | 原图像素尺寸；补边逆映射唯一基准 |
 | `pixel_format` | enum | 是 | `RGB888`/`RGB565`/`GRAY8`/`INT8_CHW_416`；**覆盖范围由注入点决定** |
@@ -33,27 +33,27 @@
 | `stride_bytes` | u32 | 是 | 行跨距；行尾填充未定义、不得被消费 |
 | `buffer` | object | 是 | `region_name`/`base_addr`/`offset_bytes`/`length_bytes`/`alignment`；半开区间；`region_name` 必须在地址图中 |
 | `frame_integrity` | object | 是 | `algorithm`(crc32_ieee/sha256)+`value`+`length_bytes`；**逐帧记录** |
-| `capture_time_available` | bool | 是 | 取值域与 S4-A `measurement_scope.capture_time_available` 一致；`file_injection` 下**必须为 false** |
+| `capture_time_available` | bool | 是 | 顶层与 `measurement_scope` 一致：`file_injection` / `synthetic` 必须为 false；`camera` 必须为 true |
 | `injection_start_ns` | u64 | 条件 | 仅 `file_injection`：开始把帧写入 DDR 的单调时刻。**不是采集时间** |
-| `capture_time_ns` | u64 | 条件 | 仅 `camera`：第一个有效像素时刻；`file_injection` 下必须省略或标不可用（结果侧按 S4-A 用 0 哨兵 + 注解判别） |
+| `capture_time_ns` | u64 | 条件 | `file_injection` / `synthetic` 使用 0 哨兵且在 `unavailable_fields` 标记不可用；`camera` 必须提供非零首个有效像素时刻且不得标记 unavailable |
 | `timestamp_source` | object | 是 | `clock`/`freq_hz`/`wrap_handling`/`epoch_note` |
 | `clock_domain` | string | 是 | 时间戳所属时钟域；`file_injection` 下必填 |
-| `measurement_scope` | object | 是 | 键与取值域**与 S4-A 完全一致**（`source_kind`/`pl_timing`/`uart_transport`/`board_pl`/`capture_time_available`/`injection_start_ns`/`clock_domain`/`unavailable_fields`）；**不得自造枚举**（原稿的 `INJECTION_ONLY` 已删除）；`file_injection` 下 `unavailable_fields` 必须含 `capture_time_ns` |
+| `measurement_scope` | object | 是 | 键与取值域**与 S4-A 完全一致**；`source_kind` 与顶层严格映射。`file_injection` / `synthetic` 下时间不可用且 `unavailable_fields` 含 `capture_time_ns`；`camera` 下时间为非零真值且不得标记 unavailable |
 
 **注入点覆盖范围**：`RGB888`/`RGB565` 在被验收的预处理**之前**才覆盖预处理链；`INT8_CHW_416` 只覆盖网络+后处理；直接写显示缓冲只覆盖显示。任何“全链路通过”的说法必须以其注入点覆盖为前提。
 
-**事件顺序 `[CDX-010 §3.4]`**：`producer_write_start` → `producer_write_complete` → `cache_flush_by_producer` → `ownership_publish_to_consumer` → `consumer_start` → `consumer_done` → `consumer_invalidate` → `buffer_release_to_producer`。任一事件缺失即该帧不可消费；**不得用超时推断完成**。
+**事件顺序 `[CDX-010 §3.4]`**：`producer_write_start` → `producer_write_complete` → `cache_flush_by_producer` → `ownership_publish_to_consumer` → `consumer_invalidate` → `consumer_start` → `consumer_done` → `buffer_release_to_producer`。输入帧在消费者读取前完成 invalidate + DSB。任一事件缺失即该帧不可消费；**不得用超时推断完成**。
 
-**缓存与 DMA**：生产者在发布所有权前 flush（DCache 写回、64 B 外对齐）+ DSB；消费者读结果前 invalidate（64 B 外对齐）+ DSB；DMA/PL 完成事件后仍需 cache 维护才能读到数据；**不得覆盖仍被持有的帧**，多缓冲数 ≥ 在途消费者数 + 1；方向以地址图 `cache_maintenance` 为准。
+**缓存与 DMA**：冻结 2B BSP 在 `w2b/vitis/s2b_inference_app.c:71` 声明 `S2B_BSP_CACHELINE_BYTES==32U`，即 32 B 硬件缓存行；本阶段 C 常量 64 B 表示保守的维护区间向外取整/缓冲对齐策略，不代表物理缓存行。生产者发布前 flush + DSB；消费者读取输入前 invalidate + DSB。PL 完成后对输出 heads 做独立 invalidate + DSB，该输出维护不属于输入帧事件序列。**不得覆盖仍被持有的帧**；方向以地址图 `cache_maintenance` 为准。
 
-**帧序列规则（N5）**：重复 `frame_id`（未声明为重放）→ 拒绝并记 FAIL，不得幂等静默接受；`frame_id` 回退 → 拒绝并记 FAIL（除显式新会话/复位）；结果乱序按 `(session_id, frame_id, result_seq)` 关联，无法唯一关联或顺序矛盾者不得用于跨阶段证据；以上拒绝必须落在 PS 侧日志与证据中（记原因，不只记计数）。
+**帧序列规则（N5）**：重复、回退、乱序接纳或回绕的 `frame_id` → 拒绝并记 FAIL；会话重开须按 S4-A 重新分配 u32 `session_id`。结果连接按下表各自角色执行，无法唯一关联或顺序矛盾者不得用于跨阶段证据；拒绝必须记录原因。
 
 ## 2. 结果契约
 
 ### 2.1 结果记录
 
 字段与语义以 `[S4-A]` 为权威：`frame_id`、`result_seq`、`geometry`、`state`、`detection_count`、`detections`（`class_id`/`class_name`/`score`/`xyxy`/`xyxy_px`/`source_order`）、`candidate_count`、`candidate_count_pre_threshold`、`candidate_overflow`、`capture_time_ns`、`result_time_ns`、`inference_time_ns`、`end_to_end_latency_ns`、`dropped_frames`、`stale`、`error_code`。
-`file_injection` 下 `capture_time_ns` 按 S4-A 约定为 **0 哨兵 + 注解判别**（不当作实测采集时间，也不得用 `injection_start_ns` 冒充），其派生的 `end_to_end_latency_ns` 不可定义。
+`file_injection` / `synthetic` 下 `capture_time_available=false`、`capture_time_ns=0` 且 `unavailable_fields` 必须含 `capture_time_ns`；`camera` 下必须为 true、时间非零且不能标记 unavailable。注入起点不是采集时间；注入结果派生的 `end_to_end_latency_ns` 不可定义。
 
 ### 2.2 显示关联五元组 `[CDX-014 §4]`
 
@@ -81,8 +81,8 @@
 
 ### 2.5 PS 侧日志与唯一映射（UART 方案 B）`[CDX-010 §2.3]`
 
-- 唯一映射键：`(session_id, frame_id, result_seq)`；会话内 `(session_id, frame_id)` 唯一。
-- 日志必含：会话/帧/结果序号、`capture_time_ns` 或 `injection_start_ns`（按 `source_kind`）、发布/推理/结果时刻、`inference_time_ns`、age 原始时刻、丢帧/超时/队列满计数、所有权状态迁移、逐帧 `frame_integrity`、重复/乱序/拒绝原因。
+- 本共享契约结果唯一关联键：`(session_id, frame_id, result_seq)`。S4-A `join_key=(session_id, frame_id, repeat_index)` 用于结果与重复项连接；PS 日志主键 `(session_id, result_seq)`；UART 可观测键 `(frame_id, repeat_index, sequence)`，其中 `sequence` 只作配对/一致性核对。三者用途不同，不得互相替代。
+- 桥接旁路日志同时记录 `session_id`、`frame_id`、`repeat_index`、`result_seq`、UART `sequence`、来源、逐帧 `frame_integrity` 和所有权事件；并记录 `capture_time_ns` 或 `injection_start_ns`（按来源）、发布/推理/结果时刻、age 原始时刻、丢帧/超时/队列满计数及拒绝原因。
 - **阶段5 必须从该日志读取 UART 缺失的时间/过期/丢帧/状态量，不得声称这些量来自 UART。**
 - 上游字段不足唯一关联时，阶段4 补版本化本地映射（随证据保存），**不得单方改上游协议**；冲突/缺失记 FAIL 并保留原始日志。
 
@@ -99,7 +99,7 @@
 ## 4. 消费边界与版本化 `[CDX-015 §3/§5]`
 
 - 阶段5 只读；任何字段增删/语义变化必须**新版本号** + 阶段4 所有者批准 + 适用回归；阶段5 只能消费已冻结版本。
-- 本契约 `DRAFT_PENDING_REVIEW`：经独立审查与 Lead 提交后冻结；冻结前不得作为验收依据。
+- 本契约和地址图当前均为 `DRAFT_PENDING_REVIEW`：经独立审查与 Lead 确认后再冻结；冻结前不得作为验收依据。
 
 ## 5. 限制
 

@@ -1,0 +1,134 @@
+{
+  "schema_version": "gestureforge_s4_independent_audit_v1",
+  "task_id": "S4-CTRL/S4-C05",
+  "reviewed_commit": "bb5d9ab3760f595a4cbbcff3e08bf00193a8015a",
+  "takeover_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "scope": "补做既有4-A r06、共享契约r02、4-B离线注入实现的独立只读审查",
+  "status": "CHANGES_REQUIRED",
+  "tests_run_by_reviewers": false,
+  "hardware_accessed": false,
+  "reviewers": [
+    {
+      "id": "/root/review_s4a_contract",
+      "result": "CHANGES_REQUIRED",
+      "verified": [
+        "S4-A 23个文件SHA匹配；109个T25分片/390700998字节匹配",
+        "共享契约6项上游SHA匹配",
+        "T3显示语义B_latest_result_overlay符合",
+        "T4 HUD字段恰13键符合"
+      ],
+      "unknown": [
+        "旧rev-spec r01 T1–T4完整审查原文未找到；仅存在修订摘要，不能逐字证明旧关闭条件"
+      ]
+    },
+    {
+      "id": "/root/review_s4b_injection",
+      "result": "CHANGES_REQUIRED",
+      "verified": [
+        "host cache_ops静态存储修复已存在"
+      ],
+      "unknown": [
+        "实际PS适配、DSB及板上缓存可见性"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "R1-01",
+      "problem": "契约session_id字符串与S4-A u32不一致",
+      "location": "docs/stage4/s4b_shared_input_result_contract.json:84",
+      "closure": "沿用S4-A统一表示/分配/重置并实现严格转换"
+    },
+    {
+      "id": "R1-02",
+      "problem": "唯一关联三元组与S4-A的join_key、PS主键、UART可观测键角色未说明",
+      "location": "docs/stage4/s4a_stage4_g0_fields.json:231",
+      "closure": "分别定义键角色与桥接日志字段，保留用户已定三元组"
+    },
+    {
+      "id": "R1-03",
+      "problem": "synthetic映射和采集时间false约束不完整",
+      "location": "docs/stage4/s4b_shared_input_result_contract.json:218",
+      "closure": "一对一映射、非camera时间不可用、顶层与scope一致"
+    },
+    {
+      "id": "R1-04",
+      "problem": "地址图草案被称已冻结；S4-A镜像旧SHA未说明历史性质",
+      "location": "docs/stage4/S4B_shared_input_result_contract.md:13",
+      "closure": "状态及当前/历史绑定准确"
+    },
+    {
+      "id": "R2-01",
+      "problem": "在途地址重叠检测晚于生产者写入",
+      "location": "vitis/stage4/s4_inject_frame.c:665",
+      "closure": "写前拒绝全部仍持有帧的重叠且证明原帧未污染"
+    },
+    {
+      "id": "R2-02",
+      "problem": "在途帧号回退绕过仅对last_released的比较",
+      "location": "vitis/stage4/s4_inject_frame.c:689",
+      "closure": "会话内接纳/丢弃序号规则和乱序释放反例"
+    },
+    {
+      "id": "R2-03",
+      "problem": "空payload跳过完整性却被标已检查",
+      "location": "vitis/stage4/s4_inject_frame.c:545",
+      "closure": "非零长度空指针拒绝并独立C API负例"
+    },
+    {
+      "id": "R2-04",
+      "problem": "采集时间哨兵/状态不互校验；CLI数字允许尾垃圾和溢出",
+      "location": "vitis/stage4/s4_inject_frame.c:518",
+      "closure": "完整真值表与严格数值解析负例"
+    },
+    {
+      "id": "R2-05",
+      "problem": "width乘通道和stride乘height乘planes无溢出检查",
+      "location": "vitis/stage4/s4_inject_frame.c:283",
+      "closure": "受检乘法/size_t范围及边界负例"
+    },
+    {
+      "id": "R2-06",
+      "problem": "输入缓存invalidate顺序冲突；单数组mock不能证明缓存可见性",
+      "location": "vitis/stage4/s4_inject_frame.c:815",
+      "closure": "文档/API/状态机/可分离mock视图一致，维护缺失或错序真实失败"
+    },
+    {
+      "id": "R2-07",
+      "problem": "CHW有效及padding字节漏乘3平面",
+      "location": "vitis/stage4/s4_inject_frame.c:954",
+      "closure": "支持格式与三平面统计一致"
+    },
+    {
+      "id": "R2-08",
+      "problem": "timeout后abort无停止确认即FREE可复用消费者占用内存",
+      "location": "vitis/stage4/s4_inject_frame.c:869",
+      "closure": "确认消费者停止/复位后才释放；超时不是done"
+    },
+    {
+      "id": "R2-09",
+      "problem": "公共API保存外部cache/region/descriptor指针，生命周期约束不明确",
+      "location": "vitis/stage4/s4_inject_frame.c:594",
+      "closure": "持有必要副本或明确执行期生命周期且有回归"
+    },
+    {
+      "id": "R2-10",
+      "problem": "既有测试未覆盖上述反例且主要按进程退出码判定",
+      "location": "scripts/stage4_s4b/run_s4b_injection_offline.py:181",
+      "closure": "独立预期，核对status/field/reason、状态和原帧完整性"
+    }
+  ],
+  "source_sha256": {
+    "docs/stage4/s4a_stage4_g0_fields.json": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+    "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+    "docs/stage4/s4b_shared_input_result_contract.json": "5c8aa5cb0e527dfcc8909bfceb05614fbdc1e0b84a4d1dbef50742ee2954c6af",
+    "docs/stage4/S4B_shared_input_result_contract.md": "38f15be6f61f8c3ab10de34db56736a2c6767e5b59ef3c5218c8f3503e51216b",
+    "vitis/stage4/s4_inject_frame.c": "a5e2adb2b25392ec55a71899ea7d617887cac7c921e5ab3abd996741bab524b9",
+    "vitis/stage4/s4_inject_frame.h": "6749ed1b52cecdbe0ca38b5c1fa566b17dcb0eba779761b39d87b54e984df7de",
+    "vitis/stage4/s4_inject_frame_host.c": "db283b8f9707764248ebcb5707db6343077e3f9c9c974a557a435cc6c5e1fdaf"
+  },
+  "limitations": [
+    "此为本会话两名独立Reviewer的精简技术结果，非旧rev-spec缺失原文的重建。",
+    "未运行新测试、未操作硬件；G2未通过，须修复后冻结新差异独立复审。"
+  ]
+}

@@ -5,7 +5,7 @@
 
 ## 1. 范围与前提
 
-- 覆盖：阶段4 单帧注入通路（装载 → flush → 发布所有权 → 消费者完成 → 读取结果/invalidate → 释放）及有限序列/背压/故障语义。
+- 覆盖：阶段4 单帧注入及有限序列/背压/故障语义。输入帧在 `consumer_start` 前执行 invalidate + DSB；PL done 后对输出 heads 先 invalidate + DSB 再读取，两处维护分别执行。
 - 不覆盖：真实摄像头采集（等阶段3）、UART 协议变更（`s2bu/1.1` 不变，方案 B）、PL 位流构建。
 - 前提：2B 已冻结并释放硬件；当前硬件归属以现场会话核验为准（阶段5 正在板测）。4-D 开始前必须取得**正式实物授权与硬件会话交接**（见 S4-A 文档 §10），并用 `verification/handoff_check.py` 核对让出/认领记录。
 
@@ -25,7 +25,7 @@ cd D:/codex-worktrees/w4
 # 严格编译（0 error / 0 warning 是硬门槛）
 d:/mingw64/bin/gcc.exe -std=c11 -O2 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
   -I vitis/stage4 vitis/stage4/s4_inject_frame.c vitis/stage4/s4_inject_frame_host.c \
-  -o tmp/4/S4-B/<run_id>/build/s4_inject_host.exe
+  -o tmp/4/S4-FIX-01/<run_id>/build/s4_inject_host.exe
 # 单帧 + 小图 + 有限序列 + 故障序列 + 地址图重叠正/反例
 python -B scripts/stage4_s4b/run_s4b_injection_offline.py --run-id <run_id> \
   --evidence-dir report/evidence/S4-B/<run_id>
@@ -43,20 +43,22 @@ python -B verification/check_stage_delivery.py --mode evidence \
 
 事件顺序（契约 `input_frame_contract.events.order`）：
 `producer_write_start` → `producer_write_complete` → `cache_flush_by_producer` →
-`ownership_publish_to_consumer` → `consumer_start` → `consumer_done` →
-`consumer_invalidate` → `buffer_release_to_producer`。
+`ownership_publish_to_consumer` → `consumer_invalidate` → `consumer_start` →
+`consumer_done` → `buffer_release_to_producer`。
 
+- 冻结 2B BSP 在 `w2b/vitis/s2b_inference_app.c:71` 声明 32 B 硬件缓存行参数；实现中的 64 B 是保守维护对齐策略，不代表 Cortex-A9 物理缓存行大小。
 - 生产者：写完 → DCache flush（写回，64 B 外对齐）+ DSB → 才可发布所有权。
-- 消费者：读前 invalidate（64 B 外对齐）+ DSB；读后释放才可以被覆盖。
+- 消费者：所有权发布后、读取前 invalidate（64 B 外对齐）+ DSB；读取完成并确认停止后释放才可以被覆盖。
+- PL 输出 heads：真实 PL done 后先 invalidate（64 B 外对齐）+ DSB，再读取 heads；此输出维护独立于输入帧事件序列。本轮 host mock 不代表 BSP/PL 已接通。
 - 任一事件缺失即该帧不可消费；**不得用超时推断完成**。
 - 多缓冲数 ≥ 在途消费者数 + 1；禁止覆盖仍被持有的帧（`ERR_NO_OVERWRITE`）。
 
 ## 5. 注入模式的时间语义（不得违反）
 
-- `source_kind=file_injection` / `synthetic`：`capture_time_available=false`，`capture_time_ns` **必须省略或标不可用**；注入起点只记录在 `injection_start_ns`，**不是采集时间**。
+- `source_kind=file_injection` / `synthetic`：`capture_time_available=false`，`capture_time_ns=0` 哨兵且 `measurement_scope.unavailable_fields` 必须包含该字段；注入起点只记录在 `injection_start_ns`，**不是采集时间**。
 - 提供了 `capture_time_ns` 的注入帧会被拒绝（`ERR_CAPTURE_TIME_FORGED` → `19`）。
-- `camera` 模式必须提供真实 `capture_time_ns`；否则拒绝。
-- 注入点必须在被验收的预处理之前（`RGB888`/`RGB565`）；`INT8_CHW_416` 只覆盖网络+后处理；直接写显示缓冲只覆盖显示。
+- `camera` 模式必须提供非零真实 `capture_time_ns`，`capture_time_available=true` 且 `unavailable_fields` 不得包含它；否则拒绝。
+- 注入点必须在被验收的预处理之前（`RGB888`/`RGB565`）；`INT8_CHW_416` 严格限定为 416x416 三平面 CHW INT8（519,168 B），只覆盖网络+后处理；直接写显示缓冲只覆盖显示。
 
 ## 6. 4-D 板上注入命令模板（**NOT_RUN**，须按现场产物填写并核对）
 
@@ -79,7 +81,7 @@ sha256sum "$BIT" "$XSA" "$ELF" "$FRAME_FILE"
 #    COM 口与波特率 115200 8N1 按现场会话核验后使用
 #    <SERIAL_TOOL> --port "$PORT" --baud 115200 --capture <run_id>/uart_raw.bin
 
-# 4) 单帧注入（PS 侧）：装载 → flush → 发布 → 等 PL done → 读结果 → invalidate → 释放
+# 4) 单帧注入（PS 侧）：装载 → producer flush + DSB → 发布 → PL 读取输入帧前 invalidate + DSB → consumer start → 等 PL done → 输出 heads invalidate + DSB → 读 heads → 确认消费者停止/复位 → 释放
 #    由 ELF 内实现调用；每帧必须记录 (session_id, frame_id, result_seq, frame_integrity, injection_start_ns)
 
 # 5) 导出证据：heads 原始 INT8（head13 5,070 B / head26 20,280 B）、逐框结果、PS 侧日志
@@ -98,7 +100,7 @@ python -B verification/s4_replay_compare.py --actual <ACTUAL_DIR> --run-id <RUN_
 
 ## 8. 已知限制
 
-- 离线仅用主机 mock DDR/cache 与 gcc 编译，**未接板卡、未接真实串口、未跑 PL**。
+- 离线仅用主机 mock DDR/cache 与 gcc 编译；缓存回调只验证离线状态机与可见性建模，**不代表真实 PS/BSP 接通**；未接板卡、未接真实串口、未跑 PL，PL resize/letterbox 输入预处理也未接入。
 - 板上注入、真实 UART、摄像头、PL 时间/期限/吞吐、109 全量（S4-C）均为 `NOT_RUN`。
 - 地址图中 `unresolved_regions`（阶段3/阶段5 未授权区域、显示缓冲精确边界）不得被本阶段访问或猜地址。
 - 契约中 `stale_limit_ns` 仍为 `DRAFT_PENDING_APPROVAL`（草案 200 ms），正式批准前不作为验收门槛。

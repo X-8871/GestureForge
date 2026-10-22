@@ -1,0 +1,34 @@
+{
+  "tool": "s4_inject_frame_host",
+  "contract_version": "s4-shared-io/1.1.0",
+  "ops": [
+{"index": 0, "try": false, "op": "region name=mock base=0x10000000 len=0x02000000", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 1, "try": false, "op": "ring slots=2", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 2, "try": false, "op": "frame id=100 w=4 h=4 stride=12 offset=0 payload=pattern:1", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 3, "try": false, "op": "bind", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 4, "try": false, "op": "frame id=101 w=4 h=4 stride=12 offset=0 payload=pattern:2", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 5, "try": true, "op": "bind", "status": 11, "status_name": "ERR_BUFFER_OVERLAP", "field": "buffer", "reason": "写入前拒绝与在途或 FAILED 槽位相交的帧区间", "actual": 268435456},
+{"index": 6, "try": false, "op": "advance slot=0 ev=producer_write_complete", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 7, "try": false, "op": "advance slot=0 ev=cache_flush_by_producer", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 8, "try": false, "op": "advance slot=0 ev=ownership_publish_to_consumer", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 9, "try": false, "op": "mock_fault name=skip_barrier", "status": 0, "status_name": "OK", "field": null, "reason": "mock fault 已安排，仅用于离线反例", "actual": 0},
+{"index": 10, "try": false, "op": "consume slot=0", "status": 24, "status_name": "ERR_CACHE_BARRIER", "field": "cache.invalidate_barrier", "reason": "consumer invalidate 后 DSB/barrier 失败，禁止读取帧", "actual": 0}
+  ],
+  "status": 24,
+  "status_name": "ERR_CACHE_BARRIER",
+  "last_failure_reason": "consumer invalidate 后 DSB/barrier 失败，禁止读取帧",
+  "ring": {
+    "slot_count": 2, "in_flight": 1, "held": 1,
+    "last_released_frame_id": 0, "flush_events": 1, "has_released_frame": 0, "session_id": 1, "session_initialized": 1, "last_accepted_frame_id": 100, "has_accepted_frame": 1, "invalidate_events": 0, "timeout_events": 0, "dropped_frames": 0,
+    "last_bind_slot": 0,
+    "slots": [{"slot": 0, "state": "PUBLISHED", "session_id": 1, "frame_id": 100, "source_kind": "file_injection", "measurement_scope_source_kind": "BOARD_INJECTION", "capture_time_ns": 0, "unavailable_capture_time": 1, "consumer_stopped_confirmed": 0, "events_mask": 15, "integrity_checked": 1, "flush_bytes": 64, "invalidate_bytes": 0}, {"slot": 1, "state": "FREE", "session_id": 0, "frame_id": 0, "source_kind": "none", "measurement_scope_source_kind": "none", "capture_time_ns": 0, "unavailable_capture_time": 0, "consumer_stopped_confirmed": 0, "events_mask": 0, "integrity_checked": 0, "flush_bytes": 0, "invalidate_bytes": 0}]
+  },
+  "mock_cache": {
+    "flush_count": 1, "invalidate_count": 1, "flushed_bytes": 64, "invalidated_bytes": 64, "dirty_lost_lines": 0, "barrier_count": 1, "barrier_failures": 1,
+    "flush_ranges": [[268435456, 268435520]],
+    "invalidate_ranges": [[268435456, 268435520]],
+    "write_count": 1, "write_records": [{"range": [268435456, 268435504], "length": 48, "crc32": 2904624376}]
+  },
+  "consumer": {"reads": 0, "last_crc32": 0, "valid_bytes": 0, "padding_bytes": 0, "padding_consumed": 0, "busy_ticks": 0},
+  "op_count": 11
+}

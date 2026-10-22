@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-A",
+  "run_id": "s4a_g0_20261023_r02",
+  "source_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "evidence_dir": "report/evidence/S4-A/s4a_g0_20261023_r02",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r02/environment_failure.json",
+      "sha256": "4afff910b284f85c114d56b213527318525729eda97eec07b3a75e9a7d0c54e8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r02/upstream_sha_recompute.json",
+      "sha256": "7ccec4417f1d3ebc08ddda5fdd8ab9492663b130ad410527ba65f404aca91fc9",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-A/s4a_g0_20261023_r02/verify_s4a_draft_result.json",
+      "sha256": "38a03c4af33d52c11346c3f095bb7ced3fb512e1cff65cbbe14af1c1a26b6980",
+      "role": "result"
+    },
+    {
+      "path": "docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md",
+      "sha256": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+      "role": "source"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "source"
+    },
+    {
+      "path": "scripts/stage4_s4a/verify_s4a_draft.py",
+      "sha256": "dab618610eefdad015ffd80f9a3655b57cf6b0ccc7f21377336ea36140718f66",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "s4a_g0_r06_selfcheck",
+      "status": "FAIL",
+      "command": "python -B scripts/stage4_s4a/verify_s4a_draft.py --evidence-dir report/evidence/S4-A/s4a_g0_20261023_r02",
+      "exit_code": 1,
+      "reason": "日志采集wrapper环境编码失败，原始脚本结果文件保留；不以本次wrapper认定自检通过。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "limitations": [
+    "只读语义自检不代表独立G2、真实PS/PL或阶段验收。",
+    "原始R02环境失败已保留；R03只因该环境失败必要重跑。",
+    "峰值内存未测。"
+  ]
+}

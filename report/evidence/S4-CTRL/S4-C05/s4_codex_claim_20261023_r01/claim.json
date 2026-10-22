@@ -1,0 +1,99 @@
+{
+  "schema_version": "gestureforge_s4_claim_v1",
+  "task_id": "S4-CTRL",
+  "run_id": "s4_codex_claim_20261023_r01",
+  "owner": "Codex 阶段4接续总控（受 Codex 项目总控委派）",
+  "created_utc8": "2026-10-23T00:44:33+08:00",
+  "base_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "transition": [
+    "OFFERED",
+    "CLAIMED",
+    "IN_PROGRESS"
+  ],
+  "check_exit_code": 0,
+  "claim_check": {
+    "status": "HANDOFF_OK",
+    "worktree_arg": "D:\\codex-worktrees\\w4",
+    "worktree_root": "D:\\codex-worktrees\\w4",
+    "branch": "stage4-infer-prep",
+    "head": "af85d5a8495598262395165492df5e4d0bfb723c",
+    "record_provided": true,
+    "checks": [
+      {
+        "id": "a",
+        "name": "工作树存在与分支/HEAD 一致性",
+        "status": "PASS",
+        "evidence": "工作树根=D:\\codex-worktrees\\w4；实际分支=stage4-infer-prep；实际HEAD=af85d5a8495598262395165492df5e4d0bfb723c；声明工作树=D:/codex-worktrees/w4；声明分支=stage4-infer-prep；声明起始提交=af85d5a8495598262395165492df5e4d0bfb723c"
+      },
+      {
+        "id": "b",
+        "name": "index.lock 解析与占用",
+        "status": "PASS",
+        "evidence": "git --no-optional-locks rev-parse --git-path index.lock（cwd=D:\\codex-worktrees\\w4） → D:/FPGA_Competition/.git/worktrees/w4/index.lock；存在=False"
+      },
+      {
+        "id": "c",
+        "name": "未提交改动计数与归属声明",
+        "status": "PASS",
+        "evidence": "git --no-optional-locks -c core.quotepath=false status --short（cwd=D:\\codex-worktrees\\w4）→ 未提交改动 0 项；声明归属=无未提交改动（本轮全部已提交：e247b49 4-A+4-B 主体、bb5d9ab 审查状态、821b05a 让出声明）；本交接证据目录 handoff_20261023_r01/** 在最终提交时一并纳入"
+      },
+      {
+        "id": "d",
+        "name": "重型进程占用",
+        "status": "PASS",
+        "evidence": "待匹配进程名=vivado、xsim、xelab、xvlog、hw_server、cs_server、xsdb；未发现占用"
+      },
+      {
+        "id": "e",
+        "name": "交接心跳时效",
+        "status": "PASS",
+        "evidence": "heartbeat_utc8=2026-10-23 00:35（归一化 2026-10-23 00:35:00 UTC+8）；阈值=120 分钟；当前时间(UTC+8)=2026-10-23 00:42:08；距今=7.1 分钟"
+      },
+      {
+        "id": "f",
+        "name": "交接状态机与接管条件",
+        "status": "PASS",
+        "evidence": "status=OFFERED；状态机：IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE；只有 OFFERED 允许接管；--claim 接管条件满足"
+      },
+      {
+        "id": "g",
+        "name": "证据入口",
+        "status": "PASS",
+        "evidence": "evidence_dir=report/evidence/CTRL-DSH-HANDOFF/handoff_20261023_r01；解析路径=D:\\codex-worktrees\\w4\\report\\evidence\\CTRL-DSH-HANDOFF\\handoff_20261023_r01；manifest.json=6300 字节"
+      },
+      {
+        "id": "h",
+        "name": "允许修改范围与越界核验",
+        "status": "PASS",
+        "evidence": "允许修改范围=docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；声明要改动的路径=.codex/STATE.md、docs/stage4、vitis/stage4、scripts/stage4_s4b、scripts/stage4_s4ctrl、verification、report/evidence/S4-CTRL"
+      },
+      {
+        "id": "i",
+        "name": "接管让出契约",
+        "status": "PASS",
+        "evidence": "yield_statement=OFFERED 给 Codex 项目总控：DSH 阶段4 总控自 2026-10-23 00:35（UTC+8）起停止写入 D:\\codex-worktrees\\w4，等待 Codex 置 CLAIMED 后独占接管；第三方不得直接接管；next_owner=Codex 项目总控；规则：--claim 时 yield_statement 与 next_owner 必须非空且非占位；heartbeat_utc8 的可解析性由检查项 e 核验"
+      }
+    ],
+    "counts": {
+      "PASS": 9,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    "lost_contact": {
+      "lost_contact": false,
+      "heartbeat_expired": false,
+      "heavy_processes": false,
+      "index_lock_present": false,
+      "note": "只有「心跳超时+无重型进程+无 index.lock」同时成立才可判失联；否则只能报告，不能自行接管。"
+    },
+    "warnings": [
+      "record 声明了未提交改动归属（无未提交改动（本轮全部已提交：e247b49 4-A+4-B 主体、bb5d9ab 审查状态、821b05a 让出声明）；本交接证据目录 handoff_20261023_r01/** 在最终提交时一并纳入），但当前工作树是干净的"
+    ],
+    "scope_statement": "只读核验：不代表 G0/G4/G5、测试通过或实物验收；不执行恢复命令，不写仓库文件。"
+  },
+  "limits": [
+    "仅接管 w4 写权；主树与其他工作树只读。",
+    "未取得硬件操作授权；板卡、JTAG、COM4、Vivado/xsim 均未操作。",
+    "原 DSH handoff_record 未修改；仅在内存内把 base_commit 重绑到实际 HEAD。"
+  ]
+}

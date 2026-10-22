@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""阶段4 单帧注入通路（4-B）的离线单元/集成测试。
+"""阶段4 单帧注入通路的离线单元与集成测试。
 
-覆盖：
-  1. 地址图区间自洽与两两不相交（独立实现，不复用驱动结论）；
-  2. 负例：人为制造重叠必须被检出（证明检查不是恒真）；
-  3. payload 生成器与 host 一致（LCG 复现）；
-  4. 契约版本一致性：C 头 `S4_INJECT_CONTRACT_VERSION` == 契约 JSON `contract_version`；
-  5. 契约词表一致：源码不得出现契约未定义的 `INJECTION_ONLY`；
-  6. 集成：跑完整离线驱动，断言 exit 0 且 summary.status == PASS。
+覆盖地址图区间与缓存对齐、重叠负例、契约词表、来源/采集时间真值表、LCG payload、
+严格状态字段，以及完整 host 与独立 C API 反例回归。
 
-运行：cd <w4> && python -m unittest verification.test_s4_inject_frame -v
+运行：cd <w4> && python -B -m unittest verification.test_s4_inject_frame -v
 """
 
 from __future__ import annotations
@@ -20,6 +15,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import os
+import uuid
 from pathlib import Path
 
 WORKTREE = Path(__file__).resolve().parents[1]
@@ -64,6 +61,12 @@ class AddressMapTests(unittest.TestCase):
     def test_no_top_level_overlaps(self) -> None:
         self.assertEqual(pairwise_overlaps(self.regions), [])
 
+    def test_hardware_line_and_maintenance_alignment_are_distinct(self) -> None:
+        address_space = self.data["address_space"]
+        self.assertEqual(address_space["hardware_cache_line_bytes"], 32)
+        self.assertEqual(address_space["maintenance_alignment_bytes"], 64)
+        self.assertIn("不代表物理缓存行大小", address_space["cache_line_basis"])
+
     def test_overlap_detector_catches_injected_overlap(self) -> None:
         mutated = [dict(r) for r in self.regions]
         injected = next(r for r in mutated if r["name"] == "injection_frame_rgb")
@@ -87,6 +90,20 @@ class VocabularyTests(unittest.TestCase):
         header = HEADER.read_text(encoding="utf-8")
         expected = f'{contract["contract_id"]}/{contract["contract_version"]}'
         self.assertIn(f'#define S4_INJECT_CONTRACT_VERSION "{expected}"', header)
+
+    def test_contract_source_capture_truth_table_is_exact(self) -> None:
+        contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
+        mapping = contract["input_frame_contract"]["vocabulary_mapping"]
+        self.assertEqual(mapping["source_kind"]["map"], {
+            "file_injection": "BOARD_INJECTION",
+            "synthetic": "OFFLINE_REGRESSION",
+            "camera": "CAMERA",
+        })
+        self.assertEqual(mapping["capture_time_truth_table"]["synthetic"], {
+            "capture_time_available": False,
+            "capture_time_ns": 0,
+            "unavailable_fields_contains_capture_time_ns": True,
+        })
 
     def test_no_contract_undefined_scope_value(self) -> None:
         contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
@@ -121,23 +138,64 @@ class IntegrationTests(unittest.TestCase):
     def test_offline_driver_passes(self) -> None:
         with tempfile.TemporaryDirectory(prefix="s4b_inj_") as tmp:
             evidence = Path(tmp) / "evidence"
+            run_id = f"s4fix_unittest_{uuid.uuid4().hex}"
+            env = os.environ.copy()
+            env["PYTHONUTF8"] = "1"
+            env["PYTHONIOENCODING"] = "utf-8"
             proc = subprocess.run(
-                [sys.executable, "-B", str(DRIVER), "--run-id", "unittest_offline", "--evidence-dir", str(evidence)],
-                capture_output=True, text=True, encoding="utf-8", errors="replace",
+                [sys.executable, "-B", str(DRIVER), "--run-id", run_id, "--evidence-dir", str(evidence)],
+                capture_output=True, env=env,
             )
-            self.assertEqual(proc.returncode, 0, proc.stdout[-4000:] + proc.stderr[-2000:])
+            stdout = proc.stdout.decode("utf-8", errors="strict")
+            stderr = proc.stderr.decode("utf-8", errors="strict")
+            self.assertEqual(proc.returncode, 0, stdout[-4000:] + stderr[-2000:])
             summary = json.loads((evidence / "injection_offline_summary.json").read_text(encoding="utf-8"))
             self.assertEqual(summary["status"], "PASS")
             self.assertEqual(summary["counts"]["failed"], 0)
+            self.assertEqual(summary["counts"]["host_direct_api_failures"], 0)
+            self.assertGreaterEqual(summary["counts"]["host_direct_api_checks"], 20)
+            self.assertTrue(summary["direct_c_api_test"]["matched"])
+            self.assertEqual(
+                summary["counts"]["host_direct_api_checks"],
+                summary["direct_c_api_test"]["summary"]["checks"],
+            )
+            api_names = {row["check"] for row in summary["direct_c_api_test"]["checks"]}
+            for name in (
+                "invalid_initial_region_name_preserves_uninitialized_ring",
+                "same_session_retry_after_initial_region_failure",
+                "invalid_idle_ring_reset_preserves_ring_and_session",
+            ):
+                self.assertIn(name, api_names)
+            if sys.maxsize > 0xFFFFFFFF:
+                self.assertIn("64_bit_size_t_payload_length_branch_not_applicable", api_names)
+                self.assertIn("64_bit_consumer_read_size_bounds_behavior_not_applicable", api_names)
+                self.assertNotIn("32_bit_consumer_read_ddr_length_exceeds_size_t_rejected", api_names)
+            else:
+                self.assertIn("32_bit_consumer_read_ddr_length_exceeds_size_t_rejected", api_names)
+            self.assertEqual(summary["direct_c_api_32bit"]["compile_only_status"], "PASS")
+            self.assertEqual(summary["counts"]["direct_api_32bit_compile_units"], 2)
+            self.assertEqual(
+                summary["counts"]["direct_api_32bit_behavior"],
+                summary["direct_c_api_32bit"]["behavioral_status"],
+            )
+            self.assertIn(summary["direct_c_api_32bit"]["behavioral_status"], ("PASS", "NOT_RUN"))
             self.assertEqual(summary["address_map"]["check"]["status"], "PASS")
             self.assertEqual(summary["build"]["exit_code"], 0)
             self.assertEqual(summary["build_warning_lines"], [])
             cases = {c["case"]: c for c in summary["cases"]}
             for name in ("single_frame_full", "queue_full_on_third_frame", "no_overwrite_held_slot",
                          "fault_forged_capture_time", "fault_measurement_scope", "fault_event_order",
-                         "fault_consumer_timeout", "fault_duplicate_frame"):
+                         "fault_consumer_timeout", "fault_duplicate_frame", "fault_overlap_before_write",
+                         "fault_accept_10_then_9", "fault_release_out_of_order",
+                         "fault_abort_before_stop_confirmation", "fault_skip_flush", "fault_skip_invalidate",
+                         "fault_shift_invalidate", "fault_skip_barrier", "valid_synthetic_source",
+                         "valid_camera_source", "fault_synthetic_capture_available",
+                         "fault_camera_capture_missing", "fault_capture_trailing_junk", "fault_capture_empty",
+                         "fault_capture_negative", "fault_capture_overflow", "fault_u32_width_overflow",
+                         "fault_u32_frame_overflow", "fault_slot_overflow"):
                 self.assertIn(name, cases)
                 self.assertTrue(cases[name]["matched"], name)
+                self.assertTrue(cases[name]["stable_status_field_reason_matched"], name)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,46 @@
+[INFO] 证据：report\evidence\S4-B\s4b_injection_20261023_r08\injection_offline_summary.json
+OK  single_frame_full: exit=0 expected=0 status=OK field=None reason=None
+OK  small_1x1: exit=0 expected=0 status=OK field=None reason=None
+OK  small_3x2: exit=0 expected=0 status=OK field=None reason=None
+OK  odd_width_5_rgb565_padded: exit=0 expected=0 status=OK field=None reason=None
+OK  queue_full_on_third_frame: exit=12 expected=12 status=ERR_NO_FREE_BUFFER field=slots reason=队列满：所有槽位仍被持有，生产者不得覆盖
+OK  no_overwrite_held_slot: exit=13 expected=13 status=ERR_NO_OVERWRITE field=slot reason=目标槽位仍被持有，禁止覆盖
+OK  release_then_reuse: exit=0 expected=0 status=OK field=None reason=None
+OK  fault_contract_version: exit=2 expected=2 status=ERR_CONTRACT_VERSION field=contract_version reason=contract_version 与契约不一致
+OK  fault_source_kind: exit=3 expected=3 status=ERR_SOURCE_KIND field=source reason=source_kind 或 measurement_scope.source_kind 不在契约词表内
+OK  fault_pixel_format: exit=4 expected=4 status=ERR_PIXEL_FORMAT field=pixel_format reason=pixel_format 不在契约词表内
+OK  fault_geometry_zero: exit=5 expected=5 status=ERR_GEOMETRY field=width/height reason=geometry 宽高必须大于 0
+OK  fault_stride_too_small: exit=6 expected=6 status=ERR_STRIDE field=stride_bytes reason=stride_bytes 小于该格式每行有效字节数
+OK  fault_length_mismatch: exit=7 expected=7 status=ERR_LENGTH field=buffer.length_bytes reason=length_bytes 不等于 stride*height*planes
+OK  fault_unknown_region: exit=8 expected=8 status=ERR_REGION_UNKNOWN field=buffer.region_name reason=region_name 不在地址图内
+OK  fault_out_of_range: exit=9 expected=9 status=ERR_BUFFER_RANGE field=buffer reason=帧区间超出所属 region
+OK  fault_alignment: exit=10 expected=10 status=ERR_ALIGNMENT field=buffer.offset_bytes reason=帧起始地址未按 alignment 对齐
+OK  fault_integrity_wrong_digest: exit=17 expected=17 status=ERR_INTEGRITY field=frame_integrity.value reason=CRC32 与声明不一致
+OK  fault_forged_capture_time: exit=19 expected=19 status=ERR_CAPTURE_TIME_FORGED field=capture_time_ns reason=注入模式 capture_time_available=false，capture_time_ns 必须为 0 哨兵
+OK  fault_measurement_scope: exit=20 expected=20 status=ERR_MEASUREMENT_SCOPE field=measurement_scope.source_kind reason=顶层 source_kind 与 measurement_scope.source_kind 映射不一致
+OK  fault_duplicate_frame: exit=14 expected=14 status=ERR_DUPLICATE_FRAME field=frame_id reason=同一 session_id 内 frame_id 已接纳且仍占有槽位
+OK  fault_out_of_order_frame: exit=15 expected=15 status=ERR_OUT_OF_ORDER field=frame_id reason=frame_id 必须在同一会话内严格递增；回绕前必须重新分配 session_id
+OK  fault_event_order: exit=16 expected=16 status=ERR_EVENT_ORDER field=event reason=事件顺序与契约 events.order 不一致
+OK  fault_consumer_timeout: exit=18 expected=18 status=ERR_CONSUMER_TIMEOUT field=consumer_done reason=消费者未在期限内完成：FAILED 槽仍占有帧，须另取消费者停止确认，不得用超时推断完成
+OK  fault_overlap_before_write: exit=11 expected=11 status=ERR_BUFFER_OVERLAP field=buffer reason=写入前拒绝与在途或 FAILED 槽位相交的帧区间
+OK  fault_accept_10_then_9: exit=15 expected=15 status=ERR_OUT_OF_ORDER field=frame_id reason=frame_id 必须在同一会话内严格递增；回绕前必须重新分配 session_id
+OK  fault_release_out_of_order: exit=15 expected=15 status=ERR_OUT_OF_ORDER field=frame_id reason=释放结果必须遵循 S4-A 同一会话内递增 frame_id 顺序
+OK  fault_abort_before_stop_confirmation: exit=16 expected=16 status=ERR_EVENT_ORDER field=consumer_stopped_confirmed reason=未收到消费者停止或复位确认，FAILED 槽不得释放
+OK  fault_skip_flush: exit=22 expected=22 status=ERR_FLUSH_COVERAGE field=cache_flush_by_producer reason=发布时帧区间仍有脏 cache 行：flush 缺失或覆盖不足
+OK  fault_skip_invalidate: exit=25 expected=25 status=ERR_CACHE_VISIBILITY field=consumer_invalidate reason=消费者视图无效：invalidate 范围/顺序缺失或 backing DDR 未可见
+OK  fault_shift_invalidate: exit=25 expected=25 status=ERR_CACHE_VISIBILITY field=consumer_invalidate reason=消费者视图无效：invalidate 范围/顺序缺失或 backing DDR 未可见
+OK  fault_skip_barrier: exit=24 expected=24 status=ERR_CACHE_BARRIER field=cache.flush_barrier reason=producer flush 后 DSB/barrier 失败，禁止发布所有权
+OK  valid_synthetic_source: exit=0 expected=0 status=OK field=None reason=None
+OK  valid_camera_source: exit=0 expected=0 status=OK field=None reason=None
+OK  fault_synthetic_capture_available: exit=19 expected=19 status=ERR_CAPTURE_TIME_FORGED field=capture_time_ns reason=synthetic 模式 capture_time_available=false，capture_time_ns 必须为 0 哨兵并列入 unavailable_fields
+OK  fault_camera_capture_missing: exit=20 expected=20 status=ERR_MEASUREMENT_SCOPE field=capture_time_ns reason=camera 模式要求可用且非零采集时间，unavailable_fields 不得包含该字段
+OK  fault_capture_trailing_junk: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=capture reason=CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数
+OK  fault_capture_empty: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=capture reason=CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数
+OK  fault_capture_negative: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=capture reason=CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数
+OK  fault_capture_overflow: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=capture reason=CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数
+OK  fault_u32_width_overflow: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=width reason=数值超出字段位宽或 capture_time_available 不是 0/1
+OK  fault_u32_frame_overflow: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=frame_id reason=数值超出字段位宽或 capture_time_available 不是 0/1
+OK  fault_slot_overflow: exit=26 expected=26 status=ERR_CLI_ARGUMENT field=slot reason=slot 超出 uint32 表示范围
+OK  small_1x1: crc=2414802966 expected=2414802966 valid=3
+OK  small_3x2: crc=4070869247 expected=4070869247 valid=18
+[PASS] 用例 42（失败 0）、C API 30（失败 0）、32-bit size_t 编译 2 单元/行为 NOT_RUN、小图 2（失败 0）、地址图 PASS、编译告警行 0

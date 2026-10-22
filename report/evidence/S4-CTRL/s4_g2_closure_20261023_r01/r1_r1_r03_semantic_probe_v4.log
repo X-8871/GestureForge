@@ -1,0 +1,72 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "checks": 17,
+  "failures": [
+    {
+      "name": "source_kind_bijection",
+      "status": "FAIL",
+      "evidence": {
+        "contract_map": {
+          "file_injection": "BOARD_INJECTION",
+          "synthetic": "OFFLINE_REGRESSION",
+          "camera": "CAMERA"
+        },
+        "s4a_scopes": {
+          "offline_regression": "OFFLINE_REGRESSION",
+          "board_injection": "BOARD_INJECTION",
+          "camera": "CAMERA"
+        }
+      }
+    },
+    {
+      "name": "4d_runbook_heads_order",
+      "status": "FAIL",
+      "evidence": {
+        "line": 84,
+        "text": "# 4) 单帧注入（PS 侧）：装载 → flush → 发布 → 等 PL done → 读结果 → invalidate → 释放",
+        "required": "等 PL done → invalidate + DSB → 读结果 → 释放"
+      }
+    },
+    {
+      "name": "runbook_scope_summary_clear",
+      "status": "FAIL",
+      "evidence": {
+        "line": 8,
+        "text": "- 覆盖：阶段4 单帧注入通路（装载 → flush → 发布所有权 → 消费者完成 → 读取结果/invalidate → 释放）及有限序列/背压/故障语义。",
+        "detail_lines": [
+          45,
+          47,
+          51,
+          52
+        ]
+      }
+    }
+  ],
+  "mutation_probes": [
+    {
+      "name": "session_id_string",
+      "rejected": true
+    },
+    {
+      "name": "synthetic_wrong_target",
+      "rejected": true
+    },
+    {
+      "name": "synthetic_capture_available_true",
+      "rejected": true
+    },
+    {
+      "name": "ps_log_key_role_swapped",
+      "rejected": true
+    }
+  ],
+  "mutation_probes_all_rejected": true,
+  "file_hashes": {
+    "contract_json_sha256": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e",
+    "contract_md_sha256": "7b9c9d387d7adcfbbc4d0301b0a4303960783f6e6793939fdd34a2deec5b4b77",
+    "s4a_json_sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+    "s4a_md_sha256": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+    "address_map_sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+    "runbook_sha256": "7f4ef283e52b80120bf46ea9b943132027dd6ebfaf8529d80afe8f6769c0c168"
+  }
+}

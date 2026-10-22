@@ -1,0 +1,26 @@
+{
+  "tool": "s4_inject_frame_host",
+  "contract_version": "s4-shared-io/1.1.0",
+  "ops": [
+{"index": 0, "try": false, "op": "region name=mock base=0x10000000 len=0x02000000", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 1, "try": false, "op": "ring slots=1 session=7", "status": 0, "status_name": "OK", "field": null, "reason": "OK", "actual": 0},
+{"index": 2, "try": false, "op": "frame id=1 w=4 h=4 stride=12 capture=123junk", "status": 26, "status_name": "ERR_CLI_ARGUMENT", "field": "capture", "reason": "CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数", "actual": 0}
+  ],
+  "status": 26,
+  "status_name": "ERR_CLI_ARGUMENT",
+  "last_failure_reason": "CLI 数值必须是完整、非负且不溢出的十进制或 0x 十六进制整数",
+  "ring": {
+    "slot_count": 1, "in_flight": 0, "held": 0,
+    "last_released_frame_id": 0, "flush_events": 0, "has_released_frame": 0, "session_id": 7, "session_initialized": 1, "last_accepted_frame_id": 0, "has_accepted_frame": 0, "invalidate_events": 0, "timeout_events": 0, "dropped_frames": 0,
+    "last_bind_slot": 0,
+    "slots": [{"slot": 0, "state": "FREE", "session_id": 0, "frame_id": 0, "source_kind": "none", "measurement_scope_source_kind": "none", "capture_time_ns": 0, "unavailable_capture_time": 0, "consumer_stopped_confirmed": 0, "events_mask": 0, "integrity_checked": 0, "flush_bytes": 0, "invalidate_bytes": 0}]
+  },
+  "mock_cache": {
+    "flush_count": 0, "invalidate_count": 0, "flushed_bytes": 0, "invalidated_bytes": 0, "dirty_lost_lines": 0, "barrier_count": 0, "barrier_failures": 0,
+    "flush_ranges": [],
+    "invalidate_ranges": [],
+    "write_count": 0, "write_records": []
+  },
+  "consumer": {"reads": 0, "last_crc32": 0, "valid_bytes": 0, "padding_bytes": 0, "padding_consumed": 0, "busy_ticks": 0},
+  "op_count": 3
+}

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-C05",
+  "run_id": "s4_codex_claim_20261023_r01",
+  "source_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "evidence_dir": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/claim.json",
+      "sha256": "997bd9f6d84ddc9f4c92fd4ccbb40eb8f5af7c8aae2ed69f3eed4a48d47af13c",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/delivery_manifest_rejected_r01.json",
+      "sha256": "875d538071f04ec72bfe947936a4ceeb202642c52da9a08cbc9cbc23621d3001",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/independent_audit.json",
+      "sha256": "b6a4f30eb9b64da0e00e3d0df14d5d3ec3e743b0d522a29316ac84d1c93fd15f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/packaging_failure_r01.json",
+      "sha256": "d15729c09cfb344b71db202a7c8f8a836da6274f6d04e6ebc3fd457c435c32cd",
+      "role": "result"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\verification\\handoff_check.py",
+      "sha256": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b",
+      "role": "source",
+      "keep_reason": "本次实际执行的主树只读交接核验器；不同于w4内历史副本，按精确源路径绑定。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "ownership_claim",
+      "status": "PASS",
+      "command": "python -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w4 --record <原OFFERED记录，仅内存base_commit重绑af85d5a> --claim --claimed-path .codex/STATE.md --claimed-path docs/stage4/ --claimed-path vitis/stage4/ --claimed-path scripts/stage4_s4b/ --claimed-path scripts/stage4_s4ctrl/ --claimed-path verification/ --claimed-path report/evidence/S4-CTRL/ --json",
+      "exit_code": 0,
+      "reason": "9 PASS/0 FAIL/0 SKIP；干净、无锁、无重型进程、明确OFFERED与next_owner。"
+    },
+    {
+      "name": "independent_source_audit",
+      "status": "BLOCKED",
+      "command": "Reviewer R1/R2在bb5d9ab源码快照进行只读规格/实现审查，不执行脚本或测试",
+      "exit_code": null,
+      "reason": "两名Reviewer均CHANGES_REQUIRED；详见independent_audit.json，不将包装检查当作G2。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "handoff_checker_sha256": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b"
+  },
+  "limitations": [
+    "只接管w4写权；未授权任何硬件操作。",
+    "两个Reviewer结果绑定旧提交，待修复后另冻结差异复审。",
+    "原rev-spec T1至T4完整原文缺失，未伪称恢复。"
+  ]
+}

@@ -3,9 +3,9 @@
   "contract_id": "s4-shared-io",
   "contract_version": "1.1.0",
   "status": "DRAFT_PENDING_REVIEW",
-  "revision": "r02",
+  "revision": "r03",
   "created_utc8": "2026-10-22T19:20:00+08:00",
-  "revision_note": "r02：按 rev-spec task-7 审查（CHANGES_REQUIRED）修复 T1（新增 upstream_bindings 与“权威必须已提交且经审查”规则，并钉扎当前权威 SHA 以便漂移可检）、T2（改用 S4-A 现有词表 source_kind/capture_time_available，删除自造 INJECTION_ONLY 与“不是 0”的冲突写法）、T3（display_semantics 改用阶段5 G0 已决值 B_latest_result_overlay）、T4（description 移出 hud_field_sources），并处理 N1/N3/N4/N5/N6。",
+  "revision_note": "r03：只修正未冻结草案与 S4-A r06 权威不一致处，保留 r02 及其证据；session_id 改为 S4-A u32，明确 join_key、PS 日志主键、UART 可观测键及桥接日志字段；固定 synthetic/file_injection/camera 到 S4-A source_kind 的一一映射和采集时间真值表；修正输入 invalidate 事件顺序。阶段5显示/HUD语义及 s2bu/1.1 正文与扩展保持不变。",
   "task_id": "S4-CTRL/S4B-contract",
   "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
   "consumers": [
@@ -27,7 +27,7 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "416c02419ebe93e15bed0093a5e8c3bb8bca966395aa0c0febdf63d1646db6c3"
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
     },
     {
       "id": "cdx_010_stage4_runbook",
@@ -82,9 +82,9 @@
       },
       {
         "name": "session_id",
-        "type": "string",
+        "type": "uint32",
         "required": true,
-        "semantics": "PS 每次启动/会话唯一标识（建议 32 hex）；结果与旁路日志唯一映射键之一，会话内不变"
+        "semantics": "沿用 S4-A u32；PS 每次启动、复位 frame_id 计数或同一请求重开 RUN 时重新分配，同一会话内不变且 frame_id 不复用；按 S4-A 规则拒绝回绕。"
       },
       {
         "name": "frame_id",
@@ -159,7 +159,7 @@
         "name": "capture_time_available",
         "type": "boolean",
         "required": true,
-        "semantics": "是否具有真实采集时间。取值域与 S4-A measurement_scope.capture_time_available 一致；FILE_INJECTION 下必须为 false，此时结果侧 capture_time_ns 按 S4-A 取 0 哨兵并由注解判别"
+        "semantics": "是否具有真实采集时间。必须与 measurement_scope.capture_time_available 一致：file_injection 与 synthetic 为 false，camera 为 true。前两者结果侧 capture_time_ns=0 并标记 unavailable_fields；camera 必须为非零且不得标记 unavailable。"
       },
       {
         "name": "injection_start_ns",
@@ -171,7 +171,7 @@
         "name": "capture_time_ns",
         "type": "uint64",
         "required": false,
-        "semantics": "仅 CAMERA：该帧第一个有效像素时刻。FILE_INJECTION 下本字段**必须省略**（若因结构无法省略，则结果侧按 S4-A 约定取 0 哨兵并以注解判别，不得当作实测采集时间），且 capture_time_available=false"
+        "semantics": "camera 必须提供非零的第一个有效像素时刻且不得列入 unavailable_fields；file_injection 与 synthetic 使用 0 哨兵并在 measurement_scope.unavailable_fields 列出 capture_time_ns，不得解释为采集时刻。"
       },
       {
         "name": "timestamp_source",
@@ -195,7 +195,7 @@
         "name": "measurement_scope",
         "type": "object",
         "required": true,
-        "semantics": "取值域与 S4-A evidence_annotation.measurement_scope 完全一致（见 vocabulary_mapping），不得自造枚举；FILE_INJECTION 下 unavailable_fields 必须包含 capture_time_ns"
+        "semantics": "取值域与 S4-A evidence_annotation.measurement_scope 完全一致；source_kind 须与顶层 source_kind 一一对应，capture_time_available 须与顶层布尔值相同。file_injection/synthetic 下 unavailable_fields 必须包含 capture_time_ns 且 capture_time_ns=0；camera 下 capture_time_ns 必须非零且 unavailable_fields 不得包含它。"
       }
     ],
     "vocabulary_mapping": {
@@ -212,10 +212,9 @@
           "synthetic"
         ],
         "map": {
-          "board_injection": "file_injection",
-          "camera": "camera",
-          "offline_regression": "synthetic",
-          "synthetic": "synthetic"
+          "file_injection": "BOARD_INJECTION",
+          "synthetic": "OFFLINE_REGRESSION",
+          "camera": "CAMERA"
         },
         "note": "契约与 C 实现/CLI 使用同一小写取值；S4-A 使用大写 OFFLINE_REGRESSION/BOARD_INJECTION/CAMERA。证据中必须同时记录两侧取值或记录本映射，禁止出现第三种命名。"
       },
@@ -245,7 +244,13 @@
         true,
         false
       ],
-      "rule": "FILE_INJECTION/BOARD_INJECTION ⇒ capture_time_available=false，且必须给出 injection_start_ns 与 clock_domain；unavailable_fields 必须列出 capture_time_ns"
+      "source_kind_mapping_rule": "映射严格为 file_injection→BOARD_INJECTION、synthetic→OFFLINE_REGRESSION、camera→CAMERA；不得存在额外映射或一对多映射。顶层 source_kind 和 measurement_scope.source_kind 必须映射到同一个 S4-A 值。",
+      "capture_time_truth_table": {
+        "file_injection": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
+        "synthetic": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
+        "camera": {"capture_time_available": true, "capture_time_ns": "nonzero", "unavailable_fields_contains_capture_time_ns": false}
+      },
+      "rule": "file_injection/BOARD_INJECTION 与 synthetic/OFFLINE_REGRESSION ⇒ capture_time_available=false、capture_time_ns=0 哨兵且 unavailable_fields 必须列出 capture_time_ns；file_injection 还必须给出 injection_start_ns 与 clock_domain。camera/CAMERA ⇒ capture_time_available=true、capture_time_ns 非零且不得标记 unavailable。"
     },
     "events": {
       "order": [
@@ -253,28 +258,33 @@
         "producer_write_complete",
         "cache_flush_by_producer",
         "ownership_publish_to_consumer",
+        "consumer_invalidate",
         "consumer_start",
         "consumer_done",
-        "consumer_invalidate",
         "buffer_release_to_producer"
       ],
       "producer_write_complete": "写完最后一字节的事件（日志带 session_id/frame_id/length/frame_integrity）",
       "ownership_publish_to_consumer": "所有权移交的显式事件；消费者在此之前不得读取",
-      "consumer_done": "消费者完成读取/推理（PL done 或 mock 等价事件）",
+      "consumer_invalidate": "所有权发布后、消费者读取前，对输入帧区间 invalidate + DSB，确保消费者看到 backing DDR 中生产者写入的数据。",
+      "consumer_done": "消费者完成读取/推理（PL done 或离线 mock 等价事件）；超时不代表消费者已停止。",
       "buffer_release_to_producer": "消费者放弃缓冲的显式事件；在此之前生产者不得覆盖该帧",
       "rule": "任一事件缺失即该帧不可消费；不得用超时推断完成"
     },
     "cache_and_dma_rules": {
-      "producer": "写完帧后、发布所有权前 flush（DCache 写回，64 B 外对齐）+ DSB",
-      "consumer": "读取结果前 invalidate（64 B 外对齐）+ DSB；不得读前 flush 覆盖他人写入",
-      "dma_completion_order": "DMA/PL 完成事件到达后仍需 cache 维护才能真正读到数据；不得仅凭状态位读内存",
+      "hardware_cache_line_bytes": 32,
+      "maintenance_alignment_bytes": 64,
+      "alignment_note": "32 B 是冻结 2B BSP 源码声明的硬件缓存行参数；64 B 是本契约采用的保守维护区间向外取整/缓冲对齐策略，不代表 Cortex-A9 物理缓存行大小。",
+      "producer": "写完帧后、发布所有权前 flush（DCache 写回，按 64 B maintenance_alignment_bytes 向外取整）+ DSB",
+      "consumer": "读取输入帧前 invalidate（按 64 B maintenance_alignment_bytes 向外取整）+ DSB；不得读前 flush 覆盖他人写入",
+      "pl_output_visibility": "PL 写完 feature_envelope 并提交 done 后，PS 对输出 heads 区间独立 invalidate + DSB，再读取结果；这是 PL 输出可见性维护，不属于输入帧事件序列。",
+      "dma_completion_order": "DMA/PL 完成事件到达后仍需对 PL 输出做 cache 维护才能真正读到数据；不得仅凭状态位读内存",
       "no_overwrite": "生产者不得覆盖仍被消费者（推理或显示）持有的帧；多缓冲数 ≥ 在途消费者数 + 1",
       "region_direction": "各 region 的方向以地址图 cache_maintenance 为准"
     },
     "frame_sequence_rules": {
       "duplicate_frame_id": "同一会话内重复的 frame_id（未声明为重放）必须**拒绝**并记 FAIL，不得幂等静默接受",
       "regressed_frame_id": "frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位",
-      "out_of_order_result": "结果侧乱序：按 (session_id, frame_id, result_seq) 关联；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据",
+      "out_of_order_result": "同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝。结果侧按独立 mapping_key_roles 所列用途连接，无法唯一关联或顺序矛盾的结果不得用于跨阶段证据。",
       "rule": "以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因"
     }
   },
@@ -377,6 +387,13 @@
         "frame_id",
         "result_seq"
       ],
+      "mapping_key_roles": {
+        "stage4a_join_key": {"fields": ["session_id", "frame_id", "repeat_index"], "role": "S4-A 结果记录与同一请求重复项的连接键。"},
+        "ps_log_primary_key": {"fields": ["session_id", "result_seq"], "role": "PS 旁路结果日志主键；result_seq 从 1 单调递增且按 S4-A 拒绝回绕。"},
+        "uart_observable_key": {"fields": ["frame_id", "repeat_index", "sequence"], "role": "UART 可观测的请求/响应配对键；sequence 只作配对与一致性核对，不是唯一键。"},
+        "bridge_log_fields": ["session_id", "frame_id", "repeat_index", "result_seq", "sequence", "source_kind", "frame_integrity", "ownership_events"],
+        "contract_result_key": {"fields": ["session_id", "frame_id", "result_seq"], "role": "阶段4/5 共享契约中唯一标识一条结果记录；不得替代上述各键在其各自日志/协议中的用途。"}
+      },
       "fields": [
         "session_id",
         "frame_id",
@@ -390,7 +407,7 @@
         "frame_integrity（CRC/SHA + 长度）",
         "重复/乱序/拒绝原因"
       ],
-      "uniqueness_rule": "(session_id, frame_id) 会话内唯一；(session_id, frame_id, result_seq) 唯一标识一条结果。上游字段不足时阶段4 补一份版本化本地映射（随证据保存），不得单方修改上游协议",
+      "uniqueness_rule": "(session_id, frame_id, result_seq) 在本共享契约中唯一标识一条结果；S4-A join_key=(session_id, frame_id, repeat_index)、PS 日志主键=(session_id, result_seq)、UART 可观测键=(frame_id, repeat_index, sequence) 各有独立用途。桥接日志同时记录 mapping_key_roles.bridge_log_fields，禁止混用或把 UART sequence 当唯一主键。",
       "conflict_handling": "映射冲突/缺失即该结果不可用于跨阶段关联，记 FAIL 并保留原始日志，不得静默挑选"
     }
   },

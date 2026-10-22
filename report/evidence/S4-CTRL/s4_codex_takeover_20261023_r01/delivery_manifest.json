@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-CTRL",
+  "run_id": "s4_codex_takeover_20261023_r01",
+  "source_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "evidence_dir": "report/evidence/S4-CTRL/s4_codex_takeover_20261023_r01",
+  "interfaces": [
+    {
+      "name": "S2A-T01-model-delivery-g0-freeze",
+      "version": "2A-G0",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/claim.json",
+      "sha256": "997bd9f6d84ddc9f4c92fd4ccbb40eb8f5af7c8aae2ed69f3eed4a48d47af13c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/delivery_manifest.json",
+      "sha256": "d959e89c75a9db3fbebb91598301aafae56f2c4a698e66f881c7488b9281f29d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/delivery_manifest_rejected_r01.json",
+      "sha256": "875d538071f04ec72bfe947936a4ceeb202642c52da9a08cbc9cbc23621d3001",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/delivery_manifest_rejected_r02.json",
+      "sha256": "d959e89c75a9db3fbebb91598301aafae56f2c4a698e66f881c7488b9281f29d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/independent_audit.json",
+      "sha256": "b6a4f30eb9b64da0e00e3d0df14d5d3ec3e743b0d522a29316ac84d1c93fd15f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/packaging_failure_r01.json",
+      "sha256": "d15729c09cfb344b71db202a7c8f8a836da6274f6d04e6ebc3fd457c435c32cd",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/packaging_failure_r02.json",
+      "sha256": "ef800d03048d80613817407e39f442ad7d2c2dcd924237e7ca46822340826d12",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_codex_takeover_20261023_r01/summary.json",
+      "sha256": "717d09afa20f302d902cfc82342b19f3eaed5ef1ffd59f7458a466bc676cda8a",
+      "role": "result"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source",
+      "keep_reason": "本包实际使用的仓库内通用包装核验器源码。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "ownership_claim",
+      "status": "PASS",
+      "command": "handoff_check --claim，实际inline参数及9项原始结果见claim.json",
+      "exit_code": 0,
+      "reason": "明确OFFERED，重绑af85d5a，9 PASS/0 FAIL/0 SKIP。"
+    },
+    {
+      "name": "G2_independent_audit",
+      "status": "BLOCKED",
+      "command": "两名独立Reviewer对bb5d9ab源码只读审查；无进程退出码",
+      "exit_code": null,
+      "reason": "两份均CHANGES_REQUIRED；待修复并冻结差异复审。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "handoff_checker_sha256": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b"
+  },
+  "limitations": [
+    "本包包装通过不代表G2、G3/G4/G5。",
+    "只接管w4写权，未进行硬件操作。",
+    "旧rev-spec原审查原文缺失；未伪称恢复。"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "review_id": "R1-03",
+  "status": "PASS",
+  "base_commit": "af85d5a8495598262395165492df5e4d0bfb723c",
+  "source_snapshot": "final_source_snapshot.json",
+  "snapshot_sha256": "f3f1d0224fcbf8bd6c3ce4d22e96ff9824c70d5bd65abf136610206a45528fc4",
+  "before_after_hash_matches": "19/19，无漂移",
+  "closed_findings": [
+    {"path": "docs/stage4/S4B_injection_path_runbook.md", "lines": [8,84], "reason": "摘要与板上模板均分开输入帧读前invalidate+DSB和PL done后heads invalidate+DSB再读取，释放前确认消费者停止。"},
+    {"path": "scripts/stage4_s4ctrl/verify_shared_io_contract.py", "lines": [113,140,252,275], "reason": "独立正例无错误，四种驻内存反序变异均被拒绝，不依赖检查器内置单个反例。"}
+  ],
+  "commands": [
+    {"command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py", "exit_code": 0, "result": "23 PASS/0 FAIL", "log": "r1_shared_r05_checker.log"},
+    {"command": "python -B <isolated tmp>/r1_r03_order_probe.py", "before_exit_code": 0, "after_exit_code": 0, "result": "正例通过，4/4变异拒绝，19文件与HEAD一致", "logs": ["r1_r1_r03_order_probe_before.log","r1_r1_r03_order_probe_final.log"]}
+  ],
+  "unchanged_authorities": ["S4-A r06 JSON/人读镜像", "共享契约MD/JSON", "阶段4地址图"],
+  "limitations": ["原rev-spec T1–T4精确报告缺失，仍UNKNOWN；本轮不冒充其关闭。", "契约与地址图仍DRAFT_PENDING_REVIEW，200ms仍待批准。", "仅R1针对性复审PASS；32位行为和真实PS/BSP/PL/硬件均未验证。", "原始文件按字节归档；Reviewer已停止全部测试/写入。"]
+}

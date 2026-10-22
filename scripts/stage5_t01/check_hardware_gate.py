@@ -99,6 +99,54 @@ def scan_mailboxes(roots: list[pathlib.Path]) -> dict[str, pathlib.Path]:
     return found
 
 
+def validate_registry(registry: dict, files: dict[str, pathlib.Path]) -> tuple[list[str], list[dict]]:
+    """BI-1：登记项 schema 强校验。任何不一致 → 返回问题（调用方置 BLOCKED），不再静默退化。"""
+    problems: list[str] = []
+    records = registry.get("records")
+    if not isinstance(records, list):
+        return ["登记表缺少 records 列表"], []
+    state_kinds = set(registry.get("state_changing_kinds", []))
+    neutral_kinds = set(registry.get("neutral_kinds", []))
+    allowed = state_kinds | neutral_kinds
+    seen: set[str] = set()
+    for idx, rec in enumerate(records):
+        name = rec.get("file")
+        if not name:
+            problems.append(f"登记项#{idx} 缺 file 字段")
+            continue
+        parts = str(name).replace("\\", "/").split("/")
+        base = parts[-1]
+        root_hint = parts[0] if len(parts) > 1 else None
+        if base not in files:
+            problems.append(f"登记项指向的信箱文件缺席：{name}（不得靠删除/改名登记文件放行）")
+            continue
+        actual_root = files[base].parent.name
+        if root_hint is not None and root_hint != actual_root:
+            problems.append(f"登记项目录前缀不匹配：{name} 实际位于 {actual_root}/（可能绑定到另一信箱同名文件）")
+        if name in seen:
+            problems.append(f"同一文件重复登记：{name}（后者可遮蔽前者状态）")
+        seen.add(name)
+        kind = rec.get("kind")
+        if kind not in allowed:
+            problems.append(f"登记项 kind 非法或拼写错误：{name} kind={kind!r}")
+            continue
+        if not rec.get("sha256"):
+            problems.append(f"登记项缺 sha256：{name}（不得跳过绑定）")
+        else:
+            actual = sha256_file(files[base])
+            if str(rec["sha256"]).lower() != actual.lower():
+                problems.append(f"登记项哈希不匹配（证据矛盾）：{name} "
+                                f"登记={str(rec['sha256'])[:12]}… 实际={actual[:12]}…")
+        if kind in state_kinds and not rec.get("order_key"):
+            problems.append(f"状态类登记项缺 order_key：{name}")
+        quote = rec.get("evidence_quote")
+        if quote:
+            text = files[base].read_text(encoding="utf-8", errors="replace")
+            if quote not in text:
+                problems.append(f"登记项证据原文不匹配（证据矛盾）：{name} 未找到引用原文 {quote!r}")
+    return problems, records
+
+
 def classify(files: dict[str, pathlib.Path], registry: dict) -> tuple[list[dict], list[dict], list[str]]:
     """返回 (状态类记录, 中性记录, 问题)。"""
     problems: list[str] = []
@@ -113,14 +161,19 @@ def classify(files: dict[str, pathlib.Path], registry: dict) -> tuple[list[dict]
         if rec is None:
             hinted_name = bool(HANDOFF_HINT.search(name))
             marker = DECL_MARKER.search(text)
-            hinted_body = bool(marker)
-            if hinted_name or hinted_body:
-                problems.append(f"未登记的硬件交接记录（不可识别）：{name}"
-                                f"{'（文件名含交接语义）' if hinted_name else ''}"
-                                f"{'（声明标记 ' + marker.group(0) + '）' if marker else ''}")
+            hinted_body = bool(HANDOFF_HINT.search(text))
+            if hinted_name or marker or hinted_body:
+                reasons_extra = []
+                if hinted_name:
+                    reasons_extra.append("文件名含交接语义")
+                if marker:
+                    reasons_extra.append("声明标记 " + marker.group(0))
+                if hinted_body:
+                    reasons_extra.append("正文含交接语义")
+                problems.append(f"未登记的硬件交接记录（不可识别）：{name}（{'；'.join(reasons_extra)}）")
             else:
                 neutral.append({"file": name, "kind": "unregistered_neutral",
-                                "note": "未登记但不自称硬件交接 → 中性"})
+                                "note": "未登记且文件名/正文/声明标记均不含交接语义 → 中性"})
             continue
         kind = rec.get("kind")
         actual = sha256_file(path)
@@ -214,6 +267,13 @@ def main() -> int:
         reasons.append("未发现任何信箱记录（fail-closed）")
     state_records, neutral, class_problems = classify(files, registry)
     reasons.extend(class_problems)
+    schema_problems, _ = validate_registry(registry, files)
+    reasons.extend(schema_problems)
+
+    dup_keys = [k for k in {r.get("order_key") for r in state_records if r.get("order_key")}
+                if sum(1 for r in state_records if r.get("order_key") == k) > 1]
+    if dup_keys:
+        reasons.append(f"状态类 order_key 重复（排序歧义）：{sorted(dup_keys)}")
 
     state, release, occupation = effective_state(state_records, args.scope)
 
@@ -289,6 +349,7 @@ def main() -> int:
     elif authorization is not None:
         release_basis = "operator_authorization"
     if state == "OCCUPIED":
+        release_basis = None
         reasons.append(f"{args.scope} 处于占用态：最近状态类记录={occupation['id'] if occupation else '未知'}"
                        "（有效授权也不能覆盖真实占用）")
     elif state == "UNKNOWN":
@@ -326,6 +387,8 @@ def main() -> int:
         "mailbox_files_scanned": sorted(files.keys()),
         "state_records": state_records,
         "neutral_records": neutral,
+        "unregistered_neutral_files": [r.get("file") for r in neutral
+                                       if r.get("kind") == "unregistered_neutral"],
         "provided_release_id": args.release_id,
         "authorization": authorization,
         "rejected_authorization": rejected_authorization,

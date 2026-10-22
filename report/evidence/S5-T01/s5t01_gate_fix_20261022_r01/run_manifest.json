@@ -5,7 +5,7 @@
   "generated_utc8": "2026-10-22T19:19:07+08:00",
   "source_head": "e4533e1d3b9ef1a80f1350e36f7fb479dbc88dc6",
   "authority": "CDX-20261022-014 §0（取代 CDX-20261022-011）",
-  "goal_reached": "GATE_V2_IMPLEMENTED_AND_SYNTHETICALLY_TESTED__INDEPENDENT_REVIEW_PENDING__REAL_GATE_NOT_RUN",
+  "goal_reached": "GATE_V2_1_BI1_BI2_CLOSED_28_TESTS_PASS_REAL_GATE_GO_REREVIEW_PENDING",
   "root_cause": "v1 按全部 MD 全文关键词二分推断占用 ⇒ 普通操作文档被当作最新占用，使有效让出失效",
   "fix": {
     "mechanism": "登记表驱动（registry）",
@@ -46,29 +46,20 @@
     }
   ],
   "synthetic_test_matrix": {
-    "total": 19,
-    "pass": 19,
+    "total": 28,
+    "pass": 28,
     "fail": 0,
-    "covers": [
-      "release→plain doc neutral",
-      "release→new occupation blocks",
-      "occupation→release ordered",
-      "plain doc body words cannot masquerade",
-      "unregistered filename hint blocks",
-      "unregistered declaration marker blocks",
-      "registry hash mismatch blocks",
-      "evidence_quote mismatch blocks",
-      "release-before-occupation blocks",
-      "index.lock blocks",
-      "process enumeration failure blocks",
-      "process hit blocks",
-      "release-id mismatch blocks",
-      "authorization without bound source rejected",
-      "authorization with bound source (unknown state)",
-      "authorization cannot override occupation",
-      "missing registry blocks",
-      "real mailbox+registry read-only parity",
-      "registry covers all real mailbox files"
+    "added": 9,
+    "added_cases": [
+      "registry file missing",
+      "registry missing sha256",
+      "duplicate registration",
+      "bad kind",
+      "state missing order_key",
+      "file prefix mismatch",
+      "unregistered body occupation",
+      "registered operation_doc with handoff words stays neutral",
+      "occupied release_basis null"
     ]
   },
   "self_defects_found_by_tests": [
@@ -84,8 +75,17 @@
     "status": "DESIGN_ONLY_NOT_IMPLEMENTED_NOT_BOARD_TESTED"
   },
   "review": {
-    "status": "PENDING",
-    "note": "CDX-20261022-014 §0.5：审查通过前不得据该脚本放行真实硬件"
+    "status": "CHANGES_REQUIRED_ROUND1",
+    "record": "REVIEW_r01_CHANGES_REQUIRED.md",
+    "blocking_items": [
+      "BI-1 registry schema fail-open",
+      "BI-2 unregistered body-claim neutral"
+    ],
+    "closure": {
+      "BI-1": "CLOSED (schema hard validation + 7 blockers)",
+      "BI-2": "CLOSED (filename/body/marker hit -> BLOCKED; registered operation_doc stays neutral)",
+      "re_review": "PENDING"
+    }
   },
   "files": [
     {
@@ -93,12 +93,24 @@
       "sha256": "e956a6c00341c8f7ae762b326ffe89b7cce9e36dfb445ab82223b55752b4c0fd"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/real_gate_postfix.txt",
+      "sha256": "e956a6c00341c8f7ae762b326ffe89b7cce9e36dfb445ab82223b55752b4c0fd"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/tool_hashes.txt",
       "sha256": "72418263c4643b06ea65db9b39b0d87f0e86e37163fa87fd317be394241ad594"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/tool_hashes_postfix.txt",
+      "sha256": "b3ff2458f90b4d3f215177f5b59ccfc59dad7166b593345498aca06ea51cd96d"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2.txt",
       "sha256": "159e16a1ff75b0a8c626544e61082ffdedec755d94ec9b8ebce6d925ffac7a55"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/console/unittest_gate_v2_1.txt",
+      "sha256": "66a58cb3b60dcd7dbdc73d8685ca5559e9c9cb812e9196f2e24af990e7905e50"
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/parity_stub/console/neutral_records.json",
@@ -125,18 +137,70 @@
       "sha256": "119f39c3b52076e4886d47bd07d3975ad11e7e58bf9db5561d8e372027f0b56a"
     },
     {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/console/neutral_records.json",
+      "sha256": "4721f66eb17df742a9b39d0173e4a1f55dcf84f9003e5ca5344047b7fd8e9eff"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/console/process_enumeration.txt",
+      "sha256": "7b8608275289e5c18a6d58cce6a54d896968ff39f96b558f6bbbcdeaf4a4c264"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/console/state_records.json",
+      "sha256": "aa0cd3afb8e5acd9f5153e661f10cc97850db85fe0d4629dd5b3823efb6a8765"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/console/worktrees.json",
+      "sha256": "0ed0eebf20e40dcf4e73715720773cf8a1ccdfd376bf307e8852ad9ec884046e"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_parity_stub/hardware_gate.json",
+      "sha256": "0de1848b16faa579ec3e609e6b25d041483f131994eb26c54cb0211005c11e80"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_real_gate/console/neutral_records.json",
+      "sha256": "4721f66eb17df742a9b39d0173e4a1f55dcf84f9003e5ca5344047b7fd8e9eff"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_real_gate/console/process_enumeration.txt",
+      "sha256": "19a4ab35639e8125150a81b8b57152378324156c7817006de7ed2b597eb376e6"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_real_gate/console/processes.json",
+      "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_real_gate/console/state_records.json",
+      "sha256": "aa0cd3afb8e5acd9f5153e661f10cc97850db85fe0d4629dd5b3823efb6a8765"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_real_gate/console/worktrees.json",
+      "sha256": "5134055994090c02204906db02e0c3a18fcbc8a32a96b332886c56f8d4acc05c"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/post_fix_real_gate/hardware_gate.json",
+      "sha256": "6126be927f5d1ec93aeb74615d8cd5c5bd756a29b6b07f138ea70f2cb1cceb35"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/REVIEW_r01_CHANGES_REQUIRED.md",
+      "sha256": "1ebcd902194d28eb1ec79b6b327c69589643409c5c3b207cb7dbc70d2ce6db85"
+    },
+    {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/S5T01_S3_frame_event_design.md",
       "sha256": "de39399df93155816f94a21438db74b4fc8fadd2cd2de7546dcb54b66ae8b856"
     },
     {
       "path": "report/evidence/S5-T01/s5t01_gate_fix_20261022_r01/summary.md",
-      "sha256": "902f96c1ac90eae15f786bc9b8743092e11be8a3b8be3dfed4942ada7abc68ef"
+      "sha256": "2643a7af72847e9d70ed0eb3fc112a97065050eeac19000fceabff0966d8a34f"
     }
   ],
   "bound_inputs": [
     {
       "path": "scripts/stage5_t01/check_hardware_gate.py",
-      "sha256": "8b82906e550e1beaed80837750977313e9d463251d48b945976f335bff49f7d2"
+      "sha256": "0a2ebc7d4c20c290f4cd0b1390d8fd8240995e873920173c55b04944d7cff9dc"
     },
     {
       "path": "scripts/stage5_t01/hardware_handoff_registry.json",
@@ -144,7 +208,7 @@
     },
     {
       "path": "scripts/stage5_t01/test_hardware_gate.py",
-      "sha256": "0b61be9aeee3e0214db0f8a38646210ca4715a91049d02ddd93beb6a92535a2f"
+      "sha256": "7e1c69a765991c3a90f1830201a01fa3a66ee62459fd753bbf957c849afa3d28"
     }
   ],
   "not_executed": [
@@ -157,5 +221,15 @@
     "未做 v1→v2 的历史重放；中性化语义仅由合成输入证明。",
     "登记表只读引用信箱记录哈希；未改任何 mailbox 文件。",
     "本次未连接板卡、未启动 hw_server、未写寄存器。"
-  ]
+  ],
+  "real_gate_postfix": {
+    "exit_code": 0,
+    "decision": "GO",
+    "hardware_state": "RELEASED",
+    "log": "console/real_gate_postfix.txt",
+    "caveat": "放行效力待独立复审（re-review PENDING）；不得据此单独放行真实硬件"
+  },
+  "tool_hashes_postfix": {
+    "log": "console/tool_hashes_postfix.txt"
+  }
 }

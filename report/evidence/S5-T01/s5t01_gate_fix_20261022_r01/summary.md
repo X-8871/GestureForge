@@ -63,7 +63,29 @@
 
 - `check_hardware_gate.py` `8b82906e…`；`hardware_handoff_registry.json` `d21fbfab…`；`test_hardware_gate.py` `0b61be9a…`
 
-## 7. 未完成 / 限制
+## 7. 审查结论与 BI-1/BI-2 关闭（2026-10-22 19:35–19:45）
+
+- **审查结论**：`CHANGES_REQUIRED`（2 阻断项 + 5 条非阻断观察），记录见 `REVIEW_r01_CHANGES_REQUIRED.md`。
+  审查者独立确认：修复目标已达成（真实门禁中 `CDX-20261022-014` 为中性 `operation_doc`、真实模式 exit 0/GO/RELEASED）、对抗性验证有效（撤回 v2 语义即复现 v1 误判，且 19 项测试在 v1 副本上 `failures=5`）。
+- **开发者失败**：`dev-s5-gate` 未产出（后台子代理失败、门禁文件哈希未变）⇒ 由 **Lead 承担集成责任**完成修复。
+
+### 7.1 BI-1 关闭（登记表 schema 强校验，任一不一致 → BLOCKED）
+登记文件缺席、缺 `sha256`、同一文件重复登记、`kind` 非法/拼写错误、状态类缺 `order_key`、`file` 目录前缀不匹配、状态类跨信箱 `order_key` 重复（排序歧义）——全部阻断；`OCCUPIED` 时 `release_basis=null`。
+
+### 7.2 BI-2 关闭（未登记文件不得静默中性）
+未登记文件若**文件名或正文或 `hw_handoff_kind:` 声明标记**含交接语义 → BLOCKED（不可识别的硬件交接记录）；仅登记表内记录可改变状态。**回归护栏**：已登记为 `operation_doc` 的文件（如 `CDX-20261022-014`）即使正文含"释放/独占"仍必须中性——由 `test_27` 锁死。
+
+### 7.3 修复后验证（真实退出码）
+| 命令 | 退出码 | 结果 |
+|---|---|---|
+| `python -B -m unittest scripts.stage5_t01.test_hardware_gate -v` | **0** | **Ran 28 tests … OK**（原 19 + 新增 9 条覆盖 BI-1/BI-2） |
+| 只读一致性（替身进程/锁）`--release-id CDX-20261022-007` | **0** | GO / RELEASED / 让出 `007` / 最近占用 `006` |
+| **真实只读门禁**（真实进程/锁；`console/real_gate_postfix.txt`） | **0** | GO / RELEASED；无 `index.lock`、tasklist 枚举成功且无硬件进程 |
+
+- 修复后工具哈希：`check_hardware_gate.py=0a2ebc7d…`、`test_hardware_gate.py=7e1c69a7…`、`hardware_handoff_registry.json=d21fbfab…`（登记表未变）。
+- 测试语义随之收紧两条（应视为**行为变更**，已在测试内注明）：未登记且正文含交接语义的文档由"中性"改为"BLOCKED"（`test_04` 更名）；`write_registry` 桩补齐 `neutral_kinds`。
+
+## 8. 未完成 / 限制
 
 - **独立审查结论未回**：审查前不得依赖该脚本放行真实硬件（§0.5）。
 - **真实只读门禁（真实进程/锁）尚未执行**：将在审查结论后执行并另附证据。

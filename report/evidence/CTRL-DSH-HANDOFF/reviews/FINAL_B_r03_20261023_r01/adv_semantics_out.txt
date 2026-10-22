@@ -1,0 +1,53 @@
+阈值： {'a01_ns': 1000000000, 'a02_ns': 500000000, 'c01_frames': 2, 's01_ns': 200000000, 's02_frames': 6, 's04_ns': 500000000, 'l01_frames': 5, 'l02_ns': 300000000, 'k01_ns': 1000000000, 'j01_frames': 1, 'u00_w': 3, 'u00_n': 3, 'u01_frames': 5, 'p01': 0.35, 'p02': 0.3, 'p03': 0.3, 'p04': 0.15, 'p05': 0.05, 'stale_limit_ns': 200000000, 'boxes_max': 15}
+PASS  A1 零框 8 帧 final_state: got='IDLE' want='IDLE' 
+PASS  A2 零框 transitions: got=[] want=[] 
+PASS  A3 零框 no_hand_frames: got=8 want=8 
+PASS  A4 零框 action_submitted: got=0 want=0 
+PASS  A5 零框 window_match_count: got=0 want=0 
+PASS  B1 两次提交（跨目标）: got=2 want=2 
+PASS  B2 第二次提交时刻 >= t_last_submit+K01: got=True want=True delta=1100000000 ns
+PASS  B3 第二次提交 acquisition_id: got=1 want=1 
+PASS  B4 门开前无提前提交（第 2 次提交在门开之后）: got=True want=True states=['M1', 'M3', 'M5', 'M9', 'M5']
+PASS  B5 第一次提交在 600ms: got=600000000 want=600000000 
+PASS  C1 TIMEOUT 帧不触发（提交仍在 1610ms）: got=[600000000, 1610000000] want=[600000000, 1610000000] 
+PASS  D1 K01-1ns 不触发、=K01 触发: got=[600000000, 1600000000] want=[600000000, 1600000000] transitions=['M1', 'M3', 'M5', 'M2', 'M12', 'M1', 'M3', 'M5']
+FAIL  D2 新获取 id（B11/D7 推导：新获取应为新 id）: got=[0, 0] want=[0, 1] ← 本项为对抗发现：M2/M12 结束获取但不递增 acquisition_id
+PASS  D3 K01-1ns 帧被 S_COOLDOWN 抑制: got=True want=True suppressions=['S_COOLDOWN', 'S_COOLDOWN', 'S_COOLDOWN', 'S_COOLDOWN']
+PASS  E1 距上次 CONTINUES = L02-1ns 不判 M10: got=None want=None state=CANDIDATE
+PASS  E2 距上次 CONTINUES = L02 判 M10: got='M10' want='M10' 
+PASS  F1 M3 出现在第 8 帧: got=7 want=7 t=233100000
+PASS  F2 window_complete_ns = 233.1ms（M3 帧日志）: got=233100000 want=233100000 
+PASS  F3 第 6 帧（166.5ms）未完成: got=[None, None, None, None, None, None] want=[None, None, None, None, None, None] 
+PASS  G1 异常滑动窗口 → M2/M13/M12: got=['M2', 'M13', 'M12'] want=['M2', 'M13', 'M12'] 
+PASS  G2 恢复后 final_state: got='IDLE' want='IDLE' 
+PASS  H1 同帧 M4/M10 取 M10: got='M10' want='M10' 
+PASS  H2 该帧同时满足 M4 条件（独立观测）: got=(True, True) want=(True, True) {'jitter_exhausted': True, 'dwell_ns': 500000000, 'dwell_ok': True, 'streak': 2}
+PASS  I1 门锁期间进入 STABLE: got='STABLE' want='STABLE' 
+PASS  I1b 仅 1 次提交（首次获取）: got=[0] want=[0] 
+PASS  I2 score 跌破 P02 仍在 STABLE（且门锁抑制）: got=('STABLE', None, True) want=('STABLE', None, True) 
+PASS  I3 抖动耗尽后仍在 STABLE（M4 只作用 CANDIDATE）: got='STABLE' want='STABLE' 
+PASS  I4 门开前 1ns 的推进帧不触发: got=('STABLE', None) want=('STABLE', None) 
+PASS  I5 门开启帧触发 M5（无需重建窗口）: got='M5' want='M5' 
+FAIL  I6 触发记录 acquisition_id（B11 推导：新获取应为 1；同 D2 发现）: got=0 want=1 
+PASS  I7 STABLE 经 M2 退出: got='M2' want='M2' 
+PASS  J1 同键在 A02 处不判去重: got=None want=None 
+PASS  J2 幂等：已处于该状态无可见变化: got=(True, False) want=(True, False) 
+PASS  J3 首次提交有可见变化: got=True want=True 
+PASS  J4 A02-1ns 判 S_DEDUP: got='S_DEDUP' want='S_DEDUP' 
+PASS  J5 去重记录进 records: got=1 want=1 
+PASS  J6 不同 action_type 不去重: got=None want=None 
+PASS  J7 声明不可达条件 A02<K01: got=True want=True 
+PASS  K1 M11 后再获取 → 新 acquisition_id: got=[0, 1] want=[0, 1] 
+PASS  K2 M11 迁移确实发生: got=True want=True 
+PASS  K3 M4 迁移发生: got=['M4'] want=['M4'] [(None, 0), ('M1', 0), (None, 0), (None, 0), (None, 0), (None, 0), ('M4', 1)]
+PASS  K4 M4 递增 acquisition_id: got=[1] want=[1] 
+PASS  K5 M4 后 current_target 清空: got=None want=None 
+PASS  K6 会话切换归零: got=('RESET', 0) want=('RESET', 0) 
+PASS  K7a M8 可达（门开启帧 CONTINUES 不成立）: got='M8' want='M8' state=IDLE acq=0
+FAIL  K7b M8 后新获取仍复用旧 acquisition_id（D7/B11 推导应为 1）: got=[0, 0] want=[0, 1] transitions=['M1', 'M3', 'M5', 'M8', 'M1', 'M3', 'M5']
+
+==== 汇总 ====
+共 46 项断言，FAIL 3
+  FAIL D2 新获取 id（B11/D7 推导：新获取应为新 id）: got=[0, 0] want=[0, 1] ← 本项为对抗发现：M2/M12 结束获取但不递增 acquisition_id
+  FAIL I6 触发记录 acquisition_id（B11 推导：新获取应为 1；同 D2 发现）: got=0 want=1 
+  FAIL K7b M8 后新获取仍复用旧 acquisition_id（D7/B11 推导应为 1）: got=[0, 0] want=[0, 1] transitions=['M1', 'M3', 'M5', 'M8', 'M1', 'M3', 'M5']

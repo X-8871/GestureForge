@@ -1,0 +1,160 @@
+manifest source_commit = f3c537d1b37646ec779e3eb6fecdc4330bb1d7e3
+manifest entries = 55
+checks = [('冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）', 'FAIL', 1), ('S6-B 确定性用例（23 条 / 11 类）', 'PASS', 0), ('S6-B 判别力探针（4 项）', 'PASS', 0), ('check_stage_delivery.py --mode inputs', 'PASS', 0), ('check_stage_delivery.py --mode evidence', 'PASS', 0)]
+tool_versions = {'python': '3.12.10', 'git': 'git version 2.56.0.windows.2'}
+limitations:
+   - source_commit 为本次构建时的 HEAD（动态取值 f3c537d1b37646ec779e3eb6fecdc4330bb1d7e3）；实际交付提交由 verification/export_selfproof.py 导出后复跑自证（三项退出码见本包 export_selfproof.json）。
+   - 全部阈值为 PENDING_APPROVAL 草案值；interfaces 为空表示没有可声明为 frozen 的接口。
+   - 结论只对注入输入 + 虚拟单调时钟有效。
+   - 计入覆盖：M4（BLK-1 修正）；不计入覆盖：B16 S_DEDUP、M7。
+missing = []
+mismatched = [(1, 'report/evidence/S6-B/s6b_core_20261023_r03/cases/case_matrix.json'), (2, 'report/evidence/S6-B/s6b_core_20261023_r03/check_evidence_mode_output.txt'), (3, 'report/evidence/S6-B/s6b_core_20261023_r03/check_inputs_mode_output.txt'), (4, 'report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.json'), (5, 'report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.md'), (6, 'report/evidence/S6-B/s6b_core_20261023_r03/expected_freeze.json'), (7, 'report/evidence/S6-B/s6b_core_20261023_r03/export_selfproof.json'), (8, 'report/evidence/S6-B/s6b_core_20261023_r03/export_selfproof.md'), (9, 'report/evidence/S6-B/s6b_core_20261023_r03/hashes_sha256.txt'), (10, 'report/evidence/S6-B/s6b_core_20261023_r03/inputs_manifest.json'), (11, 'report/evidence/S6-B/s6b_core_20261023_r03/limitations_not_executed.json'), (12, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-fist-stable.jsonl'), (13, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-one-stable.jsonl'), (14, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-palm-stable.jsonl'), (15, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-three-stable.jsonl'), (16, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-two_up-stable.jsonl'), (17, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C10-tick-time-advance.jsonl'), (18, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C11-fail-then-success.jsonl'), (19, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C11-global-gate-second-acquisition.jsonl'), (20, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C11-unobserved.jsonl'), (21, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C2-hold-past-cooldown.jsonl'), (22, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C3-lost-then-reappear.jsonl'), (23, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C4-jitter-reset.jsonl'), (24, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C4-quick-switch.jsonl'), (25, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C5-held-priority.jsonl'), (26, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C5-target-jump.jsonl'), (27, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C5-tie-source-order.jsonl'), (28, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C6-no-hand-unknown-lowscore.jsonl'), (29, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C6b-no-hand-with-detections.jsonl'), (30, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C7-timeout-error-dropped-stale.jsonl'), (31, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C8-duplicate-reorder-missing-restart.jsonl'), (32, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C9-s01-equal.jsonl'), (33, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C9-s01-minus-1ns.jsonl'), (34, 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C9c-30fps-later-of.jsonl'), (35, 'report/evidence/S6-B/s6b_core_20261023_r03/params_snapshot.json'), (36, 'report/evidence/S6-B/s6b_core_20261023_r03/probe_baseline_stdout.txt'), (37, 'report/evidence/S6-B/s6b_core_20261023_r03/probe_expected_tampered_stdout.txt'), (38, 'report/evidence/S6-B/s6b_core_20261023_r03/probe_summary.json'), (39, 'report/evidence/S6-B/s6b_core_20261023_r03/probe_threshold_tampered_stdout.txt'), (40, 'report/evidence/S6-B/s6b_core_20261023_r03/probe_wrong_semantics_expected_stdout.txt'), (41, 'report/evidence/S6-B/s6b_core_20261023_r03/reachability_notes.json'), (42, 'report/evidence/S6-B/s6b_core_20261023_r03/run_report.json'), (43, 'report/evidence/S6-B/s6b_core_20261023_r03/run_stdout.txt'), (44, 'report/evidence/S6-B/s6b_core_20261023_r03/s6b_run_summary.md'), (51, 'docs/stage6/s6a_stage6_g0_behavior_v1.json'), (52, 'docs/stage6/S6A_stage6_g0_behavior_spec_v1.md'), (53, 'docs/stage6/s6b_frozen_interface_v1.json')]
+  [1] report/evidence/S6-B/s6b_core_20261023_r03/cases/case_matrix.json
+      want b79a68c9a16178337691db46157d52e5b915518231343bc1a270cd8fa2b64182
+      got  0f1086becd0821f7dec10fecd0147e598c0bff4168bb662df202c9180f6cbb51
+  [2] report/evidence/S6-B/s6b_core_20261023_r03/check_evidence_mode_output.txt
+      want 02c3e7ba95101a0d7d39c4e72c190e70bab58763093305a7309471a28a763913
+      got  3cf2f20702df8b3dfe45cc05a86644c29f1f62991d7381c1d324609d88f3053f
+  [3] report/evidence/S6-B/s6b_core_20261023_r03/check_inputs_mode_output.txt
+      want e289b4997ef899e3a5cdd65ac271b85f3763de14f932cc88453c2d065b2f2a41
+      got  8b6c7dd46a5c9009c6c2e82179595b4f1c06be5e0c1653e69adf0c7d87d61fc1
+  [4] report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.json
+      want 158dcfd643ab253f5393f2d337e1997cdd52d6d83c8fcbca533db4b9995bb77b
+      got  e06d8d9d27cf428e964ae352f20ef63de9f3c0b25bb6d94971cbe102dc7638bd
+  [5] report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.md
+      want fd6f7860494ae1cf21bbc843f57d25d274dc6300fd80df5a6fef4675a58009c9
+      got  385cf87e34b569d667e6b6ff78cf96f7d48cb8cf008627aa793f58e702b45c35
+  [6] report/evidence/S6-B/s6b_core_20261023_r03/expected_freeze.json
+      want ae8ad4324e6143fd5ca7e93fdcde20ace3b180f331d954a2347aa6626b326b58
+      got  103f3472e6477eba3597ec7dd6dc3687b9b7ea135556fd910fc5692c9afef5f0
+  [7] report/evidence/S6-B/s6b_core_20261023_r03/export_selfproof.json
+      want ff861094d1a13cc92f8dcbb002477c74c67c02fe3be321f7016b639ea9173483
+      got  6e092ce66a2a30817eb59fde70221e3cbd00986cef77391c6cc67644b616b048
+  [8] report/evidence/S6-B/s6b_core_20261023_r03/export_selfproof.md
+      want 986d21742a53968085f486a4644b63e97ee06acfecd5a7cec7077a15b16e2bff
+      got  f2f95c4f16946ac0d1473afd25eede18de61589d0266a58e489cb12212bc5010
+  [9] report/evidence/S6-B/s6b_core_20261023_r03/hashes_sha256.txt
+      want 9584e0df5cb343e42291e325f20ef2e9e71da85b7dc1bedcc0c1224f76a1f63a
+      got  8ff363e9e7e6f9018f93b7ef1405a3c1d50fb7d4f4f66784f3e0f182835937d6
+  [10] report/evidence/S6-B/s6b_core_20261023_r03/inputs_manifest.json
+      want 03312f7c3e621e8d1668f771ee0a441dead73cf1d8a14e481deb3f57172a63bf
+      got  2b24e56c2681626ba747b5e7575499b216ef97bf0b470a6793bd7393fda1cfc2
+  [11] report/evidence/S6-B/s6b_core_20261023_r03/limitations_not_executed.json
+      want e8a90d817a3605b43f06050b63661535e3216df9972d3e71f236beb48fdc7dde
+      got  78969897506e2bdae1279433b5dbcd9f3ceab71aac09879c9a87d82126610e9e
+  [12] report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-fist-stable.jsonl
+      want ef737b88d68df140ecca0387665ce9c7c4d509ebfc597d955250ecfc906c161d
+      got  c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df
+  [13] report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-one-stable.jsonl
+      want ef737b88d68df140ecca0387665ce9c7c4d509ebfc597d955250ecfc906c161d
+      got  c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df
+  [14] report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-palm-stable.jsonl
+      want ef737b88d68df140ecca0387665ce9c7c4d509ebfc597d955250ecfc906c161d
+      got  c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df
+  [15] report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-three-stable.jsonl
+      want ef737b88d68df140ecca0387665ce9c7c4d509ebfc597d955250ecfc906c161d
+      got  c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df
+  [16] report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-two_up-stable.jsonl
+      want ef737b88d68df140ecca0387665ce9c7c4d509ebfc597d955250ecfc906c161d
+      got  c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df
+  [17] report/evidence/S6-B/s6b_core_20261023_r03/logs/C10-tick-time-advance.jsonl
+      want 75ff360e68e75f48ea4bae398dcb2b4b548efe85a34b1b6b1c1001f79d29954e
+      got  49c430fd6b0d86c6995f2ed5d13c518a6e6ff9620928ccbf20842f684fadadb5
+  [18] report/evidence/S6-B/s6b_core_20261023_r03/logs/C11-fail-then-success.jsonl
+      want f82c217a4577fe739d7ce462b4d6e840b2e600e9a42a36e8c9a823365d83c3ef
+      got  175427f969f6293a849048f3e64334fdc7667eaf793454a566cb2dd148431b88
+  [19] report/evidence/S6-B/s6b_core_20261023_r03/logs/C11-global-gate-second-acquisition.jsonl
+      want b3aa392480d7efae2b1381258382034fc042e7351cf91e4b238821f12161c0f5
+      got  7256f8f4931ddc9d5c139afff788dde69c03248f8d20ce98d6abd360fd8455b4
+  [20] report/evidence/S6-B/s6b_core_20261023_r03/logs/C11-unobserved.jsonl
+      want 8136f932c34c86ce86f5c313cb546ad16054170218a0369f79831cb519eed36f
+      got  88505c96d7b24b625f1bbe8e4720f5b4859d8977bdb5c0d21f8bdfe53d52d198
+  [21] report/evidence/S6-B/s6b_core_20261023_r03/logs/C2-hold-past-cooldown.jsonl
+      want f2588191bc68dc9e40d920bf8a6295e810b3901b2c689135ba6ecb3c084c7dc8
+      got  f79e4ac3432cac74b850495bdc65d7e24a1038d316adfbe8c2827873bf2289dc
+  [22] report/evidence/S6-B/s6b_core_20261023_r03/logs/C3-lost-then-reappear.jsonl
+      want bcbfd7603e45584fd05d89ebee59e6da612cb3247e3d3328289c6064b680f202
+      got  dc2d9f642968c523dcdc68ac5e651534d59ae9b231b1947189a3d318f986c363
+  [23] report/evidence/S6-B/s6b_core_20261023_r03/logs/C4-jitter-reset.jsonl
+      want b37cffa1eea0bcb6b679adc909f126557662d46eddca47784e5b0fb9de6afa3a
+      got  7d08e8809659eefa279b0bb502a82971d4bde3d790e06eb155eba91e56694378
+  [24] report/evidence/S6-B/s6b_core_20261023_r03/logs/C4-quick-switch.jsonl
+      want 5ab03efc26ef1d17de28bab88b2144c8d4a63ca00ddbca0ce6e539e04623d654
+      got  8620b70699b819c9ed01d2629e59c934871ab67173c9e72a6887ffa66d48db4b
+  [25] report/evidence/S6-B/s6b_core_20261023_r03/logs/C5-held-priority.jsonl
+      want cec3dc35cd674135ed026c1b8c4de45236bb9cc9c62400cc89be5fdb883cbc97
+      got  72148c1e268e154bf8bee0b7b153fec7a8493325ae124c12bffc2f03b9314e1f
+  [26] report/evidence/S6-B/s6b_core_20261023_r03/logs/C5-target-jump.jsonl
+      want c1f5371482234fac7985eb6f2084f17fd8f70799703089e393b36f79b19af528
+      got  47a2f5cf7856e5fd8b9ee81134f6548a049896c859681a5aacf22f743b3d539e
+  [27] report/evidence/S6-B/s6b_core_20261023_r03/logs/C5-tie-source-order.jsonl
+      want 8899e8ea5bae204d6c764c396bf4db8b08be1041180c6df91c79166fc19e74d1
+      got  6a2aa3964661b9850343f93d207f2b651c8046ab4eb6d91a8fc023853f760a7a
+  [28] report/evidence/S6-B/s6b_core_20261023_r03/logs/C6-no-hand-unknown-lowscore.jsonl
+      want ae52fc240b374e4286fa833578d5985f6bb3b9aa16ca90784ea2e1f026029507
+      got  b4dccc45afb0edbbfd415c935e5e42576dad026595ef746ecf78c0c881fde7c1
+  [29] report/evidence/S6-B/s6b_core_20261023_r03/logs/C6b-no-hand-with-detections.jsonl
+      want 3bc4d3c101252db9a95dd23aa2e9b287d56d0018832c4cc02bb0a58588e3a01f
+      got  e05b8054da5195ebf0d6655e2777c73b8c5092baf89fc70d72a0c348eb214805
+  [30] report/evidence/S6-B/s6b_core_20261023_r03/logs/C7-timeout-error-dropped-stale.jsonl
+      want c4960ebe8e23e65613cfc5d7e33f23a324d98e0896c04e8785953f425d2b6159
+      got  1b9ae1fad7ca2eeb5952cd73db671369dc724eef92a7315c584c4cd0b40f2489
+  [31] report/evidence/S6-B/s6b_core_20261023_r03/logs/C8-duplicate-reorder-missing-restart.jsonl
+      want 619fca8fb9c42d0a595ef008c0ff6843b85480d1c7bfb52effc349a274060d35
+      got  06a8077a3bac7995b02542ae3a728f8f5da55b6705a320095f356f63b1151025
+  [32] report/evidence/S6-B/s6b_core_20261023_r03/logs/C9-s01-equal.jsonl
+      want b7208a4ad778414f9914c6b13b3fe79b60b38a7dc2d1034c2f023d797cf19bd0
+      got  880adbb77931536c8bd907c635e6b3ff628eb35dc5d38833eaf437d8eea91778
+  [33] report/evidence/S6-B/s6b_core_20261023_r03/logs/C9-s01-minus-1ns.jsonl
+      want 66f4381f642ec597b5b0a38dd64853b02437402b4be7eb7694436ca869278505
+      got  6bb00392fa20a7e9351549a143c0d452478f88a5c9573adc53e980ae339000fc
+  [34] report/evidence/S6-B/s6b_core_20261023_r03/logs/C9c-30fps-later-of.jsonl
+      want 3903c575e370a2ec7ace2065e42b39006333302a4a8b5a3ebfc530cd9dae1675
+      got  a9e14292b3a78289f18c86a366332c56547abe395633f06e15842d185264e0b9
+  [35] report/evidence/S6-B/s6b_core_20261023_r03/params_snapshot.json
+      want cf399895aacf12db3283175e4b07f4c5e6fb6e984975350ba3422f659660e9e7
+      got  2b1e1c9cb9840bab3f23036652a573e3a40b2b51b3c74aab60bab5fee16d5e18
+  [36] report/evidence/S6-B/s6b_core_20261023_r03/probe_baseline_stdout.txt
+      want 23195b96b8eeb30331e1660a95330b115ea3eb3733d9d4e8dfc3ee31714a918d
+      got  a3c50200a3c586b4ccbc8b6d4335748b745c6eecd0fb3f5c7c18ff155d543a37
+  [37] report/evidence/S6-B/s6b_core_20261023_r03/probe_expected_tampered_stdout.txt
+      want e2b17c85e77a7d32a0e0af942f2dc51e4f3c745fb278796723b7d44da9542553
+      got  7d5374bc499930aec774163509ab6903d8001f77722ecedbd58698e82328c257
+  [38] report/evidence/S6-B/s6b_core_20261023_r03/probe_summary.json
+      want aaa309efcd0b9c81882c2377daaeb4b65c69f1cb958ed8f600bcfe4d4a7f8c80
+      got  867cf0439cc1eae8a9898fe8983ac062ac646fb1fe44a77f517a66fe378c2a32
+  [39] report/evidence/S6-B/s6b_core_20261023_r03/probe_threshold_tampered_stdout.txt
+      want 925c1ad4bf9bde80e0bcf8bab46f8d191f0f2d0bbcdfd2464c8496c089ed5e3a
+      got  a4ace117dfac06e29f32408dac0d5250bf8cc6b3debb0e891e931041981e37cb
+  [40] report/evidence/S6-B/s6b_core_20261023_r03/probe_wrong_semantics_expected_stdout.txt
+      want c829f1ea7bd9de29adaf914b91131e50184aa583e558d73f4fe2cae71d4f069d
+      got  b49db29c30c27a6af14126affd0b0ac543b830ee1f1bc98f9d99d179680ad7f9
+  [41] report/evidence/S6-B/s6b_core_20261023_r03/reachability_notes.json
+      want 362c82069c1edb501d6af675c51ab803d59a04ab05636391a64126642e2e4725
+      got  1df80d002855a6aa188fda2d676b440a6450b86f607279042a3c9f2ffb6b2b08
+  [42] report/evidence/S6-B/s6b_core_20261023_r03/run_report.json
+      want 0e698c89ddd475bf00599d7b300d35042735f6c14b137aefa52a3b5942144024
+      got  946a297c798db726c0c742770352b3bb9f653db214c0132cf7f4076263db4cf9
+  [43] report/evidence/S6-B/s6b_core_20261023_r03/run_stdout.txt
+      want 23195b96b8eeb30331e1660a95330b115ea3eb3733d9d4e8dfc3ee31714a918d
+      got  a3c50200a3c586b4ccbc8b6d4335748b745c6eecd0fb3f5c7c18ff155d543a37
+  [44] report/evidence/S6-B/s6b_core_20261023_r03/s6b_run_summary.md
+      want 366e522861072619806292a2dbd95c254eef544a553b90b15ac4409f37f317df
+      got  87c03d6b19b51e7d65cbbf686c954b757a3c82db757daacbf1f2006790ad38b7
+  [51] docs/stage6/s6a_stage6_g0_behavior_v1.json
+      want bc90945cf836de2c6bfdf5999788c338532022235bd3c1bcc8f7f40b93ceb7e1
+      got  58e4892e896c882783119af843e702fd3ea6a14978cfac0b930ab283b30b4271
+  [52] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+      want 778d8de77b5bd5a673aa809007d2a38f1177761a58dbd2d6829e32b4b8b7feab
+      got  ec30d75289400272a0b5c594a71c5d0fb8d8e01d07eb513511bfa73bf2310272
+  [53] docs/stage6/s6b_frozen_interface_v1.json
+      want e522892307a7f21773cccb9229c9c966b278674465944091972843de0cb8014a
+      got  9f527c0567537a7457a31796cfde81674993664422947bc00b7ecd91cfcb7c60
+files[54] = .codex/STATE.md 692f1ee894c299e3796161f783274fc1a8548f580d6a550e9432f4874e7b0f7a
+undeclared = ['report/evidence/S6-B/s6b_core_20261023_r03/delivery_manifest.json']
+declared-but-absent = ['.codex/STATE.md', 'docs/stage6/S6A_stage6_g0_behavior_spec_v1.md', 'docs/stage6/s6a_stage6_g0_behavior_v1.json', 'docs/stage6/s6b_frozen_interface_v1.json', 'src/stage6/s6_actions.py', 'src/stage6/s6_core.py', 'src/stage6/s6_params.py', 'verification/s6b_build_evidence.py', 'verification/s6b_probe.py', 'verification/s6b_run_cases.py']
+source entries = 10
+  source hashes vs e3aeb09: match 7 / mismatch 3
+  source hashes vs 87a6bdc: match 1 / mismatch 9
+  source hashes vs 05126fd: match 7 / mismatch 3
+hashes_sha256.txt lines = 44 mismatch = 0

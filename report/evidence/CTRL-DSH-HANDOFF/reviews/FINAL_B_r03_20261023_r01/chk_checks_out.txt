@@ -1,0 +1,31 @@
+
+===== clone_e3a =====
+align rewritten: []
+align unresolved: ['report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.json', 'report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.md', 'report/evidence/S6-B/s6b_core_20261023_r03/probe_expected_tampered_stdout.txt', 'report/evidence/S6-B/s6b_core_20261023_r03/probe_summary.json', '.codex/STATE.md']
+-- inputs: exit=0 status=CHECKS_OK errors=[]
+-- evidence: exit=2 status=CHECKS_FAILED errors=['files[4].path SHA-256 不匹配：清单 e06d8d9d27cf428e964ae352f20ef63de9f3c0b25bb6d94971cbe102dc7638bd，实际 61a82bd835a42faa5b74e27aabe0381a5a5da9ccbdf4424f7fe52353666f6ef6', 'files[5].path SHA-256 不匹配：清单 385cf87e34b569d667e6b6ff78cf96f7d48cb8cf008627aa793f58e702b45c35，实际 b2780f308024a147de998c4b344ef9b72a3fa0268563b32648aaee61cf255a6e', 'files[37].path SHA-256 不匹配：清单 7d5374bc499930aec774163509ab6903d8001f77722ecedbd58698e82328c257，实际 1a52dc841d3c9786b0e416a88df70c67c5102e9b0b4f31cba2a4cc4ba45a6e88', 'files[38].path SHA-256 不匹配：清单 867cf0439cc1eae8a9898fe8983ac062ac646fb1fe44a77f517a66fe378c2a32，实际 6c2ad243ab30f8e6eeb7b6f56f5bb19aafb236c3f64544955886596fff3b8ef8', 'files[54].path SHA-256 不匹配：清单 450ab45dbb172ef2e1d3a1a6f159e2da0da1d089f92bcd7d69cffec919b3e804，实际 bb4ffbc3cdddb5951ce88346bbe7cb402c3770e6ee203d4a7222cc2c741ade4b']
+
+===== clone_051 =====
+align rewritten: ['report/evidence/S6-B/s6b_core_20261023_r03/cases/build_case_matrix.py -> LF', 'src/stage6/s6_core.py -> LF', 'src/stage6/s6_params.py -> LF', 'src/stage6/s6_actions.py -> LF', 'verification/s6b_run_cases.py -> LF', 'verification/s6b_probe.py -> LF', 'verification/s6b_build_evidence.py -> LF', '.codex/STATE.md -> LF']
+align unresolved: []
+-- inputs: exit=0 status=CHECKS_OK errors=[]
+-- evidence: exit=0 status=CHECKS_OK errors=[]
+
+===== claim_verification 差异（重跑 vs 提交口径） =====
+DIFF claim S6B-C1-acquisition-id
+    command 
+      committed: "python -B verification/s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_core_20261023_r03" 
+      rerun    : "python -B verification/s6b_run_cases.py --project-root D:\\FPGA_Competition\\tmp\\review\\FINAL_B_20261023_r01\\clone_e3a --run-dir report/evidence/S6-B/s6b_core_20261023_r03"
+DIFF claim S6B-C2-action-records
+    command 
+      committed: "python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/s6b_core_20261023_r03 --project-root D:\\codex-worktrees\\w6" 
+      rerun    : "python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/s6b_core_20261023_r03 --project-root D:\\FPGA_Competition\\tmp\\review\\FINAL_B_20261023_r01\\clone_e3a"
+DIFF claim S6B-C3-no-dead-constants
+    command 
+      committed: "python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/s6b_core_20261023_r03 --project-root D:\\codex-worktrees\\w6" 
+      rerun    : "python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/s6b_core_20261023_r03 --project-root D:\\FPGA_Competition\\tmp\\review\\FINAL_B_20261023_r01\\clone_e3a"
+DIFF claim S6B-C4-registrations
+    command 
+      committed: "python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/s6b_core_20261023_r03 --project-root D:\\codex-worktrees\\w6" 
+      rerun    : "python -B verification/claim_verify.py --package s6b --run-dir report/evidence/S6-B/s6b_core_20261023_r03 --project-root D:\\FPGA_Competition\\tmp\\review\\FINAL_B_20261023_r01\\clone_e3a"
+verdict: ALL_CLAIMS_VERIFIED ALL_CLAIMS_VERIFIED

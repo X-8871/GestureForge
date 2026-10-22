@@ -1,0 +1,128 @@
+ROW {"id": "B01", "title": "五类稳定触发", "condition": "目标满足稳定窗口 → M3→M5", "output": "按 actions.class_action_map 提交唯一动作", "must_log": ["ACTION_SUBMITTED", "action_id", "target_id", "trigger_frame_id", "t_submit"], "basis": "计划 L104", "params": ["T6-S01", "T6-S02", "T6-P01", "T6-P02"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B02", "title": "提交成功与实际生效分离", "condition": "M5 之后执行层回执", "output": "分别记录 ACTION_SUBMITTED 与 ACTION_EFFECTIVE；fail/unobserved 单列", "must_log": ["submit_result", "effective_result", "t_effective"], "basis": "CDX-20261022-012 §2.3；H-8", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B03", "title": "多框维持优先（迟滞）", "condition": "存在与当前目标 TARGET_CONTINUES 成立的框", "output": "维持当前目标，即使他框分更高且类别不同", "must_log": ["S_TARGET_HELD", "两条候选信息"], "basis": "计划 L104", "params": ["T6-P03", "T6-P04"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["TARGET_CONTINUES"]}
+ROW {"id": "B04", "title": "分数优先", "condition": "当前目标 TARGET_CONTINUES 不成立时选最高分框", "output": "选 score ≥ T6-P01 的最高分框为新目标并重新累积证据", "must_log": ["选择依据", "新目标字段"], "basis": "计划 L104", "params": ["T6-P01"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["TARGET_CONTINUES"]}
+ROW {"id": "B05", "title": "同分排序", "condition": "score 逐位完全相等", "output": "按 2A 冻结稳定顺序；source_order 可用时以其为权威", "must_log": ["两者 score", "两者 source_order"], "basis": "2A L75/L77", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B06", "title": "禁止未冻结启发式", "condition": "任何选择或排序", "output": "不得按面积、像素位置、中央优先或未冻结顺序重排", "must_log": [], "basis": "2A L77", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B07", "title": "稳定窗口", "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成时刻=第一个同时满足帧数与时长（取较晚）的帧的显式输入时刻；NO_HAND 不计入", "output": "M3 进入 STABLE（取较晚满足者）；完成时刻按 B-04 定义", "must_log": ["帧计数", "窗口起点", "两条件各自满足时刻", "window_complete_ns"], "basis": "计划 L104；评审 B-02/B-04", "params": ["T6-S01", "T6-S02", "T6-S03"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["WINDOW_MATCH"]}
+ROW {"id": "B08", "title": "抖动容忍", "condition": "窗口内短暂中断（窗口推进帧不满足 WINDOW_MATCH）", "output": "≤ T6-J01 帧不重置；达到 T6-J01+1 立即重置", "must_log": ["S_JITTER_TOLERATED 或窗口重置原因"], "basis": "计划 L106", "params": ["T6-J01"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["WINDOW_MATCH"]}
+ROW {"id": "B09", "title": "目标保持", "condition": "TARGET_CONTINUES 成立", "output": "获取延续，窗口不重启，证据连续", "must_log": ["TARGET_CONTINUES 依据（IoU/位移）"], "basis": "计划 L104", "params": ["T6-P03", "T6-P04", "T6-P05"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["TARGET_CONTINUES", "WINDOW_MATCH"]}
+ROW {"id": "B10", "title": "丢失确认", "condition": "连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立（t_last_target_continues）≥ T6-L02", "output": "M10→M11 清空目标与证据，不产生动作", "must_log": ["丢失原因分类", "满足的是帧条件还是时间条件"], "basis": "计划 L104", "params": ["T6-L01", "T6-L02"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["TARGET_CONTINUES"]}
+ROW {"id": "B11", "title": "重获", "condition": "LOST→IDLE 后同类目标再现并满足窗口", "output": "视为新的独立获取，可再次触发一次（受冷却约束）", "must_log": ["新的 acquisition_id"], "basis": "计划 L104", "params": ["T6-S01", "T6-S02"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B12", "title": "目标切换", "condition": "当前目标 TARGET_CONTINUES 不成立且出现另一合法目标", "output": "切换走丢失/重获路径，新目标必须重新满足窗口", "must_log": ["旧/新目标字段", "切换原因"], "basis": "计划 L106", "params": ["T6-P01", "T6-P03", "T6-P04"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["TARGET_CONTINUES"]}
+ROW {"id": "B13", "title": "冷却抑制（全局门）", "condition": "自 t_last_submit 起 t_now − t_last_submit < T6-K01（任意状态/任意获取）", "output": "抑制全部触发（含其他目标、含目标丢失后重获），记录被抑制对象与剩余时间", "must_log": ["S_COOLDOWN", "被抑制目标与分数", "剩余冷却时间"], "basis": "计划 L104；评审 B-03；H-10", "params": ["T6-K01"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicate_binding_note": "本行为行不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本，其抑制语义由 H-10 全局门承载，没有 predicates_used 字段（见 predicate_binding_policy）。"}
+ROW {"id": "B14", "title": "冷却结束三分支", "condition": "t_now − t_last_submit ≥ T6-K01（含等号）", "output": "TARGET_CONTINUES 成立且 WINDOW_MATCH 窗口满足→M9 维持（不触发）；TARGET_CONTINUES 成立但窗口未满足→M15 候选（不触发）；TARGET_CONTINUES 不成立/丢失→M8 IDLE；三分支只决定展示状态出口，不解除全局门", "must_log": ["分支判定证据"], "basis": "计划 L104；评审 B-03", "params": ["T6-K01"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["TARGET_CONTINUES", "WINDOW_MATCH"]}
+ROW {"id": "B15", "title": "持续保持只触发一次", "condition": "同一获取内目标持续稳定（含冷却结束后）", "output": "恰好一次 ACTION_SUBMITTED；二次触发只允许来自新获取", "must_log": ["acquisition_id", "触发计数"], "basis": "计划 L104；本文 §10", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B16", "title": "动作去重窗口", "condition": "相同 (action_type,target_id) 在 T6-A02 内重复提交", "output": "抑制并记录 S_DEDUP", "must_log": ["S_DEDUP"], "basis": "H-2 去重日志要求；CDX-20261022-012 §2.3（提交/回执分离）", "params": ["T6-A02"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B17", "title": "无手（零框）", "condition": "state=NO_HAND", "output": "合法结果：IDLE 下保持 IDLE；有目标时计入丢失判定；不满足 WINDOW_MATCH（零框不推进匹配计数、不得完成稳定窗口）；只推进时间与结果计数", "must_log": ["boxes=0", "no_hand 计数"], "basis": "计划 L104；D2 L22；H-4/H-5；评审 B-02", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL", "predicates_used": ["WINDOW_MATCH"]}
+ROW {"id": "B18", "title": "过期结果", "condition": "stale=true", "output": "不得触发；可作非 WINDOW_MATCH 推进时间；必须显式标注年龄", "must_log": ["E_FRAME_STALE", "age", "stale_cleared"], "basis": "计划 L98；阶段5 C-03", "params": ["T6-STALE_LIMIT"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B19", "title": "未知类别/非法结果", "condition": "class_id ∉ 0..4 或非 finite 或框数 >15 或字段不自洽", "output": "丢弃该帧证据并计入异常；不得改写为 NO_HAND", "must_log": ["E_FRAME_INVALID", "原始类别值"], "basis": "2A L77（classes=5、≤15 框）；D9 输出契约；D2 L22 仅提供空标签语义", "params": ["T6-U00_W", "T6-U00_N"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B20", "title": "未知场景（合法类别）", "condition": "未知手势被判为已知类", "output": "按正常检测处理但只能触发已定义动作；拒绝能力不得由 class_id 证明", "must_log": ["未知样本标识", "场景类型"], "basis": "CDX-20261022-012 §2.9；H-6", "params": ["T6-02"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B21", "title": "超时/错误/丢帧", "condition": "state ∈ {TIMEOUT,ERROR,DROPPED}", "output": "无动作；推进时间、不推进匹配计数；计入异常；达阈进 UNKNOWN_RECOVER", "must_log": ["error_code", "各自计数"], "basis": "CDX-20261022-012 §2.10；H-4", "params": ["T6-U00_W", "T6-U00_N", "T6-U01"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B22", "title": "重复 frame_id", "condition": "frame_id 等于上一条已处理值", "output": "幂等丢弃，不推进计数与状态；内容哈希不同则判 E_FRAME_CONFLICT", "must_log": ["E_FRAME_DUPLICATE", "或 E_FRAME_CONFLICT"], "basis": "CDX-20261022-012 §2.7", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B23", "title": "倒序 frame_id", "condition": "frame_id 小于上一条已处理值且 session_id 未变", "output": "不推进窗口，计异常；不得延续旧会话状态", "must_log": ["E_FRAME_OUT_OF_ORDER"], "basis": "CDX-20261022-012 §4 测试矩阵第 8 行；本文 §13", "params": ["T6-U00_W", "T6-U00_N"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B24", "title": "缺帧", "condition": "frame_id 跳号且既无结果也无 DROPPED 记录", "output": "由后续结果时间戳推进时间；不推进匹配计数；每个缺帧只计一次", "must_log": ["dropped_frames 累计"], "basis": "阶段4 丢帧互斥口径", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B25", "title": "重启/会话切换", "condition": "session_id 变化，或同会话 frame_id 大幅回退", "output": "全量复位到 IDLE（清目标与证据）并显式标记；禁止静默续用", "must_log": ["E_SESSION_RESET_SUSPECTED", "新 session_id"], "basis": "阶段4 frame_id_allocation", "params": [], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B26", "title": "时间边界", "condition": "等于阈值 / 阈值 ±1 单位（帧类 1 条结果；时间类 1 ns；分数/几何 1 ULP）", "output": "见 §12 逐条（除过期用严格 >，其余 ≥）；未覆盖参数见 §12.1 缺口登记", "must_log": ["边界判定所用比较", "两侧取值"], "basis": "CDX-20261022-012 §4", "params": ["T6-S01", "T6-S02", "T6-S04", "T6-L01", "T6-L02", "T6-K01", "T6-A02", "T6-J01", "T6-P01", "T6-P02", "T6-P03", "T6-P04", "T6-P05", "T6-STALE_LIMIT", "T6-U01", "T6-C01", "T6-U00_W", "T6-U00_N"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B27", "title": "低 FPS 交互延迟", "condition": "帧周期 P_meas 较大时", "output": "W_min=max(T6-S01,(T6-S02−1)·P_meas) 只是下界、不得进入延迟统计；窗口完成时刻=第一个同时满足帧数与时长（取较晚）的帧（实测）；动作延迟与交互延迟分别报告", "must_log": ["P_meas", "window_complete_ns", "两个延迟"], "basis": "运行手册 §2.7；评审 B-04", "params": ["T6-A01", "T6-A03", "T6-S01", "T6-S02"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+ROW {"id": "B28", "title": "动作失败/未观察/重复回执", "condition": "执行层返回 fail/unobserved 或重复 ACK", "output": "不虚报成功；fail 计失败；unobserved 单列按 NOT_RUN 且不从分母剔除", "must_log": ["ACTION_FAILED", "ACTION_UNOBSERVED", "重试计数"], "basis": "CDX-20261022-012 §4/§6", "params": ["T6-01"], "semantics_status": "BEHAVIOR_V1_DECLARED_PENDING_G0_APPROVAL"}
+
+=== TRIGGER_ONCE ===
+{
+ "declared": "ONCE_PER_ACQUISITION",
+ "acquisition_definition": "从某目标首次被选为当前目标起，到该目标丢失确认（M10→M11）或切换到另一目标为止的连续区间。",
+ "unique_interpretation": "一次获取只触发一次：区间内无论目标保持多久、冷却是否结束、窗口是否再次满足，恰好产生一次 ACTION_SUBMITTED；且第二次提交只有在新的获取成立且全局冷却门（t_now − 上一次 t_submit ≥ T6-K01）已结束时才允许。",
+ "second_trigger_allowed_only_by_new_acquisition": true,
+ "m15_path_is_not_new_acquisition": true,
+ "rejected_alternative": "保持期按周期重复触发（草案备选 B）不被采纳；若需要属实质语义变更，须 Wong 决策并同步改写本文 §10、M5 与 JSON。",
+ "w5_draft_option_a_adopted": true,
+ "cooldown_gate_global": true
+}
+=== COOLDOWN_POLICY ===
+{
+ "scope": "GLOBAL_GATE",
+ "anchor": "t_last_submit（最近一次真实 ACTION_SUBMITTED 的 t_submit；被抑制或失败的尝试不更新）",
+ "gate_condition": "t_now − t_last_submit < T6-K01 → 禁止提交动作",
+ "applies_to_states": [
+  "IDLE",
+  "CANDIDATE",
+  "STABLE",
+  "TRIGGERED",
+  "COOLDOWN",
+  "LOST",
+  "UNKNOWN_RECOVER"
+ ],
+ "applies_across_acquisitions": true,
+ "checked_at": "M5 判定时 + 动作执行层提交前再次校验",
+ "suppression_event": "S_COOLDOWN",
+ "display_state_exit": "M8/M9/M15 只决定展示状态出口，不解除全局门",
+ "no_submit_record_means_gate_open": true,
+ "rationale": "评审 B-03：原实现只在 COOLDOWN 状态内抑制，M10/M11/异常可提前离开状态从而绕过 K01。",
+ "definitions": {
+  "t_submit": "动作执行层接受提交（ACTION_SUBMITTED）时的显式单调时刻",
+  "t_last_submit": "最近一次 ACTION_SUBMITTED 的 t_submit；无提交记录时冷却门开放",
+  "suppressed_or_failed_attempt_does_not_update_anchor": true
+ }
+}
+=== EVAL_ORDER ===
+[
+ "P1 异常（M2/M13）",
+ "P2 丢失确认（M10）",
+ "P3 当前状态推进（M5/M6/M8/M9/M15/M3/M4/M11）",
+ "P4 重获/获取（M1）",
+ "P5 恢复（M12）"
+]
+=== STABLE_LATCHING ===
+{
+ "latched": true,
+ "scope": "WITHIN_ACQUISITION",
+ "statement": "STABLE 在本次获取内锁存：进入后不因窗口中断、score 跌破 T6-P02 或抖动耗尽而退回 CANDIDATE；离开 STABLE 仅有 M2（异常，P1）、M10（丢失确认，P2）、M5（触发，P3）三条路径。冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。",
+ "exit_paths": [
+  "M2",
+  "M10",
+  "M5"
+ ],
+ "not_demoted_by": [
+  "WINDOW_MATCH 中断（连续帧不满足稳定门 T6-P02 或逐帧位移 T6-P05）",
+  "抖动耗尽（M4 只作用于 CANDIDATE，不作用于 STABLE）",
+  "score 跌破 T6-P02"
+ ],
+ "suppressed_trigger_release": "全局冷却门未结束时 M5 被 H-10 抑制，状态停留 STABLE；门开启后的下一条窗口推进帧即可触发，无需重新累积窗口证据。若门恰在异常/重复/倒序/过期/缺帧帧开启，该帧不得触发（B18/B21/B22/B23、§13），必须等到下一条窗口推进帧。",
+ "pending_confirmation": "U6-16：若 G0 改为不锁存，属实质语义变更，需补 STABLE→CANDIDATE 迁移并同步 §4/§10/M5 与本块。",
+ "source": "第三轮复评 S6A_r03_20261022_r01 观察项（STABLE 是否锁存必须给出唯一答案）",
+ "window_advance_required": true
+}
+=== LOW_FPS ===
+{
+ "frame_period_symbol": "P_meas（必须为阶段4 实测帧周期；无实测时 T6-A03 记 NOT_RUN，不得用假设 FPS 代替）",
+ "window_completion_definition": "窗口完成时刻 = 第一个同时满足帧数与时长（取较晚）的帧——即第一个「WINDOW_MATCH 帧计数 ≥ T6-S02」且「(该帧序 − 窗口首帧序)·P_meas ≥ T6-S01」的窗口推进帧的显式输入时刻（T6-S03 later_of）；30fps（P=33.3 ms）由时长支配，完成帧是第 8 帧 233.1 ms（第 6 个 WINDOW_MATCH 帧只有 166.7 ms）。",
+ "w_min_formula": "W_min = max(T6-S01, (T6-S02 − 1) · P_meas)",
+ "w_min_is_lower_bound_only": true,
+ "w_min_must_not_enter_latency_statistics": true,
+ "actual_completion_examples": [
+  {
+   "fps_assumed": 30,
+   "period_ms": 33.3,
+   "w_min_ms": 200,
+   "actual_completion_ms": 233.1,
+   "note": "第 8 帧才满足时长（HC-06）；FPS 仅为公式演示"
+  },
+  {
+   "fps_assumed": 10,
+   "period_ms": 100,
+   "w_min_ms": 500,
+   "actual_completion_ms": 500
+  },
+  {
+   "fps_assumed": 5,
+   "period_ms": 200,
+   "w_min_ms": 1000,
+   "actual_completion_ms": 1000
+  }
+ ],
+ "action_latency": "t_effective − t_trigger（t_trigger = 触发该动作的结果的显式输入时刻）",
+ "interaction_latency": "t_effective − window_complete（不得用 W_min 或窗口首帧时刻顶替）",
+ "must_report_separately": true,
+ "measured_period_status": "BLOCKED（阶段4 未提供实测帧周期；U6-13）",
+ "replay_time_scaling_must_be_declared": true
+}

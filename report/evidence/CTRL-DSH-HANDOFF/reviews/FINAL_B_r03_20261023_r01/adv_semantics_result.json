@@ -1,0 +1,324 @@
+[
+ {
+  "name": "A1 零框 8 帧 final_state",
+  "ok": true,
+  "got": "'IDLE'",
+  "want": "'IDLE'",
+  "extra": ""
+ },
+ {
+  "name": "A2 零框 transitions",
+  "ok": true,
+  "got": "[]",
+  "want": "[]",
+  "extra": ""
+ },
+ {
+  "name": "A3 零框 no_hand_frames",
+  "ok": true,
+  "got": "8",
+  "want": "8",
+  "extra": ""
+ },
+ {
+  "name": "A4 零框 action_submitted",
+  "ok": true,
+  "got": "0",
+  "want": "0",
+  "extra": ""
+ },
+ {
+  "name": "A5 零框 window_match_count",
+  "ok": true,
+  "got": "0",
+  "want": "0",
+  "extra": ""
+ },
+ {
+  "name": "B1 两次提交（跨目标）",
+  "ok": true,
+  "got": "2",
+  "want": "2",
+  "extra": ""
+ },
+ {
+  "name": "B2 第二次提交时刻 >= t_last_submit+K01",
+  "ok": true,
+  "got": "True",
+  "want": "True",
+  "extra": "delta=1100000000 ns"
+ },
+ {
+  "name": "B3 第二次提交 acquisition_id",
+  "ok": true,
+  "got": "1",
+  "want": "1",
+  "extra": ""
+ },
+ {
+  "name": "B4 门开前无提前提交（第 2 次提交在门开之后）",
+  "ok": true,
+  "got": "True",
+  "want": "True",
+  "extra": "states=['M1', 'M3', 'M5', 'M9', 'M5']"
+ },
+ {
+  "name": "B5 第一次提交在 600ms",
+  "ok": true,
+  "got": "600000000",
+  "want": "600000000",
+  "extra": ""
+ },
+ {
+  "name": "C1 TIMEOUT 帧不触发（提交仍在 1610ms）",
+  "ok": true,
+  "got": "[600000000, 1610000000]",
+  "want": "[600000000, 1610000000]",
+  "extra": ""
+ },
+ {
+  "name": "D1 K01-1ns 不触发、=K01 触发",
+  "ok": true,
+  "got": "[600000000, 1600000000]",
+  "want": "[600000000, 1600000000]",
+  "extra": "transitions=['M1', 'M3', 'M5', 'M2', 'M12', 'M1', 'M3', 'M5']"
+ },
+ {
+  "name": "D2 新获取 id（B11/D7 推导：新获取应为新 id）",
+  "ok": false,
+  "got": "[0, 0]",
+  "want": "[0, 1]",
+  "extra": "← 本项为对抗发现：M2/M12 结束获取但不递增 acquisition_id"
+ },
+ {
+  "name": "D3 K01-1ns 帧被 S_COOLDOWN 抑制",
+  "ok": true,
+  "got": "True",
+  "want": "True",
+  "extra": "suppressions=['S_COOLDOWN', 'S_COOLDOWN', 'S_COOLDOWN', 'S_COOLDOWN']"
+ },
+ {
+  "name": "E1 距上次 CONTINUES = L02-1ns 不判 M10",
+  "ok": true,
+  "got": "None",
+  "want": "None",
+  "extra": "state=CANDIDATE"
+ },
+ {
+  "name": "E2 距上次 CONTINUES = L02 判 M10",
+  "ok": true,
+  "got": "'M10'",
+  "want": "'M10'",
+  "extra": ""
+ },
+ {
+  "name": "F1 M3 出现在第 8 帧",
+  "ok": true,
+  "got": "7",
+  "want": "7",
+  "extra": "t=233100000"
+ },
+ {
+  "name": "F2 window_complete_ns = 233.1ms（M3 帧日志）",
+  "ok": true,
+  "got": "233100000",
+  "want": "233100000",
+  "extra": ""
+ },
+ {
+  "name": "F3 第 6 帧（166.5ms）未完成",
+  "ok": true,
+  "got": "[None, None, None, None, None, None]",
+  "want": "[None, None, None, None, None, None]",
+  "extra": ""
+ },
+ {
+  "name": "G1 异常滑动窗口 → M2/M13/M12",
+  "ok": true,
+  "got": "['M2', 'M13', 'M12']",
+  "want": "['M2', 'M13', 'M12']",
+  "extra": ""
+ },
+ {
+  "name": "G2 恢复后 final_state",
+  "ok": true,
+  "got": "'IDLE'",
+  "want": "'IDLE'",
+  "extra": ""
+ },
+ {
+  "name": "H1 同帧 M4/M10 取 M10",
+  "ok": true,
+  "got": "'M10'",
+  "want": "'M10'",
+  "extra": ""
+ },
+ {
+  "name": "H2 该帧同时满足 M4 条件（独立观测）",
+  "ok": true,
+  "got": "(True, True)",
+  "want": "(True, True)",
+  "extra": "{'jitter_exhausted': True, 'dwell_ns': 500000000, 'dwell_ok': True, 'streak': 2}"
+ },
+ {
+  "name": "I1 门锁期间进入 STABLE",
+  "ok": true,
+  "got": "'STABLE'",
+  "want": "'STABLE'",
+  "extra": ""
+ },
+ {
+  "name": "I1b 仅 1 次提交（首次获取）",
+  "ok": true,
+  "got": "[0]",
+  "want": "[0]",
+  "extra": ""
+ },
+ {
+  "name": "I2 score 跌破 P02 仍在 STABLE（且门锁抑制）",
+  "ok": true,
+  "got": "('STABLE', None, True)",
+  "want": "('STABLE', None, True)",
+  "extra": ""
+ },
+ {
+  "name": "I3 抖动耗尽后仍在 STABLE（M4 只作用 CANDIDATE）",
+  "ok": true,
+  "got": "'STABLE'",
+  "want": "'STABLE'",
+  "extra": ""
+ },
+ {
+  "name": "I4 门开前 1ns 的推进帧不触发",
+  "ok": true,
+  "got": "('STABLE', None)",
+  "want": "('STABLE', None)",
+  "extra": ""
+ },
+ {
+  "name": "I5 门开启帧触发 M5（无需重建窗口）",
+  "ok": true,
+  "got": "'M5'",
+  "want": "'M5'",
+  "extra": ""
+ },
+ {
+  "name": "I6 触发记录 acquisition_id（B11 推导：新获取应为 1；同 D2 发现）",
+  "ok": false,
+  "got": "0",
+  "want": "1",
+  "extra": ""
+ },
+ {
+  "name": "I7 STABLE 经 M2 退出",
+  "ok": true,
+  "got": "'M2'",
+  "want": "'M2'",
+  "extra": ""
+ },
+ {
+  "name": "J1 同键在 A02 处不判去重",
+  "ok": true,
+  "got": "None",
+  "want": "None",
+  "extra": ""
+ },
+ {
+  "name": "J2 幂等：已处于该状态无可见变化",
+  "ok": true,
+  "got": "(True, False)",
+  "want": "(True, False)",
+  "extra": ""
+ },
+ {
+  "name": "J3 首次提交有可见变化",
+  "ok": true,
+  "got": "True",
+  "want": "True",
+  "extra": ""
+ },
+ {
+  "name": "J4 A02-1ns 判 S_DEDUP",
+  "ok": true,
+  "got": "'S_DEDUP'",
+  "want": "'S_DEDUP'",
+  "extra": ""
+ },
+ {
+  "name": "J5 去重记录进 records",
+  "ok": true,
+  "got": "1",
+  "want": "1",
+  "extra": ""
+ },
+ {
+  "name": "J6 不同 action_type 不去重",
+  "ok": true,
+  "got": "None",
+  "want": "None",
+  "extra": ""
+ },
+ {
+  "name": "J7 声明不可达条件 A02<K01",
+  "ok": true,
+  "got": "True",
+  "want": "True",
+  "extra": ""
+ },
+ {
+  "name": "K1 M11 后再获取 → 新 acquisition_id",
+  "ok": true,
+  "got": "[0, 1]",
+  "want": "[0, 1]",
+  "extra": ""
+ },
+ {
+  "name": "K2 M11 迁移确实发生",
+  "ok": true,
+  "got": "True",
+  "want": "True",
+  "extra": ""
+ },
+ {
+  "name": "K3 M4 迁移发生",
+  "ok": true,
+  "got": "['M4']",
+  "want": "['M4']",
+  "extra": "[(None, 0), ('M1', 0), (None, 0), (None, 0), (None, 0), (None, 0), ('M4', 1)]"
+ },
+ {
+  "name": "K4 M4 递增 acquisition_id",
+  "ok": true,
+  "got": "[1]",
+  "want": "[1]",
+  "extra": ""
+ },
+ {
+  "name": "K5 M4 后 current_target 清空",
+  "ok": true,
+  "got": "None",
+  "want": "None",
+  "extra": ""
+ },
+ {
+  "name": "K6 会话切换归零",
+  "ok": true,
+  "got": "('RESET', 0)",
+  "want": "('RESET', 0)",
+  "extra": ""
+ },
+ {
+  "name": "K7a M8 可达（门开启帧 CONTINUES 不成立）",
+  "ok": true,
+  "got": "'M8'",
+  "want": "'M8'",
+  "extra": "state=IDLE acq=0"
+ },
+ {
+  "name": "K7b M8 后新获取仍复用旧 acquisition_id（D7/B11 推导应为 1）",
+  "ok": false,
+  "got": "[0, 0]",
+  "want": "[0, 1]",
+  "extra": "transitions=['M1', 'M3', 'M5', 'M8', 'M1', 'M3', 'M5']"
+ }
+]

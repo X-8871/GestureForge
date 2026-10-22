@@ -1,0 +1,184 @@
+artifact_version=S6A-G0-v1.7
+status=G0_PACKET_PENDING_APPROVAL
+keys=['schema_version', 'artifact', 'artifact_version', 'stage', 'task_id', 'run_id', 'human_doc', 'status', 'status_label', 'status_note', 'baseline', 'upstream', 'hard_invariants', 'event_classes', 'states', 'transitions', 'evaluation_order', 'first_match_wins', 'conflict_rule', 'cooldown_evidence_policy', 'cooldown_anchor', 'behavior_rows', 'actions', 'parameters', 'parameter_comparison_semantics', 'trigger_once_while_held', 'stable_latching', 'low_fps_latency', 'adopted_stage5_suggestions', 'open_decisions', 'not_claimed', 'evidence_boundaries', 'supersedes_run_id', 'revision', 'predicates', 'predicate_binding_policy', 'cooldown_policy', 'time_anchors', 'reachability', 'parameter_notes']
+TRANS {"id": "M1", "from": "IDLE", "to": "CANDIDATE", "condition": "存在通过 §8 选择的目标，且连续 T6-C01 条窗口推进帧为同一目标（同一目标由 TARGET_CONTINUES 判定，不以 WINDOW_MATCH 计数）", "priority": "P4", "params": ["T6-C01"], "predicates_used": ["TARGET_CONTINUES"]}
+TRANS {"id": "M2", "from": "*", "to": "UNKNOWN_RECOVER", "condition": "连续 T6-U00_W 条结果内异常数 ≥ T6-U00_N", "priority": "P1", "params": ["T6-U00_W", "T6-U00_N"]}
+TRANS {"id": "M3", "from": "CANDIDATE", "to": "STABLE", "condition": "连续 WINDOW_MATCH 帧数 ≥ T6-S02 且窗口时长 ≥ T6-S01；完成帧 = 第一个同时满足帧数与时长（取较晚）的帧（T6-S03）；不得按 TARGET_CONTINUES 计帧（低分目标不得进入 STABLE）", "priority": "P3", "params": ["T6-S01", "T6-S02", "T6-S03"], "predicates_used": ["WINDOW_MATCH"]}
+TRANS {"id": "M4", "from": "CANDIDATE", "to": "IDLE", "condition": "抖动容忍耗尽（缺失 > T6-J01 帧不满足 WINDOW_MATCH）且候选停留 ≥ T6-S04；仅在 M10 未命中时求值", "priority": "P3", "params": ["T6-J01", "T6-S04"], "reachability": "UNREACHABLE_UNDER_DRAFT_PARAMS", "reachability_note": "当前草案 T6-S04=500ms ≥ T6-L02=300ms，任何候选停留达 S04 前 M10 已先命中；见 reachability / U6-12", "predicates_used": ["WINDOW_MATCH"]}
+TRANS {"id": "M5", "from": "STABLE", "to": "TRIGGERED", "condition": "STABLE 且本次获取尚未触发 且 全局冷却门已结束（t_now − t_last_submit ≥ T6-K01；无提交记录视为已结束）（且本帧必须为窗口推进帧：state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）", "priority": "P3", "params": ["T6-K01"], "global_cooldown_gate": true, "predicate_binding_note": "本迁移不使用 TARGET_CONTINUES/WINDOW_MATCH：只有条件文本 + global_cooldown_gate 绑定，没有 predicates_used 字段（见 predicate_binding_policy）。", "window_advance_required": "只有窗口推进帧（state ∈ {OK,NO_HAND}、stale=false、非重复、非倒序）可触发 M5；异常/过期/重复/倒序/缺帧帧即使恰逢全局冷却门开启也不得触发（B18/B21/B22/B23、§13）。"}
+TRANS {"id": "M6", "from": "TRIGGERED", "to": "COOLDOWN", "condition": "动作提交事件落盘（同帧或下一帧）", "priority": "P3", "params": []}
+TRANS {"id": "M7", "from": "TRIGGERED", "to": "LOST", "condition": "提交前目标已丢失（异常路径，必须记录）", "priority": "P3", "params": [], "reachability": "UNREACHABLE_BY_CONSTRUCTION", "reachability_note": "M5 为同步提交，TRIGGERED 之后的‘提交前丢失’没有独立路径；见 reachability"}
+TRANS {"id": "M8", "from": "COOLDOWN", "to": "IDLE", "condition": "冷却结束且当前目标 TARGET_CONTINUES 不成立/已丢失", "priority": "P3", "params": ["T6-K01"], "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证", "predicates_used": ["TARGET_CONTINUES"]}
+TRANS {"id": "M9", "from": "COOLDOWN", "to": "STABLE", "condition": "冷却结束、同一目标仍满足 TARGET_CONTINUES 且 WINDOW_MATCH 窗口再次满足 → 维持态，不再触发", "priority": "P3", "params": ["T6-K01"], "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证", "predicates_used": ["TARGET_CONTINUES", "WINDOW_MATCH"]}
+TRANS {"id": "M10", "from": "*", "to": "LOST", "condition": "连续 T6-L01 条推进帧 TARGET_CONTINUES 不成立 或 距上一次 TARGET_CONTINUES 成立（t_last_target_continues）≥ T6-L02（取较早满足者）；不得用 WINDOW_MATCH 判丢失（低分但几何连续的目标仍维持）", "priority": "P2", "params": ["T6-L01", "T6-L02"], "predicates_used": ["TARGET_CONTINUES"]}
+TRANS {"id": "M11", "from": "LOST", "to": "IDLE", "condition": "丢失确认后立即清空当前目标与稳定证据", "priority": "P3", "params": []}
+TRANS {"id": "M12", "from": "UNKNOWN_RECOVER", "to": "IDLE", "condition": "连续 T6-U01 条合法结果且无未知类别", "priority": "P5", "params": ["T6-U01"]}
+TRANS {"id": "M13", "from": "UNKNOWN_RECOVER", "to": "UNKNOWN_RECOVER", "condition": "恢复期间再次出现异常，按异常窗口规则重置计数起点", "priority": "P1", "params": ["T6-U00_W", "T6-U00_N"]}
+TRANS {"id": "M15", "from": "COOLDOWN", "to": "CANDIDATE", "condition": "冷却结束、目标仍满足 TARGET_CONTINUES 但 WINDOW_MATCH 窗口未满足；该路径达到稳定也不再触发", "priority": "P3", "params": ["T6-K01"], "global_cooldown_gate_note": "本迁移只决定展示状态出口；触发抑制由 H-10 全局门独立保证", "predicates_used": ["TARGET_CONTINUES", "WINDOW_MATCH"]}
+
+=== ACTIONS ===
+{
+ "supported_types": [
+  "A_SWITCH_UI",
+  "A_SWITCH_CHANNEL"
+ ],
+ "semantics": "统一为设置到具名显示状态（幂等），不使用无回执的增量/切换语义。",
+ "idempotency_rule": "同一 (action_type,target_id) 在已处于该状态时重复提交不得产生额外可见变化，也不得计入新的获取。",
+ "class_action_map": [
+  {
+   "class_id": 0,
+   "class_name": "fist",
+   "action_type": "A_SWITCH_UI",
+   "target_id": "UI_MENU",
+   "expected_display_state": "HUD active_display_state=UI_MENU"
+  },
+  {
+   "class_id": 1,
+   "class_name": "palm",
+   "action_type": "A_SWITCH_UI",
+   "target_id": "UI_STATS",
+   "expected_display_state": "HUD active_display_state=UI_STATS"
+  },
+  {
+   "class_id": 2,
+   "class_name": "one",
+   "action_type": "A_SWITCH_CHANNEL",
+   "target_id": "CH_1",
+   "expected_display_state": "HUD active_channel=CH_1"
+  },
+  {
+   "class_id": 3,
+   "class_name": "two_up",
+   "action_type": "A_SWITCH_CHANNEL",
+   "target_id": "CH_2",
+   "expected_display_state": "HUD active_channel=CH_2"
+  },
+  {
+   "class_id": 4,
+   "class_name": "three",
+   "action_type": "A_SWITCH_CHANNEL",
+   "target_id": "CH_3",
+   "expected_display_state": "HUD active_channel=CH_3"
+  }
+ ],
+ "class_order": [
+  "fist",
+  "palm",
+  "one",
+  "two_up",
+  "three"
+ ],
+ "success_feedback": "t_effective 已记录且观测到的显示状态等于 expected_display_state（ACTION_EFFECTIVE）。",
+ "failure_feedback": "ACTION_FAILED 或 ACTION_UNOBSERVED；HUD 保持原状态并显示 last_action_result；不得虚报成功。",
+ "proposed_display_fields": [
+  "sm_state",
+  "active_display_state",
+  "active_channel",
+  "active_target_id",
+  "last_action_id",
+  "last_action_result"
+ ],
+ "proposed_display_fields_status": "阶段6 提案，需与阶段5 协调；未采纳前只能用五元组与既有 HUD 字段做离线断言。",
+ "map_status": "PENDING_APPROVAL",
+ "unsupported_types_note": "A_DISPLAY_STATE 在 r01 登记但从未被任何类映射；r02 删除（U6-15）。若后续需要须回 G0 冻结并补幂等/可观察语义。",
+ "ux_requirements": {
+  "common": [
+   "生效必须有可观察显示状态变化（ACTION_EFFECTIVE）；未观察不得算成功",
+   "失败/未观察必须显示 last_action_result，不得虚报成功",
+   "同一动作重复提交不得产生闪烁或额外可见变化（幂等）",
+   "反馈不得遮挡手势置信信息"
+  ],
+  "per_class": [
+   {
+    "class_name": "fist",
+    "target_id": "UI_MENU",
+    "success_visible": "HUD active_display_state=UI_MENU"
+   },
+   {
+    "class_name": "palm",
+    "target_id": "UI_STATS",
+    "success_visible": "HUD active_display_state=UI_STATS"
+   },
+   {
+    "class_name": "one",
+    "target_id": "CH_1",
+    "success_visible": "HUD active_channel=CH_1"
+   },
+   {
+    "class_name": "two_up",
+    "target_id": "CH_2",
+    "success_visible": "HUD active_channel=CH_2"
+   },
+   {
+    "class_name": "three",
+    "target_id": "CH_3",
+    "success_visible": "HUD active_channel=CH_3"
+   }
+  ],
+  "feedback_visibility_duration": "PENDING_APPROVAL（U6-14）"
+ }
+}
+
+=== REACHABILITY ===
+{
+ "method": "按当前草案参数、§3 谓词定义与求值顺序推导；不改任何阈值。M4 的可达性由 TARGET_CONTINUES 的口径决定（不含 score ≥ T6-P02），不能只比较 T6-S04 与 T6-L02 的大小。",
+ "draft_params_used": {
+  "T6-S04_ms": 500,
+  "T6-L02_ms": 300,
+  "T6-L01_frames": 5,
+  "T6-J01_frames": 1,
+  "T6-K01_ms": 1000,
+  "T6-A02_ms": 500
+ },
+ "transitions": {
+  "M1": {
+   "status": "REACHABLE"
+  },
+  "M2": {
+   "status": "REACHABLE"
+  },
+  "M3": {
+   "status": "REACHABLE"
+  },
+  "M4": {
+   "status": "REACHABLE",
+   "reason": "TARGET_CONTINUES（§3）不含 score ≥ T6-P02：低分或位移造成的 WINDOW_MATCH 中断仍满足 TARGET_CONTINUES，t_last_target_continues 继续刷新、miss_streak 不增 → M10 不会先命中，候选停留可达到 T6-S04(500 ms) → M4 可达（S6-B 实现轮复评 BLK-1；见 C4-jitter-reset 的 M4@f7）",
+   "resolution": "M4/T6-S04 保留并计入覆盖；G0 可决定是否让 T6-S04 早于 T6-L02 命中以改变兜底次序（不改变 M4 存在性，见 U6-12）",
+   "evidence": "S6-B 实现轮复评 BLK-1 + S6-B 用例 C4-jitter-reset（expected transitions=['M1','M4']，实测 M4@f7）",
+   "review_correction": "原声明仅按 T6-S04 与 T6-L02 的大小比较就得出「不可达」结论，忽略了 TARGET_CONTINUES 不含 score ≥ T6-P02；r07 起修正为可达，r08 把全包表述（含机器断言 HC-23）统一到可达并计入覆盖。"
+  },
+  "M5": {
+   "status": "REACHABLE"
+  },
+  "M6": {
+   "status": "REACHABLE"
+  },
+  "M7": {
+   "status": "UNREACHABLE_BY_CONSTRUCTION",
+   "reason": "M5 同步提交；不存在 TRIGGERED 之后、提交之前的丢失窗口",
+   "resolution": "保留编号以便追溯；实现不得为 M7 造路径"
+  },
+  "M8": {
+   "status": "REACHABLE"
+  },
+  "M9": {
+   "status": "REACHABLE"
+  },
+  "M10": {
+   "status": "REACHABLE"
+  },
+  "M11": {
+   "status": "REACHABLE"
+  },
+  "M12": {
+   "status": "REACHABLE"
+  },
+  "M13": {
+   "status": "REACHABLE"
+  },
+  "M15": {
+   "status": "REACHABLE"
+  }
+ },
+ "consequence": "M4 可达并计入覆盖；不计入覆盖的只有 B16 S_DEDUP（A02<K01）与 M7（构造上）；M14 已删除（见 revision.deleted_transitions）。"
+}

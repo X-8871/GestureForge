@@ -1,0 +1,30 @@
+[align] exact=47 rewritten=7 unresolved=['.codex/STATE.md']
+         rewrite report/evidence/S6-B/s6b_core_20261023_r03/cases/build_case_matrix.py -> LF
+         rewrite src/stage6/s6_core.py -> LF
+         rewrite src/stage6/s6_params.py -> LF
+         rewrite src/stage6/s6_actions.py -> LF
+         rewrite verification/s6b_run_cases.py -> LF
+         rewrite verification/s6b_probe.py -> LF
+         rewrite verification/s6b_build_evidence.py -> LF
+         UNRESOLVED ['.codex/STATE.md']
+[pristine] saved declared run dir -> D:\FPGA_Competition\tmp\review\FINAL_B_20261023_r01\pristine_e3a_clone
+[driver] exit=0 0.125s stdout={"status": "PASS", "case_count": 23, "assertions_failed": 0, "failed_cases": []}
+[bytes] 全清单声明逐字节复核（运行后）：OK=45 MISMATCH=0
+[diff] 运行后与声明口径副本不同的文件：[]
+[probe] exit=0 0.656s stdout={"status": "PROBE_OK", "results": [["baseline", 0, "AS_EXPECTED"], ["expected_tampered", 2, "AS_EXPECTED"], ["wrong_semantics_expected", 1, "AS_EXPECTED"], ["threshold_tampered", 1, "AS_EXPECTED"]]}
+        ('baseline', 0, 0, 'AS_EXPECTED', '{"status": "PASS", "case_count": 23, "assertions_failed": 0, "failed_cases": []}')
+        ('expected_tampered', 2, 2, 'AS_EXPECTED', '�����ļ��ڶ�����\u07b8ģ�expected_freeze.json.cases_file_sha256 �뵱ǰ��һ�¡����ܾ�����')
+        ('wrong_semantics_expected', 1, 1, 'AS_EXPECTED', '{"status": "FAIL", "case_count": 2, "assertions_failed": 3, "failed_cases": ["X-wrong-nohand-window"]}')
+        ('threshold_tampered', 1, 1, 'AS_EXPECTED', '{"status": "FAIL", "case_count": 23, "assertions_failed": 133, "failed_cases": ["C1-fist-stable", "C1-palm-stable", "C1-')
+[check inputs]   exit=0 0.155s stdout={"status":"CHECKS_OK","mode":"inputs","task_id":"S6-B","run_id":"s6b_core_20261023_r03","interfaces_not_applicable":{"status":"NOT_APPLICABLE","reason":"S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.7），其 24 项阈值全部为 PENDING_APPROVAL，按契约不得声明 frozen；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验
+[check evidence] exit=2 0.345s stdout={"status":"CHECKS_FAILED","mode":"evidence","task_id":"S6-B","run_id":"s6b_core_20261023_r03","interfaces_not_applicable":{"status":"NOT_APPLICABLE","reason":"S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.7），其 24 项阈值全部为 PENDING_APPROVAL，按契约不得声明 frozen；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。","review_note":"其适用性仍须正式G0/Reviewer确认"},"check_statuses":[{"status":"PASS","name":"冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）","reason":"工具判定 ALL_SELF_PROVEN；逐项退出码 {'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': [0, 0, 0, 0]}"},{"status":"PASS","name":"S6-B 确定性用例（23 条 / 11
+[claim_verify] exit=0 0.089s stdout={"verdict": "ALL_CLAIMS_VERIFIED", "claims": [["S6B-C1-acquisition-id", "VERIFIED"], ["S6B-C2-action-records", "VERIFIED"], ["S6B-C3-no-dead-constants", "VERIFIED"], ["S6B-C4-registrations", "VERIFIED"]]}
+[claim_verify] verdict=ALL_CLAIMS_VERIFIED 与提交版一致(除生成时间)=False
+        S6B-C1-acquisition-id: VERIFIED exit=0
+        S6B-C2-action-records: VERIFIED exit=0
+        S6B-C3-no-dead-constants: VERIFIED exit=0
+        S6B-C4-registrations: VERIFIED exit=0
+[stdout] check inputs 与提交版逐字节(去尾空白)一致 = True
+[stdout] check evidence 与提交版逐字节(去尾空白)一致 = False
+
+=== wrote run_suite_e3a_clone.json / .log ===

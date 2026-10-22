@@ -1,0 +1,68 @@
+=== 1) BLK-r02-1 acquisition_id ===
+C3 action_records acquisition_id 序列 = [0, 1]
+C3 observed transitions = ['M1', 'M3', 'M5', 'M6', 'M10', 'M11', 'M1', 'M3', 'M5', 'M6']
+C3 status = PASS
+各用例 action acquisition_id 序列： {"C1-fist-stable": [0], "C1-palm-stable": [0], "C1-one-stable": [0], "C1-two_up-stable": [0], "C1-three-stable": [0], "C2-hold-past-cooldown": [0], "C3-lost-then-reappear": [0, 1], "C5-tie-source-order": [0], "C5-held-priority": [0], "C5-target-jump": [1], "C9c-30fps-later-of": [0], "C9-s01-equal": [0], "C9-s01-minus-1ns": [0], "C11-fail-then-success": [0, 0], "C11-unobserved": [0], "C11-global-gate-second-acquisition": [0]}
+run_report 中 'acquisition_id' 命中 = 18
+logs 文件数 = 23  'acquisition_id' 命中总数 = 222
+step 日志缺 acquisition_id 的帧数 = 1 [('report/evidence/S6-B/s6b_core_20261023_r03/logs/C8-duplicate-reorder-missing-restart.jsonl', 1, 'RESET')]
+action_ack 日志缺 acquisition_id 的条数 = 18 ['report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-fist-stable.jsonl', 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-one-stable.jsonl', 'report/evidence/S6-B/s6b_core_20261023_r03/logs/C1-palm-stable.jsonl']
+
+=== 2) BLK-r02-2 action_records / ACTION_* / 死常量 ===
+action_records 总条数 = 18
+字段存在性： {'action_type': True, 'target_id': True, 'acquisition_id': True, 't_trigger_ns': True, 'event': True, 'effective_event': True, 'action_id': True, 'submit_result': True, 'effective_result': True, 'suppression': True}
+event/effective_event 计数 = {'ACTION_SUBMITTED': 17, 'ACTION_EFFECTIVE': 16, 'ACTION_FAILED': 1, 'ACTION_UNOBSERVED': 2}
+  证据文本中 'ACTION_SUBMITTED' 命中（run_report+logs） = 35
+  证据文本中 'ACTION_EFFECTIVE' 命中（run_report+logs） = 47
+  证据文本中 'ACTION_FAILED' 命中（run_report+logs） = 2
+  证据文本中 'ACTION_UNOBSERVED' 命中（run_report+logs） = 4
+  证据文本中 'S_DEDUP' 命中（run_report+logs） = 0
+src/stage6/s6_core.py: 常量 11 个，未使用 = []
+    OUT_SUBMITTED: 已删除
+    OUT_EFFECTIVE: 已删除
+    OUT_FAILED: 已删除
+    OUT_UNOBSERVED: 已删除
+    SUP_DEDUP: 已删除
+    STATES: 已删除
+src/stage6/s6_actions.py: 常量 5 个，未使用 = []
+    OUT_SUBMITTED: 存在
+    OUT_EFFECTIVE: 存在
+    OUT_FAILED: 存在
+    OUT_UNOBSERVED: 存在
+    SUP_DEDUP: 存在
+    STATES: 已删除
+
+=== 3) 版本 / 计数 / 登记 ===
+src/stage6/s6_core.py: ['S6A-G0-v1.6', 'S6A-G0-v1.7', 'v1.6']
+src/stage6/s6_params.py: ['S6A-G0-v1.6', 'S6A-G0-v1.7', 'v1.4', 'v1.5', 'v1.6']
+docs/stage6/s6b_frozen_interface_v1.json: ['S6A-G0-v1.6']
+report/evidence/S6-B/s6b_core_20261023_r03/s6b_run_summary.md: ['S6A-G0-v1.7', 'v1.6']
+report/evidence/S6-B/s6b_core_20261023_r03/reachability_notes.json: ['S6A-G0-v1.6']
+report/evidence/S6-B/s6b_core_20261023_r03/delivery_manifest.json: ['S6A-G0-v1.7', '三项退出码']
+report/evidence/S6-B/s6b_core_20261023_r03/cases/case_matrix.json: ['S6A-G0-v1.6', 'v1.4']
+report/evidence/S6-B/s6b_core_20261023_r03/cases/build_case_matrix.py: ['S6A-G0-v1.6', 'v1.4']
+report/evidence/S6-B/s6b_core_20261023_r03/export_selfproof.md: ['S6A-G0-v1.6']
+report/evidence/S6-B/s6b_core_20261023_r03/probe_summary.json: ['21 例']
+verification/s6b_probe.py: ['21 例']
+契约令牌出现统计（全 run 目录）： Counter({'S6A-G0-v1.7': 2})
+not_run 条数= 4 not_implemented= ['§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现：每帧只输出单一 transition；相关常量与分支已从代码移除（NB-04 登记）。']
+open_behavior_deviations= ['M10 在 IDLE 有目标时不求值（D8/NB-03）：单帧选中目标后 IDLE 保留 current_target，「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10，与规格「M10 适用于任意有目标状态」存在偏差；修正前不得声称 M10 全覆盖（登记为 U6 开放项；修正需在 IDLE 显式求值 M10 并回归全部用例）。']
+reachability_counted= ['M4（TARGET_CONTINUES 不含 score ≥ T6-P02 → M10 不先命中；用例 C4-jitter-reset）']
+not_counted= ['B16 S_DEDUP（A02<K01，草案值下不可达）', 'M7（构造上不可达）']
+D7 = （N-05/BLK-r02-1，已按实测修正）：acquisition_id 在**结束一次获取**时递增——M11（丢失确认→IDLE）、"         "M4（抖动超时→IDLE）与目标切换（D3）各 +1；M8（会话/重启复位）由 _init_state 归零；M1 建立候选不递增。"         "同一获取内 M5 至多触发一次（B11/B15）；动作记录与日志都带该 id，可由交付证据逐获取核对。",         "D8（N-08/NB-03，按实测改写）：IDLE **会**保留 curre
+D8 = （N-08/NB-03，按实测改写）：IDLE **会**保留 current_target——单帧选中目标时 M1 未成立（需 T6-C01=2 帧），"         "但该帧已按 §8 选定目标，而 IDLE 不在 M10 的求值分支里；实测「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10。"         "这是与规格「M10 适用于任意有目标状态」的**已知行为偏差**，已在 limitations_not_executed.json 的 "         "open_behavior_deviations 登记：修正前不得声称 M10 全覆盖；修正需在 I
+probe baseline note = ['未改动：21 例全部通过']
+params 数 = 24  全 PENDING = True
+params 值= {'T6-01': 0.9, 'T6-02': 0.05, 'T6-03': 1, 'T6-A01': 1000, 'T6-A02': 500, 'T6-A03': None, 'T6-C01': 2, 'T6-J01': 1, 'T6-K01': 1000, 'T6-L01': 5, 'T6-L02': 300, 'T6-P01': 0.35, 'T6-P02': 0.3, 'T6-P03': 0.3, 'T6-P04': 0.15, 'T6-P05': 0.05, 'T6-S01': 200, 'T6-S02': 6, 'T6-S03': '同时满足帧数与时长，取较晚满足者', 'T6-S04': 500, 'T6-STALE_LIMIT': 200, 'T6-U00_N': 3, 'T6-U00_W': 3, 'T6-U01': 5}
+summary 回填行 = ['| 交付检查 inputs | `C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261023_r03\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6` | 实测 0 |', '| 交付检查 evidence | `C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261023_r03\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6` | 实测 0 |']
+summary 用例数行 = ['- 用例：23 条，覆盖 CDX-20261022-012 §4 全部 11 类；结果 **PASS**']
+manifest case/selfproof check = [{"name": "冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）", "status": "PASS", "command": "`python -B verification/export_selfproof.py --project-root <abs> --s6b-run report/evidence/S6-B/<run> --worktree-snapshot [--commit <rev>]`", "exit_code": 0, "reason": "工具判定 ALL_SELF_PROVEN；逐项退出码 {'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': [0, 0, 0, 0]}"}]
+case_matrix contract_version = S6A-G0-v1.6
+cases 数 = 23
+matrix_class 数 = 18
+
+=== 4) 自证兄弟报告（各提交版本） ===
+e3aeb09 verdict= ALL_SELF_PROVEN subjects= [('worktree_snapshot', 'SELF_PROVEN', [0, 0, 0, 0])]
+      generated_at= 2026-10-23 04:28:52+0800  artifact_versions= ['S6A-G0-v1.7']
+f3c537d verdict= NOT_ALL_SELF_PROVEN subjects= [('commit_05126fdb79ba77de57d9262857af66393b453d66', 'SELF_PROVEN', [0, 0, 0, 0]), ('worktree_snapshot', 'NOT_SELF_PROVEN', [0, 0, 0, 2])]
+      generated_at= 2026-10-23 04:34:45+0800  artifact_versions= ['S6A-G0-v1.7', 'S6A-G0-v1.7']

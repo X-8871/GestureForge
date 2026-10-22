@@ -1,0 +1,35 @@
+=== 重复键 / 自赋值（e3aeb09） ===
+request 字典内 acquisition_id 出现次数 = 2
+   s6_core.py:456: "acquisition_id": self.acquisition_id,
+   s6_core.py:646: log["acquisition_id"] = self.acquisition_id  # BLK-r02-1/2：日志与动作记录同口径
+   s6_core.py:657: "acquisition_id": self.acquisition_id,  # N-04：动作记录含获取级 id
+   s6_core.py:661: "acquisition_id": self.acquisition_id,
+   自赋值 s6_params.py:181: self.class_action_map = self.class_action_map
+   state_declared_s6b_dir_files_in_commit 赋值行: ['"state_declared_s6b_dir_files_in_commit": len(s6b_files),', 'f"- 该提交内 S6-B 证据目录文件数：**{entry.get(\'state_declared_s6b_dir_files_in_commit\')}**"']
+
+=== 24 项参数是否与 r02 相同 ===
+参数条数: 24 24  集合相同: True
+值/单位/比较/状态 完全相同的项数: 24 / 24
+
+=== 接口文件哈希：r02 vs r03 ===
+   87a6bdc: 9e7b39ed2eff3c46ed11382e bytes=2112
+   e3aeb09: e522892307a7f21773cccb92 bytes=2120
+   f3c537d: e522892307a7f21773cccb92 bytes=2120
+   artifact_version= S6B-IF-v1  status_note= S6-B r03 修正轮基线：契约 S6A-G0-v1.6（S6-A r08）；实现与证据见 report/evidence/S6-B/s6b_core_202
+   contract= {"s6a_behavior_json": "docs/stage6/s6a_stage6_g0_behavior_v1.json", "s6a_contract_version": "S6A-G0-v1.6", "s6a_review_status": "r04 PASS（第 4 轮独立复评）；r05 为非阻断收尾，PENDING_REVIEW", "s6a_run_id": "s6a_g0_2
+
+=== S6-A 侧 M4 残留（仅记录，属 S6-A 范围） ===
+   transitions[M4].reachability = UNREACHABLE_UNDER_DRAFT_PARAMS | note = 当前草案 T6-S04=500ms ≥ T6-L02=300ms，任何候选停留达 S04 前 M10 已先命中；见 re
+   reachability.transitions.M4.status = REACHABLE
+
+=== 清单声明 vs 提交内实际文件 ===
+   清单 55 条中在提交内不存在的 = []
+   run 目录内未声明文件 = []
+   hashes_sha256.txt 行数 = 44
+
+=== 禁止声明扫描（S6-B 包 + 代码） ===
+   report/evidence/S6-B/s6b_core_20261023_r03/s6b_run_summary.md: [(43, '- `PASS` 只表示 23 条用例的独立预期全部满足；不代表 6-C 验收通过或独立审查通过。')]
+   report/evidence/S6-B/s6b_core_20261023_r03/inputs_manifest.json: [(28, '"inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或验收通过。"')]
+   report/evidence/S6-B/s6b_core_20261023_r03/claim_verification.md: [(50, '验证附录只证明这些声明有可观察依据；不代表独立审查或验收通过。')]
+   report/evidence/S6-B/s6b_core_20261023_r03/probe_summary.json: [(41, '"scope_statement": "探针只证明测试机制有判别力，不代表状态机行为正确、独立审查或实物验收通过。"')]
+   report/evidence/S6-B/s6b_core_20261023_r03/export_selfproof.md: [(21, '导出复跑只证明该提交的证据自足性与清单/STATE 一致性；不代表语义正确、独立审查或实物验收通过。')]

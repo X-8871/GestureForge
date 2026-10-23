@@ -1,0 +1,437 @@
+{
+  "inputs": [
+    {
+      "row_y": 200,
+      "source": "<frame>",
+      "status": "SCANNED",
+      "bytes": 3840
+    },
+    {
+      "row_y": 360,
+      "source": "<frame>",
+      "status": "SCANNED",
+      "bytes": 3840
+    },
+    {
+      "row_y": 500,
+      "source": "<frame>",
+      "status": "SCANNED",
+      "bytes": 3840
+    }
+  ],
+  "rows": {
+    "200": {
+      "pixels": 1280,
+      "maxB": 120,
+      "maxG": 236,
+      "maxR": 248,
+      "minB": 0,
+      "minG": 0,
+      "minR": 0,
+      "blue_bit7_set": 0,
+      "green_bit4_set": 0
+    },
+    "360": {
+      "pixels": 1280,
+      "maxB": 120,
+      "maxG": 236,
+      "maxR": 248,
+      "minB": 0,
+      "minG": 0,
+      "minR": 0,
+      "blue_bit7_set": 0,
+      "green_bit4_set": 0
+    },
+    "500": {
+      "pixels": 1280,
+      "maxB": 120,
+      "maxG": 236,
+      "maxR": 248,
+      "minB": 0,
+      "minG": 0,
+      "minR": 0,
+      "blue_bit7_set": 0,
+      "green_bit4_set": 0
+    }
+  },
+  "signature": {
+    "pixels_scanned": 3840,
+    "blue_bit7_set_rate": 0.0,
+    "green_bit4_set_rate": 0.0,
+    "old_defect_signature_present": true,
+    "note": "旧签名 = 蓝 bit7 与绿 bit4 置位率同时为 0（两字节 MSB 同源同断）"
+  },
+  "bar_segments": [
+    {
+      "x": 80,
+      "r": 248,
+      "g": 236,
+      "b": 120,
+      "r_field5": 31,
+      "g_field6": 59,
+      "b_field5": 15
+    },
+    {
+      "x": 240,
+      "r": 248,
+      "g": 236,
+      "b": 96,
+      "r_field5": 31,
+      "g_field6": 59,
+      "b_field5": 12
+    },
+    {
+      "x": 400,
+      "r": 80,
+      "g": 236,
+      "b": 88,
+      "r_field5": 10,
+      "g_field6": 59,
+      "b_field5": 11
+    },
+    {
+      "x": 560,
+      "r": 64,
+      "g": 236,
+      "b": 32,
+      "r_field5": 8,
+      "g_field6": 59,
+      "b_field5": 4
+    },
+    {
+      "x": 720,
+      "r": 184,
+      "g": 0,
+      "b": 88,
+      "r_field5": 23,
+      "g_field6": 0,
+      "b_field5": 11
+    },
+    {
+      "x": 880,
+      "r": 168,
+      "g": 8,
+      "b": 32,
+      "r_field5": 21,
+      "g_field6": 2,
+      "b_field5": 4
+    },
+    {
+      "x": 1040,
+      "r": 0,
+      "g": 4,
+      "b": 24,
+      "r_field5": 0,
+      "g_field6": 1,
+      "b_field5": 3
+    },
+    {
+      "x": 1200,
+      "r": 0,
+      "g": 4,
+      "b": 0,
+      "r_field5": 0,
+      "g_field6": 1,
+      "b_field5": 0
+    }
+  ],
+  "criteria": {
+    "C1_white_R_full_scale": {
+      "pass": true,
+      "observed": 248,
+      "threshold": ">=240 (期望 248=31<<3)"
+    },
+    "C2_white_G_full_scale": {
+      "pass": false,
+      "observed": 236,
+      "threshold": ">=248 (期望 252=63<<2)"
+    },
+    "C3_white_B_full_scale": {
+      "pass": false,
+      "observed": 120,
+      "threshold": ">=240 (期望 248=31<<3)"
+    },
+    "C4_white_neutral": {
+      "pass": false,
+      "observed": [
+        248,
+        236,
+        120
+      ],
+      "threshold": "三通道差 <=8"
+    },
+    "C5_black_zero": {
+      "pass": true,
+      "observed": [
+        0,
+        4,
+        0
+      ],
+      "threshold": "R=0 且 G,B<=8"
+    },
+    "C6_old_defect_signature_absent": {
+      "pass": false,
+      "observed": true
+    },
+    "C7_per_bit_discriminable": {
+      "pass": false,
+      "discriminated": 13,
+      "structural_na": 8
+    }
+  },
+  "per_bit": [
+    {
+      "channel": "R",
+      "field_bit": 4,
+      "display_byte_bit": 7,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "R",
+      "field_bit": 3,
+      "display_byte_bit": 6,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "R",
+      "field_bit": 2,
+      "display_byte_bit": 5,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "R",
+      "field_bit": 1,
+      "display_byte_bit": 4,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "R",
+      "field_bit": 0,
+      "display_byte_bit": 3,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "G",
+      "field_bit": 5,
+      "display_byte_bit": 7,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "G",
+      "field_bit": 4,
+      "display_byte_bit": 6,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "G",
+      "field_bit": 3,
+      "display_byte_bit": 5,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "G",
+      "field_bit": 2,
+      "display_byte_bit": 4,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 0,
+      "black_observed": 0,
+      "status": "NOT_DISCRIMINATED"
+    },
+    {
+      "channel": "G",
+      "field_bit": 1,
+      "display_byte_bit": 3,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "G",
+      "field_bit": 0,
+      "display_byte_bit": 2,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 1,
+      "status": "NOT_DISCRIMINATED"
+    },
+    {
+      "channel": "B",
+      "field_bit": 4,
+      "display_byte_bit": 7,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 0,
+      "black_observed": 0,
+      "status": "NOT_DISCRIMINATED"
+    },
+    {
+      "channel": "B",
+      "field_bit": 3,
+      "display_byte_bit": 6,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "B",
+      "field_bit": 2,
+      "display_byte_bit": 5,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "B",
+      "field_bit": 1,
+      "display_byte_bit": 4,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "B",
+      "field_bit": 0,
+      "display_byte_bit": 3,
+      "white_expected": 1,
+      "black_expected": 0,
+      "white_observed": 1,
+      "black_observed": 0,
+      "status": "OBSERVABLE_BOTH"
+    },
+    {
+      "channel": "R",
+      "field_bit": "display_bit2",
+      "display_byte_bit": 2,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "R",
+      "field_bit": "display_bit1",
+      "display_byte_bit": 1,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "R",
+      "field_bit": "display_bit0",
+      "display_byte_bit": 0,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "B",
+      "field_bit": "display_bit2",
+      "display_byte_bit": 2,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "B",
+      "field_bit": "display_bit1",
+      "display_byte_bit": 1,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "B",
+      "field_bit": "display_bit0",
+      "display_byte_bit": 0,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "G",
+      "field_bit": "display_bit1",
+      "display_byte_bit": 1,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    },
+    {
+      "channel": "G",
+      "field_bit": "display_bit0",
+      "display_byte_bit": 0,
+      "status": "NOT_APPLICABLE_STRUCTURAL_ZERO",
+      "reason": "RGB565 5/6/5 移位扩展：该低位在 8 位显示字节中恒 0，不是缺位"
+    }
+  ],
+  "verdict": "DEFECT_REPRODUCED",
+  "exit_code": 1,
+  "requires_human_visual": true,
+  "scanned_rows": [
+    200,
+    360,
+    500
+  ],
+  "bar_judge_row_y": 360,
+  "white_segment": {
+    "x": 80,
+    "r": 248,
+    "g": 236,
+    "b": 120,
+    "r_field5": 31,
+    "g_field6": 59,
+    "b_field5": 15
+  },
+  "black_segment": {
+    "x": 1200,
+    "r": 0,
+    "g": 4,
+    "b": 0,
+    "r_field5": 0,
+    "g_field6": 1,
+    "b_field5": 0
+  },
+  "reason": "复现旧缺位签名，且白条绿/蓝未达满量程 ⇒ 判板侧/连接侧方向（仍非电气定位）",
+  "failed_criteria": [
+    "C2_white_G_full_scale",
+    "C3_white_B_full_scale",
+    "C4_white_neutral",
+    "C6_old_defect_signature_absent",
+    "C7_per_bit_discriminable"
+  ],
+  "note": "机器判定只覆盖位完整性与彩条数值；真彩显示必须由 Wong 目视确认（不偏黄、不偏青），脚本不代替目视验收。",
+  "created_utc8": "2026-10-23T10:25:59+08:00"
+}

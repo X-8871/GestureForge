@@ -1,0 +1,42 @@
+== diff 真实脚本 vs mock 副本（应只有 WT 一行）==
+25c25
+< WT="D:/codex-worktrees/dbdf"
+---
+> WT="D:/FPGA_Competition/tmp/review/S3_T17_A_20261023_r01/mock_wt"
+diff_exit=1
+== 语法检查 ==
+bash_n_exit=0
+
+=== 门禁 1: link 不给 --allow-hardware ===
+REAL_EXIT=3
+T17_HW_BLOCKED=MISSING_ALLOW_HARDWARE_FLAG（需显式 --allow-hardware）
+
+=== 门禁 2: link --allow-hardware 但无 hw_authorization.json ===
+REAL_EXIT=3
+T17_HW_BLOCKED=NO_HW_AUTHORIZATION_FILE（D:/FPGA_Competition/tmp/review/S3_T17_A_20261023_r01/mock_wt/report/evidence/S3-T17/hw_authorization.json）
+
+=== 门禁 3: baseline --allow-hardware，授权文件存在但 wong_go=false ===
+REAL_EXIT=3
+T17_HW_AUTHORIZATION=INCOMPLETE wong_go=False codex_hw_release=True
+T17_HW_AUTHORIZATION_DECLARED_BY=reviewer-mock
+T17_HW_AUTHORIZATION_REFS=None
+T17_HW_BLOCKED=HW_AUTHORIZATION_INCOMPLETE
+
+=== 门禁 4: bars --allow-hardware，授权文件 codex_hw_release=false ===
+REAL_EXIT=3
+T17_HW_AUTHORIZATION=INCOMPLETE wong_go=True codex_hw_release=False
+T17_HW_AUTHORIZATION_DECLARED_BY=reviewer-mock
+T17_HW_AUTHORIZATION_REFS=None
+T17_HW_BLOCKED=HW_AUTHORIZATION_INCOMPLETE
+
+=== 门禁 5: all --allow-hardware，preflight 模拟失败（stub 退出 1）→ 应在动板前中止 ===
+REAL_EXIT=1
+T17_ABORT=PREFLIGHT_FAILED
+
+=== 硬件痕迹检查：mock 内是否落到 xsdb/hw_server 相关调用 ===
+0
+D:/FPGA_Competition/tmp/review/S3_T17_A_20261023_r01/mock_wt/t1.log:0
+D:/FPGA_Competition/tmp/review/S3_T17_A_20261023_r01/mock_wt/t2.log:0
+D:/FPGA_Competition/tmp/review/S3_T17_A_20261023_r01/mock_wt/t3.log:0
+D:/FPGA_Competition/tmp/review/S3_T17_A_20261023_r01/mock_wt/t4.log:0
+（以上计数为 0 表示未进入任何硬件阶段）

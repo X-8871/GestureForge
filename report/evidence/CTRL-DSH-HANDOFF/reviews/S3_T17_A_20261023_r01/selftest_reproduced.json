@@ -1,0 +1,115 @@
+{
+  "fixtures": [
+    {
+      "name": "A_real_archived_defect",
+      "source": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin",
+      "sha256": "1c52577e539083b31acbdc81b951626ae0dfe3bc8239d2ff4b2d35f2a472fb89",
+      "bytes": 2764800,
+      "kind": "真实归档缺陷帧"
+    },
+    {
+      "name": "B_synthetic_criterion",
+      "path": "D:\\FPGA_Competition\\tmp\\review\\S3_T17_A_20261023_r01\\selftest_fixtures\\fixture_B_criterion.bin",
+      "sha256": "b7d5a63f9717e5993a79408898725f3521aacbcb997939cb83bffbdbd3e87e98",
+      "bytes": 2764800,
+      "kind": "合成判定表夹具（非传感器数据）"
+    },
+    {
+      "name": "C_blue_only_restored",
+      "path": "D:\\FPGA_Competition\\tmp\\review\\S3_T17_A_20261023_r01\\selftest_fixtures\\fixture_C_blue_only.bin",
+      "sha256": "4b48b9f65597085d2ba0edf91b4b7c06419f237ed2b3ec78d5387bbe0c3b5bc7",
+      "bytes": 2764800,
+      "kind": "真实缺陷帧只恢复蓝 MSB（绿仍缺）——非典型夹具"
+    }
+  ],
+  "results": [
+    {
+      "fixture": "A_real_archived_defect",
+      "expected_verdict": "DEFECT_REPRODUCED",
+      "expected_exit_code": 1,
+      "actual_verdict": "DEFECT_REPRODUCED",
+      "actual_exit_code": 1,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 236,
+        "b": 120,
+        "r_field5": 31,
+        "g_field6": 59,
+        "b_field5": 15
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 4,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 1,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.0,
+      "green_bit4_set_rate": 0.0
+    },
+    {
+      "fixture": "B_synthetic_criterion",
+      "expected_verdict": "BIT_INTEGRITY_PASS",
+      "expected_exit_code": 0,
+      "actual_verdict": "BIT_INTEGRITY_PASS",
+      "actual_exit_code": 0,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 252,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 63,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 0,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 0,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.50078125,
+      "green_bit4_set_rate": 0.50078125
+    },
+    {
+      "fixture": "C_blue_only_restored",
+      "expected_verdict": "INCONCLUSIVE_ATYPICAL",
+      "expected_exit_code": 3,
+      "actual_verdict": "INCONCLUSIVE_ATYPICAL",
+      "actual_exit_code": 3,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 236,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 59,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 4,
+        "b": 128,
+        "r_field5": 0,
+        "g_field6": 1,
+        "b_field5": 16
+      },
+      "blue_bit7_set_rate": 1.0,
+      "green_bit4_set_rate": 0.0
+    }
+  ],
+  "conclusion": "SELFTEST_PASS",
+  "exit_code": 0,
+  "note": "自测证明判定器能区分「旧缺位」「满足判定表」「非典型（只修蓝）」三类；夹具B为合成数据，只校准判定表，不代表传感器行为。",
+  "created_utc8": "2026-10-23T10:27:41+08:00"
+}

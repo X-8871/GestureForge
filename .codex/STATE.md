@@ -139,6 +139,28 @@
 - **来源可达性**：`source_commit` = `1839766…`（F 的父提交，`transport_clone_check.py` 判 `RESOLVABLE`）；自证主体 F 本身可达（G 的 tag 指向）。
 - **冻结后纪律**：提交 G 后**停止写 w6**（含 STATE）；需要更新须下轮解冻。
 
+## 两段式冻结（第二轮）：F2 / G2（2026-10-23）
+
+- **F2 = 本轮交付内容提交**：`33b1fee30af1974560fa0b94bf6c6662d3e5d1e0`。承载 B-1 修复与三项限制：
+  ① `claim_verify.py` 的 `results.append` 移入循环体（此前位于 `return 1` 之后 ⇒ 附录只剩 1 条却自称
+  ALL_CLAIMS_VERIFIED）；② 两条新断言（claims 数量 == 定义数 + 1；verdict 由**全部** claim 计算，空列表/数量不符
+  一律 NOT_ALL_VERIFIED）；③ S6-B 构建器**真正运行** claim 工具（此前只读旧附录 ⇒ 复现不出来）；
+  ④ claim 命令统一用项目根相对 POSIX 路径（绝对 Windows 路径的反斜杠会破坏 `python -c`）；
+  ⑤ C11 区分文件/目录（限制①）；⑥ 套件自证用例固定指向交付提交、不再用 HEAD（限制②）；
+  ⑦ 新增 S6-B 新鲜证据两步工具（限制③）；⑧ 新 RunId **S6-A `s6a_g0_20261023_r10`** /
+  **S6-B `s6b_core_20261023_r05`**（不就地改写 r09/r04）。
+- **G2 = 自证记录提交**（本提交）：把 F2 追加为自证报告主体，并附**传输克隆**自证记录；
+  **附注 tag `stage6-freeze-20261023-r2` 打在 G2**。旧 tag（`s6a-g0-v1.8-r09`、`s6b-core-r04`、
+  `stage6-freeze-20261023`）保留指向 G，不删不动；**G2 取代 G 作为冻结记录**。
+- **本轮冻结成立项**：① 两份附录由冻结工具可复现且计数正确（S6-A 7 条 = 6 定义 + 1 假声明；S6-B 5 条 = 4 + 1）；
+  ② 传输克隆里 `export_selfproof --commit F2` 双侧全绿（S6-A `[0,0,0]`、S6-B `[0,0,0,0]`，退出码均 0）；
+  ③ `--commit G2` 亦全绿（限制①已修）；④ 工具自测套件在 HEAD=G2 时 10/10（含两条新增必 FAIL 例）。
+- **已知限制（如实，不阻断冻结）**：① 上一轮记录提交 G 自身快照自证不绿——其 STATE 以文件形式声明
+  `report/evidence/...` 路径，而当时 C11 按目录判定；本轮已修，G 保持历史不绿、由 G2 取代。
+  ② 套件 `selfproof_valid_commit` 在 tag r2 出现**之前**会「跳过并标注」（该例已固定指向交付提交，不再依赖 HEAD）。
+  ③ 已知成本：套件单次约 20 分钟，冻结时由总控与复核方各跑一次。
+- **冻结后纪律**：提交 G2 后停止写 w6（含 STATE）；需要更新须下轮解冻。
+
 ## 11 字段交接行（2026-10-23 04:20）
 
 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW；1839766 = CANDIDATE_FREEZE（未冻结），工作区修正双侧已全绿、待终审后一次性提交（未自称通过）/ 项目总控派 Reviewer 复评`

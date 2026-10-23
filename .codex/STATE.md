@@ -139,6 +139,32 @@
 - **来源可达性**：`source_commit` = `1839766…`（F 的父提交，`transport_clone_check.py` 判 `RESOLVABLE`）；自证主体 F 本身可达（G 的 tag 指向）。
 - **冻结后纪律**：提交 G 后**停止写 w6**（含 STATE）；需要更新须下轮解冻。
 
+## 定向解冻与重新冻结（2026-10-23，B-1 修复轮）
+
+- **B-1（假证书）已关闭**：`verification/claim_verify.py` 的 `results.append` 原位于 `return 1` 之后（永不可达），
+  导致 S6-A r09 附录只剩 1 条 claim 却自称 `ALL_CLAIMS_VERIFIED`。修后 append 在**循环体内**，并新增两条断言：
+  ① `claims` 数量 == 定义数 + 1；② `verdict` 由**全部** claim 的退出码计算，空列表/数量不符一律 `NOT_ALL_VERIFIED`。
+  两条断言都有**必 FAIL 自测例**（`--simulate-defect count_mismatch|empty` ⇒ 退出码非 0 且判 NOT_ALL_VERIFIED）。
+- **同轮关闭**：S6-B 构建器此前只**读**旧附录、从不运行 claim 工具（⇒ 复现不出来）→ 现真正运行；
+  claim 命令统一用项目根相对 POSIX 路径（绝对 Windows 路径的反斜杠会破坏 `python -c`）；
+  C11 区分**文件/目录**（限制①）；套件自证用例**固定指向交付提交**并解析最新冻结 tag（限制②）；
+  新增 S6-B 新鲜证据两步工具（限制③）；`NB-r03-08`（`candidate_dwell_start_ns` 改显式 `is None`，语义改动）已登记；
+  行为表 `status_label` 更新为当前版本。
+- **新 RunId**：S6-A `s6a_g0_20261023_r10`、S6-B `s6b_core_20261023_r05`（**未**就地改写 r09/r04）。
+- **两段式冻结（本轮最终）**：
+  - **F4 = 交付内容**：`6b8e5f2a23ce6f7dec41fc9992141b3423612081`（r10/r05 以**可达**的 `source_commit = F3` 重建）；
+  - **G4 = 自证记录**（本提交）：报告主体为**F4**（另列工作区快照）+ **传输克隆**自证记录；
+  - **tag `stage6-freeze-20261023-r3` 打在 G4**；更早的 tag 全部保留指向各自提交，不删不动。
+  - 中间轮：F2/G2（tag `stage6-freeze-20261023-r2`）与 F3（`efb9f191`，被 amend 前的中间态）**均被 F4/G4 取代**；
+    说明：F3 的一次 amend 曾使 F2 失去可达性 ⇒ 包内 `source_commit` 解析失败（传输克隆 exit 2）；
+    本轮最终以 F3 为基线重建，故 F2/F3/F4/G4 **全部可达**。
+- **四条硬条件实测**：① 两份附录由冻结工具可复现且计数正确（S6-A 7 = 6 + 1；S6-B 5 = 4 + 1，`count_ok=True`，
+  verdict `ALL_CLAIMS_VERIFIED`）；② 传输克隆 `--commit F4` 双侧全绿（`[0,0,0]` / `[0,0,0,0]`，退出码均 0）；
+  ③ `--commit G4` 全绿；④ 套件在 HEAD=G4 时 10/10（含两条新增必 FAIL 例）。
+- **已知限制（如实）**：上一轮记录提交 G（`1e2a66c`）自身快照自证不绿（其 STATE 以文件形式声明 `report/evidence/...`
+  路径而当时 C11 按目录判定）；套件单次约 20 分钟，冻结时由总控与复核方各跑一次。
+- **冻结后纪律**：提交 G4 后停止写 w6（含 STATE）；需要更新须下轮解冻。
+
 ## 两段式冻结（第二轮）：F2 / G2（2026-10-23）
 
 - **F2 = 本轮交付内容提交**：`33b1fee30af1974560fa0b94bf6c6662d3e5d1e0`。承载 B-1 修复与三项限制：

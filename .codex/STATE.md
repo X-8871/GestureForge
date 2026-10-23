@@ -1,59 +1,56 @@
-# 阶段5 状态（HDMI 结果显示·离线准备 + S5-T01 上板 bring-up）
+# 阶段5 状态（HDMI 结果显示：离线准备 + S5-T01 合成源 bring-up + S5-T03 真彩契约改绑与用例骨架）
 
-更新：2026-10-22 18:50（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
-阶段5 **离线准备已完成**（规格定稿 + 离线渲染/叠框自测 + 阶段4 数值链路回归勾连 + 阶段6 建议）；**S5-T01 上板 bring-up 正在执行**。离线准备与 S5-T01 均**不是阶段5 验收**（G0/G1/G3/G4/G5 未通过）。
+更新：2026-10-24 01:20（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
+任务：`task-22`（阶段5 接续，**全离线**）。阶段5 **未验收**：G0/G1/G3/G4/G5 未通过；合成源结论与离线骨架结论一律不得升级为真实集成结论。
 
-## 目标与范围（离线、可独立验收）
-- A 阶段5 契约/G0 定稿；B 离线渲染/叠框自测工具与用例；C 与阶段4 数值链路回归勾连；D 阶段6 草案修订建议（只建议）。
-- **明确不做**：CNN 改动、改 2A 冻结规格、改 2B 接口正文、改 w4 已交付、写主树/w4/dbdf/w2b/96a3/厂商原件、写两个 mailbox 目录。
+## 目标与范围
+- 已完成：S5-A 契约/G0、S5-B 离线渲染叠框自测、S5-C 与阶段4 数值链回归、S5-D 阶段6 建议；S5-T01 合成源（PS 合成图）板上 bring-up。
+- 本轮（S5-T03，全离线）：输入契约改绑真实彩色 + 坐标映射/帧关联/异常/长跑**用例骨架** + 板级待验项清单。
+- 明确不做：CNN 改动、改 2A 冻结规格或 2B 接口正文、改 w4/dbdf/w2b/main、写两个 mailbox、**动硬件**。
 
-## 上游绑定（只读）
-- 主 STATE `D:\FPGA_Competition\.codex\STATE.md`（阶段5 入口行 HL-T13）；起始提交 `acd2df6`。
-- 阶段4 冻结树 `D:\codex-worktrees\w4`（`73c3dad`，四项准备各经独立审查 PASS）：v1 草案（按原文复制，出处 `docs/stage5/PROVENANCE_s4d_v1_baseline.md`）、S4-A G0 草案（`3524d02a…`，DRAFT_NOT_FROZEN）、S4-B `20261021_r13` PASS、S4-C `s4c_replay_20261021_r05` PASS（109/109、误差 0，`c5d25c64…`）。
-- **Wong 已定**：① 超 `s2bu/1.1` payload 的结果/耗时/丢帧/过期/状态字段按**方案 B 只记 PS 侧**（扩展帧待与 2B 协商）；② 画面语义固定**最新结果叠加**；③ **2026-10-22 15:12 选方案 B**：S5-T01 采用 **PS 合成视频源 + 软件叠框**（零新增 PL），因为摄像头模块不在位（I2C 全 0xFF）。
-- 阶段3（只读）：实时直通与帧同步成立，**颜色受阻且根因收敛为硬件**（DVP `cmos_d[9]` 无信号），阶段未验收 → 真实采集路径不可用于本阶段结论。
+## 上游事实（本轮只读核对）
+- 阶段3（dbdf）：**新模块实测恢复真彩色**（缺位签名不符、彩条满量程；`S3-T05/t05_new_module_reverify_20261023_r01`）。
+  当前部署身份**本树独立重算**：无补偿 bit `7cb3306809…`=`7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710`、
+  XSA `1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3`、
+  应用 `an5642_j11cmos2_v10_read.elf` `1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073`（3/3 与 015 r03 一致）。
+  源帧 1280×720、stride 3840 B、帧 2 764 800 B、DDR 转储 B/G/R（登记，未改判）。J10 半屏黑 = **Wong 2026-10-24 范围外**（当前 J11/CMOS2）。
+- 阶段4（w4）：已由 DSH 认领（`HANDOFF_OK` 9/0）；仍是**草案**（`S4-B r03`：`source_kind ∈ {file_injection,camera,synthetic}`；
+  关联键 `contract_result_key=(session_id,frame_id,result_seq)`、`stage4a_join_key`、`ps_log_primary_key`、`uart_observable_key`）。
+  **结果契约未冻结 ⇒ 真实彩色接入 NOT_RUN**；硬件使用权不随工作树交接。
+- 硬件：阶段3 板级窗口自 2026-10-24 00:35 起**占用中** ⇒ 本轮不动硬件（无 JTAG/COM4/hw_server/位流/烧录；3121 未监听）。
 
-## 已完成（离线准备交付）
-- **S5-A**：`docs/stage5/S5A_stage5_display_g0_spec_v2.md` + `docs/stage5/s5a_stage5_display_g0_fields.json`（契约 `S5A-G0-v2`）+ `verification/s5_display_geometry_reference.py`（唯一几何/口径来源，`4d9fe369…`，与 D2 冻结实现逐值对拍）+ 自检 26/26 PASS、退出码 0；证据 `report/evidence/S5-A/s5a_g0_20261021_r03/`（**权威**）。
-- **S5-B**：`scripts/stage5_s5b/**`；21 用例、583/583 断言、种子 20261021、随机 round-trip N=64/几何、手算样例 3、五元组 129、HUD 13/13、26 PNG + 21 JSON、双 pass 逐文件 SHA256 一致；证据 `report/evidence/S5-B/s5b_20261021_r07_a|_b`（权威）。
-- **S5-C**：`scripts/stage5_s5c/**`；109/109 样本、104 框、最大 score/坐标误差 0、最大像素往返 0.499 px（门槛 1.0）、S4-B 3/3 与 S4-C 一致、8 个篡改探针全部检出（真实退出码 1）、正对照 0、unittest 27 项 0；证据 `report/evidence/S5-C/s5c_regression_20261021_r04`（权威）。
-- **S5-D**：`docs/stage6/S6D_stage6_revision_suggestions_from_stage5.md`（5 条建议，未改 w4 草案）。
-- **独立审查**：第 1 轮 `CHANGES_REQUIRED`（3 项）→ 第 2 轮聚焦关闭 **PASS**（F-01/F-02/F-03 CLOSED）；记录 `report/evidence/S5-CTRL/S5-R01/s5r01_20261022_r01|_r02/`。
-- **收尾与机器清单**：`report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/…closing-record.md`；交付清单 `report/evidence/S5-A/s5a_g0_20261021_r03/delivery_manifest.json`（`check_stage_delivery.py --mode evidence` exit 0 / CHECKS_OK，SHA `6b3176cf…`）。
-- **提交链**：`0b942ed`→`ff8d78c`→`256fc98`→`637e517`→`a4baab4`（离线准备定稿）。
+## 本轮交付（S5-T03）
+- 契约改绑：`docs/stage5/s5t03_input_contract_binding_v1.json` + `S5T03_input_contract_binding_colour_v1.md`
+  ——范围标签 `camera_live_colour`→`source_kind=camera`（已对齐草案）、`camera_capture_replay_colour`→
+  `file_injection|synthetic`（**`PROPOSED_PENDING_STAGE4_G0_CONFIRMATION`**，不新造枚举）、`synthetic_dynamic_reference`→`synthetic`；
+  绑定阶段3 bit/XSA/ELF、1280×720/stride 3840/B-G-R、原图归一化坐标口径、阶段4 关联键、回放标注规则；**不改 S5A-G0-v2 任何阈值**。
+- 冻结参数与用例骨架：`docs/stage5/s5t03_offline_skeleton_params_v1.json`（`FROZEN_BEFORE_RUN`，种子 `20261024`）+
+  `S5T03_offline_case_skeleton_v1.md` + `scripts/stage5_t03/**`（`s5t03_display_pipeline/ s5t03_dynamic_stream/ test_s5t03_skeleton/ run_s5t03_evidence`）。
+- 板级待验：`docs/stage5/S5T03_board_verification_pending_v1.md`（前置 P1–P7、待验 B1–B10、判定口径、窗口 A/B 申请材料、防误报清单）。
+- 证据：`report/evidence/S5-T03/s5t03_takeover_20261024_r01/`（接管核对）、`…/s5t03_offline_skeleton_20261024_r01/`（骨架+清单）。
 
-## S5-T01 上板 bring-up（执行中：PS 合成源叠框已跑通并逐像素核对）
-- **更正（2026-10-22）**：先前"JTAG 链为空／疑板卡未上电"的判定**错误并已正式撤回**：① 裸 `targets` 在输出重定向下不打印表格却被我当作判据；② 我方 grep 把链行从自己的输出里过滤掉。按 Wong 配方程序化复核得 **16 目标**、链 = `JTAG-HS1 210512180081 + arm_dap(4ba00477) + xc7z020(23727093)`、两 A9 核 `Running`。更正记录 `report/evidence/S5-T01/s5t01_board_20261022_r01/CORRECTION_chain_not_empty.md`；复核证据 `report/evidence/S5-T01/s5t01_scan_recheck_20261022_r01/`。
-- **门禁依据**：Wong 2026-10-22 13:25 显式授权上板（`operator_authorization`，已留痕）；信箱仍无 2B 书面让出，**不伪造**信箱记录。
-- 已执行：冻结灰度位流（`44e609cc…c4afb`，**易失**下载）+ 阶段3 v12 图案 ELF（无传感器 ⇒ 图案写失败、`0x503D` **未被改变**，无需恢复）。未烧 QSPI；每次用完清理 `hw_server` 不驻留。
-- **P1 应用（方案 B）**：`scripts/stage5_t01/p1_app/s5_overlay.c`（PS 直接把合成图 + **预计算框**写入阶段3 应用送显缓冲 `pFrames[3]`；板上**无逆映射逻辑**）+ 生成器 `gen_overlay_cases.py`（框像素由冻结参考实现算好嵌入）+ 最小补丁 `apply_p1_patch.py`（1 行，仅锚点唯一时插入）+ 构建 `build_p1_app.sh`（0 警告）。ELF：循环版 `9f5e6db1…`(r02)、单用例5 `dd350c8a…`(r02)。
-- **视觉证据（Wong 拍摄 7 张，六用例全覆盖）**：`report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/photos/` + 逐用例记录 `case_photo_evidence.json`。
-- **逐像素数值核对 13/13 PASS**：`report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/console/decode_rows.json`（红框左/右边界 x=0,1 与 x=77,78；绿框左边恰 `[513,514]`、底边行 66；斜坡 x=560→111、x=1264→252；三缓冲白角标记）。
-- **机上项验收表**：`report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/acceptance_table.json` = **PASS 6 / PARTIAL 1 / NOT_RUN 3 / NOT_VERIFIED 1 / FAIL 0**。
-- **未做/未测（如实）**：`display_fps`/延迟 **NOT_VERIFIED**（置 `FrmCntIrqEn` 后 `SR` 仍 `0x00011000`、计数不推进 ⇒ 需 GIC 中断计数或换帧完成事件；**未报任何数值**）；T5-05 ≥100 帧 frame_id 五元组、T5-09 30 分钟、T5-11 故障计数 **NOT_RUN**；T5-04 边界（`age==limit`/`limit+1`）板上 **NOT_RUN**（离线已覆盖）。
-- 缺陷：D-1 背景 u8 回绕黑带 → **已修**（平滑斜坡，数值可证）；D-2 标签与 HUD 压盖 → **已修**（避让 + HUD 置顶；副作用：HUD 覆盖用例5 红框顶边 x 23..123，已记录）。
+## 实测（本轮离线，合成动态流）
+- 用例骨架 **24 项 / 0 失败 / 0 错误**（193.6 s，Python 3.12.10，种子 20261024）：坐标手算 5 例、越界/零面积、2 px 偶数线宽、
+  120 帧五元组（顺序/迟到/跳帧/重复/乱序）、过期三边界（`==limit` 不过期、`limit+1` 过期且只计一次、显式 `stale_flag`）、
+  零框≠过期、超时/错误/丢帧/无效记录分列、HUD13、长跑。
+- 240 帧 mixed 计数：绘制 177 帧/468 框、stale_cleared 7、dup 8、ooo 8、zero_hand 7、timeout 14、error 7、drop 7、invalid 7、zero_area 89（计数全部可由事件日志复算）。
+- 长跑（**离线虚拟时钟**）：106 573 帧、每帧恰一条 `overlay_commit`、虚拟时长 1 800 001 080 000 ns（30.000018 min）、时间戳单调、计数可复算。
+- 交付检查器 `check_stage_delivery --mode evidence`：两个包均 **CHECKS_OK / exit 0**；`--mode inputs` 按 README **NOT_APPLICABLE**（上游接口未冻结，不伪造）。
+- 既有合成源证据未被改写：`git diff --name-only 654c72e -- report/evidence/S5-A|S5-B|S5-C|S5-T01` 为空（exit 0）。
 
 ## 未决与风险
-- 待正式 G0/Wong：成品允许延迟上限、颜色表/字号；契约 `discrete_fields_must_match` 拆分（F-01 根因）；阶段4 `stale_age_limit` 仍 `DRAFT_PROPOSED`（阶段5 已按**同源同一常量 200 ms** 使用）。
-- 过程缺陷（已登记）：S5-C r01/r02 曾被删除（`report/evidence/S5-C/EVIDENCE_RETENTION_INCIDENT.md`）；`dev-s5b`/`dev-s5c` 重跑失败由 Lead 代执行（Reviewer 独立复现）；首版交付清单被检查器拒绝（exit 2、41 条）保留为失败证据；EOL 归一化导致 4/12 绑定不一致 → 已按 `.gitattributes -text` + `--renormalize` 修复为 12/12。
-- 硬件：板卡在线（`xc7z020` idcode `23727093`）；**摄像头模块不在位/不响应**（I2C 全 0xFF）⇒ 本阶段视频源为 PS 合成图；他人硬件服务不得干扰（本树只用自建 `hw_server` 并及时清理）。
+- `UR-1` 阶段4 写入方：在 S4-B G0 确认 `camera_capture_replay_colour` 的 `source_kind` 与 `carry_fields`。
+- `UR-2` 阶段3 写入方：dbdf `t05_new_module_reverify_20261023_r01/README.md` 标题行写 `v9_read`、同文处置段写 `v10_read`（本树按重算绑定 v10 并请求更正）。
+- `UR-3` Wong/正式 G0：成品允许延迟上限、颜色表与字号、阶段4 `stale_age_limit` 正式冻结。
+- `UR-4` DSH：阶段4 结果冻结后按 `CDX-20261023-018` §3 发阶段5 硬件 OFFER（scope `S5-T02::s5_display_dynamic_mapping`，窗口 A≈2h + B≈1h）。
+- 限制：阶段5 板级动态映射/过期边界/真实注入 30 分钟联调、T5-10 板上回归、`capture_fps` 实测、显示延迟物理测量一律 **NOT_RUN**；
+  P1 现行「宿主预计算框」不得当作板上动态映射；无 ILA 不免除适用标准。
 
 ## 证据入口
-- `report/evidence/S5-A/s5a_g0_20261021_r03/`、`report/evidence/S5-B/s5b_20261021_r07_a|_b/`、`report/evidence/S5-C/s5c_regression_20261021_r04/`、`report/evidence/S5-CTRL/`
-- S5-T01：`report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/`（含 `photos/`、`case_photo_evidence.json`）、`report/evidence/S5-T01/s5t01_board_numcheck_20261022_r01/`（含 `acceptance_table.json`、`console/decode_rows.json`）、`report/evidence/S5-T01/s5t01_board_20261022_r01/CORRECTION_chain_not_empty.md`
-- 临时产物与历史运行：`tmp/5/<task_id>/<run_id>/`（按 `.gitignore` 不入库）。
+- `report/evidence/S5-T03/s5t03_takeover_20261024_r01/`（含 handoff_check 原始 JSON、部署哈希重算、硬件快照）
+- `report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01/`（`summary.md`、`results_skeleton.json`、`console/**`、`delivery_manifest.json`、`hashes_sha256.txt`）
+- 历史：`report/evidence/S5-A|S5-B|S5-C|S5-CTRL|S5-T01/**`（合成源结论原样保留，未重跑）
+- 本轮提交：内容提交 `ba31126`；证据与 STATE 同批提交（见 `git log -1`）。
 
-## 下一步
-1. **§0 门禁修复：三轮审查 PASS（v2.2）→ v2.3 待复审**：登记表驱动 + schema 强校验 + `file` 身份归一化（validate/classify 共用）+ 状态项"必须被应用"断言 + **跨信箱同名不再互相遮蔽**；**35 项隔离合成测试 35/35 PASS、exit 0**；真实只读门禁 **exit 0 / GO / RELEASED**（让出 `007`、最近占用 `006`）。记录 `…/s5t01_gate_fix_20261022_r01/`（`REVIEW_r01_CHANGES_REQUIRED.md`、`REVIEW_r02_PASS.md`、**`FINDING_mcp_tooling.md`**）。
-2. **门禁 v2.3 未复审的改动（1 处）**：`vivado-mcp-server-…`（ROSS MCP 工具包装器）此前被 `"vivado"` 子串误判为硬件占用 → 现**分类**为 `tooling_processes`（透明单列、不阻断），真实硬件进程仍阻断；已在 `FINDING_mcp_tooling.md` 记录并**待独立复审**后依赖。
-3. **§3 四 FPS 实测（r04）**：`display_fps=59.206`、`video_refresh=118.351/s ÷2 = 59.175`、`inference_fps=NA`、`commit→首帧完成 0.22–9.1 ms`；证据 `…/s5t01_board_fps4_20261022_r02/`。
-4. **§4/T5-05（r02）**：120 帧五元组 + 故障计数 + HUD 13 字段 + 遮挡量化；**10/10 校验 PASS**；证据 `…/s5t01_board_5t_20261022_r02/`。
-5. **T5-09 长跑：PASS（严格）**。r02（30 分钟窗）119 轮、应用 29.57 分钟（容差判过）；**r03（纯 UART 1860 s）125 轮、124 完整轮、运行 31.06 分钟 ≥30 分钟、11/11 校验 PASS**；轮号跨窗连续（r02 0–118、r03 1152–1276，无复位）⇒ 同一实例自 19:39 **连续运行 ≈5.28 h 无死锁**。**仅显示/叠加路径**（`inference_fps=NA`，不得声称推理 30 分钟无死锁）。证据 `…/s5t01_board_soak_20261022_r02|_r03/`。
-6. **信箱新记录（2026-10-23，均为中性）**：`CDX-20261023-016`（阶段4 工作树交接请求）/`017`（窗口启动回执）/`DSH-20261023-011`（w4 写权交接确认）——三者正文**均明确不声明硬件占用或释放** ⇒ 硬件仍空档；已按 BI-2 登记，登记表共 **28 条**（= 真实信箱 28 个 MD）。
-7. 收尾：`report/evidence/S5-T01/S5T01_closeout_20261022_r01.md` + **最终验收表 `S5T01_acceptance_table_20261023_r03.json`（PASS 9 / PARTIAL 1 / FAIL 0）**；HUD 13 字段**视觉**确认（照片，可选，未阻塞验收）。
-8. 仍未做（依赖外部）：阶段4 冻结结果注入与"板上实际执行坐标映射"（§4.5）、真实采集路径（摄像头待购）、T5-04 板上边界（age==limit/limit+1）、T5-11 跨进程外部故障注入。
-9. **门禁 v2.4：第五轮独立审查 PASS（已冻结）**。哈希 `gate=15a8aa22…`、`test=3f7d42ab…`、`registry=1a761292…`；40/40 测试；第四轮阻断项 B1（测试未覆盖真实分类路径）已关闭（`classify_process_rows` 共用 + `stub-csv` + 判别力自证 A→test_36/B→test_37 失败）；**3121 端口监听第二道门**已实施并经 16 例矩阵核验（fail-closed 语义已锁）。记录：`REVIEW_r01_CHANGES_REQUIRED.md`、`REVIEW_r02_PASS.md`、`REVIEW_r04_CHANGES_REQUIRED_closed.md`、`REVIEW_r05_PASS.md`、`FINDING_mcp_tooling.md`。
-10. **门禁后续项（6 条非阻断观察，落地需新一轮复审）**：桩模式可得 GO（建议加 `decision_basis`/强制 real 依据）；`TOOLING_PATTERN` 前缀无边界（3121 门为补偿）；`test_39` docstring 口径文字；桩路径空 port-csv 未 fail-closed；"未被应用"守卫冗余；端口门仅覆盖 3121。
-
-## 交接行（11 字段，2026-10-23 01:30）
-任务=`HL-T13 阶段5 离线准备（完成）+ S5-T01 上板 bring-up（§0 门禁五轮审查 PASS（v2.4 冻结）、§3 四 FPS、§4 120 帧五元组、HUD 13 字段、T5-09 严格 31.06 分钟）` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`acd2df6`（S5-T01 基线 `a4baab4`） | 允许修改范围=`docs/stage5/**`、`scripts/stage5_*/**`、`report/evidence/S5-*/**`、`tmp/5/**`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 为忽略项；无他人改动混入）` | 让出声明=`**板卡已让出**：JTAG/COM4 空档（0 个 hw_server/xsdb/vitis/xsim、3121 未监听、COM4 随 r03 采集结束释放、未烧 QSPI、0x503D 未改）；工作树写权仍由本阶段总控独占（S5-T01 IN_PROGRESS）` | 心跳(UTC+8)=`2026-10-23 01:30` | 证据入口=`report/evidence/S5-T01/`（`s5t01_gate_fix_20261022_r01/`、`s5t01_board_fps4_20261022_r02/`、`s5t01_board_5t_20261022_r02/`、`s5t01_board_soak_20261022_r02|_r03/`、`s5t01_board_release_20261022_r01/`、`S5T01_closeout_20261022_r01.md`、`S5T01_acceptance_table_20261023_r03.json`） | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T01 板上 bring-up 已完成并可交付；门禁 v2.4 已 PASS 冻结；余项依赖阶段4/摄像头）/ 本阶段总控`
+## 交接行（11 字段，2026-10-24 01:20）
+任务=`task-22 阶段5 接续（全离线）：S5-T03 输入契约改绑真实彩色 + 坐标映射/帧关联/异常/长跑用例骨架 + 板级待验清单完成` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`654c72e` | 允许修改范围=`docs/stage5/**`、`scripts/stage5_t03/**`、`report/evidence/S5-T03/**`、`tmp/5/**`、`.gitattributes`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 忽略项；无他人改动混入）` | 让出声明=`硬件未占用：0 个 hw_server/xsdb/vitis/xsim、3121 未监听、未加载位流、未烧 QSPI；**阶段3 板级窗口 2026-10-24 00:35 起占用中**，阶段5 板级须另行申请 OFFER；工作树写权仍由本阶段总控独占` | 心跳(UTC+8)=`2026-10-24 01:20` | 证据入口=`report/evidence/S5-T03/**`、`docs/stage5/S5T03_*`、`docs/stage5/s5t03_*` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T03 离线部分完成；真实彩色接入待阶段4 结果冻结，板级待窗口）/ 本阶段总控`

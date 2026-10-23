@@ -1,0 +1,50 @@
+{
+  "checks": [
+    {
+      "name": "w5 接管核验（handoff_check 只读，未提供 record）",
+      "status": "FAIL",
+      "command": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json",
+      "exit_code": 1,
+      "reason": "HANDOFF_FAILED 仅由检查项 c 触发：本包证据写盘时为未跟踪状态（?? report/evidence/S5-T03/），未提供 record 声明其归属；检查项 a（工作树/分支/HEAD）、b（index.lock 不存在）、d（无重型进程）均 PASS，e/f/g/h/i 因未提供 record 而 SKIP。本轮开始前 HEAD=654c72e、工作区干净时同一命令为 HANDOFF_OK PASS4/SKIP5/FAIL0 exit 0。"
+    },
+    {
+      "name": "无未提交的已跟踪修改且无 index.lock",
+      "status": "PASS",
+      "command": "bash -c \"git status --short --untracked-files=no 为空；git rev-parse --git-path index.lock 不存在\"",
+      "exit_code": 0,
+      "reason": "TRACKED_CLEAN_LOCK_ABSENT：无他人已跟踪改动、无锁；未跟踪项仅本任务新证据。"
+    },
+    {
+      "name": "阶段3 部署身份独立重算（bit/XSA/ELF vs CDX-20261022-015 r03）",
+      "status": "PASS",
+      "command": "sha256sum <无补偿bit> <XSA> <j11cmos2_v10_read.elf> 并与 015 r03 期望值比较",
+      "exit_code": 0,
+      "reason": "三产物 3/3 匹配 ALL_MATCH_015_r03；只读引用 dbdf，本树未改写其文件。"
+    },
+    {
+      "name": "硬件空闲核验（进程 + 3121 端口）",
+      "status": "PASS",
+      "command": "bash -c \"tasklist 匹配 vivado|xsdb|hw_server|vitis|xsim；netstat 匹配 :3121\"",
+      "exit_code": 0,
+      "reason": "PROC_IDLE / PORT_3121_IDLE；阶段3 板级窗口自 2026-10-24 00:35 起占用中，故本任务不动硬件。"
+    },
+    {
+      "name": "本任务硬件使用",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "task-22 为纯离线任务：不申请、不占用 JTAG/COM4/hw_server，不加载位流、不烧录。"
+    }
+  ],
+  "limitations": [
+    "handoff_check 检查项 c 的 FAIL 由本包证据当时未提交引起，不是工作树被他人写入；提交后不再触发。",
+    "阶段3 部署产物位于 dbdf（只读引用），本轮只重算哈希，不修改 dbdf 任何文件，也不进行板上操作。",
+    "阶段3 README 的 ELF 名称口径不一致（v9_read/v10_read）已在本任务绑定文件中登记并请求阶段3 更正，本树不代其改写。",
+    "本记录不代表独立审查、G0/G4/G5 或实物验收通过；不代表硬件使用权已转移。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "handoff_check": "verification/handoff_check.py (main tree, read-only)",
+    "sha256": "coreutils sha256sum (Git Bash)"
+  }
+}

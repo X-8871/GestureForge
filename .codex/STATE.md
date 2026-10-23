@@ -28,17 +28,18 @@
   历史行还原、`params_snapshot` 真值、S6-B 侧 approval 断言）；tag `stage6-freeze-20261023-r5` 打在 G6。
 - 旧 tag（r1/r2/r3/r4 与两个 per-profile tag）保留不动。
 
-## 两段式冻结（本轮最终）：F6c / G6
-- **F6c = 交付内容**：`0a2abc4956242c118b7d5ef6d4a1fe1b1ff28351`（修复 BLK-D1 + BLK-D2 后重建的两包与工具）。
-- **G6 = 自证记录**（本提交）：报告主体为 F6c + 传输克隆自证记录；**tag `stage6-freeze-20261023-r5` 打在 G6**。
-- **冻结链**：F4/G4（tag r3）→ F5/G5（tag r4，**已降级为非冻结记录**）→ **F6c/G6（tag r5，当前有效）**。
-  中间态：F6（`bf05d450`，缺 `--s6a-run` 参数注册）、F6b（`9b9d572e`）均被 F6c 取代；所有提交与旧 tag 保留不动。
+## 两段式冻结（本轮最终）：F6d / G6b
+- **F6d = 交付内容**：`2f16d668a14604ad3d4846e29c8a0f10489ac08b`（BLK-D1 + BLK-D2 全部关闭后重建的两包与工具）。
+- **G6b = 自证记录**（本提交）：报告主体为 F6d + 传输克隆自证记录；**tag `stage6-freeze-20261023-r6` 打在 G6b**。
+- **冻结链**：F4/G4（tag r3）→ F5/G5（tag r4，**已降级为非冻结记录**）→ F6c/G6（tag r5）→ **F6d/G6b（tag r6，当前有效）**。
+  中间态：F6（`bf05d450`）、F6b（`9b9d572e`）、F6c（`0a2abc49`）均被 F6d 取代；所有提交与旧 tag 保留不动。
 - **r4 处置与定性更正**：F5 未过自定冻结自证（S6-A 剖面 `[1,0,2]`），根因是**交付物缺陷**——
   行为表 `run_id` 未随新 RunId 同步（仍指 `r10`），`export_selfproof` 又按该字段**隐式**定位证据目录 ⇒ 复算旧包。
   上一轮 STATE 的「3 文件 / 普通克隆 55/55 / 非产品缺陷」三处表述作废（55/55 说的是 r11 包，与工具复算的 r10 不是同一对象）。
-- **本轮实测（全在传输克隆内）**：`--commit F6c --s6a-run report/evidence/S6-A/s6a_g0_20261023_r12`
+- **本轮实测（全在传输克隆内）**：`--commit F6d --s6a-run report/evidence/S6-A/s6a_g0_20261023_r12`
   → S6-A `ALL_SELF_PROVEN [0,0,0]` exit 0；加 `--s6b-run report/evidence/S6-B/s6b_core_20261023_r07`
   → S6-B `ALL_SELF_PROVEN [0,0,0,0]` exit 0。
+- **两侧机读扫描（克隆内）**：S6-A 与 S6-B 均 `AS_EXPECTED / 0 hits`，注入自测 `AS_EXPECTED`。
 - **BLK-D2 关闭方式**：构建器/字段语义改准（`params_snapshot` 不再写假命题）；规格文档拆分「当时/现口径」，
   8 条历史修订行写回当时状态并标注历史语境；两侧新增机读断言 `approved_package_scan`（已批准包内不得出现 PENDING/待批准 陈述，
   历史语境行除外）各配注入必 FAIL 例，并作为 claim `S6A-C8` / `S6B-C5` 入库。

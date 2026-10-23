@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "artifact": "approval_regression",
+  "rule": "C4 必须在注入 PENDING_APPROVAL 后 FAIL（基线 ALL_PASS）；全部操作在临时副本内",
+  "results": {
+    "baseline": {
+      "exit_code": 0,
+      "status": "ALL_PASS",
+      "c4": "PASS",
+      "output_tail": "覆盖（M7 构造上不参与覆盖）；11 个交付文件经语义扫描一致\"}, {\"id\": \"C17\", \"name\": \"STABLE 锁存语义一致性（观察项）\", \"status\": \"PASS\", \"detail\": \"STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认\"}]}\n"
+    },
+    "injected_pending": {
+      "exit_code": 1,
+      "status": "FAILED",
+      "c4": "FAIL",
+      "output_tail": "覆盖（M7 构造上不参与覆盖）；11 个交付文件经语义扫描一致\"}, {\"id\": \"C17\", \"name\": \"STABLE 锁存语义一致性（观察项）\", \"status\": \"PASS\", \"detail\": \"STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认\"}]}\n"
+    },
+    "real_run_dir_files": 45
+  },
+  "verdict": "AS_EXPECTED"
+}

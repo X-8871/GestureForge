@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_g0_selfcheck_result",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261023_r10",
+  "artifact_version": "S6A-G0-v1.8",
+  "status": "FAILED",
+  "checks": [
+    {
+      "id": "C1",
+      "name": "JSON 身份与必填块",
+      "status": "PASS",
+      "detail": "identity ok"
+    },
+    {
+      "id": "C2",
+      "name": "ID 唯一性与最小规模",
+      "status": "PASS",
+      "detail": "unique ok"
+    },
+    {
+      "id": "C3",
+      "name": "文档↔JSON 标识集合双向一致",
+      "status": "PASS",
+      "detail": "10 不变量 / 14 迁移(含 from/to) / 24 参数(§14 行) / 20 事件 / 7 状态 / 28 行为行 / 2 动作类型 双向一致"
+    },
+    {
+      "id": "C4",
+      "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+      "status": "FAIL",
+      "detail": "动作映射仍标为待批准：PENDING_APPROVAL"
+    },
+    {
+      "id": "C5",
+      "name": "五类动作映射一致",
+      "status": "PASS",
+      "detail": "5 类映射一致，target 唯一"
+    },
+    {
+      "id": "C6",
+      "name": "硬不变量与唯一触发解释",
+      "status": "PASS",
+      "detail": "H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一"
+    },
+    {
+      "id": "C7",
+      "name": "人工手算样例独立复算",
+      "status": "PASS",
+      "detail": "32 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧、HC-32 完成帧超出所给序列（序列不足以判定，F7））"
+    },
+    {
+      "id": "C8",
+      "name": "上游只读文件哈希复算",
+      "status": "PASS",
+      "detail": "11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d)"
+    },
+    {
+      "id": "C9",
+      "name": "文档必备覆盖与章节",
+      "status": "PASS",
+      "detail": "关键词与章节齐全"
+    },
+    {
+      "id": "C10",
+      "name": "禁止声明扫描（窄口径）",
+      "status": "PASS",
+      "detail": "未发现禁止声明"
+    },
+    {
+      "id": "C11",
+      "name": "证据清单/STATE 声明 vs 实际文件",
+      "status": "FAIL",
+      "detail": "清单声明的源码/输入哈希不符：docs/stage6/s6a_stage6_g0_behavior_v1.json"
+    },
+    {
+      "id": "C12",
+      "name": "谓词拆分一致性（B-05/R3-B01/R3-B02）",
+      "status": "PASS",
+      "detail": "谓词定义、引用、禁用标识符与全量双向绑定一致"
+    },
+    {
+      "id": "C13",
+      "name": "冷却全局门一致性（B-03/H-10）",
+      "status": "PASS",
+      "detail": "全局门字段与引用一致"
+    },
+    {
+      "id": "C14",
+      "name": "W_min/窗口完成口径（B-04/N-05/F1）",
+      "status": "PASS",
+      "detail": "W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致"
+    },
+    {
+      "id": "C15",
+      "name": "H-4/NO_HAND 一致性（B-02）",
+      "status": "PASS",
+      "detail": "NO_HAND 不推进匹配计数、零框不得完成窗口"
+    },
+    {
+      "id": "C16",
+      "name": "迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1/BLK-r08-1）",
+      "status": "PASS",
+      "detail": "M4 可达并计入覆盖（M7 构造上不参与覆盖）；11 个交付文件经语义扫描一致"
+    },
+    {
+      "id": "C17",
+      "name": "STABLE 锁存语义一致性（观察项）",
+      "status": "PASS",
+      "detail": "STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认"
+    }
+  ],
+  "errors": [
+    "C4: 动作映射仍标为待批准：PENDING_APPROVAL",
+    "C11: 清单声明的源码/输入哈希不符：docs/stage6/s6a_stage6_g0_behavior_v1.json"
+  ],
+  "id_inventory": {
+    "invariants": {
+      "json": [
+        "H-1",
+        "H-10",
+        "H-2",
+        "H-3",
+        "H-4",
+        "H-5",
+        "H-6",
+        "H-7",
+        "H-8",
+        "H-9"
+      ],
+      "doc": [
+        "H-1",
+        "H-10",
+        "H-2",
+        "H-3",
+        "H-4",
+        "H-5",
+        "H-6",
+        "H-7",
+        "H-8",
+        "H-9"
+      ]
+    },
+    "transitions": {
+      "json": [
+        "M1",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M15",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9"
+      ],
+      "doc_table": [
+        "M1",
+        "M10",
+        "M11",
+        "M12",
+        "M13",
+        "M15",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9"
+      ]
+    },
+    "parameters": {
+      "json": [
+        "T6-01",
+        "T6-02",
+        "T6-03",
+        "T6-A01",
+        "T6-A02",
+        "T6-A03",
+        "T6-C01",
+        "T6-J01",
+        "T6-K01",
+        "T6-L01",
+        "T6-L02",
+        "T6-P01",
+        "T6-P02",
+        "T6-P03",
+        "T6-P04",
+        "T6-P05",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-S04",
+        "T6-STALE_LIMIT",
+        "T6-U00_N",
+        "T6-U00_W",
+        "T6-U01"
+      ],
+      "doc_section14": [
+        "T6-01",
+        "T6-02",
+        "T6-03",
+        "T6-A01",
+        "T6-A02",
+        "T6-A03",
+        "T6-C01",
+        "T6-J01",
+        "T6-K01",
+        "T6-L01",
+        "T6-L02",
+        "T6-P01",
+        "T6-P02",
+        "T6-P03",
+        "T6-P04",
+        "T6-P05",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-S04",
+        "T6-STALE_LIMIT",
+        "T6-U00_N",
+        "T6-U00_W",
+        "T6-U01"
+      ]
+    },
+    "events": {
+      "json": [
+        "ACTION_EFFECTIVE",
+        "ACTION_FAILED",
+        "ACTION_SUBMITTED",
+        "ACTION_UNOBSERVED",
+        "E_FRAME_CONFLICT",
+        "E_FRAME_DROPPED",
+        "E_FRAME_DUPLICATE",
+        "E_FRAME_ERROR",
+        "E_FRAME_INVALID",
+        "E_FRAME_OUT_OF_ORDER",
+        "E_FRAME_RESULT",
+        "E_FRAME_STALE",
+        "E_FRAME_TIMEOUT",
+        "E_SESSION_RESET_SUSPECTED",
+        "S_CONFLICT_RESOLVED",
+        "S_COOLDOWN",
+        "S_DEDUP",
+        "S_JITTER_TOLERATED",
+        "S_TARGET_HELD",
+        "S_WINDOW_TIMEOUT"
+      ],
+      "doc_section3": [
+        "ACTION_EFFECTIVE",
+        "ACTION_FAILED",
+        "ACTION_SUBMITTED",
+        "ACTION_UNOBSERVED",
+        "E_FRAME_CONFLICT",
+        "E_FRAME_DROPPED",
+        "E_FRAME_DUPLICATE",
+        "E_FRAME_ERROR",
+        "E_FRAME_INVALID",
+        "E_FRAME_OUT_OF_ORDER",
+        "E_FRAME_RESULT",
+        "E_FRAME_STALE",
+        "E_FRAME_TIMEOUT",
+        "E_SESSION_RESET_SUSPECTED",
+        "S_CONFLICT_RESOLVED",
+        "S_COOLDOWN",
+        "S_DEDUP",
+        "S_JITTER_TOLERATED",
+        "S_TARGET_HELD",
+        "S_WINDOW_TIMEOUT"
+      ]
+    },
+    "states": {
+      "json": [
+        "CANDIDATE",
+        "COOLDOWN",
+        "IDLE",
+        "LOST",
+        "STABLE",
+        "TRIGGERED",
+        "UNKNOWN_RECOVER"
+      ],
+      "doc_section4": [
+        "CANDIDATE",
+        "COOLDOWN",
+        "IDLE",
+        "LOST",
+        "STABLE",
+        "TRIGGERED",
+        "UNKNOWN_RECOVER"
+      ]
+    },
+    "behavior_rows": {
+      "json": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25",
+        "B26",
+        "B27",
+        "B28"
+      ],
+      "doc_table": [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+        "B13",
+        "B14",
+        "B15",
+        "B16",
+        "B17",
+        "B18",
+        "B19",
+        "B20",
+        "B21",
+        "B22",
+        "B23",
+        "B24",
+        "B25",
+        "B26",
+        "B27",
+        "B28"
+      ]
+    },
+    "action_types": {
+      "json": [
+        "A_SWITCH_CHANNEL",
+        "A_SWITCH_UI"
+      ],
+      "doc_table": [
+        "A_SWITCH_CHANNEL",
+        "A_SWITCH_UI"
+      ]
+    }
+  },
+  "inputs": {
+    "behavior_json_path": "D:\\FPGA_Competition\\tmp\\review\\FREEZE_DELTA_D_20261023_r01\\inject_mapstatus\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json",
+    "behavior_json_sha256": "872a9286e90b99446485716366adeca1e88779a36bb73ed1009798381192c9b2",
+    "human_doc_path": "D:\\FPGA_Competition\\tmp\\review\\FREEZE_DELTA_D_20261023_r01\\inject_mapstatus\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md",
+    "human_doc_sha256": "00e8d2ce77695a03a8241f0ceefa346e35592a50c7654c380bbf46671e5aa006",
+    "hand_cases_path": "D:\\FPGA_Competition\\tmp\\review\\FREEZE_DELTA_D_20261023_r01\\inject_mapstatus\\report\\evidence\\S6-A\\s6a_g0_20261023_r11\\hand_computed_cases.json",
+    "hand_cases_sha256": "4b55719425edfc98f2ec1c1fdc6f7a378e4f35eb720fd82a2e57a01b061bc506",
+    "evidence_dir": "D:\\FPGA_Competition\\tmp\\review\\FREEZE_DELTA_D_20261023_r01\\inject_mapstatus\\report\\evidence\\S6-A\\s6a_g0_20261023_r11",
+    "manifest_path": "D:\\FPGA_Competition\\tmp\\review\\FREEZE_DELTA_D_20261023_r01\\inject_mapstatus\\report\\evidence\\S6-A\\s6a_g0_20261023_r11\\delivery_manifest.json",
+    "state_path": "D:\\FPGA_Competition\\tmp\\review\\FREEZE_DELTA_D_20261023_r01\\inject_mapstatus\\.codex\\STATE.md"
+  },
+  "scope_statement": "本自检只复算规格一致性与算术/证据存在性，不代表状态机行为正确、独立审查通过或 G0/G4/G5。",
+  "limitations": [
+    "只复算规格一致性、算术边界与证据存在性；不验证状态机行为（本轮仍无状态机实现）",
+    "C10 为窄口径文本扫描，不是完备的声明审计",
+    "C3 的 from/to 比对依赖文档 §4 表格式（r02 已统一为可机器解析）",
+    "ALL_PASS 不代表独立审查、G0/G2/G4/G5 或实物验收通过",
+    "C12 的禁用标识符扫描为字面匹配（matched_frames/t_last_match/t_submit+），仅放行邻近标注“已废弃”的历史说明；不是完备的术语审计",
+    "C17 只核对锁存声明与迁移表一致，不验证状态机实现"
+  ]
+}

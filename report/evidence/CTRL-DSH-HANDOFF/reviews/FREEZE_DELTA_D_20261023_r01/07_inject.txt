@@ -1,0 +1,25 @@
+=== A) 注入 parameters[2]=T6-A03 -> PENDING_APPROVAL ===
+inject param: T6-A03 was APPROVED_20261023
+REAL_EXIT_MY_INJECT_param2=1
+  overall: FAILED | C4: FAIL | n_checks_failed: 2
+  C4 detail(utf8): T6-A03 \u7684 approval_status \u4ecd\u542b PENDING\uff1aPENDING_APPROVAL
+=== B) 注入 actions.map_status -> PENDING_APPROVAL ===
+inject map_status: was APPROVED_20261023
+REAL_EXIT_MY_INJECT_mapstatus=1
+  overall: FAILED | C4: FAIL | n_checks_failed: 2
+  C4 detail(utf8): \u52a8\u4f5c\u6620\u5c04\u4ecd\u6807\u4e3a\u5f85\u6279\u51c6\uff1aPENDING_APPROVAL
+=== C) 删除 parameters[5].approval_ref（批准索引缺失） ===
+inject remove approval_ref from parameters[5]: T6-S02
+REAL_EXIT_MY_INJECT_noref=1
+  overall: FAILED | C4: FAIL | n_checks_failed: 2
+  C4 detail(utf8): T6-S02 \u7f3a\u5c11 approval_ref\uff08\u6279\u51c6\u8bb0\u5f55\u7d22\u5f15\uff09
+=== D) 基线（未注入，同一复制流程）对照 ===
+REAL_EXIT_BASELINE_COPY=1
+  overall: FAILED | failed: ['C11']
+=== S6-B r06 参数快照字段（机器可读） ===
+snapshot keys: ['all_parameters_pending_approval', 'behavior_artifact_version', 'behavior_json', 'behavior_sha256', 'behavior_status', 'boxes_max', 'class_ids', 'class_order', 'interface_json', 'interface_sha256', 'interface_version', 'note', 'parameters', 'thresholds_are_draft_not_approved']
+all_parameters_pending_approval = True
+thresholds_are_draft_not_approved = True
+note = ȫֵΪݰֵ2026-10-23  Wong ׼״̬ APPROVED_20261023ֻ֤ʵֶȡЩֵֵսۡ
+first param: {'id': 'T6-01', 'draft_value': 0.9, 'unit': 'ratio', 'comparison': '>=', 'approval_status': 'APPROVED_20261023', 'approval_owner': 'Ŀܿת Wong', 'draft_source': 'ƻ L106 ǿ飻 50ÿ 10  L92'}
+=== done ===

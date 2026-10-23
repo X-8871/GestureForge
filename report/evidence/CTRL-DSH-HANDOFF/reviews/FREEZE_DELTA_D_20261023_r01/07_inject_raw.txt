@@ -1,0 +1,25 @@
+=== A) æ³¨å…¥ parameters[2]=T6-A03 -> PENDING_APPROVAL ===
+inject param: T6-A03 was APPROVED_20261023
+REAL_EXIT_MY_INJECT_param2=1
+  overall: FAILED | C4: FAIL | n_checks_failed: 2
+  C4 detail(utf8): T6-A03 \u7684 approval_status \u4ecd\u542b PENDING\uff1aPENDING_APPROVAL
+=== B) æ³¨å…¥ actions.map_status -> PENDING_APPROVAL ===
+inject map_status: was APPROVED_20261023
+REAL_EXIT_MY_INJECT_mapstatus=1
+  overall: FAILED | C4: FAIL | n_checks_failed: 2
+  C4 detail(utf8): \u52a8\u4f5c\u6620\u5c04\u4ecd\u6807\u4e3a\u5f85\u6279\u51c6\uff1aPENDING_APPROVAL
+=== C) åˆ é™¤ parameters[5].approval_refï¼ˆæ‰¹å‡†ç´¢å¼•ç¼ºå¤±ï¼‰ ===
+inject remove approval_ref from parameters[5]: T6-S02
+REAL_EXIT_MY_INJECT_noref=1
+  overall: FAILED | C4: FAIL | n_checks_failed: 2
+  C4 detail(utf8): T6-S02 \u7f3a\u5c11 approval_ref\uff08\u6279\u51c6\u8bb0\u5f55\u7d22\u5f15\uff09
+=== D) åŸºçº¿ï¼ˆæœªæ³¨å…¥ï¼ŒåŒä¸€å¤åˆ¶æµç¨‹ï¼‰å¯¹ç…§ ===
+REAL_EXIT_BASELINE_COPY=1
+  overall: FAILED | failed: ['C11']
+=== S6-B r06 å‚æ•°å¿«ç…§å­—æ®µï¼ˆæœºå™¨å¯è¯»ï¼‰ ===
+snapshot keys: ['all_parameters_pending_approval', 'behavior_artifact_version', 'behavior_json', 'behavior_sha256', 'behavior_status', 'boxes_max', 'class_ids', 'class_order', 'interface_json', 'interface_sha256', 'interface_version', 'note', 'parameters', 'thresholds_are_draft_not_approved']
+all_parameters_pending_approval = True
+thresholds_are_draft_not_approved = True
+note = È«²¿ÊıÖµÎª²İ°¸Öµ£¨2026-10-23 ¾­ Wong Åú×¼£¬×´Ì¬ APPROVED_20261023£©£»±¾¿ìÕÕÖ»Ö¤Ã÷ÊµÏÖ¶ÁÈ¡ÁËÕâĞ©Öµ£¬²»¹¹³ÉãĞÖµ¶³½á»òÑéÊÕ½áÂÛ¡£
+first param: {'id': 'T6-01', 'draft_value': 0.9, 'unit': 'ratio', 'comparison': '>=', 'approval_status': 'APPROVED_20261023', 'approval_owner': 'ÏîÄ¿×Ü¿Ø×ª³Ê Wong', 'draft_source': '¼Æ»® L106 ÑØÓÃÇ¿»¯½¨Òé£»Ñù±¾ ¡İ50¡¢Ã¿Àà ¡İ10 ÑØÓÃ L92'}
+=== done ===

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_color_retest_20261023_r01",
+  "created_utc8": "2026-10-23T10:10:28+08:00",
+  "source_commit": "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_color_retest_20261023_r01",
+    "bash scripts/stage3_t17/run_t17_color_retest.sh judge --run-id t17_color_retest_20261023_r01 --frame report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin"
+  ],
+  "exit_codes": {
+    "runner_preflight": 0,
+    "runner_judge": 1
+  },
+  "outputs": [
+    {
+      "path": "PENDING_HARDWARE_NOT_EVIDENCE.md",
+      "size_bytes": 1305,
+      "sha256": "0e79be35287af5be009d7e828645eaae82faefb1cf9dd9443cd9680fdc4f4e47"
+    },
+    {
+      "path": "judge_manual.json",
+      "size_bytes": 10311,
+      "sha256": "97bce8bf2ca0d543b698dfd9191b54194216b1c1df26f503fda0b4e8b5221980"
+    },
+    {
+      "path": "preflight.json",
+      "size_bytes": 5225,
+      "sha256": "a6970a980e19eeae58f246651a4546cdf8d529417e85c750ceacaca8e09323e1"
+    },
+    {
+      "path": "run_log.txt",
+      "size_bytes": 3331,
+      "sha256": "98d51193e00828a6b0cdb25de7e9ccbaf06227096c4f9e9bd16ba092a0b48e7f"
+    }
+  ],
+  "scope": "到货后实测预留 RunId；当前仅含阶段A 离线 preflight 与判定器往返，硬件阶段未执行",
+  "limitations": [
+    "硬件阶段未执行（需 Wong 开工信号 + 硬件窗口书面确认）"
+  ],
+  "not_run": [
+    "link/baseline/bars/restore"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

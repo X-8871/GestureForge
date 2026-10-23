@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_takeover_20261023_r01",
+  "purpose": "task-17 阶段 A-①：dbdf 工作树 OFFERED→CLAIMED 接管核验（只读 + 证据留痕）",
+  "source_commit": "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",
+  "source_branch": "codex/stage3-video",
+  "created_utc8": "2026-10-23T09:56:00+08:00",
+  "created_by": "DSH 阶段3 总控（stage3-lead）",
+  "command": [
+    "python",
+    "-B",
+    "D:/FPGA_Competition/verification/handoff_check.py",
+    "--worktree",
+    "D:/codex-worktrees/dbdf",
+    "--record",
+    "D:/codex-worktrees/dbdf/report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/handoff_record_stage3_r01.json",
+    "--claim",
+    "--claimed-path",
+    ".codex/STATE.md",
+    "--claimed-path",
+    "scripts/stage3_t17/",
+    "--claimed-path",
+    "report/evidence/S3-T17/",
+    "--claimed-path",
+    "report/evidence/S3-CTRL/S3-T17/",
+    "--json"
+  ],
+  "inputs": [
+    {
+      "path": ".codex/STATE.md",
+      "note": "本轮接管时的工作树 STATE（HEAD f94c25f 版本）；接管后由本阶段总控更新 11 字段交接行",
+      "sha256": "6ef6d7fd27abff77ab24702a7acaecd915cff58340d9745b9a423e99fcbd3b62"
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md",
+      "note": "Codex 阶段三总控让出文档（OFFERED，2026-10-21 19:53）",
+      "sha256": "16927b5caec18c6d554b53cf08beb7476722713ac456822fdcae5d6cec87ae8f"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_closeout_20261022_r01/manifest.json",
+      "note": "上一轮（灰度收尾）交付清单",
+      "sha256": "313b1d959b2908e18d5109e8f34f8e161efb80d61f09590a91d7532e68257bb9"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_freeze_20261021_r01/README.md",
+      "note": "冻结记录 §5 颜色复测步骤",
+      "sha256": "70dacccbb571604d8feda51624adc74f0090c37e53214222f26e70e6dda68fa9"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/manifest.json",
+      "note": "上次彩条缺位证据清单",
+      "sha256": "50cad33347be2e76395f4b9e610fa5ee0bf5dbd8fe6f63ad005eaea0f085b415"
+    },
+    {
+      "path": "D:/FPGA_Competition/verification/handoff_check.py",
+      "note": "只读核验工具（跨工作树以绝对路径调用）",
+      "sha256": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b"
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261023-013-stage3-camera-hw-window.md",
+      "note": "只读：DSH 项目总控向 Codex 申请硬件窗口/让出确认（阶段 B 前置之一）",
+      "sha256": "cfab43cb918d30d3d3c574e59a69fb78c172883d22cee619a535239f6946f2bc"
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261022-009-stage3-camera-runbook.md",
+      "note": "只读：Codex 侧阶段3 操作文档（到货后步骤与退出码语义）",
+      "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48"
+    }
+  ],
+  "checker_result": {
+    "command": "见上 command 字段",
+    "raw_output_files": [
+      "handoff_check_claim.json",
+      "handoff_check_claim.stdout.txt",
+      "handoff_check_confirm.json",
+      "handoff_check_confirm.stdout.txt",
+      "exit_codes.txt"
+    ],
+    "note": "本清单在检查器运行前生成，故不内嵌检查器结论；真实退出码与原始输出见上述文件与 exit_codes.txt。"
+  },
+  "scope": "只读核验 + 接管留痕；不代表 G0/G4/G5、测试通过或实物验收；本轮未接触任何硬件（无 JTAG/COM4/hw_server/烧录）。",
+  "verified_facts": {
+    "branch": "codex/stage3-video",
+    "head": "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",
+    "index_lock_path": "D:/FPGA_Competition/.git/worktrees/FPGA_Competition1/index.lock",
+    "index_lock_present": false,
+    "dirty_entries": [
+      "?? NA/",
+      "?? clockInfo.txt"
+    ],
+    "heavy_processes": [],
+    "port_3121_listening": false,
+    "main_state_inconsistencies": [
+      "主 .codex/STATE.md 阶段3 行记 HEAD 29c7cf0（2026-10-21 20:01 交接提交）——实际 HEAD 为 f94c25f（2026-10-22 15:19）",
+      "主 .codex/STATE.md 阶段3 行记「无人 CLAIM」——实际 DSH 阶段三总控已于 2026-10-21 21:36（提交 22b8b64）CLAIMED→IN_PROGRESS 并工作至 2026-10-22（12bd4c9/f94c25f）",
+      "本树交接行上一轮状态为 DONE（上一轮任务收尾），主 STATE 与本 record 用 OFFERED（治理层对本轮的登记）"
+    ]
+  },
+  "limitations": [
+    "接管核验为只读机器核验，不代表接口语义、测试或实物通过。",
+    "未做任何焊盘/针脚电气测量；上次「DVP 字节 MSB 丢失」的电气定位仍未证（数值自洽已由 DSH 项目总控复核，见 DSH-20261022-007）。",
+    "阶段 B（到货后实测）未执行：需 Wong 开工信号 + 硬件窗口书面确认，二者未到不动板。"
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_color_retest_prep_20261023_r01",
+  "created_utc8": "2026-10-23T10:10:27+08:00",
+  "source_commit": "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest --json-out <prep>/t17_analyzer_selftest.json",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin --json-out <prep>/t17_archived_frame_judgement.json",
+    "python -B scripts/stage3_t17/check_t17_preflight.py --json-out <prep>/t17_preflight_now.json",
+    "bash scripts/stage3_t17/run_t17_color_retest.sh preflight/judge/link/baseline/bars"
+  ],
+  "exit_codes": {
+    "analyzer_selftest": 0,
+    "archived_frame_judge": 1,
+    "offline_preflight": 0,
+    "runner_preflight": 0,
+    "runner_judge": 1,
+    "hw_gate_link_no_flag": 3,
+    "hw_gate_link_no_auth": 3,
+    "hw_gate_baseline_no_auth": 3,
+    "hw_gate_bars_no_auth": 3,
+    "bash_syntax_check": 0
+  },
+  "outputs": [
+    {
+      "path": "README.md",
+      "size_bytes": 10770,
+      "sha256": "37a627b27de6bddb15351c345088291aba1533eb63485d5c4d30f0c93dfb08eb"
+    },
+    {
+      "path": "evidence_template/README.md",
+      "size_bytes": 1768,
+      "sha256": "9ffd1282190363bfb15228ae5a9a01c85d952ed6ee66cab2fb9ef4f879c38e59"
+    },
+    {
+      "path": "evidence_template/hw_authorization_template.json",
+      "size_bytes": 1029,
+      "sha256": "3ee5629eedfd57d8f5bfd7ed4672ccc574c933f952b555334c539a62904d7a95"
+    },
+    {
+      "path": "evidence_template/manifest_template.json",
+      "size_bytes": 1727,
+      "sha256": "06c3df84f430c7dac6abd3562b52ec3b8834ac4c5e37244d35a36439ca8e6e17"
+    },
+    {
+      "path": "t17_analyzer_selftest.json",
+      "size_bytes": 3322,
+      "sha256": "8435300d100cde61a442c1ef244c57c412399ad9ba851dbdc03c0759811537b7"
+    },
+    {
+      "path": "t17_analyzer_selftest.stdout.txt",
+      "size_bytes": 466,
+      "sha256": "13d0017886184fe359a3be42b8a994b1ab1550d3ac68119a5c2754babe96c6e9"
+    },
+    {
+      "path": "t17_archived_frame_judgement.json",
+      "size_bytes": 10311,
+      "sha256": "40a30f3c7c4adba3d76ed7fe88ddba7c533bb9eb9b05065439364443e57e4a30"
+    },
+    {
+      "path": "t17_archived_frame_judgement.stdout.txt",
+      "size_bytes": 726,
+      "sha256": "1294e26daa52a4069dd4ec06e160f9a2dae16f1b9eec51f97071eec959dbadea"
+    },
+    {
+      "path": "t17_artifacts_verified.json",
+      "size_bytes": 6697,
+      "sha256": "429bc3a8d86bdb2537da0dbf16fdea5efef670293d026f4f87a2969f17616992"
+    },
+    {
+      "path": "t17_judgement_table.json",
+      "size_bytes": 7505,
+      "sha256": "5e5d0e9173ca6ee82d6fe0144a1d3adbd21a3b2a9f08564344225aa256643e2a"
+    },
+    {
+      "path": "t17_judgement_table.md",
+      "size_bytes": 3194,
+      "sha256": "c37f2aa5121917e124282f3a84a8de9b27ed0f25c2fc1bc5dd0e0e6545c571d9"
+    },
+    {
+      "path": "t17_preflight_now.json",
+      "size_bytes": 5225,
+      "sha256": "aa867f56617483051a404c9c6492aaba74decd2f0f3b6affabb1bae29dd42196"
+    },
+    {
+      "path": "t17_preflight_now.stdout.txt",
+      "size_bytes": 1247,
+      "sha256": "c0b69e07295bfb61cdfb0e7774d15e4da2505f08639bbd54f9390b136da817cc"
+    }
+  ],
+  "scope": "阶段A 到货前离线准备包（判定表/脚本/离线自测/哈希核验）；不代表 G0/G4/G5、独立审查或实物验收",
+  "limitations": [
+    "全部为离线；未接触硬件；真彩目视与耐久未做",
+    "判定器不代替 Wong 目视（requires_human_visual=true）"
+  ],
+  "not_run": [
+    "link/baseline/bars/restore 三个硬件阶段",
+    "HDMI 目视核对、>=30 分钟耐久、VDMA 粘滞/方法学/I/O delay 缺口"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

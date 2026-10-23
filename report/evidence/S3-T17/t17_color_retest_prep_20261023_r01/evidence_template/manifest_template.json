@@ -1,0 +1,38 @@
+{
+  "__template__": true,
+  "__usage__": "到货后实测时复制为 report/evidence/S3-T17/<run_id>/manifest.json 并由 make_t17_manifest.py 填充；本文件是模板，不是证据。",
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "<新 RunId，例如 t17_color_retest_20261023_r01>",
+  "created_utc8": "<YYYY-MM-DDTHH:MM:SS+08:00>",
+  "source_commit": "<实测时的 HEAD，必须是被 ref 包含的可达提交>",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id <run_id>",
+    "bash scripts/stage3_t17/run_t17_color_retest.sh all --run-id <run_id> --allow-hardware"
+  ],
+  "exit_codes": {
+    "preflight": "<真实退出码>",
+    "link": "<真实退出码>",
+    "baseline_capture": "<真实退出码>",
+    "baseline_dump": "<真实退出码>",
+    "baseline_judge": "<0=通过/1=复现旧缺陷/2=用法/3=非典型>",
+    "bars_capture": "<真实退出码>",
+    "bars_dump": "<真实退出码>",
+    "bars_judge": "<真实退出码>",
+    "restore": "<真实退出码>"
+  },
+  "outputs": "<由 make_t17_manifest.py 自动生成（相对路径 + size + sha256）>",
+  "hardware": {
+    "module_serial_or_marking": "<新旧模块身份记录>",
+    "connector": "J11",
+    "channel": "CMOS2",
+    "bitstream_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+    "frame_addr_readback": "<ADDR_S2MM 实际回读>",
+    "stride_readback": "<STRIDE_S2MM 实际回读>",
+    "sensor_reg_readback": "<S3_DIAG5_SENS 原文>"
+  },
+  "scope": "阶段3 色彩复测实测证据；不代表 G0/G4/G5、独立审查或阶段验收。",
+  "limitations": ["<逐项列出>"],
+  "not_run": ["<逐项列出>"]
+}

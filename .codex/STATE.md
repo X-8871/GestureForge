@@ -36,7 +36,7 @@
 
 - G0材料已独审PASS并提交 `161401e644bf5830931758fe776c6e8bdf823742`：109帧中97帧>4MiB，最大packed RGB888=11,059,200B，4MiB草案仅容12帧；按109完整覆盖预算。D2旧/新SHA仅EOL差；34合成桥接一致，未重生成/逐值核验109帧或PL。证据 `S4-B/s4b_pl_g0_input_scope_20261023_r01/`、`s4b_pl_g0_reference_bridge_20261023_r01/`、`S4-CTRL/s4_pl_g0_materials_20261023_r01/` 保持当时待批准身份；本次批准不改写旧证据。6份桥接文件误落主tmp已保全/恢复，记录保留。
 - 后续109 RAW+直接标量D2重生完成：109/109匹配冻结输入SHA，exit0、190.075秒；RAW808263072B、参考56589312B留w4新tmp RunId，已对218输入逐文件机器核验。长期脚本/日志/结果/恢复政策 `report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/`，不代表PL/4D。
-- PL单通道数值核已停写待G2：r04 XSim 547 FP64逐位、10pixel及6系数错误通过，工具exit0；无综合/OOC/资源或板测。5源冻结 `S4-B/s4b_pl_numeric_g2_20261023_r02/`，record SHA `a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd`。几何metadata生成器修复轮2正补DOS设备名拒绝；其余路径/writer身份/真实量化边界已复审核实，尚未G2 PASS。main/硬件跨方协调消息已提请Wong授权，尚未发送。
+- PL单通道数值核G2独审PASS：r04 XSim 547 FP64逐位、10pixel及6系数错误通过，工具exit0；Reviewer独立重建127阈值、381邻界点/1021整数半整数/10000固定种子点并重核547期望。5源冻结 `S4-B/s4b_pl_numeric_g2_20261023_r02/`，record SHA `a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd`；闭合包 `S4-CTRL/s4_pl_numeric_closure_20261023_r01/` evidence0、inputs2（声明OOC/硬件NOT_RUN）。仅单通道、不含padding/几何/整帧；无综合/OOC/资源或板测。geometry修复2冻结r03最终复审中；系统G0细化中。02B修复2复审发现测试目录隔离及RunId子串匹配，待第3轮修复。main/硬件跨方协调消息已提请Wong授权，尚未发送。
 
 - 历史S4-C `s4c_replay_20261021_r05` 的109/109 PASS、0数值差异已独立核对，可精确复用CPU golden heads→D9→T29范围；本轮未重跑109样本/重哈希390MB分片，未覆盖D2/r06新字段或板卡。复用证据 `report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/` 包装CHECKS_OK；此前“109全量NOT_RUN”不能解释为历史离线回放未做。
 

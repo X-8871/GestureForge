@@ -1,0 +1,540 @@
+{
+  "schema_version": 1,
+  "task": "S4B-PL-PREPROC-NUMERIC-01",
+  "run_id": "s4b_pl_preproc_numeric_20261023_r04",
+  "status": "OFFLINE_REFERENCE_AND_XSIM_PASS",
+  "scope": "单通道像素核与FP64串行算术；不含总线、地址、CSR或系统集成",
+  "repository": {
+    "head": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+    "commit_created_by_subtask": false,
+    "branch": "stage4-infer-prep",
+    "worktree": "D:\\codex-worktrees\\w4"
+  },
+  "source_bindings": {
+    "src\\s4b_preproc_fp64.sv": {
+      "absolute_path": "D:\\codex-worktrees\\w4\\src\\s4b_preproc_fp64.sv",
+      "sha256": "137e7519e98af3e4a8577d3328716217c20722b9f5d7c0399eef4e1c375fd2d7"
+    },
+    "src\\s4b_preproc_pixel.sv": {
+      "absolute_path": "D:\\codex-worktrees\\w4\\src\\s4b_preproc_pixel.sv",
+      "sha256": "4c4563433e9b5d868dde8c9232326afce1ddc4d4297bb548c7fc5252c6e284c1"
+    },
+    "sim\\tb_s4b_preproc_pixel.sv": {
+      "absolute_path": "D:\\codex-worktrees\\w4\\sim\\tb_s4b_preproc_pixel.sv",
+      "sha256": "e4c2ae649bff371632ba366ed1f6d3ca573eefbfd6cf0ca65deb1a4c1a983673"
+    },
+    "verification\\run_s4b_preproc_numeric.py": {
+      "absolute_path": "D:\\codex-worktrees\\w4\\verification\\run_s4b_preproc_numeric.py",
+      "sha256": "8edc8c59e6b2dbdc814f142674e2ce3fddcb2b5d008cd236e2a4df5cc6aff3c8"
+    },
+    "verification\\test_s4b_preproc_numeric.py": {
+      "absolute_path": "D:\\codex-worktrees\\w4\\verification\\test_s4b_preproc_numeric.py",
+      "sha256": "4ae33f0822c83f3c8caef5464bddb93ab17090504c61578fecfc1da6c5b73aa4"
+    },
+    "report\\evidence\\S4-B\\s4b_pl_preproc_numeric_20261023_r01\\source_snapshot\\s1_t02_d2_numeric_reference.py": {
+      "absolute_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_pl_preproc_numeric_20261023_r01\\source_snapshot\\s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f"
+    }
+  },
+  "python": {
+    "version": "Python 3.12",
+    "executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "tests": {
+      "command": "python.exe -B -m unittest verification.test_s4b_preproc_numeric",
+      "exit_code": 0,
+      "result": "10 tests passed"
+    },
+    "numeric_runner": {
+      "command": "python.exe -B verification/run_s4b_preproc_numeric.py --reference report/evidence/S4-B/s4b_pl_preproc_numeric_20261023_r01/source_snapshot/s1_t02_d2_numeric_reference.py --pixel-rtl src/s4b_preproc_pixel.sv --output-dir tmp/4/S4B-PL-PREPROC-NUMERIC-01/numeric_20261023_r04/runner",
+      "exit_code": 0,
+      "result": "127 D2阈值与Python独立参考通过；生成10像素和547 FP64向量"
+    },
+    "process_temp": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B-PL-PREPROC-NUMERIC-01\\numeric_20261023_r04\\process_tmp"
+  },
+  "vivado": {
+    "mcp_elapsed_seconds": 3.148,
+    "stage_exit_codes": {
+      "xelab": 0,
+      "xvlog": 0,
+      "xsim": 0
+    },
+    "tool_commands": [
+      "xvlog -sv D:\\codex-worktrees\\w4\\src\\s4b_preproc_fp64.sv D:\\codex-worktrees\\w4\\src\\s4b_preproc_pixel.sv D:\\codex-worktrees\\w4\\sim\\tb_s4b_preproc_pixel.sv",
+      "xelab work.tb_s4b_preproc_pixel -s tb_s4b_preproc_pixel",
+      "xsim tb_s4b_preproc_pixel -R"
+    ],
+    "finish_time": "179680 ns",
+    "session_pid": 30448,
+    "command": "source {D:\\codex-worktrees\\w4\\tmp\\4\\S4B-PL-PREPROC-NUMERIC-01\\numeric_20261023_r04\\xsim_attempt01\\xsim_run.tcl}",
+    "summary": "TEST_PASS vectors=10 coefficient_errors=6 fp64_cases=547 busy_reset=PASS backpressure=PASS",
+    "version": "2026.1",
+    "session_id": "vivado-20261023-182404-66fc09c7"
+  },
+  "coverage": {
+    "error_and_error_code_compared_for_every_fp64_row": true,
+    "error_preserves_last_success_result": true,
+    "fp64_vector_total": 547,
+    "result_domain_error_code2": 3,
+    "python_independent_reference": "精确整数有理数RNE并对照宿主IEEE binary64",
+    "coefficient_error_cases": 6,
+    "normal_or_zero_multiply": 256,
+    "invalid_input_error_code1": 32,
+    "expected_result_compared_for_every_fp64_row": true,
+    "seed": 29583540,
+    "pixel_vectors": 10,
+    "normal_or_zero_add": 256
+  },
+  "cycles": {
+    "definition": "posedge到posedge",
+    "pixel_valid_latency_min": 18,
+    "pixel_valid_latency_max": 359,
+    "pixel_handshake_latency_max": 363,
+    "fp64_observed_distribution": {
+      "mul_result_domain_error_54_cycles": 2,
+      "add_result_domain_error_3_cycles": 1,
+      "mul_zero_done_same_accept_edge": 3,
+      "add_nonzero_3_cycles": 159,
+      "add_input_domain_error_0_cycles": 16,
+      "add_zero_done_same_accept_edge": 97,
+      "mul_nonzero_54_cycles": 253,
+      "mul_input_domain_error_0_cycles": 16
+    },
+    "fp64_start_accept_to_done_assert": "零快速路径0；非零加法3；乘法54；输入域错误0；结果域错误按对应算术路径3/54",
+    "pixel_forced_out_ready_low_hold_intervals": 3,
+    "pixel_primary_vector_0_input_handshake_to_first_out_valid": 302,
+    "pixel_primary_vector_0_input_handshake_to_output_handshake": 306
+  },
+  "boundary": {
+    "normalization_high_and_low_cases_present": true,
+    "mul_round_carry_operands": [
+      "0x3ff6a09e667f37cd",
+      "0x3ff6a09e667f3fcc"
+    ],
+    "exponent_gaps": [
+      1,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      60,
+      100,
+      500,
+      1022
+    ],
+    "sim_result": "0x4000000000000000",
+    "independent_rne_result": "0x4000000000000000",
+    "tie_even_even_and_odd_cases_present": true,
+    "exact_product_less_than_2": true
+  },
+  "history": {
+    "initial_python_expected_ulp_failure_exit_code": 1,
+    "first_and_final_legacy_log_shas": {
+      "first_5pixel_6fp64": "e415dd7835f912146ccd301c420822d8697f24904b51509707b775dd8436ee02",
+      "final_10pixel_6fp64": "1a28977bd9751e9f01d0dde9b15b68abdfbcb10a4238022494ed73f70e3e4f69"
+    },
+    "preserved": [
+      "首次5像素+6 FP64 XSim日志",
+      "随后10像素+6 FP64 XSim日志",
+      "547向量初次扩展运行r02",
+      "真实乘法尾数进位修正版r03"
+    ]
+  },
+  "limitations": {
+    "hardware": "NOT_RUN",
+    "frequency": "未测",
+    "historical_legacy_source_hash": "旧5+6/10+6运行未保留对应源码SHA，历史日志只作运行轨迹，不作为最终源版本证据",
+    "full_frame_simulation": "NOT_RUN",
+    "synthesis": "NOT_RUN",
+    "resources": "未测",
+    "fps": "未测/未估算",
+    "runner_json_status": "RTL_SIM_PENDING是Python runner生成时的阶段内状态，XSim结果另见本manifest与xsim_final日志"
+  },
+  "artifacts": {
+    "history/expanded_r02/fp64_vectors.hex": {
+      "bytes": 31183,
+      "sha256": "38c33fc377f9754ec44e7f12e2dbaa3f504970a7570c14cb451283c7231c8d6a"
+    },
+    "history/expanded_r02/preproc_vectors.hex": {
+      "bytes": 830,
+      "sha256": "b0663cf4b44bb9ce7432b66f5a8ee4193896ce6d548554cda144b9368423cbd4"
+    },
+    "history/expanded_r02/xelab_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/expanded_r02/xelab_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/expanded_r02/xelab_stdout.txt": {
+      "bytes": 703,
+      "sha256": "bdd49942aff407cb40ce0f6645bc9fb2658af21e8cddf858161449fdb610caf3"
+    },
+    "history/expanded_r02/xelab.log": {
+      "bytes": 688,
+      "sha256": "c4377e8788de9b9eaa25645a1187468c818d99152381717d84849952afee0096"
+    },
+    "history/expanded_r02/xsim_complete.txt": {
+      "bytes": 18,
+      "sha256": "6f0cdca2cf2ffe39e1f207b4961f4ffd944a8d5f1cbd9a7369c82b21af7b4891"
+    },
+    "history/expanded_r02/xsim_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/expanded_r02/xsim_run.tcl": {
+      "bytes": 1806,
+      "sha256": "4568c85dc34d9b7817ac27ff6bd8634c413c017491e6d6ee4f60783ace3e0c7f"
+    },
+    "history/expanded_r02/xsim_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/expanded_r02/xsim_stdout.txt": {
+      "bytes": 46372,
+      "sha256": "5814f5f8a30720fef7970e80ab889e3bb3049538ea4ab44d79fcb5d0cf55ac45"
+    },
+    "history/expanded_r02/xsim.jou": {
+      "bytes": 1263,
+      "sha256": "eb4815190453e56f9e5e4ee80d5c494173a4f1d54ea730aebef1da33b8e4f18b"
+    },
+    "history/expanded_r02/xsim.log": {
+      "bytes": 46595,
+      "sha256": "4ec78d7934e67c837f3e6a6888963283e9a19d1102cec73c00def74c21af39a8"
+    },
+    "history/expanded_r02/xvlog_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/expanded_r02/xvlog_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/expanded_r02/xvlog_stdout.txt": {
+      "bytes": 526,
+      "sha256": "5431f6a1ddf51e7805e09db7f21242e10efb1fb15febb43f9e171aef2f750b61"
+    },
+    "history/expanded_r02/xvlog.log": {
+      "bytes": 520,
+      "sha256": "d39fcb31da41637a1a127633043ee6452d54fa1eabea0c09fdc0a2ae45e2f2a2"
+    },
+    "history/expanded_r03/fp64_vectors.hex": {
+      "bytes": 31183,
+      "sha256": "e31ca3da0993f1f9531f204445c8830b83dd712d40f6130a74cd2842234e1875"
+    },
+    "history/expanded_r03/preproc_vectors.hex": {
+      "bytes": 830,
+      "sha256": "b0663cf4b44bb9ce7432b66f5a8ee4193896ce6d548554cda144b9368423cbd4"
+    },
+    "history/expanded_r03/xelab_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/expanded_r03/xelab_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/expanded_r03/xelab_stdout.txt": {
+      "bytes": 703,
+      "sha256": "bdd49942aff407cb40ce0f6645bc9fb2658af21e8cddf858161449fdb610caf3"
+    },
+    "history/expanded_r03/xelab.log": {
+      "bytes": 688,
+      "sha256": "c4377e8788de9b9eaa25645a1187468c818d99152381717d84849952afee0096"
+    },
+    "history/expanded_r03/xsim_complete.txt": {
+      "bytes": 18,
+      "sha256": "6f0cdca2cf2ffe39e1f207b4961f4ffd944a8d5f1cbd9a7369c82b21af7b4891"
+    },
+    "history/expanded_r03/xsim_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/expanded_r03/xsim_run.tcl": {
+      "bytes": 1806,
+      "sha256": "baf36c20576697c745d1bd692a3c358e092daa514f36f2e9e7f3e4bd89c60300"
+    },
+    "history/expanded_r03/xsim_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/expanded_r03/xsim_stdout.txt": {
+      "bytes": 46372,
+      "sha256": "fd3bbf9d7a3d1de75d5656ac961a639734bd72c6e3a780d2eeddb407027c54c9"
+    },
+    "history/expanded_r03/xsim.jou": {
+      "bytes": 1263,
+      "sha256": "ca30abeda56dd316cb33a5c0dfcb9a768a4b7fd04380f75f3a36091dc65b8c41"
+    },
+    "history/expanded_r03/xsim.log": {
+      "bytes": 46595,
+      "sha256": "449c79e733b80776f1f36789655635397b909c5156d2566257fef085b639ff85"
+    },
+    "history/expanded_r03/xvlog_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/expanded_r03/xvlog_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/expanded_r03/xvlog_stdout.txt": {
+      "bytes": 526,
+      "sha256": "5431f6a1ddf51e7805e09db7f21242e10efb1fb15febb43f9e171aef2f750b61"
+    },
+    "history/expanded_r03/xvlog.log": {
+      "bytes": 520,
+      "sha256": "d39fcb31da41637a1a127633043ee6452d54fa1eabea0c09fdc0a2ae45e2f2a2"
+    },
+    "history/python_unit_initial_expected_ulp_failure/python_unit_exit_code.txt": {
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    "history/python_unit_initial_expected_ulp_failure/python_unit_stderr.txt": {
+      "bytes": 1747,
+      "sha256": "0ea392b1d4c9aa83542b1b7e9f214c7903e042a8afaac66c9bc70724a04a3580"
+    },
+    "history/python_unit_initial_expected_ulp_failure/python_unit_stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_final_10pixel_6fp64/preproc_vectors.hex": {
+      "bytes": 830,
+      "sha256": "b0663cf4b44bb9ce7432b66f5a8ee4193896ce6d548554cda144b9368423cbd4"
+    },
+    "history/xsim_final_10pixel_6fp64/xelab_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/xsim_final_10pixel_6fp64/xelab_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_final_10pixel_6fp64/xelab_stdout.txt": {
+      "bytes": 703,
+      "sha256": "bdd49942aff407cb40ce0f6645bc9fb2658af21e8cddf858161449fdb610caf3"
+    },
+    "history/xsim_final_10pixel_6fp64/xelab.log": {
+      "bytes": 688,
+      "sha256": "c4377e8788de9b9eaa25645a1187468c818d99152381717d84849952afee0096"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim_complete.txt": {
+      "bytes": 18,
+      "sha256": "6f0cdca2cf2ffe39e1f207b4961f4ffd944a8d5f1cbd9a7369c82b21af7b4891"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim_run.tcl": {
+      "bytes": 1806,
+      "sha256": "e7b4fe942f2facd9db98ad669ab68933be2dd51cf11d0d52d8add2979a4b1f28"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim_stdout.txt": {
+      "bytes": 1714,
+      "sha256": "1a28977bd9751e9f01d0dde9b15b68abdfbcb10a4238022494ed73f70e3e4f69"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim.jou": {
+      "bytes": 1263,
+      "sha256": "ea4d661356bdb9301c6550bb89667c89d0e061652d904274ce9b6eeaefdab30a"
+    },
+    "history/xsim_final_10pixel_6fp64/xsim.log": {
+      "bytes": 2478,
+      "sha256": "bc4c5a549faec7a3f623457f2a9610b04af707656ac99229f0f311aec5e63b6a"
+    },
+    "history/xsim_final_10pixel_6fp64/xvlog_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/xsim_final_10pixel_6fp64/xvlog_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_final_10pixel_6fp64/xvlog_stdout.txt": {
+      "bytes": 526,
+      "sha256": "5431f6a1ddf51e7805e09db7f21242e10efb1fb15febb43f9e171aef2f750b61"
+    },
+    "history/xsim_final_10pixel_6fp64/xvlog.log": {
+      "bytes": 520,
+      "sha256": "d39fcb31da41637a1a127633043ee6452d54fa1eabea0c09fdc0a2ae45e2f2a2"
+    },
+    "history/xsim_first_5pixel_6fp64/preproc_vectors.hex": {
+      "bytes": 415,
+      "sha256": "b8e41228fa9636322d4ca99abdd93358b1d461a14da7bafd2bde78d1faf37da3"
+    },
+    "history/xsim_first_5pixel_6fp64/xelab_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/xsim_first_5pixel_6fp64/xelab_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_first_5pixel_6fp64/xelab_stdout.txt": {
+      "bytes": 703,
+      "sha256": "bdd49942aff407cb40ce0f6645bc9fb2658af21e8cddf858161449fdb610caf3"
+    },
+    "history/xsim_first_5pixel_6fp64/xelab.log": {
+      "bytes": 688,
+      "sha256": "c4377e8788de9b9eaa25645a1187468c818d99152381717d84849952afee0096"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim_complete.txt": {
+      "bytes": 18,
+      "sha256": "6f0cdca2cf2ffe39e1f207b4961f4ffd944a8d5f1cbd9a7369c82b21af7b4891"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim_run.tcl": {
+      "bytes": 1806,
+      "sha256": "e7b4fe942f2facd9db98ad669ab68933be2dd51cf11d0d52d8add2979a4b1f28"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim_stdout.txt": {
+      "bytes": 1528,
+      "sha256": "e415dd7835f912146ccd301c420822d8697f24904b51509707b775dd8436ee02"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim.jou": {
+      "bytes": 1262,
+      "sha256": "d96e12a7c96e69d8c41ce44d548c767dff0757d5da7f7ffa01e547b2fa448690"
+    },
+    "history/xsim_first_5pixel_6fp64/xsim.log": {
+      "bytes": 2296,
+      "sha256": "3053d53b4d2ca7cad1a85de51d9269355d04b1e2688777cb76ffcfeeb75e4995"
+    },
+    "history/xsim_first_5pixel_6fp64/xvlog_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "history/xsim_first_5pixel_6fp64/xvlog_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "history/xsim_first_5pixel_6fp64/xvlog_stdout.txt": {
+      "bytes": 526,
+      "sha256": "5431f6a1ddf51e7805e09db7f21242e10efb1fb15febb43f9e171aef2f750b61"
+    },
+    "history/xsim_first_5pixel_6fp64/xvlog.log": {
+      "bytes": 520,
+      "sha256": "d39fcb31da41637a1a127633043ee6452d54fa1eabea0c09fdc0a2ae45e2f2a2"
+    },
+    "numeric_runner/exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "numeric_runner/fp64_vectors.hex": {
+      "bytes": 31183,
+      "sha256": "e31ca3da0993f1f9531f204445c8830b83dd712d40f6130a74cd2842234e1875"
+    },
+    "numeric_runner/numeric_reference_result.json": {
+      "bytes": 13625,
+      "sha256": "6532c51e13dab9ada0d80736d3eb714ba8e4f939d42efba2a0dc8b1e43b66e5e"
+    },
+    "numeric_runner/preproc_vectors.hex": {
+      "bytes": 830,
+      "sha256": "b0663cf4b44bb9ce7432b66f5a8ee4193896ce6d548554cda144b9368423cbd4"
+    },
+    "numeric_runner/stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "numeric_runner/stdout.txt": {
+      "bytes": 594,
+      "sha256": "b1fb9740e1b7e0fae015db50d2be2fbf31ca8ba0cf943b0aaf2a7686899b26b1"
+    },
+    "python_unit/exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "python_unit/stderr.txt": {
+      "bytes": 114,
+      "sha256": "0cbbd410e51b359558d62962f4522d8674cb02b21e08c75a15965c149eab5f7b"
+    },
+    "python_unit/stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source_snapshot/s1_t02_d2_numeric_reference.py": {
+      "bytes": 18337,
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f"
+    },
+    "xsim_final/fp64_vectors.hex": {
+      "bytes": 31183,
+      "sha256": "e31ca3da0993f1f9531f204445c8830b83dd712d40f6130a74cd2842234e1875"
+    },
+    "xsim_final/preproc_vectors.hex": {
+      "bytes": 830,
+      "sha256": "b0663cf4b44bb9ce7432b66f5a8ee4193896ce6d548554cda144b9368423cbd4"
+    },
+    "xsim_final/xelab_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "xsim_final/xelab_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "xsim_final/xelab_stdout.txt": {
+      "bytes": 703,
+      "sha256": "bdd49942aff407cb40ce0f6645bc9fb2658af21e8cddf858161449fdb610caf3"
+    },
+    "xsim_final/xelab.log": {
+      "bytes": 688,
+      "sha256": "c4377e8788de9b9eaa25645a1187468c818d99152381717d84849952afee0096"
+    },
+    "xsim_final/xsim_complete.txt": {
+      "bytes": 18,
+      "sha256": "6f0cdca2cf2ffe39e1f207b4961f4ffd944a8d5f1cbd9a7369c82b21af7b4891"
+    },
+    "xsim_final/xsim_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "xsim_final/xsim_run.tcl": {
+      "bytes": 1806,
+      "sha256": "4d0f66e6080191d3a6e7877f163d690e42fccecdca0703f888f1a9b14c557714"
+    },
+    "xsim_final/xsim_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "xsim_final/xsim_stdout.txt": {
+      "bytes": 62307,
+      "sha256": "7dd3872173ec3ebc1703e59f61dc04de61916277a6b24bd2756fa02ab069f86e"
+    },
+    "xsim_final/xsim.jou": {
+      "bytes": 1262,
+      "sha256": "a83be04da01ef83ef30f46030ef13e78a2ac558df05f3ce66c478d0074f3537c"
+    },
+    "xsim_final/xsim.log": {
+      "bytes": 62529,
+      "sha256": "ec18a3476bacb7814506e125967b9f435c037a16db705dcbfae9decddc8b5784"
+    },
+    "xsim_final/xvlog_exit_code.txt": {
+      "bytes": 3,
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+    },
+    "xsim_final/xvlog_stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "xsim_final/xvlog_stdout.txt": {
+      "bytes": 526,
+      "sha256": "5431f6a1ddf51e7805e09db7f21242e10efb1fb15febb43f9e171aef2f750b61"
+    },
+    "xsim_final/xvlog.log": {
+      "bytes": 520,
+      "sha256": "d39fcb31da41637a1a127633043ee6452d54fa1eabea0c09fdc0a2ae45e2f2a2"
+    }
+  }
+}

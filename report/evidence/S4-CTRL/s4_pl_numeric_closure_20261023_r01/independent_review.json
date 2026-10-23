@@ -1,0 +1,45 @@
+{
+  "reviewer": "/root/review_adapter_execution",
+  "decision": "PASS",
+  "scope": "仅冻结五源PL单通道数值核G2；不含几何、padding、整帧、总线和板测",
+  "reviewed_baseline": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+  "current_head": "a3b03d65c87b8266dabf58076146dd0b21259d07",
+  "frozen_record_sha256": "a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd",
+  "final_manifest_sha256": "86904bade99f7348a571375fd840695eec4b7585329c54dddeab58679c5c20dd",
+  "verified_current_sources": [
+    {
+      "path": "D:\\codex-worktrees\\w4\\src\\s4b_preproc_fp64.sv",
+      "sha256": "137e7519e98af3e4a8577d3328716217c20722b9f5d7c0399eef4e1c375fd2d7",
+      "snapshot_match": true
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\src\\s4b_preproc_pixel.sv",
+      "sha256": "4c4563433e9b5d868dde8c9232326afce1ddc4d4297bb548c7fc5252c6e284c1",
+      "snapshot_match": true
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\sim\\tb_s4b_preproc_pixel.sv",
+      "sha256": "e4c2ae649bff371632ba366ed1f6d3ca573eefbfd6cf0ca65deb1a4c1a983673",
+      "snapshot_match": true
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\verification\\run_s4b_preproc_numeric.py",
+      "sha256": "8edc8c59e6b2dbdc814f142674e2ce3fddcb2b5d008cd236e2a4df5cc6aff3c8",
+      "snapshot_match": true
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\verification\\test_s4b_preproc_numeric.py",
+      "sha256": "4ae33f0822c83f3c8caef5464bddb93ab17090504c61578fecfc1da6c5b73aa4",
+      "snapshot_match": true
+    }
+  ],
+  "independent_probe": "独立重建127阈值，381邻界点、1021整数/半整数点、固定种子10000点；Fraction和宿主binary64重核547期望。",
+  "reviewer_execution": "Reviewer工具返回native0；此处不虚构独立探针原stdout/stderr文件。",
+  "native_xsim": "最终xvlog/xelab/xsim各0；547FP64、10pixel、6系数错误；Reviewer只读原始日志，未独立重跑XSim。",
+  "limits": [
+    "ROM全阈值为静态/Python重建，不代表RTL状态机逐阈值扫测。",
+    "FP64只接受正正规数和正零，明确拒绝其余域；错误保留上次成功结果。",
+    "归一化补边0.5量化64由整帧模块实现，pixel核自身不含padding。",
+    "G3、综合/OOC、频率、资源、整帧与4D均未执行。"
+  ]
+}

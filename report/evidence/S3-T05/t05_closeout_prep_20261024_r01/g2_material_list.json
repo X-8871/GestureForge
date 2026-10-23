@@ -36,8 +36,14 @@
     "part": "xc7z020clg400-2",
     "tool": "Vivado 2026.1 batch Tcl（BASIC 许可 D:/Xilinx_licenses/basic_only.lic）",
     "builder_scripts": [
-      {"path": "scripts/stage3_t04/run_t04_camera_j11cmos2_soffix_build.sh", "role": "SOF 修复变体构建入口（产物路径见构建记录）"},
-      {"path": "scripts/stage3_t04/build_t04_camera.tcl", "role": "厂商 BD 重建 + 补丁注入 + 综合/实现/写位流"}
+      {
+        "path": "scripts/stage3_t04/run_t04_camera_j11cmos2_soffix_build.sh",
+        "role": "SOF 修复变体构建入口（产物路径见构建记录）"
+      },
+      {
+        "path": "scripts/stage3_t04/build_t04_camera.tcl",
+        "role": "厂商 BD 重建 + 补丁注入 + 综合/实现/写位流"
+      }
     ],
     "vendor_source": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vivado/auto_create_project",
     "patch": {
@@ -48,30 +54,77 @@
       "change": "s_axis_tuser 触发由 cmos_vsync 下降沿改为「hblank 连续低 >= GAP_THRESH=16384 pclk 后的第一个有效像素」；新增饱和计数器"
     },
     "constraints": {
-      "active": {"path": "board/stage3/hardware/an5642_j11_cmos2.xdc", "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2", "live_recheck_20261024": "MATCH", "scope": "J11/CMOS2（当前部署连接器）"},
-      "not_deployed_but_present": {"path": "board/stage3/hardware/an5642_j10_cmos2.xdc", "sha256": "07fe96adf4d9ee752c2574616322f6844904995e08b77cf9aff9377ad9210de8", "scope": "J10（半屏黑未定性，保持开放；不受本轮 G2 覆盖）"}
+      "active": {
+        "path": "board/stage3/hardware/an5642_j11_cmos2.xdc",
+        "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2",
+        "live_recheck_20261024": "MATCH",
+        "scope": "J11/CMOS2（当前部署连接器）"
+      },
+      "not_deployed_but_present": {
+        "path": "board/stage3/hardware/an5642_j10_cmos2.xdc",
+        "sha256": "07fe96adf4d9ee752c2574616322f6844904995e08b77cf9aff9377ad9210de8",
+        "scope": "J10（**范围排除**：Wong 2026-10-24 决定当前用 J11、J10 不纳入范围；不表示故障已修复或关闭；不受本轮 G2 覆盖）"
+      }
     },
     "timing_and_drc": {
       "source": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/build_report.json",
       "impl_status": "write_bitstream Complete!",
       "synth_status": "synth_design Complete!",
-      "wns_ns": "1.054525", "tns_ns": "0.000000", "whs_ns": "0.058931", "ths_ns": "0.000000",
-      "drc_error_count": 0, "drc_warning_count": 8, "drc_critical_warning_count": 0,
+      "wns_ns": "1.054525",
+      "tns_ns": "0.000000",
+      "whs_ns": "0.058931",
+      "ths_ns": "0.000000",
+      "drc_error_count": 0,
+      "drc_warning_count": 8,
+      "drc_critical_warning_count": 0,
       "drc_note": "与基线 run 的 DRC 明细一致（同 8 Warning / 0 Error）；write_bitstream 前置 DRC 亦 0 Errors"
     }
   },
   "supporting_tools_used_by_the_deployment": [
-    {"path": "tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/an5642_j11cmos2_v12_bars_freeze.elf", "sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5", "role": "彩条用例（写 0x503D=0x80；仅易失；用后恢复 0x00）"},
-    {"path": "tmp/s3r06/t04_j11cmos2_elf_v11/elf_build/app/an5642_j11cmos2_v11_freeze.elf", "sha256": "c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4", "role": "停 S2MM + 保持（整帧导出用）"},
-    {"path": "tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read.elf", "sha256": "b2e8fa55", "sha256_note": "前缀（完整值见 t05_v9_board_20261021_r01 证据）", "role": "只读回读（配置侧排除用）"}
+    {
+      "path": "tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/an5642_j11cmos2_v12_bars_freeze.elf",
+      "sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+      "role": "彩条用例（写 0x503D=0x80；仅易失；用后恢复 0x00）"
+    },
+    {
+      "path": "tmp/s3r06/t04_j11cmos2_elf_v11/elf_build/app/an5642_j11cmos2_v11_freeze.elf",
+      "sha256": "c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4",
+      "role": "停 S2MM + 保持（整帧导出用）"
+    },
+    {
+      "path": "tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read.elf",
+      "sha256": "b2e8fa55",
+      "sha256_note": "前缀（完整值见 t05_v9_board_20261021_r01 证据）",
+      "role": "只读回读（配置侧排除用）"
+    }
   ],
   "evidence_entries": {
-    "new_module_reverify": {"path": "report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/", "content": "README + hashes.txt + 彩条整帧 + 3 行样本 + PNG", "hash_recheck_20261024": "6/6 MATCH（本轮独立实算）", "conclusion": "缺位签名消失；CHIPID TRY0/1/2 均 0x5640；彩条满量程且色相顺序正确；实景 B/R≈0.85–0.99"},
-    "fault_module_baseline": {"path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/", "role": "旧模块（故障件）对照与返修依据"},
-    "build_record": {"path": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/", "role": "无补偿 SOF 位流/XSA 构建记录（含时序、DRC、补丁哈希）"},
-    "board_live_passthrough": {"path": "report/evidence/S3-T05/t05_v6_board_20261020_r01/", "role": "实时直通（指纹变化）与传感器在流证据"},
-    "hdmi_output": {"path": "report/evidence/S3-T03/t03b_hdmi_build_20261020_r01/", "role": "显示输出（VDMA+HDMI）构建与实物启动"},
-    "display_channel_mapping": {"path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/channel_mapping_report.json", "role": "DDR offset0/1/2 与 HDMI 通道映射（网表+源码）"}
+    "new_module_reverify": {
+      "path": "report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/",
+      "content": "README + hashes.txt + 彩条整帧 + 3 行样本 + PNG",
+      "hash_recheck_20261024": "6/6 MATCH（本轮独立实算）",
+      "conclusion": "缺位签名消失；CHIPID TRY0/1/2 均 0x5640；彩条满量程且色相顺序正确；实景 B/R≈0.85–0.99"
+    },
+    "fault_module_baseline": {
+      "path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/",
+      "role": "旧模块（故障件）对照与返修依据"
+    },
+    "build_record": {
+      "path": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/",
+      "role": "无补偿 SOF 位流/XSA 构建记录（含时序、DRC、补丁哈希）"
+    },
+    "board_live_passthrough": {
+      "path": "report/evidence/S3-T05/t05_v6_board_20261020_r01/",
+      "role": "实时直通（指纹变化）与传感器在流证据"
+    },
+    "hdmi_output": {
+      "path": "report/evidence/S3-T03/t03b_hdmi_build_20261020_r01/",
+      "role": "显示输出（VDMA+HDMI）构建与实物启动"
+    },
+    "display_channel_mapping": {
+      "path": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/channel_mapping_report.json",
+      "role": "DDR offset0/1/2 与 HDMI 通道映射（网表+源码）"
+    }
   },
   "reviewer_scope_proposal": {
     "in_scope": [
@@ -86,7 +139,10 @@
       "灰度/补偿位流（44e609cc…、2f72aaa4…、30db09ba…）与 stdluma/gray 补丁：仅历史与回退；此前仅人工审阅、未走完整独立 Reviewer 流程；若重新启用须补审查/验证",
       "≥30 分钟耐久、电气测量、QSPI 烧写、镜头复检（均未执行）"
     ],
-    "pending_inputs": ["Wong 开工信号与硬件窗口（板级项）", "DSH 项目总控另派 Reviewer（015 §2.4）"]
+    "pending_inputs": [
+      "Wong 开工信号与硬件窗口（板级项）",
+      "DSH 项目总控另派 Reviewer（015 §2.4）"
+    ]
   },
   "not_a_pass": "本清单只固定被审版本与材料；CHECKS_OK/清单齐全不替代测试成功、实物验收或独立审查结论。"
 }

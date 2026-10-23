@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T05",
+  "run_id": "t05_closeout_prep_20261024_r01",
+  "created_utc8": "2026-10-24T00:30:20+08:00",
+  "source_commit": "63038ef85423a0dbf1fc421c3dfb894a8deea998",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "git -C D:/codex-worktrees/dbdf diff 63038ef -- .codex/STATE.md（逐行 diff）",
+    "python -B -c <实算 SOF bit/XSA/ELF/XDC/补丁 sha256>",
+    "python -B -c <复核 t05_new_module_reverify_20261023_r01/hashes.txt 6 项>"
+  ],
+  "exit_codes": {
+    "hash_recheck_deploy_artifacts": 0,
+    "hash_recheck_new_module_6of6": 0
+  },
+  "outputs": [
+    {
+      "path": "README.md",
+      "size_bytes": 7399,
+      "sha256": "375f839e4d323d8a6ee5d3afec3fcf7bd40ee1fc4ff5178d1e67fed7ea0d93a9"
+    },
+    {
+      "path": "g2_material_list.json",
+      "size_bytes": 7147,
+      "sha256": "7152199831be1382a1a31b7d424fe39dd269eadd01fe99d20537077ab2614e97"
+    },
+    {
+      "path": "j10_ila_applicability.md",
+      "size_bytes": 3413,
+      "sha256": "4720e360e63fb38f59fa1cc25ece0c626628f45cc91fca4c8278398b19c7579f"
+    },
+    {
+      "path": "state_diff.txt",
+      "size_bytes": 32222,
+      "sha256": "76d303c6da9895d30b609cd847a1c78d850c45fc7d95bad53084f50b53327198"
+    },
+    {
+      "path": "state_hashes.txt",
+      "size_bytes": 1302,
+      "sha256": "bcdb01a27d972caa2501da65c9ef0a700d28325249250d2930523c8677835463"
+    },
+    {
+      "path": "timing_io_applicability_prep.md",
+      "size_bytes": 4937,
+      "sha256": "a9eee04e95eabed16f29f3953eb1beae6c3481be3a1e4945e8750b0f3177d7aa"
+    },
+    {
+      "path": "vdma_sticky_check_plan.md",
+      "size_bytes": 3988,
+      "sha256": "2ec114b5b8d4d7a709ccde7261ba2b7d25a34ab5fd2557936cfdf4376606100d"
+    }
+  ],
+  "scope": "015 r03 §2.3 阶段 STATE 一次性统一 + §2.4 不需板卡的离线收尾准备 + task-17 阶段B 处置",
+  "limitations": [
+    "离线整理与准备；未接触硬件；未跑 Vivado；不代表 G2/G3/G4/G5 或阶段3 通过"
+  ],
+  "not_run": [
+    "≥30 分钟耐久、VDMA 粘滞现场核对、TIMING-I/O 离线报告、真彩目视、J10 定性"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

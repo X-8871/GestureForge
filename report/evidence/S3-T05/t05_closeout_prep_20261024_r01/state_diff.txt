@@ -1,0 +1,125 @@
+diff --git a/.codex/STATE.md b/.codex/STATE.md
+index c55c568..8837954 100644
+--- a/.codex/STATE.md
++++ b/.codex/STATE.md
+@@ -1,74 +1,57 @@
+ # 阶段3 状态（AN5642 原始视频链路）
+ 
+-更新：2026-10-23 12:32（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。**task-17 阶段 A 经三轮独立评审已修复**：位计数/夹具 F/前置卡死三阻断关闭；**GBK 下 `=>` 崩溃（R-1/R-2）与非典型误报已修并加 CLI 级回归**；**task-20 关闭项已完成**：执行器新增 **cwd×WT 运行位置护栏（exit 2，未写任何文件）**、行号/计数/运行时刻更正、被机械改写的已提交证据**已按要求逐行还原**、覆盖口径更正 + 自证工具新增可判别回归。阶段 B（到货后实测）仍待 **Wong 开工信号 + 硬件窗口书面确认**；颜色子项仍 `DEFERRED_PENDING_MODULE`，不得宣称通过。
+-规则见 `D:\FPGA_Competition\AGENTS.md`。**状态：阶段三已收尾；2026-10-23 新模块到货后颜色项已实测解除受阻（本条为 DSH 阶段三总控更新，证据 `report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/`，提交 `b98ce73`）。** 复测（无补偿基线 `7cb33068…` + `v9_read`/`v12_bars_freeze`）：缺位签名**消失**（蓝 bit7 21.719–39.141%、绿 bit4 38.047–50.156%；旧模块 0.000%/0.000%）、`CHIPID TRY0/TRY1/TRY2` 全 `0x5640`（旧模块仅 TRY0）、彩条 8 条**满量程且色相顺序正确**（白 `B5=31`、绿 `G6=63`；旧模块 15/59）、实景 `B/R=0.85–0.99`（旧模块 0.45）⇒ **真彩色恢复**；**无需微调**，可继续用原彩色模型。板卡现为**实时彩色**（无补偿基线 + `v10_read`，指纹随画面变化）。2026-10-22 灰度口径收尾记录见 `t05_stage3_closeout_20261022_r01/`；下一阶段输入 = **实时彩色视频流**（灰度位流保留仅作回退）。
+-**2026-10-22 关键结论（第三方要求的两个便宜实验已完成）**：① **传感器内置彩条 + 无补偿原始基线**转储（`0x503D: 0x00→0x80`，回读 0x80）⇒ 白条 5 位蓝 = **15（120）** 而非 31（255）、绿 6 位 = **59（236）** 而非 63（252）⇒ 与"两个字节 MSB 同时丢失"**精确吻合**（15<<3=120、59<<2=236）⇒ **真缺位；色相顺序正确；任何通道置换都无法修复**；② R/B 互换渲染：灰度帧 R≈G≈B ⇒ 两序**逐项一致**，补偿彩色帧两序只换色偏方向 ⇒ 顺序假设排除。③ 模型域实测（第三方转述）：灰度与补偿彩色帧对**彩色训练模型**都不可靠（补偿彩色 tiny320 仅 26%，其余 0）⇒ 部署要可靠必须"灰度微调"或"等模块恢复真彩色"。
+-**部署/冻结位流（2026-10-22 12:4x Wong 决定"先按灰度继续后续工作，等模块到货再更新"）**：**标准亮度灰度 `44e609cc…`**（bit）/ `90e1bdee…`（XSA），板上实测 `|R−B|=0.0`、`|R−G|≈|G−B|≈2/255` ⇒ 真正中性；亮度式 `Y=(77R8+150G8+29B8)>>8`，**训练集转灰度须用同一整数权重**以对齐输入域。备选：纯绿灰度 `2f72aaa4…`（板上已验证）、补偿彩色 `30db09ba…`（仅留档，暂不用）；取帧应用 v11（停 S2MM + 保持）、彩条应用 v12（写 `0x503D`，仅易失）。**板卡当前**：标准亮度灰度位流 + v10_read，**实时、无 HALT**。
+-**证据入口**：`report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/`（manifest+8 段数值表+复算脚本+彩条/手势帧 11 份产物）、`report/evidence/S3-T14/v12_bars_freeze_tool_20261022_r01/`（v12 工具：写 0x503D、仅易失、**已在板上恢复**、无 HALT、**使用前须确认 2B 硬件占用未让出**、不得当通用重置工具）、`…/t05_sw_v11_20261022_r01/`、`…/t05_sw_v10_20261021_r01/`、`…/t05_stdluma_20261022_r01/`、`…/t05_freeze_20261021_r01/`。
+-**未关闭**：颜色验收待**更换模块到货后复测**（步骤见冻结记录 §5）；部署版本选择待 Wong 定（灰度微调 / 等模块）；task-11 网表交叉核对未完成（补丁已人工审阅）；VDMA 粘滞 `0x00015810`；方法学 TIMING-17/36 与 I/O delay 缺口；J10 半屏未定性；无 ILA（BASIC 禁用 debug core）；未做 ≥30 min 耐久。**根因**：模块侧 DVP 字节 MSB 线 `cmos_d[9]` 无信号（配置/RTL/映射/FPGA 引脚/场景/顺序均已排除）⇒ 真修 = 硬件返修/更换。
+-
+-## 本轮 task-17/18/19（阶段 A：准备 → 修复 → 快修；阶段 B 未执行）
+-- 触发：Wong 2026-10-23 告知**新摄像头今晚到货、型号与上次相同**；接管 `handoff_check --claim` 真实 `HANDOFF_OK`（PASS 9、退出码 0，基线 `f94c25f`）；散落件 `NA/`、`clockInfo.txt` 保留不动。
+-- 产物：`scripts/stage3_t17/**`（一键执行器/判定器/离线前置/只读链路确认/参数化安全转储/打包器/自证）+ `report/evidence/S3-T17/{t17_color_retest_prep_20261023_r01, t17_fix_20261023_r01, t17_quickfix_20261023_r01}/**`。
+-- **判定口径**：位完整性 = 白条 G8>=248、B8>=240、旧签名（蓝 bit7 与绿 bit4 置位率同为 0）不存在、黑条负样本；C7 = **16 字段位（R5+G6+B5）+ 8 结构性恒 0 低位**，与 C5 容差对齐（缺陷 14/16、修好 16/16；严格口径 13/16、15/16 仅作对照）；真彩必须 Wong 目视（不偏黄、不偏青）。
+-- 修复轮（task-18）：B-3 HEAD 判据改「**声明基线或其后代**」（`merge-base --is-ancestor`，可参数化）；B-2 C7 与 C5 容差对齐 + 夹具 D/E/F（F 必须 exit 0）；B-1 位计数改 16/8；N-1..N-5 见 `t17_fix_20261023_r01/fix_record.md`。
+-- 快修轮（task-19）：**R-1/R-2（GBK 下 `=>` 崩溃）已修** —— 四个 Python 工具入口强制 UTF-8+LF、代码内去 `=>`、`analyze` 先落 JSON 再打印、`--selftest` 新增两条 CLI 回归；N-1 依据改正为**厂商源码 `cmos_8_16bit_ref.v`（sha256 `08a32535…`）+ 网表双重依据**；N-3 写明交付态 exit 0 只在运行时刻 HEAD 成立；纯克隆 preflight 因 7 件未入库 `tmp` 产物返回 1。证据 `t17_quickfix_20261023_r01/`。
+-- 关闭项轮（task-20）：**Q-A 运行位置护栏**——执行器 `WT` 可参数化（`T17_WT`/`--wt`）且 **cwd 必须与 WT 同目录，否则 exit 2 且不创建任何文件**（护栏在任何 `mkdir` 之前；实测从别处/克隆/坏 WT 三例 exit 2、无文件；在 dbdf 内 exit 0）；**Q-1** 行号更正（该文件混合行尾：`\n` 计 83 行、`splitlines()` 167 行，实为第 **79** 行，改引语句+哈希）；**Q-2** 计数改可复现口径（dbdf 内 `cmos_8_16bit*.v` **47 份**、47/47 含该语句）；**Q-3** `f77f363` 对照下 **30 行**纯机械替换**已逐行还原**为提交字节（逐行 diff 留证）；**Q-4** 交付态运行时刻改实际值 **11:46:33**；**Q-5** 写明三层防护覆盖边界，且 `verify_t17_blob_identity.py` 新增可判别 CLI 回归（旧形态突变体 **rc=1、无 JSON、UnicodeEncodeError**）。证据 `report/evidence/S3-T17/t17_closeout_20261023_r01/`。
+-- **关键核验**：v9/v10/v12 三支 ELF 的 `_input` 位流/XSA 与无补偿基线 `7cb33068…`/XSA `1f5b138e…` **逐字节一致**；实测仍须回读 `ADDR_S2MM/STRIDE_S2MM`（禁止硬编码旧地址）。
+-- **阶段 B 未做**：未动板、未下载、未烧录、未开 COM4、未起 `hw_server`；真彩目视、耐久、VDMA `0x00015810`、TIMING-17/36 与 I/O delay、J10 半屏、无 ILA 全部仍开放；颜色子项 `DEFERRED_PENDING_MODULE`，待 Wong 开工信号 + Codex 书面让出。
+-
+-## 目标与第一版范围
+-- 第一版：AN5642(OV5640) → 扩展口 → PL 采集/DDR 缓冲 → HDMI → 显示器【原始画面直通】，单通道；不加 CNN/检测框/手势交互。
+-- **实时直通已成立，色彩验收未通过，阶段未冻结**；显示通道映射已核对，但缺位及近似补偿伪彩仍阻断颜色验收。
++更新：2026-10-24 01:05（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。**`dbdf` 唯一写入方 = DSH 阶段3 总控（stage3-lead）**（`CDX-20261022-015` r03 §2.3）；其他窗口与旧任务卡对本树**只读**。
++**当前口径（顶部）**：颜色子项 = **`PASS_VERIFIED_NEW_MODULE`**（新模块实测解除受阻）；**当前部署 = 无补偿实时彩色**；**阶段3 整体 G5 未通过**（阶段A 小任务 G5 ≠ 阶段3 G5）；`DEFERRED_PENDING_MODULE` 仅为旧模块期历史标签。
++
++## 当前彩色部署（唯一口径；每次硬件使用前重新核对现场与产物）
++- 位流 **无补偿 SOF `7cb33068…`**（1,668,969 B）；XSA **`1f5b138e…`**（633,089 B）；应用 **`an5642_j11cmos2_v10_read.elf` `1457cda4…`**（015 §2.2 身份；本轮已实算复核一致）。
++- 构建来源 `e9b853f`（本分支）、`xc7z020clg400-2`、Vivado 2026.1；约束 `an5642_j11_cmos2.xdc` `2dae928c…`；补丁 `alinx_ov5640_sof_hrefgap.patch` `fd854a62…`（GAP_THRESH=16384；HTS=1892/VTS=740 ⇒ 612<16384<38452）；WNS **1.054525** / WHS 0.058931 / TNS=THS=0；DRC 0 error、8 warning、0 critical。
++- 传感器与格式：CMOS2（J11）CHIPID `0x5640`（TRY0/1/2 均应答；旧模块仅 TRY0）、1280×720、PCLK≈84 MHz；DDR 内存序 **B,G,R**、每行 3840 B、行地址 = `FRAME0 + y×stride`（**运行期回读**，禁硬编码）。
++- 颜色证据：`report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/`（提交 `b98ce73`）—— 缺位签名**消失**（蓝 bit7 21.719–39.141%、绿 bit4 38.047–50.156%；旧模块 `0.000%/0.000%`）、彩条 8 条满量程且色相顺序正确（白 `B5=31`、绿 `G6=63`；旧模块 15/59）、实景 `B/R≈0.85–0.99`（旧模块 0.45）；**本轮独立实算该证据 `hashes.txt` 6/6 一致**。
++- 彩条工具纪律（015 §2.4）：v12 **会写传感器寄存器**，只在明确授权 + 独占窗口按**既定彩条用例**使用；用前保存原值、写后读回、结束**恢复 `0x503D=0x00`** 并留恢复后实时流证据；**不得当通用重置工具**（复测轮已按此执行）。
++- G2 固定材料：`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/g2_material_list.json`（含本轮实算哈希与时序/DRC 基线）。
++
++## 真实未关闭项（015 r03 §2.4；颜色项通过不替其余项关闭）
++- **完整独立 G2**：对上述实际部署（SOF/采集/显示/应用/约束/补丁）独审 —— 材料已固定，**待 DSH 项目总控另派 Reviewer**；早期 stdluma/gray 补丁**仅人工审阅、未独审 PASS**（重新启用须补审查）。
++- **≥30 分钟实时耐久**（新模块 + 当前彩色基线）：**未做**，待 Wong 开工信号与独占窗口。
++- **VDMA 粘滞 `0x00015810`**：仍开放；核对方案 `…/t05_closeout_prep_20261024_r01/vdma_sticky_check_plan.md`（保留启动原值/位解释/运行增量；**不得只清寄存器称零错误**）。
++- **TIMING-17/36 与 I/O delay**：TIMING-17 critical 236、TIMING-36 critical 1、`Timing 38-249`（rgb2dvi `SerialClk`×5 未声明）仍开放；准备 `…/timing_io_applicability_prep.md`（DRC 0 error / 局部 WNS>0 **不替代**完整约束签核；不加虚假关系或豁免）。
++- **J10「半屏黑」**：当前部署 = 已验证 **J11/CMOS2 单路**；J10 **保持开放**，无明确批准的部署范围排除依据前**不得**写"不适用"；依据见 `…/j10_ila_applicability.md`。
++- **无 ILA**（BASIC 许可禁 `create_debug_core`）：以计数器/状态寄存器、cache 一致性取帧、受控转储、离线仿真补足；**不因此免除**功能/时序/耐久标准；本轮不改许可、不植入调试核。
++- **真彩目视**（Wong：不偏黄不偏青）：**未做**；机读证据不能替代目视确认。
++- task-11 网表交叉核对未完成（补丁已人工审阅）；未做电气测量、未烧 QSPI、未改接线；传感器寄存器改动均为易失。
++
++## 历史（已更正，不作为当前口径；原证据与提交不回退）
++- **灰度部署与"灰度微调"**：`44e609cc…`（标准亮度灰度）/`90e1bdee…`、纯绿 `2f72aaa4…`、补偿彩色 `30db09ba…` —— 仅**历史与回退**；灰度微调**不再是必经任务**（Wong 2026-10-22 决定 + 015 §2.2）。
++- **旧模块期颜色结论**：「颜色仍受阻 / `DEFERRED_PENDING_MODULE`」「等待新摄像头到货」「颜色验收在硬件修复前 FAIL」—— 属**已更换旧故障件**的历史记录；根因（`cmos_d[9]` 无信号）与返修材料保留为历史证据：`t05_color_msb_missing_20261022_r01/`、`t05_freeze_20261021_r01/`。
++- **「阶段三已收尾（灰度交付）」**：2026-10-22 灰度口径的历史决定；阶段3 **未冻结**（015 §2.3/§5）。旧「阶段B 未做」已按下节改写。
++
++## task-17/18/19/20（阶段A 工具准备与三轮修复）——结论保留
++- 触发与接管：Wong 2026-10-23 告知新模块到货；`handoff_check --claim` 真实 `HANDOFF_OK`（PASS 9、退出码 0，基线 `f94c25f`）。
++- 产物：`scripts/stage3_t17/**`（一键执行器/判定器/离线前置/只读链路确认/参数化安全转储/打包器/自证）+ `report/evidence/S3-T17/{t17_color_retest_prep…, t17_fix…, t17_quickfix…, t17_closeout…, t17_guard_ok…}/`。
++- 判定口径：位完整性 = 白条 `G8>=248`、`B8>=240`、旧签名不存在、黑条负样本；C7 = **16 字段位（R5+G6+B5）+ 8 结构性恒 0 低位**，与 C5 容差对齐（缺陷 14/16、修好 16/16；严格口径 13/16、15/16 仅对照）。
++- 三轮修复要点：HEAD 判据改「声明基线或其后代」；C7/C5 容差对齐 + 夹具 D/E/F；位计数改 16/8；四工具入口强制 UTF-8+LF（GBK 下 `U+21D2` 崩溃 R-1/R-2 已修，**源码 0 处**）；`analyze --selftest` 两条 CLI 回归；`verify --selftest` 含「旧形态突变体」判别力证明；执行器 **cwd×WT 运行位置护栏**（cwd≠WT ⇒ **exit 2 且不写任何文件**；须在 dbdf 内运行或显式 `--wt`/`T17_WT`）。
++- **阶段B 处置**：阶段B 计划步骤 1–4、6–8（离线前置、只读链路、无补偿基线 + 只读回读、安全转储 3 行、彩条写入与恢复、判定）**已由新模块复测覆盖并完成**；**剩余 = 真彩目视 + 板级项**（耐久/VDMA/TIMING/J10），已转入上面「真实未关闭项」，**不再作为"待模块到货"阻塞**；逐条对应见 `…/t05_closeout_prep_20261024_r01/README.md` §3。
+ 
+ ## 器件与环境（现行事实）
+ - 器件 XC7Z020-2CLG400I，Vivado part `xc7z020clg400-2`；Vivado 2026.1 Tcl；JTAG 用 `xsdb.bat`；XSCT 禁用（软件侧 HSI+make）。
+-- BASIC 许可 `D:\Xilinx_licenses\basic_only.lic` 须按进程注入 `XILINXD_LICENSE_FILE`；BASIC **不支持** `create_debug_core`（Vivado 12-29205）⇒ **无 ILA 波形**。
+-- 本机 16 GB：同一时刻只跑一个重型综合/实现；`TEMP/TMP=D:\tmp`；板块硬件会话（2B）与本树互斥，动手前先看进程。
++- BASIC 许可 `D:\Xilinx_licenses\basic_only.lic` 须按进程注入 `XILINXD_LICENSE_FILE`；BASIC **不支持** `create_debug_core` ⇒ 无 ILA 波形。
++- 本机 16 GB：同一时刻只跑一个重型综合/实现/大型仿真；`TEMP/TMP=D:\tmp`；硬件会话跨方互斥，动手前先看进程。
+ 
+-## 已完成（可复现事实）
+-- **S3-T03b HDMI**：官方 `14_vdma_hdmi_out` 重建到比特流、实物启动成功；bit `7143427f…`、XSA `02174319…`；证据 `report/evidence/S3-T03/t03b_hdmi_build_20261020_r01/`。
+-- **S3-T04/T05 采集直通 + 帧同步修复**：厂商 IP `alinx_ov5640.v` 的 `s_axis_tuser` 由“`cmos_vsync` 下降沿”改为“hblank 连续低 ≥ `GAP_THRESH=16384` pclk 后的第一个有效像素”。补丁 `board/stage3/software/sensor/alinx_ov5640_sof_hrefgap.patch`；位流 `7cb33068…8710`、XSA `1f5b138e…cb0e3`（WNS 1.0545、DRC 0 error）。
+-- **实物实时直通成立**（Wong 目视“跟着动”）：v6 指纹（3 处 × 64 KB，`sum32+CRC-32`，读前 `Xil_DCacheInvalidateRange`）在 t≈5/10/15/20/25 s **15/15 互不相同**；传感器 `0x4202=0x00` 在流。证据 `…/t05_v6_board_20261020_r01/`、画面照片 `…/t05_monitor_20261020_r01/`。
+-- **模块/通道事实**：CMOS1 通道在两种连接器两次验证中无 I2C ACK，尚不足以单独判定模块物理故障；**CMOS2 当前能采集出图**（模块插 J11）：CHIPID=0x5640、1280×720、VTS=740、PCLK≈84 MHz，但颜色仍未通过。
+-- **引脚映射五路证据一致** ⇒ 映射无误：AX7020 V3.0 手册 Table 7.5.1、官方 `23_ov5640_dual` XDC、原理图网名序列、原理图文字坐标配对、GitHub 社区 AN5642 工程信号顺序（`…/t05_github_ref_20261020_r01/`）。
+-- **作废的判断**：基于 JTAG 标记法（halt 的 A9 `mwr/mrd`）得出的“冻结单帧 / 帧缓冲全 0 / 显示全黑”结论作废——该法经 CPU 数据 cache，不可作 DDR 内容证据；已改用应用侧 cache 正确判据。
+-
+-## 当前唯一技术阻塞（交给接手方）
+-- **原始现象**：未重建显示蓝时，RGB565 的 B[4] 在既有四组样本（白纸 / 实景 AWB 开 / 实景 AWB 关 / 彩条）中全为 0，蓝上限 120、无 >127 蓝像素，画面偏黄。R 最大 248、G 最大 236，但 G 同时缺 bit4，不能称绿色正常。旧轮手动 B 增益 3.5× 后仍锁 120，说明该增益操作未补回缺位；这不完整排除 ISP/格式/采样配置。通道映射已有源码、网表与样本互证，物理链路根因尚未确认。
+-- **2026-10-21 归因纠正**：J10/J11 都有偏黄，但共有 RTL/格式处理没有被排除，不能据此证明模块硬件故障。转换器与 HDMI 网表显示 DDR offset0（蓝）来自输入字 `[15:11]`；蓝 bit7 与绿色缺失的 bit4 都对应 DVP 字节 MSB／`cmos_d[9]`，不是旧记载的 D6。根因仍待定位，不改接线、不测电气。
+-- **2026-10-21 OOC 排查完成**：旧 bit `0819d0da…19d7` 的 OOC 确实综合补丁源；RAM 写端保留完整重建连接。旧补丁作用低 5 位，实际改变显示红（DDR offset2），不是显示蓝。旧三个行样本 offset2 恰为重建后的 16 档数值，推翻“未进入运行设计”结论；旧产物保留。证据 `report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r02/`（checker 0）。
+-- **本轮构建/上板已完成**：65,536 词穷举、独立 G2、安全转储替身测试通过。运行 `tmp/s3r06/t04_display_bluefix_20261021_r01` 实现退出 0，bit `0f3b74e4…b61d`、XSA `b9a56572…f17`，WNS 1.249946 ns、WHS 0.006289 ns、DRC 0 error；实际易失下载/传感器 ID/15 个变化指纹/安全转储通过，maxB=248，近似重建数值字母表匹配。证据 `report/evidence/S3-T05/t05_display_bluefix_20261021_r01/` 与 `t05_display_bluefix_board_20261021_r01/`。
+-- **目视失败**：Wong 确认实时正常，但阴影偏蓝、白色亮部偏黄；照片呈大片黄与紫蓝伪彩。近似拉伸低 4 位不能区分原本相差最高位的两种强度，不能作为恢复真彩的修复。机读重建判据 PASS 不等于 G3/G4/G5，旧补偿位流仅保留为失败实验，不冻结。
+-- **2026-10-21 DSH 复核（新增签名证据，只读、未上板）**：用**已有 19 个行样本**（J11+J10、AWB 开/关、手动增益 B=3.5×、传感器彩条、白纸、暗行，共 24,320 像素）统计：**蓝 8 位 bit7 置位率 0.000%、绿 8 位 bit4 置位率 0.000%**，全部样本无一例外。二者分别来自 DVP 两个字节各自的 MSB，而两字节 MSB 在厂商 IP 里走**同一条 `cmos_d[9]`** ⇒ **该线无信号**是唯一能同时解释两个缺位的单一故障（也解释了为何只补蓝一位的近似补偿必然出伪彩：绿的一位同样丢失，且猜位在低蓝/暗部产生 ±128 跳变）。证据 `report/evidence/S3-T05/t05_msb_line_diagnosis_20261021_r01/`（脚本 `scripts/stage3_t05/analyze_missing_msb_signature.py`，判定 exit 0）。
+-- **2026-10-21 v9 上板（配置侧排除，关键否定结论）**：干净基线（SOF 修复 `7cb33068…8710`）+ `v9_read.elf`（`b2e8fa55…97b5`）回读：`0x3017=0xFF`、`0x3018=0xFF`（D 脚**输出使能全开**）、**`0x301D=0x00`、`0x301E=0x00`（D[9:0] output select = 正常数据通路，不是寄存器固定值）**、`0x4741=0x00`、`0x4745=0x00`（测试图案与位序均默认）；且这四个寄存器**不在厂商 init 表内**、保持 POR 默认 ⇒ **「软件/配置把该线覆盖成固定值」的假设排除**。同轮在干净基线下按已核实的 `FRAME0=0x00110C00` 安全转储 3 行（halt→dump→resume 正常），蓝 bit7 / 绿 bit4 置位率仍 **0.000% / 0.000%**。证据 `report/evidence/S3-T05/t05_v9_board_20261021_r01/`。
+-- **当前下一步**：① **硬件路径（唯一根治）**：厂家返修/更换（只寄模块、不寄 AX7020 板卡；沟通材料 `S3CTRL-20261021-002` + Wong 手上 ALINX 返修单）；可先做免费尝试——**断电后重插模块并目视 J3 pin3（CMOS2_D9）有无弯针/氧化**（本树不改接线，仅建议）。② **可选、非必需**：`v9_orderdbg`（改 `0x4745` 调试位序）可再区分「传感器该脚未输出」与「模块走线断」，但两者修法相同（都在模块侧），且会打乱输出且不自动恢复 ⇒ **建议不做**，仅留档备用。③ **明示的过渡手段（不构成修复）**：若作品需要更好观感，可做「双位重建 + 平滑滤波」补偿位流，材料中必须标注「近似补偿、非真实修复、不用于颜色验收」——**是否做由 Wong 决策**。④ **颜色验收在硬件修复前保持受阻/FAIL**；实时性、帧同步修复、映射与 VDMA 基本功能均已单独成立。
+-- **验收判据**：数值重建分布只证明实验补丁生效，不证明真彩；仍须实际缺位根因与正确颜色证据、Wong 目视“不偏黄也不偏青”及适用耐久/时序验收，不能降低标准。
++## 已完成（可复现事实，精选）
++- **HDMI 输出**：官方 `14_vdma_hdmi_out` 重建并实物启动成功；bit `7143427f…`、XSA `02174319…`；证据 `report/evidence/S3-T03/t03b_hdmi_build_20261020_r01/`。
++- **采集直通 + 帧同步修复**：厂商 IP `s_axis_tuser` 改为「hblank 连续低 ≥16384 pclk 后首个有效像素」；实物实时直通成立（3×64 KB 指纹 15/15 互异）；证据 `…/t05_v6_board_20261020_r01/`、`…/t05_monitor_20261020_r01/`。
++- **旧模块根因（历史）**：19 行样本 24,320 px 蓝 bit7/绿 bit4 置位率均 `0.000%` ⇒ 两个 DVP 字节 MSB 共线 `cmos_d[9]` 无信号；配置侧已排除（`0x301D/0x301E=0x00`、D 脚输出使能全开、寄存器非 init 表）；证据 `…/t05_msb_line_diagnosis_20261021_r01/`、`…/t05_v9_board_20261021_r01/`。
++- **作废判断**：基于 halt 态 A9 `mwr/mrd` 的「冻结单帧 / 帧缓冲全 0 / 显示全黑」结论作废（经 CPU 数据 cache，不可作 DDR 内容证据）。
+ 
+ ## 可复用命令与工具教训
+-```bash
+-bash scripts/stage3_t04/run_t04_camera_j11_cmos2_build.sh <新run名>          # SOF 修复变体
+-bash scripts/stage3_t04/run_t04_camera_j11cmos2_bluefix_build.sh <新run名>   # SOF + 蓝位重建
+-bash scripts/stage3_t04/run_t04_camera_j10_cmos2_build.sh <新run名>          # J10 + 官方 cmos2 映射
+-bash scripts/stage3_t05/run_t05_board_capture.sh <run_dir> <elf> <tag> 120   # 抓UART + JTAG 下载 + 只读探测
+-# 读取前核实当前 ELF 的 FRAME0/stride，并手动创建全新、空的输出目录；再使用已审安全脚本：
+-bash scripts/stage3_t03b/run_xsdb.sh D:/codex-worktrees/dbdf/scripts/stage3_t05/jtag_dump_display_channels.tcl <新建空输出目录>
+-```
+-- 重跑一律用新 RunId；调用方先核对新输出目录不存在，安全转储则要求手动创建的新空目录。不是所有旧脚本都防覆盖，`run_t05_board_capture.sh` 使用 `mkdir -p`，不能原样复用旧 tag；`*.log` 被 gitignore，关键日志另存 `.txt`。
+-- **禁止原样执行历史 `jtag_dump_rows3.tcl`**：该旧脚本暂停失败后仍可能读内存，恢复失败也不能可靠报告非零；仅保留历史，不作为接续工具。
+-- **工具教训**：对**运行中**的 A9 直接 `mrd` 会触发 “Timeout waiting for the Instruction Complete bit” 并把 DAP 打成 `APB AP transaction error 0x30000021`（A9 从目标树消失）；恢复 = `targets -set *DAP*` → `rst -type system`（**会清 PL 配置**，需重下比特流）。只读一律 `stop` → `mrd` → `con`。
+-
+-## 未关闭的阻碍与风险
+-- S2MM 旧轮记录清 sticky 后 20 s 无复现；本轮 UART 仍见粘滞错误 `0x00015810`（INT + FSZ_MORE/SOFLate + ErrIrq），不能宣称当前全程无错，需单独验证。
+-- `CRITICAL WARNING [Timing 38-249]`（rgb2dvi SerialClk 与 PIX_CLK 未声明 ×5 关系）仍在：DRC 0 error、时序为正，但不等价于完整 I/O 时序签核。
+-- J10 目视“上半黑、下半黄白”**未定性**（J10 约束与官方 XDC 16/16 一致，非映射错）。
+-- 未做耐久/长时间测试、未做色卡或仪器测量、未烧 QSPI、未改接线；所有传感器寄存器改动均为易失。
+-- 跨方：`codex_mailbox/CDX-20261020-003` 无回执；本树已发 `S3CTRL-20261020-001`、`S3CTRL-20261021-002`。**不得写两个 mailbox 目录**。
++- **执行器须在 dbdf 内运行**：`cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id <新RunId>`（cwd≠WT ⇒ exit 2）；自测 `python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest`、`…/verify_t17_blob_identity.py --selftest`。
++- 实板抓取/转储沿用已审脚本（`scripts/stage3_t05/run_t05_board_capture.sh`、`jtag_dump_display_channels.tcl`）；**重跑一律新 RunId**，地址/stride **运行期回读**。
++- **禁止**对运行中 A9 直接 `mrd`（会打坏 DAP：恢复 = `targets -set *DAP*` → `rst -type system`，**会清 PL 配置**）；只读一律 `stop → mrd → con`；**禁止原样执行历史 `jtag_dump_rows3.tcl`**。规则见 `D:\FPGA_Competition\AGENTS.md`；总入口 `CDX-20261022-015`（r03）。
+ 
+ ## 未提交改动归属（接手声明，不覆盖不回退）
+-- 本阶段已提交（分支 `codex/stage3-video`，**未 push**）：`ea16e32 e9b853f cdde845 cb389a3 3cba2c3 354a737 d1dd2d9 e7fe2c9 fbcfc1e fe5177d f2345c3 1b437e3 c51b593 402b074 d476df8 0d47801`；本交接文件另作提交，接手时以实际 HEAD 核验。
+ - 未跟踪散落件：`NA/`、`clockInfo.txt`（旧轮、非本阶段产物，保留不动）；`tmp/**` 为构建缓存，不入提交。
+-- 本轮（task-17/18/19/20）未提交改动归属：`.codex/STATE.md`、`scripts/stage3_t17/**`、`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**` 归 **DSH 阶段3 总控（stage3-lead）**，待本轮提交；不改 `main`/`w4`/`w5`/`w6`/`w2b`/厂商原件，不 push，不写两个 mailbox（只读）。
++- 本轮（STATE 统一 + 离线收尾准备）改动归属：`.codex/STATE.md`、`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/**` 归 **DSH 阶段3 总控（stage3-lead）**；不改 `main`/`w4`/`w5`/`w6`/`w2b`/厂商原件；不 push；不写两个 mailbox（只读）。
+ 
+-## 交接行（11 字段，2026-10-23 12:32；上一条交接行见 Git 历史与接管证据）
+-任务=`task-17/18/19/20 阶段3 色彩复测（三轮评审修复 + 快修 + 关闭项）；阶段 A 已交付、阶段 B 待硬件` | 负责人=`DSH 阶段3 总控（stage3-lead）` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`scripts/stage3_t17/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`.codex/STATE.md`、`scripts/stage3_t17/**`、`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**` 归 DSH 阶段3 总控（stage3-lead）待提交；`tmp/**` 为构建缓存不入提交` | 让出声明=`本轮起始 OFFERED（治理层登记；Codex 阶段三总控 2026-10-21 19:53 已书面停写）；DSH 阶段3 总控 2026-10-23 10:10 CLAIMED→IN_PROGRESS 独占写入，handoff_check --claim 真实退出码 0；无让出` | 心跳(UTC+8)=`2026-10-23 12:32` | 证据入口=`report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/`（接管+退出码+blob 自证）、`report/evidence/S3-T17/t17_color_retest_prep_20261023_r01/`（判定表/15 分钟步骤/证据模板）、`report/evidence/S3-T17/t17_fix_20261023_r01/`（修复记录 + 冻结 HEAD 五项复跑）、`report/evidence/S3-T17/t17_quickfix_20261023_r01/`（R-1/R-2 复现与修复、CLI 回归）、`report/evidence/S3-T17/t17_closeout_20261023_r01/`（**Q-A 护栏实测 + Q-1..Q-5 + 机械改写还原 diff**）、`report/evidence/S3-T17/t17_guard_ok_20261023_r01/`（护栏正向用例）` | 恢复命令=`cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_color_retest_20261023_r01（**须在 dbdf 内跑**；cwd≠WT 会 exit 2）；python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest；python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest；获双前提并填写 report/evidence/S3-T17/hw_authorization.json 后：bash …/run_t17_color_retest.sh all --run-id t17_color_retest_20261023_r01 --allow-hardware` | 状态/下一接手方=`IN_PROGRESS（阶段A 三轮修复 + 关闭项已交付，复审待 DSH 项目总控另派；阶段 B 待 Wong 开工信号 + 硬件窗口书面确认）/ 下一接手方=DSH 阶段3 总控；颜色子项=DEFERRED_PENDING_MODULE`
++## 交接行（11 字段，2026-10-24 01:05；上一条见 Git 历史与接管证据）
++任务=`阶段3：STATE 统一（015 r03 §2.3）+ 离线收尾准备（§2.4 不需板卡部分）；板级项待 Wong 开工信号` | 负责人=`DSH 阶段3 总控（stage3-lead）＝ dbdf 唯一写入方` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`scripts/stage3_t17/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`.codex/STATE.md`、`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/**` 归 DSH 阶段3 总控待提交；`tmp/**` 为构建缓存不入提交` | 让出声明=`015 r03 §2.3 指定 DSH 阶段3 总控为 dbdf 唯一实际写入方；本树自 2026-10-23 10:10 CLAIMED→IN_PROGRESS 独占写入（handoff_check --claim 真实退出码 0）；无让出` | 心跳(UTC+8)=`2026-10-24 01:05` | 证据入口=`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/`（**本轮 STATE 口径 + 阶段B 处置 + G2 材料 + TIMING/VDMA/J10 准备**）、`…/t05_new_module_reverify_20261023_r01/`（颜色解除受阻，6/6 哈希复核）、`report/evidence/S3-T17/{t17_closeout_20261023_r01,t17_quickfix_20261023_r01,t17_fix_20261023_r01,t17_color_retest_prep_20261023_r01,t17_guard_ok_20261023_r01}/`（工具与修复轮）、`report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/`（接管与自证）` | 恢复命令=`cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id <新RunId>（须在 dbdf 内跑）；python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest；python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest；获 Wong 开工信号后按 018 §3.3 在单次窗口执行板级项（耐久/VDMA/TIMING/J10/目视）` | 状态/下一接手方=`IN_PROGRESS（颜色项 PASS_VERIFIED_NEW_MODULE；阶段3 整体 G5 未通过；完整独立 G2 待 DSH 项目总控另派 Reviewer；板级项待 Wong 开工信号与窗口，未获信号不动板）/ 下一接手方=DSH 阶段3 总控（dbdf 唯一写入方）`
+\ No newline at end of file

@@ -1,5 +1,24 @@
 # 阶段3 STATE 统一与离线收尾准备（2026-10-24，依据 CDX-20261022-015 r03）
 
+## 0. 结果指引（2026-10-24 板级窗口后；本文件定位为**准备/计划**记录）
+
+本文件的 §2/§4 是窗口前的**计划**。窗口与后续离线工作的**实际结果**在：
+
+| 计划项 | 实际结果 | 结果证据 |
+|---|---|---|
+| ≥30 分钟实时耐久 | **已达成**（31 min 15 s，7 轮活写 5/5） | `../t05_stage3_window_20261024_r01/README.md` §2.1 |
+| VDMA 粘滞 `0x00015810` | **PARTIAL**（清后 31 min 未复现、无功能影响；**根因未定**） | `../t05_stage3_window_20261024_r01/vdma_sticky_result.md` + `../t05_offline_closeout_20261024_r01/vdma_fsz_more_analysis.md` |
+| 参考帧集（阶段4 回放） | **已采集**（整帧 + 3 行，哈希/格式口径齐全） | `../t05_stage3_window_20261024_r01/reference_frame_set.md` |
+| 阶段3 地址事实 | **已给出**（采集与显示**共用** `0x00110C00`；全部 < `0x10000000`） | `../t05_stage3_window_20261024_r01/address_facts.md` |
+| 真彩目视 | **通过（人工观察，2026-10-24 01:41）**，仅对当前部署与当时时刻有效 | `report/evidence/CTRL-DSH-HANDOFF/decisions/stage3_human_visual_20261024_r01.md` |
+| TIMING-17/36 与 I/O delay | **适用报告已出**：C1/C3 就"已声明"关闭；**C2（`cmos1_pclk` 无 create_clock）与 I1–I3（无 I/O delay）仍 OPEN** | `../t05_offline_closeout_20261024_r01/timing_io_applicability_report.md` |
+| task-11 网表核对 | **有界部分已做**（补丁构造确在 OOC 综合后网表中）；阈值数值与 RTL↔网表等价性 **NOT_RUN** | `../t05_offline_closeout_20261024_r01/task11_netlist_crosscheck.md` |
+| J10 半屏黑 | **范围排除**（Wong 2026-10-24 决定；**非"已修复/已关闭"**） | 本文件 §4 与 `j10_ila_applicability.md`、STATE |
+
+**阶段3 仍未冻结、整体 G5 未通过。**
+
+
+
 - 执行方：**DSH 阶段3 总控（stage3-lead）＝ `dbdf` 唯一实际写入方**（015 §2.3；`b98ce73`/`63038ef` 与本轮均由该方完成）。
 - 依据：`codex_mailbox/CDX-20261022-015-execution-index-r02.md`（内容 r03）、`dsh_mailbox/DSH-20261024-002-…md`、`codex_mailbox/CDX-20261023-018-…md` §3.3。
 - 本轮**只做离线整理**：一次性整理阶段 STATE + 准备不需要板卡的收尾材料。**未接触硬件**（无 JTAG/COM4/hw_server/位流下载/烧录；现场：无重型进程、3121 无监听）。

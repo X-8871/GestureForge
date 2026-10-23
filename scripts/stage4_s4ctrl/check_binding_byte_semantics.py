@@ -80,8 +80,9 @@ def line_ending_counts(data: bytes) -> dict[str, int]:
     return {"cr": data.count(b"\r"), "lf": data.count(b"\n"), "crlf": data.count(b"\r\n")}
 
 
-def measure(label: str, path_text: str, declared: str | None, declared_basis: str | None = None) -> dict[str, object]:
-    """测量一个绑定条目的三种口径，并按声明的字节口径判定。"""
+def measure(label: str, path_text: str, declared: str | None, declared_basis: str | None = None,
+            fixed_revision: str | None = None) -> dict[str, object]:
+    """测量一个绑定条目的四种口径，并按声明的字节口径判定。"""
     path = resolve_path(path_text)
     basis = declared_basis or "worktree_disk_bytes"
     entry: dict[str, object] = {"label": label, "path": str(path), "declared_sha256": declared,
@@ -108,6 +109,14 @@ def measure(label: str, path_text: str, declared: str | None, declared_basis: st
         hashlib.sha256(blob_bytes).hexdigest() if code_cat == 0 else None
     )
     entry["committed_blob_size"] = len(blob_bytes) if code_cat == 0 else None
+    if fixed_revision:
+        code_fix, fixed_bytes = git_bytes(["git", "-C", str(tree), "cat-file", "blob", f"{fixed_revision}:{rel}"])
+        entry["fixed_revision"] = fixed_revision
+        entry["fixed_revision_blob_content_sha256"] = (
+            hashlib.sha256(fixed_bytes).hexdigest() if code_fix == 0 else None
+        )
+    else:
+        entry["fixed_revision_blob_content_sha256"] = None
     disk_bytes = path.read_bytes()
     entry["disk_size"] = len(disk_bytes)
     entry["disk_line_endings"] = line_ending_counts(disk_bytes)
@@ -121,9 +130,14 @@ def measure(label: str, path_text: str, declared: str | None, declared_basis: st
         "raw": declared is not None and declared == entry.get("hash_object_raw"),
         "committed_blob_content": declared is not None
         and declared == entry.get("committed_blob_content_sha256"),
+        "fixed_revision_blob_content": declared is not None
+        and declared == entry.get("fixed_revision_blob_content_sha256"),
     }
     entry["declared_matches"] = declared_matches
-    expected_key = "committed_blob_content" if basis == "git_blob_content" else "disk"
+    expected_key = {
+        "git_blob_content": "committed_blob_content",
+        "git_blob_fixed_revision": "fixed_revision_blob_content",
+    }.get(basis, "disk")
     entry["expected_basis_key"] = expected_key
     if declared is None:
         entry["status"] = "NO_DECLARED_SHA"
@@ -156,17 +170,18 @@ def main() -> int:
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
 
-    targets: list[tuple[str, str, str | None, str | None]] = []
+    targets: list[tuple[str, str, str | None, str | None, str | None]] = []
     for binding in contract["upstream_bindings"]:
         targets.append((f"contract.upstream_bindings[{binding['id']}]", binding["path"],
-                        binding.get("sha256"), binding.get("byte_basis")))
+                        binding.get("sha256"), binding.get("byte_basis"), binding.get("fixed_revision")))
     for binding in registry["basis_bindings"]:
         targets.append((f"registry.basis_bindings[{binding['id']}]", binding["path"],
-                        binding.get("sha256"), binding.get("byte_basis")))
-    targets.append(("contract.self", str(CONTRACT), None, None))
-    targets.append(("registry.self", str(REGISTRY), None, None))
+                        binding.get("sha256"), binding.get("byte_basis"), binding.get("fixed_revision")))
+    targets.append(("contract.self", str(CONTRACT), None, None, None))
+    targets.append(("registry.self", str(REGISTRY), None, None, None))
 
-    results = [measure(label, path, declared, basis) for label, path, declared, basis in targets]
+    results = [measure(label, path, declared, basis, fixed)
+               for label, path, declared, basis, fixed in targets]
     mismatches = [r for r in results if r["status"] in ("MISMATCH_ALL_BASES", "MATCH_WRONG_BASIS")]
     disk_only = [r for r in results if r["status"] == "MATCH" and r.get("expected_basis_key") == "disk"
                  and r.get("declared_matches", {}).get("disk")

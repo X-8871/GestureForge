@@ -10,7 +10,7 @@
   4. r04 已经独立复审 **`PASS`**（被审提交 `7a9507a`，阻断 0／非阻断 4）；本轮无任何硬件执行。
 - 修订 r05（本树，2026-10-24）：
   1. 地址图重绑到 **r03**：新增 `raw_frame`/`raw_meta`、把**本阶段自设**禁区条目精确缩减至 `[0x12C08000,0x20000000)`（其余禁区不动）；`status` 仍 `DRAFT_PENDING_REVIEW`、两个新 region 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**、`enable_required=true`）。
-  2. 新增顶层 `binding_byte_basis` **绑定字节口径声明**：默认**工作树磁盘字节**；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径；dbdf 两项彩色证据（工作树 CRLF、dbdf 无 `-text` 覆盖）**改绑为 `git_blob_content`**，磁盘 SHA 降为注记。
+  2. 新增顶层 `binding_byte_basis` **绑定字节口径声明**：默认**工作树磁盘字节**；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径；dbdf 两项彩色证据**改绑为 `git_blob_content`**，磁盘 SHA 降为注记（**dbdf 确有 `report/evidence/S3-T05/** -text` 覆盖，规则由 `4aada6d`（2026-10-24 01:59 +0800）加入**；详见 §0.2 的事实与成因）。
   3. 新增条件①事实绑定：阶段3 部署地址事实（采集=显示 `0x00110C00`、单缓冲、**运行期分配无静态保证**）与两份 Wong/DSH 决定记录。
   4. **r05 尚未复审**；冻结前必须另行独立复审并引用**固定提交 + 被审 SHA**。
 - 来源标注：`[CDX-010 §3]`=4-B 共享契约与注入要求；`[CDX-014 §4]`=阶段5 五元组；`[CDX-014 §5.4]`=HUD 13 字段；`[CDX-015 §3/§5]`=执行与判定口径；`[S4-A]`=`docs/stage4/s4a_stage4_g0_fields.json`；`[w5-G0]`=`D:\codex-worktrees\w5\docs\stage5\s5a_stage5_display_g0_fields.json`。
@@ -28,7 +28,7 @@
 | CDX-010 阶段4 运行书 | 邮箱 `CDX-20261022-010-…md` | `4cd61ee0…1cf89` | 只读 |
 | CDX-014 阶段5 运行书 r02 | 邮箱 `CDX-20261022-014-…md` | `f25e5ebb…5a141` | 只读 |
 | CDX-015 执行总入口（内容 r03） | 邮箱 `CDX-20261022-015-…md` | `be7b6520…9508cde`（取代 r02 `a3ce50d2…170a7`） | 只读 |
-| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `10d24a39…b89fb`（w5 已提交 `b6d11d4`；`8eac7007…` 经 `replaces` 记为修 r02 前修订）**待阶段5 r02 复审结论、未冻结** | 只读引用（不写 w5） |
+| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `10d24a39…b89fb`，**固定修订 `b6d11d4`**（消费固定修订；`8eac7007…` 经 `replaces` 记为修 r02 前修订）| 只读引用（不写 w5）；阶段5 **r02 复审已 PASS**、`task-24` 在办，**未冻结** |
 | CDX-018 硬件协调 | 邮箱 `CDX-20261023-018-…md` | `9360ae1b…e6f6bd6` | 只读 |
 | CDX-019 阶段4 硬件暂缓 | 邮箱 `CDX-20261023-019-…md` | `57e14a15…cb970f` | 只读 |
 | 阶段6 批准记录（Wong 2026-10-23） | `decisions/stage6_approval_receipt_20261023_r01.md` | `d8edb848…e874fb` | 只读 |
@@ -70,7 +70,7 @@
 - **默认口径 = 工作树磁盘字节**：`upstream_bindings[].sha256` 默认记录文件**原始字节**的 SHA-256（复算：对磁盘字节直接算 SHA-256）。
 - **跨换行环境要求**：复算必须使用 `-c core.autocrlf=false`（或改用 blob 口径），否则 checkout/commit 的换行归一化会造成失配。
 - **显式 blob 口径**：条目给出 `byte_basis = "git_blob_content"` 时，`sha256` 记录该路径在**所属工作树 HEAD 提交中的 blob 内容** SHA-256（复算：`git -C <tree> cat-file blob HEAD:<rel>` 后对原始字节算 SHA-256）；对应的 `worktree_disk_sha256_annotation` 仅为注记、**不参与校验**。
-- **覆盖范围（N-a 更正）**：本树 `-text` 覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob）；**dbdf 同样有 `report/evidence/S3-T05/** -text`**（2026-10-01 起，`git check-attr -a` 返回 `text: unset`）——上一版称其『unspecified/无覆盖』**与事实不符**。既有 disk≠blob 的成因是文件**在 `-text` 生效前入库**（索引 stat 缓存使 `git status` 一度看似干净）。因此**跨树引用统一按 `git_blob_content` 绑定**；**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。
+- **覆盖范围（N-a 更正，含日期核实）**：本树 `-text` 覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob）；**dbdf 确有 `report/evidence/S3-T05/** -text`**，规则由 **`4aada6d`（2026-10-24 01:59 +0800）** 加入，原文即 `report/evidence/S3-T05/** -text`（同提交注释：阶段3 板级窗口证据（S3-T05）保留原始字节；`git log -S'report/evidence/S3-T05' -- .gitattributes` 只有这一条）；更早的 `-text` 约定属 `report/evidence/S2A-*` 路径（2026-09-25…2026-10-01，如 `cdb2fbd`），**不覆盖 S3-T05**。上一版「2026-10-01 起」为**错误日期**，「unspecified/无覆盖」亦不成立（本树早期 `check-attr` 读数早于 `4aada6d`，当时确为 unspecified）；差额成因为文件**在 `-text` 生效前入库**（索引 stat 缓存使 `git status` 一度看似干净）。因此**跨树引用统一按 `git_blob_content` 绑定**；**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。
 - **fail-closed 漂移断言（B-3，复审立为规则）**：落盘清单为每个被绑树记录**期望 HEAD + 记录时间窗**，并断言**实际 HEAD == 记录值**；任一不等即该批次 **FAIL**（不得因“当时值是对的”而 PASS），须重绑、重跑并以新 RunId 落盘真实退出码。工具 `scripts/stage4_s4ctrl/check_bound_tree_heads.py`，清单 `report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02/bound_trees.json`。
 - **事实依据**：口径测量工具 `scripts/stage4_s4ctrl/check_binding_byte_semantics.py`（磁盘/过滤/原始/已提交 blob 四种口径）；证据 `t21_binding_byte_semantics_20261024_r04/`（本批改绑前）与 `t21_binding_byte_semantics_20261024_r05/`（改绑后复测）。
 - **负向对照**：把某条 blob 口径条目的 `sha256` 改成其磁盘 SHA（或改成任意错误值）时，自检必须判 FAIL。

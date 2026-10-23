@@ -1,40 +1,54 @@
 {
-  "recorded_utc8": "2026-10-24T02:12:51+08:00",
-  "evidence_window_utc8": {
-    "end": null,
-    "start": "2026-10-24T02:12:51+08:00"
+  "recorded_utc8": "2026-10-24T02:32:54+08:00",
+  "packaging_instant_utc8": "2026-10-24T02:32:54+08:00",
+  "validity_window": {
+    "invalidated_by": "任一 STABLE 树 HEAD 移动",
+    "valid_at": "packaging_instant_utc8",
+    "note": "PASS 仅对打包时刻成立"
   },
-  "rule": "任一被绑树实际 HEAD != 记录值 ⇒ 本批次 FAIL（fail-closed）",
+  "semantics": {
+    "content_authority": "blob 绑定（按路径 blob SHA-256），永不随 HEAD 移动而变",
+    "head_assertion": "仅用于陈旧性检测",
+    "STABLE": "任何 HEAD 移动即 FAIL（批次失效，须重绑重跑）",
+    "MOVING_PRODUCING": "产出树自身：按父提交/打包时刻记录，其后移动为预期，但必须重核全部 blob 绑定且不得静默 PASS",
+    "MOVING_HOST_REPO": "主目录（DSH 高频提交）：移动为预期，同上必须重核 blob 绑定",
+    "fail_closed": "任一被绑树实际 HEAD != 记录值 ⇒ exit 1（按类别区分状态与补救）"
+  },
   "trees": [
     {
       "id": "w4",
       "path": "D:\\codex-worktrees\\w4",
-      "expected_head": "d29ef5f537c555901131480e6b18aad5d6b248d9",
-      "note": "本树写入方"
+      "class": "MOVING_PRODUCING",
+      "expected_head": "35611a252619e8719d544523240fb8edc5b9fa70",
+      "note": "产出树自身：本值＝该批次**产出提交的父提交**；其后自身移动为预期"
     },
     {
       "id": "dbdf",
       "path": "D:\\codex-worktrees\\dbdf",
+      "class": "STABLE",
       "expected_head": "6fa77a642f0d7cac477c6d5db1e2c4afec7c2625",
-      "note": "阶段3 只读事实"
+      "note": "阶段3 只读事实（被审提交内视为稳定树）"
     },
     {
       "id": "w5",
       "path": "D:\\codex-worktrees\\w5",
-      "expected_head": "a60d73b62f20fb5e849a2099523f283c0d7b2ad9",
-      "note": "阶段5 只读 G0 字段"
+      "class": "STABLE",
+      "expected_head": "a465b48ceb390d987a9c51e2152a3c273b6e4032",
+      "note": "阶段5 只读 G0 字段（固定修订 b6d11d4）"
     },
     {
       "id": "main",
       "path": "D:\\FPGA_Competition",
-      "expected_head": "8cd50163af79d91535b2eab3819f7eb864d23324",
-      "note": "主目录只读信箱/决定"
+      "class": "MOVING_HOST_REPO",
+      "expected_head": "b0096b7e34dbd070b11ee22814bdc56384f2906d",
+      "note": "主目录：由 DSH 高频提交，移动为预期"
     },
     {
       "id": "w2b",
       "path": "D:\\FPGA_Competition\\w2b",
+      "class": "STABLE",
       "expected_head": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
-      "note": "2B 冻结件只读"
+      "note": "2B 冻结树"
     }
   ]
 }

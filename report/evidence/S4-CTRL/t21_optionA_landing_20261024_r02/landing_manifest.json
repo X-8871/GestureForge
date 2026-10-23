@@ -3,180 +3,208 @@
   "stage": "4",
   "task_id": "S4-CTRL",
   "run_id": "t21_optionA_landing_20261024_r02",
-  "source_commit_parent": "d29ef5f537c555901131480e6b18aad5d6b248d9",
+  "source_commit_parent": "35611a252619e8719d544523240fb8edc5b9fa70",
   "evidence_dir": "report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02",
-  "purpose": "复审 CHANGES_REQUIRED 修复批次：B-1/B-2/B-3 + N-a..N-d（全离线）；落盘内容与 d29ef5f 相同基线下修复",
+  "purpose": "r02 复审修复批次：B-r02-1（闸门负向对照）+ B-r02-2（类别/固定修订/有效窗口口径）+ N-a 事实更正（全离线）",
   "hardware_execution": "NOT_RUN",
   "bound_trees": {
-    "recorded_utc8": "2026-10-24T02:12:51+08:00",
-    "evidence_window_utc8": {
-      "end": null,
-      "start": "2026-10-24T02:12:51+08:00"
+    "recorded_utc8": "2026-10-24T02:32:54+08:00",
+    "packaging_instant_utc8": "2026-10-24T02:32:54+08:00",
+    "validity_window": {
+      "invalidated_by": "任一 STABLE 树 HEAD 移动",
+      "valid_at": "packaging_instant_utc8",
+      "note": "PASS 仅对打包时刻成立"
     },
-    "rule": "任一被绑树实际 HEAD != 记录值 ⇒ 本批次 FAIL（fail-closed）",
+    "semantics": {
+      "content_authority": "blob 绑定（按路径 blob SHA-256），永不随 HEAD 移动而变",
+      "head_assertion": "仅用于陈旧性检测",
+      "STABLE": "任何 HEAD 移动即 FAIL（批次失效，须重绑重跑）",
+      "MOVING_PRODUCING": "产出树自身：按父提交/打包时刻记录，其后移动为预期，但必须重核全部 blob 绑定且不得静默 PASS",
+      "MOVING_HOST_REPO": "主目录（DSH 高频提交）：移动为预期，同上必须重核 blob 绑定",
+      "fail_closed": "任一被绑树实际 HEAD != 记录值 ⇒ exit 1（按类别区分状态与补救）"
+    },
     "trees": [
       {
         "id": "w4",
         "path": "D:\\codex-worktrees\\w4",
-        "expected_head": "d29ef5f537c555901131480e6b18aad5d6b248d9",
-        "note": "本树写入方"
+        "class": "MOVING_PRODUCING",
+        "expected_head": "35611a252619e8719d544523240fb8edc5b9fa70",
+        "note": "产出树自身：本值＝该批次**产出提交的父提交**；其后自身移动为预期"
       },
       {
         "id": "dbdf",
         "path": "D:\\codex-worktrees\\dbdf",
+        "class": "STABLE",
         "expected_head": "6fa77a642f0d7cac477c6d5db1e2c4afec7c2625",
-        "note": "阶段3 只读事实"
+        "note": "阶段3 只读事实（被审提交内视为稳定树）"
       },
       {
         "id": "w5",
         "path": "D:\\codex-worktrees\\w5",
-        "expected_head": "a60d73b62f20fb5e849a2099523f283c0d7b2ad9",
-        "note": "阶段5 只读 G0 字段"
+        "class": "STABLE",
+        "expected_head": "a465b48ceb390d987a9c51e2152a3c273b6e4032",
+        "note": "阶段5 只读 G0 字段（固定修订 b6d11d4）"
       },
       {
         "id": "main",
         "path": "D:\\FPGA_Competition",
-        "expected_head": "8cd50163af79d91535b2eab3819f7eb864d23324",
-        "note": "主目录只读信箱/决定"
+        "class": "MOVING_HOST_REPO",
+        "expected_head": "b0096b7e34dbd070b11ee22814bdc56384f2906d",
+        "note": "主目录：由 DSH 高频提交，移动为预期"
       },
       {
         "id": "w2b",
         "path": "D:\\FPGA_Competition\\w2b",
+        "class": "STABLE",
         "expected_head": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
-        "note": "2B 冻结件只读"
+        "note": "2B 冻结树"
       }
     ]
   },
   "files": [
     {
       "path": "docs\\stage4\\S4B_stage4_address_map.json",
-      "sha256": "04a7c3464558de203c3dc4017470de9b0f3b7ba39d5d4e3ebc49e89f0f2bf1d3",
+      "sha256": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e",
       "role": "source",
-      "keep_reason": "地址图：D1=A 两 region + 禁区缩减 + N-b/N-c/N-d 修正"
+      "keep_reason": "地址图 r03 + N-a/N-b/N-c/N-d 修正"
     },
     {
       "path": "docs\\stage4\\s4b_shared_input_result_contract.json",
-      "sha256": "b2ff405373d482cae801dcbc9ecc265b43e46aed957bf928d8ddd2772f5c600c",
+      "sha256": "941719b344f81c6fc8d98a68a4e67c343cdcec8ad44aaf6ed8641f632dbb94fc",
       "role": "source",
-      "keep_reason": "契约 r05：地址图重绑 + 字节口径 + 跨树 blob 绑定（B-1/B-2）"
+      "keep_reason": "契约 r05：固定修订口径 + 地址图重绑 + N-a 日期更正"
     },
     {
       "path": "docs\\stage4\\S4B_shared_input_result_contract.md",
-      "sha256": "593b485d021dd8a88583eed7a9e908da1c8c7294f3016ada6f5884ff36a174c6",
+      "sha256": "66e19ccfdc39d585a214679e63ac67d4ce3768f7e394da361fcbb69bb82cdc88",
       "role": "source",
-      "keep_reason": "人读镜像：N-a 更正 + blob 口径 + fail-closed 规则"
+      "keep_reason": "人读镜像：N-a 事实/日期更正 + 固定修订 + fail-closed 规则"
     },
     {
       "path": "docs\\stage4\\S4B_raw_system_g0_gap_registry.json",
-      "sha256": "d009e549e353e3426f5d3dcc9d87654491e6d965b27023cc71c1db778f03fb83",
+      "sha256": "69d370bd59da1368b4a42c0d90b1baf530369e1ea28133790108a5512c44e03d",
       "role": "source",
-      "keep_reason": "G-01/G-02 + B-2 依据重绑（r03）"
+      "keep_reason": "G-01/G-02 + B-2/N-a 依据重绑（r03）"
     },
     {
       "path": "scripts\\stage4_s4ctrl\\verify_shared_io_contract.py",
-      "sha256": "411a6d8c952fb859dc205100297543c1d478b065994bce640b2e49f1482f3e96",
+      "sha256": "c0bece051f705bf8c762ae5a3f847b0800de9278bb768d253db5d84deb8ea9c5",
       "role": "source",
-      "keep_reason": "自检 r06（byte_basis + 负向对照）"
-    },
-    {
-      "path": "scripts\\stage4_s4ctrl\\check_binding_byte_semantics.py",
-      "sha256": "c48d81336121a60ab06891a133a8c4047bcfebc08c0ab5579e5d17c65ba79fe5",
-      "role": "source",
-      "keep_reason": "口径核查（尊重 byte_basis）"
+      "keep_reason": "自检 r06：三种字节口径 + 固定修订负向对照"
     },
     {
       "path": "scripts\\stage4_s4ctrl\\check_bound_tree_heads.py",
-      "sha256": "e0879161e72a412131a11015c7e5e9095c4dc7f7cdf5e3ec1b5fe86095edd254",
+      "sha256": "dfb11659b04b92b93eef9bbf905743061c7118875aa140258a2775eb89d1498a",
       "role": "source",
-      "keep_reason": "B-3 fail-closed 漂移断言"
+      "keep_reason": "B-3/B-r02-2 闸门：类别 + 6 项负向对照"
+    },
+    {
+      "path": "scripts\\stage4_s4ctrl\\check_binding_byte_semantics.py",
+      "sha256": "307992a3f607064a8acbcb8c85fb6f4ae58ce6d568b7e654f6f9a4ef6bc0fe00",
+      "role": "source",
+      "keep_reason": "口径核查：支持固定修订口径"
     },
     {
       "path": "scripts\\stage4_s4b\\audit_raw_system_g0_gaps.py",
       "sha256": "3dbb7f35b00d976f43be2d500af1b9701c8c0a98da4db89df2d530c22bbe61dc",
       "role": "source",
-      "keep_reason": "缺口复算（按声明口径复算依据件）"
-    },
-    {
-      "path": "scripts\\stage4_s4b\\crosscheck_raw_address_owners.py",
-      "sha256": "0f74ebc469dc508884503a6889f5207b4db0f5816f9d9b3a9ad5d65b1330d723",
-      "role": "source",
-      "keep_reason": "条件①交叉核对（阶段3 书面事实）"
+      "keep_reason": "缺口复算：按声明口径"
     },
     {
       "path": "report\\evidence\\S4-CTRL\\t21_optionA_landing_20261024_r02\\bound_trees.json",
-      "sha256": "1b1dd19d62c4db787b34dfccb8f40bf504f76b5e44ecee2b3f8d850e7af8da30",
+      "sha256": "596ff0546e8e5c18d73aaac87b43986d88447e58aa6f52895799705640a063f8",
       "role": "input",
-      "keep_reason": "被绑树期望 HEAD + 时间窗（B-3）"
+      "keep_reason": "被绑树类别 + 期望 HEAD + 打包时刻 + 有效窗口"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_optionA_landing_20261024_r02\\bound_tree_heads_result.json",
-      "sha256": "b51e1991d4f67a62e9d37987249602d258685f44da1f2a9282c8eff4b1b7e0a4",
+      "path": "report\\evidence\\S4-CTRL\\t21_bound_tree_gate_20261024_r04\\bound_tree_heads_result.json",
+      "sha256": "fd3ce7c54bbd7a093a5666d2e33fb4c45e5f6bd7f2de5b365868d8287f2d0b3d",
       "role": "result",
-      "keep_reason": "漂移断言结果（5/5 一致，exit 0）"
+      "keep_reason": "闸门结果（5/5 一致，exit 0）"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_contract_optionA_20261024_r05\\verify_shared_io_contract_result.json",
-      "sha256": "a8d64ffeba44b1116f5e0aca2d1132a345bcbd4bbb822585f83cd0007adde646",
+      "path": "report\\evidence\\S4-CTRL\\t21_bound_tree_gate_20261024_r04\\bound_tree_heads_selftest_result.json",
+      "sha256": "3edb213dec92f6d00f8c924868759c0e382d5e59fbb8b0750bfcb668e9fa6d3e",
       "role": "result",
-      "keep_reason": "自检 r06（26 PASS/0 FAIL，exit 0）"
+      "keep_reason": "负向对照 6/6（恒真检出=False，exit 0）"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_contract_optionA_20261024_r05\\inject_frame_unittest_stdout.txt",
-      "sha256": "a2ac69dcae98ff0628dedcc6cb418b0235bedfcea2614c8f7bf1c96b13693528",
+      "path": "report\\evidence\\S4-CTRL\\t21_contract_optionA_20261024_r07\\verify_shared_io_contract_result.json",
+      "sha256": "280b6d3121c0fb39fafacb63abdd22f98308b628aa570c681942434f737d7b3c",
+      "role": "result",
+      "keep_reason": "自检 r06（26/0，exit 0）"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_contract_optionA_20261024_r07\\inject_frame_unittest_stdout.txt",
+      "sha256": "3333e60a77def89dc8a4c3cda0693e11c0125746f62aa463b6f13d1a5b17c411",
       "role": "log",
-      "keep_reason": "契约消费方回归 10/10 OK"
+      "keep_reason": "回归 10/10 OK"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_raw_g0_gap_registry_20261024_r07\\raw_system_g0_gap_audit_result.json",
-      "sha256": "954904e99d0ad391f874acfa330c98c9472846cc8256b00a628275155e1fa664",
+      "path": "report\\evidence\\S4-CTRL\\t21_raw_g0_gap_registry_20261024_r09\\raw_system_g0_gap_audit_result.json",
+      "sha256": "20d3d7b62b85692bdc56f41045a188d2d5792487108ac47bb02a1f24f7453aa7",
       "role": "result",
-      "keep_reason": "缺口复算（11/11 + 纪律，exit 0）"
+      "keep_reason": "缺口复算（11/11，exit 0）"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_frame_period_p_plan_20261024_r05\\frame_period_p_validation_result.json",
-      "sha256": "f286459bbf64fab9b0a6e2dacb3a9c10b04ee545b2be47091c8d38cd4962c01b",
+      "path": "report\\evidence\\S4-CTRL\\t21_frame_period_p_plan_20261024_r07\\frame_period_p_validation_result.json",
+      "sha256": "898d68f3e51a29b263b175b3970e08700d061461f75bcbc522ca18c3d933606b",
       "role": "result",
-      "keep_reason": "P 校验（6/6 负向对照，exit 0）"
+      "keep_reason": "P 校验（6/6 负向对照，exit 0；数值仍 NOT_RUN）"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_raw_address_crosscheck_20261024_r07\\raw_address_owner_crosscheck.json",
-      "sha256": "c51f6badf91aa42298c3eb0072061001877697abee4dd4dde6f7e0ddda98545b",
+      "path": "report\\evidence\\S4-CTRL\\t21_raw_address_crosscheck_20261024_r09\\raw_address_owner_crosscheck.json",
+      "sha256": "c7472777af64fb4835c5cec65777b0188d781882ab03a98f3e8e6283dc5747c4",
       "role": "result",
       "keep_reason": "条件① SATISFIED（exit 0）"
     },
     {
-      "path": "report\\evidence\\S4-CTRL\\t21_binding_byte_semantics_20261024_r07\\binding_byte_semantics.json",
-      "sha256": "573e7ada0ca9aedea6030c083627dad6d1be462545c7b7d93071d5db7dabde23",
+      "path": "report\\evidence\\S4-CTRL\\t21_binding_byte_semantics_20261024_r09\\binding_byte_semantics.json",
+      "sha256": "3d1a47771c24f6120a50a965703271ae043c47919b2bc50f1606aa8c130caf51",
       "role": "result",
-      "keep_reason": "口径复测（exit 0）"
+      "keep_reason": "口径复测（含固定修订，exit 0）"
     }
   ],
   "checks": [
     {
-      "name": "契约自检 r06（含绑定字节口径负向对照）",
+      "name": "B-3/B-r02-2 被绑树 HEAD 闸门（含类别）",
       "status": "PASS",
-      "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir report/evidence/S4-CTRL/t21_contract_optionA_20261024_r05",
+      "command": "python -B scripts/stage4_s4ctrl/check_bound_tree_heads.py --manifest report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02/bound_trees.json --evidence-dir report/evidence/S4-CTRL/t21_bound_tree_gate_20261024_r04",
       "exit_code": 0,
-      "reason": "26 项通过、0 项失败（修复前一轮实测 25/1 FAIL：契约内地址图绑定漏改，已由 fail-closed 流程捕获）"
+      "reason": "5/5 一致（w4 MOVING_PRODUCING；dbdf/w5/w2b STABLE；main MOVING_HOST_REPO）；PASS 仅对打包时刻成立"
+    },
+    {
+      "name": "B-r02-1 闸门负向对照（判别力）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/check_bound_tree_heads.py --self-test --evidence-dir report/evidence/S4-CTRL/t21_bound_tree_gate_20261024_r04",
+      "exit_code": 0,
+      "reason": "6/6 按预期：伪造 expected_head（MOVING/STABLE 各一）⇒ FAIL 且指名、非 git 目录 ⇒ FAIL、trees:[] ⇒ INPUT_ERROR、未知类别 ⇒ fail-closed；tautology_detected=False"
+    },
+    {
+      "name": "契约自检 r06（含固定修订口径对照）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir report/evidence/S4-CTRL/t21_contract_optionA_20261024_r07",
+      "exit_code": 0,
+      "reason": "26 项通过、0 项失败；新增 fixed_revision 缺失 ⇒ BAD_BYTE_BASIS、HEAD 内容冒充固定修订 ⇒ MISMATCH"
     },
     {
       "name": "缺口登记表复算",
       "status": "PASS",
-      "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r07",
+      "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r09",
       "exit_code": 0,
-      "reason": "离线算术 11/11、依据件 11/11（含 blob 口径条目）、状态纪律通过"
+      "reason": "离线算术 11/11、依据件 11/11（按声明口径）、状态纪律通过"
     },
     {
       "name": "条件①三方交叉核对",
       "status": "PASS",
-      "command": "python -B scripts/stage4_s4b/crosscheck_raw_address_owners.py --evidence-dir report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r07",
+      "command": "python -B scripts/stage4_s4b/crosscheck_raw_address_owners.py --evidence-dir report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r09",
       "exit_code": 0,
-      "reason": "condition_1_status=SATISFIED_BY_BOUND_FACTS（阶段3 书面事实 d5ba4b6b…）"
+      "reason": "condition_1_status=SATISFIED_BY_BOUND_FACTS"
     },
     {
       "name": "帧周期 P 证据校验",
       "status": "PASS",
-      "command": "python -B scripts/stage4_s4b/validate_frame_period_p_evidence.py --record docs/stage4/s4b_frame_period_p_evidence_template.json --evidence-dir report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r05",
+      "command": "python -B scripts/stage4_s4b/validate_frame_period_p_evidence.py --record docs/stage4/s4b_frame_period_p_evidence_template.json --evidence-dir report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r07",
       "exit_code": 0,
       "reason": "模板 NOT_RUN 合规 + 6/6 负向对照被拒；P 数值仍 NOT_RUN"
     },
@@ -190,23 +218,16 @@
     {
       "name": "绑定字节口径复测",
       "status": "PASS",
-      "command": "python -B scripts/stage4_s4ctrl/check_binding_byte_semantics.py --evidence-dir report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r07",
+      "command": "python -B scripts/stage4_s4ctrl/check_binding_byte_semantics.py --evidence-dir report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r09",
       "exit_code": 0,
-      "reason": "按声明口径判定，无四口径全不匹配条目"
-    },
-    {
-      "name": "B-3 fail-closed 被绑树 HEAD 漂移断言",
-      "status": "PASS",
-      "command": "python -B scripts/stage4_s4ctrl/check_bound_tree_heads.py --manifest report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02/bound_trees.json --evidence-dir report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02",
-      "exit_code": 0,
-      "reason": "5/5 被绑树实际 HEAD == 记录值（w4 d29ef5f、dbdf 6fa77a64、w5 a60d73b6、main 8cd50163、w2b 07c3d395）；断言为 fail-closed：任一不等即 FAIL"
+      "reason": "按声明口径判定，无四口径全不匹配"
     },
     {
       "name": "独立复审",
       "status": "NOT_RUN",
       "command": null,
       "exit_code": null,
-      "reason": "本修复批次尚未复审；未经复审不得标 FROZEN"
+      "reason": "本修复批次待第三轮复审；未经复审不得标 FROZEN"
     },
     {
       "name": "硬件操作",
@@ -218,9 +239,12 @@
   ],
   "limitations": [
     "status 保持 DRAFT_PENDING_REVIEW；raw_frame/raw_meta 为 PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW（非 FROZEN）。",
-    "stage5_display_g0_fields 绑定 w5 已提交 blob 10d24a39…（b6d11d4），标注待阶段5 r02 复审结论，未冻结。",
-    "跨树引用统一按已提交 blob 口径；B-2 已为 stage3_window_address_facts 三处补 byte_basis。",
-    "过程记录：修复期间存在两轮中间批次 RunId（t21_*_20261024_r03/r06/r04/r06/r05 等），分别由日志变量名冲突与契约内地址图绑定漏改导致；均未被采用，保留不覆盖。",
-    "本 RunId 为批次汇总清单，未申报 check_stage_delivery 通用包装；证据窗口与各被绑树 HEAD 见 bound_trees.json。"
+    "B-r02-2 口径：**内容权威＝blob 绑定**（按路径 blob SHA），树 HEAD 断言**仅用于陈旧性检测**；**STABLE 树（dbdf/w5/w2b）任何 HEAD 移动即 FAIL**；**MOVING_PRODUCING（w4）按产出提交的父提交/打包时刻记录、其后自身移动为预期**；**MOVING_HOST_REPO（main）移动为预期**；MOVING 树移动**仍判 exit 1 并要求重核全部 blob 绑定**（不得静默 PASS）。",
+    "**PASS 有效窗口**：仅对 packaging_instant_utc8 成立；任一 STABLE 树移动即失效。",
+    "阶段5 绑定改为**固定修订语义**：绑 w5 修订 b6d11d4 的 blob 10d24a39…（git_blob_fixed_revision，不随 HEAD 移动）；阶段5 后续轮改动该文件须重绑并登记 replaces。事实：阶段5 r02 复审已 PASS、task-24 在办；未冻结。",
+    "N-a 事实更正：dbdf \report/evidence/S3-T05/** -text 由 4aada6d（2026-10-24 01:59 +0800）加入（规则原文与提交注释齐备）；更早 -text 属 S2A-* 路径（如 cdb2fbd 2026-10-01），不覆盖 S3-T05；上一版「2026-10-01 起」为错误日期，已在 3 文件 5 处 + md:13 矛盾句一并更正。",
+    "阶段3 目录自带 hashes_sha256.txt 中 address_facts.md = d5ba4b6b…（与本树 B-2 重绑值逐字一致，两来源互证）。",
+    "过程记录：修复期间存在中间批次 RunId（r03/r06/r04/r06/r05 等），已保留不覆盖；本清单只列最终采用者。",
+    "本 RunId 为批次汇总清单，未申报 check_stage_delivery 通用包装。"
   ]
 }

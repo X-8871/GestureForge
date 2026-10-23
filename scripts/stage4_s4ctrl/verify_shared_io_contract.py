@@ -112,15 +112,15 @@ def find_git_root(path: Path) -> Path | None:
     return None
 
 
-def blob_content_sha256(path: Path) -> tuple[str | None, str | None]:
-    """按 git blob 内容口径计算 SHA-256；返回 (sha256, error)。"""
+def blob_content_sha256(path: Path, revision: str = "HEAD") -> tuple[str | None, str | None]:
+    """按 git blob 内容口径计算 SHA-256（可指定修订）；返回 (sha256, error)。"""
     root = find_git_root(path)
     if root is None:
         return None, f"未找到 git 根：{path}"
     rel = path.relative_to(root).as_posix()
-    proc = subprocess.run(["git", "-C", str(root), "cat-file", "blob", f"HEAD:{rel}"], capture_output=True)
+    proc = subprocess.run(["git", "-C", str(root), "cat-file", "blob", f"{revision}:{rel}"], capture_output=True)
     if proc.returncode != 0:
-        return None, f"cat-file blob HEAD:{rel} 退出 {proc.returncode}（可能尚未提交）"
+        return None, f"cat-file blob {revision}:{rel} 退出 {proc.returncode}（修订或路径不存在）"
     return hashlib.sha256(proc.stdout).hexdigest(), None
 
 
@@ -128,6 +128,10 @@ def verify_binding_entry(binding: dict) -> tuple[str, str | None, str | None]:
     """按条目声明口径校验单个绑定；返回 (status, actual, error)。
 
     status: MATCH / MISMATCH / MISSING / BLOB_UNAVAILABLE / BAD_BYTE_BASIS
+    byte_basis：
+      - worktree_disk_bytes：工作树磁盘原始字节（默认）
+      - git_blob_content：`HEAD:<path>` 的 blob 内容（随 HEAD 移动）
+      - git_blob_fixed_revision：`<fixed_revision>:<path>` 的 blob 内容（**固定修订，不随 HEAD 移动**）
     """
     path = resolve(binding["path"])
     basis = binding.get("byte_basis", "worktree_disk_bytes")
@@ -137,6 +141,13 @@ def verify_binding_entry(binding: dict) -> tuple[str, str | None, str | None]:
         actual = sha256_of(path)
     elif basis == "git_blob_content":
         actual, error = blob_content_sha256(path)
+        if actual is None:
+            return "BLOB_UNAVAILABLE", None, error
+    elif basis == "git_blob_fixed_revision":
+        revision = binding.get("fixed_revision")
+        if not revision:
+            return "BAD_BYTE_BASIS", None, "git_blob_fixed_revision 必须给出 fixed_revision"
+        actual, error = blob_content_sha256(path, revision)
         if actual is None:
             return "BLOB_UNAVAILABLE", None, error
     else:
@@ -475,6 +486,25 @@ def main() -> int:
             if disk_sha != original:
                 disk_entry["sha256"] = disk_sha
                 basis_controls["disk_sha_under_blob_basis"] = verify_binding_entry(disk_entry)[0] == "MISMATCH"
+
+        # 2c. 固定修订口径（不随 HEAD 移动）负向对照
+        fixed_ids = [bid for bid, b in bindings.items() if b.get("byte_basis") == "git_blob_fixed_revision"]
+        if fixed_ids:
+            fixed = copy.deepcopy(bindings[fixed_ids[0]])
+            basis_controls["fixed_revision_binds_pinned"] = verify_binding_entry(fixed)[0] == "MATCH"
+            no_rev = copy.deepcopy(bindings[fixed_ids[0]])
+            no_rev.pop("fixed_revision", None)
+            basis_controls["fixed_revision_missing_revision"] = verify_binding_entry(no_rev)[0] == "BAD_BYTE_BASIS"
+            head_sha, _ = blob_content_sha256(resolve(fixed["path"]), "HEAD")
+            if head_sha and head_sha != fixed["sha256"]:
+                drift_head = copy.deepcopy(bindings[fixed_ids[0]])
+                drift_head["sha256"] = head_sha
+                basis_controls["fixed_revision_rejects_head_content"] = \
+                    verify_binding_entry(drift_head)[0] == "MISMATCH"
+            details["binding_byte_basis_fixed_revision"] = {
+                "entries": fixed_ids, "fixed_revision": fixed.get("fixed_revision"),
+                "head_content_differs_from_pinned": bool(head_sha and head_sha != fixed["sha256"]),
+            }
         details["binding_byte_basis"] = {"blob_entries": blob_ids, "negative_controls": basis_controls}
         if basis_errors:
             failures.extend(basis_errors)

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_raw_address_proposal_20261024_r01",
+  "source_commit": "7a9507ab4a2067d493b4d9ff47b331c747f33796",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01",
+  "purpose": "G-01/G-02 RAW/META 地址与所有权待决提案的容量/冲突算术（只读，全离线）",
+  "hardware_execution": "NOT_RUN",
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01/raw_address_options_arithmetic.json",
+      "sha256": "5331d7cfcf2f5da1a67630a5aea23465aa6b98c0598f9e4d9a8f6b779ae84c47",
+      "role": "result",
+      "keep_reason": "候选容量与禁区判定算术结果"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01/options_stdout.txt",
+      "sha256": "af3912151e04ba4a6c969c3669eae6a5d4656ecff150b394dbef18d55fb3aeb2",
+      "role": "log",
+      "keep_reason": "脚本真实 stdout"
+    },
+    {
+      "path": "scripts/stage4_s4b/check_raw_address_options.py",
+      "sha256": "7afc8afcbb36d26eea56aef73b3ab200881be504504c5a57ea11258d848adc3e",
+      "role": "source",
+      "keep_reason": "可复跑算术入口"
+    }
+  ],
+  "checks": [
+    {
+      "name": "RAW/META 地址候选容量与冲突算术",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/check_raw_address_options.py --evidence-dir report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01",
+      "exit_code": 0,
+      "reason": "最大连续空洞 9,825,540 B < 最大帧 11,059,200 B；A/C 支持 109 帧、B/E 支持 107 帧；exit 0"
+    },
+    {
+      "name": "地址/所有权批准",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "G-01/G-02 仍 BLOCKED_PENDING_APPROVAL；D1–D4 待 DSH/Wong 裁决"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "依 CDX-20261023-019 全离线；未装载位流、未打开 COM4/JTAG"
+    }
+  ],
+  "limitations": [
+    "只读算术，不构成地址批准、owner 登记或 G0/G4/G5 结论。",
+    "本 RunId 未申报 check_stage_delivery 通用包装（该检查器只覆盖 task-21 的四个交付包）。"
+  ]
+}

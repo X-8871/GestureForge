@@ -1,0 +1,120 @@
+{
+  "schema_version": "gestureforge_s4b_raw_addr_ownership_proposal_v1",
+  "status": "DECISION_REQUESTED",
+  "task_id": "S4-CTRL/S4-T21",
+  "stage": "4",
+  "created_utc8": "2026-10-24T01:05:00+08:00",
+  "proposer": "DSH 阶段4 总控（stage4-lead）",
+  "hardware_execution": "NOT_RUN",
+  "human_doc": "docs/stage4/S4B_raw_address_ownership_proposal_20261024_r01.md",
+  "scope": "规范层面候选方案；不改实现/地址图/契约；是否越出既有批准范围由 DSH 项目总控先裁、必要时报 Wong",
+  "related_gaps": ["G-01", "G-02"],
+  "evidence": {
+    "arithmetic_result": {
+      "path": "report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01/raw_address_options_arithmetic.json",
+      "sha256": "5331d7cfcf2f5da1a67630a5aea23465aa6b98c0598f9e4d9a8f6b779ae84c47"
+    },
+    "arithmetic_stdout": {
+      "path": "report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01/options_stdout.txt",
+      "sha256": "af3912151e04ba4a6c969c3669eae6a5d4656ecff150b394dbef18d55fb3aeb2"
+    },
+    "checker": "scripts/stage4_s4b/check_raw_address_options.py",
+    "exit_code": 0
+  },
+  "verified_facts": {
+    "window_hex": ["0x10000000", "0x12000000"],
+    "largest_contiguous_hole_bytes": 9825540,
+    "max_frame_bytes_required": 11059200,
+    "full_coverage_inside_window_possible": false,
+    "current_draft_region_bytes": 4194304,
+    "current_draft_region_supported_frames": "12/109",
+    "forbidden_span_hex": ["0x12000000", "0x20000000"],
+    "meta_bytes_required": 32768,
+    "storage_align_bytes": 8,
+    "maintenance_align_bytes": 64
+  },
+  "options": [
+    {
+      "id": "A",
+      "label": "readiness §8.2 原案（12 MiB + 相邻 META）",
+      "raw_range_hex": ["0x12000000", "0x12C00000"],
+      "raw_bytes": 12582912,
+      "meta_range_hex": ["0x12C00000", "0x12C08000"],
+      "usable_for_frame_bytes": 12582912,
+      "capacity_margin_bytes": 1523712,
+      "frames_supported": "109/109",
+      "excluded_dimension_buckets": [],
+      "touches_forbidden_span": true,
+      "cost": ["需批准缩减 must_not_access 跨段", "地址图与契约同版本更新 + 消费方重绑 + 适用回归", "独立 G0 审查"],
+      "impact_4d": ["保持全 109 帧覆盖（含 2 张 1920x1920 two_up）", "mailbox 偏移不变，仅 base 变化"],
+      "docs_churn": "最小（readiness §8.2 已按此撰写）"
+    },
+    {
+      "id": "C",
+      "label": "最小足迹变体（11 MiB + META 置于窗口内空洞）",
+      "raw_range_hex": ["0x12000000", "0x12B00000"],
+      "raw_bytes": 11534336,
+      "meta_range_hex": ["0x11ADADC0", "0x11ADEDC0"],
+      "usable_for_frame_bytes": 11534336,
+      "capacity_margin_bytes": 475136,
+      "frames_supported": "109/109",
+      "excluded_dimension_buckets": [],
+      "touches_forbidden_span": true,
+      "cost": ["需批准缩减禁区 11.0 MiB", "需批准窗口内空洞的 owner 登记", "须修 readiness §8.2 的 META base", "余量较小（475,136 B）"],
+      "impact_4d": ["保持全 109 帧覆盖", "META base 变更；mailbox 内部偏移不变"],
+      "docs_churn": "中等"
+    },
+    {
+      "id": "B",
+      "label": "窗口内 9 MiB 连续（草案区 + 相邻空洞）",
+      "raw_range_hex": ["0x10700000", "0x11000000"],
+      "raw_bytes": 9437184,
+      "meta_inside_range": true,
+      "usable_for_frame_bytes": 9404416,
+      "capacity_margin_bytes": -1654784,
+      "frames_supported": "107/109",
+      "excluded_dimension_buckets": ["1920x1920"],
+      "touches_forbidden_span": false,
+      "cost": ["需批准占用窗口内空洞并登记 owner", "输入覆盖口径变更：须预先冻结 107 帧子集清单并改写覆盖声明"],
+      "impact_4d": ["排除 2 帧 1920x1920 two_up；readiness 注明该子集保留五类/3 负样本/2 multibox/4 合成", "属需求层覆盖变更"],
+      "docs_churn": "中等（含需求口径）"
+    },
+    {
+      "id": "E",
+      "label": "复用 ps_app_arena 上部空闲",
+      "arena_range_hex": ["0x00100000", "0x01100000"],
+      "free_above_r13_bytes": 9240880,
+      "capacity_margin_bytes": -1818320,
+      "frames_supported": "107/109",
+      "touches_forbidden_span": false,
+      "cost": ["须先冻结 4-D 最终 PS 应用 linker 布局", "地址批准耦合到应用构建"],
+      "impact_4d": ["同 B 的覆盖限制", "arena 16 MiB 上限本身小于部分帧需求"],
+      "docs_churn": "高"
+    }
+  ],
+  "rejected_options": {
+    "D_split_frame_across_holes": "帧缓冲必须连续（PL master 单区间寻址）",
+    "F_keep_4MiB_draft": "仅支持 12/109 帧",
+    "G_change_D2_semantics_for_prescaled_input": "变更被验收预处理语义，须 Wong 开启规格变更并重建黄金"
+  },
+  "decision_request": [
+    {"id": "D1", "question": "是否允许缩减地址图 [0x12000000,0x20000000) 禁区给 RAW/META 让位；若允许取 A 还是 C", "recommended": "优先 A（与 readiness §8.2 一致、余量最大、单一 mailbox base）；最小禁区占用则 C", "decider": "DSH 项目总控先裁；改变已批准部署/接口边界则报 Wong"},
+    {"id": "D2", "question": "若不允许动禁区，是否接受 4-D 输入降为 107 帧预冻结子集（B/E）", "recommended": "不默认（属覆盖口径变更）", "decider": "Wong"},
+    {"id": "D3", "question": "META 是否必须与 RAW 连续（决定 A 与 C）", "recommended": "不强制连续（readiness 未要求相邻）", "decider": "DSH 项目总控"},
+    {"id": "D4", "question": "是否把 4-D PS 应用 linker 布局冻结提前为地址批准前置（选项 E）", "recommended": "不建议", "decider": "DSH 项目总控"}
+  ],
+  "ownership_registration_method": {
+    "steps": [
+      "在地址图新增 raw_frame / raw_meta region，字段与既有 region 同构（含 owner/access/cache_maintenance/dma_completion_order/alignment/status）",
+      "状态迁移：PROPOSED_STAGE4_OWNED_PENDING_G0 → FROZEN_STAGE4（须批准 + 独立 G0 审查）",
+      "精确缩减对应禁区条目，其余禁区不变",
+      "批准前必须齐备：区间/对齐/容量算术（已有）、与已知 owner 不相交核验（已有、待独立审查）、板上未被占用与 cache 可见性实测（NOT_RUN）、地址图与契约同版本更新 + 消费方重绑 + 适用回归"
+    ],
+    "single_writer": "阶段4 写入方独占修改地址图；独立 Reviewer 固定提交审阅；frozen=true 不等于已批准"
+  },
+  "boundary": [
+    "提案前状态保持：G-01/G-02 仍 BLOCKED/OPEN，ENABLE=0，不访问候选区，不装载位流",
+    "本轮全离线：未装载位流、未打开 COM4/JTAG、未起 hw_server；P 与硬件项继续 NOT_RUN",
+    "未经独立复审前不得据此修改地址图或契约"
+  ]
+}

@@ -9,6 +9,7 @@
 - 核对事实：无 `index.lock`；无重型引擎进程（6 个命中项均为 MCP server 进程，非 Vivado/xsim 引擎）；3121 无监听；**12 项**未跟踪 = 6 ELF + 6 map（`report/evidence/S4-B/s4b_ps_tensor_20261023_r04|r05|r09|r11|r12|r13/s4b_ps_tensor_diagnostic.*`），归属保持 Codex 交接口径（本机恢复产物），**留原位、不入源码 Git、不删不覆盖**，逐文件 SHA 见该 RunId 的 `untracked_sha256.txt`（r13 `.map` SHA 与 readiness 文档引用值一致）。
 - **硬件使用权不随工作树交接**：依 `CDX-20261023-019` 本轮不申请、不保留、不占用硬件窗口。
 - **已知结构性现象**：DSH 原认领记录写于其自身提交之前（声明 `base_commit=d13610d`），在新 HEAD 上复跑会在检查项 a 报漂移；该 FAIL 已据实保留在 `t21_takeover_20261024_r02/handoff_check_previous_claim_record_drift.json`，判据是认领时刻的 PASS 9 证据，而非事后复跑。
+- **交接约定（DSH 项目总控 2026-10-24 裁决）**：交接记录只声明**它被写出的那个提交**，接管时刻的 `--claim` PASS 9 即为认领证据；之后 HEAD 前进造成的检查项 a 漂移属**设计行为**，在 STATE 写明、复跑用 successor 记录即可；`handoff_check.py` 的祖先/successor 语义改造**登记为待排期改进项**（须连同 38 个单测与既有证据包一起改并重审）。
 
 ## 本轮交付（task-21）
 
@@ -17,6 +18,7 @@
 - **RAW 系统 G0 收口**：`docs/stage4/S4B_raw_system_g0_gap_registry.json` 承接 `d4f30e3` 检查点，逐项登记 G-01..G-19 与 J10 范围外不适用项；只读复算 **9/9 算术、8/8 依据件、状态纪律通过**（需硬件缺口一律保持 `NOT_RUN`/`BLOCKED`）；系统 G0 仍 `CHANGES_REQUIRED_NOT_CLOSED`。
 - **帧周期 P 实测方案**：`docs/stage4/S4B_frame_period_P_measurement_plan.md` + 证据模板 + 校验器（6/6 负向对照被拒：禁止填造/回放冒充/样本不足/统计矛盾/门禁缺失/计时器未标定）；**数值仍 `NOT_RUN`**，供阶段6 `T6-A03`。
 - **契约自检升 r05**：已批准态必须附批准记录且与阶段5 同源；彩色改绑＋批准态共 **8/8** 负向对照被拒；`upstream_bindings` **12/12** 现场复算一致；契约消费方回归 `verification.test_s4_inject_frame` **10/10 OK**。
+- **G-01/G-02 待决提案（规范层面，不改实现）**：`docs/stage4/S4B_raw_address_ownership_proposal_20261024_r01.md` + `.json`；算术证据 `report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01/`（`scripts/stage4_s4b/check_raw_address_options.py` **exit 0**）。关键事实：2B 窗口内**最大连续空洞 9,825,540 B < 最大帧 11,059,200 B** ⇒ 全 109 覆盖必须扩出窗口或缩小输入范围。候选 **A**（禁区 12 MiB + 相邻 META，109 帧，余量 +1,523,712 B）／**C**（禁区 11 MiB + 窗口内 META，109 帧，余量 +475,136 B）／**B**（窗口内 9 MiB，107 帧，排除 2 张 1920×1920，属需求层覆盖变更）／**E**（`ps_app_arena` 上部，107 帧，耦合 linker 布局）。**裁决前 G-01/G-02 状态不变、`ENABLE=0`、不访问候选区**；D1–D4 见提案 §5。
 
 ## 证据入口（本轮新 RunId，`report/evidence/S4-CTRL/`）
 
@@ -33,6 +35,9 @@
 - RAW 系统 G0 缺口：地址/所有权批准（G-01/G-02 `BLOCKED_PENDING_APPROVAL`）、D2 整帧/padding 数值（G-04）、HP0 串行 owner 与排空（G-05）、平台 BD/XSA（G-07）、PS RAW task 与旧 memcpy 冲突（G-08）、协议项（G-09/G-10/G-11/G-13）、资源与布线后时序（G-14）、mailbox ABI 审查（G-15）。
 - 硬件相关**全部 `NOT_RUN`**：八类门禁与正式 OFFER/CLAIM（G-16）、4-D 验收（G-17）、真实彩色回归（G-18）、帧周期 P（G-19）。
 - 4-D 与阶段4 G5 未完成；不得把离线/回放结论升级为实物集成结论。
+- **待 lead 裁决**：G-01/G-02 提案的 D1–D4（提案 §5）；裁决前不动地址图/契约、不访问候选区。
+- **下一轮必修（不为此单独开轮）**：把 RunId 迁移前写入的 `--evidence-dir` 字符串在下一轮以新 RunId 重跑修正——`t21_contract_colour_rebind_20261024_r02/verify_shared_io_contract_result.json`、`t21_raw_g0_gap_registry_20261024_r03/raw_system_g0_gap_audit_result.json`、`t21_frame_period_p_plan_20261024_r01/frame_period_p_validation_result.json`；内容未改写，仅路径字符串差异。
+- **待排期改进项**：`handoff_check.py` 祖先/successor 语义（须连同 38 个单测与证据包一起改并重审）——本轮不展开。
 
 ## 必须保持的接口与边界（承接）
 
@@ -41,6 +46,7 @@
 - 候选上限 12675 可行、12676 硬错误；4096 禁用；注入须位于被验收预处理前；`capture_time_available=false`、`capture_time_ns=0` 哨兵，`injection_start_ns` 不得冒充采集时间。
 - 保护旧已冻结离线链与全部旧 RunId：`s4_ps_decode.*`、`s4_uart_protocol.*`、`s4_offline_host.c`、`run_s4b_offline_chain.py`、`build_s4b_manifest.py`、`test_s4_ps_decode.py`；不得改写 `d4f30e3`/`d13610d` 的历史提交与证据。
 - 2B/阶段3/阶段5/阶段6 工作树与厂商原件只读；本树一次只跑一个重型任务；不 push。
+- **换行前提（与阶段3 同口径）**：本树**不加 `.gitattributes`**；新产物统一写 LF，复算证据哈希绑定必须用 `-c core.autocrlf=false`，否则换行归一化会造成 SHA 失配。
 
 ## 交接行（11 字段）
 

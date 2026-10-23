@@ -1,0 +1,197 @@
+{
+  "task_id": "S4-CTRL/S4-T21",
+  "checker": "check_raw_address_options",
+  "checker_version": "r01",
+  "generated_at_utc8": "2026-10-24T00:56:02+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\check_raw_address_options.py --evidence-dir D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\t21_raw_address_proposal_20261024_r01",
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "hardware_execution": "NOT_RUN",
+  "inputs": {
+    "address_map": {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+    },
+    "input_scope_audit": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_pl_g0_input_scope_20261023_r01\\input_scope_audit.json",
+      "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968"
+    },
+    "r13_memory_ranges": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\memory_ranges.json",
+      "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80"
+    }
+  },
+  "facts": {
+    "window_hex": [
+      "0x10000000",
+      "0x12000000"
+    ],
+    "frozen_objects": [
+      {
+        "name": "network_input_tensor",
+        "range_hex": [
+          "0x10000000",
+          "0x1007ec00"
+        ],
+        "bytes": 519168
+      },
+      {
+        "name": "gf8_weight_package",
+        "range_hex": [
+          "0x10100000",
+          "0x106a12fc"
+        ],
+        "bytes": 5903100
+      },
+      {
+        "name": "feature_envelope",
+        "range_hex": [
+          "0x11000000",
+          "0x11adadb8"
+        ],
+        "bytes": 11382200
+      }
+    ],
+    "holes_in_window": [
+      {
+        "start": 268954624,
+        "end": 269484032,
+        "bytes": 529408,
+        "start_hex": "0x1007ec00",
+        "end_hex": "0x10100000"
+      },
+      {
+        "start": 275387132,
+        "end": 285212672,
+        "bytes": 9825540,
+        "start_hex": "0x106a12fc",
+        "end_hex": "0x11000000"
+      },
+      {
+        "start": 296594872,
+        "end": 301989888,
+        "bytes": 5395016,
+        "start_hex": "0x11adadb8",
+        "end_hex": "0x12000000"
+      }
+    ],
+    "largest_contiguous_hole_bytes": 9825540,
+    "max_frame_bytes": 11059200,
+    "sample_count": 109,
+    "meta_bytes": 32768,
+    "storage_align_bytes": 8,
+    "maintenance_align_bytes": 64,
+    "current_draft_region_bytes": 4194304,
+    "current_draft_region_supported_frames": 12,
+    "forbidden_span_hex": [
+      "0x12000000",
+      "0x20000000"
+    ],
+    "forbidden_gap_rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围"
+  },
+  "options": [
+    {
+      "name": "A_readiness_candidate_12MiB",
+      "raw_range_hex": [
+        "0x12000000",
+        "0x12c00000"
+      ],
+      "raw_bytes": 12582912,
+      "meta_range_hex": [
+        "0x12c00000",
+        "0x12c08000"
+      ],
+      "meta_bytes": 32768,
+      "raw_start_aligned_64": true,
+      "usable_for_frame_bytes": 12582912,
+      "max_frame_required_bytes": 11059200,
+      "capacity_margin_bytes": 1523712,
+      "fits_full_109_list": true,
+      "frames_supported": 109,
+      "frames_total": 109,
+      "excluded_dimension_buckets": [],
+      "inside_current_forbidden_span": true,
+      "governance_change_required": true,
+      "governance_note": "需批准缩减地址图禁区 0x12000000..0x20000000"
+    },
+    {
+      "name": "B_inside_window_9MiB_contiguous",
+      "raw_range_hex": [
+        "0x10700000",
+        "0x11000000"
+      ],
+      "raw_bytes": 9437184,
+      "meta_range_hex": [
+        "0x10700000",
+        "0x10708000"
+      ],
+      "meta_bytes": 32768,
+      "raw_start_aligned_64": true,
+      "usable_for_frame_bytes": 9404416,
+      "max_frame_required_bytes": 11059200,
+      "capacity_margin_bytes": -1654784,
+      "fits_full_109_list": false,
+      "frames_supported": 107,
+      "frames_total": 109,
+      "excluded_dimension_buckets": [
+        "1920x1920"
+      ],
+      "inside_current_forbidden_span": false,
+      "governance_change_required": true,
+      "governance_note": "需批准占用 2B 专属窗口内既有空洞并登记 owner"
+    },
+    {
+      "name": "C_minimal_11MiB_plus_meta_in_window",
+      "raw_range_hex": [
+        "0x12000000",
+        "0x12b00000"
+      ],
+      "raw_bytes": 11534336,
+      "meta_range_hex": [
+        "0x11adadc0",
+        "0x11ae2dc0"
+      ],
+      "meta_bytes": 32768,
+      "raw_start_aligned_64": true,
+      "usable_for_frame_bytes": 11534336,
+      "max_frame_required_bytes": 11059200,
+      "capacity_margin_bytes": 475136,
+      "fits_full_109_list": true,
+      "frames_supported": 109,
+      "frames_total": 109,
+      "excluded_dimension_buckets": [],
+      "inside_current_forbidden_span": true,
+      "governance_change_required": true,
+      "governance_note": "需批准缩减地址图禁区 0x12000000..0x20000000"
+    },
+    {
+      "name": "E_upper_ps_app_arena",
+      "arena_range_hex": [
+        "0x100000",
+        "0x1100000"
+      ],
+      "arena_bytes": 16777216,
+      "r13_used_upper_bound_hex": "0x82fed0",
+      "free_above_r13_bytes": 9240880,
+      "max_frame_required_bytes": 11059200,
+      "capacity_margin_bytes": -1818320,
+      "fits_full_109_list": false,
+      "frames_supported": 107,
+      "frames_total": 109,
+      "incompatibility": "该区间所有权属 PS 应用 linker arena；4-D 最终 ELF 布局未冻结，且 arena 总上限 16 MiB 本身就小于部分帧需求",
+      "governance_change_required": true,
+      "governance_note": "需先冻结 4-D PS 应用 linker 布局并重新登记 arena 内部切分"
+    }
+  ],
+  "conclusion": {
+    "full_109_inside_window_possible": false,
+    "reason": "窗口内最大连续空洞 9825540 B < 最大帧需求 11059200 B；全 109 覆盖必须扩到窗口外或缩小输入范围",
+    "rejected_options": {
+      "D_split_frame_across_holes": "帧缓冲必须连续（PL master 单区间寻址）；非连续空洞拼接不成立",
+      "F_keep_4MiB_draft": "4 MiB 草案仅支持 12/109 帧，远低于 ≥100 帧要求"
+    }
+  },
+  "status": "PASS",
+  "failures": [],
+  "boundary": "只读算术；不构成地址批准、owner 登记或 G0/G4/G5 结论。"
+}

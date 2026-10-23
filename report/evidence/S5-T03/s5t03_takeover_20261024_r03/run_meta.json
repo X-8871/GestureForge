@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "name": "安静窗口核验（进程 + 3121）",
+      "status": "PASS",
+      "command": "python: tasklist 过滤 vivado|xsdb|hw_server|vitis|xsim + netstat :3121",
+      "exit_code": 0,
+      "reason": "PROC_IDLE / PORT_3121_IDLE：0 个硬件或仿真进程、3121 未监听；本 NB 轮全部核验在安静窗口内完成（task-24 纪律）。"
+    },
+    {
+      "name": "无未提交的已跟踪修改",
+      "status": "PASS",
+      "command": "bash -c \"git status --short --untracked-files=no 为空\"",
+      "exit_code": 0,
+      "reason": "TRACKED_CLEAN；未跟踪项仅本任务新证据。"
+    },
+    {
+      "name": "阶段3 部署身份只读重算（bit/XSA/ELF）",
+      "status": "PASS",
+      "command": "sha256sum <无补偿bit> <XSA> <j11cmos2_v10_read.elf> 并与 015 r03 期望值比较",
+      "exit_code": 0,
+      "reason": "ALL_MATCH：bit/ELF 全哈希逐字符一致、XSA 全哈希一致；只读引用 dbdf，未进行任何板级操作。"
+    },
+    {
+      "name": "板卡拔下记录存在（板级工作暂停）",
+      "status": "PASS",
+      "command": "bash -c \"test -f report/evidence/CTRL-DSH-HANDOFF/decisions/board_detached_boardfree_plan_20261024_r01.md\"",
+      "exit_code": 0,
+      "reason": "BOARD_DETACHED_RECORD_PRESENT：Wong 2026-10-24 拔下板卡，B1–B10 与一切板级项暂停。"
+    },
+    {
+      "name": "w5 接管核验（handoff_check 只读，未提供 record）",
+      "status": "FAIL",
+      "command": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json",
+      "exit_code": 1,
+      "reason": "HANDOFF_FAILED 只由检查项 c 触发：本记录写盘时 report/evidence/S5-T03/ 为未跟踪且无 record 声明归属；a（工作树/分支/HEAD=5fd3336）、b（index.lock 不存在）、d（无重型进程）均 PASS，e/f/g/h/i 因未提供 record 而 SKIP。提交后同一命令复跑为 HANDOFF_OK PASS4/FAIL0/SKIP5 exit 0（复审已建议在安静窗口或无未跟踪改动时核验）。"
+    },
+    {
+      "name": "本任务硬件使用",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "task-24 为纯离线任务且板卡已拔下：不申请、不占用 JTAG/COM4/hw_server，不加载位流、不烧录。"
+    }
+  ],
+  "limitations": [
+    "handoff_check 检查项 c 的 FAIL 由本包证据当时未提交引起，不是工作树被他人写入；提交后不再触发。",
+    "板卡已拔下（Wong 2026-10-24）：本包内的一切硬件相关陈述均为只读文件核对或历史事实引用，不代表板级可用或已执行。",
+    "阶段3 部署产物位于 dbdf（只读引用）：本轮只重算哈希，未修改 dbdf 任何文件，未进行板上操作。",
+    "r01/r02 四个证据包已被 r03 取代（其清单绑定的源文件在 B-1/B-2/N-1..N-7 与 NB-1..NB-5 修正后字节已变）；被取代证据保留、不删除、不就地改写。",
+    "本记录不代表独立审查、G0/G4/G5 或实物验收通过；不代表硬件使用权已转移。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "handoff_check": "verification/handoff_check.py (main tree, read-only)",
+    "sha256": "coreutils sha256sum (Git Bash)"
+  }
+}

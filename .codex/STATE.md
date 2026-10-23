@@ -54,7 +54,7 @@
 - 候选上限 12675 可行、12676 硬错误；4096 禁用；注入须位于被验收预处理前；`capture_time_available=false`、`capture_time_ns=0` 哨兵，`injection_start_ns` 不得冒充采集时间。
 - 保护旧已冻结离线链与全部旧 RunId：`s4_ps_decode.*`、`s4_uart_protocol.*`、`s4_offline_host.c`、`run_s4b_offline_chain.py`、`build_s4b_manifest.py`、`test_s4_ps_decode.py`；不得改写 `d4f30e3`/`d13610d` 的历史提交与证据。
 - 2B/阶段3/阶段5/阶段6 工作树与厂商原件只读；本树一次只跑一个重型任务；不 push。
-- **换行前提（与阶段3 同口径）**：本树**不加 `.gitattributes`**；新产物统一写 LF，复算证据哈希绑定必须用 `-c core.autocrlf=false`，否则换行归一化会造成 SHA 失配。
+- **换行/字节口径前提（2026-10-24 更正）**：本树**存在 `.gitattributes`**（根 + 嵌套 `docs/stage4/`、`report/evidence/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`），其 `-text` **覆盖** w4 的 `docs/stage4/**` 与 `report/evidence/**`（`check-attr text: unset`），故这些文件 disk==blob；**未覆盖**跨树引用（dbdf `report/evidence/S3-T05/**` 为 `text: unspecified` ⇒ 我此前“本树无 .gitattributes”的陈述**有误，以本条为准**）。**不再新增覆盖**（lead 决定，与阶段3 同口径）；契约将新增顶层**绑定字节口径声明**（记录工作树磁盘字节 SHA；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并按 N-1 把 dbdf 两项改绑为 blob 内容口径。
 
 ## 交接行（11 字段）
 

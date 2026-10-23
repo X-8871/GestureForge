@@ -22,6 +22,21 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 
+def _force_utf8_streams() -> None:
+    """强制 stdout/stderr 为 UTF-8 + LF（评审 R-1）。
+
+    Windows 下 stdout 被重定向/管道时默认 `stdout_encoding=gbk`，非 GBK 字符会抛 UnicodeEncodeError，
+    导致崩溃且不写 `--json-out`（而该退出码 1 与本工具 MISMATCH 同值，会被误读为哈希失配）。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace", newline="\n")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
+_force_utf8_streams()
+
 UTC8 = timezone(timedelta(hours=8))
 DEFAULT_SCOPES = (
     "report/evidence/S3-T17",
@@ -73,7 +88,7 @@ def main(argv):
                               "core.autocrlf"], capture_output=True, text=True)
     autocrlf_value = (autocrlf.stdout or "").strip() or "(unset)"
     print(f"CORE_AUTOCRLF={autocrlf_value}"
-          + ("（true ⇒ 若本仓库是 CRLF 检出的克隆，请用 git -c core.autocrlf=false clone 复核）"
+          + ("（true => 若本仓库是 CRLF 检出的克隆，请用 git -c core.autocrlf=false clone 复核）"
              if autocrlf_value.lower() == "true" else ""))
 
     files = []

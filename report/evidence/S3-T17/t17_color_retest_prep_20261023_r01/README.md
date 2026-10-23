@@ -2,7 +2,7 @@
 
 - 任务：共享看板 `task-17`（阶段3 色彩复测：新摄像头到货前后，DVP 位完整性 + 真彩通路）。
 - 工作树/分支：`D:\codex-worktrees\dbdf` / `codex/stage3-video`；接管基线 HEAD `f94c25f`，**本修复轮冻结 HEAD 见 `.codex/STATE.md` 交接行与 `report/evidence/S3-T17/t17_fix_20261023_r01/`**。
-- **前提（评审 N-4）**：本仓库系统级 `core.autocrlf=true` ⇒ 按工作区口径复核哈希/自证必须 `git -c core.autocrlf=false clone`（或 `git cat-file blob <rev>:<path>`）；DSH 已决定暂不为本三范围加 `.gitattributes -text`。
+- **前提（评审 N-4）**：本仓库系统级 `core.autocrlf=true` => 按工作区口径复核哈希/自证必须 `git -c core.autocrlf=false clone`（或 `git cat-file blob <rev>:<path>`）；DSH 已决定暂不为本三范围加 `.gitattributes -text`。
 - 本包性质：**纯离线准备**。本次**未接触任何硬件**（无 JTAG/COM4/hw_server/烧录），阶段 B 待 Wong 开工信号 + 硬件窗口书面确认。
 - 运行状态：颜色子项仍为 `DEFERRED_PENDING_MODULE`（Wong 2026-10-22 决定）；本包**不宣称颜色通过**。
 
@@ -23,8 +23,8 @@
   - 注意：`board/stage3/board_test_runbook.md` 仍写 J10/CMOS1，属旧（2026-10-03）口径；**以本树 STATE 与实际构建脚本 `run_t04_camera_j11_cmos2_build.sh` 为准**（J11+CMOS2 当前能出图）。
 - 采集 1280×720、RGB565、DVP（`0x4300=0x60`、`0x501F=0x01` ISP RGB）。
 - 帧缓冲内存序 **B,G,R**，每行 3840 字节；行地址 = `FRAME0 + y×stride`，**运行期回读**取 `ADDR_S2MM/STRIDE_S2MM`，禁止硬编码旧地址。
-- `cmos_d[9]` = 两个 DVP 字节各自的 MSB；字节布局 **第一字节 = `{b[4:0], g[5:3]}`（MSB=`B[4]`）、第二字节 = `{g[2:0], r[4:0]}`（MSB=`G[2]`）**，16 位字 `R=word[4:0]`、`G=word[10:5]`、`B=word[15:11]` ⇒ 帧缓冲 **offset0（蓝）bit7** 与 **offset1（绿）bit4** 恒 0、**offset2（红）完好**。
-  - **命名限制（评审 N-1）**：「蓝/绿」是帧缓冲通道名，字节↔通道对应来自归档网表（`…/t05_takeover_20261021_r03/channel_mapping_report.json`：offset0=B、offset1=G、offset2=R）；**DVP 字节序属推断**（厂商 `cmos_8_16bit.v` 已被缓存清理，本轮盘上未找到）⇒ 阶段B 报告用数值判据（offset0 bit7、offset1 bit4、offset2 完整）陈述，不单独依赖通道命名。
+- `cmos_d[9]` = 两个 DVP 字节各自的 MSB；字节布局 **第一字节 = `{b[4:0], g[5:3]}`（MSB=`B[4]`）、第二字节 = `{g[2:0], r[4:0]}`（MSB=`G[2]`）**，16 位字 `R=word[4:0]`、`G=word[10:5]`、`B=word[15:11]` => 帧缓冲 **offset0（蓝）bit7** 与 **offset1（绿）bit4** 恒 0、**offset2（红）完好**。
+  - **命名限制（评审 N-1，已据实更正）**：「蓝/绿」是帧缓冲通道名，字节↔通道对应来自归档网表（`…/t05_takeover_20261021_r03/channel_mapping_report.json`：offset0=B、offset1=G、offset2=R）；**DVP 字节序有厂商源码 + 网表双重依据**——已入库参考 `report/evidence/S3-T05/t05_github_ref_20261020_r01/cmos_8_16bit_ref.v`（sha256 `08a325356fdb46fcbd87e1b594a2b5d3c30954b68d18e4ea22d36e914cd414b9`，3318 B）第 157 行 `pdata_o <= {pdata_i_d0,pdata_i};`（先到字节进高半字）。**命名限制仍保留**：阶段B 报告用数值判据（offset0 bit7、offset1 bit4、offset2 完整）陈述，不单独依赖通道命名。（旧文「厂商源码已被缓存清理、盘上未找到」不实，本轮实查盘上有 56 份同名源码，全部含该拼接语句。）
 - 电气安全（Wong 执行实物）：断电插拔；Pin1 对齐；Pin2 是 +5V 供电脚；BANK35 为 3.3V，不得接 5V I/O。
 
 ## 3. 判定标准（完整表见 `t17_judgement_table.json` / `.md`）
@@ -47,8 +47,8 @@
 - 仅机器部分通过**不构成**颜色验收通过；两者都满足才可建议关闭颜色子项。
 
 ### ③ 结论二选一
-- **(a) 色通过** ⇒ 关闭颜色子项，并通知阶段6 可开始 **6-E 真手势验收**（同时告知阶段5 真彩前端可解除阻塞）。
-- **(b) 复现缺陷** ⇒ 判**板侧/连接侧**方向（同型号新模块仍复现则基本排除模块），颜色保持 `DEFERRED`，按 §6 定位。
+- **(a) 色通过** => 关闭颜色子项，并通知阶段6 可开始 **6-E 真手势验收**（同时告知阶段5 真彩前端可解除阻塞）。
+- **(b) 复现缺陷** => 判**板侧/连接侧**方向（同型号新模块仍复现则基本排除模块），颜色保持 `DEFERRED`，按 §6 定位。
 
 ## 4. 一次性准备已完成（本包 = 可执行件）
 
@@ -66,7 +66,7 @@
 - `t17_archived_frame_judgement.json/.stdout.txt`：对上次归档彩条帧独立复算，得白条 `(248,236,120)`、蓝 bit7/绿 bit4 置位率 `0.000%/0.000%`、**字段位 14/16（严格口径 13/16）**、`DEFECT_REPRODUCED`，**退出码 1** —— 与上次结论一致。
 - `t17_preflight_now.json/.stdout.txt`：在接管基线 `f94c25f` 上 `OFFLINE_GO`（7 件冻结产物哈希一致）；**冻结 HEAD 上的复跑见 `report/evidence/S3-T17/t17_fix_20261023_r01/preflight_frozen_head.*`**。
 - 硬件门禁实测（**未动板**）：`link`/`baseline`/`bars` 在缺开关或缺授权时一律退出 **3**（`T17_HW_BLOCKED=...`）。
-- `t17_artifacts_verified.json`：产物哈希清单；其中 v9/v10/v12 三支 ELF 的 `_input` 位流/XSA 与无补偿基线**逐字节一致** ⇒ 无 ELF↔位流错配风险。
+- `t17_artifacts_verified.json`：产物哈希清单；其中 v9/v10/v12 三支 ELF 的 `_input` 位流/XSA 与无补偿基线**逐字节一致** => 无 ELF↔位流错配风险。
 
 ## 5. 到货后 15 分钟内可执行的步骤清单
 
@@ -84,16 +84,16 @@ Wong 开工信号 + 硬件窗口书面确认到位后，写入 `report/evidence/
 | 5 | 7–8 min | 安全转储 3 行（y=200/360/500，新空目录） | 执行器自动完成 | 每行 3840 字节，`T17_DUMP_RESUME_OK=1` |
 | 6 | 8–9 min | 判定真实场景与黑白 | 执行器自动 `judge` | 看蓝 bit7/绿 bit4 置位率是否终于 > 0 |
 | 7 | 9–12 min | 内部彩条 `0x503D=0x80`（v12，易失）→ 转储整帧 → **恢复** | `run_t17_color_retest.sh bars --allow-hardware` | 写前回读 0x00、写后 0x80；恢复后回读 `503D=0x00` |
-| 8 | 12–13 min | 彩条判定（决定性） | 执行器自动 `judge bars` | 白条 B5=31(248)、G6=63(252) ⇒ 修好；仍 15(120)/59(236) ⇒ 复现 |
-| 9 | 13–14 min | **HDMI 目视核对**（Wong） | 看白纸/彩条是否仍偏黄 | 不偏黄不偏青 ⇒ 真彩目视通过 |
+| 8 | 12–13 min | 彩条判定（决定性） | 执行器自动 `judge bars` | 白条 B5=31(248)、G6=63(252) => 修好；仍 15(120)/59(236) => 复现 |
+| 9 | 13–14 min | **HDMI 目视核对**（Wong） | 看白纸/彩条是否仍偏黄 | 不偏黄不偏青 => 真彩目视通过 |
 | 10 | 14–15 min | 打包证据 + 结论 | `make_t17_manifest.py` | 新 RunId 目录含 manifest + hashes + 真实退出码 |
 
 异常停止点：传感器 ID 非 `0x5640`/无 ACK、下载或 PS 初始化非 0、转储行长度≠3840、`ADDR_S2MM` 缺失、恢复后 `0x503D` 非 0 —— 一律停止并保全日志，不反复热插拔。
 
 ## 6. 若复现缺陷：判板侧方向与可查项
 
-同型号新模块在 J11 仍复现 ⇒ 基本排除「上一模块个体故障」，按下列逐项定位（每项独立可查）：
-1. **新旧模块 × J11/J10 的 2×2 交叉矩阵**（断电换装、Wong 执行）：新模块在 J11 正常 ⇒ 旧模块 D9 通路故障；两连接器都复现 ⇒ 系统性问题，继续 2–5。
+同型号新模块在 J11 仍复现 => 基本排除「上一模块个体故障」，按下列逐项定位（每项独立可查）：
+1. **新旧模块 × J11/J10 的 2×2 交叉矩阵**（断电换装、Wong 执行）：新模块在 J11 正常 => 旧模块 D9 通路故障；两连接器都复现 => 系统性问题，继续 2–5。
 2. **触点**：断电目视 J11 pin3 与模块 J3 pin3（弯针/氧化/整排错位）、Pin1 对齐。
 3. **线序/串阻**：模块 pin3(`CMOS2_D9`) → J11 pin3 → 原理图 33Ω → FPGA `F17`（LVCMOS33/Bank35）；映射已有五路证据一致，仍按实际 PCB/BOM 复核。
 4. **对照另一条同字节 MSB 线**（如 D8→J18）与已知良好通道的连续性与电平（需 Wong 授权，不擅自做电气测量）。

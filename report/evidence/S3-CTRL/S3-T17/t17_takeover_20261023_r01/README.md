@@ -27,7 +27,7 @@
 2. Codex 阶段三总控 2026-10-21 19:53 以 `S3CTRL-20261021-003-handoff-to-dsh-stage3.md` + 提交 `29c7cf0`（20:01）再次 OFFERED 并声明已停写；
 3. DSH 阶段三总控 2026-10-21 21:36（提交 `22b8b64`）CLAIMED→IN_PROGRESS，工作至 2026-10-22 15:19（`f94c25f`），该轮交接行状态为 **DONE**（上一轮任务收尾，颜色子项 `DEFERRED_PENDING_MODULE`）；
 4. 该轮写入方已停写、无活动写入者：心跳 `2026-10-21 23:35` 已超时、无 `index.lock`、无重型进程；
-5. DSH 项目总控（主 `.codex/STATE.md` 写权持有方）2026-10-23 把本树登记为 **OFFERED 待认领** 并派新任务卡 `task-17` ⇒ 本轮由新任务卡重开，起始状态取 OFFERED，DSH 阶段3 总控独占写入。
+5. DSH 项目总控（主 `.codex/STATE.md` 写权持有方）2026-10-23 把本树登记为 **OFFERED 待认领** 并派新任务卡 `task-17` => 本轮由新任务卡重开，起始状态取 OFFERED，DSH 阶段3 总控独占写入。
 
 **如实登记的两处不一致/过期声明**（不改写历史）：
 - 本树交接行上一轮状态写 `DONE`，主 STATE 与本 record 用 `OFFERED`（前者=上一轮任务状态，后者=本轮治理层登记）；
@@ -49,7 +49,7 @@
 
 - **必读前提（评审 N-4）**：`hashes_sha256.txt`、`manifest.json` 的 `inputs[].sha256`、以及
   `t17_artifacts_verified.json` 的 `sources_referenced[].sha256` 一律按 **git blob（LF）字节**计算。
-  本仓库系统级 `core.autocrlf=true` ⇒ 按**工作区**口径复核必须 `git -c core.autocrlf=false clone`
+  本仓库系统级 `core.autocrlf=true` => 按**工作区**口径复核必须 `git -c core.autocrlf=false clone`
   （或 `git cat-file blob <rev>:<path>`），否则克隆工作区为 CRLF、与记录哈希全部不匹配
   （评审实测 `git clone --no-local` 后 45/45 MISMATCH）。**DSH 已决定暂不为本三范围加 `.gitattributes -text`**，
   故该参数是复核的必读前提而非可选建议。
@@ -74,10 +74,13 @@
 - `handoff_record_stage3_r01.json` 的 `base_commit` 是「**起始提交**」`f94c25f`；`handoff_check.py` 的检查项 a 按
   *前缀匹配 HEAD*，因此在 HEAD 已推进（`900cd0a` 及以后）后再用该 record 复跑会判 FAIL ——
   **这是设计行为（该 record 记录接管时刻）**。
-- **交付态复核（评审 N-3 关闭）**：交付态改用 `handoff_record_stage3_delivered.json`，其 `base_commit`
-  **随本轮冻结 HEAD 更新**；实测命令、真实退出码与输出见
+- **交付态复核（评审 N-3 关闭，但只在该次运行的 HEAD 上成立）**：交付态使用
+  `handoff_record_stage3_delivered.json`，其 `base_commit` 是**运行时刻**的冻结提交
+  （`60b00de`，即 F2）。实测命令、真实退出码与输出见
   `report/evidence/S3-T17/t17_fix_20261023_r01/handoff_delivered_readonly.{json,stdout.txt}`（**exit 0**）。
-- 若 HEAD 再次推进：把该 record 的 `base_commit` 更新为当前 HEAD 后再跑；
+  **该 exit 0 不是恒久成立**：在冻结 HEAD `f77f363`（G3）复跑，因检查项 a 为**前缀比较**，得
+  **exit 1（PASS 7 / FAIL 1(a) / SKIP 1）** —— 这是设计行为，不是哈希或状态不一致。
+- 若 HEAD 前进：把该 record 的 `base_commit` 更新为**当前 HEAD** 后再跑（本 record 现在记录的正是 F2 时刻）；
   **推荐**由持有 `verification/handoff_check.py` 写权的一方把检查项 a 改为祖先判定（本阶段无权改主仓工具）。
 - 本目录 `blob_byte_identity_final.json` 的 F 证明对应内容提交 `9d5c638`（`BLOB_BYTE_IDENTITY_OK`，42/0/0）；
   自证提交 `525e4f35` 的即时自证亦为 OK（45/0/0，见 `selfproof_hashes_sha256.txt`）。修复轮见

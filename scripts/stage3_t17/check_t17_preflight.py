@@ -31,6 +31,17 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 
+def _force_utf8_streams() -> None:
+    """强制 stdout/stderr 为 UTF-8 + LF（评审 R-1/R-2 的同类兜底）。"""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace", newline="\n")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
+_force_utf8_streams()
+
 UTC8 = timezone(timedelta(hours=8))
 WT = "D:/codex-worktrees/dbdf"
 EXPECTED_BRANCH = "codex/stage3-video"

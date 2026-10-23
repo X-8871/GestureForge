@@ -1,5 +1,8 @@
 {
-  "task": "task-17 阶段A 修复轮交付状态只读复核（base_commit = F2 冻结提交；不做接管）",
+  "task": "task-17 阶段A 修复轮交付状态只读复核（不做接管）",
+  "verification_head": "60b00dea458703bc80c6fe01e6604044c47f3987",
+  "verification_time_utc8": "2026-10-23 11:17",
+  "base_commit_semantics": "交付态 exit 0 仅在该次运行的 HEAD=verification_head 上成立（本次=60b00de）。handoff_check 检查项 a 为**前缀比较**：HEAD 前进后（例如冻结 HEAD f77f363）复跑会得 exit 1（PASS 7/FAIL 1(a)/SKIP 1），属设计行为而非哈希/状态不一致；复跑前请把 base_commit 更新为当前 HEAD，或由主仓写权方把检查项 a 改为祖先判定（评审 N-3/快修复审）。",
   "owner": "DSH 阶段3 总控（stage3-lead，本树当前独占写入方）",
   "worktree": "D:\\codex-worktrees\\dbdf",
   "branch": "codex/stage3-video",

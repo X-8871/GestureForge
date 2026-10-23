@@ -15,6 +15,12 @@
   ```
 - 离线前置的 HEAD 判据是「**声明基线或其后代**」（`git merge-base --is-ancestor`）；基线默认 `f94c25f`，可用
   `--baseline-commit <rev>` 或 env `T17_BASELINE_COMMIT` 覆盖（评审 B-3）。
+- **编码前提（评审 R-1/R-2 已修）**：四个 Python 工具入口都强制 `stdout/stderr = UTF-8 + LF`，因此
+  **不需要设置 `PYTHONUTF8`**，在 GBK 控制台或在管道/重定向下都不会因非 GBK 字符崩溃；
+  退出码与 `--json-out` 也不受打印影响（JSON 先落盘）。
+- **纯克隆的已知依赖**：`preflight` 会校验 7 件**未入库**的 `tmp/**` 冻结产物（基线 bit/XSA、三支 ELF、部署 bit/XSA）。
+  在一个全新的纯克隆里它们不存在 => `preflight` 返回 **1**（失败项是「缺产物」，**不是** HEAD 判据问题）；
+  若只关心 HEAD 判据，用 `--baseline-commit` 复跑并阅读 `checks.artifacts` 逐项结论。
 
 | 工具 | 作用 | 是否碰硬件 |
 |---|---|---|
@@ -57,10 +63,10 @@ bash scripts/stage3_t17/run_t17_color_retest.sh all --run-id t17_color_retest_20
 | 2 | `USAGE_OR_INPUT_ERROR`（缺文件/长度非法/彩条段不足） |
 | 3 | `INCONCLUSIVE_ATYPICAL`（非典型，需人工判读，不得当通过） |
 
-旧 `scripts/stage3_t05/analyze_missing_msb_signature.py`：`0=符合旧缺位签名`、`1=不符合` ⇒ **不可混用**。
+旧 `scripts/stage3_t05/analyze_missing_msb_signature.py`：`0=符合旧缺位签名`、`1=不符合` => **不可混用**。
 
 C7 口径（评审 B-1/B-2）：**16 字段位**（R5+G6+B5）+ **8 结构性恒 0 低位**（R/B 各 3、G 2）；黑条字段值 ≤ 容差
-（R/B:1、G:2）不计不可辨，与 C5 对齐 ⇒ 缺陷 `14/16`、修好 `16/16`（严格口径 `13/16` / `15/16`，仅
+（R/B:1、G:2）不计不可辨，与 C5 对齐 => 缺陷 `14/16`、修好 `16/16`（严格口径 `13/16` / `15/16`，仅
 `--strict-black-bits` 对照用）。
 
 ## 执行器 `run_t17_color_retest.sh` 退出码（评审 N-5 补齐）

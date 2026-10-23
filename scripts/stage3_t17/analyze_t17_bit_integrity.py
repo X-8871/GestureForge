@@ -9,11 +9,14 @@
   两个字节各自的 MSB 在厂商 IP 里走同一条 `cmos_d[9]`（本设计 J11/CMOS2 变体落 FPGA 引脚 F17）。
 - 该线无信号时必然同时造成：显示蓝 bit7（B[4] 丢失）恒 0、显示绿 bit4（G[2] 丢失）恒 0。
   上次实测：蓝 bit7 置位率 0.000%、绿 bit4 置位率 0.000%，白条蓝 5 位 = 15(120) 而非 31(248)、
-  绿 6 位 = 59(236) 而非 63(252) ⇒ 真缺位（通道置换无法修复）。
+  绿 6 位 = 59(236) 而非 63(252) => 真缺位（通道置换无法修复）。
 - **命名限制（评审 N-1）**：「蓝 bit7 / 绿 bit4」是**帧缓冲通道名**（offset0/offset1），其与 DVP 字节的
-  对应来自归档网表（offset0=B、offset1=G、offset2=R）；本轮盘上**没有**厂商 `cmos_8_16bit.v` 拼接源码
-  （已被缓存清理），故「哪个 DVP 字节承载哪个通道」属**推断**。阶段B 报告请以**数值判据**陈述
-  （offset0 bit7、offset1 bit4、offset2 完整），不单独依赖通道命名。
+  对应来自归档网表（offset0=B、offset1=G、offset2=R）；而 DVP 两字节→16 位字的字节序有
+  **厂商源码 + 网表双重依据**（已入库参考 `report/evidence/S3-T05/t05_github_ref_20261020_r01/cmos_8_16bit_ref.v`，
+  SHA-256 08a325356fdb46fcbd87e1b594a2b5d3c30954b68d18e4ea22d36e914cd414b9，第 157 行
+  `pdata_o <= {pdata_i_d0,pdata_i};` => 先到字节进高半字）。**命名限制仍保留**：阶段B 报告请以
+  **数值判据**陈述（offset0 bit7、offset1 bit4、offset2 完整），不单独依赖通道命名。
+  （先前版本称该厂商源码「已被缓存清理、盘上未找到」属**不实**，本轮据实更正。）
 - 帧缓冲内存序为 B,G,R；1280×720 时每行 3840 字节。
 - **前提（评审 N-4）**：本仓库 `core.autocrlf=true`；工作区口径复核须用
   `git -c core.autocrlf=false clone` 或 `git cat-file blob <rev>:<path>`，见 `scripts/stage3_t17/README.md`。
@@ -42,8 +45,26 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
+
+
+def _force_utf8_streams() -> None:
+    """强制 stdout/stderr 为 UTF-8 + LF（评审 R-1/R-2）。
+
+    Windows 下 stdout 被重定向/管道时默认 `stdout_encoding=gbk`，任何非 GBK 字符（如 U+21D2）
+    都会抛 UnicodeEncodeError，导致不写 `--json-out` 且退出码错误。这里在入口统一改为 UTF-8，
+    并同时把代码内所有 U+21D2 换成 ASCII；两者互为兜底。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace", newline="\n")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
+_force_utf8_streams()
 
 UTC8 = timezone(timedelta(hours=8))
 WIDTH = 1280
@@ -63,7 +84,7 @@ TOL_BLACK = 8
 #   R：字段 5 位（field4..0 → 显示 bit7..3）+ 结构性低位 3（显示 bit2..0）
 #   G：字段 6 位（field5..0 → 显示 bit7..2）+ 结构性低位 2（显示 bit1..0）
 #   B：字段 5 位（field4..0 → 显示 bit7..3）+ 结构性低位 3（显示 bit2..0）
-#   ⇒ 字段位合计 5+6+5 = 16；结构性恒 0 低位合计 3+2+3 = 8（16+8 = 3 字节 × 8 = 24）
+#   => 字段位合计 5+6+5 = 16；结构性恒 0 低位合计 3+2+3 = 8（16+8 = 3 字节 × 8 = 24）
 FIELD_BITS = {"R": 5, "G": 6, "B": 5}
 STRUCTURAL_ZERO_BITS = {"R": 3, "G": 2, "B": 3}
 # 黑条字段容差（与 C5 的 TOL_BLACK=8 一致）：字段值 <= 该值视为「容差内 0」，不判不可辨（评审 B-2）
@@ -163,8 +184,8 @@ def per_bit_table(white: dict, black: dict, strict_black_bits: bool = False) -> 
     """按 RGB565 有效字段逐位列出可辨性（C7）。
 
     对齐口径（默认，与 C5 一致，评审 B-2 关闭）：黑条字段值落在 `FIELD_TOLERANCE` 内视为
-    「容差内 0」，不因传感器黑条自身的 1 LSB 残差（G=4 ⇒ G6=1）判不可辨 ⇒ 修好时可达 16/16。
-    严格口径（`strict_black_bits=True`，仅供对照/自证）：黑条字段位必须为 0 ⇒ 黑条残差会多判
+    「容差内 0」，不因传感器黑条自身的 1 LSB 残差（G=4 => G6=1）判不可辨 => 修好时可达 16/16。
+    严格口径（`strict_black_bits=True`，仅供对照/自证）：黑条字段位必须为 0 => 黑条残差会多判
     G6 bit0 不可辨（修好时最多 15/16，与 C5 冲突），**已弃用为默认**。
     """
     rows = []
@@ -187,7 +208,7 @@ def per_bit_table(white: dict, black: dict, strict_black_bits: bool = False) -> 
             }
             if w_bit != 1:
                 row["status"] = "NOT_DISCRIMINATED"
-                row["reason"] = "WHITE_BIT_NOT_SET（白条字段位为 0 ⇒ 缺位）"
+                row["reason"] = "WHITE_BIT_NOT_SET（白条字段位为 0 => 缺位）"
             elif strict_black_bits:
                 if b_bit == 0:
                     row["status"] = "OBSERVABLE_BOTH"
@@ -308,7 +329,7 @@ def evaluate(rows: dict[int, str], frame_bytes: bytes | None,
         "field_bits_total": field_total,
         "structural_zero_bits_total": structural_total,
         "total_display_bits": field_total + structural_total,
-        "basis": "R 字段 5 + G 字段 6 + B 字段 5 = 16；R/B 结构性低位各 3、G 结构性低位 2 ⇒ 8；16+8 = 24 = 3 字节 × 8 位",
+        "basis": "R 字段 5 + G 字段 6 + B 字段 5 = 16；R/B 结构性低位各 3、G 结构性低位 2 => 8；16+8 = 24 = 3 字节 × 8 位",
         "verdict_mode": result["per_bit_mode"],
         "discriminated_used_for_c7": disc,
         "discriminated_aligned": disc_aligned,
@@ -342,7 +363,7 @@ def evaluate(rows: dict[int, str], frame_bytes: bytes | None,
     elif signature_present and not (c2 and c3):
         result["verdict"] = "DEFECT_REPRODUCED"
         result["exit_code"] = EXIT_DEFECT
-        result["reason"] = "复现旧缺位签名，且白条绿/蓝未达满量程 ⇒ 判板侧/连接侧方向（仍非电气定位）"
+        result["reason"] = "复现旧缺位签名，且白条绿/蓝未达满量程 => 判板侧/连接侧方向（仍非电气定位）"
     else:
         result["verdict"] = "INCONCLUSIVE_ATYPICAL"
         result["exit_code"] = EXIT_ATYPICAL
@@ -442,10 +463,10 @@ def run_selftest(fixture_dir: str, repo_root: str) -> dict:
     fixture_f = set_segments(real, {white_idx: (248, 252, 248), black_idx: (0, 4, 0)})
     extra = (
         ("D_both_bits_restored_black_also_set", fixture_d,
-         "真实缺陷帧两处缺位均 OR 恢复（黑条随之被置位）⇒ 应判非典型，不得当通过"),
-        ("E_D_plus_black_cleared", fixture_e, "D 再把黑条清零 ⇒ 应通过（证明 exit 0 可达）"),
+         "真实缺陷帧两处缺位均 OR 恢复（黑条随之被置位）=> 应判非典型，不得当通过"),
+        ("E_D_plus_black_cleared", fixture_e, "D 再把黑条清零 => 应通过（证明 exit 0 可达）"),
         ("F_table_if_fixed_white_full_black_residual", fixture_f,
-         "判定表自声明 if_fixed（白 248/252/248、黑 0,4,0）⇒ 对齐口径必须 exit 0（评审 B-2 关闭）"),
+         "判定表自声明 if_fixed（白 248/252/248、黑 0,4,0）=> 对齐口径必须 exit 0（评审 B-2 关闭）"),
     )
     for name, data, kind in extra:
         path = os.path.join(fixture_dir, f"fixture_{name[0]}.bin")
@@ -490,11 +511,54 @@ def run_selftest(fixture_dir: str, repo_root: str) -> dict:
             "not_discriminated": res.get("per_bit_count", {}).get("not_discriminated"),
             "failed_criteria": res.get("failed_criteria"),
         })
+
+    # 评审 R-2 关闭要求③：两条 **CLI 级** 回归（子进程 + 管道 stdout，并强制 GBK 环境）。
+    # 断言：真实进程退出码正确 **且** `--json-out` 落盘（旧版本在此路径崩溃、丢 JSON、码值错）。
+    cli_checks = (
+        ("cli_archived_defect_exit1_json", archived, EXIT_DEFECT),
+        ("cli_partial_blue_only_exit3_json", fixture_c_path, EXIT_ATYPICAL),
+    )
+    cli_results = []
+    for name, frame_path, want_code in cli_checks:
+        out_json = os.path.join(fixture_dir, f"{name}.json")
+        if os.path.exists(out_json):
+            os.remove(out_json)
+        env = dict(os.environ)
+        env.pop("PYTHONUTF8", None)        # 复现「不设 PYTHONUTF8」的常规调用
+        env["PYTHONIOENCODING"] = "gbk"    # 更进一步：显式要求 GBK，验证入口兜底能覆盖它
+        cp = subprocess.run([sys.executable, "-B", os.path.abspath(__file__),
+                             "--frame", frame_path, "--json-out", out_json],
+                            capture_output=True, env=env)
+        json_written = os.path.isfile(out_json)
+        verdict = None
+        if json_written:
+            try:
+                verdict = json.load(open(out_json, encoding="utf-8")).get("verdict")
+            except (OSError, ValueError):
+                verdict = "<unreadable>"
+        matched = (cp.returncode == want_code) and json_written
+        ok = ok and matched
+        cli_results.append({
+            "name": name,
+            "frame": frame_path,
+            "expected_exit_code": want_code,
+            "actual_exit_code": cp.returncode,
+            "json_out": out_json,
+            "json_written": json_written,
+            "json_verdict": verdict,
+            "stdout_head": cp.stdout[:200].decode("utf-8", "replace"),
+            "stderr_tail": cp.stderr[-200:].decode("utf-8", "replace"),
+            "matched": matched,
+        })
+    report["cli_regressions"] = cli_results
+
     report["conclusion"] = "SELFTEST_PASS" if ok else "SELFTEST_FAIL"
     report["exit_code"] = EXIT_PASS if ok else EXIT_ATYPICAL
     report["note"] = ("自测证明判定器能区分「旧缺位」「满足判定表」「非典型（只修蓝 / 缺位恢复但黑条被置位）」；"
                       "夹具 F（判定表自声明 if_fixed）在对齐口径下 exit 0，其严格口径探针 exit 3 —— "
-                      "证明「修好即通过」可达且修复可见（评审 B-2/B-1）。"
+                      "证明「修好即通过」可达且修复可见（评审 B-2/B-1）；"
+                      "`cli_regressions` 为 CLI 级回归（子进程 + 管道 stdout + 强制 GBK）：归档缺陷帧必须 "
+                      "exit 1 且写 JSON、只修一路必须 exit 3 且写 JSON（评审 R-2）。"
                       "夹具 B/F 为合成或改写数据，只校准判定表，不代表传感器行为。")
     return report
 
@@ -516,11 +580,6 @@ def main(argv: list[str]) -> int:
         out = run_selftest(args.fixture_dir, args.repo_root)
         out["created_utc8"] = stamp
         code = out["exit_code"]
-        print(f"SELFTEST 结论={out['conclusion']} 退出码={code}")
-        for item in out.get("results", []):
-            print("  %-26s 期望=%s(%d) 实际=%s(%d) 匹配=%s" % (
-                item["fixture"], item["expected_verdict"], item["expected_exit_code"],
-                item["actual_verdict"], item["actual_exit_code"], item["matched"]))
     else:
         problems: list[str] = []
         frame_bytes = None
@@ -532,11 +591,29 @@ def main(argv: list[str]) -> int:
             out = {"created_utc8": stamp, "verdict": "USAGE_OR_INPUT_ERROR", "exit_code": EXIT_USAGE,
                    "problems": problems}
             code = EXIT_USAGE
-            print("输入问题：" + "；".join(problems))
         else:
             out = evaluate(rows, frame_bytes, strict_black_bits=args.strict_black_bits)
             out["created_utc8"] = stamp
             code = out["exit_code"]
+    # 评审 R-2：**先落盘 JSON，再做人类可读打印**；打印阶段任何异常都不得改变退出码或丢失已写出的 JSON。
+    if args.json_out:
+        os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
+        with open(args.json_out, "w", encoding="utf-8", newline="\n") as fh:
+            json.dump(out, fh, ensure_ascii=False, indent=2)
+    try:
+        if args.selftest:
+            print(f"SELFTEST 结论={out['conclusion']} 退出码={code}")
+            for item in out.get("results", []):
+                print("  %-26s 期望=%s(%d) 实际=%s(%d) 匹配=%s" % (
+                    item["fixture"], item["expected_verdict"], item["expected_exit_code"],
+                    item["actual_verdict"], item["actual_exit_code"], item["matched"]))
+            for item in out.get("cli_regressions", []):
+                print("  CLI 回归 %-26s 期望=%d 实际=%d JSON落盘=%s 匹配=%s" % (
+                    item["name"], item["expected_exit_code"], item["actual_exit_code"],
+                    item["json_written"], item["matched"]))
+        elif problems:
+            print("输入问题：" + "；".join(problems))
+        else:
             print("判定=%s 退出码=%d" % (out["verdict"], code))
             print("扫描行=%s 像素=%d 蓝bit7置位率=%.4f%% 绿bit4置位率=%.4f%%" % (
                 out["scanned_rows"], out["signature"]["pixels_scanned"],
@@ -552,17 +629,19 @@ def main(argv: list[str]) -> int:
                 cnt.get("discriminated_used_for_c7"), cnt.get("discriminated_aligned"),
                 cnt.get("discriminated_strict_variant")))
             if cnt.get("not_discriminated"):
-                print("不可辨位：" + "；".join(cnt["not_discriminated"]))
+                print("不可辨位：" + "；".join(str(x) for x in cnt["not_discriminated"]))
             for k, v in out["criteria"].items():
                 print("  [%s] %s" % ("PASS" if v["pass"] else "FAIL", k))
             if out.get("failed_criteria"):
                 print("失败项：" + ",".join(out["failed_criteria"]))
             print("注意：真彩显示仍须 Wong 目视确认（requires_human_visual=true）")
-    if args.json_out:
-        os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
-        with open(args.json_out, "w", encoding="utf-8", newline="\n") as fh:
-            json.dump(out, fh, ensure_ascii=False, indent=2)
-        print(f"JSON_OUT={args.json_out}")
+        if args.json_out:
+            print(f"JSON_OUT={args.json_out}")
+    except Exception as exc:  # 打印失败不得影响结论；JSON 已在上面落盘
+        try:
+            print(f"SUMMARY_PRINT_FAILED={type(exc).__name__}: {exc}")
+        except Exception:
+            pass
     return code
 
 

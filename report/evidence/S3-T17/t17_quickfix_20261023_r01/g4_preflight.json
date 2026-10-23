@@ -1,0 +1,134 @@
+{
+  "created_utc8": "2026-10-23T11:44:24+08:00",
+  "worktree": "D:\\codex-worktrees\\dbdf",
+  "checks": {
+    "git": {
+      "branch": "codex/stage3-video",
+      "head": "605f960999c505053ac94f2225e18c1c7408f9f4",
+      "branch_ok": true,
+      "baselines": [
+        {
+          "baseline": "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",
+          "relation": "descendant"
+        }
+      ],
+      "head_relation": "descendant",
+      "head_ok": true,
+      "head_check_rule": "HEAD == 基线 或 基线为 HEAD 的祖先（git merge-base --is-ancestor）",
+      "status_short": [
+        "?? NA/",
+        "?? clockInfo.txt",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_archived.json",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_archived.stdout.txt",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_partial.json",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_partial.stdout.txt",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_preflight.stdout.txt",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_selftest.json",
+        "?? report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_selftest.stdout.txt",
+        "?? report/evidence/S3-T17/t17_quickfix_preflight_20261023_r01/"
+      ],
+      "index_lock_path": "D:/FPGA_Competition/.git/worktrees/FPGA_Competition1/index.lock",
+      "index_lock_present": false,
+      "errors": []
+    },
+    "heavy_processes": {
+      "hits": [],
+      "probe_error": null
+    },
+    "artifacts": [
+      {
+        "id": "baseline_bit_sof_fix",
+        "path": "tmp/s3r06/t04_sof_fix_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper.bit",
+        "role": "无补偿原始基线位流（真彩/位完整性复测必须用它，禁用灰度或补偿位流）",
+        "expected_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+        "exists": true,
+        "actual_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+        "size_bytes": 1668969,
+        "sha256_ok": true
+      },
+      {
+        "id": "baseline_xsa_sof_fix",
+        "path": "tmp/s3r06/t04_sof_fix_20261020_r01/design_1_wrapper.xsa",
+        "role": "与基线位流配套的 XSA（PS 初始化/BSP）",
+        "expected_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+        "exists": true,
+        "actual_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+        "size_bytes": 633089,
+        "sha256_ok": true
+      },
+      {
+        "id": "elf_v9_read",
+        "path": "tmp/s3r06/t04_j11cmos2_elf_v9/elf_build/app/an5642_j11cmos2_v9_read.elf",
+        "role": "只读回读 ELF（配置侧排除 + 回读寄存器）",
+        "expected_sha256": "b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5",
+        "exists": true,
+        "actual_sha256": "b2e8fa55322da275ef6de2a79f3571ec694b9863d7797e1981104b92a02097b5",
+        "size_bytes": 306272,
+        "sha256_ok": true
+      },
+      {
+        "id": "elf_v10_read",
+        "path": "tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf",
+        "role": "灰度/实时部署应用（init 表会把 0x503D 写回 0x00，用作彩条模式恢复）",
+        "expected_sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+        "exists": true,
+        "actual_sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+        "size_bytes": 306272,
+        "sha256_ok": true
+      },
+      {
+        "id": "elf_v12_bars_freeze",
+        "path": "tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/an5642_j11cmos2_v12_bars_freeze.elf",
+        "role": "写 0x503D=0x80 内部彩条（仅易失）+ 停流保持；使用前必须回读原值、用后恢复",
+        "expected_sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+        "exists": true,
+        "actual_sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+        "size_bytes": 310368,
+        "sha256_ok": true
+      },
+      {
+        "id": "deployment_bit_stdluma",
+        "path": "tmp/s3r06/t04_stdluma_20261022_r01/project/ov5640_single.runs/impl_1/design_1_wrapper.bit",
+        "role": "当前部署灰度位流（复测结束后如需回到灰度部署状态，用它恢复）",
+        "expected_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+        "exists": true,
+        "actual_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+        "size_bytes": 1572373,
+        "sha256_ok": true
+      },
+      {
+        "id": "deployment_xsa_stdluma",
+        "path": "tmp/s3r06/t04_stdluma_20261022_r01/design_1_wrapper.xsa",
+        "role": "当前部署灰度 XSA",
+        "expected_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+        "exists": true,
+        "actual_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+        "size_bytes": 628354,
+        "sha256_ok": true
+      },
+      {
+        "id": "analyzer_t17",
+        "path": "scripts/stage3_t17/analyze_t17_bit_integrity.py",
+        "role": "本轮判定器（哈希在本轮 prep 清单中登记）",
+        "expected_sha256": null,
+        "exists": true,
+        "actual_sha256": "48d9047ffe4d5932f1d2ab4eed4c38d3ae1efc18a93faa9ea68de42b9124dc1b",
+        "size_bytes": 33150,
+        "sha256_ok": true
+      }
+    ],
+    "hardware_gate": {
+      "authorization_file": null,
+      "required": [
+        "wong_go",
+        "codex_hw_release"
+      ],
+      "hardware_window_confirmed": false,
+      "note": "两前提同时成立（Wong 开工信号 + 硬件窗口书面让出/时间窗）才可动板；本脚本不判断真伪，只读登记。"
+    }
+  },
+  "hardware_window_confirmed": false,
+  "failed_items": [],
+  "verdict": "OFFLINE_GO",
+  "exit_code": 0
+}

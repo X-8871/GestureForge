@@ -75,12 +75,14 @@
   *前缀匹配 HEAD*，因此在 HEAD 已推进（`900cd0a` 及以后）后再用该 record 复跑会判 FAIL ——
   **这是设计行为（该 record 记录接管时刻）**。
 - **交付态复核（评审 N-3 关闭，但只在该次运行的 HEAD 上成立）**：交付态使用
-  `handoff_record_stage3_delivered.json`，其 `base_commit` 是**运行时刻**的冻结提交
-  （`60b00de`，即 F2）。实测命令、真实退出码与输出见
-  `report/evidence/S3-T17/t17_fix_20261023_r01/handoff_delivered_readonly.{json,stdout.txt}`（**exit 0**）。
-  **该 exit 0 不是恒久成立**：在冻结 HEAD `f77f363`（G3）复跑，因检查项 a 为**前缀比较**，得
+  `handoff_record_stage3_delivered.json`，其 `base_commit` 是**运行时刻**的冻结提交（现为 `605f960`，即 F3）。
+  实测命令、真实退出码与输出见 `report/evidence/S3-T17/t17_quickfix_20261023_r01/g4_handoff_delivered.{json,stdout.txt}`
+  与 `…/t17_fix_20261023_r01/handoff_delivered_readonly.{json,stdout.txt}`（**exit 0**）。
+  **该 exit 0 不是恒久成立**：在别的冻结 HEAD（如 `f77f363`）复跑，因检查项 a 为**前缀比较**，得
   **exit 1（PASS 7 / FAIL 1(a) / SKIP 1）** —— 这是设计行为，不是哈希或状态不一致。
-- 若 HEAD 前进：把该 record 的 `base_commit` 更新为**当前 HEAD** 后再跑（本 record 现在记录的正是 F2 时刻）；
+  「运行时刻 HEAD + 前缀语义」的说明写在 record 的 `yield_statement` 内。**不要新增 record 字段**：
+  `handoff_check.py` 对未知字段直接判 **exit 2**（本轮一度如此，已修正并复跑得 exit 0）。
+- 若 HEAD 前进：把该 record 的 `base_commit` 更新为**当前 HEAD** 后再跑；
   **推荐**由持有 `verification/handoff_check.py` 写权的一方把检查项 a 改为祖先判定（本阶段无权改主仓工具）。
 - 本目录 `blob_byte_identity_final.json` 的 F 证明对应内容提交 `9d5c638`（`BLOB_BYTE_IDENTITY_OK`，42/0/0）；
   自证提交 `525e4f35` 的即时自证亦为 OK（45/0/0，见 `selfproof_hashes_sha256.txt`）。修复轮见

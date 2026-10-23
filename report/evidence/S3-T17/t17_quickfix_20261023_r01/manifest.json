@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_quickfix_20261023_r01",
+  "created_utc8": "2026-10-23T11:48:53+08:00",
+  "source_commit": "605f960999c505053ac94f2225e18c1c7408f9f4",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "python -B scripts/stage3_t17/verify_t17_blob_identity.py --repo-root <dbdf> --commit HEAD --json-out <f>",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame <归档整帧> --json-out <f>",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame <只修一路夹具> --json-out <f>",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest --repo-root <dbdf> --fixture-dir <tmp绝对路径>",
+    "python -B scripts/stage3_t17/check_t17_preflight.py --worktree <dbdf>",
+    "bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_quickfix_preflight_20261023_r01",
+    "git -c core.autocrlf=false clone --shared --no-checkout -b codex/stage3-video D:/FPGA_Competition <tmp>/clone_lf_g4",
+    "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree <dbdf> --record <takeover>/handoff_record_stage3_delivered.json",
+    "python -B scripts/stage3_t17/verify_t17_blob_identity.py --commit 605f960（排除 G4 新增产物）"
+  ],
+  "exit_codes": {
+    "repro_R1_verifier_no_utf8": 1,
+    "repro_R2a_archived_no_utf8": 1,
+    "repro_R2b_partial_no_utf8": 1,
+    "fix_archived": 1,
+    "fix_partial": 3,
+    "g4_selftest": 0,
+    "g4_cli_regression_archived": 1,
+    "g4_cli_regression_partial": 3,
+    "g4_preflight_tool": 0,
+    "g4_runner_preflight": 0,
+    "g4_clone_with_autocrlf_off": 0,
+    "g4_clone_without_flag": 1,
+    "g4_handoff_delivered": 0,
+    "g4_selfproof_F3": 0,
+    "handoff_record_first_try_invalid_record_schema": 2
+  },
+  "outputs": [
+    {
+      "path": "R1_repro.stdout.txt",
+      "size_bytes": 452,
+      "sha256": "a774b30c5a04c0b350d4239b09a9c270c81bb5a21912997fd84ee293eab5eecd"
+    },
+    {
+      "path": "R1_repro.utf8.txt",
+      "size_bytes": 452,
+      "sha256": "a774b30c5a04c0b350d4239b09a9c270c81bb5a21912997fd84ee293eab5eecd"
+    },
+    {
+      "path": "R2a_repro.stdout.txt",
+      "size_bytes": 731,
+      "sha256": "c50712505bb3fa46f6a8e377469871f148c069e9b6746787cfd5f0e58865acd0"
+    },
+    {
+      "path": "R2a_repro.utf8.txt",
+      "size_bytes": 792,
+      "sha256": "e8399479de1b77a9fcec59e6ca3c2c3d89ea688f8153d49c3e283ef67fe4b39c"
+    },
+    {
+      "path": "R2b_repro.stdout.txt",
+      "size_bytes": 739,
+      "sha256": "dd2060104df548325dbe1f513d1eddd92cf096875d04db8645e1f2a2a2018068"
+    },
+    {
+      "path": "R2b_repro.utf8.txt",
+      "size_bytes": 800,
+      "sha256": "e780f86079ee871f2fa11702a2984a8f80557c08dbf539724fdb1f1cf1f27bf2"
+    },
+    {
+      "path": "R2b_with_utf8_expected.json",
+      "size_bytes": 28130,
+      "sha256": "275ff18c83e8412564920fdf904402194f93da7753b45e07559731f2828edf02"
+    },
+    {
+      "path": "R2b_with_utf8_expected.stdout.txt",
+      "size_bytes": 998,
+      "sha256": "9489585fecf15f481bf5d080586cb9973be9652b0a4edd0417b3261e80804358"
+    },
+    {
+      "path": "fix_archived.json",
+      "size_bytes": 28805,
+      "sha256": "ecc7e5fe33c60eb8f7e5b7d48d02de3cf27704553a9c09ae21c1b18b96a41a75"
+    },
+    {
+      "path": "fix_archived.stdout.txt",
+      "size_bytes": 999,
+      "sha256": "e7fed3f585003cbac70ae11b607238def6e7baa74fb0f8dc3d1c2c57a2613e08"
+    },
+    {
+      "path": "fix_partial.json",
+      "size_bytes": 28130,
+      "sha256": "3319d2f0efe5d75c4c58e760cf2117da14cff8723f33dba7e4f3bdd61dc84e7d"
+    },
+    {
+      "path": "fix_partial.stdout.txt",
+      "size_bytes": 987,
+      "sha256": "ef7009726419db1f5560fb52d0fcea2d54b0f3db200680974f7ea3757e8caedc"
+    },
+    {
+      "path": "fix_verify.json",
+      "size_bytes": 3174,
+      "sha256": "aa70f6fa7d1996f2b1af7bedd5752bf38b8ed1ac5d819c8a88dd19bca94cf529"
+    },
+    {
+      "path": "fix_verify.stdout.txt",
+      "size_bytes": 1689,
+      "sha256": "5a099cd852d99b240368732bb1c4e876b21802633a1cb65a489f11e6e65f4abf"
+    },
+    {
+      "path": "g4_archived.json",
+      "size_bytes": 28805,
+      "sha256": "37f87ada770f6d37f60993f29540c04ec3e66b676bbb243c9e3e274d76ea215c"
+    },
+    {
+      "path": "g4_archived.stdout.txt",
+      "size_bytes": 998,
+      "sha256": "ba800a875147cc4b189f31c1288166fb3d161d0697b35cecddba0be193c0e2af"
+    },
+    {
+      "path": "g4_blob_identity_f3.json",
+      "size_bytes": 2752,
+      "sha256": "79798a60f3771c3ad1d053977f829539218dd9a6b560dee7caf0385bc44b0e5a"
+    },
+    {
+      "path": "g4_clone_with_autocrlf_off.json",
+      "size_bytes": 646,
+      "sha256": "e7f83267e00594af68283e9816df4cce35b733900db9c85163f327e4a9b0f259"
+    },
+    {
+      "path": "g4_clone_with_autocrlf_off.stdout.txt",
+      "size_bytes": 375,
+      "sha256": "01bc8477841843ff3a7336cb33b66de4460f18b07fbcda8047a58bc18cc1face"
+    },
+    {
+      "path": "g4_clone_without_flag.json",
+      "size_bytes": 31017,
+      "sha256": "50a6732be20e58c00a55d4251759945bc2cf8d7c6f67f91237b7cb5916c06cf7"
+    },
+    {
+      "path": "g4_clone_without_flag.stdout.txt",
+      "size_bytes": 7340,
+      "sha256": "7acf45904463d873b2fac8a58c7c20d2041f4958d0e21965e326191caddf2c30"
+    },
+    {
+      "path": "g4_handoff_delivered.json",
+      "size_bytes": 3535,
+      "sha256": "0ebd8f794e0c1cb8dff677d372a84443f4347c5ebbeaa693288fb899c3191753"
+    },
+    {
+      "path": "g4_handoff_delivered.stdout.txt",
+      "size_bytes": 3106,
+      "sha256": "8f89aeb94d52fd0dfaee212728f769083907588c96fb598b9be435b24015037d"
+    },
+    {
+      "path": "g4_partial.json",
+      "size_bytes": 28130,
+      "sha256": "e187d77e97c8fbfc6d56c85d3c1c39f34d2293d4daa9cc77a363995bf99e5d8e"
+    },
+    {
+      "path": "g4_partial.stdout.txt",
+      "size_bytes": 986,
+      "sha256": "2cd4ef4b71ccdfa2086eea7e77f6b30c1e3ed27ae73074e870031fa19433446c"
+    },
+    {
+      "path": "g4_preflight.json",
+      "size_bytes": 5938,
+      "sha256": "cd3bb47958569a615526538fb40ff627f25d6348ce46a369304e8ceb928b081c"
+    },
+    {
+      "path": "g4_preflight.stdout.txt",
+      "size_bytes": 1383,
+      "sha256": "84db95f4c0e15fc3089b368f0e57867c9da462945e925ea7ddd8011a17715cd8"
+    },
+    {
+      "path": "g4_selftest.json",
+      "size_bytes": 12357,
+      "sha256": "f0961f931181dbdcb2f00fceb11404783622aa1ef695c14ac5e40782f5385b16"
+    },
+    {
+      "path": "g4_selftest.stdout.txt",
+      "size_bytes": 1057,
+      "sha256": "b1a0d4eefe94da4a18fe7f9d6a5d7adce9768204e714f52e2758ac8cc79ef3e4"
+    },
+    {
+      "path": "quickfix_record.md",
+      "size_bytes": 6302,
+      "sha256": "b18beb360e0c4ddd63dca959d0e67c6bcc2f2142790dbb9662ddbe14ea69e195"
+    },
+    {
+      "path": "reverify_after_fix.md",
+      "size_bytes": 4608,
+      "sha256": "7a32fdb5ecf783343d149fd1dff7d6b603a35c4c53989b8443ae80b666b8e571"
+    },
+    {
+      "path": "selftest_after_fix.json",
+      "size_bytes": 12357,
+      "sha256": "4437a4650e40e032f0d0195e62f49cbca89a59c96bfae6950258cfd86754c2fe"
+    },
+    {
+      "path": "selftest_after_fix.stdout.txt",
+      "size_bytes": 1064,
+      "sha256": "b7d1f676e16ad51d713c04b802162dee1ddbd323f5c1d55896e1cd5f2a567f6e"
+    }
+  ],
+  "scope": "task-19 快修轮：R-1/R-2 复现与修复、CLI 级回归、N-1/N-3 更正；不代表阶段A 通过、颜色通过或独立审查",
+  "limitations": [
+    "全部离线；未接触硬件；未做独立审查"
+  ],
+  "not_run": [
+    "link/baseline/bars/restore 四个硬件阶段"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

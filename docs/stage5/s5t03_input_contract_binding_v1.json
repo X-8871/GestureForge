@@ -1,19 +1,35 @@
 {
-  "binding_id": "S5T03-INPUT-BINDING-v1",
+  "binding_id": "S5T03-INPUT-BINDING-v2",
   "task_id": "S5-T03",
   "stage": 5,
-  "run_id": "s5t03_offline_skeleton_20261024_r01",
+  "run_id": "s5t03_offline_skeleton_20261024_r02",
   "title": "阶段5 显示/关联输入契约改绑：真实彩色范围标签 + 阶段3 部署身份 + 坐标与帧关联键",
-  "status": "BINDING_PROPOSED_PENDING_STAGE4_G0",
-  "status_note": "本文件是**外围绑定与标签**，不是新的显示契约，也不冻结任何指标。S5A-G0-v2 的阈值、几何、取整规则与显示语义一律不变；阶段4 结果契约（S4-B r03）尚未冻结，标签到 source_kind 的实际枚举值须由阶段4 G0 确认。既有合成源证据与其结论一律保留原身份，不得因本绑定被升级为真实集成结论。",
-  "generated_utc8": "2026-10-24T01:10:00+08:00",
+  "status": "BINDING_ALIGNED_WITH_STAGE4_R04_NOT_FROZEN",
+  "status_note": "本文件是**外围绑定与标签**，不是新的显示契约，也不冻结任何指标。S5A-G0-v2 的阈值、几何、取整规则与显示语义一律不变（本轮仅按 N-1 修一处措辞，见 stale_domain 登记）；阶段4 结果契约已由 r04 改绑（`7a9507a`，仍未冻结），标签到 source_kind 的实际枚举值以该接口 G0 为准。既有合成源证据与其结论一律保留原身份，不得因本绑定被升级为真实集成结论。",
+  "generated_utc8": "2026-10-24T01:35:00+08:00",
+  "generated_utc8_note": "取本文件本轮修订的落盘时刻（N-5：原写 01:10 与实际 mtime 00:44 不符，已改正）。",
+  "supersedes": {
+    "superseded_binding": "S5T03-INPUT-BINDING-v1（同一路径文件的上一版，内容提交 ba31126，2026-10-24T01:04:02+08:00）",
+    "reason": "上一版引用的是阶段4 **已被取代**的 `f6fa9f0` 快照，并据此把 `camera_capture_replay_colour` 归入 `file_injection|synthetic` + `capture_time_ns=0` 哨兵；而阶段4 r04（`7a9507a`，2026-10-24T00:52:29+08:00）已改为**两个彩色标签都映射 `camera`、`capture_time_available=true`、回放 `timing_claim_scope=replay_only`**。时间线表明本文件上一版定稿时上游已是 r04。",
+    "replaced_by": "阶段4 r04：commit 7a9507ab4a2067d493b4d9ff47b331c747f33796；s4b_shared_input_result_contract.json blob sha256 611e6c7cfc340b6c6750d78e3fc5b95f55f058764ea3d6c3b0d225d98a14e2f6；md blob sha256 23c8b4d22e16ea75795a2edccb517f7936b755b406733d0ac34ed4375a879d0a",
+    "evidence_impact": "上一版所绑定的两个证据包（s5t03_offline_skeleton_20261024_r01、s5t03_takeover_20261024_r01）随本轮修订被 r02 取代；r01 证据保留、不删除，其清单对本轮更正后的源文件字节不再匹配（如实登记于 r02 证据的 limitations）",
+    "effective_utc8": "2026-10-24T01:35:00+08:00"
+  },
   "relation_to_frozen_contract": {
     "display_contract": "S5A-G0-v2",
     "display_contract_json": "docs/stage5/s5a_stage5_display_g0_fields.json",
-    "display_contract_json_sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+    "display_contract_json_sha256": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+    "display_contract_json_sha256_note": "本轮按 N-1 裁定只修 stale 判定域**措辞**（阈值/几何/语义未变），故哈希由 8eac7007… 变为 10d24a39…；S5-A r03 包清单曾绑定旧哈希，该包对本文件不再匹配（如实登记，不删除其证据）。",
     "geometry_reference": "verification/s5_display_geometry_reference.py",
     "geometry_reference_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
+    "geometry_reference_unchanged": true,
     "unchanged": ["coordinate_gate", "geometry", "overlay_layout 规则值", "display_semantics", "stale_age_limit_ns", "hud_fields 13 项", "test_cases 编号 T5-01..T5-12"],
+    "stale_domain": {
+      "ruling": "N-1（DSH 项目总控 2026-10-24 裁决）：保持冻结参考实现行为不变、不改冻结语义，只把 fields JSON 的措辞改为与实现一致，并登记差异、提请正式 G0 裁定。",
+      "implementation_behavior": "verification/s5_display_geometry_reference.py::effective_stale(stale_flag, age_frame_ns) 无 state 参数；骨架按参考实现执行，未加 state 守卫、未自造语义。",
+      "difference_registered": "fields JSON 旧文写「过期判定仅对 state ∈ {OK, NO_HAND} 定义」；本轮已在该 JSON 的 stale_and_age.stage4_stale_definition / stage5_clear_rule / 新增 stale_domain_note 中改为与实现一致的表述。",
+      "pending_formal_g0": "若正式 G0 裁定要求严格 state 域（TIMEOUT/ERROR/DROPPED 不参与 stale 计算），须按新版本契约同步修改参考实现并回归；在此之前以冻结参考实现为准。"
+    },
     "conflict_rule": "本文件与 S5A-G0-v2 冲突时，以 S5A-G0-v2 的 JSON 与冻结参考实现为准，并回改本文件"
   },
   "upstream_refs": [
@@ -21,48 +37,58 @@
     {"id": "stage5_runbook", "kind": "cross_party_doc", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-014-stage5-display-runbook-r02.md", "version": "r02 / 2026-10-22", "note": "§4/§5 要求消费阶段4 记录、板上真实动态映射与过期边界；旧快照（等待摄像头/灰度部署）以 015 r03 为准"},
     {"id": "wong_decision_20261024", "kind": "decision", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage_3_4_direction_20261024_r01.md", "note": "板级开工（阶段3）；J11/CMOS2 在用、J10 范围外；w4 由 DSH 接手；阶段5/6 继续不依赖板卡的契约改绑"},
     {"id": "stage3_colour_evidence", "kind": "upstream_evidence", "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\", "note": "新模块实测恢复真彩色；缺位签名不符、彩条满量程；只读引用，本树不改 dbdf"},
-    {"id": "stage4_shared_contract_draft", "kind": "upstream_contract_draft", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json", "observed_commit": "f6fa9f0", "sha256_at_observed_commit": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e", "status": "DRAFT_NOT_FROZEN", "note": "source_kind 枚举与 mapping_key_roles 的字段名权威（草案）；工作区当时有未提交改动，本树不对其工作区哈希做冻结绑定"},
-    {"id": "stage4_shared_contract_md_draft", "kind": "upstream_contract_draft", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_shared_input_result_contract.md", "observed_commit": "f6fa9f0", "sha256_at_observed_commit": "7b9c9d387d7adcfbbc4d0301b0a4303960783f6e6793939fdd34a2deec5b4b77", "status": "DRAFT_NOT_FROZEN"},
+    {"id": "stage4_shared_contract_r04", "kind": "upstream_contract", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json", "commit": "7a9507ab4a2067d493b4d9ff47b331c747f33796", "commit_time_utc8": "2026-10-24T00:52:29+08:00", "blob_sha256": "611e6c7cfc340b6c6750d78e3fc5b95f55f058764ea3d6c3b0d225d98a14e2f6", "status": "R04_COMMITTED_NOT_FROZEN", "note": "**本版绑定的权威**：input_source_profiles 两个彩色标签、frame_geometry（1280×720/stride 3840）、frame_sequence_rules（重复/回退/乱序拒绝并记 FAIL）、mapping_key_roles、stage3_deployment_bindings。取代本文件上一版所引的 f6fa9f0 快照。"},
+    {"id": "stage4_shared_contract_md_r04", "kind": "upstream_contract", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_shared_input_result_contract.md", "commit": "7a9507ab4a2067d493b4d9ff47b331c747f33796", "commit_time_utc8": "2026-10-24T00:52:29+08:00", "blob_sha256": "23c8b4d22e16ea75795a2edccb517f7936b755b406733d0ac34ed4375a879d0a", "status": "R04_COMMITTED_NOT_FROZEN"},
+    {"id": "stage4_superseded_snapshot", "kind": "superseded_ref", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json", "observed_commit": "f6fa9f0", "sha256_at_observed_commit": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e", "status": "SUPERSEDED_BY_R04", "note": "本文件上一版（v1，ba31126）错误沿用的快照；此处只登记取代关系，不再作为绑定依据。"},
     {"id": "stage4_takeover_claim", "kind": "cross_party_record", "path": "D:\\codex-worktrees\\w4\\report\\evidence\\CTRL-DSH-HANDOFF\\dsh_claim_20261024_r01\\handoff_record.json", "note": "w4 已由 DSH 认领（HANDOFF_OK PASS 9/FAIL 0）；硬件使用权未随工作树交接"},
     {"id": "measured_display_period", "kind": "upstream_evidence", "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/recompute_fps.json", "note": "板上实测 display frame period 16.89 ms；仅用作离线骨架的虚拟时间步长"}
   ],
   "input_scope_labels": {
     "role": "描述性范围标签：说明本次输入的真实性与可允许结论范围；标签本身不是阶段4/2B 接口的枚举值",
+    "label_rule": "对齐阶段4 r04 input_source_profiles.label_rule：`camera_live_colour` 与 `camera_capture_replay_colour` 都是描述性范围标签，实际枚举值必须遵循该接口 G0——**两者都映射 source_kind=camera（S4-A CAMERA）**，不得新增 S4-A 未定义的取值。",
     "labels": {
       "camera_live_colour": {
         "meaning": "实时真实彩色采集（新模块、无补偿基线、传感器内部不写测试寄存器）",
-        "stage4_source_kind": "camera",
-        "stage4_measurement_scope": {"capture_time_available": true, "capture_time_ns": "nonzero", "unavailable_fields_contains_capture_time_ns": false},
-        "mapping_status": "ALIGNED_WITH_STAGE4_DRAFT",
-        "allowed_conclusions": ["采集→预处理→推理→显示的真实链路结论（在其上游冻结且同源核对后）", "capture_fps 实测"],
-        "forbidden": ["使用本标签但实际输入来自合成/注入", "由本标签推导 J10 相关结论"]
+        "maps_to_source_kind": "camera",
+        "capture_time_available": true,
+        "capture_time_ns": "非零真实采集时刻；unavailable_fields 不得包含 capture_time_ns",
+        "timing_claim_scope": "real_live",
+        "mapping_status": "ALIGNED_WITH_STAGE4_R04",
+        "allowed_conclusions": ["实时采集链路（RGB565 展开/通道顺序/缩放/补边/量化）与独立参考一致的结论（在其上游冻结且同源核对后）", "真实场景交互与长跑结论", "capture_fps 实测"],
+        "forbidden": ["使用本标签但实际输入来自合成/注入", "灰度诊断帧作为真彩质量或总体准确率依据", "由本标签推导 J10 相关结论"]
       },
       "camera_capture_replay_colour": {
         "meaning": "抓取到的**真实彩色帧**在回放/注入路径上重放（数据真实、时序非实时）",
-        "stage4_source_kind_candidates": ["file_injection", "synthetic"],
-        "mapping_status": "PROPOSED_PENDING_STAGE4_G0_CONFIRMATION",
-        "mapping_reason": "015 §2.2 规定实际枚举值须遵循该接口 G0；阶段4 S4-B r03 现有 source_kind 仅 file_injection/camera/synthetic，尚无「真实帧回放」专名。本树不自造第四个枚举值，也不改 w4 文件。",
-        "proposed_mapping": {
-          "file_injection": "若回放经板级注入链路（S4-E 夹具 ELF）进入 PS 显示缓冲",
-          "synthetic": "若仅在主机/离线路径重放；此时结论只能标离线回归"
+        "maps_to_source_kind": "camera",
+        "capture_time_available": true,
+        "capture_time_ns": "真实抓取时刻（非零真值）；回放输入必须逐帧绑定该时刻与 frame_integrity，**不得填 0 哨兵、不得标记 unavailable**",
+        "timing_claim_scope": "replay_only",
+        "mapping_status": "ALIGNED_WITH_STAGE4_R04",
+        "superseded_mapping": {
+          "previous": "本文件 v1 曾把本标签归入 `file_injection|synthetic` 且要求 `capture_time_ns=0` 哨兵",
+          "reason_now_wrong": "阶段4 r04（7a9507a，2026-10-24T00:52:29+08:00）已规定两个彩色标签都映射 `source_kind=camera`、`capture_time_available=true`，回放仅以 `timing_claim_scope=replay_only` 区分；v1 定稿时上游已是 r04，属引用过期快照",
+          "effective_utc8": "2026-10-24T01:35:00+08:00"
         },
-        "carry_fields": ["source_frame_sha256", "source_capture_time_ns", "source_frame_id", "source_bit_sha256", "source_elf_sha256", "replay_not_live=true"],
-        "required_labelling": ["证据包内必须出现 camera_capture_replay_colour 且与 camera_live_colour 互斥", "不得报告采集 FPS 为实测", "计时结论必须写明为回放时序", "end_to_end_latency_ns 不得由注入起点冒充采集起点"],
-        "stage4_g0_confirmation_request": "请阶段4 写入方在该接口 G0 中确认：(a) 真实彩色帧回放的 source_kind 取值；(b) 上列 carry_fields 是否纳入共享契约字段名；(c) 回放下的 measurement_scope。确认前本映射保持 PROPOSED。"
+        "carry_fields": ["frame_integrity（algorithm ∈ {crc32_ieee, sha256} + value + 实际 length_bytes，逐帧）", "replay_source_path", "replay_source_file_sha256", "replay_source_width", "replay_source_height", "replay_source_stride_bytes", "replay_source_byte_order", "stage3_capture_evidence_entry", "source_frame_id", "source_capture_time_ns"],
+        "carry_fields_note": "对齐 r04 source_frame_hash_rule.replay_binding（源文件路径、文件 SHA-256、解析出的 width/height/stride 与字节序、对应的阶段3 采集证据入口）；`source_*` 为显示侧使用的**扩展命名**，是否纳入共享契约由阶段4 G0 决定（UR-1）。",
+        "required_labelling": ["证据包与报告中必须显式标注 camera_capture_replay_colour（回放）且与 camera_live_colour 互斥", "计时字段只能用于回放内部一致性，不得写为端到端延迟", "不得与实时采集的 FPS/延迟混表", "不得把回放结论升级为实物集成结论"],
+        "stage4_r04_confirmation_request": "UR-1（对 r04 重发）：请阶段4 写入方把上列 carry_fields（尤其 replay_source_* 与 stage3_capture_evidence_entry）纳入共享契约字段名，并确认显示侧回放标注与 timing_claim_scope=replay_only 一致。"
       },
       "synthetic_dynamic_reference": {
         "meaning": "与阶段4 同 schema 的合成动态流（含既有 120 帧、31.06 分钟等结论）",
         "stage4_source_kind": "synthetic",
         "stage4_measurement_scope": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
-        "mapping_status": "ALIGNED_WITH_STAGE4_DRAFT",
+        "mapping_status": "ALIGNED_WITH_STAGE4_R04",
         "allowed_conclusions": ["显示通路、叠框、帧关联、计数与长跑**显示侧**结论"],
-        "forbidden": ["capture_fps 实测", "真实推理集成/真实采集链路结论", "把本标签结论改写为 camera_* 结论"]
+        "forbidden": ["capture_fps 实测", "真实推理集成/真实采集链路结论", "把本标签结论改写为 camera_* 结论"],
+        "note": "本标签**不属于**015 §2.2 的两个彩色标签；它只用于既有合成源结论的身份标注（source_kind=synthetic、capture_time_ns=0 哨兵）"
       }
     },
-    "mutual_exclusion_rule": "任一证据包/运行只能属于一种输入范围标签；显示层五元组与产物清单必须携带该标签，且与阶段4 侧 source_kind 一一对应"
+    "mutual_exclusion_rule": "任一证据包/运行只能属于一种输入范围标签；显示层五元组与产物清单必须携带该标签，且与阶段4 侧 source_kind 一一对应（两个彩色标签均对应 `camera`，以 `timing_claim_scope` 区分实时/回放）"
   },
   "stage3_deployment_binding": {
-    "verified_at_utc8": "2026-10-24T00:55:00+08:00",
+    "verified_at_utc8": "2026-10-24T01:07:50+08:00",
+    "verified_at_note": "取本次哈希核对命令输出文件 report/evidence/S5-T03/s5t03_takeover_20261024_r01/console/deploy_hash_verify.txt 的实际 mtime（N-5：原写 00:55 与实际不符，已改正）。",
     "verification": "本轮独立只读重算（非引用文档转述）；命令与真实退出码见 report/evidence/S5-T03/s5t03_takeover_20261024_r01/console/deploy_hash_verify.txt",
     "single_active_deployment": {
       "bit": {"path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit", "sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710", "description": "无补偿 SOF 基线（当前彩色部署）", "matches_015_r03_prefix": true},
@@ -71,8 +97,16 @@
     },
     "recorded_discrepancy": {
       "where": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\README.md",
-      "detail": "该 README 标题行写 `an5642_j11cmos2_v9_read.elf`，同文「处置」段写 `v10_read`；015 r03 与 dbdf 2026-10-24 00:35 窗口 prestate 均为 v10_read。",
-      "resolution": "本树按**独立重算**结果绑定 v10_read（sha256 与 015 r03、dbdf window_open_prestate.json 一致）；不据此改 dbdf 文件、也不自行判定其 README 的笔误归属，已在 unresolved_and_requests 中请求阶段3 写入方核对。"
+      "detail": "该 README 标题行曾写 `an5642_j11cmos2_v9_read.elf`，同文「处置」段写 `v10_read`；015 r03 与 dbdf 2026-10-24 00:35 窗口 prestate 均为 v10_read。",
+      "status": "RESOLVED_20261024_0114",
+      "resolution": "阶段3 写入方已于 2026-10-24T01:14:18+08:00 更正该 README（现标题行写 v10_read，并附「更正登记 2026-10-24，UR-2」说明，指出 v9_read 仅作历史/回退）；更正后该文件 sha256 = e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d。本树此前按独立重算绑定的 v10_read 口径与该更正一致。",
+      "verified_read_only_utc8": "2026-10-24T01:31:00+08:00"
+    },
+    "consistency_with_015_r03": {
+      "bit": "本树重算全哈希 7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710 与 015 r03 的**全哈希**逐字符一致",
+      "elf": "本树重算全哈希 1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073 与 015 r03 的**全哈希**逐字符一致",
+      "xsa": "015 r03 只给出**前缀** `1f5b138e…`；本树重算 XSA 全哈希 1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3，与该前缀一致，并与 dbdf 原部署清单/阶段3 复测产物的完整哈希一致（对照阶段4 r04 xsa_identity_note 的做法：不在本树复制其权威全哈希的结论，只登记本次实测值）",
+      "wording_note": "N-5 附带更正：原文把三项写成「3/3 逐字符一致」不准确——015 r03 对 XSA 只给前缀，只有 bit/ELF 是全哈希比对。"
     },
     "secondary_artifacts_read_only": {
       "elf_v11_freeze": {"path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v11\\elf_build\\app\\an5642_j11cmos2_v11_freeze.elf", "sha256": "c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4", "note": "冻结帧应用；本轮不部署"}
@@ -99,7 +133,17 @@
     "channel_order_source": "015 §2.1/§2.2（DSH 复核）与阶段3 记录；本树未独立改判，仅登记",
     "not_interchangeable": ["传感器 RGB565 展开、DDR 转储 B/G/R 字节序、模型 RGB888 语义三者不得直接混同", "转换/量化/补边必须与冻结 D2 对齐", "行尾填充未定义、不得被消费（stride 之外字节无效）"],
     "display_canvas_in_skeleton": [1280, 720],
-    "canvas_fit_rule": "画布与源尺寸不同时按 S5A-G0-v2 整数倍等比缩放居中（k>=1），不得拉伸"
+    "canvas_fit_rule": "画布与源尺寸不同时按 S5A-G0-v2 整数倍等比缩放居中（k>=1），不得拉伸",
+    "capture_clock": {
+      "status": "PENDING_MEASUREMENT",
+      "source": "阶段4 r04 input_source_profiles.capture_clock",
+      "rule": "采集时钟域与频率必须在真实彩色回归时用 PS 单调计时器实测并逐帧记录（timestamp_source/clock_domain/capture_time_ns）；在此之前不得填造频率，也不得把回放计时当采集时钟。显示侧本轮只登记，不推断。"
+    },
+    "source_frame_hash_rule": {
+      "source": "阶段4 r04 input_source_profiles.source_frame_hash_rule",
+      "rule": "每一帧作为输入都必须逐帧记录 frame_integrity（algorithm ∈ {crc32_ieee, sha256} + value + 实际 length_bytes），并与采集/回放时刻及 session_id/frame_id 绑定；禁止只记一次或只记总量。",
+      "replay_binding": "回放输入必须额外绑定源文件路径、文件 SHA-256、解析出的 width/height/stride 与字节序，以及该文件对应的阶段3 采集证据入口。"
+    }
   },
   "original_coordinate_semantics": {
     "field": "detections[].xyxy",
@@ -111,7 +155,7 @@
     "tolerances_inherited": {"inverse_mapping_px": 1.0, "draw_fidelity_px": 1.0, "line_width_half_pixel_px": 0.5, "score_text": 1e-3, "discrete_fields": "完全一致"}
   },
   "frame_association_keys": {
-    "authority": "阶段4 S4-B r03 mapping_key_roles（草案，字段名权威）；显示侧消费 PS 侧记录（方案 B）",
+    "authority": "阶段4 r04（7a9507a）mapping_key_roles + frame_sequence_rules；显示侧消费 PS 侧记录（方案 B）",
     "contract_result_key": ["session_id", "frame_id", "result_seq"],
     "stage4a_join_key": ["session_id", "frame_id", "repeat_index"],
     "ps_log_primary_key": ["session_id", "result_seq"],
@@ -120,8 +164,16 @@
     "five_tuple": ["displayed_frame_id", "result_frame_id", "age_result_ns", "age_frame_ns", "display_semantics"],
     "time_keys": {"capture_time_ns": "camera 范围标签下必须非零；file_injection/synthetic 下为 0 哨兵并在 unavailable_fields 列出", "result_time_ns": "结果记录发布时刻", "overlay_commit_ns": "显示提交时刻（PS 单调时基）"},
     "ordering_keys": {"result_seq": "PS 旁路结果日志主键组成，从 1 单调递增、拒绝回绕", "sequence": "UART 可观测配对键，不是唯一主键"},
-    "uniqueness_rule": "(session_id, frame_id, result_seq) 唯一标识一条结果；重复结果只计数、不得当作新结果叠加；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据",
-    "timebase": "同一 PS 单调时钟；所有事件写帧级事件日志（frame_id、事件类型、时间戳），统计量必须可由日志复算"
+    "uniqueness_rule": "(session_id, frame_id, result_seq) 唯一标识一条结果；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据",
+    "rejection_policy": {
+      "authority": "阶段4 r04 frame_sequence_rules（duplicate_frame_id / regressed_frame_id / out_of_order_result / rule）",
+      "duplicate_frame_id": "同一会话内重复的 frame_id（未声明为重放）必须**拒绝**并记 FAIL，不得幂等静默接受",
+      "regressed_frame_id": "frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位",
+      "out_of_order_result": "同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝",
+      "logging_rule": "以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因",
+      "display_side_consequence": "显示侧骨架对重复与乱序**同构处理**：只计数、记 FAIL 与拒绝原因，不写入已接受集合、不更新最新结果、不绘制；乱序帧的框必须与前一帧逐值相同"
+    },
+    "timebase": "同一 PS 单调时钟；所有事件写帧级事件日志（frame_id、事件类型、时间戳），统计量必须可由日志复算；骨架把该日志随证据落盘（logs/events_*.jsonl[.gz]）"
   },
   "replay_labelling_rule": {
     "rule": "凡是抓取帧回放/注入驱动的结论，产物清单、summary 与 HUD 必须显式携带 camera_capture_replay_colour（或 synthetic_dynamic_reference），并写明「回放/注入时序」；不得继承 camera_live_colour 的实时结论",
@@ -138,9 +190,13 @@
     "non_modification_check": "本轮提交前后用 git diff --name-only 654c72e -- report/evidence/S5-A report/evidence/S5-B report/evidence/S5-C report/evidence/S5-T01 核验为空；真实退出码见骨架证据包"
   },
   "unresolved_and_requests": [
-    {"id": "UR-1", "to": "阶段4 写入方（DSH，w4）", "request": "在 S4-B 接口 G0 确认 camera_capture_replay_colour 的 source_kind 取值与 carry_fields；确认后本树更新映射状态为 CONFIRMED", "blocking": "真实彩色回放/实时集成的分类与结论范围"},
-    {"id": "UR-2", "to": "阶段3 写入方（DSH，dbdf）", "request": "核对 t05_new_module_reverify_20261023_r01/README.md 标题行的 ELF 名称（v9_read vs v10_read）并如实更正；本树已按独立重算绑定 v10_read", "blocking": "部署身份的单一书面口径"},
-    {"id": "UR-3", "to": "Wong / 阶段5 正式 G0", "request": "成品允许延迟上限、颜色表与字号、阶段4 stale_age_limit 的正式冻结", "blocking": "阶段5 正式验收（不影响本轮离线骨架）"},
-    {"id": "UR-4", "to": "DSH 项目总控", "request": "阶段5 板级窗口申请（阶段4 结果冻结后按 CDX-20261023-018 §3 提出），见 docs/stage5/S5T03_board_verification_pending_v1.md", "blocking": "板上动态映射/过期边界/真实集成长跑"}
+    {"id": "UR-1", "to": "阶段4 写入方（DSH，w4）", "status": "REISSUED_ON_R04", "issued_utc8": "2026-10-24T01:35:00+08:00", "request": "**对 r04 重发**：本树已按 r04 把两个彩色标签都映射 source_kind=camera、回放 timing_claim_scope=replay_only；请在该接口 G0 中确认显示侧使用的扩展字段命名（replay_source_path/replay_source_file_sha256/replay_source_width/replay_source_height/replay_source_stride_bytes/replay_source_byte_order/stage3_capture_evidence_entry/source_frame_id/source_capture_time_ns）是否纳入共享契约，并确认回放标注口径一致。", "blocking": "显示侧回放字段与阶段4 契约字段名的最终对齐（不影响本轮骨架可用的语义）", "supersedes": "本文件 v1 的 UR-1（当时请求确认 source_kind 取值；该问题已由 r04 自身回答）"},
+    {"id": "UR-2", "to": "阶段3 写入方（DSH，dbdf）", "status": "RESOLVED", "resolved_utc8": "2026-10-24T01:14:18+08:00", "resolution": "dbdf README 已更正为 v10_read 并附 UR-2 更正登记；更正后 sha256 = e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d（本树 2026-10-24T01:31 只读复核）。原请求（核对并更正 ELF 名称）已无剩余动作。"},
+    {"id": "UR-3", "to": "Wong / 阶段5 正式 G0", "status": "OPEN", "request": "成品允许延迟上限、颜色表与字号、阶段4 stale_age_limit 的正式冻结；并请一并裁定 N-1 登记的 stale 判定域口径（是否要求严格 state 域）。", "blocking": "阶段5 正式验收（不影响本轮离线骨架）"},
+    {"id": "UR-4", "to": "DSH 项目总控", "status": "OPEN", "request": "阶段5 板级窗口申请（阶段4 结果冻结后按 CDX-20261023-018 §3 提出），见 docs/stage5/S5T03_board_verification_pending_v1.md", "blocking": "板上动态映射/过期边界/真实集成长跑"}
+  ],
+  "impacted_by_this_revision": [
+    {"target": "report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01 + s5t03_takeover_20261024_r01", "state": "SUPERSEDED_BY_R02", "reason": "两包清单绑定的源文件在本轮更正（B-1/B-2/N-1..N-7 + 脚本）后字节已变，故其清单对当前字节不再匹配；证据保留、不删除、不就地改写"},
+    {"target": "report/evidence/S5-A/s5a_g0_20261021_r03", "state": "BOUND_HASH_DRIFT", "reason": "该包 interfaces 绑定的 docs/stage5/s5a_stage5_display_g0_fields.json 因本轮 N-1 **措辞**修订（阈值/几何/语义未变）哈希由 8eac7007… 变为 10d24a39…；该包其余文件未动，证据保留"}
   ]
 }

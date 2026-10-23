@@ -16,9 +16,12 @@
 - 不读硬件、不读 UART、不读阶段4 证据；不生成图片。
 
 `mixed` 模式的固定节奏（`index % 32`，与冻结样本数 240 帧配合）：
-    0..7 正常（1–3 框） | 8 重复结果键 | 9 乱序结果键 | 10 15 框 | 11 含裁剪后零面积框
+    0..7 正常（1–3 框） | 8 重复结果键 | 9 乱序结果键（`frame_id` 回退 3） | 10 15 框 | 11 含裁剪后零面积框
     12..26 空档（无新结果 ⇒ 年龄增长 ⇒ 过期，且同一结果键只计一次）
     27 DROPPED | 28 NO_HAND 零框 | 29 TIMEOUT | 30 无效记录（NO_HAND 带框） | 31 ERROR
+
+**B-2**：模式 8/9 注入的重复与乱序属于阶段4 r04 `frame_sequence_rules` 规定**必须拒绝并记 FAIL** 的输入；
+骨架对两者同构处理（只计数、不采用、不绘制），因此这些记录**不会**成为后续帧的叠加内容来源。
 """
 
 from __future__ import annotations
@@ -142,16 +145,25 @@ class _Factory:
                            error_code=error_code)
 
     def out_of_order(self, *, frame_id: int, detections: list[dict[str, Any]]) -> dict[str, Any]:
-        """新键但 `result_seq` 回退（≤ 已接受的最大值 − 1）⇒ 乱序计数。"""
+        """`frame_id` 回退、但结果键仍为新键的乱序输入（B-2）。
+
+        该记录按阶段4 r04 `frame_sequence_rules`（`regressed_frame_id`）属于**必须拒绝并记 FAIL** 的输入：
+        骨架据此不采用、不绘制，只计数并记录拒绝原因。这里只回退 `frame_id`、`result_seq` 仍取新值，
+        以保证结果键 `(session_id, frame_id, result_seq)` 唯一、分类确定（不与该帧历史接受记录撞键）。
+        """
         self.sequence += 1
         self.result_seq += 1
-        regressed = max(1, self.result_seq - 3)
-        capture = self.capture_ns(frame_id)
-        return make_record(session_id=self.session_id, frame_id=frame_id, result_seq=regressed,
-                           sequence=self.sequence, capture_time_ns=capture,
+        capture = self.capture_ns(max(0, frame_id))
+        return make_record(session_id=self.session_id, frame_id=max(0, frame_id),
+                           result_seq=self.result_seq, sequence=self.sequence, capture_time_ns=capture,
                            result_time_ns=capture + self.period_ns // 3,
                            inference_time_ns=self.period_ns // 2, state="OK",
                            detections=detections)
+
+
+def regressed_frame_id(index: int) -> int:
+    """乱序注入用的回退帧号（B-2）：比当前显示帧小 3，必然小于上一已接受 frame_id。"""
+    return max(0, index - 3)
 
 
 def _normal_detections(index: int, *, count: int | None = None,
@@ -239,7 +251,7 @@ def build_stream(mode: str, frames: int, *, params: dict[str, Any], seed: int,
             if pattern == 8 and last_record is not None:
                 results.append(dict(last_record))      # 重复结果键：只计数、不更新最新结果
             elif pattern == 9 and last_record is not None:
-                results.append(factory.out_of_order(frame_id=index,
+                results.append(factory.out_of_order(frame_id=regressed_frame_id(index),
                                                     detections=_normal_detections(index)))
                 last_record = results[-1]
             elif pattern == 10:
@@ -250,8 +262,10 @@ def build_stream(mode: str, frames: int, *, params: dict[str, Any], seed: int,
         if mode == "dup" and index % 7 == 0 and last_record is not None:
             results.append(dict(last_record))
         if mode == "ooo" and index % 5 == 0 and last_record is not None:
-            results.append(factory.out_of_order(frame_id=index, detections=_normal_detections(index)))
+            results.append(factory.out_of_order(frame_id=regressed_frame_id(index),
+                                                detections=_normal_detections(index)))
             last_record = results[-1]
+            fresh = False        # 该帧不产生新的已接受结果 ⇒ 可直接观察「拒绝不更新最新结果」
 
         if fresh:
             count = 15 if (mode == "mixed" and index % MIXED_MODULUS == 10) else None

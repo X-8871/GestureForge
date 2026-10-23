@@ -1,8 +1,14 @@
-# S5-T03 输入契约改绑：真实彩色（v1，2026-10-24）
+# S5-T03 输入契约改绑：真实彩色（v2，2026-10-24）
 
-> 状态：`BINDING_PROPOSED_PENDING_STAGE4_G0`。本文是**外围绑定与范围标签**，**不改** `S5A-G0-v2` 的任何阈值/几何/语义，也不把既有合成源结论升级为真实集成结论。
-> 机器可读权威：`docs/stage5/s5t03_input_contract_binding_v1.json`；冻结参数：`docs/stage5/s5t03_offline_skeleton_params_v1.json`。
-> 依据：`CDX-20261022-015`（r03）§2.2、`CDX-20261022-014`（r02）§4/§5、`decisions/stage_3_4_direction_20261024_r01.md`。
+> 状态：`BINDING_ALIGNED_WITH_STAGE4_R04_NOT_FROZEN`。本文是**外围绑定与范围标签**，**不改** `S5A-G0-v2` 的任何阈值/几何/语义（本轮仅按 N-1 修一处措辞，见 §9），也不把既有合成源结论升级为真实集成结论。
+> 机器可读权威：`docs/stage5/s5t03_input_contract_binding_v1.json`（内容已升为 v2）；冻结参数：`docs/stage5/s5t03_offline_skeleton_params_v1.json`。
+> 依据：`CDX-20261022-015`（r03）§2.2、`CDX-20261022-014`（r02）§4/§5、`decisions/stage_3_4_direction_20261024_r01.md`、**阶段4 r04 共享契约（commit `7a9507ab4a2067d493b4d9ff47b331c747f33796`，2026-10-24T00:52:29+08:00；JSON blob `611e6c7c…`、MD blob `23c8b4d2…`）**。
+
+## 0. 取代关系（B-1 更正）
+
+- 本文件上一版（v1，内容提交 `ba31126`）绑定的是阶段4 **已被取代**的 `f6fa9f0` 快照，并据此把 `camera_capture_replay_colour` 归入 `file_injection|synthetic` + `capture_time_ns=0` 哨兵；**该结论与 r04 相反且已作废**。
+- 时间线：r04 提交于 **2026-10-24T00:52:29+08:00**，本文件 v1 定稿于 00:44–00:55、提交于 01:04 ⇒ v1 定稿时上游已是 r04（引用过期快照，属实质错误）。
+- 现按 r04 重绑：**两个彩色标签都映射 `source_kind=camera`、`capture_time_available=true`**，回放仅以 **`timing_claim_scope=replay_only`** 区分；`capture_time_ns` 一律取**真实抓取时刻**（非零、不得标 unavailable）。
 
 ## 1. 要解决的问题
 
@@ -10,29 +16,32 @@
 
 ## 2. 输入范围标签（互斥，三选一）
 
-| 标签 | 含义 | 阶段4 `source_kind` | `capture_time_ns` | 状态 |
-|---|---|---|---|---|
-| `camera_live_colour` | 实时真实彩色采集（新模块 + 无补偿基线） | `camera` | 非零真值，不得标 unavailable | `ALIGNED_WITH_STAGE4_DRAFT` |
-| `camera_capture_replay_colour` | 抓取到的**真实彩色帧**在回放/注入路径重放 | `file_injection`（经板级注入）或 `synthetic`（纯离线重放） | 按 015/阶段4 口径：非 camera 时 `0` 哨兵 + `unavailable_fields`；另**单独携带** `source_capture_time_ns` | **`PROPOSED_PENDING_STAGE4_G0_CONFIRMATION`** |
-| `synthetic_dynamic_reference` | 与阶段4 同 schema 的合成动态流（既有 120 帧/31.06 min 均属此列） | `synthetic` | `0` 哨兵 + unavailable | `ALIGNED_WITH_STAGE4_DRAFT` |
+| 标签 | 含义 | 阶段4 `source_kind` | `capture_time_ns` | `timing_claim_scope` | 状态 |
+|---|---|---|---|---|---|
+| `camera_live_colour` | 实时真实彩色采集（新模块 + 无补偿基线） | **`camera`** | 非零真值，不得标 unavailable | `real_live` | `ALIGNED_WITH_STAGE4_R04` |
+| `camera_capture_replay_colour` | 抓取到的**真实彩色帧**在回放/注入路径重放 | **`camera`**（r04：两个彩色标签都映射 camera） | **真实抓取时刻（非零）**；不得填 0 哨兵、不得标 unavailable | **`replay_only`** | `ALIGNED_WITH_STAGE4_R04` |
+| `synthetic_dynamic_reference` | 与阶段4 同 schema 的合成动态流（既有 120 帧/31.06 min 均属此列） | `synthetic` | `0` 哨兵 + `unavailable_fields` | —（非 015 的两个彩色标签） | `ALIGNED_WITH_STAGE4_R04` |
 
-- **不新造枚举值**：阶段4 S4-B r03 现有 `file_injection/camera/synthetic`；本树不自行加第四个枚举，也不改 w4 文件。`camera_capture_replay_colour` 的映射作为**请求**提交给阶段4 G0（`UR-1`）。
-- **回放标签必须携带**：`source_frame_sha256`、`source_capture_time_ns`、`source_frame_id`、`source_bit_sha256`、`source_elf_sha256`、`replay_not_live=true`；并且**不得**报告采集 FPS 为实测、不得把注入起点当采集起点。
-- **互斥**：一个证据包只能属于一种标签；五元组与产物清单必须携带该标签。
+- **标签是描述性范围标签，不是新枚举**：对齐 r04 `label_rule`——实际枚举值必须遵循该接口 G0，两个彩色标签都映射 `source_kind=camera`（→ S4-A `CAMERA`），不得新增 S4-A 未定义的取值。
+- **回放必须逐帧携带**：`frame_integrity`（algorithm+value+实际 length_bytes）、`replay_source_path`、`replay_source_file_sha256`、`replay_source_width/height/stride_bytes/byte_order`、`stage3_capture_evidence_entry`、`source_frame_id`、`source_capture_time_ns`（对齐 r04 `source_frame_hash_rule.replay_binding`；`source_*` 为显示侧扩展命名，纳入契约与否见 `UR-1`）。
+- **回放禁止结论**：计时字段只能用于回放内部一致性，**不得写为端到端延迟**、不得与实时采集的 FPS/延迟混表、不得升级为实物集成结论。
+- **互斥**：一个证据包只能属于一种标签；五元组与产物清单必须携带该标签，并与阶段4 `source_kind` 一一对应（两个彩色标签均对应 `camera`）。
 
-## 3. 阶段3 部署身份（本轮独立只读重算，2026-10-24 00:55）
+## 3. 阶段3 部署身份（本轮独立只读重算，实际核对时刻 2026-10-24 01:07:50）
 
-| 产物 | 路径（dbdf，只读） | SHA-256（本树重算） | 与 015 r03 前缀 |
+| 产物 | 路径（dbdf，只读） | SHA-256（本树重算） | 与 015 r03 |
 |---|---|---|---|
-| 无补偿 SOF/bit | `dbdf\tmp\s3r06\t04_sof_fix_20261020_r01\project\ov5640_single.runs\impl_1\design_1_wrapper.bit` | `7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710` | ✅ 一致 |
-| XSA | `dbdf\tmp\s3r06\t04_sof_fix_20261020_r01\design_1_wrapper.xsa` | `1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3` | ✅ 一致 |
-| 实时彩色应用 ELF | `dbdf\tmp\s3r06\t04_j11cmos2_elf_v10\elf_build\app\an5642_j11cmos2_v10_read.elf` | `1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073` | ✅ 一致 |
+| 无补偿 SOF/bit | `dbdf\tmp\s3r06\t04_sof_fix_20261020_r01\project\ov5640_single.runs\impl_1\design_1_wrapper.bit` | `7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710` | **全哈希逐字符一致** |
+| XSA | `dbdf\tmp\s3r06\t04_sof_fix_20261020_r01\design_1_wrapper.xsa` | `1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3` | 015 r03 只给**前缀** `1f5b138e…`，一致；全哈希与 dbdf 原部署清单一致 |
+| 实时彩色应用 ELF | `dbdf\tmp\s3r06\t04_j11cmos2_elf_v10\elf_build\app\an5642_j11cmos2_v10_read.elf` | `1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073` | **全哈希逐字符一致** |
+
+> 口径更正（N-5 附带）：原文「3/3 逐字符一致」不准确——015 r03 对 XSA 只给前缀；只有 bit/ELF 是全哈希比对。交叉核对：阶段4 r04 `stage3_deployment_bindings` 绑定的 bit/ELF 全哈希与本树重算相同（独立第二来源）。
 
 - 次要（只读登记、本轮不部署）：`v11_freeze` ELF `c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4`。
 - 历史回退专用（**不得**当当前部署身份）：灰度 `44e609cc…`、纯绿 `2f72aaa4…`、补偿彩色 `30db09ba…`。
-- **已登记的口径不一致**：dbdf `S3-T05/t05_new_module_reverify_20261023_r01/README.md` 标题行写 `v9_read`、同文「处置」段写 `v10_read`；015 r03 与 dbdf `window_open_prestate.json`（2026-10-24 00:35）均为 v10。本树按**独立重算**绑定 v10 并请求阶段3 更正（`UR-2`）。
+- **`UR-2` 已 RESOLVED**：dbdf `S3-T05/t05_new_module_reverify_20261023_r01/README.md` 已于 **2026-10-24T01:14:18+08:00** 更正为 `v10_read` 并附 UR-2 更正登记；更正后 sha256 `e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d`（本树 01:31 只读复核），与本树独立重算口径一致。
 - **范围外**：J10 半屏黑（Wong 2026-10-24 移出范围，当前 J11/CMOS2；不得写成已修复）；`v12`/`0x503D` 仅既定彩条用例，本轮不动硬件。
-- 命令与真实退出码：`report/evidence/S5-T03/s5t03_takeover_20261024_r01/console/deploy_hash_verify.txt`。
+- 命令与真实退出码：`report/evidence/S5-T03/s5t03_takeover_20261024_r01/console/deploy_hash_verify.txt`（r01 包；r02 包同命令重跑，见 r02 证据）。
 
 ## 4. 采集几何与字节序
 
@@ -46,6 +55,9 @@
 | 传感器格式 | RGB565 | 同上 |
 
 **不得混同**：传感器 RGB565 展开、DDR 转储 B/G/R 三字节序、模型 RGB888 语义是三种东西；转换/量化/补边必须与冻结 D2 对齐；`stride` 之外的行尾填充未定义、不得被消费。
+
+- **采集时钟**：`PENDING_MEASUREMENT`（对齐 r04 `capture_clock`）——采集时钟域与频率须在真实彩色回归时用 PS 单调计时器实测并逐帧记录；在此之前不得填造频率，也不得把回放计时当采集时钟。
+- **源帧哈希**：每一帧逐帧记录 `frame_integrity`（algorithm ∈ {crc32_ieee, sha256} + value + 实际 `length_bytes`），与采集/回放时刻及 `session_id`/`frame_id` 绑定；禁止只记一次或只记总量（对齐 r04 `source_frame_hash_rule`）。
 
 ## 5. 原图坐标口径（沿用，未改）
 
@@ -66,8 +78,13 @@
 | **显示侧成对** | `displayed_frame_id` / `result_frame_id` | 语义 B 下不要求相等，禁止改写 `frame_id` 掩盖错配 |
 
 - 五元组：`(displayed_frame_id, result_frame_id, age_result_ns, age_frame_ns, display_semantics)`。
-- 时间：同一 PS 单调时钟；`capture_time_ns` 在 `camera` 下必须非零，在非 camera 下为 `0` 哨兵 + `unavailable_fields`。
-- 唯一性：重复结果**只计数**、不当作新结果叠加；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据。
+- 时间：同一 PS 单调时钟；`capture_time_ns` 在 `camera` 下必须非零且不得标 unavailable，在 `file_injection`/`synthetic` 下为 `0` 哨兵 + `unavailable_fields`。
+- **拒绝规则（B-2，采用阶段4 r04 `frame_sequence_rules` 强制行为）**：
+  - 重复 `frame_id`（未声明重放）⇒ **拒绝并记 FAIL**，不得幂等静默接受；
+  - `frame_id` 回退（小于上一已接受值，除显式新会话/复位）⇒ **拒绝并记 FAIL**；
+  - 乱序接纳或回绕 ⇒ 拒绝；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据；
+  - 拒绝必须**落在日志与证据中并记原因**，不得只记计数；
+  - 显示侧骨架对重复与乱序**同构处理**：只计数、记 FAIL/原因，不写已接受集合、不更新 latest、不绘制；并断言乱序帧的框与前一帧逐值相同。
 
 ## 7. 既有合成源结论的处置（**不重做、不升级**）
 
@@ -82,9 +99,35 @@
 
 ## 8. 未决与请求
 
-| 编号 | 对象 | 请求 | 影响 |
-|---|---|---|---|
-| `UR-1` | 阶段4 写入方（DSH/w4） | 在 S4-B G0 确认 `camera_capture_replay_colour` 的 `source_kind` 与 `carry_fields` | 真实彩色回放/实时集成的分类与结论范围 |
-| `UR-2` | 阶段3 写入方（DSH/dbdf） | 核对并更正 README 的 ELF 名称口径 | 部署身份单一书面口径 |
-| `UR-3` | Wong / 阶段5 正式 G0 | 成品延迟上限、颜色表与字号、阶段4 `stale_age_limit` 正式冻结 | 阶段5 正式验收（不影响本轮骨架） |
-| `UR-4` | DSH 项目总控 | 阶段5 板级窗口申请（阶段4 结果冻结后） | 见 `S5T03_board_verification_pending_v1.md` |
+| 编号 | 对象 | 状态 | 请求 | 影响 |
+|---|---|---|---|---|
+| `UR-1` | 阶段4 写入方（DSH/w4） | **对 r04 重发**（2026-10-24 01:35） | 确认显示侧回放扩展字段命名（`replay_source_*`/`stage3_capture_evidence_entry`/`source_frame_id`/`source_capture_time_ns`）是否纳入共享契约，并确认回放标注与 `timing_claim_scope=replay_only` 一致。原 v1 的「确认 source_kind 取值」已由 r04 自身回答，作废。 | 显示侧回放字段与阶段4 契约字段名最终对齐（不影响本轮骨架语义） |
+| `UR-2` | 阶段3 写入方（DSH/dbdf） | **RESOLVED**（2026-10-24 01:14:18） | README 已更正为 `v10_read` 并附更正登记（sha256 `e60bab01…`），无剩余动作 | — |
+| `UR-3` | Wong / 阶段5 正式 G0 | OPEN | 成品延迟上限、颜色表与字号、阶段4 `stale_age_limit` 正式冻结；并请一并裁定 N-1 登记的 stale 判定域口径 | 阶段5 正式验收（不影响本轮骨架） |
+| `UR-4` | DSH 项目总控 | OPEN | 阶段5 板级窗口申请（阶段4 结果冻结后） | 见 `S5T03_board_verification_pending_v1.md` |
+
+## 9. 本轮修订登记（v1→v2）
+
+| 编号 | 处置 |
+|---|---|
+| **B-1** | 重绑到阶段4 **r04**（commit `7a9507a`，JSON blob `611e6c7c…`/MD blob `23c8b4d2…`）：两个彩色标签都映射 `source_kind=camera`、`capture_time_available=true`、`capture_time_ns` 取真实抓取时刻；回放以 `timing_claim_scope=replay_only` 区分；登记取代关系与 r01 证据影响（见 §0 与 JSON `supersedes`）。 |
+| **B-2** | 采用上游强制行为：乱序与重复**同构拒绝**（只计数、记 FAIL/原因、不写已接受集合、不更新 latest、不绘制），并补「`frame_id` 回退必须拒绝并记 FAIL」用例与「乱序帧框与前一帧逐值相同」断言（见 §6 与骨架 T03）。 |
+| **N-1** | stale 判定域：**不改冻结语义/行为**，只把 `S5A-G0-v2` JSON 的一处措辞改为与冻结参考实现一致（新增 `stale_domain_note`），并在 STATE/缺口登记差异、提请正式 G0 裁定；该 JSON 哈希由 `8eac7007…` 变为 `10d24a39…`（S5-A r03 包对该文件不再匹配，已登记，不删除其证据）。 |
+| **N-2** | 长跑口径改正：判据用**区间数** 106572（= 帧数 106573 − 1），106572 × 16.89 ms = 1 800 001 080 000 ns，余量 **+1.08 ms**；原文把帧数当区间数并算错乘积，已改（见参数 JSON `long_run_min_frames_derivation`）。 |
+| **N-3** | 计数单位与时机已声明（参数 JSON `counter_units`，并在 §10 与清单 checks/limitations 引用）：如 `timeouts` 计**提交帧**（240 帧 mixed 为 14，注入 TIMEOUT 结果数为 7）、`stale_cleared` 按**结果键**去重。 |
+| **N-4** | 帧级事件日志随证据落盘（`logs/events_mixed_240.jsonl`、`logs/events_long_run.jsonl.gz`），并提供独立复算器 `scripts/stage5_t03/recompute_from_log.py`（不导入流水线内存计数）。 |
+| **N-5** | 时间戳按实际值改正：部署核对 `verified_at_utc8=2026-10-24T01:07:50`（命令输出 mtime）；参数首次冻结 `frozen_utc8=00:43:33`（文件 mtime）、本轮 `revised_utc8=01:37`；绑定 `generated_utc8` 同改，并补 `*_note` 说明取值来源。 |
+| **N-6** | `UR-2` 标 **RESOLVED**（dbdf 已于 01:14 更正，见 §3）。 |
+| **N-7** | 清单改为 `interfaces=[]` + `interfaces_not_applicable_reason`，**首要理由＝无 `role=input` 文件**（本任务无本地输入文件），次因＝上游接口均未冻结（按 `report/README.md` 规定不伪造冻结字段）。 |
+| 附 | 「3/3 逐字符一致」改述为 bit/ELF 全哈希一致 + XSA 前缀一致（全哈希与 dbdf 原部署清单一致），见 §3。
+
+## 10. 计数单位与时机（N-3 摘要）
+
+| 计数器 | 单位与时机 | 备注 |
+|---|---|---|
+| `frames_committed` / `overlay_drawn_frames` / `warmup_frames` | 每**显示帧** 1 | 绘制帧仅当真的画了边框 |
+| `boxes_drawn` / `zero_area_dropped` | 每**框** 1（逐帧累加） | 被丢弃的零面积框逐帧计数 |
+| `dropped_frames` / `timeouts` / `error_results` | 每**提交帧** 1 | TIMEOUT/ERROR/DROPPED 结果会被后续无新结果的帧继续复用 ⇒ 计数 ≥ 注入结果数 |
+| `stale_cleared` | 每**结果键** 1（去重） | `(session_id, frame_id, result_seq)` |
+| `duplicate_results` / `out_of_order_results` / `invalid_records` | 每次**提交** 1 | 均拒绝、不绘制、不更新 latest；乱序/回退记 FAIL |
+| `zero_hand_frames` | 每个 NO_HAND 且非过期的**提交帧** 1 | 合法零框，不算过期 |

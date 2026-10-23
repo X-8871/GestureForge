@@ -14,8 +14,10 @@
    age_frame_ns, display_semantics)` 五元组；关联键对齐阶段4 S4-B 草案
    `contract_result_key=(session_id, frame_id, result_seq)`。
 3. **异常语义**：过期（`age_frame > 200 ms` 或 PS `stale` 标志，每结果只计一次）、零框（`NO_HAND`，
-   合法、非过期）、`TIMEOUT`/`ERROR`/`DROPPED` 分别计数、无效记录不绘制、重复/乱序结果只计数。
-4. **可复算**：所有计数必须能由帧级事件日志完全复算；离线长跑用虚拟时钟加速，不冒充板上运行。
+   合法、非过期）、`TIMEOUT`/`ERROR`/`DROPPED` 分别计数、无效记录不绘制；**重复/乱序/回退按阶段4 r04
+   `frame_sequence_rules` 一律拒绝并记 FAIL**（只计数、不写已接受集合、不更新最新结果、不绘制）。
+4. **可复算**：所有计数必须能由帧级事件日志完全复算；日志可落盘为紧凑 JSONL（`dump_jsonl`），
+   离线长跑用虚拟时钟加速，不冒充板上运行。计数单位与时机见 `COUNTER_UNITS`。
 
 诚实边界
 ========
@@ -76,6 +78,26 @@ COUNTER_KEYS = (
 
 SUBMIT_OUTCOMES = ("accepted", "duplicate", "out_of_order", "invalid")
 
+# 计数单位与时机（N-3）：避免把「注入结果数」误读为「发生帧数」
+COUNTER_UNITS = {
+    "frames_committed": "每显示帧 1（含 warmup）",
+    "overlay_drawn_frames": "每显示帧 1（仅当真的绘制了边框）",
+    "boxes_drawn": "每个被绘制的框 1（逐帧累加）",
+    "warmup_frames": "每预热显示帧 1",
+    "dropped_frames": "每个状态为 DROPPED 的提交帧 1（结果会被后续无新结果的帧继续复用 ⇒ 计数 ≥ 注入结果数）",
+    "timeouts": "每个状态为 TIMEOUT 的提交帧 1（同上）",
+    "error_results": "每个状态为 ERROR 的提交帧 1（同上）",
+    "invalid_records": "每次提交被判 schema 违规 1（不采用、不绘制）",
+    "stale_cleared": "按结果键 (session_id, frame_id, result_seq) 去重后 1（同一过期结果跨帧复用只计一次）",
+    "duplicate_results": "每次提交命中已接受结果键 1（拒绝、不更新最新结果）",
+    "out_of_order_results": "每次提交发生 frame_id/result_seq 回退 1（拒绝、记 FAIL、不更新最新结果）",
+    "zero_hand_frames": "每个 NO_HAND 且非过期的提交帧 1（合法零框，不绘制但不计过期）",
+    "zero_area_dropped": "每个被丢弃的零面积框 1（逐帧、逐框累加）",
+}
+
+VERDICT_PASS = "PASS"
+VERDICT_FAIL = "FAIL"
+
 
 class SkeletonInputError(ValueError):
     """骨架输入不满足契约时抛出（不静默降级）。"""
@@ -125,7 +147,7 @@ class FrameEventLog:
         ]
 
     def recompute(self) -> dict[str, Any]:
-        """由日志复算全部计数与五元组（与在线计数逐项比较用）。"""
+        """由日志复算全部计数与五元组（与在线计数逐项比较用；复算器亦可用于落盘日志）。"""
         counters = {key: 0 for key in COUNTER_KEYS}
         stale_keys: set[tuple] = set()
         for event in self.submit_events():
@@ -160,18 +182,56 @@ class FrameEventLog:
                     counters["stale_cleared"] += 1
         return {"counters": counters, "five_tuples": self.five_tuples(), "stale_result_keys": len(stale_keys)}
 
+    # ── 落盘（N-4）：紧凑 JSONL，供独立复算器在不导入本模块内存状态的情况下复算 ──
+    COMPACT_SUBMIT_FIELDS = ("t", "fid", "sid", "seq", "oc", "vf")
+    COMPACT_COMMIT_FIELDS = ("t", "dfid", "ts", "rfid", "sid", "seq", "st", "dr", "bx", "za", "se", "w")
+
+    def compact_event(self, event: Mapping[str, Any]) -> dict[str, Any]:
+        """把一条事件压成复算所需的最小字段集（格式见 docs/stage5/s5t03_offline_skeleton_params_v1.json::log_artifacts）。"""
+        if event.get("event_type") == EVENT_RESULT_SUBMIT:
+            return {"t": "sub", "fid": event.get("frame_id"), "sid": event.get("session_id"),
+                    "seq": event.get("result_seq"), "oc": event.get("outcome"),
+                    "vf": event.get("verdict")}
+        return {"t": "commit", "dfid": event.get("displayed_frame_id"), "ts": event.get("overlay_commit_ns"),
+                "rfid": event.get("result_frame_id"), "sid": event.get("session_id"),
+                "seq": event.get("result_seq"), "st": event.get("state"),
+                "dr": 1 if event.get("drawn") else 0, "bx": int(event.get("boxes", 0)),
+                "za": int(event.get("zero_area_dropped", 0)),
+                "se": 1 if event.get("stale_effective") else 0,
+                "w": 1 if event.get("warmup") else 0}
+
+    def dump_jsonl(self, path: str | pathlib.Path, *, compact: bool = True) -> dict[str, Any]:
+        """写帧级事件日志（`*.jsonl` 或 `*.jsonl.gz`）；返回落盘统计。"""
+        import gzip
+        target = pathlib.Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        lines = []
+        for event in self.events:
+            payload = self.compact_event(event) if compact else dict(event)
+            lines.append(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+        blob = ("\n".join(lines) + "\n").encode("utf-8")
+        if target.name.endswith(".gz"):
+            with gzip.open(target, "wb") as handle:
+                handle.write(blob)
+        else:
+            target.write_bytes(blob)
+        return {"path": str(target), "events": len(self.events), "compact": compact,
+                "bytes": target.stat().st_size, "uncompressed_bytes": len(blob)}
+
 
 class DisplayPipeline:
-    """语义 B（最新到达结果叠加）离线骨架：提交结果 → 提交显示帧。
+    """语义 B（最新**已接受**结果叠加）离线骨架：提交结果 → 提交显示帧。
 
-    判定规则（全部来自 `S5A-G0-v2`，本类不新增阈值）：
-    - 记录先过冻结 `validate_result_record`；有问题 ⇒ `invalid_records+1`，不采用、不绘制；
-    - 结果键 `(session_id, frame_id, result_seq)` 重复 ⇒ `duplicate_results+1`，**不**更新最新结果；
-    - 同一 session 的 `result_seq` 回退 ⇒ `out_of_order_results+1`，仍按**到达序**采用（语义 B 定义为最新
-      到达结果），并如实记录顺序矛盾（供跨阶段证据使用时剔除）；
+    判定规则（全部来自 `S5A-G0-v2` + 阶段4 r04 `frame_sequence_rules`，本类不新增阈值）：
+    - 记录先过冻结 `validate_result_record`；有问题 ⇒ `invalid_records+1`、记 FAIL，不采用、不绘制；
+    - 结果键 `(session_id, frame_id, result_seq)` 重复 ⇒ `duplicate_results+1`、记 FAIL，**不**更新最新结果；
+    - **乱序/回退**（同 session 的 `frame_id` 或 `result_seq` 小于上一已接受值）⇒ `out_of_order_results+1`、
+      记 FAIL 与原因，**拒绝**：不写入已接受集合、不更新最新结果、不绘制（B-2：采用上游强制行为，
+      与重复同构；不再"按到达序采用"）；
     - 过期 = `PS stale 标志 OR age_frame > 200 ms`，每结果只计一次；
     - `NO_HAND` = 合法零框（非过期）；`TIMEOUT`/`ERROR`/`DROPPED` 分别计数，不冒充零框；
     - 每显示帧恰好产生一条 `overlay_commit` 事件（缺事件即视为死锁，由长跑断言检出）。
+    计数单位与时机见 `COUNTER_UNITS`（N-3）。
     """
 
     def __init__(self, *, canvas_width: int = 1280, canvas_height: int = 720,
@@ -186,6 +246,7 @@ class DisplayPipeline:
         self.accepted_keys: set[tuple] = set()
         self.stale_counted_keys: set[tuple] = set()
         self.last_result_seq: dict[Any, int] = {}
+        self.last_frame_id: dict[Any, int] = {}
         self.counters = {key: 0 for key in COUNTER_KEYS}
         self.frames_committed = 0
 
@@ -212,30 +273,49 @@ class DisplayPipeline:
         if problems:
             self.counters["invalid_records"] += 1
             event["outcome"] = "invalid"
+            event["verdict"] = VERDICT_FAIL
+            event["reject_reason"] = "schema_violation"
             self.log.append(event)
-            return {"outcome": "invalid", "problems": list(problems), "key": key}
+            return {"outcome": "invalid", "verdict": VERDICT_FAIL, "problems": list(problems), "key": key}
 
         session = record["session_id"]
         seq = int(record["result_seq"])
+        frame_id = int(record["frame_id"])
         if key in self.accepted_keys:
             self.counters["duplicate_results"] += 1
             event["outcome"] = "duplicate"
+            event["verdict"] = VERDICT_FAIL
+            event["reject_reason"] = "duplicate_result_key"
             self.log.append(event)
-            return {"outcome": "duplicate", "key": key}
+            return {"outcome": "duplicate", "verdict": VERDICT_FAIL, "key": key}
 
-        out_of_order = session in self.last_result_seq and seq < self.last_result_seq[session]
-        if out_of_order:
+        # B-2：采用阶段4 r04 frame_sequence_rules 的强制行为——重复/乱序/回退一律拒绝并记 FAIL
+        reasons: list[str] = []
+        if session in self.last_frame_id and frame_id < self.last_frame_id[session]:
+            reasons.append("regressed_frame_id")
+        if session in self.last_result_seq and seq < self.last_result_seq[session]:
+            reasons.append("regressed_result_seq")
+        if reasons:
             self.counters["out_of_order_results"] += 1
             event["outcome"] = "out_of_order"
-            event["previous_result_seq"] = self.last_result_seq[session]
-        else:
-            event["outcome"] = "accepted"
+            event["verdict"] = VERDICT_FAIL
+            event["reject_reason"] = "+".join(reasons)
+            event["previous_frame_id"] = self.last_frame_id.get(session)
+            event["previous_result_seq"] = self.last_result_seq.get(session)
+            event["rejected"] = True
+            self.log.append(event)
+            # 拒绝：不写 accepted_keys、不更新 latest、不绘制
+            return {"outcome": "out_of_order", "verdict": VERDICT_FAIL, "reject_reason": event["reject_reason"],
+                    "key": key, "problems": []}
 
+        event["outcome"] = "accepted"
+        event["verdict"] = VERDICT_PASS
         self.accepted_keys.add(key)
         self.last_result_seq[session] = max(seq, self.last_result_seq.get(session, seq))
+        self.last_frame_id[session] = max(frame_id, self.last_frame_id.get(session, frame_id))
         self.latest = dict(record)
         self.log.append(event)
-        return {"outcome": event["outcome"], "key": key, "problems": []}
+        return {"outcome": "accepted", "verdict": VERDICT_PASS, "key": key, "problems": []}
 
     # ── 提交显示帧 ────────────────────────────────────────────────────────
     def commit_frame(self, displayed_frame_id: int, overlay_commit_ns: int,

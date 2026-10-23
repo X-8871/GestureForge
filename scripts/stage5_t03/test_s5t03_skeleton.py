@@ -23,6 +23,7 @@ import json
 import pathlib
 import subprocess
 import sys
+import tempfile
 import unittest
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -43,6 +44,7 @@ for _stream_name in ("stdout", "stderr"):
 
 import s5t03_display_pipeline as P  # noqa: E402
 import s5t03_dynamic_stream as S  # noqa: E402
+import recompute_from_log as RC  # noqa: E402  （独立复算器，不导入流水线内存状态）
 
 R = P.REFERENCE
 
@@ -69,6 +71,19 @@ INHERIT = PARAMS["inherited_from_s5a_g0_v2"]["items"]
 # 证据脚本在跑完本套件后读取的实测摘要（避免为收集数字重复跑长跑）
 LAST_MIXED: dict = {}
 LAST_LONG: dict = {}
+# 证据脚本可设置该目录：用例会把帧级事件日志落盘（N-4），供独立复算器复算
+LOG_DIR: pathlib.Path | None = None
+LOG_DUMPS: dict = {}
+
+
+def dump_log(pipeline, name: str) -> pathlib.Path:
+    """把帧级事件日志落盘（LOG_DIR 未设置时用临时目录，保证单独运行也能自检）。"""
+    global LOG_DIR
+    if LOG_DIR is None:
+        LOG_DIR = pathlib.Path(tempfile.mkdtemp(prefix="s5t03_logs_"))
+    path = pathlib.Path(LOG_DIR) / name
+    LOG_DUMPS[name] = pipeline.log.dump_jsonl(path, compact=True)
+    return path
 
 
 def stream(mode: str, frames: int, *, seed: int | None = None, warmup: int = 0) -> list[dict]:
@@ -102,12 +117,20 @@ def run(mode: str, frames: int, *, seed: int | None = None, warmup: int = 0):
 
 
 class T01_ContractIntegrity(unittest.TestCase):
-    """契约与参考实现未被改动（防止「顺手改指标」与「第二套几何」）。"""
+    """契约与参考实现：阈值/几何未改，仅按 N-1 修过一处措辞（哈希已随之登记）。"""
 
-    def test_g0_contract_bytes_unchanged(self):
+    def test_g0_contract_matches_registered_hash(self):
         expected = PARAMS["inherited_from_s5a_g0_v2"]["contract_json_sha256"]
         self.assertEqual(sha256_file(CONTRACT_PATH), expected,
-                         "S5A-G0-v2 JSON 字节被改动：本骨架不得改显示契约")
+                         "S5A-G0-v2 JSON 字节与登记哈希不符：本骨架不得改显示契约的阈值/几何/语义")
+        contract = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+        self.assertIn("stale_domain_note", contract["stale_and_age"],
+                      "N-1：stale 判定域差异必须登记在契约中并提请正式 G0 裁定")
+        self.assertIn("本轮已把措辞改为与实现一致", contract["stale_and_age"]["stale_domain_note"])
+        # 旧措辞不得再出现在定义/判定规则字段中（note 里作为「历史曾写」引用是允许的）
+        for field in ("stage4_stale_definition", "stage5_clear_rule"):
+            self.assertNotIn("仅对 state ∈ {OK, NO_HAND} 定义", contract["stale_and_age"][field],
+                             f"N-1：{field} 的旧措辞必须已改正（显示侧判定不带 state 守卫）")
 
     def test_geometry_reference_not_forked(self):
         expected = PARAMS["inherited_from_s5a_g0_v2"]["geometry_reference_sha256"]
@@ -133,11 +156,29 @@ class T01_ContractIntegrity(unittest.TestCase):
         labels = binding["input_scope_labels"]["labels"]
         self.assertIn("camera_live_colour", labels)
         self.assertIn("camera_capture_replay_colour", labels)
-        self.assertEqual(labels["camera_live_colour"]["stage4_source_kind"], "camera")
+        # B-1：按阶段4 r04 重绑——两个彩色标签都映射 camera，回放以 timing_claim_scope 区分
+        self.assertEqual(labels["camera_live_colour"]["maps_to_source_kind"], "camera")
+        self.assertEqual(labels["camera_capture_replay_colour"]["maps_to_source_kind"], "camera")
+        self.assertTrue(labels["camera_capture_replay_colour"]["capture_time_available"])
+        self.assertEqual(labels["camera_capture_replay_colour"]["timing_claim_scope"], "replay_only")
+        self.assertEqual(labels["camera_live_colour"]["timing_claim_scope"], "real_live")
         self.assertEqual(labels["camera_capture_replay_colour"]["mapping_status"],
-                         "PROPOSED_PENDING_STAGE4_G0_CONFIRMATION")
+                         "ALIGNED_WITH_STAGE4_R04")
+        self.assertEqual(binding["status"], "BINDING_ALIGNED_WITH_STAGE4_R04_NOT_FROZEN")
         self.assertEqual(binding["relation_to_frozen_contract"]["display_contract"], "S5A-G0-v2")
         self.assertIn("stale_age_limit_ns", binding["relation_to_frozen_contract"]["unchanged"])
+        # 取代关系与 UR 状态
+        self.assertIn("7a9507ab4a2067d493b4d9ff47b331c747f33796", binding["supersedes"]["replaced_by"])
+        self.assertIn("f6fa9f0", binding["supersedes"]["reason"])
+        ups = {item["id"]: item.get("status") for item in binding["unresolved_and_requests"]}
+        self.assertEqual(ups["UR-1"], "REISSUED_ON_R04")
+        self.assertEqual(ups["UR-2"], "RESOLVED")
+        # N-1 stale 判定域登记
+        self.assertIn("pending_formal_g0", binding["relation_to_frozen_contract"]["stale_domain"])
+        # N-7 相关：部署一致性的措辞（XSA 前缀 vs bit/ELF 全哈希）
+        consistency = binding["stage3_deployment_binding"]["consistency_with_015_r03"]
+        self.assertIn("全哈希", consistency["bit"])
+        self.assertIn("前缀", consistency["xsa"])
 
     def test_existing_synthetic_evidence_untouched(self):
         command = ["git", "-C", str(REPO_ROOT), "diff", "--name-only", BASE_COMMIT, "--",
@@ -259,6 +300,89 @@ class T03_FrameAssociation(unittest.TestCase):
                                 "乱序结果必须计数")
         self.assertEqual(len(self._five_tuples(pipeline_ooo)),
                          NEW["stream_samples"]["ooo_frames"])
+        # B-2：被判乱序/重复的提交必须记 FAIL 且带拒绝原因（r04：拒绝不得只记计数）
+        fails = [e for e in pipeline_ooo.log.submit_events()
+                 if e.get("outcome") == "out_of_order"]
+        self.assertTrue(fails, "必须存在 out_of_order 提交事件")
+        for event in fails:
+            self.assertEqual(event["verdict"], P.VERDICT_FAIL)
+            self.assertTrue(event.get("reject_reason"), "拒绝必须记录原因")
+        for event in pipeline_dup.log.submit_events():
+            if event.get("outcome") == "duplicate":
+                self.assertEqual(event["verdict"], P.VERDICT_FAIL)
+
+    def test_out_of_order_rejected_and_does_not_update_latest(self):
+        """B-2：乱序帧不得改变叠加内容（其框必须与前一帧逐值相同），且不进入已接受集合。"""
+        pipeline, _ = run("ooo", NEW["stream_samples"]["ooo_frames"])
+        commits = pipeline.log.commit_events()
+        submits = {i: e for i, e in enumerate(pipeline.log.events)
+                   if e.get("event_type") == "result_submit" and e.get("outcome") == "out_of_order"}
+        self.assertTrue(submits, "ooo 流必须注入乱序提交")
+        # 乱序提交发生在其显示帧提交之前：该帧的框必须与前一帧相同
+        checked = 0
+        for index, event in enumerate(pipeline.log.events):
+            if event.get("event_type") != "result_submit" or event.get("outcome") != "out_of_order":
+                continue
+            later = [e for e in pipeline.log.events[index + 1:]
+                     if e.get("event_type") == "overlay_commit"]
+            earlier = [e for e in pipeline.log.events[:index]
+                       if e.get("event_type") == "overlay_commit"]
+            self.assertTrue(earlier and later, "乱序提交必须在某个显示提交之前")
+            self.assertEqual(earlier[-1]["box_px"], later[0]["box_px"],
+                             "乱序结果被拒绝后，本帧绘制内容必须与前一帧逐值相同")
+            checked += 1
+        self.assertGreaterEqual(checked, 1)
+        # 被拒绝的键不得进入已接受集合
+        for event in pipeline.log.submit_events():
+            if event.get("outcome") == "out_of_order":
+                key = (event["session_id"], event["frame_id"], event["result_seq"])
+                self.assertNotIn(key, pipeline.accepted_keys, "乱序结果不得写入已接受集合")
+
+    def test_frame_id_regression_rejected_with_fail(self):
+        """B-2：frame_id 回退必须拒绝并记 FAIL（阶段4 r04 frame_sequence_rules）。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        base = S.make_record(session_id=3, frame_id=10, result_seq=1, sequence=1,
+                             capture_time_ns=1_000_000_000, result_time_ns=1_000_000_100,
+                             inference_time_ns=1_000_000, state="OK",
+                             detections=[S.make_detection(0)])
+        self.assertEqual(pipeline.submit_result(base)["outcome"], "accepted")
+        before = pipeline.commit_frame(10, 1_010_000_000)["event"]
+        regressed = S.make_record(session_id=3, frame_id=9, result_seq=2, sequence=2,
+                                  capture_time_ns=1_000_000_000, result_time_ns=1_000_000_100,
+                                  inference_time_ns=1_000_000, state="OK",
+                                  detections=[S.make_detection(1)])
+        outcome = pipeline.submit_result(regressed)
+        self.assertEqual(outcome["outcome"], "out_of_order")
+        self.assertEqual(outcome["verdict"], "FAIL")
+        self.assertEqual(outcome["reject_reason"], "regressed_frame_id")
+        event = pipeline.log.submit_events()[-1]
+        self.assertEqual(event["verdict"], "FAIL")
+        self.assertTrue(event["rejected"])
+        self.assertEqual(pipeline.counters["out_of_order_results"], 1)
+        after = pipeline.commit_frame(11, 1_020_000_000)["event"]
+        self.assertEqual(before["box_px"], after["box_px"], "被拒绝的回退结果不得改变绘制内容")
+        self.assertNotIn((3, 9, 2), pipeline.accepted_keys)
+        self.assertEqual(pipeline.latest["frame_id"], 10, "拒绝后最新结果必须保持不变")
+
+    def test_result_seq_regression_rejected_with_fail(self):
+        """B-2：同一 session 的 result_seq 回退同样必须拒绝并记 FAIL。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        good = S.make_record(session_id=4, frame_id=10, result_seq=5, sequence=5,
+                             capture_time_ns=1_000_000_000, result_time_ns=1_000_000_100,
+                             inference_time_ns=1_000_000, state="OK",
+                             detections=[S.make_detection(0)])
+        self.assertEqual(pipeline.submit_result(good)["outcome"], "accepted")
+        regressed = S.make_record(session_id=4, frame_id=12, result_seq=4, sequence=6,
+                                  capture_time_ns=1_000_000_000, result_time_ns=1_000_000_100,
+                                  inference_time_ns=1_000_000, state="OK",
+                                  detections=[S.make_detection(1)])
+        outcome = pipeline.submit_result(regressed)
+        self.assertEqual(outcome["outcome"], "out_of_order")
+        self.assertEqual(outcome["verdict"], "FAIL")
+        self.assertEqual(outcome["reject_reason"], "regressed_result_seq")
+        self.assertEqual(pipeline.counters["out_of_order_results"], 1)
+        self.assertNotIn((4, 12, 4), pipeline.accepted_keys)
+        self.assertEqual(pipeline.latest["frame_id"], 10)
 
     def test_duplicate_does_not_update_latest_result(self):
         """重复结果不更新最新结果：重复帧的绘制内容必须与前一帧完全相同。"""
@@ -359,6 +483,14 @@ class T05_LongRunVirtual(unittest.TestCase):
         elapsed = last - first
         self.assertGreaterEqual(elapsed, NEW["long_run_virtual_duration_ns"],
                                 f"虚拟时长 {elapsed} ns 未达 30 分钟")
+        # N-2：判据用区间数（= 帧数 − 1），并核实余量
+        period = NEW["long_run_virtual_frame_period_ns"]
+        period_count = NEW["long_run_period_count"]
+        self.assertEqual(period_count, frames - 1, "区间数必须等于帧数 − 1")
+        self.assertEqual(elapsed, period_count * period,
+                         "virtual_elapsed 必须等于区间数 × 周期")
+        self.assertEqual(elapsed - NEW["long_run_virtual_duration_ns"],
+                         NEW["long_run_margin_ns"], "余量必须为冻结的 1.08 ms")
         previous = None
         for event in commits:
             if previous is not None:
@@ -371,6 +503,43 @@ class T05_LongRunVirtual(unittest.TestCase):
         self.assertGreaterEqual(summary["counters"]["overlay_drawn_frames"], 1)
         self.assertEqual(pipeline.counters["duplicate_results"],
                          pipeline.log.recompute()["counters"]["duplicate_results"])
+        # N-4：长跑帧级事件日志随证据落盘
+        long_log = dump_log(pipeline, "events_long_run.jsonl.gz")
+        self.assertTrue(long_log.is_file(), "长跑事件日志必须落盘")
+        self.assertEqual(LOG_DUMPS["events_long_run.jsonl.gz"]["events"], len(pipeline.log.events))
+        self.assertEqual(RC.recompute_file(long_log)["counters"],
+                         summary["counters"], "长跑落盘日志的独立复算必须与在线计数一致")
+
+    def test_disk_event_log_recomputable_independently(self):
+        """N-4：落盘日志必须能被**独立**复算器复算出与在线计数逐项相同的计数。"""
+        pipeline, summary = run("mixed", NEW["stream_samples"]["mixed_frames"])
+        path = dump_log(pipeline, "events_mixed_240.jsonl")
+        self.assertIsNotNone(path)
+        recomputed = RC.recompute_file(path)
+        self.assertEqual(recomputed["counters"], summary["counters"],
+                         "独立复算器结果必须与在线计数逐项相同")
+        self.assertEqual(recomputed["commit_events"], summary["commit_events"])
+        self.assertEqual(recomputed["unique_displayed_frames"], summary["commit_events"],
+                         "每显示帧恰一次提交（无重复/缺失）")
+        self.assertTrue(recomputed["timestamps_monotonic"])
+        # 格式自检：紧凑日志的字段集必须与冻结声明一致
+        first_lines = path.read_text(encoding="utf-8").strip().splitlines()[:2]
+        for line in first_lines:
+            payload = json.loads(line)
+            fields = tuple(payload)
+            self.assertTrue(fields == RC.COMPACT_SUBMIT_FIELDS or fields == RC.COMPACT_COMMIT_FIELDS
+                            or set(fields) <= (set(RC.COMPACT_SUBMIT_FIELDS) | set(RC.COMPACT_COMMIT_FIELDS)),
+                            f"紧凑日志字段与声明不符：{fields}")
+
+    def test_counter_units_declared(self):
+        """N-3：所有计数器的单位与时机必须冻结声明，且与流水线常量一致。"""
+        units = NEW["counter_units"]
+        for key in P.COUNTER_KEYS:
+            self.assertIn(key, units, f"缺少计数单位声明：{key}")
+            self.assertIsInstance(units[key], str)
+            self.assertTrue(units[key].strip())
+        for key in P.COUNTER_KEYS:
+            self.assertIn(key, P.COUNTER_UNITS)
 
 
 class T06_StreamSchema(unittest.TestCase):

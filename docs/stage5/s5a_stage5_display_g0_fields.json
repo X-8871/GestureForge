@@ -6,6 +6,8 @@
   "status": "STAGE5_G0_FINALIZED_OFFLINE_NOT_ACCEPTED",
   "status_note": "这是阶段5 离线准备的 G0 定稿；阶段5 尚未正式开工、未上板、未联调，任何实测项一律 NOT_RUN。G0 指标若需变更须交 Wong 决策。",
   "generated_utc8": "2026-10-21T23:20:00+08:00",
+  "revised_utc8": "2026-10-24T01:35:00+08:00",
+  "revision_note": "2026-10-24 修订一处**措辞**（不改阈值/几何/语义）：stale_and_age 段落旧文写「过期判定仅对 state ∈ {OK, NO_HAND} 定义」，与冻结参考实现 verification/s5_display_geometry_reference.py::effective_stale(stale_flag, age_frame_ns) 不符（该函数无 state 参数），亦与 S5-A 定稿规格 C-03 不符。现改为与实现一致的表述并新增 stale_domain_note；差异与提请正式 G0 裁定见该字段。",
   "upstream_bindings": [
     {
       "id": "plan_stage5_requirements",
@@ -150,8 +152,9 @@
     "constant": "STALE_AGE_LIMIT_NS in verification/s5_display_geometry_reference.py",
     "stale_age_limit_ns": 200000000,
     "stale_age_limit_status": "G0_FIXED_OFFLINE (阶段4 侧仍为 DRAFT_PROPOSED，须在同一次 G0 决策中同步固定)",
-    "stage4_stale_definition": "stale=true 当结果年龄 = 发布时刻 - result_time_ns 超过 stale_age_limit；仅对 state ∈ {OK, NO_HAND} 定义",
-    "stage5_clear_rule": "stale_effective = PS 侧 stale 标志 OR age_frame_ns > limit；每结果只计一次，记录原因 (stale_flag / age_frame_exceeds_limit / both)",
+    "stage4_stale_definition": "stale=true 当结果年龄 = 发布时刻 - result_time_ns 超过 stale_age_limit；该 PS 侧 stale 标志的取值域为 state ∈ {OK, NO_HAND}（阶段4 定义）",
+    "stage5_clear_rule": "stale_effective = PS 侧 stale 标志 OR age_frame_ns > limit；每结果只计一次，记录原因 (stale_flag / age_frame_exceeds_limit / both)。**显示侧判定本身不带 state 守卫**（与冻结参考实现 effective_stale(stale_flag, age_frame_ns) 一致）；TIMEOUT/ERROR/DROPPED 由各自计数单列，不得冒充零框",
+    "stale_domain_note": "口径差异登记（2026-10-24，S5-T03 修订）：本契约旧文曾写「过期判定仅对 state ∈ {OK, NO_HAND} 定义」，而冻结参考实现 verification/s5_display_geometry_reference.py::effective_stale 没有 state 参数，S5-A 定稿规格 C-03 亦无 state 守卫。本轮已把措辞改为与实现一致，**未改行为、未加 state 守卫**；若正式 G0 裁定要求严格 state 域，须按新版本契约与参考实现同步实现并回归。提请正式 G0 裁定。",
     "boundary": "边界为严格大于：age == limit 不判过期",
     "no_silent_drop": "过期清除必须显式记录 frame_id、age_frame_ns、清除时刻与原因"
   },

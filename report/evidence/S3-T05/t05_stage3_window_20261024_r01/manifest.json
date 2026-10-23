@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T05",
+  "run_id": "t05_stage3_window_20261024_r01",
+  "created_utc8": "2026-10-24T01:31:19+08:00",
+  "source_commit": "0e23d3c477853a88afdf923543c7e8d9f7f61c24",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "bash scripts/stage3_t03b/run_jtag_download_t03.sh <deploy> <v10_read.elf> <bit> logs",
+    "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t05/jtag_read_safe.tcl",
+    "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t05/jtag_liveness_marker.tcl",
+    "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t05/jtag_s2mm_sr_clear.tcl",
+    "bash tmp/3/S3-T05/t05_stage3_window_20261024_r01/endurance_loop.sh <logs>",
+    "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t17/jtag_t17_dump_rows.tcl <frameset2> 0x00114C00 3840 100 400 600 --frame",
+    "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t05/jtag_addr_map_read.tcl",
+    "bash scripts/stage3_t03b/run_xsdb.sh scripts/stage3_t05/jtag_addr_scan_mm2s.tcl",
+    "python -B scripts/stage3_t03b/read_uart.py COM4 2100 <log>"
+  ],
+  "exit_codes": {
+    "download_v10": 0,
+    "probe00_startup": 0,
+    "probe00_marker": 0,
+    "sr_clear_once": 0,
+    "endurance_7rounds": 0,
+    "endurance_span_seconds": 1875,
+    "download_v11": 0,
+    "dump_wrong_base_rows_zero": 0,
+    "dump_v11_fb": 0,
+    "restore_v10": 0,
+    "addr_map": 0,
+    "addr_scan_mm2s": 0,
+    "window_close": 0
+  },
+  "outputs": [
+    {
+      "path": "README.md",
+      "size_bytes": 5610,
+      "sha256": "e864857f1a157448aae3e4f5cfaf07dccdd63db12e5dd5e988b7c5a503e62bf9"
+    },
+    {
+      "path": "addr_map_final2.txt",
+      "size_bytes": 1510,
+      "sha256": "ea4aca2f0de460585f4700ee2d007c0c6f7bf8c6333d4ada6158f2b3818c4d46"
+    },
+    {
+      "path": "addr_scan_final.txt",
+      "size_bytes": 1828,
+      "sha256": "f7f0f56359290311dffcc5a89a4bbec2a4ddab63207bba30bdf1ca5682fd2dbf"
+    },
+    {
+      "path": "address_facts.md",
+      "size_bytes": 3277,
+      "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3"
+    },
+    {
+      "path": "download_v10.stdout.txt",
+      "size_bytes": 3072,
+      "sha256": "39f36b11240e483b3ca768442f4f8ef3dc2fe87aeff1fbd1403a92eb2dc11d32"
+    },
+    {
+      "path": "download_v10_restore.stdout.txt",
+      "size_bytes": 3072,
+      "sha256": "39f36b11240e483b3ca768442f4f8ef3dc2fe87aeff1fbd1403a92eb2dc11d32"
+    },
+    {
+      "path": "download_v10_restore2.stdout.txt",
+      "size_bytes": 3072,
+      "sha256": "39f36b11240e483b3ca768442f4f8ef3dc2fe87aeff1fbd1403a92eb2dc11d32"
+    },
+    {
+      "path": "download_v11.stdout.txt",
+      "size_bytes": 3078,
+      "sha256": "9118764a434b3adf59c3aa69714d934a62fc8bc720454b12c0423d6c09ea6c6f"
+    },
+    {
+      "path": "download_v11b.stdout.txt",
+      "size_bytes": 3078,
+      "sha256": "9118764a434b3adf59c3aa69714d934a62fc8bc720454b12c0423d6c09ea6c6f"
+    },
+    {
+      "path": "dump_frameset.stdout.txt",
+      "size_bytes": 1038,
+      "sha256": "41203fb480c863e39c6de5f25ff3036085f9865a5287843c055170f4a587607f"
+    },
+    {
+      "path": "dump_frameset2.stdout.txt",
+      "size_bytes": 1791,
+      "sha256": "ca701d0d9135a1cde51f3f414accba757c3b1e57c09f0e542e37783deb66ea3c"
+    },
+    {
+      "path": "endurance_loop.sh",
+      "size_bytes": 963,
+      "sha256": "d4074c97798c495593e3396aedfe9d30930eee4287ad89128e89900c373dd6be"
+    },
+    {
+      "path": "endurance_probes.txt",
+      "size_bytes": 15975,
+      "sha256": "a627ac5a6ed0e17047e029f23e1de715f7809b997f9bcb4ee6c394c030e68964"
+    },
+    {
+      "path": "frame_full.bin",
+      "size_bytes": 2764800,
+      "sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0"
+    },
+    {
+      "path": "marker_final2.txt",
+      "size_bytes": 431,
+      "sha256": "301cf80fc52a88d71287d8793399ecc7955a9145b53b8274e69f4e3ec8502642"
+    },
+    {
+      "path": "mm2s_scan_final.txt",
+      "size_bytes": 1533,
+      "sha256": "d0169afec2e840c77f9396dbbf835e0a1526e90facebc8fd66b4b8abe6355238"
+    },
+    {
+      "path": "probe_00_marker.txt",
+      "size_bytes": 431,
+      "sha256": "301cf80fc52a88d71287d8793399ecc7955a9145b53b8274e69f4e3ec8502642"
+    },
+    {
+      "path": "probe_00_startup.txt",
+      "size_bytes": 1729,
+      "sha256": "0f1f0ac1cd7c669456c1bb4735b9af37c7d4f456851a7465891023763fb9c20e"
+    },
+    {
+      "path": "reference_frame_set.md",
+      "size_bytes": 3310,
+      "sha256": "941653c700dca5a89adcf5c2b84ec7b7e760700a2f282faca03f8fbff15533ac"
+    },
+    {
+      "path": "row_y100.bin",
+      "size_bytes": 3840,
+      "sha256": "35f1193c9937a82743717ca55ee6c2c67061d5cd9596c44102ac4f1c2a7e18cc"
+    },
+    {
+      "path": "row_y400.bin",
+      "size_bytes": 3840,
+      "sha256": "39de672c2185c98a91286acbd31e46f7c211f57c2022f31da42d4073d5a1dd79"
+    },
+    {
+      "path": "row_y600.bin",
+      "size_bytes": 3840,
+      "sha256": "8df7620df165f50ee90ae62f0e300b013f9953073a64a791a49620371624de18"
+    },
+    {
+      "path": "sr_clear_once.txt",
+      "size_bytes": 1029,
+      "sha256": "9995c9f3c2f941cacf8d1448e1496a8225665b7c24ac4905f200b6b4ff80a721"
+    },
+    {
+      "path": "uart_restore.stdout",
+      "size_bytes": 4084,
+      "sha256": "72fa0e45f3bdd131f75223583a582784fabdfe8cc52a28171a18900196b7b846"
+    },
+    {
+      "path": "uart_v11.stdout",
+      "size_bytes": 3547,
+      "sha256": "d18ab2b3aaad6f5b9f1aef2de6526504dc1118fa2b9031aa2f556615495db51c"
+    },
+    {
+      "path": "uart_window.log",
+      "size_bytes": 3727,
+      "sha256": "ffd52e6b189eee9b05c288548f08b22cece42ab7e7bd78d1a2c24fa179647c20"
+    },
+    {
+      "path": "ur2_correction.json",
+      "size_bytes": 977,
+      "sha256": "be1f8068b08fd28ed7b62147aeedb30048ffcfd27cc73bab6564e5acbf2b4204"
+    },
+    {
+      "path": "vdma_sticky_result.md",
+      "size_bytes": 3377,
+      "sha256": "1b88969ad26baa215b02c30a73cd41bea34dbfc1cf40c22c063df453f198cada"
+    },
+    {
+      "path": "window_close.txt",
+      "size_bytes": 3004,
+      "sha256": "e5cfbeae41248c4d212327da92dc893cc8b458439cf55240c8d245eaf76e2794"
+    },
+    {
+      "path": "window_open_prestate.json",
+      "size_bytes": 1581,
+      "sha256": "e0d9a6e4e29f81b70bf33b067e0054c935488a8314160183ec9a6fa269d8fdb5"
+    }
+  ],
+  "scope": "阶段3 板级单次窗口（Wong 2026-10-24 可开工）：≥30 分钟实时耐久（31min15s）+ VDMA 粘滞 0x00015810 核对（PARTIAL）+ 参考帧集采集 + 阶段3 地址事实 + 收窗记录",
+  "limitations": [
+    "耐久为机读连续性证据；连续画面目视未做；VDMA 粘滞为 PARTIAL（无根因，不关闭）；参考帧集为单帧冻结；场景不受控"
+  ],
+  "not_run": [
+    "真彩目视、TIMING/I-O 现场测量、J10（范围排除）"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

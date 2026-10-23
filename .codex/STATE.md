@@ -1,7 +1,8 @@
 # 阶段3 状态（AN5642 原始视频链路）
 
-更新：2026-10-24 01:12（UTC+8）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。**`dbdf` 唯一写入方 = DSH 阶段3 总控（stage3-lead）**（`CDX-20261022-015` r03 §2.3）；其他窗口与旧任务卡对本树**只读**。
-**2026-10-24 Wong 三问三答：「1.可开工」「2.现在用的是 J11，J10 不需要管了」「3.由 DSH 接手」(w4)** ⇒ 阶段3 板级**单次窗口**据此开启，授权文件 `report/evidence/S3-T17/hw_authorization.json`（引用决策记录 `decisions/stage_3_4_direction_20261024_r01.md`、`DSH-20261024-004`、Codex `CDX-20261023-018` §3.1 不争用）；窗口内只做：≥30 分钟实时耐久、VDMA 粘滞核对、参考帧集采集；**J10 移出未闭合项，改为「范围排除」**。
+更新：2026-10-24 00:33（离线前置；提交 `78273a6`/`8e04597`/`0e23d3c`）→ **01:28 板级窗口收窗**（提交另附）。工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`。**`dbdf` 唯一写入方 = DSH 阶段3 总控（stage3-lead）**（`CDX-20261022-015` r03 §2.3）；其他窗口与旧任务卡对本树**只读**。
+*更正：本文件此前两处曾写「01:05/01:12」，那是估计值；实际离线前置提交时刻为 `00:30:35`/`00:33:57`/`00:34:32`，已按 git 实际时刻更正（避免再出现"声明时刻与证据不符"）。*
+**2026-10-24 Wong 三问三答：「1.可开工」「2.现在用的是 J11，J10 不需要管了」「3.由 DSH 接手」(w4)** ⇒ 阶段3 板级**单次窗口**已据此执行完毕（授权文件 `report/evidence/S3-T17/hw_authorization.json`，引用决策记录 `decisions/stage_3_4_direction_20261024_r01.md`、`DSH-20261024-004`、Codex `CDX-20261023-018` §3.1 不争用）；**J10 已移出未闭合项、记为「范围排除」**。
 **当前口径（顶部）**：颜色子项 = **`PASS_VERIFIED_NEW_MODULE`**（新模块实测解除受阻）；**当前部署 = 无补偿实时彩色**；**阶段3 整体 G5 未通过**（阶段A 小任务 G5 ≠ 阶段3 G5）；`DEFERRED_PENDING_MODULE` 仅为旧模块期历史标签。
 
 ## 当前彩色部署（唯一口径；每次硬件使用前重新核对现场与产物）
@@ -14,12 +15,13 @@
 
 ## 真实未关闭项（015 r03 §2.4；颜色项通过不替其余项关闭）
 - **完整独立 G2**：对上述实际部署（SOF/采集/显示/应用/约束/补丁）独审 —— 材料已固定，**待 DSH 项目总控另派 Reviewer**；早期 stdluma/gray 补丁**仅人工审阅、未独审 PASS**（重新启用须补审查）。
-- **≥30 分钟实时耐久**（新模块 + 当前彩色基线）：**本次窗口（2026-10-24，RunId `t05_stage3_window_20261024_r01`）执行**；中途复位/死锁必须保留失败证据并以新 RunId 重测。
-- **VDMA 粘滞 `0x00015810`**：**本次窗口核对**（保存启动原值、位解释、运行增量；**不得只清寄存器称零错误**）；方案 `…/t05_closeout_prep_20261024_r01/vdma_sticky_check_plan.md`。
-- **参考帧集**（供阶段4 回放）：**本次窗口采集**（真实彩色整帧 + 行样本，逐文件哈希 + 格式/字节序/宽高/stride/原图坐标口径）。
-- **TIMING-17/36 与 I/O delay**：TIMING-17 critical 236、TIMING-36 critical 1、`Timing 38-249`（rgb2dvi `SerialClk`×5 未声明）仍开放；准备 `…/timing_io_applicability_prep.md`（DRC 0 error / 局部 WNS>0 **不替代**完整约束签核；不加虚假关系或豁免）。
+- **≥30 分钟实时耐久**：**已达成（2026-10-24 窗口，RunId `t05_stage3_window_20261024_r01`）** —— `00:49:16 → 01:20:31`（**31 min 15 s**），7 轮活写标记全部 **5/5**、`CR=0x00010003`、`MM2S_SR=0x00011000`、无停止/复位/死锁；UART 连续 35 min（三路 CHIPID `0x5640`、`0x503D=0x00`、5 次采样 × 3 站点指纹全异）。**限机读连续性；"连续画面"目视属 Wong 端（未做）**。
+- **VDMA 粘滞 `0x00015810`**：**PARTIAL（不关闭）** —— 启动原值 `0x00015810`（两次独立启动均复现＝启动瞬态）；一次性 W1C 清除后 `0x00015810 → 0x00011000`，**31 分钟 7 次回读未复现**、无功能影响；但**无根因解释**（`FSZ_MORE` 触发源未定位）⇒ 不得称"零错误"。详见 `…/t05_stage3_window_20261024_r01/vdma_sticky_result.md`。
+- **参考帧集（供阶段4 回放）**：**已采集** —— v11 冻结后按**其自报 FB `0x00114C00`** 转储：整帧 2,764,800 B（sha256 `939fce22…`）+ 3 行样本（各 3,840 B），0 全零行、B/G/R 均值 94.1/86.2/93.5、max 248/252/248；格式/字节序/stride/坐标口径见 `…/reference_frame_set.md`。
+- **阶段3 地址事实（供阶段4 选址对照）**：**采集与显示共用同一帧缓冲**（实测 `S2MM@0x430100AC = MM2S@0x4300005C = 0x00110C00`，单缓冲 `stride=0x0F00`、`0x2A3000` 字节）；**全部观测地址 < `0x10000000`** ⇒ 与阶段4 候选区 `[0x12000000,0x12C08000)` **不相交**（注意：地址由应用运行期分配，非链接期静态保证）。详见 `…/address_facts.md`。
+- **TIMING-17/36 与 I/O delay**：TIMING-17 critical 236、TIMING-36 critical 1、`Timing 38-249`（rgb2dvi `SerialClk`×5 未声明）仍开放；准备 `…/t05_closeout_prep_20261024_r01/timing_io_applicability_prep.md`（DRC 0 error / 局部 WNS>0 **不替代**完整约束签核；不加虚假关系或豁免）。
 - **无 ILA**（BASIC 许可禁 `create_debug_core`）：以计数器/状态寄存器、cache 一致性取帧、受控转储、离线仿真补足；**不因此免除**功能/时序/耐久标准；本轮不改许可、不植入调试核。
-- **真彩目视**（Wong：不偏黄不偏青）：**未做**；机读证据不能替代目视确认。
+- **真彩目视**（Wong：不偏黄不偏青）：**未做**（窗口内机读证据不能替代）；需 Wong 在场。
 - task-11 网表交叉核对未完成（补丁已人工审阅）；未做电气测量、未烧 QSPI、未改接线；传感器寄存器改动均为易失。
 
 ## 范围排除（非未闭合项；依据 Wong 2026-10-24 决定）
@@ -55,7 +57,7 @@
 
 ## 未提交改动归属（接手声明，不覆盖不回退）
 - 未跟踪散落件：`NA/`、`clockInfo.txt`（旧轮、非本阶段产物，保留不动）；`tmp/**` 为构建缓存，不入提交。
-- 本轮（STATE 统一 + 离线收尾准备）改动归属：`.codex/STATE.md`、`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/**` 归 **DSH 阶段3 总控（stage3-lead）**；不改 `main`/`w4`/`w5`/`w6`/`w2b`/厂商原件；不 push；不写两个 mailbox（只读）。
+- 本轮（STATE 统一 + 离线收尾准备 + **板级窗口**）改动归属：`.codex/STATE.md`、`report/evidence/S3-T05/{t05_closeout_prep_20261024_r01,t05_stage3_window_20261024_r01}/**`、`report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/{README.md,hashes.txt}`（UR-2 标题更正）、`report/evidence/S3-T17/hw_authorization.json`、`scripts/stage3_t05/jtag_{liveness_marker,s2mm_sr_clear,addr_map_read,addr_scan,addr_scan_mm2s}.tcl` 归 **DSH 阶段3 总控（stage3-lead）**；不改 `main`/`w4`/`w5`/`w6`/`w2b`/厂商原件；不 push；不写两个 mailbox（只读）。
 
-## 交接行（11 字段，2026-10-24 01:05；上一条见 Git 历史与接管证据）
-任务=`阶段3：STATE 统一（015 r03 §2.3）+ 离线收尾准备（§2.4 不需板卡部分）；板级项待 Wong 开工信号` | 负责人=`DSH 阶段3 总控（stage3-lead）＝ dbdf 唯一写入方` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`scripts/stage3_t17/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`.codex/STATE.md`、`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/**` 归 DSH 阶段3 总控待提交；`tmp/**` 为构建缓存不入提交` | 让出声明=`015 r03 §2.3 指定 DSH 阶段3 总控为 dbdf 唯一实际写入方；本树自 2026-10-23 10:10 CLAIMED→IN_PROGRESS 独占写入（handoff_check --claim 真实退出码 0）；无让出` | 心跳(UTC+8)=`2026-10-24 01:05` | 证据入口=`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/`（**本轮 STATE 口径 + 阶段B 处置 + G2 材料 + TIMING/VDMA/J10 准备**）、`…/t05_new_module_reverify_20261023_r01/`（颜色解除受阻，6/6 哈希复核）、`report/evidence/S3-T17/{t17_closeout_20261023_r01,t17_quickfix_20261023_r01,t17_fix_20261023_r01,t17_color_retest_prep_20261023_r01,t17_guard_ok_20261023_r01}/`（工具与修复轮）、`report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/`（接管与自证）` | 恢复命令=`cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id <新RunId>（须在 dbdf 内跑）；python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest；python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest；获 Wong 开工信号后按 018 §3.3 在单次窗口执行板级项（耐久/VDMA/TIMING/J10/目视）` | 状态/下一接手方=`IN_PROGRESS（颜色项 PASS_VERIFIED_NEW_MODULE；阶段3 整体 G5 未通过；完整独立 G2 待 DSH 项目总控另派 Reviewer；板级项待 Wong 开工信号与窗口，未获信号不动板）/ 下一接手方=DSH 阶段3 总控（dbdf 唯一写入方）`
+## 交接行（11 字段，2026-10-24 01:30（板级窗口收窗）；上一条见 Git 历史与接管证据）
+任务=`阶段3：STATE 统一（015 r03 §2.3）+ 离线收尾准备（§2.4 不需板卡部分）；板级项待 Wong 开工信号` | 负责人=`DSH 阶段3 总控（stage3-lead）＝ dbdf 唯一写入方` | 工作树/分支=`D:\codex-worktrees\dbdf`/`codex/stage3-video` | 起始提交=`f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`scripts/stage3_t17/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/`、`clockInfo.txt` 为旧轮散落件、保留不动；`.codex/STATE.md`、`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/**` 归 DSH 阶段3 总控待提交；`tmp/**` 为构建缓存不入提交` | 让出声明=`015 r03 §2.3 指定 DSH 阶段3 总控为 dbdf 唯一实际写入方；本树自 2026-10-23 10:10 CLAIMED→IN_PROGRESS 独占写入（handoff_check --claim 真实退出码 0）；无让出` | 心跳(UTC+8)=`2026-10-24 01:30` | 证据入口=`report/evidence/S3-T05/t05_stage3_window_20261024_r01/`（**板级窗口：耐久 31min15s、VDMA PARTIAL、参考帧集、地址事实、收窗记录**）、`report/evidence/S3-T05/t05_closeout_prep_20261024_r01/`（STATE 口径 + 阶段B 处置 + G2 材料 + TIMING/VDMA/J10 准备）、`…/t05_new_module_reverify_20261023_r01/`（颜色解除受阻，6/6 哈希复核）、`report/evidence/S3-T17/{t17_closeout_20261023_r01,t17_quickfix_20261023_r01,t17_fix_20261023_r01,t17_color_retest_prep_20261023_r01,t17_guard_ok_20261023_r01}/`（工具与修复轮）、`report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/`（接管与自证）` | 恢复命令=`cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id <新RunId>（须在 dbdf 内跑）；python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest；python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest；获 Wong 开工信号后按 018 §3.3 在单次窗口执行板级项（耐久/VDMA/TIMING/J10/目视）` | 状态/下一接手方=`IN_PROGRESS（颜色项 PASS_VERIFIED_NEW_MODULE；**板级窗口已执行**：耐久达标、VDMA PARTIAL、参考帧集与地址事实已交付；**阶段3 整体 G5 仍未通过**，完整独立 G2 待另派 Reviewer，TIMING/I-O 与真彩目视仍开放；J10=范围排除）/ 下一接手方=DSH 阶段3 总控（dbdf 唯一写入方）`

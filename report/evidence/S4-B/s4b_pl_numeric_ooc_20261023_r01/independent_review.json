@@ -1,0 +1,19 @@
+{
+  "reviewer": "/root/review_adapter_execution",
+  "decision": "PASS_EVIDENCE_AND_CONCLUSIONS_ONLY",
+  "reviewed_manifest_sha256": "42654d89b2eec51762b926411d01dce3f1499c4401f4940af8f1c11ecc049323",
+  "source_commit": "c9bab114d535191ae2dc2ef8bdcd087f15ed672a",
+  "scope": "只读核对所有清单SHA、真实两RTL Git字节、原日志、3报告、Tcl、XDC、DCP存在及SHA。无重型重跑或硬件。",
+  "actual_checker_exits": {
+    "check_recorded_timing": 1,
+    "evidence": 0,
+    "inputs": 2
+  },
+  "accurate_conclusion": "综合成功；整体时序未闭合。288为保持违例端点总数，仅最差路径已明确是p00输入→寄存器，不能外推全部为输入。",
+  "limits": [
+    "综合后施加20ns和IOdelay0、HD.CLK_SRC未设、没有布局布线。",
+    "寄存器间max/min slack不能抵消整体hold违例。",
+    "Vivado日志peak不是系统峰值；无实测频率/FPS/整网/板测/4D。"
+  ],
+  "prior_numeric_probe_record": "原独立probe仅持久化脚本及result.json；stdout仅在对话工具返回，未补造stdout/stderr文件；root闭合时另逐项验证r04 artifacts。"
+}

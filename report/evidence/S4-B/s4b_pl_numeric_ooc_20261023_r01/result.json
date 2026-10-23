@@ -1,0 +1,92 @@
+{
+  "status": "SYNTHESIS_PASS_TIMING_NOT_CLOSED",
+  "source_commit": "c9bab114d535191ae2dc2ef8bdcd087f15ed672a",
+  "source_bindings": [
+    {
+      "path": "src/s4b_preproc_fp64.sv",
+      "sha256": "137e7519e98af3e4a8577d3328716217c20722b9f5d7c0399eef4e1c375fd2d7"
+    },
+    {
+      "path": "src/s4b_preproc_pixel.sv",
+      "sha256": "4c4563433e9b5d868dde8c9232326afce1ddc4d4297bb548c7fc5252c6e284c1"
+    }
+  ],
+  "frozen_record_sha256": "a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd",
+  "session": {
+    "id": "vivado-20261023-190716-505f4411",
+    "pid": 36604,
+    "mode": "TCL",
+    "tool": "Vivado 2026.1",
+    "part": "xc7z020clg400-2",
+    "closed": true
+  },
+  "commands": [
+    "set_param general.maxThreads 2",
+    "read_verilog -sv {D:/codex-worktrees/w4/src/s4b_preproc_fp64.sv}",
+    "read_verilog -sv {D:/codex-worktrees/w4/src/s4b_preproc_pixel.sv}",
+    "get_parts xc7z020clg400-2",
+    "synth_design -top s4b_preproc_pixel -part xc7z020clg400-2 -mode out_of_context",
+    "create_clock -name preproc_clk -period 20.000 [get_ports clk]",
+    "set_input_delay -clock preproc_clk 0.000 [get_ports -filter {DIRECTION == IN && NAME != clk}]",
+    "set_output_delay -clock preproc_clk 0.000 [all_outputs]",
+    "write_checkpoint {numeric_synth.dcp}",
+    "write_xdc {numeric_post_synth.xdc}",
+    "report_utilization -file {utilization.rpt}",
+    "report_timing_summary -delay_type min_max -report_unconstrained -file {timing_summary.rpt}",
+    "report_timing -delay_type max -max_paths 10 -file {timing_paths.rpt}",
+    "dict create tool_version [version -short] part [get_property PART [current_design]] sequential_cells [llength [get_cells -hierarchical -filter {IS_SEQUENTIAL}]] internal_max_slack [get_property SLACK [get_timing_paths -from [all_registers] -to [all_registers] -delay_type max -max_paths 1]] internal_min_slack [get_property SLACK [get_timing_paths -from [all_registers] -to [all_registers] -delay_type min -max_paths 1]]"
+  ],
+  "native_exit_codes": {
+    "read_sources": 0,
+    "synth_design": 0,
+    "constraint_and_checkpoint_batch": 0,
+    "reports_batch": 0,
+    "internal_slack_query": 0
+  },
+  "synthesis": {
+    "elapsed_seconds_mcp": 42.669,
+    "elapsed_seconds_vivado": 43,
+    "vivado_peak_memory_MB": 2008.668,
+    "errors": 0,
+    "critical_warnings": 0,
+    "warnings": 6,
+    "repeat_count": 1
+  },
+  "resources": {
+    "slice_LUT": 1930,
+    "slice_register": 1674,
+    "BRAM_tile": 0,
+    "DSP": 0
+  },
+  "timing": {
+    "clock_period_ns": 20.0,
+    "constraints_applied_after_synthesis": true,
+    "io_delay_ns": 0.0,
+    "wns_ns": 9.411,
+    "tns_ns": 0.0,
+    "whs_ns": -0.276,
+    "ths_ns": -79.347,
+    "hold_failing_endpoints": 288,
+    "reg_to_reg_max_slack_ns": 9.411,
+    "reg_to_reg_min_slack_ns": 0.246,
+    "HD_CLK_SRC": "NOT_SET",
+    "design_state": "Synthesized"
+  },
+  "warnings_interpretation": [
+    "6条综合警告均为局部临时值对应未使用顺序元件移除；不改已冻结RTL。",
+    "HD.CLK_SRC未设，OOC缺少顶层时钟缓冲位置，不能估计真实时钟延时/偏斜。",
+    "整体hold违例在零输入延时端口模型下出现；保留实际报告，不作为真实系统hold结论。"
+  ],
+  "checkpoint": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B-PL-NUMERIC-OOC\\numeric_ooc_20261023_r01\\numeric_synth.dcp",
+    "sha256": "87f1895d44cb89b9f721c539551ddbee2cd1eb6b9efb4efde4005cbcf1048736",
+    "keep_reason": "恢复本次综合网表及综合后约束，支持时序/资源复核；本机输入不入源码Git，可由已绑定源与Tcl重建。"
+  },
+  "limits": [
+    "未在综合优化前施加时钟，当前为综合后估算报告。",
+    "未布局布线，整体Timing constraints are not met，不能称50MHz时序闭合。",
+    "仅单通道数值核，不含几何表/整帧/AXI/网络/PS；禁止与旧r04报告相加冒称集成资源。",
+    "无频率或FPS实测、无JTAG/UART/板测/4D。",
+    "Vivado日志内peak非系统峰值，其他资源未测。"
+  ]
+}

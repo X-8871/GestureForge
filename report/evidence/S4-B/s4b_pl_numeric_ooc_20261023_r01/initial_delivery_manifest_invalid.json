@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-B",
+  "run_id": "s4b_pl_numeric_ooc_20261023_r01",
+  "source_commit": "c9bab114d535191ae2dc2ef8bdcd087f15ed672a",
+  "evidence_dir": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01",
+  "interfaces": [
+    {
+      "name": "冻结D2数值规则",
+      "version": "S1-T02-D2",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/s4b_preproc_fp64.sv",
+      "sha256": "137e7519e98af3e4a8577d3328716217c20722b9f5d7c0399eef4e1c375fd2d7",
+      "role": "source"
+    },
+    {
+      "path": "src/s4b_preproc_pixel.sv",
+      "sha256": "4c4563433e9b5d868dde8c9232326afce1ddc4d4297bb548c7fc5252c6e284c1",
+      "role": "source"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4B-PL-NUMERIC-OOC\\numeric_ooc_20261023_r01\\numeric_synth.dcp",
+      "role": "input",
+      "sha256": "87f1895d44cb89b9f721c539551ddbee2cd1eb6b9efb4efde4005cbcf1048736"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/numeric_post_synth.xdc",
+      "role": "result",
+      "sha256": "4876f51f3cf1822504eb27552c3b1d651a27b0386dbb983afd3616470d6dc329"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/reproduce.tcl",
+      "role": "result",
+      "sha256": "07c862691e623e371ac6049a3a7abca3828f0a1d88e638ca9e7239de2e5a3b63"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/result.json",
+      "role": "result",
+      "sha256": "da9e5764d5a27e1ea4ad8cdc6bf1743161909afa4fd7dc95158754f60e0e8e05"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/timing_paths.rpt",
+      "role": "result",
+      "sha256": "dcb851a42843ffc74d3d2c24549d49d4b1e9d9c9c3a16b42ccb8c98ab455baac"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/timing_summary.rpt",
+      "role": "result",
+      "sha256": "378b93e64766b9258ce3fb150330b9233671eed131b9fc0bb2769a7b6101c9f4"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/utilization.rpt",
+      "role": "result",
+      "sha256": "a38762c7398ab5c7654d534a9b7c975bd5b980f4b88ecc6813d91681eb39a5b4"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_numeric_ooc_20261023_r01/vivado_session.log",
+      "role": "log",
+      "sha256": "d44f0a0be675ce56945c7641f3d84e7551f35282523b9e7a84f849acd7ca4061"
+    }
+  ],
+  "checks": [
+    {
+      "name": "numeric_ooc_synthesis",
+      "status": "PASS",
+      "command": "synth_design -top s4b_preproc_pixel -part xc7z020clg400-2 -mode out_of_context",
+      "exit_code": 0
+    },
+    {
+      "name": "timing_closure",
+      "status": "FAIL",
+      "command": "report_timing_summary -delay_type min_max -report_unconstrained -file {timing_summary.rpt}",
+      "exit_code": 0,
+      "reason": "工具成功生成报告，但整体hold不满足；未布局布线。"
+    },
+    {
+      "name": "hardware",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本轮纯OOC综合，无硬件接管和实物操作。"
+    }
+  ],
+  "tool_versions": {
+    "vivado": "2026.1 build 6511674"
+  },
+  "limitations": [
+    "未在综合优化前施加时钟，当前为综合后估算报告。",
+    "未布局布线，整体Timing constraints are not met，不能称50MHz时序闭合。",
+    "仅单通道数值核，不含几何表/整帧/AXI/网络/PS；禁止与旧r04报告相加冒称集成资源。",
+    "无频率或FPS实测、无JTAG/UART/板测/4D。",
+    "Vivado日志内peak非系统峰值，其他资源未测。"
+  ]
+}

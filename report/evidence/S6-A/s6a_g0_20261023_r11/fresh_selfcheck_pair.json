@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "artifact": "fresh_selfcheck_pair",
+  "rule": "构建后新鲜自检两次（间隔秒数见 gap_seconds）都必须 exit 0 且 C11 无哈希不符",
+  "gap_seconds": 30,
+  "first": {
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261023_r11/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261023_r11/upstream_bindings.json --out D:\\codex-worktrees\\w6\\tmp\\6\\fresh_selfcheck_1.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261023_r11 --manifest report/evidence/S6-A/s6a_g0_20261023_r11/delivery_manifest.json --state .codex/STATE.md",
+    "exit_code": 1,
+    "status": "FAILED",
+    "c11": "FAIL",
+    "errors": [
+      "C11: 清单哈希不符：claim_verification.json"
+    ],
+    "out": "D:\\codex-worktrees\\w6\\tmp\\6\\fresh_selfcheck_1.json"
+  },
+  "second": {
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261023_r11/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261023_r11/upstream_bindings.json --out D:\\codex-worktrees\\w6\\tmp\\6\\fresh_selfcheck_2.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261023_r11 --manifest report/evidence/S6-A/s6a_g0_20261023_r11/delivery_manifest.json --state .codex/STATE.md",
+    "exit_code": 1,
+    "status": "FAILED",
+    "c11": "FAIL",
+    "errors": [
+      "C11: 清单哈希不符：claim_verification.json"
+    ],
+    "out": "D:\\codex-worktrees\\w6\\tmp\\6\\fresh_selfcheck_2.json"
+  },
+  "verdict": "FAILED"
+}

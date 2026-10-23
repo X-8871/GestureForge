@@ -187,6 +187,34 @@
   ③ 已知成本：套件单次约 20 分钟，冻结时由总控与复核方各跑一次。
 - **冻结后纪律**：提交 G2 后停止写 w6（含 STATE）；需要更新须下轮解冻。
 
+## 批准应用轮（2026-10-23）：24 项参数由待批准转为已批准
+
+- **批准记录**：CTRL-DSH-HANDOFF/decisions/`stage6_approval_receipt_20261023_r01.md`（主仓库；w6 内引用见行为表 approval_record）
+  （用户原文「按你建议」「阶段7暂时不开」，2026-10-23）。行为表新增 `approval_record`，
+  24 项参数写入 `approval_status=APPROVED_20261023` 与 `approval_ref`；**参数值零差异**（批准的是草案值）。
+- **逐项生效决定**：`T6-A02` 保持 500ms 不修改；
+- `B16 S_DEDUP` 登记为**设计上不可达**（同一行为已由 H-10 全局冷却门覆盖），不计入覆盖项；
+- `T6-S01`/`T6-S02` 批准（30fps 第 8 帧 233.1ms，按 T6-S03「取较晚」）；`U6-12` 保留并计入覆盖的迁移为 M4；
+  `U6-16` STABLE 获取内锁存；`U6-15` = `A_SWITCH_UI`+`A_SWITCH_CHANNEL`；`U6-13` 口径固化、**数值仍 `NOT_RUN`**；
+  `T6-STALE_LIMIT` = 200ms，标注**阶段4/5/6 同一常量**。
+- **`C4` 语义同步**：由「全部 PENDING_APPROVAL」改为「**不得存在 PENDING，且每项有批准记录索引**」；
+  新增 `verification/approval_regression.py` 反向自测（副本内注入 `PENDING_APPROVAL` → C4 必须 FAIL；
+  基线 ALL_PASS），实测 `baseline [0, PASS] / injected [1, FAIL]`，并作为 claim `S6A-C7`。
+- **新 RunId**：S6-A `s6a_g0_20261023_r11`、S6-B `s6b_core_20261023_r06`（**未**就地改写 r10/r05；旧轮次保留并登记取代）。
+- **两段式重新冻结（本轮）**：F5 = 交付内容（本提交）、G5 = 自证记录（F5 为主体）+ 传输克隆自证；
+  tag `stage6-freeze-20261023-r4` 打在 G5；旧 tag（r1/r2/r3 与两个 per-profile tag）保留不动。
+  四条硬条件：① 两份附录由冻结工具可复现、计数正确且不得存在 PENDING ② 传输克隆 `--commit F5` 双侧全绿
+  ③ `--commit G5` 双侧全绿 ④ 不引用未入库的 `tmp/` 产物作为套件结论。
+- **边界（照批准记录 §3）**：本批准不等于 G4/G5 通过；`T6-A03` 数值 `NOT_RUN`（待阶段4 实测帧周期 P，不得填造）；
+  G3 板测未做；集成（6-D）待阶段4/5 接口冻结；阶段7 暂不开工作树。
+- **冻结后纪律**：提交 G5 后停止写 w6（含 STATE）。
+
+## 批次 C 三项开放缺口（本轮未做，如实登记；不得当通过凭据）
+
+- ① 陈旧 `fresh_selfcheck_pair.json` 记录（上一轮 r10 入库为 FAILED；本轮 r11/r06 已重新生成）；
+- ② 套件两条必 FAIL 例对**真实 run-dir** 跑 `claim_verify` ⇒ 跑套件会改写冻结附录（应改为仅临时副本）；
+- ③ 套件 `skipped` 曾计 `AS_EXPECTED`（fail-open）⇒ 应改为 fail-closed，并把套件产物直接入库。
+
 ## 11 字段交接行（2026-10-23 04:20）
 
 任务=`S6-A v1.7（r08）第 7 轮复评 BLK-r07-1/N-r07-1..6 收尾 + S6-B r03 修 acquisition_id 与 action_records 两阻断` | 负责人=`DSH 阶段6 总控 stage6-lead3` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`d8bc70e43572a8e44ddcd4b3489166e28a1c6151`（本阶段开工基线；本轮修订基线 `bdcf896`） | 允许修改范围=`w6 工作树内 docs/stage6/**、verification/s6_g0_selfcheck.py、verification/s6a_build_evidence.py、verification/s6a_rerun_legacy_failures.py、verification/s6a_r07_probe.py、verification/export_selfproof.py、src/stage6/**、verification/s6b_*.py、report/evidence/S6-A/s6a_g0_20261022_r07/**、report/evidence/S6-B/**、.codex/STATE.md` | 未提交改动归属=`S6-A r07 与 S6-B 修正随本轮提交；r01..r06 与 S6-B r01 证据不改写` | 让出声明=`未让出（w6 由本阶段总控独占）` | 心跳(UTC+8)=`2026-10-23 04:20` | 证据入口=`report/evidence/S6-A/s6a_g0_20261022_r08/`（17 项 ALL_PASS；判别力探针 8 例 + 历史口径对照 2 例；冻结自证见 export_selfproof.json）与 `report/evidence/S6-B/s6b_core_20261023_r02/`（23/23 PASS + F6 自证 ALL_SELF_PROVEN） | 恢复命令=`cd /d D:\codex-worktrees\w6 && python -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_g0_20261022_r07/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_g0_20261022_r07/upstream_bindings.json --out tmp/6/S6-A/s6a_g0_20261022_r07/resume.json --project-root D:/codex-worktrees/w6 --evidence-dir D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07 --manifest D:/codex-worktrees/w6/report/evidence/S6-A/s6a_g0_20261022_r07/delivery_manifest.json --state .codex/STATE.md` | 状态/下一接手方=`S6-A r08 + S6-B r03 DELIVERED_PENDING_REVIEW；1839766 = CANDIDATE_FREEZE（未冻结），工作区修正双侧已全绿、待终审后一次性提交（未自称通过）/ 项目总控派 Reviewer 复评`

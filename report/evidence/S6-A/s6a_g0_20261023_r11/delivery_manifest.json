@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261023_r11",
+  "source_commit": "f5b749ed1a49dc7e05238511d3b69d63bf3e9b8d",
+  "evidence_dir": "report/evidence/S6-A/s6a_g0_20261023_r11",
+  "interfaces": [
+    {
+      "name": "S2A-T01 模型交付规格与 G0 接口冻结（类别顺序/score 阈值/≤15 框/同分顺序）",
+      "version": "G0_FROZEN",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S2A-T01_模型交付规格与G0接口冻结.md",
+      "sha256": "7c2c8684ce0b6377f5742964464b914a23410bd3f6e4f198075e6c97b371f230"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "45c15354076107422d5c03afb5ec135aad471cf4dfa84df90b2f4ce5a7c17a84",
+      "role": "source",
+      "keep_reason": "被证据绑定的规格文档（v1.8/r09）"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "0fe5b6191e81a190df67c91ed54b4855e82bc99285ef094b51ac4439701f688f",
+      "role": "source",
+      "keep_reason": "被证据绑定的机器可读行为表（v1.8/r09）"
+    },
+    {
+      "path": "verification/s6a_rerun_legacy_failures.py",
+      "sha256": "afd7cf83447432a585842b7945951d7509d64cfaf0e1b63f36ce6909c55eb968",
+      "role": "source",
+      "keep_reason": "旧包失败证据可复现重跑脚本（N03）"
+    },
+    {
+      "path": "verification/s6a_r09_probe.py",
+      "sha256": "e25ba17e13978853a00bd15910fbeaeeb6d926b6b5865c44ef8a28c9024b2d25",
+      "role": "source",
+      "keep_reason": "C12/C7/C14/C16 断言判别力探针（基线 1 例 + 注入 8 例 + 历史口径对照 2 例）"
+    },
+    {
+      "path": "verification/transport_clone_check.py",
+      "sha256": "27e1d3eefecac44a494d8054090078cc30690322984c72b2d6da3576443ff716",
+      "role": "source",
+      "keep_reason": "传输克隆可解析性检查（source_commit 必须可达）"
+    },
+    {
+      "path": "verification/tool_self_tests.py",
+      "sha256": "edcce3db6cb7a3a04830e6b10c22db2d28f1086790ffff8e474d8aaa64c06920",
+      "role": "source",
+      "keep_reason": "工具自测两例（必 PASS / 必 FAIL）"
+    },
+    {
+      "path": "verification/hash_convention_check.py",
+      "sha256": "1d5d720b7e4a4e181368bd81b432756bb42f54fe73d3ab1c46f47b1fc20d3b64",
+      "role": "source",
+      "keep_reason": "O1 换行口径双向反例（真实 verify_hash）"
+    },
+    {
+      "path": "verification/claim_verify.py",
+      "sha256": "6536dd6a12179bfcc6189146e6a6b4faa668b02584dacee8aac5cb7987c65629",
+      "role": "source",
+      "keep_reason": "验证附录生成器（声明↔命令↔真实退出码↔可观察输出）"
+    },
+    {
+      "path": "verification/export_selfproof.py",
+      "sha256": "94bd1e510a26c51057da019978ee7d2eba085a2989aac973165291e4dd8281a5",
+      "role": "source",
+      "keep_reason": "冻结自证工具（导出提交后复跑自检 + 两个交付检查器，F6 规则）"
+    },
+    {
+      "path": "verification/s6_g0_selfcheck.py",
+      "sha256": "a96623b88b0c7595d800677eda06ce2330b06dd2b1711d291aec392a273fb201",
+      "role": "source",
+      "keep_reason": "加固后的 S6-A 自检脚本"
+    },
+    {
+      "path": "verification/s6a_build_evidence.py",
+      "sha256": "62adf2f6e479846b46ebec1ac719abec40eebfcc34575394fd4b8c331a6328d6",
+      "role": "source",
+      "keep_reason": "证据清单构建器（真实执行检查并记录退出码）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/approval_regression.json",
+      "sha256": "bfcf58b2f01e23c8b018cb6f0c1a5a47348209647e26ef1b2b3bcb061603eb9b",
+      "role": "result",
+      "keep_reason": "证据文件：approval_regression.json"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/check_evidence_mode_output.txt",
+      "sha256": "fb0ebb4645853867c80d3783f69092a3bef0a7f1977e1f91ea948f8318ec8b54",
+      "role": "result",
+      "keep_reason": "check_stage_delivery --mode evidence 真实 stdout"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/check_inputs_mode_output.txt",
+      "sha256": "ad26f8e7ed98647c56132a19c046cc8fbed3a25b96c4c7341b0b4e9138223584",
+      "role": "result",
+      "keep_reason": "check_stage_delivery --mode inputs 真实 stdout"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/claim_verification.json",
+      "sha256": "114c25c12ab8883cbf132dc3af9f8b64d0793b3bedf0aa4ab1e25cdca8dc786e",
+      "role": "result",
+      "keep_reason": "证据文件：claim_verification.json"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/claim_verification.md",
+      "sha256": "8551c8ff3f6785afd79a8125f21b12f3175348e78a1d263f6120363e2a4c26ec",
+      "role": "log",
+      "keep_reason": "证据文件：claim_verification.md"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/coverage_matrix.json",
+      "sha256": "b60b7f3c99b127f48f9fa2c977125905d3d9ba7588d27155894c8932193cc5bc",
+      "role": "result",
+      "keep_reason": "CDX-012 §2 与计划 L102–L108 覆盖矩阵"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/fix_record.json",
+      "sha256": "2ef6fccbcf26daa021a59b25094ffc6ec1046509c820ab654026e33dbf1bfa26",
+      "role": "result",
+      "keep_reason": "评审 BLK/NBL 项逐条修复记录"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/fix_record.md",
+      "sha256": "8cc95a5f6332bfc95439b8384b3a3302f9c309c7bf1329ed465549781d16b6ae",
+      "role": "log",
+      "keep_reason": "评审修复记录人读版"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/fresh_selfcheck_pair.json",
+      "sha256": "16202cf6c1ff00ad76aae3dd3479d0a5365bfa29bb0a6c44ca7eb47024d8a204",
+      "role": "result",
+      "keep_reason": "证据文件：fresh_selfcheck_pair.json"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/hand_computed_cases.json",
+      "sha256": "0eec09f71739a24a3a492791701c6df993dfe50a9270a0eb177cb7c50df759b7",
+      "role": "input",
+      "keep_reason": "人工推导的手算边界样例（S6-C/复评输入）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/hash_convention_counterexamples.json",
+      "sha256": "6a69c7506cc3bc3b1f4f7a22e924968dcb61aa9c102da6cee293c2bf10b02942",
+      "role": "result",
+      "keep_reason": "证据文件：hash_convention_counterexamples.json"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/hashes_sha256.txt",
+      "sha256": "005f43cbc656125b6f05dee2448aa37328ae260bd3bde62ee61a616885371ea3",
+      "role": "result",
+      "keep_reason": "证据目录已存在文件的 SHA-256 清单"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/inputs_manifest.json",
+      "sha256": "52735fdb42a38001780d92218d95deb8bbe4c43324d46850798af69f045b387d",
+      "role": "input",
+      "keep_reason": "输入清单（冻结上游接口与输入文件绑定）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/limitations_not_executed.json",
+      "sha256": "0285e11f9e5666f247077c4ac190ff327948371759f814898727afd3efe78c2b",
+      "role": "result",
+      "keep_reason": "限制、未执行与阻塞项登记"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/old_package_under_test.json",
+      "sha256": "68af7a3f762ce5a8e2f0982f5c677cdcbb646ad7b7adf02c22f1694b7615e190",
+      "role": "input",
+      "keep_reason": "r01 被检版本 git 字节与哈希（BLK-2 可复核）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_b07_old_wording_stdout.txt",
+      "sha256": "69427eb86989f80ed4c055906acd57067a787ff37c89223a8d483fd91a8f94b4",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_b07_old_wording_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_b13_predicates_used_added_stdout.txt",
+      "sha256": "ce795b221629864299314fe57740eb86b83219cf011e6b2b9edfd49e1d4435f4",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_b13_predicates_used_added_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_baseline_no_injection_stdout.txt",
+      "sha256": "621f59b2d367dd4447002ecf58994aa01f81b04c907cf7b38817e9ed67576ce6",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_baseline_no_injection_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_case_out_of_sequence_index_stdout.txt",
+      "sha256": "6c2ce3da2b54692b6d134cb8cf79485f801f173c8f63d41a9cd68a5209094d2d",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_case_out_of_sequence_index_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_case_span_wrong_stdout.txt",
+      "sha256": "3e931e0afd32302858911da25e02eea11828dbeb171c232bacf4ebcaf68c0060",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_case_span_wrong_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_case_timeout_frame_action_stdout.txt",
+      "sha256": "71a238dd8db4e0d3a05620b2b5d35efddfab73e7b3ccf626e22b2a038c2147d4",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_case_timeout_frame_action_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_empty_predicates_used_stdout.txt",
+      "sha256": "6bafcd48d5b81053ee1866ee6bb56be7e1ce2f16ef3cb21939595672da39a4c3",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_empty_predicates_used_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_historical_model_check_r05_stdout.txt",
+      "sha256": "e4495a89ac7b77991b5a3b922ccd2754f91b733867144c0db72e8cfeec7313ea",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_historical_model_check_r05_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_historical_model_check_r06_stdout.txt",
+      "sha256": "193078e5e33c961d42a2942a2ed5a802bb14e2803d447e413c952e914627fafc",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_historical_model_check_r06_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_m4_conflict_phrase_stdout.txt",
+      "sha256": "8239c61deff878e9505ea5033460dd62a223beb95e38bffd9474eec1e8c0018e",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_m4_conflict_phrase_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_m5_window_advance_removed_stdout.txt",
+      "sha256": "8097212edf766f916a9c305d7b72de0b9c58d9fdadee6f7676e7180d492c6b64",
+      "role": "diagnostic",
+      "keep_reason": "证据文件：probe_m5_window_advance_removed_stdout.txt"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/probe_summary.json",
+      "sha256": "7faad694c583d22b190e29262261578f3f8eac4020afed588495171be57be0e0",
+      "role": "result",
+      "keep_reason": "判别力探针汇总（基线 1 例 exit 0 + 注入 7 例（共 8 例）+ 历史口径对照 2 例，共 10 次运行；F3/F10）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/r02_package_under_test.json",
+      "sha256": "ada293f7c3e2dbe2434e4e9987129f4613301f27692db5a14b2e30276b470fae",
+      "role": "input",
+      "keep_reason": "r02 被检版本 git 字节与哈希（BLK-1 失败证据）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/r03_package_under_test.json",
+      "sha256": "737c1c2379fbce2526ccced3d00272ca86507b72622f2501625459b0cfe3ddc9",
+      "role": "result",
+      "keep_reason": "r03 被检版本 git 字节与哈希（R3-B01/R3-B02 失败证据）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/r04_package_under_test.json",
+      "sha256": "3017e816ea3f7d115a90c922ea311b35c2e959cd467dafe6a2bf3f5f8801179b",
+      "role": "result",
+      "keep_reason": "r04 被检版本 git 字节与哈希（N-r04-01..04 捕获证据）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/S6A_run_summary.md",
+      "sha256": "6ba4e8f15feda735fba58313dd0a790ceaf0e07c91f756c2fcedf60690517a30",
+      "role": "log",
+      "keep_reason": "运行摘要（真实命令、退出码入口与结论边界）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_approved_probe.json",
+      "sha256": "de93a089140768482dc5c677fee0d4f3189f0a24d11d9623a2b05b50c3305563",
+      "role": "result",
+      "keep_reason": "证据文件：selfcheck_approved_probe.json"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_c11_stdout.txt",
+      "sha256": "7eeff2e806781439962e5ba291d963ca073774fd56f85d87c6ddf8a1be762069",
+      "role": "diagnostic",
+      "keep_reason": "完整 C11 自检运行 stdout"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_old_package_failure.json",
+      "sha256": "be0a1a4e57fcd6e3dc7e1cfdd8d7cb95677b868ed23bc55b1cbb62db32d12699",
+      "role": "diagnostic",
+      "keep_reason": "加固自检在 r01 真实字节上的失败输出（exit 1）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_old_package_failure_stdout.txt",
+      "sha256": "7d8623fb225b5c56743af4e571780a3391423060585c77dd9322a34a67949e9f",
+      "role": "diagnostic",
+      "keep_reason": "r01 失败运行 stdout 原文"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_r02_blk1_failure.json",
+      "sha256": "38a8b4de795def3c85d75c7d5f7da85ee8e65c08ead9045a06f8d0898af9c7bb",
+      "role": "diagnostic",
+      "keep_reason": "加固自检在 r02 上的失败输出，C12 捕获 BLK-1"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_r02_blk1_failure_stdout.txt",
+      "sha256": "9ea009e3104cef164ab28fb8492b61d9d54490c0e886ab349e90c24df4a0930d",
+      "role": "diagnostic",
+      "keep_reason": "r02 BLK-1 失败运行 stdout 原文"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_r03_failure.json",
+      "sha256": "8b6ead3c6cb4e6aca64a68b3046c74f3bbfafcf8b5a9323090da0f7f84458174",
+      "role": "diagnostic",
+      "keep_reason": "加固自检在 r03 上的失败输出（C12 捕获 R3 项、C17 捕获缺锁存块）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_r03_failure_stdout.txt",
+      "sha256": "59cfa056d3a7c88c306a8d6cadd44e1b79cabdcfcf5ca6ec48686116a3e52950",
+      "role": "diagnostic",
+      "keep_reason": "r03 失败运行 stdout 原文"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_r04_failure.json",
+      "sha256": "16473fe589b0342f2985439df8a773d3afa59eca32c1ad517a39ad6e7bde7d4c",
+      "role": "diagnostic",
+      "keep_reason": "r06/r07/r08 自检在 r04 上的失败输出（C12 捕获 M5/policy 缺陷；C7 因**样例数不足 32：29**（缺 HC-30/31/32）失败；F4）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_r04_failure_stdout.txt",
+      "sha256": "a0e98121acddc0f369219a4f459dde78213df6eae95366e21bae60490db090aa",
+      "role": "diagnostic",
+      "keep_reason": "r04 失败运行 stdout 原文（C7 归因：样例数不足 32：29，缺 HC-30）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/selfcheck_result.json",
+      "sha256": "075dc0a2671893cecdebf3b984c1ae319f25ae832ea6d794b21f44d0efc22099",
+      "role": "result",
+      "keep_reason": "修复包自检结果（含完整 C11 清单/STATE 核对）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/tool_self_tests.json",
+      "sha256": "92a0714920d3ca9fc55766223b21d4c579c7d7fb3979bd283d81aadcee089299",
+      "role": "result",
+      "keep_reason": "证据文件：tool_self_tests.json"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261023_r11/upstream_bindings.json",
+      "sha256": "14c060e8462a08725775ec884c55da7c9b56b9008f42bd4244263dc41931087c",
+      "role": "input",
+      "keep_reason": "上游只读文件绑定与并发漂移记录"
+    }
+  ],
+  "checks": [
+    {
+      "name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "首版清单生成后立即实跑"
+    },
+    {
+      "name": "check_stage_delivery.py --mode inputs",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261023_r11\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0
+    },
+    {
+      "name": "check_stage_delivery.py --mode evidence",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "首版清单生成后立即实跑"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "git": "git version 2.56.0.windows.2"
+  },
+  "limitations": [
+    "source_commit = 本轮构建时的 HEAD（修订基线 f5b749ed1a49dc7e05238511d3b69d63bf3e9b8d）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
+    "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。",
+    "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
+    "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1、BLK-r07-1）。",
+    "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
+    "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
+    "selfcheck ALL_PASS / CHECKS_OK 均不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+  ]
+}

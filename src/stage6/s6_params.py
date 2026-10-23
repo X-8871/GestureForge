@@ -27,6 +27,7 @@ from pathlib import Path
 EXPECTED_ARTIFACT = "s6a_stage6_g0_behavior"
 EXPECTED_ARTIFACT_VERSION = "S6A-G0-v1.8"
 PENDING_APPROVAL = "PENDING_APPROVAL"
+APPROVED_20261023 = "APPROVED_20261023"  # Wong 批准（2026-10-23）：值仍为草案值
 
 # 单位换算常量只出现在装载层，不进入判定核心。
 _MS_TO_NS = 1_000_000
@@ -77,7 +78,7 @@ def _sha256_file(path: Path, normalize_newlines: bool = False) -> str:
 
 
 class ParamPack:
-    """阶段6 参数包：只读快照 + 单位换算 + 待批准状态校验。"""
+    """阶段6 参数包：只读快照 + 单位换算 + 状态校验（接受待批准或已批准口径；值始终为草案值）。"""
 
     def __init__(
         self,
@@ -107,9 +108,9 @@ class ParamPack:
                 f"artifact_version 不符：期望 {self.expected_version!r}，"
                 f"实际 {data.get('artifact_version')!r}"
             )
-        if not str(data.get("status", "")).startswith("G0_PACKET_PENDING_APPROVAL"):
+        if not str(data.get("status", "")).startswith(("G0_PACKET_APPROVED_20261023", "G0_PACKET_PENDING_APPROVAL")):
             raise ParamError(
-                "行为表状态不是 G0_PACKET_PENDING_APPROVAL 待批准口径，"
+                "行为表状态不是 G0_PACKET_APPROVED_20261023（已批准）或 G0_PACKET_PENDING_APPROVAL 口径，"
                 f"实际为 {data.get('status')!r}；本实现只接受待批准草案值"
             )
 
@@ -124,9 +125,9 @@ class ParamPack:
         if missing:
             raise ParamError(f"缺少核心必需参数：{missing}")
         for item in self._params.values():
-            if item.get("approval_status") != PENDING_APPROVAL:
+            if item.get("approval_status") not in (PENDING_APPROVAL, APPROVED_20261023):
                 raise ParamError(
-                    f"参数 {item.get('id')} 的 approval_status 不是 {PENDING_APPROVAL}，"
+                    f"参数 {item.get('id')} 的 approval_status 既非 {PENDING_APPROVAL} 也非 {APPROVED_20261023}，"
                     f"实际为 {item.get('approval_status')!r}"
                 )
 
@@ -261,12 +262,12 @@ class ParamPack:
                 for pid, item in sorted(self._params.items())
             ],
             "all_parameters_pending_approval": all(
-                item.get("approval_status") == PENDING_APPROVAL
+                item.get("approval_status") in (PENDING_APPROVAL, APPROVED_20261023)
                 for item in self._params.values()
             ),
             "thresholds_are_draft_not_approved": True,
             "note": (
-                "全部数值为草案值，状态 PENDING_APPROVAL；本快照只证明实现读取了这些值，"
+                "全部数值为草案值（2026-10-23 经 Wong 批准，状态 APPROVED_20261023）；本快照只证明实现读取了这些值，"
                 "不构成阈值冻结或验收结论。"
             ),
         }

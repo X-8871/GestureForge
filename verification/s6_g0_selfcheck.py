@@ -7,7 +7,7 @@
   C2   ID 唯一性与最小规模
   C3   **文档 ↔ JSON 标识集合双向一致**（不变量/迁移/参数/事件/状态/行为行/动作类型，
        迁移另比对 from/to；参数按 §14 表行比对，而不仅是 token 出现）
-  C4   待批准纪律（24 项参数全 PENDING_APPROVAL + 来源/责任人 + 动作映射待批准）
+  C4   批准纪律（不得存在 PENDING；24 项均有 approval_ref + 来源/责任人 + 动作映射已批准）
   C5   五类动作映射一致（class_id 0..4、2A 顺序、target 唯一、类型在支持集合内）
   C6   硬不变量与唯一触发解释完整（H-1..H-10；ONCE_PER_ACQUISITION）
   C7   人工手算样例的**独立复算**（32 例；窗口完成帧按 T6-S03「取较晚满足者」推导，覆盖 30fps 时长支配场景，
@@ -74,7 +74,8 @@ REQUIRED_DOC_KEYWORDS = [
     "W_min",
     "window_complete",
     "H-10",
-    "DELIVERED_PENDING_APPROVAL",
+    "DELIVERED_APPROVED_20261023",
+        "APPROVED_20261023",
     "t_last_submit",
 ]
 REQUIRED_DOC_SECTIONS = ["## 5.", "## 9.", "## 10.", "## 12.", "## 15.", "## 18.", "### 12.1"]
@@ -176,8 +177,9 @@ def check_identity(data: dict[str, Any]) -> None:
                         "S6A-G0-v1.5", "S6A-G0-v1.6", "S6A-G0-v1.7", "S6A-G0-v1.8")
     if version not in allowed_versions:
         raise CheckFailure(f"artifact_version 必须为 {allowed_versions}，实际 {version!r}")
-    if data.get("status") != "G0_PACKET_PENDING_APPROVAL":
-        raise CheckFailure("status 必须为 G0_PACKET_PENDING_APPROVAL")
+    _ok_status = ("G0_PACKET_APPROVED_20261023", "G0_PACKET_PENDING_APPROVAL")
+    if data.get("status") not in _ok_status:
+        raise CheckFailure(f"status 必须为 {_ok_status} 之一")
     for key in (
         "baseline",
         "upstream",
@@ -441,12 +443,23 @@ def check_doc_json_consistency(
 
 
 def check_pending_approval_discipline(data: dict[str, Any], doc_text: str) -> None:
+    """C4（批准后语义，2026-10-23）：**不得存在任何 PENDING**，且每项参数必须有批准记录索引。"""
     params = data["parameters"]
     if len(params) != 24:
         raise CheckFailure(f"参数数量必须为 24，实际 {len(params)}")
+    record = data.get("approval_record") or {}
+    if not record.get("receipt") or not record.get("date"):
+        raise CheckFailure("缺少 approval_record（批准记录引用 receipt 与 date）")
     for item in params:
-        if item.get("approval_status") != "PENDING_APPROVAL":
-            raise CheckFailure(f"{item['id']} 的 approval_status 必须是 PENDING_APPROVAL")
+        status = str(item.get("approval_status", ""))
+        if "PENDING" in status:
+            raise CheckFailure(f"{item['id']} 的 approval_status 仍含 PENDING：{status}")
+        if status != "APPROVED_20261023":
+            raise CheckFailure(f"{item['id']} 的 approval_status 必须为 APPROVED_20261023，实际 {status}")
+        if not item.get("approval_ref"):
+            raise CheckFailure(f"{item['id']} 缺少 approval_ref（批准记录索引）")
+        if item["approval_ref"] != record.get("receipt"):
+            raise CheckFailure(f"{item['id']} 的 approval_ref 与 approval_record.receipt 不一致")
         if not item.get("draft_source"):
             raise CheckFailure(f"{item['id']} 缺少来源标注")
         if item.get("approval_owner") != "项目总控转呈 Wong":
@@ -454,10 +467,13 @@ def check_pending_approval_discipline(data: dict[str, Any], doc_text: str) -> No
     metrics = [item for item in params if item.get("kind") == "metric"]
     if {item["id"] for item in metrics} != {"T6-01", "T6-02", "T6-03"}:
         raise CheckFailure("三项目标指标登记不完整")
-    if data["actions"]["map_status"] != "PENDING_APPROVAL":
-        raise CheckFailure("动作映射必须标为待批准")
-    if "PENDING_APPROVAL" not in doc_text:
-        raise CheckFailure("文档未出现待批准标记 PENDING_APPROVAL")
+    map_status = str(data["actions"].get("map_status", ""))
+    if "PENDING" in map_status:
+        raise CheckFailure(f"动作映射仍标为待批准：{map_status}")
+    if map_status != "APPROVED_20261023":
+        raise CheckFailure(f"动作映射必须标为 APPROVED_20261023，实际 {map_status}")
+    if "APPROVED_20261023" not in doc_text:
+        raise CheckFailure("文档未出现批准标记 APPROVED_20261023")
     if "T6-S03` | 稳定窗口判定逻辑" not in doc_text:
         raise CheckFailure("文档 §14 缺少 T6-S03 行")
 
@@ -1161,8 +1177,9 @@ def check_evidence_integrity(
         state_text = state_path.read_text(encoding="utf-8")
         if "S6-A DONE" in state_text:
             raise CheckFailure("STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW")
-        if "DELIVERED_PENDING_APPROVAL" not in state_text and "DELIVERED_PENDING_REVIEW" not in state_text:
-            raise CheckFailure("STATE 缺少 DELIVERED_PENDING_APPROVAL/REVIEW 状态口径")
+        if not any(k in state_text for k in ("DELIVERED_PENDING_APPROVAL", "DELIVERED_PENDING_REVIEW",
+                                             "DELIVERED_APPROVED_20261023")):
+            raise CheckFailure("STATE 缺少交付状态口径（DELIVERED_APPROVED_20261023 / PENDING_* 之一）")
         lines = state_text.splitlines()
         declared_files: set[str] = set()
         declared_dirs: set[str] = set()
@@ -1751,7 +1768,8 @@ def run_checks(
     run("C1", "JSON 身份与必填块", lambda: check_identity(data) or "identity ok")
     run("C2", "ID 唯一性与最小规模", lambda: check_unique_ids(data) or "unique ok")
     run("C3", "文档↔JSON 标识集合双向一致", c3)
-    run("C4", "待批准纪律", lambda: check_pending_approval_discipline(data, doc_text) or "24 项参数与指标 PENDING_APPROVAL")
+    run("C4", "批准纪律（不得存在 PENDING；每项有批准索引）",
+        lambda: check_pending_approval_discipline(data, doc_text) or "24 项与动作映射均为 APPROVED_20261023 且批准索引齐全")
     run("C5", "五类动作映射一致", lambda: check_action_map(data) or "5 类映射一致，target 唯一")
     run("C6", "硬不变量与唯一触发解释", lambda: check_invariants(data) or "H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一")
     run("C7", "人工手算样例独立复算", lambda: check_hand_cases(cases, data))

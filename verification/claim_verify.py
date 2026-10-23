@@ -84,6 +84,13 @@ def s6a_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
                   "--run-dir", run_rel, "--gap-seconds", "30"],
          "expect_exit": 0,
          "observable": "tmp/6/fresh_selfcheck_pair.json（两次的真实退出码与 C11 状态）"},
+        {"id": "S6A-C7-approval-c4-regression",
+         "statement": ("C4 批准纪律的反向自测：人为把一项参数改回 PENDING_APPROVAL → C4 必须 FAIL；"
+                       "基线（未注入）必须 ALL_PASS。全部操作在临时副本内，不触碰真实证据目录。"),
+         "argv": [PY, "-B", "verification/approval_regression.py", "--project-root", str(root),
+                  "--run-dir", run_rel, "--out", str(out_dir / "approval_regression.json")],
+         "expect_exit": 0,
+         "observable": "stdout: baseline [0, PASS] 与 injected [非0, FAIL]；产物 JSON 落盘"},
         {"id": "S6A-C4-selfcheck-all-pass",
          "statement": "S6-A 自检 17 项 ALL_PASS（含 C16 语义扫描与两表示法交叉断言）",
          "argv": [PY, "-B", "verification/s6_g0_selfcheck.py",

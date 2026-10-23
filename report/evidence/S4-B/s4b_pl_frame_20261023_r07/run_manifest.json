@@ -1,0 +1,241 @@
+{
+  "task": "S4B-PL-FRAME-01",
+  "run_id": "s4b_pl_frame_20261023_r07",
+  "status": "PASS_OFFLINE_XSIM_ONLY",
+  "sources": {
+    "src/s4b_preproc_frame.sv": "b731d0a2d308263c69d36a8ac04fcbeefd2e93064606919c9a427d924bd31c50",
+    "sim/tb_s4b_preproc_frame.sv": "fa9e0f418deb5dea22ad30f1a4c01c6481788f5a15da2c51bd4b34e266b0e11d",
+    "verification/run_s4b_preproc_frame.py": "7212e1dcae073199f6c0bc6aa5553110b474f25e0aab0e81356762e51c4a4fbf",
+    "verification/test_s4b_preproc_frame.py": "1e34a237da4e3031837ee3b2e55ea4bbe15db15c889086b0b5c8e541c369d837",
+    "src/s4b_preproc_fp64.sv": "137e7519e98af3e4a8577d3328716217c20722b9f5d7c0399eef4e1c375fd2d7",
+    "src/s4b_preproc_pixel.sv": "4c4563433e9b5d868dde8c9232326afce1ddc4d4297bb548c7fc5252c6e284c1"
+  },
+  "frozen_dependencies": {
+    "numeric_base": "c9bab114d535191ae2dc2ef8bdcd087f15ed672a",
+    "geometry_base": "e1e79fcfcedd653681336e45c323de6ba3ed5558",
+    "d2_reference_sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+    "geometry_builder_sha256": "71f344b713c30784af4e0db0dd2669b5f07b36927f160fe6964ffe7c5607244a"
+  },
+  "commands": {
+    "prepare": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification\\run_s4b_preproc_frame.py --run-dir D:\\codex-worktrees\\w4\\tmp\\4\\S4B-PL-FRAME-01\\s4b_pl_frame_20261023_r07",
+    "unittest": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -m unittest -v verification.test_s4b_preproc_frame",
+    "vivado": "vivado_start TCL session, then source {D:/codex-worktrees/w4/tmp/4/S4B-PL-FRAME-01/s4b_pl_frame_20261023_r07/run_frame_xsim.tcl}"
+  },
+  "native_exit_codes": {
+    "prepare": 0,
+    "unittest": 0,
+    "vivado_execute_source_tcl": 0
+  },
+  "fixture_manifest": {
+    "task": "S4B-PL-FRAME-01",
+    "status": "FIXTURES_PREPARED_NOT_SIMULATED",
+    "geometry_base": "e1e79fcfcedd653681336e45c323de6ba3ed5558",
+    "numeric_base": "c9bab114d535191ae2dc2ef8bdcd087f15ed672a",
+    "d2_reference_sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+    "geometry_builder_sha256": "71f344b713c30784af4e0db0dd2669b5f07b36927f160fe6964ffe7c5607244a",
+    "cases": [
+      {
+        "name": "same_size_4x4",
+        "descriptor": [
+          4,
+          4,
+          12,
+          48,
+          48,
+          48,
+          4,
+          4,
+          0,
+          0,
+          4096,
+          8192,
+          12288,
+          16384,
+          1396834305,
+          1
+        ],
+        "source_size": {
+          "width": 4,
+          "height": 4
+        },
+        "output_size": {
+          "width": 4,
+          "height": 4
+        },
+        "new_size": {
+          "width": 4,
+          "height": 4
+        },
+        "padding": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "normalized_value": 0.5,
+          "source_uint8_value": 128,
+          "offset_semantics": "D2 integer floor: (destination-new_size)//2"
+        },
+        "expected_bytes": 48,
+        "expected_sha256": "a8d8a7aeeaaacfd9e8c891fedb86f6bb35fe20fe5f782c3b0613b3b97c06b7f0"
+      },
+      {
+        "name": "axis_one_letterbox_1x3_to_4x4",
+        "descriptor": [
+          1,
+          3,
+          3,
+          9,
+          16,
+          16,
+          1,
+          4,
+          1,
+          0,
+          32768,
+          36864,
+          40960,
+          45056,
+          1396834306,
+          2
+        ],
+        "source_size": {
+          "width": 1,
+          "height": 3
+        },
+        "output_size": {
+          "width": 4,
+          "height": 4
+        },
+        "new_size": {
+          "width": 1,
+          "height": 4
+        },
+        "padding": {
+          "left": 1,
+          "top": 0,
+          "right": 2,
+          "bottom": 0,
+          "normalized_value": 0.5,
+          "source_uint8_value": 128,
+          "offset_semantics": "D2 integer floor: (destination-new_size)//2"
+        },
+        "expected_bytes": 48,
+        "expected_sha256": "29e239bed0829f74aad4330b10c0e89e08898cc6ee05256eb9e51696684dcbe8"
+      },
+      {
+        "name": "boundary_202x329_to_416_prefix",
+        "descriptor": [
+          202,
+          329,
+          606,
+          199374,
+          199376,
+          199376,
+          255,
+          416,
+          80,
+          0,
+          65536,
+          327680,
+          393216,
+          458752,
+          1396834307,
+          3
+        ],
+        "source_size": {
+          "width": 202,
+          "height": 329
+        },
+        "output_size": {
+          "width": 416,
+          "height": 416
+        },
+        "new_size": {
+          "width": 255,
+          "height": 416
+        },
+        "padding": {
+          "left": 80,
+          "top": 0,
+          "right": 81,
+          "bottom": 0,
+          "normalized_value": 0.5,
+          "source_uint8_value": 128,
+          "offset_semantics": "D2 integer floor: (destination-new_size)//2"
+        },
+        "expected_bytes": 519168,
+        "expected_sha256": "93d64882910e6f7b2f25f94e9febe01a4e61e2ae35f22361db1a24eb44751fd1"
+      }
+    ],
+    "boundary_prefix": {
+      "bytes": 88,
+      "padding_bytes": 80,
+      "x81_value": 100,
+      "sha256": "b972c96cef319fec11d237b4c39b9fe48c18225d02537c778a87e83bc6dd2abd"
+    },
+    "memory_words": 130000,
+    "memory_sha256": "ba96bdef4ae2f6ae88da09343176ebaea7730420256c7178b0b6acbb21352f44",
+    "descriptor_file_sha256": "ce646e063c4815e36dc1b8887460299300c9a3e79071450f2f8942ed04fbb0da",
+    "limits": [
+      "此产物是仿真fixture，不包含真实物理DDR地址或板测证据",
+      "大图仅比较通道0首行88字节，随后受控abort",
+      "Python黄金由SHA绑定的冻结D2标量函数直接生成"
+    ]
+  },
+  "simulation": {
+    "vivado_version": "2026.1",
+    "part_for_project_context": "xc7z020clg400-2",
+    "top": "tb_s4b_preproc_frame",
+    "test_pass_line": "TEST_PASS small_cases=2 descriptor_overlap=1 geometry_fault=1 raw_error=1 write_error=1 large_prefix_bytes=88 abort=1 unsolicited_response=1 seed=20261023 cycles=29978",
+    "clock_period_ns": 10,
+    "total_testbench_cycles": 29978,
+    "simulated_end_time_ns": 299780,
+    "vivado_execute_elapsed_seconds": 12.643,
+    "xsim_peak_memory_mb": null,
+    "waveform_note": "未请求或检查波形；Vivado默认波形配置自动产生临时WDB，未复制到证据；工具记录memory数组超过wave显示限制的警告。"
+  },
+  "prior_attempts": {
+    "r01": "Vivado Tcl property setup rejected positional -testplusarg option",
+    "r02": "SystemVerilog syntax errors in testbench, corrected before r03",
+    "r03": "XSim fatal timeout at 608040 ns waiting for axis1 completion; later r04 isolated valid Y index being compared against source width",
+    "r04": "XSim fatal ERR_GEOMETRY code4 at address 0x0000A040, state ST_ERROR; axis-index validation fixed",
+    "r05": "TB cumulative axis1 RAW count expected 336, observed 240; TB expectation fixed",
+    "r06": "TB large prefix RAW count expected 96, observed 32; TB expectation fixed"
+  },
+  "limitations": [
+    "仅完成两种4x4小图完整输出、错误/握手控制及202x329到416的通道0前88字节；没有执行完整416帧。",
+    "仅抽象内存端口仿真；没有综合、物理地址映射、BD/PS集成或硬件验证。",
+    "没有正式资源估算或完整帧吞吐量结论。"
+  ],
+  "evidence_files": {
+    "compile.log": "f349d56f6ab052a851c25deb8726b60a426ea9bfd8ece829498d94112250cf44",
+    "elaborate.log": "253a554fcc06f7c8be8c129f678b06684df24dcfa89e222439c5eeaf175d23fe",
+    "prepare.exitcode.txt": "e45825471ed10290785b62676dc5f453d228a1e1d933c45a733e9bb239c9e083",
+    "prepare.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "prepare.stdout.txt": "85854134470d933854d45889d7efac8b012706a9dc774073e09aeabd550f5fd6",
+    "prior_failures/r01_proxy.log": "adb0b7ab7774e35284990955d49cddee65141abf4e35967f58710ca6c6514bf3",
+    "prior_failures/r01_vivado.log": "c4293cc650905bd2a6e027e594a8d0132b95a0b901f2c2e03e18b36afa0747d4",
+    "prior_failures/r02_proxy.log": "ed17ecefdaa9266fe28fa682b1b9437a867b7d9f3cbb9cb43608aaef9fca29ed",
+    "prior_failures/r02_vivado.log": "4a00f331193761a53f43ce1aa6de4cea5c943946b2d7dc4dc84cb7df49d1c181",
+    "prior_failures/r03_proxy.log": "534cd4fab93342284910b81335f91216fb8d7832c08e287883fe31370cd46d53",
+    "prior_failures/r03_vivado.log": "4c5ba905016c6e3e8cf45b078487c05bf33412b711484bd58edff8564fa04455",
+    "prior_failures/r04_proxy.log": "9a45518e3e31b70c3e6af9d572ca5a45537e1d4c7ae9ef93e40b6b536601f133",
+    "prior_failures/r04_vivado.log": "bac1b89599ef3176ac488bd5a782440c5e4ea7e786e06e51578bfc2056d00c79",
+    "prior_failures/r05_proxy.log": "bf32a65e0124c2b3e2e299fd4dd286ff59f7a2505b088acca780c7478cccb7de",
+    "prior_failures/r05_vivado.log": "69e91889dff6b8eff37091dece083358b852a2f7c363eb419f9d03ab17e75169",
+    "prior_failures/r06_proxy.log": "e124ae247e820e574aaaa858a79aadd8976ea72840c9bfd48ab1af15f7eecef8",
+    "prior_failures/r06_vivado.log": "5a1844336a72430ad5dd1b2c51a13c716ad7e7065d2e121281e2408b12b46dc0",
+    "run_frame_xsim.tcl": "649c674d18a6ba44fcb19bb2ae5d0831efc835a69ea11e487180732ee2d7e9be",
+    "simulate.log": "77f67c4cfc340e59ad7da8204f07fde774cbc4ef3c057e12445298849ba26bdf",
+    "unittest.exitcode.txt": "e45825471ed10290785b62676dc5f453d228a1e1d933c45a733e9bb239c9e083",
+    "unittest.stderr.txt": "cfe73f8f0fcfb0b4bed695cc8496d80aa9f67ecac706c9be04e8e957c1eab4a6",
+    "unittest.stdout.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "vectors/descriptor.hex": "ce646e063c4815e36dc1b8887460299300c9a3e79071450f2f8942ed04fbb0da",
+    "vectors/expected_large_prefix88.hex": "67262d9162c705a35b54eec9669d9a8cdf6256ef8de4e7c59dce8c37b0e4b7f9",
+    "vectors/expected_small_axis1.hex": "a112c5afcd54a0afa86bc155371a27e962d5666878d75a5f7d8a085a95a7f4d6",
+    "vectors/expected_small_same.hex": "a46864f6925a6c4956222901e6b29ab4c01d96af83b48d3730a93ef88b21e057",
+    "vectors/fixtures.json": "35e9c9502912c3c6f74e62abd9f4d74f50e33645c69f60ca020f4c7331d1b305",
+    "vectors/memory.hex": "ba96bdef4ae2f6ae88da09343176ebaea7730420256c7178b0b6acbb21352f44",
+    "vivado_r07.log": "0d336385919589f64fa914306b56a70d289918f7b6b8b43a5e33a16f7fd2d800"
+  }
+}

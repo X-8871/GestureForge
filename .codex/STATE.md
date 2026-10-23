@@ -1,8 +1,8 @@
-# 阶段4 状态（真实PS张量诊断接入准备）
+# 阶段4 状态（Wong要求立即结束，写权OFFERED给DSH）
 
-更新：2026-10-23 23:32（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
-**写权：Codex 阶段4接续总控受 Codex 项目总控委派独占，IN_PROGRESS。** 认领基线 `af85d5a8495598262395165492df5e4d0bfb723c`；DSH 于 00:35 OFFERED 并停止写入，00:42 现场复核 `handoff_check --claim` 得到 9 PASS / 0 FAIL / 0 SKIP，随后 CLAIMED→IN_PROGRESS。
-**Wong 最新要求：先完成当前整帧PL小程序，然后结束本轮。4-D及完整阶段4尚未验收。** 仅收尾该小程序的必要仿真、独审和提交；系统集成/板测不继续开启。工作树写权无转移；硬件未认领、SDK/JTAG/UART均未操作。
+更新：2026-10-24 00:02（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**写权：OFFERED给DSH项目总控，next_owner=DSH 项目总控。Codex完成本次保存提交后停止写入w4；只有DSH核验并CLAIMED后可继续。** 历史认领基线 `af85d5a8495598262395165492df5e4d0bfb723c`，原接管证据保留。
+**Wong最新要求：直接结束然后把写权交给DSH。4-D及完整阶段4尚未验收。** 当前小程序仿真与修复1独审PASS；不再启动测试、综合、系统集成或板测。硬件未认领、SDK/JTAG/UART均未操作。交接记录见 `report/evidence/CTRL-DSH-HANDOFF/codex_offer_20261024_r01/`；接管时将record的base_commit在内存中重绑实际HEAD，复核锁、进程、未跟踪产物及范围后认领；不得把本次提交前基线当最终HEAD。
 
 ## 继承的交付与版本
 
@@ -42,7 +42,9 @@
 
 - 历史S4-C `s4c_replay_20261021_r05` 的109/109 PASS、0数值差异已独立核对，可精确复用CPU golden heads→D9→T29范围；本轮未重跑109样本/重哈希390MB分片，未覆盖D2/r06新字段或板卡。复用证据 `report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/` 包装CHECKS_OK；此前“109全量NOT_RUN”不能解释为历史离线回放未做。
 
-- 当前小程序 S4B-PL-FRAME-01：r07 prepare/5 Python tests/XSim各0，TEST_PASS cycles29978；两4×4完整CHW及202×329→416通道0前88B/abort，非完整416验证或吞吐。四源已停写，冻结 `S4-B/s4b_pl_frame_g2_20261023_r01/`，record SHA `28d820ab0034adc99aac74cdb375f8eae9e7a75f95267f0c608112bcb965bb67`；最终独审中。r03–r06失败/工具审批拒绝及归属核验保留；本任务Vivado会话均关闭。
+- 当前小程序 S4B-PL-FRAME-01已收尾：修复权重下界常量为binary64 2^-53；r08 prepare/5 Python tests/XSim均0，weight_accept4/reject4、30898个10ns周期、17.459秒、工具报告peak636.230MB。两4×4完整CHW及202×329→416通道0前88B/abort，不代表完整416或吞吐。修复1独立G2复审PASS，r02冻结SHA `490aff4f087d8db8aa725b198210b7198d49a0d7cad6fb3e73c288f263a369d5`；闭合 `S4-CTRL/s4_pl_frame_closure_20261023_r01/`。第二权重字段未单独替换测试，静态确认同一谓词。首轮CHANGES_REQUIRED、r01–r07失败和修复证据保留；本任务Vivado/XSim已退出、无index.lock、无硬件认领。4-D及阶段G5未完成；按最新指令结束本轮，保留w4写权、未让出。
+
+**交接覆盖说明：上文“保留w4写权、未让出”为00:02时的旧收尾状态；现按Wong最新指令OFFERED给DSH，以顶部和末尾11字段交接行为准。新建整帧闭合清单尚未运行通用包装检查（NOT_RUN），不宣称CHECKS_OK；源码/仿真/独审实际结果见原记录。**
 
 ## 证据与恢复入口
 
@@ -53,4 +55,4 @@
 
 ## 交接行（11字段）
 
-任务=`按Wong收尾当前整帧PL小程序，独审提交后结束本轮` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；Wong批准PL路线所需src/、sim/、vivado/受控新增；保护旧冻结离线链与既有RunId` | 未提交改动归属=`截至4639501已提交；系统G0草案/DDR审计、当前小程序与证据均本总控；6ELF/6map本机恢复依赖不入源码提交` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占；硬件尚未认领` | 心跳(UTC+8)=`2026-10-23 23:32` | 证据入口=`report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r04/；S4-CTRL/s4_ps_adapter_closure_20261023_r01/；S4-B/s4b_pl_numeric_ooc_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`
+任务=`按Wong要求立即结束并让出w4` | 负责人=`Codex 阶段4接续总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`d4f30e35937efed07c4f3ff62393e2e3a6a2ebdc（本次保存前基线；实际交付HEAD以Git为准）` | 允许修改范围=`仅w4既有docs/、verification/、scripts/、vitis/、src/、sim/、vivado/、report/evidence/、tmp/4/、.codex/STATE.md；保护旧冻结链与既有RunId；主目录及其他树无授权` | 未提交改动归属=`本轮代码及证据随本次提交；6ELF/6map属本轮本机恢复产物，留原位不入源码Git，不覆盖或删除` | 让出声明=`OFFERED给DSH；Codex完成本次保存提交后停止写入w4；无本树活动重型进程、无硬件认领；本次不授予硬件权限` | 心跳(UTC+8)=`2026-10-24 00:02（最终时间见交接record）` | 证据入口=`report/evidence/CTRL-DSH-HANDOFF/codex_offer_20261024_r01/；report/evidence/S4-CTRL/s4_pl_frame_closure_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock；按交接README重绑HEAD并核验后CLAIMED` | 状态/下一接手方=`OFFERED / DSH 项目总控`

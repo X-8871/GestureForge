@@ -1,0 +1,14 @@
+set ::env(TEMP) {D:/codex-worktrees/w4/tmp/4/S4B-PL-FRAME-01/s4b_pl_frame_20261023_r08/temp}
+set ::env(TMP) {D:/codex-worktrees/w4/tmp/4/S4B-PL-FRAME-01/s4b_pl_frame_20261023_r08/temp}
+set ::env(TMPDIR) {D:/codex-worktrees/w4/tmp/4/S4B-PL-FRAME-01/s4b_pl_frame_20261023_r08/temp}
+create_project s4b_frame_project {D:/codex-worktrees/w4/tmp/4/S4B-PL-FRAME-01/s4b_pl_frame_20261023_r08/vivado_project} -part xc7z020clg400-2
+set_property target_simulator XSim [current_project]
+add_files -fileset sources_1 [list {D:/codex-worktrees/w4/src/s4b_preproc_fp64.sv} {D:/codex-worktrees/w4/src/s4b_preproc_pixel.sv} {D:/codex-worktrees/w4/src/s4b_preproc_frame.sv}]
+add_files -fileset sim_1 {D:/codex-worktrees/w4/sim/tb_s4b_preproc_frame.sv}
+set_property top tb_s4b_preproc_frame [get_filesets sim_1]
+set_property -name {xsim.simulate.xsim.more_options} -value {-testplusarg VEC_DIR=D:/codex-worktrees/w4/tmp/4/S4B-PL-FRAME-01/s4b_pl_frame_20261023_r08/vectors} -objects [get_filesets sim_1]
+set_property xsim.simulate.runtime 5ms [get_filesets sim_1]
+update_compile_order -fileset sources_1
+update_compile_order -fileset sim_1
+launch_simulation -simset sim_1 -mode behavioral
+run all

@@ -1,0 +1,11 @@
+frame_source_sha256=b731d0a2d308263c69d36a8ac04fcbeefd2e93064606919c9a427d924bd31c50
+upstream_pixel_source_sha256=4c4563433e9b5d868dde8c9232326afce1ddc4d4297bb548c7fc5252c6e284c1
+frame_threshold=0x03ca000000000000
+upstream_contract_threshold=0x3ca0000000000000
+case | bits | exponent | frozen_check | contract_check
+positive_zero | 0x0000000000000000 | 0x000 | True | True
+minimum_2^-53 | 0x3ca0000000000000 | 0x3ca | True | True
+nextafter_below_minimum | 0x3c9fffffffffffff | 0x3c9 | True | False
+2^-100 | 0x39b0000000000000 | 0x39b | True | False
+confirmed_false_accepts=nextafter_below_minimum,2^-100
+probe_result=CONFIRMED_THRESHOLD_MISMATCH

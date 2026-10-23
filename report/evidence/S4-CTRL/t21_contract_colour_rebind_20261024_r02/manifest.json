@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_contract_colour_rebind_20261024_r02",
+  "source_commit": "f6fa9f0d84274f1a0d03e6f87263fb550ebc6656",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02",
+  "interfaces": [
+    {
+      "name": "阶段4↔阶段5 共享输入/结果契约（真实彩色改绑 + 已批准 stale 常量）",
+      "version": "s4-shared-io/1.1.0 r04",
+      "frozen": false,
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "611e6c7cfc340b6c6750d78e3fc5b95f55f058764ea3d6c3b0d225d98a14e2f6"
+    },
+    {
+      "name": "S4-A 阶段4 G0 契约（结果字段/时间口径权威，本轮未改写其字节）",
+      "version": "r06",
+      "frozen": true,
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02/inject_frame_unittest_exit.txt",
+      "sha256": "d8e2c867c75d78132d1947606b54657ceae9153743ed3c849230d10baed67d71",
+      "role": "log",
+      "keep_reason": "t21_contract_colour_rebind_20261024_r02 运行产物（inject_frame_unittest_exit.txt）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02/inject_frame_unittest_stdout.txt",
+      "sha256": "75e239f9dcc5551a2c4f88c1512a9e7a593ca9286fc6b2d16375777f5703f471",
+      "role": "log",
+      "keep_reason": "t21_contract_colour_rebind_20261024_r02 运行产物（inject_frame_unittest_stdout.txt）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02/selfcheck_stdout.txt",
+      "sha256": "a547b95248cb06807da5ab9f8fe690a92e1507a360ace3d50dd6a4ef39df7057",
+      "role": "log",
+      "keep_reason": "t21_contract_colour_rebind_20261024_r02 运行产物（selfcheck_stdout.txt）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02/verify_shared_io_contract_result.json",
+      "sha256": "7e39f5d37c78ecf63b4d68c250ae43bea5edf84e9a428b0212c5ca80225c4061",
+      "role": "result",
+      "keep_reason": "t21_contract_colour_rebind_20261024_r02 运行产物（verify_shared_io_contract_result.json）"
+    },
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "611e6c7cfc340b6c6750d78e3fc5b95f55f058764ea3d6c3b0d225d98a14e2f6",
+      "role": "source",
+      "keep_reason": "契约机器可读权威（r04，本轮改绑主交付）"
+    },
+    {
+      "path": "docs/stage4/S4B_shared_input_result_contract.md",
+      "sha256": "23c8b4d22e16ea75795a2edccb517f7936b755b406733d0ac34ed4375a879d0a",
+      "role": "source",
+      "keep_reason": "契约人读镜像（r04）"
+    },
+    {
+      "path": "docs/stage4/s4a_stale_age_limit_approval_applied_20261024_r01.json",
+      "sha256": "a0cb2a58fbaeaec506ccad75fd6a81591acdfc3e0994cd206ad08191ddd0eb0b",
+      "role": "source",
+      "keep_reason": "已批准项应用记录（200ms + 批准依据 + 取代关系）"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/verify_shared_io_contract.py",
+      "sha256": "7a3a75870083391915b36a880d82b2f2989ae18a015b41e9bf91200899a77f42",
+      "role": "source",
+      "keep_reason": "契约自检 r05（批准态 + 彩色改绑 + 负向对照）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r01/baseline_selfcheck_stdout.txt",
+      "sha256": "73bc61b2a2ffbf0cad8c92adb46864780778fb047085a6d813e26713bc188a74",
+      "role": "input",
+      "keep_reason": "改绑前基线自检 stdout（22 PASS / 1 FAIL，exit 1）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "契约自检 r05（12/12 绑定复算、已批准 stale 与彩色改绑共 8/8 负向对照）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02",
+      "exit_code": 0,
+      "reason": "25 项通过、0 项失败；upstream_bindings 12/12 一致；cdx_015 r02→r03 取代关系已登记"
+    },
+    {
+      "name": "改绑前基线自检（漂移真实性）",
+      "status": "FAIL",
+      "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py",
+      "exit_code": 1,
+      "reason": "22 项通过、1 项失败：cdx_015 已升 r03（be7b6520…），r03 契约仍绑 r02 旧哈希 a3ce50d2…；证明本次改绑真实必要"
+    },
+    {
+      "name": "契约消费方回归（地址图/词表/离线驱动集成）",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s4_inject_frame -v",
+      "exit_code": 0,
+      "reason": "Ran 10 tests，OK"
+    },
+    {
+      "name": "契约独立复审",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本轮无独立 Reviewer（阶段4 总控受委派深度限制）；r04 改绑仍待独立复审，自检 PASS 不等于已审查"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "依 CDX-20261023-019 全离线；真实彩色采集/回放均未执行"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git": "git version 2.56.0.windows.2"
+  },
+  "limitations": [
+    "source_commit 为任务起始 HEAD（f6fa9f0）；本轮改动运行时尚未提交。",
+    "契约 r04 未经独立复审；PASS 只表示绑定与结构自洽，不代表接口语义已审或任何实物验收。",
+    "阶段3 无补偿部署的 bit/XSA/ELF 身份来自阶段3 已提交证据（dbdf 只读引用），本轮未在硬件上核对现场。"
+  ]
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r04）。
+"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r05）。
 
 退出码：0 = 全部 PASS，1 = 存在 FAIL，2 = 输入/环境错误。
 
@@ -14,13 +14,14 @@
   8. 显示五元组齐全，`display_semantics` 取值等于阶段5 G0 的已决值（修复 T3）；
   9. `hud_field_sources` 键集合**恰等于** 13 个 HUD 字段（说明文字不得混入，修复 T4）；
  10. PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)；
- 11. stale 规则存在、状态为 DRAFT_PENDING_APPROVAL、声明唯一常量来源（修复 N6）；
+ 11. stale 规则：**已批准**状态必须给出批准记录绑定、常量=200000000 ns、与阶段5 同源，并声明“已批准≠实现已同步”；
  12. 三范围冻结齐全（allowed/forbidden）；
  13. 消费边界（阶段5 只读/版本化/变更流程）；
- 14. 运行书摘要、缓存说明和板上模板的输入/输出 invalidate 顺序一致，并拒绝反序变异。
+ 14. 运行书摘要、缓存说明和板上模板的输入/输出 invalidate 顺序一致，并拒绝反序变异；
+ 15. 真实彩色输入改绑（r04）：范围标签、阶段3 部署绑定、RGB565/B-G-R/RGB888 不混同、宽高/stride/原图坐标、采集时钟 PENDING、逐帧源帧哈希、回放标注规则。
 
 本脚本只读；`--evidence-dir` 把结果清单（含命令、退出码、版本、时间戳、脚本自身 SHA）写入证据目录。
-通过不代表契约已冻结或任何实物验收。
+通过不代表契约已冻结、接口语义已独立复审或任何实物验收。
 """
 
 from __future__ import annotations
@@ -48,12 +49,20 @@ REQUIRED_TOP_KEYS = (
     "status",
     "upstream_bindings",
     "authority_rules",
+    "input_source_profiles",
     "input_frame_contract",
     "result_contract",
     "scope_freeze",
     "consumption_boundary",
     "limits",
 )
+
+# r04 真实彩色改绑的硬绑定值（阶段3 无补偿部署身份；不得被静默改写）。
+STAGE3_SOF_SHA256 = "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710"
+STAGE3_ELF_SHA256 = "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073"
+STAGE3_COLOUR_LABELS = ("camera_live_colour", "camera_capture_replay_colour")
+APPROVED_STALE_NS = 200000000
+CDX_015_PREVIOUS_SHA256 = "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7"
 
 REQUIRED_INPUT_FIELDS = (
     "contract_version", "source_kind", "session_id", "frame_id", "width", "height",
@@ -226,6 +235,83 @@ def validate_r03_semantics(contract: dict, doc: str, address_map: dict, s4a: dic
     return errors
 
 
+def validate_approved_stale_core(contract: dict) -> list[str]:
+    """检查 11 核心：已批准 stale 常量必须附批准记录、同源、且不当成已实现。"""
+    errors: list[str] = []
+    stale = contract.get("result_contract", {}).get("stale_rule", {})
+    value = stale.get("stale_limit_ns")
+    status = stale.get("stale_limit_status")
+    ref = stale.get("approval_reference") or {}
+    if status != "APPROVED_BY_WONG":
+        errors.append(f"stale_limit_status 必须为 APPROVED_BY_WONG（已批准后不得保留 DRAFT），实际 {status}")
+    if value != APPROVED_STALE_NS:
+        errors.append(f"stale_limit_ns 必须为已批准值 {APPROVED_STALE_NS}，实际 {value}")
+    if not ref.get("receipt_path") or not ref.get("receipt_sha256"):
+        errors.append("已批准状态必须给出 approval_reference.receipt_path 与 receipt_sha256")
+    else:
+        receipt = resolve(str(ref["receipt_path"]))
+        if not receipt.is_file():
+            errors.append(f"批准记录不存在：{receipt}")
+        elif sha256_of(receipt) != ref["receipt_sha256"]:
+            errors.append(f"批准记录 SHA 漂移：绑定 {ref['receipt_sha256']} 实际 {sha256_of(receipt)}")
+    if not ref.get("approved_means_not_implemented"):
+        errors.append("已批准状态必须显式声明『已批准不等于实现已同步』")
+    if not stale.get("s4a_r06_supersession_note"):
+        errors.append("已批准状态必须写明 S4-A r06 内 DRAFT 标签的取代关系")
+    return errors
+
+
+def validate_colour_profiles(contract: dict) -> list[str]:
+    """检查 15：真实彩色输入改绑（r04）的结构与硬绑定值。"""
+    errors: list[str] = []
+    prof = contract.get("input_source_profiles")
+    if not isinstance(prof, dict):
+        return ["缺少 input_source_profiles（真实彩色输入改绑未落实）"]
+    if "描述性" not in str(prof.get("label_rule", "")):
+        errors.append("必须声明范围标签是描述性标签而非新枚举值")
+    labels = {entry.get("label"): entry for entry in prof.get("descriptive_labels", [])}
+    for name in STAGE3_COLOUR_LABELS:
+        if name not in labels:
+            errors.append(f"缺范围标签 {name}")
+    for name, entry in labels.items():
+        if entry.get("maps_to_source_kind") != "camera":
+            errors.append(f"{name} 必须映射到 source_kind=camera（不得新增 S4-A 未定义枚举）")
+    live = labels.get("camera_live_colour", {})
+    replay = labels.get("camera_capture_replay_colour", {})
+    if live.get("timing_claim_scope") != "real_live":
+        errors.append("camera_live_colour 必须声明 real_live 计时口径")
+    if replay.get("timing_claim_scope") != "replay_only":
+        errors.append("camera_capture_replay_colour 必须声明 replay_only 计时口径")
+    if not any("回放计时" in str(item) for item in replay.get("forbidden_claims", [])):
+        errors.append("回放标签必须禁止把回放计时当实时端到端证据")
+    if "replay" not in str(prof.get("replay_labeling_rule", "")).lower():
+        errors.append("必须声明回放必须标注为回放的规则")
+
+    fmt = prof.get("sensor_and_ddr_format", {})
+    for token, field in (("RGB565", "sensor_output"), ("B/G/R", "ddr_dump_byte_order"), ("RGB888", "model_semantics")):
+        if token not in str(fmt.get(field, "")):
+            errors.append(f"sensor_and_ddr_format.{field} 必须写明 {token}")
+    if "不得直接混同" not in str(fmt.get("rule", "")):
+        errors.append("必须声明传感器 RGB565 / DDR B-G-R / 模型 RGB888 三层语义不得直接混同")
+
+    dep = prof.get("stage3_deployment_bindings", {})
+    if dep.get("uncompensated_sof_bit_sha256") != STAGE3_SOF_SHA256:
+        errors.append("必须绑定阶段3 无补偿 SOF 位流 SHA-256")
+    if dep.get("runtime_elf_sha256") != STAGE3_ELF_SHA256:
+        errors.append("必须绑定阶段3 运行 ELF SHA-256")
+
+    geo = prof.get("frame_geometry", {})
+    if (geo.get("width"), geo.get("height"), geo.get("stride_bytes_per_row")) != (1280, 720, 3840):
+        errors.append("必须绑定 1280×720 与 stride 3840 B/行")
+    if "原图" not in str(geo.get("source_frame_coordinate_basis", "")):
+        errors.append("必须声明检测框以原图坐标为准、416 张量坐标不得直接充当原图坐标")
+    if prof.get("capture_clock", {}).get("status") != "PENDING_MEASUREMENT":
+        errors.append("采集时钟必须保持 PENDING_MEASUREMENT（未实测不得填造频率）")
+    if not prof.get("source_frame_hash_rule", {}).get("rule"):
+        errors.append("必须给出逐帧源帧哈希绑定规则")
+    return errors
+
+
 def main() -> int:
     """执行全部检查。"""
     parser = argparse.ArgumentParser(description="共享输入/结果契约只读自检")
@@ -306,6 +392,11 @@ def main() -> int:
             failures.append(f"权威绑定漂移（必须显式更新绑定并重新审查）：{bad}")
         else:
             passes.append(f"upstream_bindings 现场复算一致（{checked}/{len(bindings)} 项）")
+        superseded = bindings.get("cdx_015_execution_index_r02", {}).get("replaces", {})
+        if superseded.get("sha256") != CDX_015_PREVIOUS_SHA256:
+            failures.append("cdx_015 绑定被更新但未登记 replaces 取代关系（禁止静默改绑定）")
+        else:
+            passes.append("cdx_015 r02→r03 绑定取代关系已登记")
 
     s4a_path = resolve(bindings["s4a_g0_contract"]["path"]) if "s4a_g0_contract" in bindings else None
     w5_path = resolve(bindings["stage5_display_g0_fields"]["path"]) if "stage5_display_g0_fields" in bindings else None
@@ -472,16 +563,66 @@ def main() -> int:
     else:
         passes.append("PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)")
 
-    # 11. stale 规则（N6）
+    # 11. stale 规则（N6）+ 已批准项应用（r04）
     stale = contract["result_contract"]["stale_rule"]
+    stale_errors = validate_approved_stale_core(contract)
     if not stale.get("expression") or not stale.get("stage4_stale_definition"):
-        failures.append("stale 规则缺 expression 或 stage4_stale_definition")
-    elif stale.get("stale_limit_status") != "DRAFT_PENDING_APPROVAL":
-        failures.append("stale_limit_status 必须为 DRAFT_PENDING_APPROVAL")
-    elif not stale.get("single_source_of_truth"):
-        failures.append("stale 未声明唯一常量来源（N6）")
+        stale_errors.append("stale 规则缺 expression 或 stage4_stale_definition")
+    if not stale.get("single_source_of_truth"):
+        stale_errors.append("stale 未声明唯一常量来源（N6）")
+    if w5 is not None:
+        w5_stale = find_key(w5, "stale_age_limit_ns")
+        details["stage5_stale_age_limit_ns"] = w5_stale
+        if w5_stale != stale.get("stale_limit_ns"):
+            stale_errors.append(f"跨阶段 stale 常量不同源：契约 {stale.get('stale_limit_ns')} vs 阶段5 {w5_stale}")
     else:
-        passes.append("stale 规则含双基准定义、DRAFT 状态与唯一来源声明（N6）")
+        stale_errors.append("无法读取阶段5 G0 以核对 stale 常量是否同源")
+
+    stale_controls: dict[str, bool] = {}
+    mutated = copy.deepcopy(contract)
+    mutated["result_contract"]["stale_rule"]["stale_limit_status"] = "DRAFT_PENDING_APPROVAL"
+    stale_controls["reverted_to_draft_status"] = bool(validate_approved_stale_core(mutated))
+    mutated = copy.deepcopy(contract)
+    mutated["result_contract"]["stale_rule"]["stale_limit_ns"] = 100000000
+    stale_controls["wrong_limit_value"] = bool(validate_approved_stale_core(mutated))
+    mutated = copy.deepcopy(contract)
+    mutated["result_contract"]["stale_rule"]["approval_reference"]["receipt_sha256"] = "0" * 64
+    stale_controls["forged_receipt_sha256"] = bool(validate_approved_stale_core(mutated))
+    mutated = copy.deepcopy(contract)
+    mutated["result_contract"]["stale_rule"].pop("approval_reference", None)
+    stale_controls["missing_approval_reference"] = bool(validate_approved_stale_core(mutated))
+    details["stale_negative_controls"] = stale_controls
+
+    if stale_errors:
+        failures.extend(stale_errors)
+    elif not all(stale_controls.values()):
+        failures.append(f"stale 已批准态负向对照未全部检出：{stale_controls}")
+    else:
+        passes.append("stale 已批准态：批准记录绑定 + 200000000 ns 与阶段5 同源 + 4/4 负向对照被拒绝")
+
+    # 15. 真实彩色输入改绑（r04）
+    colour_errors = validate_colour_profiles(contract)
+    colour_controls: dict[str, bool] = {}
+    if not colour_errors:
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["descriptive_labels"][1]["timing_claim_scope"] = "real_live"
+        colour_controls["replay_claimed_as_live"] = bool(validate_colour_profiles(mutated))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["sensor_and_ddr_format"]["ddr_dump_byte_order"] = "R/G/B"
+        colour_controls["wrong_ddr_byte_order"] = bool(validate_colour_profiles(mutated))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["capture_clock"]["status"] = "MEASURED"
+        colour_controls["fabricated_capture_clock"] = bool(validate_colour_profiles(mutated))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["stage3_deployment_bindings"]["runtime_elf_sha256"] = "0" * 64
+        colour_controls["forged_elf_binding"] = bool(validate_colour_profiles(mutated))
+    details["colour_profile_negative_controls"] = colour_controls
+    if colour_errors:
+        failures.extend(colour_errors)
+    elif not all(colour_controls.values()):
+        failures.append(f"彩色改绑负向对照未全部检出：{colour_controls}")
+    else:
+        passes.append("真实彩色改绑齐全（标签/部署绑定/三层语义/几何/采集时钟/源帧哈希）+ 4/4 负向对照被拒绝")
 
     # 12. 三范围
     sf = contract["scope_freeze"]
@@ -509,7 +650,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4B-contract",
         "checker": "verify_shared_io_contract",
-        "checker_version": "r04",
+        "checker_version": "r05",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),

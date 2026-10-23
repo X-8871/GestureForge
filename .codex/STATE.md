@@ -1,58 +1,47 @@
-# 阶段4 状态（Wong要求立即结束，写权OFFERED给DSH）
+# 阶段4 状态（写权：DSH 阶段4 总控 CLAIMED / IN_PROGRESS）
 
-更新：2026-10-24 00:02（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
-**写权：OFFERED给DSH项目总控，next_owner=DSH 项目总控。Codex完成本次保存提交后停止写入w4；只有DSH核验并CLAIMED后可继续。** 历史认领基线 `af85d5a8495598262395165492df5e4d0bfb723c`，原接管证据保留。
-**Wong最新要求：直接结束然后把写权交给DSH。4-D及完整阶段4尚未验收。** 当前小程序仿真与修复1独审PASS；不再启动测试、综合、系统集成或板测。硬件未认领、SDK/JTAG/UART均未操作。交接记录见 `report/evidence/CTRL-DSH-HANDOFF/codex_offer_20261024_r01/`；接管时将record的base_commit在内存中重绑实际HEAD，复核锁、进程、未跟踪产物及范围后认领；不得把本次提交前基线当最终HEAD。
+更新：2026-10-24 01:00（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**写权：DSH 阶段4 总控（stage4-lead，由 DSH 项目总控按 Wong 2026-10-24「由DSH接手」派出）持有并 IN_PROGRESS，执行共享任务 `task-21`（全离线）。**
 
-## 继承的交付与版本
+## 接管核对（task-21 目标 1）
 
-- DSH 主体提交 `e247b49`：4-A G0 r06、共享契约 `s4-shared-io/1.1.0` r02、主机 mock DDR/cache 单帧注入；审查限制 `bb5d9ab`；OFFERED 声明 `821b05a`；末次交接提交 `af85d5a`，认领时工作树干净。
-- 4-A 自检 18/18、变异 9/9、包装核验通过；24条上游绑定包含23文件及109分片目录。R1 只读独立复算全部匹配（109片 / 390,700,998 B）。
-- Codex接管后新自检：`report/evidence/S4-A/s4a_g0_20261023_r03/`，18/18、23文件及109分片SHA匹配，exit 0；首轮R02日志编码环境失败原样保留。
-- 最终修复S4-B r08：严格GCC 0警告、host42/42、C API检查30/30、unit10/10、小图CRC2/2；30项含两个64位平台不适用提示，不代表32位覆盖。32位两个编译单元通过，链接缺i686 CRT/libgcc退出1，行为NOT_RUN。S4-CTRL r05：23项通过、契约变异5/5及运行书反序变异1/1拒绝；最终两包CHECKS_OK。
-- 4-B 历史离线证据：gcc 严格编译0警告、23用例、8条 unittest；这些证据未覆盖本轮独审缺陷，不能据此判 G2。
-- 契约与地址图仍 `DRAFT_PENDING_REVIEW`；200 ms stale 门槛仍 `DRAFT_PENDING_APPROVAL`。不得提前作为正式验收阈值。
-- 提交前源码/STATE空白检查通过；全量暂存检查退出2仅因原始证据CRCRLF/历史探针末尾空行，保留原字节，例外及实际退出码见最终 `lead_validation.json`。
+- Codex 按 Wong 指令停止写入并交付 `d13610d`；DSH 项目总控以接续记录 `report/evidence/CTRL-DSH-HANDOFF/dsh_claim_20261024_r01/` 正式认领并提交 `f6fa9f0`（承载该认领）。本轮在该 HEAD 上以新记录 `report/evidence/S4-CTRL/t21_takeover_20261024_r02/` 复核：**`HANDOFF_OK` PASS 9 / FAIL 0 / exit 0**（含 `--claimed-path` 越界核验）。
+- 核对事实：无 `index.lock`；无重型引擎进程（6 个命中项均为 MCP server 进程，非 Vivado/xsim 引擎）；3121 无监听；**12 项**未跟踪 = 6 ELF + 6 map（`report/evidence/S4-B/s4b_ps_tensor_20261023_r04|r05|r09|r11|r12|r13/s4b_ps_tensor_diagnostic.*`），归属保持 Codex 交接口径（本机恢复产物），**留原位、不入源码 Git、不删不覆盖**，逐文件 SHA 见该 RunId 的 `untracked_sha256.txt`（r13 `.map` SHA 与 readiness 文档引用值一致）。
+- **硬件使用权不随工作树交接**：依 `CDX-20261023-019` 本轮不申请、不保留、不占用硬件窗口。
+- **已知结构性现象**：DSH 原认领记录写于其自身提交之前（声明 `base_commit=d13610d`），在新 HEAD 上复跑会在检查项 a 报漂移；该 FAIL 已据实保留在 `t21_takeover_20261024_r02/handoff_check_previous_claim_record_drift.json`，判据是认领时刻的 PASS 9 证据，而非事后复跑。
 
-## 本轮离线修复与独立审查
+## 本轮交付（task-21）
 
-- Codex 独立 Reviewer R1/R2 已对 `bb5d9ab` 源码补审，均 `CHANGES_REQUIRED`（源文件在交接提交中未变）。
-- R1：共享契约 session_id string 与 S4-A u32 不一致；各连接键角色未对齐；synthetic 时间可用性/词表不完整；地址图草案被称冻结、S4-A 镜像旧哈希未标历史。T3显示语义/T4 HUD 13键符合；旧 r01 T1–T4 原始报告未找到，类别摘要不能代替原关闭条件。
-- R2：写前未拒绝在途区间重叠；在途帧序号回退；空payload绕过完整性；采集时间哨兵/CLI解析；stride/帧长溢出；缓存顺序与mock可见性；CHW平面统计；timeout后安全释放及回调生命周期。
-- 两轮修复后R1-03/R2-03独立复审均PASS，本轮主机离线实现/规格G2通过；最终19文件快照及原始探针在 `report/evidence/S4-CTRL/s4_g2_closure_20261023_r02/`。闭合运行书顺序、通用SIZE_MAX范围及初始化失败重试；先前失败复审与所有RunId保留。此结论不等于32位行为、真实PS/BSP、PL、G3/G4或阶段G5通过。
-- 保护旧已冻结离线链：`s4_ps_decode.*`、`s4_uart_protocol.*`、`s4_offline_host.c`、`run_s4b_offline_chain.py`、`build_s4b_manifest.py`、`test_s4_ps_decode.py` 与全部旧RunId不改写。
+- **输入契约改绑真实彩色（r04）**：`docs/stage4/s4b_shared_input_result_contract.json` r03→r04 + 人读镜像。新增 `input_source_profiles`：描述性范围标签 `camera_live_colour`（`real_live`）/`camera_capture_replay_colour`（`replay_only`，结论必须标回放）；绑定阶段3 无补偿 SOF `7cb33068…`、运行 ELF `an5642_j11cmos2_v10_read.elf` `1457cda4…`、1280×720/stride 3840、传感器 RGB565、DDR 转储 B/G/R（**不得与模型 RGB888 混同**）、原图坐标口径、逐帧源帧哈希；采集时钟 `PENDING_MEASUREMENT`（未实测不填造）。显式登记 `cdx_015` r02→r03 绑定取代关系（改绑前自检实测 22 PASS/1 FAIL exit 1）。
+- **已批准项应用**：`result_contract.stale_rule.stale_limit_ns` 由草案 `null` → **200000000 ns**，`stale_limit_status=APPROVED_BY_WONG` + `approval_reference`（阶段6 批准记录 SHA `d8edb848…`），与 w5 `STALE_AGE_LIMIT_NS` 同源同值；S4-A r06 内 `DRAFT_PENDING_APPROVAL` 标签登记为历史快照（其取代值以批准记录为准，r06 字节未改写）。**『已批准』≠『实现已同步』**：真实链路 stale 判定仍 `NOT_RUN`。
+- **RAW 系统 G0 收口**：`docs/stage4/S4B_raw_system_g0_gap_registry.json` 承接 `d4f30e3` 检查点，逐项登记 G-01..G-19 与 J10 范围外不适用项；只读复算 **9/9 算术、8/8 依据件、状态纪律通过**（需硬件缺口一律保持 `NOT_RUN`/`BLOCKED`）；系统 G0 仍 `CHANGES_REQUIRED_NOT_CLOSED`。
+- **帧周期 P 实测方案**：`docs/stage4/S4B_frame_period_P_measurement_plan.md` + 证据模板 + 校验器（6/6 负向对照被拒：禁止填造/回放冒充/样本不足/统计矛盾/门禁缺失/计时器未标定）；**数值仍 `NOT_RUN`**，供阶段6 `T6-A03`。
+- **契约自检升 r05**：已批准态必须附批准记录且与阶段5 同源；彩色改绑＋批准态共 **8/8** 负向对照被拒；`upstream_bindings` **12/12** 现场复算一致；契约消费方回归 `verification.test_s4_inject_frame` **10/10 OK**。
 
-## 必须保持的接口与边界
+## 证据入口（本轮新 RunId，`report/evidence/S4-CTRL/`）
 
-- 2B 正式冻结 `07c3d3958578b9cc9d3b8eae3758711fe08724c2`：1000连续任务、108 ACK闭环样本；109黄金不等于109 ACK闭环。
-- UART方案B：`s2bu/1.1`正文不变、扩展关闭，时间/丢帧/过期/状态只记PS侧；结果与旁路日志按会话/帧/结果序号明确关联。
-- 候选上限12675可行，尝试追加12676为硬错误；4096禁用；候选数与最终≤15框不同。
-- 注入须位于被验收预处理前；capture_time_available=false，capture_time_ns为0哨兵并注解，计时起点用injection_start_ns。灰度不能对旧彩色golden。
-- S4-B-REAL-01/02A已提交 `0d3ad04be26efeb366ecf20487848a613a0a63fe`：离线源码/操作计划G2闭合，R1来源计划PASS、R2终态PASS；37单测及34独立CRC快照探针exit0，17文件原字节Git快照核对一致。闭合包 `report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/`；evidence exit0、inputs exit2保留草案/硬件/RGB门禁。ARM相关源码未变，限定复用r12实际构建，不冒称旧全包匹配当前doc。5份ELF及5份map原位保留并绑定SHA，不入源码Git；不等于完整4-B/G3/G4。
-- S4-B-REAL-02B修复3及运行书最终独审PASS：修复1的权威来源/成功RUN竞态、修复2的RunId前缀误配/测试写旧prep均关闭；原失败证据保留。r04四源冻结record SHA `ecde9ec0fca0d9cca3ea835f861b32199656b0141af4e91aa6d61f7dc5fed366`；main硬件OFFER+w4 CLAIM须为真实Git双记录，逐键精确匹配。r13 ARM构建0，Developer及Reviewer各22 adapter/38 tensor tests0，fresh prepare/validate0；独立ARM反汇编确认真正RUN成功后永久WFE停泊，stop前后CSR校验。闭合 `S4-CTRL/s4_ps_adapter_closure_20261023_r01/` evidence0/inputs2；6份ELF/map及init原位保留，不入Git。当前无正式硬件offer/claim，真实gate拒绝；SDK/JTAG/UART及46,000-word能力NOT_RUN。
-- 原始RGB入口尚未接通；合法202×329→416反例D2=100、精确有理数=101，不能改容限。Wong已在本会话明确批准RAW RGB888→PL预处理→HP0串行owner→冻结网络、独立PS/JTAG原帧入口及跳过CPU tensor拷贝路线进入受控开发/OOC，保持D2及S2BU1.1、不合并stage3视频；`docs/stage4/S4B_pl_preprocess_g0_readiness.md` 已登记 `ARCHITECTURE_APPROVED / G0_NOT_READY`。PL-G0-02正核对数值可实现性和地址/资源依据。额度中断后17:47恢复，Wong告知板卡已上电连接；尚未装载、打开串口或板测。
-- 阶段5仍绑定S4-A r05；请求 `S4CTRL-20261022-003` 由阶段5所有者改绑r06并确认共享契约，不写w5。
-- 真实摄像头回归尚未完成，不能声明完整阶段4 G5；模块到货/阶段3复测以其持有方现场证据为准。4-D文件注入候选不合并视频XSA。硬件门禁未闭合前不操作板卡/JTAG/COM4，不结束他人进程；阶段5已明确释放板卡，仍须核对当前注册表及正式接管条件。
+- 接管：`t21_takeover_20261024_r02/`（`t21_takeover_20261024_r01/` 为首次尝试失败输出，保留）。
+- 契约改绑：`t21_contract_colour_rebind_20261024_r02/`（`…_r01/` 为改绑前基线 22P/1F exit 1）。
+- RAW G0：`t21_raw_g0_gap_registry_20261024_r03/`（`…_r01/` KeyError 失败、`…_r02/` 被 r03 取代，均保留）。
+- P 方案：`t21_frame_period_p_plan_20261024_r01/`。
+- 通用交付检查器：**evidence 模式 4/4 `CHECKS_OK` exit 0**；inputs 模式按设计被阻断（契约/地址图仍 `DRAFT_PENDING_REVIEW` 未冻结，且含 FAIL/NOT_RUN 检查），原始输出在 `tmp/4/S4-T21/t21_delivery_check_20261024_r02/`。
+- 落点更正：本轮 RunId 起初误建为 `S4-CTRL/S4-T21/<run_id>`（多一层），已上移为 `report/evidence/S4-CTRL/<run_id>` 以符合 `report/evidence/<task_id>/<run_id>/` 约定；个别结果 JSON 内记录的 `--evidence-dir` 仍为迁移前路径，仅路径字符串差异，内容未改写。
 
-- G0材料已独审PASS并提交 `161401e644bf5830931758fe776c6e8bdf823742`：109帧中97帧>4MiB，最大packed RGB888=11,059,200B，4MiB草案仅容12帧；按109完整覆盖预算。D2旧/新SHA仅EOL差；34合成桥接一致，未重生成/逐值核验109帧或PL。证据 `S4-B/s4b_pl_g0_input_scope_20261023_r01/`、`s4b_pl_g0_reference_bridge_20261023_r01/`、`S4-CTRL/s4_pl_g0_materials_20261023_r01/` 保持当时待批准身份；本次批准不改写旧证据。6份桥接文件误落主tmp已保全/恢复，记录保留。
-- 后续109 RAW+直接标量D2重生完成：109/109匹配冻结输入SHA，exit0、190.075秒；RAW808263072B、参考56589312B留w4新tmp RunId，已对218输入逐文件机器核验。长期脚本/日志/结果/恢复政策 `report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/`，不代表PL/4D。
-- PL单通道数值核G2独审PASS并提交 `c9bab114d535191ae2dc2ef8bdcd087f15ed672a`：r04 XSim 547 FP64逐位、10pixel及6系数错误通过，工具exit0；Reviewer独立重建127阈值、381邻界点/1021整数半整数/10000固定种子点并重核547期望。5源冻结 `S4-B/s4b_pl_numeric_g2_20261023_r02/`，record SHA `a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd`；闭合包 `S4-CTRL/s4_pl_numeric_closure_20261023_r01/` evidence0、inputs2（当时OOC/硬件NOT_RUN）。仅单通道、不含padding/几何/整帧。
-- 后续单次OOC综合exit0：xc7z020clg400-2，LUT1930/FF1674/BRAM0/DSP0、43秒、Vivado peak2008.668MB。综合后施加20ns/IOdelay0，WNS+9.411ns、WHS−0.276ns（288保持违例端点；仅最差路径已证实为输入到寄存器），HD.CLK_SRC未设、无布局布线；整体时序未闭合，不外推FPS/整网。报告 `S4-B/s4b_pl_numeric_ooc_20261023_r01/` 已独审PASS其证据和限制口径，timing检查真实exit1、evidence0/inputs2；自有Vivado会话已关闭，无实物操作。
-- geometry修复2冻结r03独审PASS并提交 `e1e79fcfcedd653681336e45c323de6ba3ed5558`：42设备名及6路径别名在文件IO前拒绝，13tests0，202×329真实D2边界和目标轴1/同尺寸分支独立复核。闭合包 `S4-CTRL/s4_pl_geometry_closure_20261023_r01/` 保留27份各轮记录；仅metadata，不含硬件ABI/整帧PL。DDR材料事实独审PASS；系统G0独审CHANGES_REQUIRED（PS无golden参考、全owner期START gate、COMMIT精确回显、跨启动session唯一性、注入PS时基五项），按停止指令封存草案，不称系统G0通过；独立参数化整帧引擎局部G0已明确；26份2B固定Git源已逐SHA恢复到新隔离tmp，不改w2b。19时子代理额度中断，22:48同一总控恢复、无移权，四个整帧目标文件尚未创建，现已恢复Developer。Wong先暂不发送、后明确“可以发送”，22:48已向“新项目总控”成功发送硬件窗口/DSH协调请求；项目总控回执CDX-20261023-018建议摄像头先行、阶段4就绪后再申请，窗口未落实、COM4持有者未核实。随后已通知项目总控本轮收尾停止、不申请OFFER/窗口；无实物操作。
+## 未闭合 / 下一步
 
-- 历史S4-C `s4c_replay_20261021_r05` 的109/109 PASS、0数值差异已独立核对，可精确复用CPU golden heads→D9→T29范围；本轮未重跑109样本/重哈希390MB分片，未覆盖D2/r06新字段或板卡。复用证据 `report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/` 包装CHECKS_OK；此前“109全量NOT_RUN”不能解释为历史离线回放未做。
+- 契约 r04、RAW 缺口登记表与 P 方案**尚无独立复审**（本阶段总控受委派深度限制，不能创建子代理）；须由 DSH 项目总控派 Reviewer。
+- RAW 系统 G0 缺口：地址/所有权批准（G-01/G-02 `BLOCKED_PENDING_APPROVAL`）、D2 整帧/padding 数值（G-04）、HP0 串行 owner 与排空（G-05）、平台 BD/XSA（G-07）、PS RAW task 与旧 memcpy 冲突（G-08）、协议项（G-09/G-10/G-11/G-13）、资源与布线后时序（G-14）、mailbox ABI 审查（G-15）。
+- 硬件相关**全部 `NOT_RUN`**：八类门禁与正式 OFFER/CLAIM（G-16）、4-D 验收（G-17）、真实彩色回归（G-18）、帧周期 P（G-19）。
+- 4-D 与阶段4 G5 未完成；不得把离线/回放结论升级为实物集成结论。
 
-- 当前小程序 S4B-PL-FRAME-01已收尾：修复权重下界常量为binary64 2^-53；r08 prepare/5 Python tests/XSim均0，weight_accept4/reject4、30898个10ns周期、17.459秒、工具报告peak636.230MB。两4×4完整CHW及202×329→416通道0前88B/abort，不代表完整416或吞吐。修复1独立G2复审PASS，r02冻结SHA `490aff4f087d8db8aa725b198210b7198d49a0d7cad6fb3e73c288f263a369d5`；闭合 `S4-CTRL/s4_pl_frame_closure_20261023_r01/`。第二权重字段未单独替换测试，静态确认同一谓词。首轮CHANGES_REQUIRED、r01–r07失败和修复证据保留；本任务Vivado/XSim已退出、无index.lock、无硬件认领。4-D及阶段G5未完成；按最新指令结束本轮，保留w4写权、未让出。
+## 必须保持的接口与边界（承接）
 
-**交接覆盖说明：上文“保留w4写权、未让出”为00:02时的旧收尾状态；现按Wong最新指令OFFERED给DSH，以顶部和末尾11字段交接行为准。新建整帧闭合清单尚未运行通用包装检查（NOT_RUN），不宣称CHECKS_OK；源码/仿真/独审实际结果见原记录。**
+- 2B 正式冻结 `07c3d3958578b9cc9d3b8eae3758711fe08724c2`：1000 连续任务、108 ACK 闭环样本；109 黄金 ≠ 109 ACK 闭环。
+- UART 方案 B：`s2bu/1.1` 正文不变、扩展关闭；时间/丢帧/过期/状态只记 PS 侧（`(session_id, frame_id, result_seq)` 唯一映射）。
+- 候选上限 12675 可行、12676 硬错误；4096 禁用；注入须位于被验收预处理前；`capture_time_available=false`、`capture_time_ns=0` 哨兵，`injection_start_ns` 不得冒充采集时间。
+- 保护旧已冻结离线链与全部旧 RunId：`s4_ps_decode.*`、`s4_uart_protocol.*`、`s4_offline_host.c`、`run_s4b_offline_chain.py`、`build_s4b_manifest.py`、`test_s4_ps_decode.py`；不得改写 `d4f30e3`/`d13610d` 的历史提交与证据。
+- 2B/阶段3/阶段5/阶段6 工作树与厂商原件只读；本树一次只跑一个重型任务；不 push。
 
-## 证据与恢复入口
+## 交接行（11 字段）
 
-- 认领：`report/evidence/S4-CTRL/S4-C05/s4_codex_claim_20261023_r01/claim.json`；DSH原让出：`report/evidence/CTRL-DSH-HANDOFF/handoff_20261023_r01/`（原记录不改）。
-- 既有：`report/evidence/S4-A/s4a_g0_20261022_r01/`、`report/evidence/S4-B/s4b_injection_20261022_r01/`、`report/evidence/S4-CTRL/S4-C02|S4-C03|S4-C04/`。
-- 通用清单规范包：`report/evidence/S4-CTRL/s4_codex_takeover_20261023_r01/`，认领及审查摘要包装CHECKS_OK；初版清单结构失败与原始C05记录保留。
-- 上游冻结 SHA 仍以 `docs/stage4/s4a_stage4_g0_fields.json` 及原证据清单为权威；不复制另一套业务规格。
-
-## 交接行（11字段）
-
-任务=`按Wong要求立即结束并让出w4` | 负责人=`Codex 阶段4接续总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`d4f30e35937efed07c4f3ff62393e2e3a6a2ebdc（本次保存前基线；实际交付HEAD以Git为准）` | 允许修改范围=`仅w4既有docs/、verification/、scripts/、vitis/、src/、sim/、vivado/、report/evidence/、tmp/4/、.codex/STATE.md；保护旧冻结链与既有RunId；主目录及其他树无授权` | 未提交改动归属=`本轮代码及证据随本次提交；6ELF/6map属本轮本机恢复产物，留原位不入源码Git，不覆盖或删除` | 让出声明=`OFFERED给DSH；Codex完成本次保存提交后停止写入w4；无本树活动重型进程、无硬件认领；本次不授予硬件权限` | 心跳(UTC+8)=`2026-10-24 00:02（最终时间见交接record）` | 证据入口=`report/evidence/CTRL-DSH-HANDOFF/codex_offer_20261024_r01/；report/evidence/S4-CTRL/s4_pl_frame_closure_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock；按交接README重绑HEAD并核验后CLAIMED` | 状态/下一接手方=`OFFERED / DSH 项目总控`
+任务=`task-21 阶段4 接续（DSH 认领 w4）：契约改绑真实彩色 + 应用已批准项 + RAW 系统 G0 收口 + 帧周期 P 方案（全离线）` | 负责人=`DSH 阶段4 总控（stage4-lead）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`f6fa9f0d84274f1a0d03e6f87263fb550ebc6656` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md`（主目录与其他树、硬件均无授权） | 未提交改动归属=`12 项未跟踪 6 ELF/6 map 属 Codex 本机恢复产物，留原位不入 Git；本轮新文件随本次提交` | 让出声明=`w4 由 DSH 阶段4 总控持有至本轮收尾；硬件使用权未随交接，阶段4 板级依 CDX-20261023-019 暂缓，恢复须另行申请窗口` | 心跳(UTC+8)=`2026-10-24 01:00` | 证据入口=`report/evidence/S4-CTRL/t21_takeover_20261024_r02/、t21_contract_colour_rebind_20261024_r02/、t21_raw_g0_gap_registry_20261024_r03/、t21_frame_period_p_plan_20261024_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 status --short; python -B D:/codex-worktrees/w4/scripts/stage4_s4ctrl/verify_shared_io_contract.py` | 状态/下一接手方=`IN_PROGRESS / 本轮收尾后由 DSH 项目总控指派独立复审与后续（含硬件窗口申请）`

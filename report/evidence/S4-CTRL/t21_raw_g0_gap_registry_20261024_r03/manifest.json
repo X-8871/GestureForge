@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_raw_g0_gap_registry_20261024_r03",
+  "source_commit": "f6fa9f0d84274f1a0d03e6f87263fb550ebc6656",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r03",
+  "interfaces": [
+    {
+      "name": "RAW 系统 G0 缺口登记表（RAW→PL 预处理→HP0 串行 owner→冻结网络→PS 结果）",
+      "version": "gestureforge_s4b_raw_system_g0_gap_registry_v1",
+      "frozen": false,
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+      "sha256": "f5ee228b6979b1aec032ca687563f0d01f06ea1e3789d3d772ba9064062f579f"
+    },
+    {
+      "name": "阶段4 地址图（区域/空洞/准入禁区与缓存维护方向）",
+      "version": "r02（DRAFT_PENDING_REVIEW）",
+      "frozen": false,
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r03/gap_audit_stdout.txt",
+      "sha256": "1ad2dbb687c7274226ec8411c1943a3f4fe6b6bc60feb3b56681597dbea01610",
+      "role": "log",
+      "keep_reason": "t21_raw_g0_gap_registry_20261024_r03 运行产物（gap_audit_stdout.txt）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r03/raw_system_g0_gap_audit_result.json",
+      "sha256": "bf1f7e0524927afa5abe88cba84d0ffc23467df853fe0d2123b0cdcf1995b73a",
+      "role": "result",
+      "keep_reason": "t21_raw_g0_gap_registry_20261024_r03 运行产物（raw_system_g0_gap_audit_result.json）"
+    },
+    {
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+      "sha256": "f5ee228b6979b1aec032ca687563f0d01f06ea1e3789d3d772ba9064062f579f",
+      "role": "source",
+      "keep_reason": "缺口登记表（G-01..G-19 + 不适用项）"
+    },
+    {
+      "path": "scripts/stage4_s4b/audit_raw_system_g0_gaps.py",
+      "sha256": "bde0da22e64781da762223d2579383e6880ad734b2f56f7024b6d23658a6f569",
+      "role": "source",
+      "keep_reason": "离线算术复算与状态纪律检查器"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "156bee24370af3ac186af307a202b99e1e99ceb5d807b5679794ee7ca626af53",
+      "role": "source",
+      "keep_reason": "被登记表绑定的 readiness 文档（末尾追加 r04 指针）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "缺口登记表离线复算（算术 + 依据件哈希 + 状态纪律）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r03",
+      "exit_code": 0,
+      "reason": "离线算术 9/9 一致、依据件 8/8 复算一致、状态纪律通过"
+    },
+    {
+      "name": "首轮与次轮尝试（脚本缺陷修正轨迹）",
+      "status": "FAIL",
+      "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r01",
+      "exit_code": 1,
+      "reason": "r01 因地址图 gaps 仅有十六进制字段而 KeyError（输出保留）；r02 通过后被 r03 取代（readiness 文档更新）"
+    },
+    {
+      "name": "系统 G0 闭合判定",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "系统 G0 仍为 CHANGES_REQUIRED_NOT_CLOSED；地址/所有权/平台/数值/资源缺口需批准、实现、独立审查与硬件窗口"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "依 CDX-20261023-019 全离线；未访问板卡、未起 hw_server"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git": "git version 2.56.0.windows.2"
+  },
+  "limitations": [
+    "source_commit 为任务起始 HEAD（f6fa9f0）；本轮改动运行时尚未提交。",
+    "本轮只关闭可离线判定的容量/算术与状态纪律，不关闭任何需要设计、批准、独立审查或硬件的缺口。",
+    "登记表不替代独立 G0 审查，也不改变 d4f30e3 的历史检查点记录。"
+  ]
+}

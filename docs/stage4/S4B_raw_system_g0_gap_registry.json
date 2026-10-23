@@ -1,0 +1,254 @@
+{
+  "schema_version": "gestureforge_s4b_raw_system_g0_gap_registry_v1",
+  "task_id": "S4-CTRL/S4-T21",
+  "stage": "4",
+  "created_utc8": "2026-10-24T00:40:00+08:00",
+  "owner": "DSH 阶段4 总控（stage4-lead）",
+  "hardware_execution": "NOT_RUN",
+  "purpose": "承接 d4f30e3 的未完成 RAW 系统 G0 检查点，把 RAW RGB888 → PL 预处理(D2) → HP0 串行 owner → 冻结网络 → PS 解码/NMS 结果 链路的缺口逐项登记；本轮只关闭可离线判定部分。",
+  "status_vocabulary": {
+    "allowed": [
+      "CLOSED_OFFLINE",
+      "PARTIALLY_CLOSED_OFFLINE",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW",
+      "BLOCKED_PENDING_APPROVAL",
+      "BLOCKED_PENDING_HARDWARE",
+      "NOT_RUN_HARDWARE_REQUIRED",
+      "NOT_APPLICABLE_WITH_REASON"
+    ],
+    "forbidden_values": ["PASS", "VERIFIED", "MEASURED", "COMPLETE", "DONE", "APPROVED"],
+    "rule": "任何需要硬件或独立审查的缺口都不得使用上述被禁取值；CLOSED_OFFLINE 只能用于本轮由确定性离线算术检查真正关闭的项。"
+  },
+
+  "source_checkpoint": {
+    "commit": "d4f30e35937efed07c4f3ff62393e2e3a6a2ebdc",
+    "commit_subject": "docs(stage4): checkpoint unfinished RAW G0 on requested stop",
+    "state": "CHECKPOINT_UNFINISHED_RAW_G0",
+    "system_g0": "CHANGES_REQUIRED_NOT_CLOSED",
+    "address_policy": "候选禁用策略仍有效，材料 PASS ≠ 地址获批",
+    "stop_checkpoint_path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json",
+    "remaining_findings_from_checkpoint": [
+      "PS 无完整 golden 或参考摘要却要求网络前逐字节比较",
+      "旧 START gate 未明确覆盖整个 preproc owner 持有期",
+      "COMMIT 未要求逐字段精确回显 RAW_BEGIN",
+      "u32 session 跨启动唯一分配来源未定义",
+      "injection_start_ns 缺 PS 域来源/可用性策略"
+    ]
+  },
+
+  "chain": [
+    "RAW RGB888（host 写 DDR）",
+    "PL 预处理（冻结 D2：缩放/补边/归一化/量化 → CHW INT8 416×416）",
+    "HP0 串行 owner mux（预处理 master ↔ 冻结网络 master）",
+    "冻结网络（s2b_inference_top + GF8 权重）",
+    "PS 解码/NMS 与结果区（JTAG_RAW_TASK metadata + boxes）"
+  ],
+
+  "basis_bindings": [
+    {"id": "stop_checkpoint", "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json", "sha256": "1b615cfe2e0ffddf79f972b6a8cb0b905e70289d8453d88bdb61e9ad4b55a87c", "role": "d4f30e3 未完成 RAW G0 的停止检查点与未闭合发现"},
+    {"id": "input_scope_audit", "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json", "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968", "role": "109 帧冻结样本的 packed RGB888 容量事实"},
+    {"id": "address_map", "path": "docs/stage4/S4B_stage4_address_map.json", "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a", "role": "区域/空洞/准入禁区与缓存维护方向（仍 DRAFT_PENDING_REVIEW）"},
+    {"id": "r13_memory_ranges", "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json", "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80", "role": "PS 诊断 ELF 的实际分配事实（arena/staging/tensor arena）"},
+    {"id": "readiness_doc", "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md", "sha256": "156bee24370af3ac186af307a202b99e1e99ceb5d807b5679794ee7ca626af53", "role": "已批准路线的系统接口 G0 候选（§8.2 候选区间与 mailbox 布局）", "sha_note": "2026-10-24 task-21 在文档末尾追加了契约 r04 改绑、本登记表与 P 方案指针；r01/r02 审计对应的旧哈希 e6ae30a5… 保留在各自 RunId 证据中"},
+    {"id": "raw_reference_109", "path": "report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/result.json", "sha256": "666a6ef131236ffb581201a443032e1f3ca66c7f1879ccbb364a9ae7b9602aa0", "role": "109 帧 RAW + 直接标量 D2 参考重生结果（本轮声称范围以该文件为准）"},
+    {"id": "ddr_audit", "path": "report/evidence/S4-B/s4b_pl_ddr_g0_audit_20261023_r01/audit.json", "sha256": "31b7f4b753c27cfae187462dccbc76ad066a11bd63671da2c0b05f9149a04bfe", "role": "只读 DDR/所有权交叉审计（尚待独立 G0 审查）"},
+    {"id": "frozen_specification", "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json", "sha256": "2b8bb49fa520a22623f1737eb4fe75848eb6e16e67e4b4fc9f6655741fd4a8cc", "role": "被审 readiness 文档快照绑定（source_commit 4639501）"}
+  ],
+
+  "candidate_intervals": {
+    "note": "以下为 readiness 文档 §8.2 的 BLOCKED 候选；登记用于算术与冲突检查，不代表已批准或可访问。",
+    "raw": {"start": 301989888, "end_exclusive": 314572800, "start_hex": "0x12000000", "end_hex": "0x12C00000", "bytes": 12582912, "status": "BLOCKED_CANDIDATE"},
+    "meta": {"start": 314572800, "end_exclusive": 314605568, "start_hex": "0x12C00000", "end_hex": "0x12C08000", "bytes": 32768, "status": "BLOCKED_CANDIDATE"},
+    "combined": {"start": 301989888, "end_exclusive": 314605568, "bytes": 12615680}
+  },
+
+  "documented_historical_owners": [
+    {"name": "w5_framebuffer_0", "start": 708608, "end_exclusive": 3898368, "start_hex": "0x00114C00", "end_hex": "0x003B7C00", "verification": "unverified_historical", "basis": "readiness §8.2（W5 P1 run manifest 与只读回读日志交叉绑定；匹配的最终 P1 ELF/map 未保留）"},
+    {"name": "w5_framebuffer_1", "start": 7354368, "end_exclusive": 10119168, "start_hex": "0x00703800", "end_hex": "0x009A6800", "verification": "unverified_historical", "basis": "readiness §8.2"},
+    {"name": "w5_framebuffer_2", "start": 13575168, "end_exclusive": 16348160, "start_hex": "0x00CF2400", "end_hex": "0x00F95400", "verification": "unverified_historical", "basis": "readiness §8.2"}
+  ],
+
+  "offline_checks": [
+    {"id": "raw_region_arithmetic", "description": "RAW 候选 12 MiB 长度、8 B 对齐与最大帧余量", "expected": {"raw_bytes": 12582912, "max_frame_bytes": 11059200, "storage_bytes": 11059200, "margin_bytes": 1523712}},
+    {"id": "tensor_geometry_arithmetic", "description": "CHW INT8 416×416 张量字节数与 8 B word 数", "expected": {"tensor_bytes": 519168, "word8_count": 64896}},
+    {"id": "geometry_table_arithmetic", "description": "X||Y 几何表 24 B entry × 416 × 2 与 mailbox 偏移", "expected": {"geometry_bytes": 19968, "x_start": 320, "x_end": 10304, "y_start": 10304, "y_end": 20288}},
+    {"id": "mailbox_layout_arithmetic", "description": "32 KiB metadata 内部偏移与结果块上限", "expected": {"meta_bytes": 32768, "result_start": 20288, "result_end": 32768, "result_region_bytes": 12480, "max_result_block_bytes": 760}},
+    {"id": "input_scope_consistency", "description": "109 帧容量事实与 input_scope_audit 自洽", "expected": {"sample_count": 109, "min_bytes": 519168, "max_bytes": 11059200, "over_4mib_count": 97, "over_8mib_count": 2}},
+    {"id": "candidate_inside_forbidden_gap", "description": "候选 RAW/META 仍落在地址图禁区 [0x12000000,0x20000000) 内，故必须保持 BLOCKED", "expected": {"forbidden_start": 301989888, "forbidden_end_exclusive": 536870912, "candidate_fully_inside": true}},
+    {"id": "no_overlap_with_known_owners", "description": "候选与 r13 实际分配及历史 framebuffer 不相交", "expected": {"overlaps_with_r13": 0, "overlaps_with_historical": 0, "adjacent_to_tensor_arena": true}},
+    {"id": "draft_4mib_insufficient", "description": "地址图现有 4 MiB 草案区间不足以容纳最大冻结帧", "expected": {"draft_bytes": 4194304, "max_frame_bytes": 11059200, "insufficient": true}},
+    {"id": "basis_hash_match", "description": "basis_bindings 逐项现场复算 SHA-256", "expected": {"mismatches": 0}}
+  ],
+
+  "gaps": [
+    {
+      "id": "G-01", "title": "RAW/META 物理地址与准入未批准", "layer": "address",
+      "status": "BLOCKED_PENDING_APPROVAL", "requires_hardware": false,
+      "basis": ["readiness_doc", "address_map", "ddr_audit"],
+      "offline_action_this_round": "确认候选仍完整落在地址图禁区 [0x12000000,0x20000000) 内（offline_check: candidate_inside_forbidden_gap），因此生产 RAW/META 基址必须保持未绑定且 ENABLE=0。",
+      "remaining": "需 G0 批准地址与容量，并更新地址图解除 blocked；批准前不得访问候选区。",
+      "next_owner": "阶段4（待 Wong/阶段4 G0 批准）"
+    },
+    {
+      "id": "G-02", "title": "RAW/META owner 未登记、地址图未更新", "layer": "ownership",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["address_map", "ddr_audit"],
+      "offline_action_this_round": "复核交叉审计结论：候选与 r13 实际分配（arena/bss/heap/stack/staging/tensor arena）及历史 framebuffer 均不相交（offline_check: no_overlap_with_known_owners）。",
+      "remaining": "登记 RAW/META owner、填写地址图 interval/status 并接受独立 G0 审查；交叉审计本身仍待独立审查，且假设无其他 DDR consumer、CPU1 停止、未来会话独占。",
+      "next_owner": "阶段4 + 独立 Reviewer"
+    },
+    {
+      "id": "G-03", "title": "单帧原始帧容量预算不足（4 MiB 草案 vs 11,059,200 B 最大帧）", "layer": "capacity",
+      "status": "CLOSED_OFFLINE", "requires_hardware": false,
+      "basis": ["input_scope_audit", "readiness_doc"],
+      "closed_by": ["raw_region_arithmetic", "input_scope_consistency", "draft_4mib_insufficient"],
+      "offline_action_this_round": "重算 109 帧 packed RGB888 容量事实（109 帧、最小 519,168 B、最大 11,059,200 B、97 帧 >4 MiB、2 帧 >8 MiB）与 12 MiB 候选的 8 B 对齐余量 1,523,712 B，确认 4 MiB 草案不可用。",
+      "remaining": "容量结论已离线关闭；采用哪一区间属 G-01 的批准问题。",
+      "next_owner": "阶段4"
+    },
+    {
+      "id": "G-04", "title": "D2 预处理数值等价未覆盖整帧/padding", "layer": "numeric",
+      "status": "PARTIALLY_CLOSED_OFFLINE", "requires_hardware": false,
+      "basis": ["readiness_doc"],
+      "offline_action_this_round": "未新增数值证明；沿用既有证据：单通道 PL 数值核 G2 PASS、20 ns 约束下 OOC WNS +9.411 ns / WHS −0.276 ns（288 保持违例端点、无布局布线），以及 202×329→416 合法半边界反例（精确有理数 101 vs 冻结 D2 100）。",
+      "remaining": "整帧 416×416 全通道、padding/几何组合与最终 INT8 逐值一致仍未证；定点系数位宽/舍入位置/除法实现尚未选定；不得以‘误差很小’替代逐值一致。",
+      "next_owner": "阶段4 开发 + 独立 Reviewer"
+    },
+    {
+      "id": "G-05", "title": "HP0 串行 owner 与仲裁/排空证明缺失", "layer": "platform",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["readiness_doc", "stop_checkpoint"],
+      "offline_action_this_round": "未新增 RTL/仿真；登记所需证明：单一 HP0 物理端口在预处理 master 与冻结网络 master 间显式 owner 锁存切换、AW/W/R/B 与内部 ledger 排空、AXI outstanding 上界、START gate 覆盖整个 preproc owner 持有期。",
+      "remaining": "新 master/owner mux 的实现与证明确认前，不得把旧网络安全结论沿用为新系统结论。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-06", "title": "缓存维护与 DDR 可见性未实测", "layer": "cache",
+      "status": "BLOCKED_PENDING_HARDWARE", "requires_hardware": true,
+      "basis": ["readiness_doc", "address_map"],
+      "offline_action_this_round": "仅登记顺序契约（PS clean+DSB → host 写 → PS invalidate+DSB → PL 写 tensor → PS invalidate+DSB）。",
+      "remaining": "DAP 32-bit 单拍原子性、cache 可见性与 PL 写回覆盖风险必须在联调时实测。",
+      "next_owner": "阶段4（需硬件窗口）"
+    },
+    {
+      "id": "G-07", "title": "平台集成（BD/XSA/PS 应用新版本）未建立", "layer": "platform",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["readiness_doc"],
+      "offline_action_this_round": "未建 BD/XSA；确认路线不合并阶段3 视频 XSA，且 26 个冻结 RTL 依赖已在隔离快照恢复并逐项 SHA 匹配（readiness §8.1）。",
+      "remaining": "派生 BD 脚本、地址映射、clock/reset 拓扑与新 XSA 及独立审查。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-08", "title": "PS RAW task 入口与旧 memcpy 冲突", "layer": "ps_app",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["readiness_doc", "stop_checkpoint"],
+      "offline_action_this_round": "登记约束：RAW 任务不得调用旧 `memcpy(arena, staging+8, INPUT_BYTES)`，且不得在 PL 写 tensor 后回写旧 dirty cache；须走 `infer_one_from_pl_tensor()`。",
+      "remaining": "新 PS 应用版本的实现、构建与独立审查；原 CPU INT8 RUN 的 UART 流程必须保持不变。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-09", "title": "u32 session 跨启动唯一分配来源未定义", "layer": "protocol",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["stop_checkpoint", "readiness_doc"],
+      "offline_action_this_round": "登记：session_id 在线路与 S4-A 中始终为 u32；若 PS 用内部 u64 boot seed 生成新非零 session，必须留在本地启动元数据，不得改变 mailbox 位宽/语义。",
+      "remaining": "确定并实现跨启动唯一分配来源（且 u32 耗尽即拒绝，禁止回绕）。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-10", "title": "旧 START gate 未覆盖整个 preproc owner 持有期", "layer": "protocol",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["stop_checkpoint", "readiness_doc"],
+      "offline_action_this_round": "登记所需谓词（冷复位释放、CSR 严格 IDLE_PS、run_enable=0、core_mem_valid=0、ledger_empty(_next)=1、无 isolated/fault/recover/pending、无未完成 B/R）与网络 START 返回 SLVERR 的行为。",
+      "remaining": "RTL 显式生成并同步采样该谓词；START 被接受的同周期锁存 NET owner。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-11", "title": "COMMIT 未要求逐字段精确回显 RAW_BEGIN", "layer": "protocol",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["stop_checkpoint", "readiness_doc"],
+      "offline_action_this_round": "登记要求：COMMIT 的 session/frame/几何字段必须与 RAW_BEGIN/RAW_GRANTED 逐字段一致，CRC 覆盖范围与 reserved 写零逐项检查。",
+      "remaining": "实现与反例测试（错误回显必须 REJECTED 且不启动 HP0）。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-12", "title": "PS 侧缺少可用于网络前逐字节比较的参考摘要", "layer": "numeric",
+      "status": "PARTIALLY_CLOSED_OFFLINE", "requires_hardware": false,
+      "basis": ["stop_checkpoint", "raw_reference_109"],
+      "offline_action_this_round": "该发现的原始前提是‘PS 无完整 golden 或参考摘要’。后续独立运行 `s4b_raw_reference_109_20261023_r01` 已用冻结标量 D2 重生 109/109 CHW INT8 参考（与旧冻结样本摘要一致）。因此该前提已被部分缓解，但**本轮未复核** result.json 的逐项内容。",
+      "remaining": "需复核 109 参考的可重建性与限制（storage_policy），并明确 PS 在板上比较时使用哪一份参考摘要、如何随帧绑定；离线通过不等于板上逐字节比较成立。",
+      "next_owner": "阶段4 开发 + 独立 Reviewer"
+    },
+    {
+      "id": "G-13", "title": "injection_start_ns 缺 PS 域来源/可用性策略", "layer": "protocol",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["stop_checkpoint", "readiness_doc"],
+      "offline_action_this_round": "登记：RAW_BEGIN grant tick 是 PS 授权时刻，不得冒充 host 首写时刻；host 与 PS 时钟未校准前不得跨域相减，也不得把工具 submit 时刻当注入起点。",
+      "remaining": "定义 injection_start_ns 的 PS 域来源与可用性策略并绑定到旁路日志。",
+      "next_owner": "阶段4 开发"
+    },
+    {
+      "id": "G-14", "title": "增量资源与布线后时序预算未完成", "layer": "resource",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["readiness_doc"],
+      "offline_action_this_round": "未做新综合；登记已知：R04 冻结设计 LUT 17,250/53,200、FF 4,246/106,400、DSP 145/220、BRAM 32/140，WNS +0.156 ns；两行 RGB 缓存纯数据 7,680 B 仅属容量估算。",
+      "remaining": "新增 LUT/FF/DSP/BRAM、DDR 事务量、最坏背压、时钟/复位/CDC 与布线后时序全部未验证；不得由 HP0 名义线速推实际带宽。",
+      "next_owner": "阶段4 开发（一次一个重型任务）"
+    },
+    {
+      "id": "G-15", "title": "mailbox/几何二进制接口未独立 G0 审查", "layer": "protocol",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["readiness_doc"],
+      "offline_action_this_round": "重算并确认结构算术自洽（geometry_table_arithmetic、mailbox_layout_arithmetic：128/64/64/64 B records、X/Y 各 416×24 B、结果块 [0x4F40,0x8000) 12,480 B、上限 40+48×15=760 B）。",
+      "remaining": "新二进制映射与 PS/PL 消费属待审新接口；几何生成算法已 G2，但 mailbox 映射本身未审。",
+      "next_owner": "独立 Reviewer"
+    },
+    {
+      "id": "G-16", "title": "八类硬件门禁与正式 OFFER/CLAIM 未落实", "layer": "process",
+      "status": "NOT_RUN_HARDWARE_REQUIRED", "requires_hardware": true,
+      "basis": ["readiness_doc"],
+      "offline_action_this_round": "依 CDX-20261023-019 本轮不申请硬件、不保留窗口；未在 main 或 w4 写任何硬件行/占位文本。",
+      "remaining": "operator_authorization、hardware_session_handoff、exclusive_session、g0_approval、command_delivery_review、timing_freeze、range_reservation、cold_basis 八类门禁；及 main OFFER（`S4-B-REAL-02B::s4b_hardware_session_handoff`，scope `S4B_PS_TENSOR_DIAGNOSTIC`）与 w4 CLAIM。",
+      "next_owner": "DSH 项目总控 + 阶段4（待 Wong 恢复阶段4 板级任务）"
+    },
+    {
+      "id": "G-17", "title": "4-D 验收标准（≥100 帧逐值/heads 分层/30 分钟 ≥1000 次推理/故障恢复）", "layer": "acceptance",
+      "status": "NOT_RUN_HARDWARE_REQUIRED", "requires_hardware": true,
+      "basis": ["readiness_doc"],
+      "offline_action_this_round": "无。",
+      "remaining": "全部未执行；不得由单通道数值核、OOC 综合或小图仿真替代。",
+      "next_owner": "阶段4（硬件窗口）"
+    },
+    {
+      "id": "G-18", "title": "真实彩色回归未执行（依赖阶段3 完整交付 + 阶段4 硬件窗口）", "layer": "camera",
+      "status": "NOT_RUN_HARDWARE_REQUIRED", "requires_hardware": true,
+      "basis": ["stage3_colour_reverify", "stage_3_4_direction_decision"],
+      "offline_action_this_round": "已完成输入契约改绑（r04 input_source_profiles）：无补偿 SOF `7cb33068…`、ELF `1457cda4…`、1280×720/stride 3840、RGB565 传感器、DDR 转储 B/G/R、采集时钟 PENDING_MEASUREMENT、逐帧源帧哈希与回放标注规则。",
+      "remaining": "真实采集回归（≥100 帧真实网络输入逐值比对、颜色/预处理独立参考、≥30 分钟且 ≥1000 次有效推理）仍未执行。",
+      "next_owner": "阶段4（硬件窗口）"
+    },
+    {
+      "id": "G-19", "title": "帧周期 P 未实测（阶段6 T6-A03 阻塞项）", "layer": "timing",
+      "status": "NOT_RUN_HARDWARE_REQUIRED", "requires_hardware": true,
+      "basis": ["stage6_approval_receipt"],
+      "offline_action_this_round": "已交付实测方案与证据模板/校验器（docs/stage4/S4B_frame_period_P_measurement_plan.md、s4b_frame_period_p_evidence_template.json、scripts/stage4_s4b/validate_frame_period_p_evidence.py）；数值保持 NOT_RUN，禁止填造。",
+      "remaining": "硬件窗口内按方案实测 P，填入证据后 T6-A03 才能计算。",
+      "next_owner": "阶段4（硬件窗口）→ 阶段6"
+    }
+  ],
+
+  "not_applicable": [
+    {
+      "item": "J10 半屏黑",
+      "status": "NOT_APPLICABLE_WITH_REASON",
+      "reason": "Wong 2026-10-24 决定当前部署用 J11/CMOS2，J10 不纳入本阶段部署与验收范围（范围排除决定）。不得写成 J10 故障已修复/已关闭；今后若需求要求 J10 须重新立项。",
+      "basis": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage_3_4_direction_20261024_r01.md"
+    }
+  ],
+
+  "this_round_boundary": [
+    "全部离线：未装载位流、未打开 COM4/JTAG、未起 hw_server、未访问板卡。",
+    "未做新综合/实现/仿真；未新增 RTL。",
+    "CLOSED_OFFLINE 只覆盖确定性算术与容量事实，不代表数值、接口、平台或实物验收。",
+    "本登记表不替代独立 G0 审查，也不改变 d4f30e3 检查点的历史记录。"
+  ]
+}

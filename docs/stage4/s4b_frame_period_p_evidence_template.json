@@ -1,0 +1,93 @@
+{
+  "schema_version": "gestureforge_s4_frame_period_p_evidence_v1",
+  "task_id": "S4-B-REAL-02B（硬件窗口内填写；本轮未申请）",
+  "stage": "4",
+  "run_id": null,
+  "status": "NOT_RUN",
+  "status_allowed_values": ["NOT_RUN", "INSUFFICIENT_SAMPLE", "MEASURED", "FAILED"],
+  "hardware_execution": "NOT_RUN",
+  "hardware_execution_allowed_values": ["NOT_RUN", "EXECUTED"],
+
+  "value": null,
+  "value_units": "ns",
+  "value_selection": "p_median_ns（稳健口径：顶层 value 必须等于 p_median_ns；mean 一并报告，但不得用 mean 代替 median）",
+  "value_definition": "P = 同一会话内相邻两帧首个有效像素到达 PS 单调计时器的时刻之差（方案见 docs/stage4/S4B_frame_period_P_measurement_plan.md）",
+  "t6_a03_effect": "在本项 status 变为 MEASURED 且数值被独立复核前，阶段6 T6-A03 必须保持 NOT_RUN；禁止填造。",
+
+  "source": {
+    "range_label": null,
+    "range_label_allowed_values": ["camera_live_colour", "camera_capture_replay_colour"],
+    "note": "P 的数值来源必须是 camera_live_colour；回放只能核验链路可用性，不得作为 T6-A03 的数值来源。"
+  },
+
+  "deployment_bindings": {
+    "uncompensated_sof_bit_sha256": null,
+    "xsa_identity": null,
+    "runtime_elf": null,
+    "runtime_elf_sha256": null,
+    "verified_on_site_utc8": null
+  },
+
+  "capture_bindings": {
+    "width": null,
+    "height": null,
+    "stride_bytes_per_row": null,
+    "sensor_format": "RGB565",
+    "ddr_dump_byte_order": "B/G/R",
+    "timer_freq_hz": null,
+    "clock_domain": null,
+    "timer_calibration_note": null
+  },
+
+  "session": {
+    "session_id": null,
+    "first_frame_id": null,
+    "last_frame_id": null,
+    "frames_requested": 1000,
+    "n_valid": null,
+    "n_intervals": null,
+    "n_dropped": null,
+    "n_duplicate_or_regressed": null,
+    "drop_reasons": []
+  },
+
+  "statistics": {
+    "p_mean_ns": null,
+    "p_median_ns": null,
+    "p_p95_ns": null,
+    "p_min_ns": null,
+    "p_max_ns": null,
+    "p_std_ns": null,
+    "jitter_ratio": null
+  },
+
+  "per_frame_evidence": {
+    "path": null,
+    "sha256": null,
+    "fields": ["session_id", "frame_id", "capture_time_ns", "frame_integrity_algorithm", "frame_integrity_value", "frame_integrity_length_bytes", "drop_reason"]
+  },
+
+  "source_frame_hashes": {
+    "path": null,
+    "sha256": null,
+    "bound_frame_count": null
+  },
+
+  "hardware_gates": {
+    "operator_authorization": false,
+    "hardware_session_handoff": false,
+    "exclusive_session": false,
+    "g0_approval": false,
+    "command_delivery_review": false,
+    "timing_freeze": false,
+    "range_reservation": false,
+    "cold_basis": false,
+    "offer_commit": null,
+    "claim_commit": null
+  },
+
+  "limits": [
+    "本模板为结构占位：所有数值字段必须为 null，直至硬件窗口内真实测量并填入。",
+    "本文件本身不是实测证据，不构成 G3/G4/G5 或 T6-A03 的通过依据。"
+  ]
+}

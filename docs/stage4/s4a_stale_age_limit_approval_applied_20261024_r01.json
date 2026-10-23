@@ -1,0 +1,93 @@
+{
+  "schema_version": "gestureforge_s4_stale_age_limit_approval_applied_v1",
+  "task_id": "S4-CTRL/S4-T21",
+  "stage": "4",
+  "created_utc8": "2026-10-24T00:40:00+08:00",
+  "owner": "DSH 阶段4 总控（stage4-lead）",
+  "hardware_execution": "NOT_RUN",
+  "purpose": "把 Wong 已批准的跨阶段 stale_age_limit=200ms 真正应用到阶段4 的契约与实现绑定上；明确『决定已批准』≠『实现已同步』。",
+
+  "approved_item": {
+    "name": "stale_age_limit",
+    "approved_value_ns": 200000000,
+    "approved_value_ms": 200,
+    "comparison_semantics": "严格大于（>），每结果只计一次并记录原因",
+    "effective_expression": "stale_effective = stale_flag OR age_frame_ns > stale_limit_ns",
+    "single_source_required": "阶段4/5/6 必须使用同一常量，不得各建一套"
+  },
+
+  "approval_basis": {
+    "decided_by": "Wong",
+    "decision_date_utc8": "2026-10-23",
+    "user_words": "「按你建议」",
+    "receipt_path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage6_approval_receipt_20261023_r01.md",
+    "receipt_sha256": "d8edb84849cd1f93fded902dd913e841564bb1abedbfacd7c7ecde3112e874fb",
+    "cross_party_entry_path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-015-execution-index-r02.md",
+    "cross_party_entry_sha256": "be7b65205ceadb8f5a78f01ac25a976dd9400c5b9643fdabd7490a4da9508cde",
+    "cross_party_entry_note": "015 内容 r03 §6『已决定并应直接执行』：跨阶段 stale 门槛批准为 200ms，阶段4/5/6 必须同源引用；且明确『阶段4 旧草案仍须由其写入方应用批准并回归/更新绑定，不能把决定已批准与实现已经同步混同』"
+  },
+
+  "same_source_binding": {
+    "stage5_source": {
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+      "field": "stale_and_age.stale_age_limit_ns",
+      "value": 200000000,
+      "status_label": "G0_FIXED_OFFLINE（阶段4 侧在同一次决定中同步固定）"
+    },
+    "stage4_consumption": [
+      "docs/stage4/s4b_shared_input_result_contract.json → result_contract.stale_rule.stale_limit_ns = 200000000（stale_limit_status=APPROVED_BY_WONG + approval_reference）",
+      "docs/stage4/S4B_shared_input_result_contract.md §2.3（人读镜像同步）"
+    ],
+    "stage6_relation": {
+      "owned_by": "阶段6（本阶段不代改其行为表）",
+      "twenty_four_params": "24 项参数已按草案值同批批准（T6-A03 数值除外）",
+      "t6_a03": "T6-A03 交互延迟口径已批准；数值仍 NOT_RUN，待阶段4 实测帧周期 P 后填（禁止填造）"
+    }
+  },
+
+  "supersession_of_stage4_draft": {
+    "superseded_item_id": "S4A-DRAFT-STALE-AGE-LIMIT",
+    "superseded_status_label": "DRAFT_PENDING_APPROVAL",
+    "superseded_file": "docs/stage4/s4a_stage4_g0_fields.json",
+    "superseded_file_sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+    "superseded_file_bytes_preserved": true,
+    "note": "S4-A r06 是冻结轮快照，其内 DRAFT 标签为历史状态；文件字节保留不改写。当前生效值为本记录与共享契约的 200000000 ns。消费方不得再把 r06 内的 DRAFT 标签当作当前门槛状态。"
+  },
+
+  "applied_regression": {
+    "checker": "scripts/stage4_s4ctrl/verify_shared_io_contract.py",
+    "checker_version_run": "r05",
+    "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir report/evidence/S4-CTRL/S4-T21/t21_contract_colour_rebind_20261024_r02",
+    "exit_code": 0,
+    "passes": 25,
+    "failures": 0,
+    "checks_covering_this_item": [
+      "stale 已批准态：批准记录绑定 + 200000000 ns 与阶段5 同源 + 4/4 负向对照被拒绝",
+      "upstream_bindings 现场复算一致（12/12 项）"
+    ],
+    "negative_controls": {
+      "reverted_to_draft_status": "rejected",
+      "wrong_limit_value": "rejected",
+      "forged_receipt_sha256": "rejected",
+      "missing_approval_reference": "rejected"
+    },
+    "evidence_path": "report/evidence/S4-CTRL/S4-T21/t21_contract_colour_rebind_20261024_r02/verify_shared_io_contract_result.json"
+  },
+
+  "implementation_sync_boundary": {
+    "what_is_now_true": "常量与来源已在阶段4 共享契约中固定为 200000000 ns，并由自检强制『批准记录绑定 + 与阶段5 同源 + 负向对照』。",
+    "what_is_not_true": [
+      "阶段4 尚未在真实链路按该常量判定过 stale（无硬件、无真实采集/注入运行）",
+      "阶段4 未产生任何 stale 判定实测数据，也不得据此宣称阶段4 G4/G5 通过",
+      "本记录不改变阶段6 行为表，也不代阶段6 声明其 F/G 重新冻结已完成"
+    ],
+    "next_step": "真实彩色回归（阶段3 完整交付 + 阶段4 硬件窗口获批）时，逐结果记录 stale 判定与原因，并做适用回归。"
+  },
+
+  "limits": [
+    "本轮全离线：未运行硬件、未装载位流、未打开 COM4/JTAG、未起 hw_server。",
+    "本记录不构成独立审查结论；契约 r04 的接口语义仍待独立复审。",
+    "『已批准』只固定常量与来源，不等于实现已同步或已实测。"
+  ]
+}

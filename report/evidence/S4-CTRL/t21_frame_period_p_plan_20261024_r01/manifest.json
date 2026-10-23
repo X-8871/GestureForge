@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_frame_period_p_plan_20261024_r01",
+  "source_commit": "f6fa9f0d84274f1a0d03e6f87263fb550ebc6656",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r01",
+  "interfaces": [
+    {
+      "name": "帧周期 P 实测方案（供阶段6 T6-A03；数值 NOT_RUN）",
+      "version": "r01（方案）",
+      "frozen": false,
+      "path": "docs/stage4/S4B_frame_period_P_measurement_plan.md",
+      "sha256": "56e4e9f6c4bbf28fa41f31d5409a784d12899fcd01b6a13c0bdedc45496c484f"
+    },
+    {
+      "name": "P 证据结构模板（全字段 null，status=NOT_RUN）",
+      "version": "v1",
+      "frozen": false,
+      "path": "docs/stage4/s4b_frame_period_p_evidence_template.json",
+      "sha256": "689eca5c83b868c9d6f0080103d791a0c7a2224f4b068f3abd0aa6c50b37e61a"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r01/frame_period_p_validation_result.json",
+      "sha256": "38438b67c38df7ae268bc4664cd923c59fa6c5ac1b5cc8b8d0b343053756b9eb",
+      "role": "result",
+      "keep_reason": "t21_frame_period_p_plan_20261024_r01 运行产物（frame_period_p_validation_result.json）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r01/p_validator_stdout.txt",
+      "sha256": "26aac4499e4e77c6add21dd27cdab8c6074e2a9c359fdd84d26a9cd4a9ccad01",
+      "role": "log",
+      "keep_reason": "t21_frame_period_p_plan_20261024_r01 运行产物（p_validator_stdout.txt）"
+    },
+    {
+      "path": "docs/stage4/S4B_frame_period_P_measurement_plan.md",
+      "sha256": "56e4e9f6c4bbf28fa41f31d5409a784d12899fcd01b6a13c0bdedc45496c484f",
+      "role": "source",
+      "keep_reason": "P 实测方案（方法/证据格式/停止条件/与阶段6 接口）"
+    },
+    {
+      "path": "docs/stage4/s4b_frame_period_p_evidence_template.json",
+      "sha256": "689eca5c83b868c9d6f0080103d791a0c7a2224f4b068f3abd0aa6c50b37e61a",
+      "role": "input",
+      "keep_reason": "P 证据结构模板（防填造结构）"
+    },
+    {
+      "path": "scripts/stage4_s4b/validate_frame_period_p_evidence.py",
+      "sha256": "fe205ef1b23607b36b89c01b866c729946b35380e77bc5d45c37bf5455cdc154",
+      "role": "source",
+      "keep_reason": "P 证据校验器（结构性禁止填造 + 6 项负向对照）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "P 证据模板校验与负向对照",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/validate_frame_period_p_evidence.py --record docs/stage4/s4b_frame_period_p_evidence_template.json --evidence-dir report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r01",
+      "exit_code": 0,
+      "reason": "模板（status=NOT_RUN，全数值 null）合规；6/6 负向对照被拒（填造/回放冒充/样本不足/统计矛盾/门禁缺失/计时器未标定）"
+    },
+    {
+      "name": "帧周期 P 数值",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "需真实彩色采集与硬件窗口；本轮全离线，禁止填造；阶段6 T6-A03 相应保持 NOT_RUN"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "依 CDX-20261023-019 全离线；未访问板卡"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git": "git version 2.56.0.windows.2"
+  },
+  "limitations": [
+    "source_commit 为任务起始 HEAD（f6fa9f0）；本轮改动运行时尚未提交。",
+    "本方案本身不是实测证据，不含任何 P 数值，也不构成 G3/G4/G5 依据。",
+    "P 的数值来源必须是 camera_live_colour；抓帧回放不得作为 T6-A03 的数值来源。"
+  ]
+}

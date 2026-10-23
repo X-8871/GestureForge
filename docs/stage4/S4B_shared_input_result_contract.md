@@ -1,8 +1,13 @@
-# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r03）
+# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r04）
 
-- 日期：2026-10-23（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`）；消费方：阶段5（**只读**消费冻结交付）。
+- 日期：2026-10-24（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`，DSH 阶段4 总控）；消费方：阶段5（**只读**消费冻结交付）。
 - 机器可读：[`s4b_shared_input_result_contract.json`](s4b_shared_input_result_contract.json)。
 - 修订 r03：仅修正未冻结草案与 S4-A r06 权威的冲突；保留 r02 及其证据。session_id 统一为 u32，补充键角色、source_kind 一一映射和完整采集时间真值表，并纠正读前 invalidate 顺序；阶段5显示/HUD语义及 s2bu/1.1 不变。
+- 修订 r04（本树）：
+  1. 新增 `input_source_profiles`：按 `[CDX-015 §2.2]` 把输入契约改绑到阶段3 的**无补偿实时彩色**部署（bit/XSA/ELF、RGB565 传感器、DDR 转储 B/G/R、1280×720/stride 3840、原图坐标口径、采集时钟、逐帧源帧哈希），并定义 `camera_live_colour` / `camera_capture_replay_colour` **描述性范围标签**（回放必须标回放）。
+  2. 显式更新已漂移的 `cdx_015` 绑定（r02 `a3ce50d2…` → r03 `be7b6520…`）并登记取代关系；新增 CDX-018/019、阶段6 批准记录、阶段3/4 方向决定、阶段3 彩色复测证据绑定。
+  3. 应用已批准项：`stale_limit_ns` 由草案 `null` 变为 **200000000 ns**（`stale_limit_status = APPROVED_BY_WONG` + `approval_reference`），与 `[w5-G0]` 的 `STALE_AGE_LIMIT_NS` 同源同值。
+  4. r04 **尚未经独立复审**；本轮无任何硬件执行。
 - 来源标注：`[CDX-010 §3]`=4-B 共享契约与注入要求；`[CDX-014 §4]`=阶段5 五元组；`[CDX-014 §5.4]`=HUD 13 字段；`[CDX-015 §3/§5]`=执行与判定口径；`[S4-A]`=`docs/stage4/s4a_stage4_g0_fields.json`；`[w5-G0]`=`D:\codex-worktrees\w5\docs\stage5\s5a_stage5_display_g0_fields.json`。
 
 ## 0. 权威绑定与规则（T1）
@@ -14,10 +19,43 @@
 | 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定 | `DRAFT_PENDING_REVIEW`，未冻结 |
 | CDX-010 阶段4 运行书 | 邮箱 `CDX-20261022-010-…md` | `4cd61ee0…1cf89` | 只读 |
 | CDX-014 阶段5 运行书 r02 | 邮箱 `CDX-20261022-014-…md` | `f25e5ebb…5a141` | 只读 |
-| CDX-015 执行总入口 r02 | 邮箱 `CDX-20261022-015-…md` | `a3ce50d2…170a7` | 只读 |
+| CDX-015 执行总入口（内容 r03） | 邮箱 `CDX-20261022-015-…md` | `be7b6520…9508cde`（取代 r02 `a3ce50d2…170a7`） | 只读 |
 | 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | `8eac7007…709911` | 只读引用（不写 w5） |
+| CDX-018 硬件协调 | 邮箱 `CDX-20261023-018-…md` | `9360ae1b…e6f6bd6` | 只读 |
+| CDX-019 阶段4 硬件暂缓 | 邮箱 `CDX-20261023-019-…md` | `57e14a15…cb970f` | 只读 |
+| 阶段6 批准记录（Wong 2026-10-23） | `decisions/stage6_approval_receipt_20261023_r01.md` | `d8edb848…e874fb` | 只读 |
+| 阶段3/4 方向决定（Wong 2026-10-24） | `decisions/stage_3_4_direction_20261024_r01.md` | `907084cd…e392a` | 只读 |
+| 阶段3 彩色复测哈希清单 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/hashes.txt` | `40ef1fda…e2aaf5` | 只读（不写 dbdf） |
+| 阶段3 彩色复测现场记录 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/README.md` | `aca598c7…f4a79` | 只读（不写 dbdf） |
 
 规则：本契约只能引用**已提交且经独立审查**的权威版本，禁止引用“最新文件”；自检**现场复算**上述 SHA，任一不符即 FAIL，必须显式更新绑定并重新审查。权威被取代时必须记录取代关系（S4-A r05 `3524d02a…8afb87` → r06 `657ea2fb…930d5`）并通知阶段5 重新绑定。冻结前全部绑定必须与磁盘一致且权威自身已冻结。
+
+## 0.1 真实彩色输入改绑 `[CDX-015 §2.2]`（r04 新增）
+
+阶段3 当前部署为**无补偿实时彩色**（`[S3-T05]` = `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/`；本轮只读复算 6/6 哈希一致）：
+
+| 绑定项 | 值 | 来源 |
+|---|---|---|
+| 无补偿 SOF 位流 | SHA-256 `7cb33068…ce48710` | `[CDX-015 §2.2]` |
+| 配套 XSA | 以原部署清单 `1f5b138e…` 的完整哈希核对（本契约不复制其完整哈希，避免与阶段3 权威漂移） | `[CDX-015 §2.2]` |
+| 运行应用 | `an5642_j11cmos2_v10_read.elf`，SHA-256 `1457cda4…2306073` | `[CDX-015 §2.2]` |
+| 采集几何 | 1280×720，stride 3840 B/行，整帧 2,764,800 B | `[S3-T05]` 整帧与行样本 |
+| 传感器格式 | RGB565 | `[CDX-015 §2.2]` |
+| DDR 转储字节序 | B/G/R 三字节 | `[S3-T05]` 只读复算顺序 |
+| 模型语义 | RGB888（逐像素 R/G/B） | 2A/2B 冻结 D2 |
+| 采集时钟 | `PENDING_MEASUREMENT`（不得填造频率） | 本轮未实测 |
+
+范围标签（**描述性，不是新的枚举值**；两者都映射到 `source_kind=camera` → S4-A `CAMERA`）：
+
+| 标签 | 计时口径 | 允许结论 | 禁止结论 |
+|---|---|---|---|
+| `camera_live_colour` | `real_live` | 实时采集链路（RGB565 展开/通道顺序/缩放/补边/量化）与独立参考一致；真实场景交互与长跑 | 灰度诊断帧作为真彩质量依据；未联调时以注入/合成替代 |
+| `camera_capture_replay_colour` | `replay_only` | 用已抓取的真实彩色帧回放，先验颜色/预处理一致性 | 把回放计时当实时端到端证据；把回放结论升级为实物集成结论 |
+
+- **不得混同**：传感器 RGB565、DDR 转储 B/G/R 与模型 RGB888 是三层不同语义；展开/通道重排/量化/补边必须与冻结 D2 对齐，并保留独立反例。
+- **原图坐标口径**：检测框 `xyxy` 以原图（1280×720 采集帧）像素坐标为准；416 张量坐标不得直接充当原图坐标。
+- **逐帧源帧哈希**：每帧必须逐帧记录 `frame_integrity`（CRC32/SHA-256 + 实际字节数）并绑定 session/frame 与采集/回放时刻；回放另绑源文件路径、文件 SHA-256、解析出的宽高/stride/字节序及对应的阶段3 采集证据入口。
+- **时效边界**：以上仅为契约改绑；不表示真实彩色采集、回放或板级联调已执行（本轮 `NOT_RUN`）。
 
 ## 1. 输入帧契约 `[CDX-010 §3.1]`
 
@@ -71,7 +109,11 @@
 
 - 阶段4 侧定义（与 `[w5-G0].stale_and_age.stage4_stale_definition` 同义）：`stale=true` 当**结果年龄**（发布时刻 − `result_time_ns`）超过 `stale_limit_ns`，且仅 `state ∈ {OK, NO_HAND}`。
 - 两个基准必须同时可复算：结果年龄（S4-A 的 `stale`）与 `age_frame_ns`（显示）；**共享同一数值常量，不得各造一份**。
-- 唯一来源：阶段5 G0 的 `STALE_AGE_LIMIT_NS`（当前 `[w5-G0]` 记为 `G0_FIXED_OFFLINE`，值 200000000 ns）；阶段4 引用该值时必须记录来源与状态，且**阶段4 正式 G0 批准前不得作为验收门槛**（本契约 `stale_limit_status = DRAFT_PENDING_APPROVAL`，草案 200 ms）。
+- 唯一来源：阶段5 G0 的 `STALE_AGE_LIMIT_NS`（`[w5-G0]` 记为 `G0_FIXED_OFFLINE`，值 **200000000 ns**）。
+- **已批准（r04 应用）**：`stale_limit_ns = 200000000`，`stale_limit_status = APPROVED_BY_WONG`，批准依据 = `decisions/stage6_approval_receipt_20261023_r01.md`（SHA-256 `d8edb848…e874fb`，Wong 2026-10-23「按你建议」）。阶段4/5/6 **必须使用同一常量**，不得各建一套。
+- 阶段4 侧同时记录 `twenty_four_params_note`：阶段6 的 24 项参数已按草案值同批批准（`T6-A03` 数值除外，仍 `NOT_RUN`）；阶段4 只引用跨阶段 stale 常量与 `T6-A03` 所需的帧周期 P 输入，不代改阶段6 行为表。
+- **取代关系**：S4-A r06 冻结快照内的 `S4A-DRAFT-STALE-AGE-LIMIT` 仍标 `DRAFT_PENDING_APPROVAL`；那是该轮快照的历史标签，本契约按批准记录生效的 200000000 ns 为其取代值。S4-A r06 文件字节保留不改写。
+- **『已批准』≠『实现已同步』**：本契约只固定常量与来源；阶段4 是否已在真实链路按该常量判定 stale 属实测范围，本轮 `NOT_RUN`。
 - 每结果只计一次 stale，原因留日志。
 
 ### 2.4 HUD 13 字段来源 `[CDX-014 §5.4]`
@@ -103,7 +145,9 @@
 
 ## 5. 限制
 
-- 不含真实板测结果；本轮无任何硬件执行。
+- 不含真实板测结果；本轮无任何硬件执行（未装载位流、未打开 COM4/JTAG、未起 hw_server）。
+- **r04 的改绑内容尚未经独立复审**；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。
 - 不定义阶段5 布局/像素门槛/显示 FPS 语义（属阶段5 G0）。
+- `camera_live_colour` / `camera_capture_replay_colour` 只是范围标签：写入本契约不代表真实彩色采集、回放或板级联调已执行；`capture_clock` 仍 `PENDING_MEASUREMENT`。
 - 候选上限、时间口径与异常行为取值以 S4-A 阶段4 G0 契约为准。
-- 绑定 SHA 为本次修订时点实际值；权威变更时必须显式更新绑定（自检会 FAIL 直到更新）。
+- 绑定 SHA 为本次修订时点实际值；权威变更时必须显式更新绑定并登记取代关系（自检会 FAIL 直到更新）。

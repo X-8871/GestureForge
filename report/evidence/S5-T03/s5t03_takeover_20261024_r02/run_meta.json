@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "name": "w5 接管核验（handoff_check 只读，未提供 record）",
+      "status": "FAIL",
+      "command": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json",
+      "exit_code": 1,
+      "reason": "HANDOFF_FAILED 只由检查项 c 触发：本记录写盘时 report/evidence/S5-T03/ 为未跟踪且无 record 声明归属；a（工作树/分支/HEAD=b6d11d4）、b（index.lock 不存在）、d（无重型进程）均 PASS，e/f/g/h/i 因未提供 record 而 SKIP。提交后同一命令复跑为 HANDOFF_OK PASS4/FAIL0/SKIP5 exit 0。"
+    },
+    {
+      "name": "无未提交的已跟踪修改且无 index.lock",
+      "status": "PASS",
+      "command": "bash -c \"git status --short --untracked-files=no 为空；git rev-parse --git-path index.lock 不存在\"",
+      "exit_code": 0,
+      "reason": "TRACKED_CLEAN_LOCK_ABSENT；未跟踪项仅本任务新证据。"
+    },
+    {
+      "name": "阶段3 部署身份独立重算（bit/XSA/ELF vs 015 r03）",
+      "status": "PASS",
+      "command": "sha256sum <无补偿bit> <XSA> <j11cmos2_v10_read.elf> 并与 015 r03 期望值比较",
+      "exit_code": 0,
+      "reason": "ALL_MATCH_015_r03_bit_elf_full_xsa_prefix：bit/ELF 全哈希逐字符一致；XSA 与 015 r03 前缀一致且全哈希与 dbdf 原部署清单一致。只读引用 dbdf。"
+    },
+    {
+      "name": "UR-2 关闭核验（dbdf README 已更正为 v10_read）",
+      "status": "PASS",
+      "command": "sha256sum + grep <dbdf S3-T05 t05_new_module_reverify README.md>",
+      "exit_code": 0,
+      "reason": "UR2_RESOLVED：README sha256=e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d（mtime 2026-10-24T01:14:18），含 an5642_j11cmos2_v10_read.elf 与 UR-2 更正登记。"
+    },
+    {
+      "name": "硬件空闲核验（进程 + 3121 端口）",
+      "status": "PASS",
+      "command": "bash -c \"tasklist 匹配 vivado|xsdb|hw_server|vitis|xsim；netstat 匹配 :3121\"",
+      "exit_code": 0,
+      "reason": "PROC_IDLE / PORT_3121_IDLE；阶段3 板级窗口自 2026-10-24 00:35 起占用中，故本任务不动硬件。"
+    },
+    {
+      "name": "本任务硬件使用",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "task-22 为纯离线任务：不申请、不占用 JTAG/COM4/hw_server，不加载位流、不烧录。"
+    }
+  ],
+  "limitations": [
+    "handoff_check 检查项 c 的 FAIL 由本包证据当时未提交引起，不是工作树被他人写入；提交后不再触发。",
+    "阶段3 部署产物位于 dbdf（只读引用），本轮只重算哈希并复核其 README 更正，不修改 dbdf 任何文件，也不进行板上操作。",
+    "S5A-G0-v2 JSON 因 N-1 措辞修订哈希变为 10d24a39…（阈值/几何/语义未变）：report/evidence/S5-A/s5a_g0_20261021_r03 包对该文件不再匹配，已如实登记且未删除其证据。",
+    "r01 两个证据包（s5t03_offline_skeleton_20261024_r01、s5t03_takeover_20261024_r01）已被 r02 取代：其清单绑定的源文件在 B-1/B-2/N-1..N-7 更正后字节已变，故对当前字节不再匹配；r01 证据保留、不删除、不就地改写。",
+    "本记录不代表独立审查、G0/G4/G5 或实物验收通过；不代表硬件使用权已转移。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "handoff_check": "verification/handoff_check.py (main tree, read-only)",
+    "sha256": "coreutils sha256sum (Git Bash)"
+  }
+}

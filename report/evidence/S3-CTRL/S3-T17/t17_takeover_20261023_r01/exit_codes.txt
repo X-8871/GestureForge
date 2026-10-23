@@ -2,23 +2,37 @@ S3-T17 阶段3 工作树接管与阶段A：真实退出码（UTC+8，2026-10-23�
 
 命令模板（绝对路径，跨工作树调用）：
   python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/dbdf ^
-    --record D:/codex-worktrees/dbdf/report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/handoff_record_stage3_r01.json ^
-    --claim --claimed-path .codex/STATE.md --claimed-path scripts/stage3_t17/ ^
-    --claimed-path report/evidence/S3-T17/ --claimed-path report/evidence/S3-CTRL/S3-T17/ [--json]
+    --record D:/codex-worktrees/dbdf/report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/<record>.json ^
+    [--claim --claimed-path .codex/STATE.md --claimed-path scripts/stage3_t17/ ^
+     --claimed-path report/evidence/S3-T17/ --claimed-path report/evidence/S3-CTRL/S3-T17/] [--json]
 
-1) 接管 claim（--json）        : 退出码 0  HANDOFF_OK（PASS 9 / FAIL 0 / SKIP 0）→ handoff_check_claim.json
-2) 接管 claim（文本模式）      : 退出码 0  → handoff_check_claim.stdout.txt
-3) 最终复核（--json）          : 退出码 0  HANDOFF_OK（PASS 9 / FAIL 0 / SKIP 0）→ handoff_check_confirm.json
-4) 最终复核（文本模式）        : 退出码 0  → handoff_check_confirm.stdout.txt
+接管（OFFERED→CLAIMED；record=handoff_record_stage3_r01.json，base_commit=f94c25f）
+1) claim（--json）            : 退出码 0  HANDOFF_OK（PASS 9 / FAIL 0 / SKIP 0）→ handoff_check_claim.json
+2) claim（文本模式）          : 退出码 0  → handoff_check_claim.stdout.txt
+3) 写入后复核（--json）        : 退出码 0  HANDOFF_OK（PASS 9 / FAIL 0 / SKIP 0）→ handoff_check_confirm.json
+4) 写入后复核（文本模式）      : 退出码 0  → handoff_check_confirm.stdout.txt
 
-阶段A 其余工具的真实退出码（见 prep 包的 JSON 与 stdout 留痕）：
-- 判定器自测 --selftest                        : 退出码 0  SELFTEST_PASS（三类夹具 1/0/3 全匹配）
-- 判定器对归档缺陷帧 --frame                    : 退出码 1  DEFECT_REPRODUCED（与上次结论一致）
-- 离线前置 check_t17_preflight.py               : 退出码 0  OFFLINE_GO（7 件产物哈希一致）
+交付状态复核（record=handoff_record_stage3_delivered.json，base_commit=900cd0a，无 --claim）
+5) delivered（--json）        : 退出码 0  HANDOFF_OK（PASS 8 / FAIL 0 / SKIP 1[仅检查项 i]）→ handoff_check_delivered.json
+6) delivered（文本模式）      : 退出码 0  → handoff_check_delivered.stdout.txt
+   （说明：首次运行因心跳误写成未来时间 10:26 而检查项 e 失败（退出码 1），记录改用真实值 10:16 后通过；
+     属本总控笔误、非工具缺陷。用接管 record 复核时检查项 a 要求 base_commit 为 HEAD 前缀，HEAD 推进后会 FAIL，
+     属设计行为，改用 delivered record——见 README §5。）
+
+阶段A 其余工具的真实退出码（见 prep 包的 JSON 与 stdout 留痕）
+- 判定器自测 --selftest                        : 退出码 0  SELFTEST_PASS（夹具 A/B/C = 1/0/3 全匹配）
+- 判定器对归档缺陷帧 --frame                    : 退出码 1  DEFECT_REPRODUCED（与 2026-10-22 结论一致）
+- 离线前置 check_t17_preflight.py               : 退出码 0  OFFLINE_GO（7 件冻结产物哈希一致）
 - 执行器 preflight 阶段                         : 退出码 0
 - 执行器 judge 阶段（归档帧）                   : 退出码 1（正确传播）
 - 硬件门禁：link（无 --allow-hardware）         : 退出码 3  T17_HW_BLOCKED=MISSING_ALLOW_HARDWARE_FLAG（未动板）
 - 硬件门禁：link/baseline/bars（--allow-hardware 但无授权文件）: 退出码 3  T17_HW_BLOCKED=NO_HW_AUTHORIZATION_FILE（未动板）
 - 执行器 bash -n 语法检查                       : 退出码 0
+- 清单打包器 make_t17_manifest.py              : 退出码 0（prep 13 文件 / run 目录 4 文件）
 
 未执行（无退出码可记）：baseline / bars / restore 三个硬件阶段 —— 需 Wong 开工信号 + 硬件窗口书面确认。
+
+哈希口径缺陷（本轮实查发现并修正，失败证据保留）
+- C1 提交 900cd0a 后实查：2 个文件「提交内 blob 字节 ≠ 记录哈希字节」
+  （prep manifest.json、本目录 hashes_sha256.txt；原始输出见 blob_byte_identity.txt，MISMATCH_COUNT=2）。
+- 修正：新产物统一 UTF-8 无 BOM + LF；脚本写入口径改为 newline="\n"；清单与哈希按 git blob（LF）口径重算（见 C2 提交）。

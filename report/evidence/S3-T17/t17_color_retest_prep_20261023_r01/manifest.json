@@ -2,13 +2,13 @@
   "schema_version": 1,
   "task_id": "S3-T17",
   "run_id": "t17_color_retest_prep_20261023_r01",
-  "created_utc8": "2026-10-23T10:10:27+08:00",
-  "source_commit": "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",
+  "created_utc8": "2026-10-23T10:15:03+08:00",
+  "source_commit": "900cd0aba57fe08f0769b26910eee2a06a5dc45d",
   "source_branch": "codex/stage3-video",
   "commands": [
-    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest --json-out <prep>/t17_analyzer_selftest.json",
-    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin --json-out <prep>/t17_archived_frame_judgement.json",
-    "python -B scripts/stage3_t17/check_t17_preflight.py --json-out <prep>/t17_preflight_now.json",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin",
+    "python -B scripts/stage3_t17/check_t17_preflight.py",
     "bash scripts/stage3_t17/run_t17_color_retest.sh preflight/judge/link/baseline/bars"
   ],
   "exit_codes": {
@@ -46,23 +46,23 @@
     },
     {
       "path": "t17_analyzer_selftest.json",
-      "size_bytes": 3322,
-      "sha256": "8435300d100cde61a442c1ef244c57c412399ad9ba851dbdc03c0759811537b7"
+      "size_bytes": 3208,
+      "sha256": "d649140545cb46c9545e8e6fcefe4e54b6cec579931cbba4e8715aee901268dd"
     },
     {
       "path": "t17_analyzer_selftest.stdout.txt",
-      "size_bytes": 466,
-      "sha256": "13d0017886184fe359a3be42b8a994b1ab1550d3ac68119a5c2754babe96c6e9"
+      "size_bytes": 461,
+      "sha256": "0fc420dcf86edfcad4dcc741756fe2f4eacca9eca613686aaf5ec4b613e54bc5"
     },
     {
       "path": "t17_archived_frame_judgement.json",
-      "size_bytes": 10311,
-      "sha256": "40a30f3c7c4adba3d76ed7fe88ddba7c533bb9eb9b05065439364443e57e4a30"
+      "size_bytes": 9875,
+      "sha256": "f3efc8145a0f9fc4793bd4cd805abafe41ebd0bf9331f5963bb6d07bb0c5a594"
     },
     {
       "path": "t17_archived_frame_judgement.stdout.txt",
-      "size_bytes": 726,
-      "sha256": "1294e26daa52a4069dd4ec06e160f9a2dae16f1b9eec51f97071eec959dbadea"
+      "size_bytes": 713,
+      "sha256": "6d4e7e1eb3f045c5d535961feac54201fed64975b965ebf55b4ceb2a29130348"
     },
     {
       "path": "t17_artifacts_verified.json",
@@ -81,19 +81,20 @@
     },
     {
       "path": "t17_preflight_now.json",
-      "size_bytes": 5225,
-      "sha256": "aa867f56617483051a404c9c6492aaba74decd2f0f3b6affabb1bae29dd42196"
+      "size_bytes": 5105,
+      "sha256": "61ac56b61c2588be3125b6731ab6a6e0c38183214f3eeb0bfdb1a68fb4aabb81"
     },
     {
       "path": "t17_preflight_now.stdout.txt",
-      "size_bytes": 1247,
-      "sha256": "c0b69e07295bfb61cdfb0e7774d15e4da2505f08639bbd54f9390b136da817cc"
+      "size_bytes": 1233,
+      "sha256": "f5d0c268d33786252e356012cf82fbd34ee72d26881b7557ee2b691756bfb29f"
     }
   ],
   "scope": "阶段A 到货前离线准备包（判定表/脚本/离线自测/哈希核验）；不代表 G0/G4/G5、独立审查或实物验收",
   "limitations": [
     "全部为离线；未接触硬件；真彩目视与耐久未做",
-    "判定器不代替 Wong 目视（requires_human_visual=true）"
+    "判定器不代替 Wong 目视（requires_human_visual=true）",
+    "哈希按 git blob（LF）字节；仓库 core.autocrlf=true，工作区可能被转 CRLF，复核请用 git cat-file"
   ],
   "not_run": [
     "link/baseline/bars/restore 三个硬件阶段",

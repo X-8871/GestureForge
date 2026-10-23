@@ -108,13 +108,13 @@ def main(argv):
         "not_run": args.not_run,
         "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。",
     }
-    with open(manifest_path, "w", encoding="utf-8") as fh:
+    with open(manifest_path, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(manifest, fh, ensure_ascii=False, indent=2)
 
     lines = [f"{item['sha256']}  {item['path']}" for item in outputs]
     if os.path.exists(manifest_path):
         lines.append(f"{sha256_file(manifest_path)}  manifest.json")
-    with open(os.path.join(evid, "hashes_sha256.txt"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(evid, "hashes_sha256.txt"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines) + "\n")
     print(f"MANIFEST_OK={manifest_path} files={len(outputs)}")
     return 0

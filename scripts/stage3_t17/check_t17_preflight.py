@@ -229,7 +229,8 @@ def main(argv):
             print("  - " + f)
     if args.json_out:
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
-        json.dump(report, open(args.json_out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        json.dump(report, open(args.json_out, "w", encoding="utf-8", newline="\n"),
+                  ensure_ascii=False, indent=2)
         print(f"JSON_OUT={args.json_out}")
     return report["exit_code"]
 

@@ -30,42 +30,50 @@
     {
       "path": ".codex/STATE.md",
       "note": "本轮接管时的工作树 STATE（HEAD f94c25f 版本）；接管后由本阶段总控更新 11 字段交接行",
-      "sha256": "6ef6d7fd27abff77ab24702a7acaecd915cff58340d9745b9a423e99fcbd3b62"
+      "sha256": "6ef6d7fd27abff77ab24702a7acaecd915cff58340d9745b9a423e99fcbd3b62",
+      "hash_basis": "dbdf@f94c25f blob（LF）"
     },
     {
       "path": "report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md",
       "note": "Codex 阶段三总控让出文档（OFFERED，2026-10-21 19:53）",
-      "sha256": "16927b5caec18c6d554b53cf08beb7476722713ac456822fdcae5d6cec87ae8f"
+      "sha256": "16927b5caec18c6d554b53cf08beb7476722713ac456822fdcae5d6cec87ae8f",
+      "hash_basis": "dbdf@f94c25f blob（LF）"
     },
     {
       "path": "report/evidence/S3-T05/t05_stage3_closeout_20261022_r01/manifest.json",
       "note": "上一轮（灰度收尾）交付清单",
-      "sha256": "313b1d959b2908e18d5109e8f34f8e161efb80d61f09590a91d7532e68257bb9"
+      "sha256": "3aa3e716790273f8741c7a66094a63d402df0467e98585fd2e3bb64eb61ca671",
+      "hash_basis": "dbdf@f94c25f blob（LF）"
     },
     {
       "path": "report/evidence/S3-T05/t05_freeze_20261021_r01/README.md",
       "note": "冻结记录 §5 颜色复测步骤",
-      "sha256": "70dacccbb571604d8feda51624adc74f0090c37e53214222f26e70e6dda68fa9"
+      "sha256": "70dacccbb571604d8feda51624adc74f0090c37e53214222f26e70e6dda68fa9",
+      "hash_basis": "dbdf@f94c25f blob（LF）"
     },
     {
       "path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/manifest.json",
       "note": "上次彩条缺位证据清单",
-      "sha256": "50cad33347be2e76395f4b9e610fa5ee0bf5dbd8fe6f63ad005eaea0f085b415"
+      "sha256": "d445888f4da9b49e40e33951979e8c0ada273b318f215d57ef2d25ba640998ec",
+      "hash_basis": "dbdf@f94c25f blob（LF）"
     },
     {
       "path": "D:/FPGA_Competition/verification/handoff_check.py",
       "note": "只读核验工具（跨工作树以绝对路径调用）",
-      "sha256": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b"
+      "sha256": "02f42edb06b7e67cb03717937671df7ba65df84697145ed310298bec9a69065b",
+      "hash_basis": "main@HEAD blob（LF）"
     },
     {
       "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261023-013-stage3-camera-hw-window.md",
       "note": "只读：DSH 项目总控向 Codex 申请硬件窗口/让出确认（阶段 B 前置之一）",
-      "sha256": "cfab43cb918d30d3d3c574e59a69fb78c172883d22cee619a535239f6946f2bc"
+      "sha256": "cfab43cb918d30d3d3c574e59a69fb78c172883d22cee619a535239f6946f2bc",
+      "hash_basis": "main@HEAD blob（LF）"
     },
     {
       "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261022-009-stage3-camera-runbook.md",
       "note": "只读：Codex 侧阶段3 操作文档（到货后步骤与退出码语义）",
-      "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48"
+      "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48",
+      "hash_basis": "main@HEAD blob（LF）"
     }
   ],
   "checker_result": {
@@ -101,5 +109,6 @@
     "接管核验为只读机器核验，不代表接口语义、测试或实物通过。",
     "未做任何焊盘/针脚电气测量；上次「DVP 字节 MSB 丢失」的电气定位仍未证（数值自洽已由 DSH 项目总控复核，见 DSH-20261022-007）。",
     "阶段 B（到货后实测）未执行：需 Wong 开工信号 + 硬件窗口书面确认，二者未到不动板。"
-  ]
+  ],
+  "hash_convention": "hashes_sha256.txt 与 inputs[].sha256 一律按 git blob（LF）字节计算；仓库 core.autocrlf=true，工作区若被转换为 CRLF，请用 git cat-file/git show 复核。"
 }

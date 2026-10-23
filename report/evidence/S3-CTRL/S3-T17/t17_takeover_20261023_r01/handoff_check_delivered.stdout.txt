@@ -1,0 +1,29 @@
+交接只读核验：D:\codex-worktrees\dbdf
+工作树根：D:\codex-worktrees\dbdf
+分支：codex/stage3-video
+HEAD：900cd0aba57fe08f0769b26910eee2a06a5dc45d
+record：已提供
+[PASS] a. 工作树存在与分支/HEAD 一致性
+    证据：工作树根=D:\codex-worktrees\dbdf；实际分支=codex/stage3-video；实际HEAD=900cd0aba57fe08f0769b26910eee2a06a5dc45d；声明工作树=D:\codex-worktrees\dbdf；声明分支=codex/stage3-video；声明起始提交=900cd0aba57fe08f0769b26910eee2a06a5dc45d
+[PASS] b. index.lock 解析与占用
+    证据：git --no-optional-locks rev-parse --git-path index.lock（cwd=D:\codex-worktrees\dbdf） → D:/FPGA_Competition/.git/worktrees/FPGA_Competition1/index.lock；存在=False
+[PASS] c. 未提交改动计数与归属声明
+    证据：git --no-optional-locks -c core.quotepath=false status --short（cwd=D:\codex-worktrees\dbdf）→ 未提交改动 33 项；样例： M report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/README.md； M report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/exit_codes.txt； M report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/git_facts.txt； M report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/handoff_check_claim.json； M report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/handoff_check_claim.stdout.txt；…（共 33 项）；声明归属=NA/、clockInfo.txt：旧轮散落件（非本阶段产物，保留不动）；C2 追加的本目录复核记录、exit_codes.txt、hashes_sha256.txt 与 LF 归一化修正归 DSH 阶段3 总控（stage3-lead），随 C2 提交；tmp/** 为构建缓存不入提交
+[PASS] d. 重型进程占用
+    证据：待匹配进程名=vivado、xsim、xelab、xvlog、hw_server、cs_server、xsdb；未发现占用
+[PASS] e. 交接心跳时效
+    证据：heartbeat_utc8=2026-10-23 10:16（归一化 2026-10-23 10:16:00 UTC+8）；阈值=120 分钟；当前时间(UTC+8)=2026-10-23 10:16:14；距今=0.2 分钟
+[PASS] f. 交接状态机与接管条件
+    证据：status=IN_PROGRESS；状态机：IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE；只有 OFFERED 允许接管
+[PASS] g. 证据入口
+    证据：evidence_dir=D:\codex-worktrees\dbdf\report\evidence\S3-CTRL\S3-T17\t17_takeover_20261023_r01；解析路径=D:\codex-worktrees\dbdf\report\evidence\S3-CTRL\S3-T17\t17_takeover_20261023_r01；manifest.json=5558 字节
+[PASS] h. 允许修改范围与越界核验
+    证据：允许修改范围=board/stage3/、scripts/stage3_t03b/、scripts/stage3_t04/、scripts/stage3_t05/、scripts/stage3_t17/、report/evidence/S3-T05/、report/evidence/S3-T17/、report/evidence/S3-CTRL/、.codex/STATE.md；未提供 --claimed-path，跳过越界核验
+[SKIP] i. 接管让出契约
+    证据：规则：--claim 时 yield_statement 与 next_owner 必须非空且非占位；heartbeat_utc8 的可解析性由检查项 e 核验
+    说明：未使用 --claim，无需让出契约
+结论：HANDOFF_OK（PASS 8、FAIL 0、SKIP 1）
+退出码：0
+失联判定：不能判失联（见上方检查项）；心跳超时=False、重型进程=False、index.lock=False
+范围声明：只读核验：不代表 G0/G4/G5、测试通过或实物验收；不执行恢复命令，不写仓库文件。
+

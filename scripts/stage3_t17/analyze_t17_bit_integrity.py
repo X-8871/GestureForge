@@ -413,7 +413,7 @@ def main(argv: list[str]) -> int:
             print("注意：真彩显示仍须 Wong 目视确认（requires_human_visual=true）")
     if args.json_out:
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
-        with open(args.json_out, "w", encoding="utf-8") as fh:
+        with open(args.json_out, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(out, fh, ensure_ascii=False, indent=2)
         print(f"JSON_OUT={args.json_out}")
     return code

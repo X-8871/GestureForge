@@ -45,7 +45,34 @@
 | `manifest.json` | 输入哈希、命令、核验事实、限制 |
 | `hashes_sha256.txt` | 本目录全部产物哈希（生成于最后一次写入之后） |
 
-## 4. 限制
+## 4. 哈希口径与 CRLF 修正（本轮实查发现的缺陷，已修）
+
+- **口径**：`hashes_sha256.txt` 与 `manifest.json` 的 `inputs[].sha256` 一律按 **git blob（LF）字节**计算
+  （工作树在本仓库 `core.autocrlf=true` 下可能被转成 CRLF，两者会不同）。
+- **发现**：C1 提交（`900cd0a`）后实查发现 2 个文件「提交内 blob 字节 ≠ 记录哈希字节」——
+  `t17_color_retest_prep_.../manifest.json`（Python 文本模式写入产生 CRLF）与本目录 `hashes_sha256.txt`
+  （PowerShell 显式 CRLF 写入）；原始比对输出保留在 `blob_byte_identity.txt`（`MISMATCH_COUNT=2`，**失败证据不删**）。
+  同时发现两处**历史输入**在两种口径下哈希不同：`t05_stage3_closeout_20261022_r01/manifest.json`、
+  `t05_color_msb_missing_20261022_r01/manifest.json`——说明该风险在本仓库确实存在。
+- **修正**：本轮新产物（`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**`、`scripts/stage3_t17/**`）
+  统一为 **UTF-8 无 BOM + LF**；打包/判定/前置脚本改为显式 `newline="\n"` 写入；清单与哈希清单按 LF 口径重算。
+- **复核命令（任何人可复跑，无需 CRLF 敏感的工作区）**：
+  ```bash
+  git -C D:/codex-worktrees/dbdf cat-file blob <commit>:report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/manifest.json | sha256sum
+  ```
+  或用 `git -c core.autocrlf=false checkout` 导出副本后按 `hashes_sha256.txt` 逐项校验。
+- **建议（超出本阶段允许范围，未自行执行）**：若需第三方**工作区**口径复核，应由持有相应写权的一方为
+  `report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**`、`scripts/stage3_t17/**` 增加
+  `.gitattributes` 的 `-text` 条目（与仓库既有 S2A 各段做法一致）。
+
+## 5. 关于检查项 a 的说明（避免误判）
+
+`handoff_record_stage3_r01.json` 的 `base_commit` 是「**起始提交**」`f94c25f`；`handoff_check.py` 的检查项 a 按
+*前缀匹配 HEAD*，因此在 HEAD 已推进到后续提交（如 `900cd0a` 及以后）后再用该 record 复跑，检查项 a 会判 FAIL ——
+**这是设计行为（该 record 记录的是接管时刻）**。复核交付状态请改用
+`handoff_record_stage3_delivered.json`（`status=IN_PROGRESS`，不带 `--claim`）。
+
+## 6. 限制
 
 - 只读机器核验，不代表 G0/G4/G5、接口语义、测试或实物验收。
 - 未做任何电气测量；上次「DVP 字节 MSB 丢失」的**电气定位仍未证**（数值自洽已由 DSH 项目总控复核）。

@@ -160,10 +160,36 @@ class _Factory:
                            inference_time_ns=self.period_ns // 2, state="OK",
                            detections=detections)
 
+    def equivalent(self, *, frame_id: int, detections: list[dict[str, Any]],
+                   declared: bool) -> dict[str, Any]:
+        """同 session **等价 frame_id** + 新 `result_seq`（NB-1）。
+
+        - `declared=False`：未声明重复/重放（`repeat_index=1`）⇒ 按 r04 `duplicate_frame_id`
+          必须**拒绝并记 FAIL**，不采用、不绘制；
+        - `declared=True`：显式声明（`repeat_declared=true` 且 `repeat_index=2`）⇒ 走放行路径，
+          用于证明"拒绝"不是无条件拒绝。
+        """
+        self.sequence += 1
+        self.result_seq += 1
+        capture = self.capture_ns(max(0, frame_id))
+        record = make_record(session_id=self.session_id, frame_id=max(0, frame_id),
+                             result_seq=self.result_seq, sequence=self.sequence, capture_time_ns=capture,
+                             result_time_ns=capture + self.period_ns // 3,
+                             inference_time_ns=self.period_ns // 2, state="OK",
+                             detections=detections, repeat_index=2 if declared else 1)
+        if declared:
+            record["repeat_declared"] = True
+        return record
+
 
 def regressed_frame_id(index: int) -> int:
     """乱序注入用的回退帧号（B-2）：比当前显示帧小 3，必然小于上一已接受 frame_id。"""
     return max(0, index - 3)
+
+
+def equivalent_frame_id(index: int) -> int:
+    """NB-1 注入用的**等价**帧号：等于上一已接受 frame_id（不小、不新）。"""
+    return max(0, index - 1)
 
 
 def _normal_detections(index: int, *, count: int | None = None,
@@ -182,7 +208,7 @@ def build_stream(mode: str, frames: int, *, params: dict[str, Any], seed: int,
                  frame_period_ns: int, base_capture_ns: int = 1_000_000_000,
                  session_id: int = 7, warmup_frames: int = 0) -> list[dict[str, Any]]:
     """生成提交步骤序列：每步 = 一帧显示（先给 results，再提交该帧）。"""
-    if mode not in {"sequential", "skip", "late", "dup", "ooo", "mixed"}:
+    if mode not in {"sequential", "skip", "late", "dup", "ooo", "equiv", "mixed"}:
         raise P.SkeletonInputError(f"未知流模式 {mode!r}")
     rng = random.Random(seed)
     factory = _Factory(session_id=session_id, frame_period_ns=frame_period_ns,
@@ -213,6 +239,8 @@ def build_stream(mode: str, frames: int, *, params: dict[str, Any], seed: int,
                 last_record = record
                 fresh = False
         elif mode in ("dup", "ooo"):
+            fresh = True
+        elif mode == "equiv":
             fresh = True
         elif mode == "mixed":
             pattern = index % MIXED_MODULUS
@@ -266,6 +294,14 @@ def build_stream(mode: str, frames: int, *, params: dict[str, Any], seed: int,
                                                 detections=_normal_detections(index)))
             last_record = results[-1]
             fresh = False        # 该帧不产生新的已接受结果 ⇒ 可直接观察「拒绝不更新最新结果」
+        if mode == "equiv" and index % 5 == 2 and index >= 2:
+            declared = (index % 10 == 2)   # 每 10 帧一次走显式声明放行路径，其余为未声明 ⇒ 必拒绝
+            results.append(factory.equivalent(frame_id=equivalent_frame_id(index),
+                                              detections=_normal_detections(index),
+                                              declared=declared))
+            if not declared:
+                last_record = results[-1]
+                fresh = False              # 未声明等价帧被拒 ⇒ 本帧不产生新的已接受结果
 
         if fresh:
             count = 15 if (mode == "mixed" and index % MIXED_MODULUS == 10) else None

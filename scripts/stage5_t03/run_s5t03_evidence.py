@@ -61,6 +61,7 @@ SOURCE_BINDINGS = (
     "scripts/stage5_t03/test_s5t03_skeleton.py",
     "scripts/stage5_t03/run_s5t03_evidence.py",
     "scripts/stage5_t03/recompute_from_log.py",
+    "scripts/stage5_t03/scan_hash_drift.py",
     "docs/stage5/s5t03_input_contract_binding_v1.json",
     "docs/stage5/S5T03_input_contract_binding_colour_v1.md",
     "docs/stage5/s5t03_offline_skeleton_params_v1.json",
@@ -84,6 +85,9 @@ KEEP_REASON = {
     "console/not_modification_check.txt": "既有合成源证据未被改写的真实命令与退出码",
     "console/check_evidence_mode_output.txt": "交付检查器 evidence 模式实跑输出（前置清单 M1）",
     "console/recompute_from_log.txt": "独立复算器对落盘帧级日志的实跑输出与退出码（N-4）",
+    "console/impact_scan.txt": "漂移登记扫描器实跑输出与退出码（NB-2）",
+    "console/quiet_window.txt": "运行前安静窗口核验（无 Vivado/xsim/hw_server 进程、3121 未监听）（task-24 纪律）",
+    "console/file_mtimes.txt": "本轮修订文件的实测 mtime（NB-4 取值来源证据）",
     "results_skeleton.json": "逐用例结果、实测数字、checks 与 limitations",
     "summary.md": "人读摘要与未做项/范围声明",
     "hashes_sha256.txt": "本包逐文件 SHA-256",
@@ -226,6 +230,23 @@ def run_checker(manifest_path: pathlib.Path) -> dict:
                         "--project-root", str(REPO_ROOT), "--manifest", str(manifest_path)])
 
 
+P_COUNTER_KEYS = T.P.COUNTER_KEYS
+HARDWARE_PROCESS_PATTERN = ("vivado", "xsdb", "hw_server", "vitis", "xsim")
+
+
+def quiet_window_check() -> dict:
+    """运行前安静窗口核验（task-24 纪律）：无硬件/仿真进程、3121 未监听。"""
+    listing = subprocess.run(["tasklist"], capture_output=True, text=True,
+                             encoding="utf-8", errors="replace")
+    hits = [line.strip() for line in listing.stdout.splitlines()
+            if any(part.lower() in line.lower() for part in HARDWARE_PROCESS_PATTERN)]
+    port = subprocess.run(["netstat", "-ano"], capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+    port_lines = [line.strip() for line in port.stdout.splitlines() if ":3121" in line]
+    return {"quiet_processes": hits, "port_3121_lines": port_lines,
+            "quiet_ok": not hits and not port_lines}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-dir", required=True)
@@ -294,6 +315,13 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8")
 
     # ── 3. 用例骨架（并把帧级事件日志落到本包 logs/，N-4）──────────────────
+    quiet = quiet_window_check()
+    quiet_procs, quiet_port, quiet_ok = quiet["quiet_processes"], quiet["port_3121_lines"], quiet["quiet_ok"]
+    (run_dir / "console" / "quiet_window.txt").write_text(
+        "\n".join(["# 运行前安静窗口核验（task-24：交接核验须在安静窗口做）",
+                   f"hardware_or_sim_processes={quiet_procs or '(none)'}",
+                   f"port_3121_lines={quiet_port or '(none)'}",
+                   f"verdict={'QUIET' if quiet_ok else 'BUSY'}", ""]), encoding="utf-8")
     T.LOG_DIR = run_dir / "logs"
     suite_summary, suite_exit = run_suite(run_dir / "console" / "unittest_s5t03.txt")
 
@@ -317,6 +345,36 @@ def main(argv: list[str] | None = None) -> int:
                      for item in recompute_runs]) + "\n", encoding="utf-8")
     recompute_ok = all(item["exit_code"] == 0 for item in recompute_runs)
 
+    # ── 3c. 漂移登记扫描（NB-2）──────────────────────────────────────────
+    impact_run = run_command([sys.executable, "-B", str(HERE / "scan_hash_drift.py")])
+    (run_dir / "console" / "impact_scan.txt").write_text(
+        "\n".join([f"command={impact_run['command']}", f"exit_code={impact_run['exit_code']}",
+                   "--- stdout ---", impact_run["stdout"].rstrip(),
+                   "--- stderr ---", impact_run["stderr"].rstrip(), ""]), encoding="utf-8")
+    impact_ok = impact_run["exit_code"] == 0
+    try:
+        impact_summary = json.loads(impact_run["stdout"])
+        impact_summary = {"found_count": len(impact_summary.get("found", [])),
+                          "registered_count": len(impact_summary.get("registered", [])),
+                          "verdict": impact_summary.get("verdict")}
+    except json.JSONDecodeError:
+        impact_summary = {}
+
+    # ── 3d. 本轮修订文件实测 mtime（NB-4 取值来源）────────────────────────
+    mtime_lines = []
+    for relative in ("docs/stage5/s5t03_input_contract_binding_v1.json",
+                     "docs/stage5/s5t03_offline_skeleton_params_v1.json",
+                     "docs/stage5/s5a_stage5_display_g0_fields.json",
+                     "scripts/stage5_t03/s5t03_display_pipeline.py",
+                     "scripts/stage5_t03/test_s5t03_skeleton.py",
+                     "scripts/stage5_t03/run_s5t03_evidence.py"):
+        info = (REPO_ROOT / relative).stat()
+        stamp = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(info.st_mtime))
+        mtime_lines.append(f"{stamp}+08:00  {relative}")
+    (run_dir / "console" / "file_mtimes.txt").write_text(
+        "\n".join(["# 本轮修订文件的实测 mtime（本地时区 UTC+8）；重新 checkout 后 mtime 会变，"
+                   "字节权威为 Git blob", *mtime_lines, ""]), encoding="utf-8")
+
     # ── 4. results / summary ─────────────────────────────────────────────
     checks = [
         {"name": "S5-T03 离线用例骨架（unittest，含长跑虚拟时间与落盘日志复算）",
@@ -335,25 +393,42 @@ def main(argv: list[str] | None = None) -> int:
          "exit_code": 0 if recompute_ok else 1,
          "reason": "两次复算（240 帧 mixed 与长跑）exit_code 均为 0 且与在线计数逐项一致；"
                    "复算器不导入流水线内存计数"},
+        {"name": "漂移登记扫描（NB-2：旧哈希绑定清单集合 == 已登记集合）",
+         "status": "PASS" if impact_ok else "FAIL",
+         "command": "python -B scripts/stage5_t03/scan_hash_drift.py",
+         "exit_code": impact_run["exit_code"],
+         "reason": "扫描 report/evidence/**/*manifest*.json 中绑定旧哈希的清单，与绑定 JSON 的登记逐项相等；"
+                   "只登记、不改写旧包"},
+        {"name": "安静窗口核验（无 Vivado/xsim/hw_server、3121 未监听）",
+         "status": "PASS" if quiet_ok else "FAIL",
+         "command": "python: tasklist 过滤 vivado|xsdb|hw_server|vitis|xsim + netstat :3121",
+         "exit_code": 0 if quiet_ok else 1,
+         "reason": f"命中进程={quiet_procs or '(none)'}；3121={'LISTENING' if quiet_port else 'not listening'}；"
+                   "在本安静窗口内完成本包的全部核验（task-24 纪律）"},
         {"name": "check_stage_delivery --mode inputs",
          "status": "NOT_APPLICABLE",
          "command": f"python -B {CHECKER} --mode inputs --project-root <w5> --manifest <本清单>",
          "exit_code": None,
          "reason": INTERFACES_NOT_APPLICABLE_REASON},
     ]
+    units = T.NEW["counter_units"]
+    counter_unit_lines = [f"计数单位（{key}）：{units[key]}"
+                          for key in P_COUNTER_KEYS if key in units]
     limitations = [
         "输入范围：全部为合成动态流（synthetic_dynamic_reference）；capture_time_ns 为合成单调时钟，"
         "不是真实采集时刻。",
         "真实集成 NOT_RUN：阶段4 结果契约（r04）committed-not-frozen、未注入真实彩色帧，"
         "本包不得作为真实采集/真实推理集成证据。",
-        "板上实测 NOT_RUN：本轮不动硬件（阶段3 窗口占用中），板上动态映射/过期边界/长跑按 board pending 清单另行申请窗口。",
+        "实现层 NOT_RUN（NB-5）：camera/回放输入路径尚未实现 —— replay_source_*/frame_integrity 未接线；"
+        "本轮的关闭只在**绑定层**，不得读成实现已完成。",
+        "板上实测 NOT_RUN：板卡已由 Wong 于 2026-10-24 拔下，一切板级工作暂停；板上动态映射/过期边界/长跑"
+        "按 board pending 清单在重连后另行申请窗口。",
         "长跑语义：30 分钟为离线虚拟时钟加速 —— 判据用区间数 106572（帧数 106573 − 1）× 16.89 ms "
         "= 1 800 001 080 000 ns，余量 +1.08 ms；不是板上耐久（板上 31.06 min 结论仍属既有合成源显示侧证据）。",
-        "计数单位：见 docs/stage5/s5t03_offline_skeleton_params_v1.json::counter_units —— "
-        "timeouts/dropped/error 按**提交帧**计（会因结果被后续帧复用而高于注入结果数），"
-        "stale_cleared 按**结果键**去重，duplicate/out_of_order/invalid 按**提交次数**计。",
+        *counter_unit_lines,
         "N-1：S5A-G0-v2 JSON 本轮只修 stale 判定域的**措辞**（阈值/几何/语义未变），哈希由 8eac7007… 变为 "
-        "10d24a39…；report/evidence/S5-A/s5a_g0_20261021_r03 包对该 JSON 的绑定随之漂移（如实登记，未删除其证据）。",
+        "10d24a39…；本轮 NB-4 又补 `revised_utc8_source` 说明键 ⇒ 现值 e3347c4e…（阈值/几何/语义自 N-1 后未再变）；"
+        "report/evidence/S5-A/s5a_g0_20261021_r03 等旧包绑定的仍是 8eac7007…，已按扫描判据登记（如实登记，未删除其证据）。",
         "取代关系：本包取代 r01 两个包（s5t03_offline_skeleton_20261024_r01、s5t03_takeover_20261024_r01）——"
         "r01 清单绑定的源文件在本轮 B-1/B-2/N-1..N-7 更正后字节已变，故 r01 清单对当前字节不再匹配；"
         "r01 证据保留、不删除、不就地改写。",
@@ -366,11 +441,13 @@ def main(argv: list[str] | None = None) -> int:
         "source_commit": args.source_commit,
         "base_commit": BASE_COMMIT,
         "input_scope_label": "synthetic_dynamic_reference",
-        "contract_revision": {"display_contract": "S5A-G0-v2（N-1 措辞修订，哈希 10d24a39…）",
+        "contract_revision": {"display_contract": "S5A-G0-v2（N-1 措辞修订 + NB-4 来源说明，哈希 e3347c4e…）",
                               "input_binding": "S5T03-INPUT-BINDING-v2（对齐阶段4 r04 7a9507a）",
                               "order_rule": "阶段4 r04 frame_sequence_rules：重复/乱序/回退一律拒绝并记 FAIL"},
         "supersedes_runs": ["report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01",
-                            "report/evidence/S5-T03/s5t03_takeover_20261024_r01"],
+                            "report/evidence/S5-T03/s5t03_takeover_20261024_r01",
+                            "report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r02",
+                            "report/evidence/S5-T03/s5t03_takeover_20261024_r02"],
         "suite": suite_summary,
         "seed": T.NEW["seed"],
         "samples": {"frame_association_sample_frames": T.NEW["frame_association_sample_frames"],
@@ -409,8 +486,12 @@ def main(argv: list[str] | None = None) -> int:
         f"{T.NEW['long_run_period_count']} × 16.89 ms = {long_run.get('virtual_elapsed_ns', 0) / 1e9 / 60:.4f} 分钟，"
         f"每帧恰一次提交事件（无死锁）、时间戳单调、计数可复算",
         "- 乱序/回退（B-2）：重复与乱序同构拒绝并记 FAIL；乱序帧框与前一帧逐值相同；不进入已接受集合",
+        "- 等价 frame_id（NB-1，fail-closed）：同 session 等价 frame_id 且未显式声明重复/重放 ⇒ 拒绝并记 FAIL；"
+        "`repeat_declared=true` 或 `repeat_index` 递增才放行（含判别力对照与 `equiv` 流 40 帧覆盖）",
         "- 落盘日志（N-4）：`logs/events_mixed_240.jsonl`、`logs/events_long_run.jsonl.gz`；"
         "独立复算器 `scripts/stage5_t03/recompute_from_log.py` 两次 exit 0",
+        "- 漂移登记（NB-2）：`scripts/stage5_t03/scan_hash_drift.py` 扫描旧哈希绑定清单 == 登记集合；"
+        f"安静窗口：{'QUIET' if quiet_ok else 'BUSY'}；实现层回放/彩色路径仍 **NOT_RUN**（NB-5）",
         "",
         "## 关键计数（合成流，仅供骨架核对；不得当作板上结论）",
         f"- 240 帧 mixed：{json.dumps(mixed, ensure_ascii=False)}",
@@ -444,10 +525,11 @@ def main(argv: list[str] | None = None) -> int:
         "**首要理由＝无 `role=input` 文件**。",
         "",
         "## 取代关系与既有包影响",
-        f"- 本包取代：`{', '.join(results['supersedes_runs'])}`（r01 清单绑定源文件已在本轮更正，"
-        "其清单对当前字节不再匹配；r01 证据保留、不删除、不就地改写）。",
-        "- `report/evidence/S5-A/s5a_g0_20261021_r03`：其 interfaces 绑定的 S5A-G0-v2 JSON 因 N-1 措辞修订"
-        "哈希漂移（8eac7007… → 10d24a39…），其余未动。",
+        f"- 本包取代：`{', '.join(results['supersedes_runs'])}`（被取代包清单绑定的源文件在本轮更正后字节已变，"
+        "其清单对当前字节不再匹配；被取代证据保留、不删除、不就地改写）。",
+        "- 旧哈希漂移登记（NB-2 扫描判据）：以 8eac7007… 绑定 S5A-G0-v2 JSON 的清单已全部登记；"
+        f"扫描命中 {impact_summary.get('found_count', 'NA')} 个清单文件、登记 {impact_summary.get('registered_count', 'NA')} 个；"
+        "哈希轨迹 8eac7007… → 10d24a39… → e3347c4e…（阈值/几何/语义自 N-1 后未再变）。",
         "",
     ]
     (run_dir / "summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
@@ -476,10 +558,10 @@ def main(argv: list[str] | None = None) -> int:
                        check_m2["stdout"].rstrip(), "--- stderr ---", check_m2["stderr"].rstrip(), ""]),
             encoding="utf-8")
 
-    final_ok = (suite_exit == 0 and untouched_ok and recompute_ok
+    final_ok = (suite_exit == 0 and untouched_ok and recompute_ok and impact_ok and quiet_ok
                 and check_m1["exit_code"] == 0 and check_m2["exit_code"] == 0)
     print(f"suite_exit={suite_exit} untouched={'OK' if untouched_ok else 'CHANGED'} "
-          f"recompute_ok={recompute_ok} "
+          f"recompute_ok={recompute_ok} impact_ok={impact_ok} quiet_ok={quiet_ok} "
           f"checker_M1_exit={check_m1['exit_code']} checker_M2_exit={check_m2['exit_code']} "
           f"manifest={manifest}")
     print(f"final_exit={0 if final_ok else 1}")

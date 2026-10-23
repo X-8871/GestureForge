@@ -6,8 +6,8 @@
   "title": "阶段5 显示/关联输入契约改绑：真实彩色范围标签 + 阶段3 部署身份 + 坐标与帧关联键",
   "status": "BINDING_ALIGNED_WITH_STAGE4_R04_NOT_FROZEN",
   "status_note": "本文件是**外围绑定与标签**，不是新的显示契约，也不冻结任何指标。S5A-G0-v2 的阈值、几何、取整规则与显示语义一律不变（本轮仅按 N-1 修一处措辞，见 stale_domain 登记）；阶段4 结果契约已由 r04 改绑（`7a9507a`，仍未冻结），标签到 source_kind 的实际枚举值以该接口 G0 为准。既有合成源证据与其结论一律保留原身份，不得因本绑定被升级为真实集成结论。",
-  "generated_utc8": "2026-10-24T01:35:00+08:00",
-  "generated_utc8_note": "取本文件本轮修订的落盘时刻（N-5：原写 01:10 与实际 mtime 00:44 不符，已改正）。",
+  "generated_utc8": "2026-10-24T02:27:00+08:00",
+  "generated_utc8_note": "NB-4：取本文件最后一次写入的本地时间（分钟级近似，UTC+8）；精确到秒的实测 mtime 见 report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/console/file_mtimes.txt；重建工作区后 mtime 会变，字节权威为 Git blob。s5t03_offline_skeleton_params_v1.json 另记首次冻结时刻（frozen_utc8）。",
   "supersedes": {
     "superseded_binding": "S5T03-INPUT-BINDING-v1（同一路径文件的上一版，内容提交 ba31126，2026-10-24T01:04:02+08:00）",
     "reason": "上一版引用的是阶段4 **已被取代**的 `f6fa9f0` 快照，并据此把 `camera_capture_replay_colour` 归入 `file_injection|synthetic` + `capture_time_ns=0` 哨兵；而阶段4 r04（`7a9507a`，2026-10-24T00:52:29+08:00）已改为**两个彩色标签都映射 `camera`、`capture_time_available=true`、回放 `timing_claim_scope=replay_only`**。时间线表明本文件上一版定稿时上游已是 r04。",
@@ -18,8 +18,8 @@
   "relation_to_frozen_contract": {
     "display_contract": "S5A-G0-v2",
     "display_contract_json": "docs/stage5/s5a_stage5_display_g0_fields.json",
-    "display_contract_json_sha256": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
-    "display_contract_json_sha256_note": "本轮按 N-1 裁定只修 stale 判定域**措辞**（阈值/几何/语义未变），故哈希由 8eac7007… 变为 10d24a39…；S5-A r03 包清单曾绑定旧哈希，该包对本文件不再匹配（如实登记，不删除其证据）。",
+    "display_contract_json_sha256": "e3347c4e22db5be652e5b586e68d0d39f67e85b0828514ee2b57e3ec49aef780",
+    "display_contract_json_sha256_note": "哈希轨迹：8eac7007…（N-1 前）→ 10d24a39…（N-1 措辞修订）→ **e3347c4e…**（NB-4 仅补 `revised_utc8_source` 取值来源说明；阈值/几何/语义与 N-1 后完全一致）。旧包绑定的仍是 8eac7007…（见 impacted_by_this_revision 扫描判据）。",
     "geometry_reference": "verification/s5_display_geometry_reference.py",
     "geometry_reference_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
     "geometry_reference_unchanged": true,
@@ -168,6 +168,8 @@
     "rejection_policy": {
       "authority": "阶段4 r04 frame_sequence_rules（duplicate_frame_id / regressed_frame_id / out_of_order_result / rule）",
       "duplicate_frame_id": "同一会话内重复的 frame_id（未声明为重放）必须**拒绝**并记 FAIL，不得幂等静默接受",
+      "duplicate_frame_id_display_rule": "NB-1（fail-closed，2026-10-24 复审后修）：显示侧对**同 session 等价 frame_id** 的提交，除**显式声明**外一律判 duplicate_frame_id 并记 FAIL（拒绝：不写已接受集合、不更新最新结果、不绘制），计入 `duplicate_frame_id_results`；唯一放行依据＝`repeat_declared=true` 或 `repeat_index` 严格大于该 (session_id, frame_id) 已接受的最大值（对齐 r04 `stage4a_join_key=(session_id, frame_id, repeat_index)`）。",
+      "precedence": "invalid（schema）→ duplicate（同结果键）→ out_of_order（frame_id/result_seq 回退）→ duplicate_frame_id（等价但未声明）→ accepted",
       "regressed_frame_id": "frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位",
       "out_of_order_result": "同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝",
       "logging_rule": "以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因",
@@ -195,8 +197,31 @@
     {"id": "UR-3", "to": "Wong / 阶段5 正式 G0", "status": "OPEN", "request": "成品允许延迟上限、颜色表与字号、阶段4 stale_age_limit 的正式冻结；并请一并裁定 N-1 登记的 stale 判定域口径（是否要求严格 state 域）。", "blocking": "阶段5 正式验收（不影响本轮离线骨架）"},
     {"id": "UR-4", "to": "DSH 项目总控", "status": "OPEN", "request": "阶段5 板级窗口申请（阶段4 结果冻结后按 CDX-20261023-018 §3 提出），见 docs/stage5/S5T03_board_verification_pending_v1.md", "blocking": "板上动态映射/过期边界/真实集成长跑"}
   ],
-  "impacted_by_this_revision": [
-    {"target": "report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01 + s5t03_takeover_20261024_r01", "state": "SUPERSEDED_BY_R02", "reason": "两包清单绑定的源文件在本轮更正（B-1/B-2/N-1..N-7 + 脚本）后字节已变，故其清单对当前字节不再匹配；证据保留、不删除、不就地改写"},
-    {"target": "report/evidence/S5-A/s5a_g0_20261021_r03", "state": "BOUND_HASH_DRIFT", "reason": "该包 interfaces 绑定的 docs/stage5/s5a_stage5_display_g0_fields.json 因本轮 N-1 **措辞**修订（阈值/几何/语义未变）哈希由 8eac7007… 变为 10d24a39…；该包其余文件未动，证据保留"}
-  ]
+  "impacted_by_this_revision": {
+    "registration_rule": "凡在其清单（delivery_manifest.json / run_manifest.json / *_manifest.json）的 interfaces 或 files 中以旧哈希 8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911 绑定 docs/stage5/s5a_stage5_display_g0_fields.json 的包，**一律登记**（不只登记权威消费者）；只补登记，**不改写任何旧包内容**。扫描命令与实跑退出码见本轮证据包 console/impact_scan.txt；测试 test_drift_registration_covers_old_hash_bindings 复算该集合，未登记即 FAIL。",
+    "old_hash": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+    "intermediate_hash_n_1": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+    "new_hash": "e3347c4e22db5be652e5b586e68d0d39f67e85b0828514ee2b57e3ec49aef780",
+    "cause": "N-1（DSH 裁决）：只改 stale 判定域**措辞**，阈值/几何/语义未变",
+    "entries": [
+      {"package": "report/evidence/S5-A/s5a_g0_20261021_r03", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-A/s5a_g0_20261021_r03/delivery_manifest.json", "report/evidence/S5-A/s5a_g0_20261021_r03/run_manifest.json"]},
+      {"package": "report/evidence/S5-B/s5b_20261021_r07_a", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-B/s5b_20261021_r07_a/run_manifest.json"]},
+      {"package": "report/evidence/S5-B/s5b_20261021_r07_b", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-B/s5b_20261021_r07_b/run_manifest.json"]},
+      {"package": "report/evidence/S5-C/s5c_regression_20261021_r04", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-C/s5c_regression_20261021_r04/run_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_box_count_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_frame_id_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_identity_rebuild_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_score_tol_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_score_ulp_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_source_order_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_xyxy_tol_manifest.json", "report/evidence/S5-C/s5c_regression_20261021_r04/tamper/tamper_xyxy_ulp_manifest.json"]},
+      {"package": "report/evidence/S5-C/s5c_regression_20261021_r04_limit8", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-C/s5c_regression_20261021_r04_limit8/run_manifest.json"]},
+      {"package": "report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/delivery_manifest.json"]},
+      {"package": "report/evidence/S5-T01/s5t01_board_overlay_20261022_r01", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/run_manifest.json"]},
+      {"package": "report/evidence/S5-T01/s5t01_prereq_20261022_r02", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-T01/s5t01_prereq_20261022_r02/run_manifest.json"]},
+      {"package": "report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01", "state": "SUPERSEDED_BY_R02", "manifests": ["report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01/delivery_manifest.json"]},
+      {"package": "report/evidence/S5-T03/s5t03_takeover_20261024_r01", "state": "SUPERSEDED_BY_R02", "manifests": ["report/evidence/S5-T03/s5t03_takeover_20261024_r01/delivery_manifest.json"]}
+    ],
+    "note_r02_r03": "r02 两个包（s5t03_offline_skeleton_20261024_r02、s5t03_takeover_20261024_r02）本轮被 r03 取代（其清单绑定的源文件在 NB-1..NB-5 修复后字节已变）；同样只登记、不改写。"
+  },
+  "implementation_status": {
+    "statement": "**实现层独立于绑定层**：本文件的关闭只发生在「外围绑定与标签」层。camera/回放输入路径在本轮**尚未实现** —— `replay_source_*`、`frame_integrity` 未接线，合成流仍硬编码 source_kind=synthetic 与 capture_time_available=false；不得把绑定层关闭读成实现已完成。",
+    "not_implemented": ["camera_live_colour 采集接入", "camera_capture_replay_colour 回放接入（逐帧 frame_integrity 校验、replay_source_* 绑定、非零 capture_time_ns 传递、replay_not_live 标记）"],
+    "current_baseline": "仅合成流离线骨架（synthetic_dynamic_reference）",
+    "planned": "后续按 Wong/DSH 的『无板卡工作流』用阶段4 回放结果包实现回放路径并做离线动态显示回归（仍标回放）",
+    "nb_5_note": "NB-5 要求的 T01 绑定断言已在本轮补齐；实现层运行时用例待回放路径实现时一并补齐（届时固定新基线重审）。"
+  }
 }

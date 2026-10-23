@@ -9,6 +9,7 @@
 - 本文件上一版（v1，内容提交 `ba31126`）绑定的是阶段4 **已被取代**的 `f6fa9f0` 快照，并据此把 `camera_capture_replay_colour` 归入 `file_injection|synthetic` + `capture_time_ns=0` 哨兵；**该结论与 r04 相反且已作废**。
 - 时间线：r04 提交于 **2026-10-24T00:52:29+08:00**，本文件 v1 定稿于 00:44–00:55、提交于 01:04 ⇒ v1 定稿时上游已是 r04（引用过期快照，属实质错误）。
 - 现按 r04 重绑：**两个彩色标签都映射 `source_kind=camera`、`capture_time_available=true`**，回放仅以 **`timing_claim_scope=replay_only`** 区分；`capture_time_ns` 一律取**真实抓取时刻**（非零、不得标 unavailable）。
+- **复审后修（NB 轮）**：等价 `frame_id` 判据改 fail-closed（§6）、漂移登记补全为**扫描判据**（§9 NB-2）、计数单位改为 JSON↔流水线**逐字相等**（§10 NB-3）、时间戳按实测（NB-4）、T01 补绑定断言并登记**实现状态**（§11 NB-5）。本轮仍只交付**合成流离线骨架**，回放/彩色**实现**未做。
 
 ## 1. 要解决的问题
 
@@ -79,12 +80,17 @@
 
 - 五元组：`(displayed_frame_id, result_frame_id, age_result_ns, age_frame_ns, display_semantics)`。
 - 时间：同一 PS 单调时钟；`capture_time_ns` 在 `camera` 下必须非零且不得标 unavailable，在 `file_injection`/`synthetic` 下为 `0` 哨兵 + `unavailable_fields`。
-- **拒绝规则（B-2，采用阶段4 r04 `frame_sequence_rules` 强制行为）**：
-  - 重复 `frame_id`（未声明重放）⇒ **拒绝并记 FAIL**，不得幂等静默接受；
-  - `frame_id` 回退（小于上一已接受值，除显式新会话/复位）⇒ **拒绝并记 FAIL**；
-  - 乱序接纳或回绕 ⇒ 拒绝；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据；
+- **拒绝规则（B-2 + NB-1，采用阶段4 r04 `frame_sequence_rules` 强制行为）**：
+  - 重复结果键 `(session_id, frame_id, result_seq)` ⇒ **拒绝并记 FAIL**（`duplicate_results`）；
+  - `frame_id`/`result_seq` **回退**（小于上一已接受值，除显式新会话/复位）⇒ **拒绝并记 FAIL**（`out_of_order_results`）；
+  - **等价 `frame_id`（NB-1，fail-closed）**：同 session 的 `frame_id` 已被接受、且该记录**未显式声明**为重复/重放 ⇒
+    **拒绝并记 FAIL**（`duplicate_frame_id_results`）；唯一放行依据＝`repeat_declared=true` 或 `repeat_index` 严格大于
+    该 `(session_id, frame_id)` 已接受的最大值（对齐 r04 `stage4a_join_key=(session_id, frame_id, repeat_index)`）；
+  - **分类优先级**：invalid（schema）→ duplicate（同结果键）→ out_of_order（回退）→ duplicate_frame_id（等价未声明）→ accepted；
+  - 乱序接纳/回绕 ⇒ 拒绝；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据；
   - 拒绝必须**落在日志与证据中并记原因**，不得只记计数；
-  - 显示侧骨架对重复与乱序**同构处理**：只计数、记 FAIL/原因，不写已接受集合、不更新 latest、不绘制；并断言乱序帧的框与前一帧逐值相同。
+  - 三类拒绝（duplicate / out_of_order / duplicate_frame_id）**同构**：不写已接受集合、不更新 latest、不绘制；
+    并断言被拒帧的框与前一帧逐值相同。**NB-1 不得削弱 B-2**（回退仍在更早分支判 out_of_order）。
 
 ## 7. 既有合成源结论的处置（**不重做、不升级**）
 
@@ -112,7 +118,7 @@
 |---|---|
 | **B-1** | 重绑到阶段4 **r04**（commit `7a9507a`，JSON blob `611e6c7c…`/MD blob `23c8b4d2…`）：两个彩色标签都映射 `source_kind=camera`、`capture_time_available=true`、`capture_time_ns` 取真实抓取时刻；回放以 `timing_claim_scope=replay_only` 区分；登记取代关系与 r01 证据影响（见 §0 与 JSON `supersedes`）。 |
 | **B-2** | 采用上游强制行为：乱序与重复**同构拒绝**（只计数、记 FAIL/原因、不写已接受集合、不更新 latest、不绘制），并补「`frame_id` 回退必须拒绝并记 FAIL」用例与「乱序帧框与前一帧逐值相同」断言（见 §6 与骨架 T03）。 |
-| **N-1** | stale 判定域：**不改冻结语义/行为**，只把 `S5A-G0-v2` JSON 的一处措辞改为与冻结参考实现一致（新增 `stale_domain_note`），并在 STATE/缺口登记差异、提请正式 G0 裁定；该 JSON 哈希由 `8eac7007…` 变为 `10d24a39…`（S5-A r03 包对该文件不再匹配，已登记，不删除其证据）。 |
+| **N-1** | stale 判定域：**不改冻结语义/行为**，只把 `S5A-G0-v2` JSON 的一处措辞改为与冻结参考实现一致（新增 `stale_domain_note`），并在 STATE/缺口登记差异、提请正式 G0 裁定；该 JSON 哈希轨迹 `8eac7007…` → `10d24a39…`（N-1）→ `e3347c4e…`（NB-4 仅补来源说明键），**阈值/几何/语义自 N-1 后未再变**；旧包绑定的仍是 `8eac7007…`，已按扫描判据登记（不删除其证据）。 |
 | **N-2** | 长跑口径改正：判据用**区间数** 106572（= 帧数 106573 − 1），106572 × 16.89 ms = 1 800 001 080 000 ns，余量 **+1.08 ms**；原文把帧数当区间数并算错乘积，已改（见参数 JSON `long_run_min_frames_derivation`）。 |
 | **N-3** | 计数单位与时机已声明（参数 JSON `counter_units`，并在 §10 与清单 checks/limitations 引用）：如 `timeouts` 计**提交帧**（240 帧 mixed 为 14，注入 TIMEOUT 结果数为 7）、`stale_cleared` 按**结果键**去重。 |
 | **N-4** | 帧级事件日志随证据落盘（`logs/events_mixed_240.jsonl`、`logs/events_long_run.jsonl.gz`），并提供独立复算器 `scripts/stage5_t03/recompute_from_log.py`（不导入流水线内存计数）。 |
@@ -120,6 +126,16 @@
 | **N-6** | `UR-2` 标 **RESOLVED**（dbdf 已于 01:14 更正，见 §3）。 |
 | **N-7** | 清单改为 `interfaces=[]` + `interfaces_not_applicable_reason`，**首要理由＝无 `role=input` 文件**（本任务无本地输入文件），次因＝上游接口均未冻结（按 `report/README.md` 规定不伪造冻结字段）。 |
 | 附 | 「3/3 逐字符一致」改述为 bit/ELF 全哈希一致 + XSA 前缀一致（全哈希与 dbdf 原部署清单一致），见 §3。
+
+## 9b. 复审（r02）后修：NB-1..NB-5（本轮）
+
+| 编号 | 处置 |
+|---|---|
+| **NB-1** | `submit_result` 对**同 session 等价 `frame_id` + 新 `result_seq`** 原判 `accepted`（会更新 latest、改变绘制）⇒ 与 r04 `duplicate_frame_id` 不符。按裁决 **(a) fail-closed** 修：未显式声明即拒绝并记 FAIL（新增计数 `duplicate_frame_id_results`，与 `duplicate_results` 分列）；放行只看 `repeat_declared=true` / `repeat_index` 递增；补 3 条用例（未声明必拒、声明放行、**判别力对照**：复刻 r02 语义时该断言变红）+ `equiv` 流 40 帧覆盖；**未削弱 B-2**（回退仍先判 out_of_order）。 |
+| **NB-2** | `impacted_by_this_revision` 由「只登记 S5-A r03」改为**扫描判据**：登记规则 + 旧/新哈希 + **19 个清单文件**（10 个包目录）逐条列出；新增 `scripts/stage5_t03/scan_hash_drift.py`（扫描 `report/evidence/**/*manifest*.json`，命中集合必须等于登记集合，exit 0/1）+ 测试 `test_drift_registration_covers_old_hash_bindings`（双向相等：不漏登记、不过时登记）。**未改写任何旧包**。 |
+| **NB-3** | 「四处一致」改为精确表述：JSON **15 键 = 14 计数 + `definition`**、流水线 **14 键**、**逐字相等**（测试断言）、清单由 JSON **生成完整 14 条**；此前不符的文本（含 `**加粗**`、`timeouts` 特例句）已统一为同一文本。 |
+| **NB-4** | 三处 `revised/generated_utc8` 改为**实测取值**并写明来源（`console/file_mtimes.txt` 记录冻结时实测 mtime；注明重新 checkout 后 mtime 会变、字节权威为 Git blob）。 |
+| **NB-5** | T01 补断言：回放 `capture_time_ns` **非零要求**措辞、`carry_fields` 的 10 个必需字段、`implementation_status`（"尚未实现"）与 NB-1 规则登记；文档/STATE 明写**实现层 camera/回放路径未实现**（见 §11）。实现层运行时用例待回放路径实现时补（届时固定新基线重审）。 |
 
 ## 10. 计数单位与时机（N-3 摘要）
 
@@ -130,4 +146,21 @@
 | `dropped_frames` / `timeouts` / `error_results` | 每**提交帧** 1 | TIMEOUT/ERROR/DROPPED 结果会被后续无新结果的帧继续复用 ⇒ 计数 ≥ 注入结果数 |
 | `stale_cleared` | 每**结果键** 1（去重） | `(session_id, frame_id, result_seq)` |
 | `duplicate_results` / `out_of_order_results` / `invalid_records` | 每次**提交** 1 | 均拒绝、不绘制、不更新 latest；乱序/回退记 FAIL |
+| `duplicate_frame_id_results`（NB-1 新增） | 每次**提交** 1 | 同 session 等价 frame_id 且未显式声明重复/重放 ⇒ 拒绝并记 FAIL |
+
+> **NB-3 精确表述**：参数 JSON 的 `counter_units` 共 **15 键 = 14 个计数器条目 + `definition` 说明键**；
+> 流水线 `COUNTER_UNITS` 为 **14 键**；两者 14 条文本**逐字相等**（由测试 `test_counter_units_declared` 断言）；
+> 清单 limitations 由参数 JSON **生成完整 14 条**（不再是概述）。此前"四处一致"的说法不准确，已更正。
+
+## 11. 实现状态（NB-5：绑定层关闭 ≠ 实现完成）
+
+| 项 | 状态 |
+|---|---|
+| 绑定/契约层（标签映射、部署身份、坐标/关联键、回放标注规则） | **已关闭**（本文件与 JSON，r04 对齐） |
+| `camera_live_colour` 采集路径实现 | **NOT_RUN / 未实现** |
+| `camera_capture_replay_colour` 回放路径实现（逐帧 `frame_integrity` 校验、`replay_source_*` 绑定、**非零** `capture_time_ns` 传递、`replay_not_live` 标记） | **NOT_RUN / 未实现**（`replay_source`/`frame_integrity` 未接线；合成流仍硬编码 `source_kind=synthetic`、`capture_time_available=false`） |
+| 当前可用基线 | 仅**合成流离线骨架**（`synthetic_dynamic_reference`） |
+| 下一轮 | 按"无板卡工作流"用阶段4 回放结果包实现回放路径并做离线动态显示回归（仍标"回放/离线"） |
+
+- 该状态同时写入绑定 JSON `implementation_status`、`STATE`、本文件 §11 与骨架文档，避免把绑定层关闭读成实现已完成。
 | `zero_hand_frames` | 每个 NO_HAND 且非过期的**提交帧** 1 | 合法零框，不算过期 |

@@ -179,6 +179,49 @@ class T01_ContractIntegrity(unittest.TestCase):
         consistency = binding["stage3_deployment_binding"]["consistency_with_015_r03"]
         self.assertIn("全哈希", consistency["bit"])
         self.assertIn("前缀", consistency["xsa"])
+        # NB-5：绑定层必须断言 capture_time_ns 非零要求与 carry_fields（防止回退为 0 哨兵/删字段）
+        replay = labels["camera_capture_replay_colour"]
+        self.assertIn("真实抓取时刻", replay["capture_time_ns"])
+        self.assertIn("不得填 0 哨兵", replay["capture_time_ns"])
+        self.assertTrue(labels["camera_live_colour"]["capture_time_ns"].startswith("非零"))
+        carry = " ".join(replay["carry_fields"])
+        for field in ("frame_integrity", "replay_source_path", "replay_source_file_sha256",
+                      "replay_source_width", "replay_source_height", "replay_source_stride_bytes",
+                      "replay_source_byte_order", "stage3_capture_evidence_entry",
+                      "source_frame_id", "source_capture_time_ns"):
+            self.assertIn(field, carry, f"carry_fields 缺少 {field}")
+        # NB-5：绑定层关闭 ≠ 实现完成（实现状态必须显式登记）
+        impl = binding["implementation_status"]
+        self.assertIn("尚未实现", impl["statement"])
+        self.assertTrue(any("camera_capture_replay_colour" in item for item in impl["not_implemented"]))
+        # NB-1：等价 frame_id 规则必须登记在绑定里
+        self.assertIn("duplicate_frame_id_display_rule",
+                      binding["frame_association_keys"]["rejection_policy"])
+        # NB-2：漂移登记结构
+        impact = binding["impacted_by_this_revision"]
+        self.assertIn("registration_rule", impact)
+        registered = {m for entry in impact["entries"] for m in entry["manifests"]}
+        self.assertIn("report/evidence/S5-CTRL/S5-A01/s5_ctrl_20261022_r02/delivery_manifest.json", registered)
+        self.assertIn("report/evidence/S5-T01/s5t01_board_overlay_20261022_r01/run_manifest.json", registered)
+        self.assertIn("report/evidence/S5-T01/s5t01_prereq_20261022_r02/run_manifest.json", registered)
+
+    def test_drift_registration_covers_old_hash_bindings(self):
+        """NB-2：凡在清单里以旧哈希绑定 S5A-G0-v2 JSON 的包都必须被登记（扫描即判据）。"""
+        binding = json.loads(BINDING_PATH.read_text(encoding="utf-8"))
+        impact = binding["impacted_by_this_revision"]
+        old_hash = impact["old_hash"]
+        registered = {m for entry in impact["entries"] for m in entry["manifests"]}
+        found = set()
+        for path in (REPO_ROOT / "report" / "evidence").rglob("*manifest*.json"):
+            if not path.is_file():
+                continue
+            if old_hash in path.read_text(encoding="utf-8", errors="replace"):
+                found.add(path.relative_to(REPO_ROOT).as_posix())
+        self.assertGreaterEqual(len(found), 15, "扫描命中数异常偏低：判据可能失效")
+        self.assertEqual(found - registered, set(),
+                         f"存在未登记的旧哈希绑定：{sorted(found - registered)}")
+        self.assertEqual(registered - found, set(),
+                         f"登记了但扫描未命中（登记过时）：{sorted(registered - found)}")
 
     def test_existing_synthetic_evidence_untouched(self):
         command = ["git", "-C", str(REPO_ROOT), "diff", "--name-only", BASE_COMMIT, "--",
@@ -384,6 +427,89 @@ class T03_FrameAssociation(unittest.TestCase):
         self.assertNotIn((4, 12, 4), pipeline.accepted_keys)
         self.assertEqual(pipeline.latest["frame_id"], 10)
 
+    # ── NB-1：等价 frame_id fail-closed ──────────────────────────────────
+    @staticmethod
+    def _record(session: int, frame_id: int, seq: int, *, detections: int = 1,
+                repeat_index: int = 1, declared: bool = False) -> dict:
+        record = S.make_record(session_id=session, frame_id=frame_id, result_seq=seq, sequence=seq,
+                               capture_time_ns=1_000_000_000, result_time_ns=1_000_000_100,
+                               inference_time_ns=1_000_000, state="OK",
+                               detections=[S.make_detection(i) for i in range(detections)],
+                               repeat_index=repeat_index)
+        if declared:
+            record["repeat_declared"] = True
+        return record
+
+    def test_equivalent_frame_id_without_declaration_rejected(self):
+        """NB-1：同 session 等价 frame_id + 新 result_seq 且未声明 ⇒ 拒绝并记 FAIL。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        self.assertEqual(pipeline.submit_result(self._record(6, 30, 1))["outcome"], "accepted")
+        before = pipeline.commit_frame(30, 1_010_000_000)["event"]
+        outcome = pipeline.submit_result(self._record(6, 30, 2, detections=2))
+        self.assertEqual(outcome["outcome"], "duplicate_frame_id")
+        self.assertEqual(outcome["verdict"], "FAIL")
+        self.assertIn("equivalent_frame_id_not_declared", outcome["reject_reason"])
+        event = pipeline.log.submit_events()[-1]
+        self.assertTrue(event["rejected"])
+        self.assertEqual(event["declared_repeat_basis"], "no_declaration")
+        self.assertEqual(pipeline.counters["duplicate_frame_id_results"], 1)
+        self.assertEqual(pipeline.counters["duplicate_results"], 0,
+                         "等价 frame_id 不得与同结果键重复混计")
+        self.assertEqual(pipeline.counters["out_of_order_results"], 0, "不得削弱 B-2 分类")
+        self.assertNotIn((6, 30, 2), pipeline.accepted_keys)
+        after = pipeline.commit_frame(31, 1_020_000_000)["event"]
+        self.assertEqual(before["box_px"], after["box_px"], "被拒等价帧不得改变绘制内容")
+        self.assertEqual(pipeline.latest["result_seq"], 1, "被拒等价帧不得更新最新结果")
+
+    def test_equivalent_frame_id_with_declared_repeat_accepted(self):
+        """NB-1 二阶：显式声明（repeat_index 递增 / repeat_declared）才放行。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        self.assertEqual(pipeline.submit_result(self._record(7, 40, 1))["outcome"], "accepted")
+        outcome = pipeline.submit_result(self._record(7, 40, 2, repeat_index=2, declared=True))
+        self.assertEqual(outcome["outcome"], "accepted")
+        self.assertEqual(outcome["verdict"], "PASS")
+        self.assertEqual(pipeline.counters["duplicate_frame_id_results"], 0)
+        self.assertEqual(pipeline.latest["result_seq"], 2)
+        self.assertEqual(pipeline.log.submit_events()[-1]["declared_repeat_basis"], "repeat_declared")
+        # 仅 repeat_index 递增（无 repeat_declared）同样构成显式声明
+        outcome2 = pipeline.submit_result(self._record(7, 40, 3, repeat_index=3))
+        self.assertEqual(outcome2["outcome"], "accepted")
+        self.assertEqual(pipeline.log.submit_events()[-1]["declared_repeat_basis"], "repeat_index_incremented")
+
+    def test_nb1_discriminating_power_legacy_accept_would_fail(self):
+        """判别力对照：复刻 r02 语义（无等价 frame_id 记忆）时该判据会变红。"""
+        class _NoRepeatMemory(dict):
+            def get(self, key, default=None):    # 复刻 r02：不记忆已接受 frame_id
+                return None
+
+        def submit_pair(memory_off: bool) -> str:
+            pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+            if memory_off:
+                pipeline.accepted_frame_repeats = _NoRepeatMemory()
+            pipeline.submit_result(self._record(8, 50, 1))
+            return pipeline.submit_result(self._record(8, 50, 2))["outcome"]
+
+        self.assertEqual(submit_pair(False), "duplicate_frame_id", "现语义必须拒绝")
+        self.assertEqual(submit_pair(True), "accepted",
+                         "旧（r02）语义下会被放行 ⇒ 本断言具有判别力")
+
+    def test_equiv_stream_mode_covers_rule(self):
+        """NB-1 覆盖：`equiv` 流既有未声明必拒，也有声明放行。"""
+        pipeline, summary = run("equiv", NEW["stream_samples"]["equiv_frames"])
+        counters = summary["counters"]
+        self.assertGreaterEqual(counters["duplicate_frame_id_results"], 1)
+        accepted_declared = [e for e in pipeline.log.submit_events()
+                             if e.get("outcome") == "accepted" and e.get("declared_repeat_basis")]
+        self.assertGreaterEqual(len(accepted_declared), 1, "必须存在显式声明放行路径的覆盖")
+        rejected = [e for e in pipeline.log.submit_events() if e.get("outcome") == "duplicate_frame_id"]
+        for event in rejected:
+            self.assertEqual(event["verdict"], P.VERDICT_FAIL)
+        self.assertEqual(counters, pipeline.recompute()["counters"])
+        for event in pipeline.log.submit_events():
+            if event.get("outcome") == "duplicate_frame_id":
+                self.assertNotIn((event["session_id"], event["frame_id"], event["result_seq"]),
+                                 pipeline.accepted_keys)
+
     def test_duplicate_does_not_update_latest_result(self):
         """重复结果不更新最新结果：重复帧的绘制内容必须与前一帧完全相同。"""
         pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
@@ -532,14 +658,19 @@ class T05_LongRunVirtual(unittest.TestCase):
                             f"紧凑日志字段与声明不符：{fields}")
 
     def test_counter_units_declared(self):
-        """N-3：所有计数器的单位与时机必须冻结声明，且与流水线常量一致。"""
+        """N-3 / NB-3：JSON 14 键（14 计数 + definition）与流水线 14 条**逐字相等**。"""
         units = NEW["counter_units"]
+        self.assertIn("definition", units, "JSON 必须保留 definition 说明键")
+        counters = {key: value for key, value in units.items() if key != "definition"}
+        self.assertEqual(len(counters), len(P.COUNTER_KEYS),
+                         "JSON 计数器条目数必须与流水线 COUNTER_KEYS 相同")
+        self.assertEqual(sorted(counters), sorted(P.COUNTER_KEYS))
+        self.assertEqual(sorted(P.COUNTER_UNITS), sorted(P.COUNTER_KEYS))
         for key in P.COUNTER_KEYS:
-            self.assertIn(key, units, f"缺少计数单位声明：{key}")
-            self.assertIsInstance(units[key], str)
-            self.assertTrue(units[key].strip())
-        for key in P.COUNTER_KEYS:
-            self.assertIn(key, P.COUNTER_UNITS)
+            self.assertIsInstance(counters[key], str)
+            self.assertTrue(counters[key].strip())
+            self.assertEqual(counters[key], P.COUNTER_UNITS[key],
+                             f"NB-3：{key} 的 JSON 与流水线文本必须逐字相等")
 
 
 class T06_StreamSchema(unittest.TestCase):
@@ -550,7 +681,8 @@ class T06_StreamSchema(unittest.TestCase):
                              ("skip", NEW["stream_samples"]["skip_frames"]),
                              ("late", NEW["stream_samples"]["late_frames"]),
                              ("dup", NEW["stream_samples"]["dup_frames"]),
-                             ("ooo", NEW["stream_samples"]["ooo_frames"])):
+                             ("ooo", NEW["stream_samples"]["ooo_frames"]),
+                             ("equiv", NEW["stream_samples"]["equiv_frames"])):
             for step in stream(mode, frames):
                 for record in step["results"]:
                     self.assertEqual(R.validate_result_record(record), [],

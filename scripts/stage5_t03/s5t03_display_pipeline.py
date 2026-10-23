@@ -71,29 +71,40 @@ COUNTER_KEYS = (
     "invalid_records",
     "stale_cleared",
     "duplicate_results",
+    "duplicate_frame_id_results",
     "out_of_order_results",
     "zero_hand_frames",
     "zero_area_dropped",
 )
 
-SUBMIT_OUTCOMES = ("accepted", "duplicate", "out_of_order", "invalid")
+SUBMIT_OUTCOMES = ("accepted", "duplicate", "duplicate_frame_id", "out_of_order", "invalid")
 
-# 计数单位与时机（N-3）：避免把「注入结果数」误读为「发生帧数」
+# 计数单位与时机（N-3 / NB-3）：本字典的 14 条文本与
+# docs/stage5/s5t03_offline_skeleton_params_v1.json::newly_frozen_for_skeleton_only.counter_units
+# 的 14 个计数器条目**逐字相等**（该 JSON 另有 definition 说明键），由测试断言强制一致。
 COUNTER_UNITS = {
     "frames_committed": "每显示帧 1（含 warmup）",
     "overlay_drawn_frames": "每显示帧 1（仅当真的绘制了边框）",
     "boxes_drawn": "每个被绘制的框 1（逐帧累加）",
     "warmup_frames": "每预热显示帧 1",
-    "dropped_frames": "每个状态为 DROPPED 的提交帧 1（结果会被后续无新结果的帧继续复用 ⇒ 计数 ≥ 注入结果数）",
-    "timeouts": "每个状态为 TIMEOUT 的提交帧 1（同上）",
-    "error_results": "每个状态为 ERROR 的提交帧 1（同上）",
+    "dropped_frames": "每个状态为 DROPPED 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "timeouts": "每个状态为 TIMEOUT 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "error_results": "每个状态为 ERROR 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
     "invalid_records": "每次提交被判 schema 违规 1（不采用、不绘制）",
     "stale_cleared": "按结果键 (session_id, frame_id, result_seq) 去重后 1（同一过期结果跨帧复用只计一次）",
     "duplicate_results": "每次提交命中已接受结果键 1（拒绝、不更新最新结果）",
+    "duplicate_frame_id_results": "每次提交出现同 session 等价 frame_id 且未显式声明重复/重放 1（拒绝并记 FAIL，不更新最新结果）",
     "out_of_order_results": "每次提交发生 frame_id/result_seq 回退 1（拒绝、记 FAIL、不更新最新结果）",
     "zero_hand_frames": "每个 NO_HAND 且非过期的提交帧 1（合法零框，不绘制但不计过期）",
     "zero_area_dropped": "每个被丢弃的零面积框 1（逐帧、逐框累加）",
 }
+
+# NB-1：等价 frame_id 的**显式声明**通道（fail-closed 判据的唯一放行依据）
+# - 声明为重复/重放：记录里 `repeat_declared` 为 true；或 `repeat_index` 严格大于该
+#   (session_id, frame_id) 已接受的最大 repeat_index（对齐阶段4 r04 `stage4a_join_key`
+#   的 (session_id, frame_id, repeat_index) 语义）。
+# - 其余等价 frame_id（同 session、新 result_seq、无声明）一律拒绝并记 FAIL。
+DECLARED_REPEAT_FIELD = "repeat_declared"
 
 VERDICT_PASS = "PASS"
 VERDICT_FAIL = "FAIL"
@@ -154,6 +165,8 @@ class FrameEventLog:
             outcome = event.get("outcome")
             if outcome == "duplicate":
                 counters["duplicate_results"] += 1
+            elif outcome == "duplicate_frame_id":
+                counters["duplicate_frame_id_results"] += 1
             elif outcome == "out_of_order":
                 counters["out_of_order_results"] += 1
             elif outcome == "invalid":
@@ -228,6 +241,10 @@ class DisplayPipeline:
     - **乱序/回退**（同 session 的 `frame_id` 或 `result_seq` 小于上一已接受值）⇒ `out_of_order_results+1`、
       记 FAIL 与原因，**拒绝**：不写入已接受集合、不更新最新结果、不绘制（B-2：采用上游强制行为，
       与重复同构；不再"按到达序采用"）；
+    - **等价 frame_id（NB-1，fail-closed）**：同 session 的 `frame_id` 已被接受、且该记录**未显式声明**为
+      重复/重放（`repeat_declared=true` 或 `repeat_index` 严格大于已接受值）⇒ `duplicate_frame_id_results+1`、
+      记 FAIL 与原因，**拒绝**（不写入已接受集合、不更新最新结果、不绘制）；依据阶段4 r04
+      `frame_sequence_rules.duplicate_frame_id`；显式声明路径由 `_declared_repeat` 实现并有用例覆盖；
     - 过期 = `PS stale 标志 OR age_frame > 200 ms`，每结果只计一次；
     - `NO_HAND` = 合法零框（非过期）；`TIMEOUT`/`ERROR`/`DROPPED` 分别计数，不冒充零框；
     - 每显示帧恰好产生一条 `overlay_commit` 事件（缺事件即视为死锁，由长跑断言检出）。
@@ -247,8 +264,31 @@ class DisplayPipeline:
         self.stale_counted_keys: set[tuple] = set()
         self.last_result_seq: dict[Any, int] = {}
         self.last_frame_id: dict[Any, int] = {}
+        # NB-1：每个 (session_id, frame_id) 已接受的最大 repeat_index（显式重复/重放的唯一放行依据）
+        self.accepted_frame_repeats: dict[tuple, int] = {}
         self.counters = {key: 0 for key in COUNTER_KEYS}
         self.frames_committed = 0
+
+    # ── NB-1：显式重复/重放声明 ───────────────────────────────────────────
+    @staticmethod
+    def _declared_repeat(record: Mapping[str, Any], accepted_repeat: int | None) -> tuple[bool, str]:
+        """判断该记录是否**显式声明**为同一 frame 的重复/重放（fail-closed：默认视为未声明）。
+
+        放行依据（任一成立即视为已声明，均引用阶段4 r04 `stage4a_join_key` 的
+        `(session_id, frame_id, repeat_index)` 语义）：
+        - `repeat_declared` 为 true（显式声明字段）；或
+        - `repeat_index` 严格大于该 `(session_id, frame_id)` 已接受的最大 `repeat_index`。
+        """
+        if record.get(DECLARED_REPEAT_FIELD) is True:
+            return True, DECLARED_REPEAT_FIELD
+        raw = record.get("repeat_index", 1)
+        try:
+            repeat_index = int(raw)
+        except (TypeError, ValueError):
+            return False, "repeat_index_unparsable"
+        if accepted_repeat is not None and repeat_index > int(accepted_repeat):
+            return True, "repeat_index_incremented"
+        return False, "no_declaration"
 
     # ── 提交结果 ──────────────────────────────────────────────────────────
     def submit_result(self, record: Mapping[str, Any]) -> dict[str, Any]:
@@ -308,11 +348,32 @@ class DisplayPipeline:
             return {"outcome": "out_of_order", "verdict": VERDICT_FAIL, "reject_reason": event["reject_reason"],
                     "key": key, "problems": []}
 
+        # NB-1（fail-closed）：同 session 等价 frame_id 且**未显式声明**重复/重放 ⇒ 拒绝并记 FAIL
+        # 依据阶段4 r04 frame_sequence_rules.duplicate_frame_id「未声明为重放必须拒绝并记 FAIL」。
+        frame_key = (session, frame_id)
+        accepted_repeat = self.accepted_frame_repeats.get(frame_key)
+        if accepted_repeat is not None:
+            declared, basis = self._declared_repeat(record, accepted_repeat)
+            if not declared:
+                self.counters["duplicate_frame_id_results"] += 1
+                event["outcome"] = "duplicate_frame_id"
+                event["verdict"] = VERDICT_FAIL
+                event["reject_reason"] = f"equivalent_frame_id_not_declared({basis})"
+                event["previous_repeat_index"] = int(accepted_repeat)
+                event["declared_repeat_basis"] = basis
+                event["rejected"] = True
+                self.log.append(event)
+                # 拒绝：不写 accepted_keys、不更新 latest、不绘制
+                return {"outcome": "duplicate_frame_id", "verdict": VERDICT_FAIL,
+                        "reject_reason": event["reject_reason"], "key": key, "problems": []}
+            event["declared_repeat_basis"] = basis
+
         event["outcome"] = "accepted"
         event["verdict"] = VERDICT_PASS
         self.accepted_keys.add(key)
         self.last_result_seq[session] = max(seq, self.last_result_seq.get(session, seq))
         self.last_frame_id[session] = max(frame_id, self.last_frame_id.get(session, frame_id))
+        self.accepted_frame_repeats[frame_key] = int(record.get("repeat_index", 1) or 1)
         self.latest = dict(record)
         self.log.append(event)
         return {"outcome": "accepted", "verdict": VERDICT_PASS, "key": key, "problems": []}

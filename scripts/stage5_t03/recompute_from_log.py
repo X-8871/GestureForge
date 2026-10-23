@@ -38,6 +38,7 @@ COUNTER_KEYS = (
     "invalid_records",
     "stale_cleared",
     "duplicate_results",
+    "duplicate_frame_id_results",
     "out_of_order_results",
     "zero_hand_frames",
     "zero_area_dropped",
@@ -77,6 +78,8 @@ def recompute(events) -> dict:
             outcome = event.get("oc")
             if outcome == "duplicate":
                 counters["duplicate_results"] += 1
+            elif outcome == "duplicate_frame_id":
+                counters["duplicate_frame_id_results"] += 1
             elif outcome == "out_of_order":
                 counters["out_of_order_results"] += 1
             elif outcome == "invalid":

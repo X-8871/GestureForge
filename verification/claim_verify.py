@@ -69,14 +69,14 @@ def s6a_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
                        "claim_verify 正常→0/假声明→非0；m4_residual_regression 3 条真实残留被捕获→0/目录不存在→拒绝非0"),
          "argv": [PY, "-B", "-c",
                   "import hashlib,json,pathlib,sys;"
-                  "p=pathlib.Path('tmp/6/tool_self_tests.json');assert p.is_file(),'缺少自测套件产物';"
+                  "p=pathlib.Path(r'" + run_rel + "/tool_self_tests.json');assert p.is_file(),'缺少自测套件产物（应随包入库）';"
                   "d=json.loads(p.read_text(encoding='utf-8'));"
                   "bad=[c['case_id'] for c in d['cases'] if c['verdict']!='AS_EXPECTED'];"
                   "print('sha256=',hashlib.sha256(p.read_bytes()).hexdigest(),'verdict=',d['verdict'],'cases=',len(d['cases']));"
                   "assert d['verdict']=='ALL_AS_EXPECTED' and not bad,bad"],
          "expect_exit": 0,
          "observable": ("复算命令：python -B verification/tool_self_tests.py --project-root <abs>；"
-                        "产物 tmp/6/tool_self_tests.json（含各例真实退出码）")},
+                        "产物随包入库：<run-dir>/tool_self_tests.json（含各例真实退出码）")},
         {"id": "S6A-C6-fresh-selfcheck-after-build",
          "statement": ("构建结束后**新鲜自检两次**（间隔 30s）均 ALL_PASS 且 C11 不再报任何被声明文件哈希不符"
                        "（证明「清单写在被绑定文件之后」的结构问题已修、且构建后无残留写入者）"),

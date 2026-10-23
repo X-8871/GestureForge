@@ -3,7 +3,7 @@
   "stage": "6",
   "task_id": "S6-B",
   "run_id": "s6b_core_20261023_r05",
-  "source_commit": "1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e",
+  "source_commit": "66f45dd47056261720f55abc7d661bafd8714970",
   "evidence_dir": "report/evidence/S6-B/s6b_core_20261023_r05",
   "interfaces": [],
   "interfaces_not_applicable_reason": "S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.8），其 24 项阈值全部为 PENDING_APPROVAL，按契约不得声明 frozen；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。",
@@ -22,7 +22,7 @@
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r05/check_evidence_mode_output.txt",
-      "sha256": "6a61d11128ae583f3ae1b013315a5019ad493712a2e01aa6cf0b82fb0d82b6a6",
+      "sha256": "9fdcf52a02c7f7fab37f10da5fb8a90e0ad9c66dd1a0f6573bf7aa456a8c0a2b",
       "role": "result",
       "keep_reason": "S6-B 证据文件：check_evidence_mode_output.txt"
     },
@@ -58,13 +58,13 @@
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r05/hashes_sha256.txt",
-      "sha256": "bf598422713d399c8c0d5e2dc47467b10d075725f411fe8bb027fd2af6a8df36",
+      "sha256": "dc6db1bd4b57c160c47faf690970f10b7db4f6cc1c67c8eb9e684ab62b1ba460",
       "role": "result",
       "keep_reason": "S6-B 证据文件：hashes_sha256.txt"
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r05/inputs_manifest.json",
-      "sha256": "23d970021c2d6d8e1302c9ceb20d28b8ee6be18bf1617caab38a88d6c6763463",
+      "sha256": "038270d5bf3a4af0b1afec6aabd5887883b50da8ea2aa94c50602a228295b992",
       "role": "result",
       "keep_reason": "S6-B 证据文件：inputs_manifest.json"
     },
@@ -365,6 +365,13 @@
       "exit_code": 0
     },
     {
+      "name": "冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）",
+      "status": "PASS",
+      "command": "`python -B verification/export_selfproof.py --project-root <abs> --s6b-run report/evidence/S6-B/<run> --worktree-snapshot [--commit <rev>]`",
+      "exit_code": 0,
+      "reason": "工具判定 ALL_SELF_PROVEN；逐项退出码 {'commit 33b1fee30af1974560fa0b94bf6c6662d3e5d1e0': [0, 0, 0, 0], 'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': [0, 0, 0, 0]}"
+    },
+    {
       "name": "S6-B 确定性用例（26 条 / 11 类）",
       "status": "PASS",
       "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261023_r05 --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261023_r05\\cases\\case_matrix.json",
@@ -394,7 +401,7 @@
     "git": "git version 2.56.0.windows.2"
   },
   "limitations": [
-    "source_commit 为本次构建时的 HEAD（动态取值 1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e）；实际交付提交由 verification/export_selfproof.py 导出后复跑自证。",
+    "source_commit 为本次构建时的 HEAD（动态取值 66f45dd47056261720f55abc7d661bafd8714970）；实际交付提交由 verification/export_selfproof.py 导出后复跑自证。",
     "全部阈值为 PENDING_APPROVAL 草案值；interfaces 为空表示没有可声明为 frozen 的接口。",
     "结论只对注入输入 + 虚拟单调时钟有效。",
     "计入覆盖：M4（BLK-1 修正）；不计入覆盖：B16 S_DEDUP、M7。",

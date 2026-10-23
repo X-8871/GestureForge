@@ -3,7 +3,7 @@
   "stage": "6",
   "task_id": "S6-A",
   "run_id": "s6a_g0_20261023_r10",
-  "source_commit": "1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e",
+  "source_commit": "66f45dd47056261720f55abc7d661bafd8714970",
   "evidence_dir": "report/evidence/S6-A/s6a_g0_20261023_r10",
   "interfaces": [
     {
@@ -47,7 +47,7 @@
     },
     {
       "path": "verification/tool_self_tests.py",
-      "sha256": "1b082d12a06ebfa3e12bb141fad069d4f402c409586539df407b97d1c1ce2683",
+      "sha256": "edcce3db6cb7a3a04830e6b10c22db2d28f1086790ffff8e474d8aaa64c06920",
       "role": "source",
       "keep_reason": "工具自测两例（必 PASS / 必 FAIL）"
     },
@@ -59,7 +59,7 @@
     },
     {
       "path": "verification/claim_verify.py",
-      "sha256": "19ed8541d571aaa42dbc9b43bcbc4bde4ec403524344bb314048b93481f9f8a6",
+      "sha256": "0411b3987e4c6e42b708ec6060956f516b585646506118e56ba95f3aef947f51",
       "role": "source",
       "keep_reason": "验证附录生成器（声明↔命令↔真实退出码↔可观察输出）"
     },
@@ -83,7 +83,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/check_evidence_mode_output.txt",
-      "sha256": "b2effba2c20b9c3435184fea291787c8f62894a02bf008505f65eaf29402a5f7",
+      "sha256": "b78fb14fe24ba85af17ef97bb9132f49b4c822d5d4e10ce54f11a04ef0b53667",
       "role": "result",
       "keep_reason": "check_stage_delivery --mode evidence 真实 stdout"
     },
@@ -95,13 +95,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/claim_verification.json",
-      "sha256": "cd079e6217a721dc5eef5bab5a8047e36431ff3f34591d9d375c4e0914c087de",
+      "sha256": "b6ecbdd58098592260f096cd031ae8d264c6ff09682d5389e18fbdb3c74bbc62",
       "role": "result",
       "keep_reason": "证据文件：claim_verification.json"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/claim_verification.md",
-      "sha256": "8ee1fdf199a6fd306251dd7e1cee5e64396121e3088fa49aa64163b984c903e9",
+      "sha256": "d070d65aeeeff9e46c72d4918e705c441902925aeca68b80c6dd6ea5ecfedc7d",
       "role": "log",
       "keep_reason": "证据文件：claim_verification.md"
     },
@@ -143,13 +143,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/hashes_sha256.txt",
-      "sha256": "3625e33818badb013abefd94f094b6e93b75500f4641b2041c2efcab4ec5d653",
+      "sha256": "d9595d2f7422f1b61b315986a4f05077582ce2a1092ea82430de76c2507f8d5b",
       "role": "result",
       "keep_reason": "证据目录已存在文件的 SHA-256 清单"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/inputs_manifest.json",
-      "sha256": "743a1ed4dc3b4bc2d597c369a1a58d20b68ab193b99ce97ee6ef60ae0da045d5",
+      "sha256": "9eac0bfd5074a601380625be072461cef877f3c954bf10767331d5202990071d",
       "role": "input",
       "keep_reason": "输入清单（冻结上游接口与输入文件绑定）"
     },
@@ -257,13 +257,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/S6A_run_summary.md",
-      "sha256": "e9025ebda8dc15fc76b94ca91ff12de6c2312afba7e5203c42c1f58f436e3450",
+      "sha256": "0b2866a17050dd98e17d9e1a167b596cf687acea4ac0692f6e5998013b5af0b6",
       "role": "log",
       "keep_reason": "运行摘要（真实命令、退出码入口与结论边界）"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/selfcheck_c11_stdout.txt",
-      "sha256": "eaa8f5488483730f5e921db5ec086ff3bcacc2bcc7341b80c90c9cee4eb9893c",
+      "sha256": "733aeeb7b12ef24dac2e2ef4bfb938c43f0b397f7276259ce55914fbb4206b19",
       "role": "diagnostic",
       "keep_reason": "完整 C11 自检运行 stdout"
     },
@@ -317,7 +317,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r10/selfcheck_result.json",
-      "sha256": "a066fc19fa413aa177e92768cbbe1f18ff304fd935b81d5e2e64b9e54dc26899",
+      "sha256": "cc35c1c135ba0970f2f0936833a45c18f5c5f6c10d10edb5be869db39a3247b2",
       "role": "result",
       "keep_reason": "修复包自检结果（含完整 C11 清单/STATE 核对）"
     },
@@ -335,6 +335,13 @@
     }
   ],
   "checks": [
+    {
+      "name": "冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）",
+      "status": "PASS",
+      "command": "`python -B verification/export_selfproof.py --project-root <abs> --commit <历史提交> --worktree-snapshot [--out <run>/export_selfproof.json]`",
+      "exit_code": 0,
+      "reason": "断言 = 本包快照 SELF_PROVEN；实测 subjects={'commit 33b1fee30af1974560fa0b94bf6c6662d3e5d1e0': 'SELF_PROVEN', 'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': 'SELF_PROVEN'}；工具总体判定 ALL_SELF_PROVEN"
+    },
     {
       "name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）",
       "status": "NOT_RUN",
@@ -361,7 +368,7 @@
     "git": "git version 2.56.0.windows.2"
   },
   "limitations": [
-    "source_commit = 本轮构建时的 HEAD（修订基线 1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
+    "source_commit = 本轮构建时的 HEAD（修订基线 66f45dd47056261720f55abc7d661bafd8714970）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
     "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。",
     "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
     "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1、BLK-r07-1）。",

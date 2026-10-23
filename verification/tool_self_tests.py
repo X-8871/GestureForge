@@ -71,8 +71,13 @@ def main(argv: list[str] | None = None) -> int:
     # 限制② 修复：固定指向**交付提交**（不再用 HEAD）；HEAD 变更后该例的结论不再依赖 HEAD
     delivery = args.delivery_commit
     if not delivery:
-        _code, _out = run(["git", "-C", str(root), "rev-parse", "stage6-freeze-20261023-r2^"], root)
-        delivery = _out.strip() if _code == 0 else None
+        # 依次尝试最新的冻结 tag（r3 → r2）；解析不到则跳过并标注
+        delivery = None
+        for _tag in ("stage6-freeze-20261023-r3", "stage6-freeze-20261023-r2"):
+            _code, _out = run(["git", "-C", str(root), "rev-parse", f"{_tag}^"], root)
+            if _code == 0:
+                delivery = _out.strip()
+                break
     if delivery:
         head_exit, head_out = run([PY, "-B", "verification/export_selfproof.py", "--project-root", str(root),
                                    "--commit", delivery, "--worktree-snapshot",

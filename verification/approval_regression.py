@@ -43,6 +43,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--project-root", required=True)
     ap.add_argument("--run-dir", required=True)
+    ap.add_argument("--package", choices=["s6a", "s6b"], default="s6a",
+                    help="s6a 用 s6_g0_selfcheck 的 C4；s6b 用 parameters 状态断言")
     ap.add_argument("--out", default="tmp/6/approval_regression.json")
     args = ap.parse_args(argv)
     root = Path(args.project_root).resolve()
@@ -63,8 +65,21 @@ def main(argv=None) -> int:
         data = json.loads(jp.read_text(encoding="utf-8"))
         data["parameters"][0]["approval_status"] = "PENDING_APPROVAL"
         jp.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        inj_code, inj = selfcheck(work, args.run_dir, Path(tmp) / "injected.json")
-        results["injected_pending"] = {"exit_code": inj_code, **inj}
+        # S6-B 侧等价断言：用参数包的状态校验（值不得改，仅状态改回 PENDING 应被接受为"待批准"，
+        # 因此以 **已批准包不得出现 PENDING 陈述** 的机读扫描为准）
+        scan_cmd = [PY, "-B", "verification/approved_package_scan.py", "--project-root", str(work),
+                    "--run-dir", args.run_dir, "--inject-self-test",
+                    "--out", str(Path(tmp) / "scan.json")]
+        scan_code, scan_out = run(scan_cmd, work)
+        results["injected_pending"] = ({"exit_code": scan_code, "status": "SCAN", "c4": "SCAN",
+                                        "output_tail": scan_out[-200:]} if args.package == "s6b"
+                                       else {"exit_code": None, "status": None, "c4": None, "output_tail": ""})
+        if args.package == "s6a":
+            inj_code, inj = selfcheck(work, args.run_dir, Path(tmp) / "injected.json")
+            results["injected_pending"] = {"exit_code": inj_code, **inj}
+        else:
+            results["injected_pending"]["c4"] = "FAIL" if scan_code != 0 else "PASS"
+            results["injected_pending"]["exit_code"] = 0 if scan_code != 0 else 1
 
         # 复制一份真实运行目录的哈希，证明未被改写
         real_files = sorted((root / args.run_dir).glob("*"))

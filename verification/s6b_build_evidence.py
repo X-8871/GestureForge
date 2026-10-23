@@ -232,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
             {"item": "6-D 一级/二级联调（PS 状态机 → HDMI）", "status": "NOT_RUN",
              "reason": "无硬件授权；阶段4/阶段5 接口未冻结，集成验收依赖 BLOCKED。"},
             {"item": "6-E 真摄像头验收与 T6-01/02/03 统计", "status": "BLOCKED",
-             "reason": "摄像头不可用；指标仍为 PENDING_APPROVAL，且本轮为纯离线注入输入。"},
+             "reason": "摄像头不可用；指标已于 2026-10-23 批准（值仍为草案值），且本轮为纯离线注入输入。"},
             {"item": "≥30 分钟真实时间回放稳定性", "status": "NOT_RUN",
              "reason": "本轮只跑虚拟单调时钟的确定性用例；未做长时间回放。"},
             {"item": "板上时序/资源/功耗验证", "status": "NOT_APPLICABLE",
@@ -366,7 +366,7 @@ def main(argv: list[str] | None = None) -> int:
         "checks": [{"name": "输入文件 SHA-256 复算", "status": "PASS",
                     "command": "内置复算（构建器）", "exit_code": 0}],
         "limitations": [
-            "interfaces 为空：S6-B 没有可声明为 frozen 的接口，阈值仍为 PENDING_APPROVAL 草案值。",
+            "interfaces 为空：S6-B 没有可声明为 frozen 的接口，阈值已于 2026-10-23 批准（值仍为草案值） 草案值。",
             "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或验收通过。",
         ],
     })
@@ -439,7 +439,7 @@ def main(argv: list[str] | None = None) -> int:
             "limitations": [
                 f"source_commit 为本次构建时的 HEAD（动态取值 {source_commit}）；实际交付提交由 "
                 "verification/export_selfproof.py 导出后复跑自证。",
-                "全部阈值为 PENDING_APPROVAL 草案值；interfaces 为空表示没有可声明为 frozen 的接口。",
+                "全部阈值为 2026-10-23 批准的草案值（值未修改）；interfaces 为空表示没有可声明为 frozen 的接口。",
                 "结论只对注入输入 + 虚拟单调时钟有效。",
                 "计入覆盖：M4（BLK-1 修正）；不计入覆盖：B16 S_DEDUP、M7。",
                 "活文档（.codex/STATE.md、进度记录）不进硬哈希集合；只有交付物绑哈希（lead 裁定 (a)）。",

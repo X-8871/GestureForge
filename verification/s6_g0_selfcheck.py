@@ -205,7 +205,8 @@ def check_identity(data: dict[str, Any]) -> None:
         "S6A-G0-v1.6": "s6a_g0_20261022_r07",
         "S6A-G0-v1.7": "s6a_g0_20261022_r08",
         # 同一 artifact_version 允许多个 RunId（旧轮次仍可复现，新轮次追加）
-        "S6A-G0-v1.8": ("s6a_g0_20261022_r09", "s6a_g0_20261023_r10"),
+        "S6A-G0-v1.8": ("s6a_g0_20261022_r09", "s6a_g0_20261023_r10", "s6a_g0_20261023_r11",
+                        "s6a_g0_20261023_r12"),
         "S6A-G0-v1.7": "s6a_g0_20261022_r08",
     }
     if version in expected_runs:

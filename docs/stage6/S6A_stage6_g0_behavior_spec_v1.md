@@ -1,13 +1,13 @@
-# S6A 阶段6 G0 行为规格（v1.9 · 已批准版 2026-10-23）
+# S6A 阶段6 G0 行为规格（S6A-G0-v1.8 · 已批准版 2026-10-23）
 
 > **批准说明**：24 项参数已按草案值获 Wong 批准（2026-10-23，原文「按你建议」「阶段7暂时不开」）。
-> 批准记录：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md`（逐项生效决定见 §1）。参数**值**未修改，仅状态由待批准改为 `APPROVED_20261023`。
+> 批准记录：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md`（逐项生效决定见 §1）。参数**值**未修改，仅状态字段更新为已批准口径。
 > 边界：本批准不等于 G4/G5 通过；`T6-A03` 数值仍 `NOT_RUN`（待阶段4 实测帧周期 P）；G3 板测未做。
 
 # S6-A 阶段6 G0 包与交互行为表 v1
 
 > **状态：`G0_PACKET_APPROVED_20261023`（待批准）。** 本文是阶段6 的 G0 交付包：阶段6 目标与范围、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。
-> **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为 **待批准**（`APPROVED_20261023`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过。
+> **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为**已批准**（2026-10-23；值仍为草案值）（`APPROVED_20261023`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过。
 > **本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI。** 本文不含任何实测数据。
 > 机器可读权威：`docs/stage6/s6a_stage6_g0_behavior_v1.json`（契约身份 `S6A-G0-v1`）。两者冲突时以 JSON 为准并回改本文；一致性由 `verification/s6_g0_selfcheck.py` 机器校验。
 > **修订记录（v1.8 / r09，2026-10-23）**：r08（v1.7）经**终审 A/B 均判 CHANGES_REQUIRED**；本轮按两批终审修：
@@ -42,7 +42,7 @@
 ## 0. 定位、范围与不宣称项
 
 - 阶段目标（计划 L102–L108）：**稳定手势判定 → HDMI 切图 / 界面 / 显示状态**；冻结多框目标选择、目标丢失与重获、稳定判定窗口、保持时是否只触发一次、冷却、重新触发条件、无手/未知输入与恢复行为。
-- 上轮结果（计划 L106）沿用为**强化建议**，不是已批准门槛：已知手势有效动作成功率 ≥90%、≥200 个独立未知输入误接受率 ≤5%、无有效手势 30 分钟误动作 ≤1 次。三项与样本数一律见 §14，状态 `APPROVED_20261023`。
+- 上轮结果（计划 L106）沿用为**强化建议**，已批准（2026-10-23）门槛：已知手势有效动作成功率 ≥90%、≥200 个独立未知输入误接受率 ≤5%、无有效手势 30 分钟误动作 ≤1 次。三项与样本数一律见 §14，状态 `APPROVED_20261023`。
 - 本轮**只做 6-A**（操作文档 `CDX-20261022-012` §2）：G0 与行为表。6-B（实现可独立测试的状态机）、6-C（确定性测试矩阵）、6-D（无摄像头两级联调）、6-E（真摄像头验收与统计）全部 `NOT_RUN`。
 - **边界**：交互通过不代替阶段7 最终性能与可靠性验收；注入/回放获得的任何结论只对「回放/注入输入」有效，不得冒充真实摄像头验收（真手势验收因摄像头不可用而延期）。
 - 不宣称：G0 已通过；阈值已冻结；接口已集成验收；状态机已实现；任何板上/摄像头/HDMI 已实测。
@@ -125,9 +125,9 @@
 
 ## 5. 行为表 v1
 
-每行给出：条件 → 转移 → 输出 → 必须记录 → 判定依据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_APPROVED_20261023`，**不是已批准、不是已冻结**）；**其中全部数值参数为待批准**。
+每行给出：条件 → 转移 → 输出 → 必须记录 → 判定依据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_APPROVED_20261023`，**已批准（2026-10-23）、不是已冻结**）；**其中全部数值参数为待批准**。　【历史语境：上述为当时状态（该版本产出时尚未批准）】
 
-| ID | 行为 | 条件 → 转移 | 输出/动作 | 必须记录 | 判定依据 | 参数（待批准） |
+| ID | 行为 | 条件 → 转移 | 输出/动作 | 必须记录 | 判定依据 | 参数（已批准 2026-10-23） |
 |---|---|---|---|---|---|---|
 | B01 | 五类稳定触发 | 目标稳定（M3→M5） | 按 §7 表 A-1 提交唯一动作 | `ACTION_SUBMITTED` + `action_id`/`target_id`/`trigger_frame_id`/`t_submit` | 计划 L104 | `T6-S01/S02`、`T6-P01/P02` |
 | B02 | 提交成功 ≠ 实际生效 | M5 后执行层回执 | 分记 `ACTION_SUBMITTED` 与 `ACTION_EFFECTIVE`；`fail`/`unobserved` 单列 | `submit_result`、`effective_result`、`t_effective` | 运行手册 §2.3；H-8 | 无 |
@@ -277,7 +277,7 @@
 - 上述任一情形**都不得触发动作**；即使不推进计数，超时/失踪计时**仍按单调时钟推进**（H-3）。
 - 丢失时间条件（`T6-L02`）一律使用锚点 `t_last_target_continues`（定义见 §12）：重复、倒序、缺帧、重启帧号均**不得**更新该锚点。
 
-## 14. 阈值与指标登记（**全部待批准**）
+## 14. 阈值与指标登记（**全部已批准 2026-10-23**）
 
 下表全部为 `APPROVED_20261023`：`草案值` 指上游草案建议或本 G0 提议，**不是**已批准门槛。批准权在 Wong（由项目总控转呈）。
 
@@ -394,7 +394,7 @@
 - 上一轮（v1.6 / r07）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r07/`（与 r06 同构：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`、旧包失败证据与前几轮同名的 `.json` + `_stdout.txt` 对、`probe_summary.json` 与 10 个 `probe_*_stdout.txt`、`export_selfproof.json`/`export_selfproof.md`、`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`；缓存 `tmp/6/S6-A/s6a_g0_20261022_r07/` 不入库）。
 - 上一轮（v1.5 / r06）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r06/`（清单/自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`、`selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`、`selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`、`selfcheck_r04_failure.json`/`.txt` 与 `r04_package_under_test.json`；探针：`probe_summary.json`、`probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_undeclared_predicate_name_stdout.txt`、`probe_suppressed_release_not_window_advancing_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`、`probe_historical_model_check_stdout.txt`；记录：`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。r01..r05 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/` … `..._r05/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r06/`（不入库）。（清单与自检：`delivery_manifest.json`、`inputs_manifest.json`、`hashes_sha256.txt`、`selfcheck_result.json`、`selfcheck_c11_stdout.txt`、`check_inputs_mode_output.txt`、`check_evidence_mode_output.txt`；旧包失败证据：`selfcheck_old_package_failure.json`/`.txt` 与 `old_package_under_test.json`、`selfcheck_r02_blk1_failure.json`/`.txt` 与 `r02_package_under_test.json`、`selfcheck_r03_failure.json`/`.txt` 与 `r03_package_under_test.json`、`selfcheck_r04_failure.json`/`.txt` 与 `r04_package_under_test.json`（r05 加固自检在 r04 提交字节上的失败输出，证明新断言能捕获其缺失项）；注入探针：`probe_summary.json` 与 `probe_baseline_no_injection_stdout.txt`、`probe_m5_window_advance_removed_stdout.txt`、`probe_empty_predicates_used_stdout.txt`、`probe_b13_predicates_used_added_stdout.txt`、`probe_undeclared_predicate_name_stdout.txt`、`probe_suppressed_release_not_window_advancing_stdout.txt`、`probe_case_timeout_frame_action_stdout.txt`、`probe_case_span_wrong_stdout.txt`；记录：`fix_record.json`/`fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`、`S6A_run_summary.md`）。旧包失败证据由 `verification/s6a_rerun_legacy_failures.py` 用最终脚本重跑生成（r01/r02/r03/r04，git 字节二进制提取）。r01/r02/r03/r04 证据保持原样：`report/evidence/S6-A/s6a_g0_20261022_r01/`、`..._r02/`、`..._r03/`、`..._r04/`（**不覆盖、不改写**）。缓存 `tmp/6/S6-A/s6a_g0_20261022_r05/`（不入库）。
 - **本轮全部实测类项目为 `NOT_RUN`**：状态机确定性测试（6-B/6-C）、脚本注入联调（6-D 一级）、独立图片/视频序列板上联调（6-D 二级）、≥30 分钟回放稳定性、真摄像头验收与统计（6-E）均未执行；真摄像头项为 `BLOCKED`（摄像头不可用，待重新采购）。
-- 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1）。
+- 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1）。　【历史语境：上述为当时状态（该版本产出时尚未批准）】
 - **证据修订说明**：r02 的 `old_package_under_test.json` 5 个哈希曾因提取脚本用 PowerShell 文本管道（`git show | Set-Content -Encoding utf8`）重写行尾/编码而与 `git show` 原始字节不符（复评 BLK-2）；r03 改为二进制提取并重算，失败结论（exit 1，13 项）不变但被检字节已可复核。r02 的入库 `selfcheck_result.json` 只跑了文件计数（复评 BLK-3），r03 已改为完整 C11。 **r04 修订说明**：R3-B01 修正 §12 的 `T6-S02`/`T6-L02` 行并定义 `t_last_target_continues`（原 `t_last_match`/`matched_frames`/`t_submit+` 写法已废弃）；R3-B02 修正 `predicates.used_by` 与 `predicates_used` 的双向一致；M5/B13 叙述改为「只有条件文本 + `global_cooldown_gate` 绑定、无 `predicates_used` 字段」；旧哈希成因（N05）更正为「LF→CRLF + 末尾补 CRLF」，不再声称「编码」被改写。 **r05 修订说明**：N-r04-01..05 五项均为非阻断收尾；M5 的窗口推进帧限定同时写入 JSON 与文档，并由 C12 文本断言固定；C7 的窗口跨度口径按 §9 修正，并保留宽松口径一致性断言；新增注入探针证明 C12/C7 新断言具备判别力（探针失败输出随包保留）。 **r06 修订说明**：N-r05-04 把 C7 的窗口完成口径改成 `T6-S03`「取较晚」，并保留旧口径对照字段与「旧口径对照」运行（用 r05 版本自检脚本在 r06 样例上重跑，必须失败）；N-r05-01..03 为表述/覆盖边界修正。
 - **回放/注入限定**：任何由脚本注入或回放输入得到的结论，其适用范围**仅限回放/注入输入**，不得冒充真实摄像头验收。
 - 检查器 `CHECKS_OK` 仅表示清单/文件绑定检查通过，不代表接口语义正确、测试成功、独立审查通过或 G0/G4/G5。

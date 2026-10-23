@@ -267,7 +267,7 @@ def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files
             "交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
             "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，"
             "提取一律 git cat-file blob 二进制（N03）。",
-            "全部阈值与指标仍为 PENDING_APPROVAL；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
+            "全部阈值与指标已于 2026-10-23 批准（值仍为草案值）；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
             "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1、BLK-r07-1）。",
             "入库 selfcheck_result.json 使用 --manifest + --state 完整命令，C11 含清单双向与 STATE 声明核对；stdout 见 selfcheck_c11_stdout.txt。",
             "旧包证据：r01（git 1fe4648 字节）与 r02（git 3b59674 字节）失败输出均已保留；后者由 C12 捕获 BLK-1。",
@@ -420,7 +420,7 @@ def main(argv: list[str] | None = None) -> int:
         f"- 任务：`{args.task_id}`；RunId：`{run_id}`；工作树：`{root}`",
         f"- 绑定提交：`{source_commit}`（证据由该次构建的工作树生成；交付提交由 `verification/export_selfproof.py` 导出复跑自证）",
         "- 状态：**DELIVERED_PENDING_REVIEW**（复评由项目总控另派；本摘要不构成通过）",
-        "- 阈值纪律：24 项参数值与 `PENDING_APPROVAL` 状态未改；未在测试集调参；未触碰硬件。",
+        "- 阈值纪律：24 项参数值未改；批准状态已按批准记录更新；未在测试集调参；未触碰硬件。",
         "",
         "## 真实命令与退出码",
         "",

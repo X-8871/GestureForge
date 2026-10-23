@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "artifact": "hash_convention_counterexamples",
+  "rule": "O1 换行口径：清单可绑原字节/归一化(LF)哈希；接受器接受原字节、CRLF→LF、LF→CRLF 三种口径，但内容不同必须拒绝。",
+  "checker": "verification/check_stage_delivery.py::verify_hash（真实函数，未复刻）",
+  "cases": [
+    {
+      "case_id": "case_declared_lf_file_lf",
+      "note": "清单 LF ↔ 文件 LF",
+      "declared": "effe722a8a04a01a…",
+      "file_bytes_convention": "LF",
+      "expected": "ACCEPT",
+      "observed": "ACCEPT",
+      "verdict": "AS_EXPECTED",
+      "errors": [],
+      "hash_variants": [
+        "630e06ce9fa7…",
+        "effe722a8a04…"
+      ]
+    },
+    {
+      "case_id": "case_declared_crlf_file_crlf",
+      "note": "清单 CRLF ↔ 文件 CRLF",
+      "declared": "630e06ce9fa7e9f7…",
+      "file_bytes_convention": "CRLF",
+      "expected": "ACCEPT",
+      "observed": "ACCEPT",
+      "verdict": "AS_EXPECTED",
+      "errors": [],
+      "hash_variants": [
+        "630e06ce9fa7…",
+        "effe722a8a04…"
+      ]
+    },
+    {
+      "case_id": "case_declared_lf_file_crlf",
+      "note": "CRLF→LF 方向",
+      "declared": "effe722a8a04a01a…",
+      "file_bytes_convention": "CRLF",
+      "expected": "ACCEPT",
+      "observed": "ACCEPT",
+      "verdict": "AS_EXPECTED",
+      "errors": [],
+      "hash_variants": [
+        "630e06ce9fa7…",
+        "effe722a8a04…"
+      ]
+    },
+    {
+      "case_id": "case_declared_crlf_file_lf",
+      "note": "LF→CRLF 反方向",
+      "declared": "630e06ce9fa7e9f7…",
+      "file_bytes_convention": "LF",
+      "expected": "ACCEPT",
+      "observed": "ACCEPT",
+      "verdict": "AS_EXPECTED",
+      "errors": [],
+      "hash_variants": [
+        "630e06ce9fa7…",
+        "effe722a8a04…"
+      ]
+    },
+    {
+      "case_id": "case_negative_content_differs",
+      "note": "内容不同必须拒绝",
+      "declared": "630e06ce9fa7e9f7…",
+      "file_bytes_convention": "LF",
+      "expected": "REJECT",
+      "observed": "REJECT",
+      "verdict": "AS_EXPECTED",
+      "errors": [
+        "case_negative_content_differs:  SHA-256 不匹配：清单 630e06ce9fa7e9f757b5727db3b3cb54365db3ad4d2a7af2b99e2c014348e55f，实际 0fb561fdf4ff9f0fdb1181ab5535f3aa75d6fc691dd1e965a059f52582d10321（原字节/CRLF→LF/LF→CRLF 三种口径均不匹配）"
+      ],
+      "hash_variants": [
+        "0fb561fdf4ff…",
+        "7135d41c1546…"
+      ]
+    }
+  ],
+  "verdict": "ALL_AS_EXPECTED"
+}

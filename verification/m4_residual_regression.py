@@ -112,11 +112,15 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 target = work / ".codex/STATE.md"
                 lines = target.read_text(encoding="utf-8").splitlines()
+                residual = ("- 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、"
+                            "M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。")
                 for index, line in enumerate(lines):
-                    if line.startswith("- 不计入覆盖项：") or "不计入覆盖项" in line:
-                        lines[index] = ("- 不可达项（不计入覆盖）：B16 `S_DEDUP`（`T6-A02`500 ms < `T6-K01`1000 ms）、"
-                                        "M4/`T6-S04`（U6-12）、M7（构造上）；见 `reachability_notes.json`。")
+                    if "不计入覆盖项" in line or "不可达项" in line:
+                        lines[index] = residual
                         break
+                else:
+                    # 锚点不存在时**无条件追加**：否则注入空转 ⇒ 假通过（本轮 STATE 压缩后暴露）
+                    lines.append(residual)
                 target.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="")
             # fail-closed：注入目标必须落在副本树内（否则立即中止，绝不触碰原始证据）
             if not str(target.resolve()).startswith(str(work.resolve())):

@@ -171,14 +171,19 @@ def normalize_line_endings(tree: Path, source_root: Path) -> dict:
 
 
 def self_prove(tree: Path, work: Path, label: str, source_root: Path | None = None,
-               s6b_rel: str | None = None) -> dict:
+               s6b_rel: str | None = None, s6a_rel: str | None = None) -> dict:
     behavior = tree / BEHAVIOR
     alignment = None
     if not behavior.is_file():
         return {"label": label, "verdict": "NOT_SELF_PROVEN", "error": f"导出内缺少 {BEHAVIOR}"}
     version_data = json.loads(behavior.read_text(encoding="utf-8"))
-    run_id = version_data.get("run_id", "")
-    evidence_rel = f"report/evidence/S6-A/{run_id}"
+    # BLK-D1 修复：**取消按行为表 run_id 的隐式查找**（该字段曾被漏同步到上一轮 RunId，
+    # 导致工具复算旧包 ⇒ 假 NOT_SELF_PROVEN）。现在必须显式给出 S6-A RunId。
+    if not s6a_rel:
+        return {"label": label, "verdict": "NOT_SELF_PROVEN",
+                "error": "缺少显式 --s6a-run（BLK-D1 之后不再按行为表 run_id 隐式查找）"}
+    evidence_rel = (s6a_rel if s6a_rel.startswith("report/evidence/")
+                    else f"report/evidence/S6-A/{s6a_rel}")
     evidence = tree / evidence_rel
     # N-r07-1：**先**按工作区口径归一（内容一致、仅换行不同才写回），**再**按清单已声明哈希做最终口径选择。
     # 顺序颠倒会把刚对齐好的文件再翻回去，在 autocrlf=true 的干净克隆上产生 NOT_SELF_PROVEN 假阴性。
@@ -280,7 +285,7 @@ def main(argv: list[str] | None = None) -> int:
         for rev in args.commit:
             tree = prepare_commit_repo(root, rev, work_root / f"commit_{rev}")
             entry = self_prove(tree, work_root, f"commit_{rev}", source_root=root,
-                               s6b_rel=args.s6b_run)
+                               s6b_rel=args.s6b_run, s6a_rel=args.s6a_run)
             entry["subject"] = f"commit {rev}"
             try:
                 entry["commit_tree"] = subprocess.run(["git", "-C", str(root), "rev-parse", f"{rev}^{{tree}}"],
@@ -292,7 +297,7 @@ def main(argv: list[str] | None = None) -> int:
             # 不排除本工具的既有输出：清单已声明它们，快照必须与清单一致（快照只是复制工作区字节）
             tree = prepare_snapshot_repo(root, work_root / "worktree", [])
             entry = self_prove(tree, work_root, "worktree_snapshot", source_root=root,
-                               s6b_rel=args.s6b_run)
+                               s6b_rel=args.s6b_run, s6a_rel=args.s6a_run)
             entry["subject"] = "worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）"
             results.append(entry)
     finally:

@@ -8,7 +8,7 @@ S6-A r05（v1.4）与 r06（v1.5）已分别通过第 5/6 轮独立复评（PASS
 
 1. 全部阶段6 阈值/指标只从 ``docs/stage6/s6a_stage6_g0_behavior_v1.json`` 读取，
    本模块不做任何数值覆盖、不做任何"临时调参"入口。
-2. 装载时强制校验每个参数仍为 ``PENDING_APPROVAL``；若上游被改成其它状态，
+2. 装载时强制校验每个参数的批准状态为 ``PENDING_APPROVAL`` 或 ``APPROVED_20261023``（2026-10-23 批准）；若上游被改成其它状态，
    必须由后续任务显式改写代码与证据，而不是让实现静默跟随。
 3. 上游已冻结接口常量（2A：五类顺序、class_id 0..4、≤15 框、score 口径）
    来自 ``docs/stage6/s6b_frozen_interface_v1.json`` 并复核 2A 原件 SHA-256。
@@ -78,7 +78,7 @@ def _sha256_file(path: Path, normalize_newlines: bool = False) -> str:
 
 
 class ParamPack:
-    """阶段6 参数包：只读快照 + 单位换算 + 状态校验（接受待批准或已批准口径；值始终为草案值）。"""
+    """阶段6 参数包：只读快照 + 单位换算 + 批准状态校验（已批准 2026-10-23；参数**值**始终为草案值）。"""
 
     def __init__(
         self,
@@ -261,11 +261,15 @@ class ParamPack:
                 }
                 for pid, item in sorted(self._params.items())
             ],
-            "all_parameters_pending_approval": all(
-                item.get("approval_status") in (PENDING_APPROVAL, APPROVED_20261023)
-                for item in self._params.values()
+            # BLK-D2 修复：字段必须**如实反映**批准状态（此前恒真 ⇒ 与 behavior_status 自相矛盾）
+            "all_parameters_approved_20261023": all(
+                item.get("approval_status") == APPROVED_20261023 for item in self._params.values()
             ),
-            "thresholds_are_draft_not_approved": True,
+            "any_parameter_pending_approval": any(
+                "PENDING" in str(item.get("approval_status", "")) for item in self._params.values()
+            ),
+            "parameter_values_are_draft_values": True,  # 批准的是草案值：值仍为草案，但**状态已是已批准**
+            "approval_applied": True,
             "note": (
                 "全部数值为草案值（2026-10-23 经 Wong 批准，状态 APPROVED_20261023）；本快照只证明实现读取了这些值，"
                 "不构成阈值冻结或验收结论。"

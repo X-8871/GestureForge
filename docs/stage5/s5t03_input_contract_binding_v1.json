@@ -6,8 +6,8 @@
   "title": "阶段5 显示/关联输入契约改绑：真实彩色范围标签 + 阶段3 部署身份 + 坐标与帧关联键",
   "status": "BINDING_ALIGNED_WITH_STAGE4_R04_NOT_FROZEN",
   "status_note": "本文件是**外围绑定与标签**，不是新的显示契约，也不冻结任何指标。S5A-G0-v2 的阈值、几何、取整规则与显示语义一律不变（本轮仅按 N-1 修一处措辞，见 stale_domain 登记）；阶段4 结果契约已由 r04 改绑（`7a9507a`，仍未冻结），标签到 source_kind 的实际枚举值以该接口 G0 为准。既有合成源证据与其结论一律保留原身份，不得因本绑定被升级为真实集成结论。",
-  "generated_utc8": "2026-10-24T02:27:00+08:00",
-  "generated_utc8_note": "NB-4：取本文件最后一次写入的本地时间（分钟级近似，UTC+8）；精确到秒的实测 mtime 见 report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/console/file_mtimes.txt；重建工作区后 mtime 会变，字节权威为 Git blob。s5t03_offline_skeleton_params_v1.json 另记首次冻结时刻（frozen_utc8）。",
+  "generated_utc8": "2026-10-24T02:34:00+08:00",
+  "generated_utc8_note": "NB-4：取本文件最后一次写入的本地时间（**分钟级**，UTC+8；容差 ≤60 s）；秒级实测 mtime 见 report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/console/file_mtimes.txt；重建工作区后 mtime 会变，字节权威为 Git blob。s5t03_offline_skeleton_params_v1.json 另记首次冻结时刻（frozen_utc8）。",
   "supersedes": {
     "superseded_binding": "S5T03-INPUT-BINDING-v1（同一路径文件的上一版，内容提交 ba31126，2026-10-24T01:04:02+08:00）",
     "reason": "上一版引用的是阶段4 **已被取代**的 `f6fa9f0` 快照，并据此把 `camera_capture_replay_colour` 归入 `file_injection|synthetic` + `capture_time_ns=0` 哨兵；而阶段4 r04（`7a9507a`，2026-10-24T00:52:29+08:00）已改为**两个彩色标签都映射 `camera`、`capture_time_available=true`、回放 `timing_claim_scope=replay_only`**。时间线表明本文件上一版定稿时上游已是 r04。",
@@ -18,8 +18,8 @@
   "relation_to_frozen_contract": {
     "display_contract": "S5A-G0-v2",
     "display_contract_json": "docs/stage5/s5a_stage5_display_g0_fields.json",
-    "display_contract_json_sha256": "e3347c4e22db5be652e5b586e68d0d39f67e85b0828514ee2b57e3ec49aef780",
-    "display_contract_json_sha256_note": "哈希轨迹：8eac7007…（N-1 前）→ 10d24a39…（N-1 措辞修订）→ **e3347c4e…**（NB-4 仅补 `revised_utc8_source` 取值来源说明；阈值/几何/语义与 N-1 后完全一致）。旧包绑定的仍是 8eac7007…（见 impacted_by_this_revision 扫描判据）。",
+    "display_contract_json_sha256": "af51a4bf47e72df6b0ffef9d39536782a5ee31ca6c6314d2d4838d0ca21aaa7b",
+    "display_contract_json_sha256_note": "哈希轨迹：8eac7007…（N-1 前）→ 10d24a39…（N-1 措辞修订）→ e3347c4e…（NB-4 补来源说明）→ **af51a4bf…**（NB-4 把 `revised_utc8` 改为实测分钟值并写明容差；阈值/几何/语义自 N-1 后始终未变）。旧包绑定的仍是 8eac7007…（见 impacted_by_this_revision 扫描判据）。",
     "geometry_reference": "verification/s5_display_geometry_reference.py",
     "geometry_reference_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
     "geometry_reference_unchanged": true,
@@ -201,7 +201,7 @@
     "registration_rule": "凡在其清单（delivery_manifest.json / run_manifest.json / *_manifest.json）的 interfaces 或 files 中以旧哈希 8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911 绑定 docs/stage5/s5a_stage5_display_g0_fields.json 的包，**一律登记**（不只登记权威消费者）；只补登记，**不改写任何旧包内容**。扫描命令与实跑退出码见本轮证据包 console/impact_scan.txt；测试 test_drift_registration_covers_old_hash_bindings 复算该集合，未登记即 FAIL。",
     "old_hash": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
     "intermediate_hash_n_1": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
-    "new_hash": "e3347c4e22db5be652e5b586e68d0d39f67e85b0828514ee2b57e3ec49aef780",
+    "new_hash": "af51a4bf47e72df6b0ffef9d39536782a5ee31ca6c6314d2d4838d0ca21aaa7b",
     "cause": "N-1（DSH 裁决）：只改 stale 判定域**措辞**，阈值/几何/语义未变",
     "entries": [
       {"package": "report/evidence/S5-A/s5a_g0_20261021_r03", "state": "BOUND_HASH_DRIFT", "manifests": ["report/evidence/S5-A/s5a_g0_20261021_r03/delivery_manifest.json", "report/evidence/S5-A/s5a_g0_20261021_r03/run_manifest.json"]},

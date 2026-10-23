@@ -118,7 +118,7 @@
 |---|---|
 | **B-1** | 重绑到阶段4 **r04**（commit `7a9507a`，JSON blob `611e6c7c…`/MD blob `23c8b4d2…`）：两个彩色标签都映射 `source_kind=camera`、`capture_time_available=true`、`capture_time_ns` 取真实抓取时刻；回放以 `timing_claim_scope=replay_only` 区分；登记取代关系与 r01 证据影响（见 §0 与 JSON `supersedes`）。 |
 | **B-2** | 采用上游强制行为：乱序与重复**同构拒绝**（只计数、记 FAIL/原因、不写已接受集合、不更新 latest、不绘制），并补「`frame_id` 回退必须拒绝并记 FAIL」用例与「乱序帧框与前一帧逐值相同」断言（见 §6 与骨架 T03）。 |
-| **N-1** | stale 判定域：**不改冻结语义/行为**，只把 `S5A-G0-v2` JSON 的一处措辞改为与冻结参考实现一致（新增 `stale_domain_note`），并在 STATE/缺口登记差异、提请正式 G0 裁定；该 JSON 哈希轨迹 `8eac7007…` → `10d24a39…`（N-1）→ `e3347c4e…`（NB-4 仅补来源说明键），**阈值/几何/语义自 N-1 后未再变**；旧包绑定的仍是 `8eac7007…`，已按扫描判据登记（不删除其证据）。 |
+| **N-1** | stale 判定域：**不改冻结语义/行为**，只把 `S5A-G0-v2` JSON 的一处措辞改为与冻结参考实现一致（新增 `stale_domain_note`），并在 STATE/缺口登记差异、提请正式 G0 裁定；该 JSON 哈希轨迹 `8eac7007…` → `10d24a39…`（N-1）→ `e3347c4e…` → `af51a4bf…`（NB-4 补来源说明并把 `revised_utc8` 改为实测分钟值），**阈值/几何/语义自 N-1 后未再变**；旧包绑定的仍是 `8eac7007…`，已按扫描判据登记（不删除其证据）。 |
 | **N-2** | 长跑口径改正：判据用**区间数** 106572（= 帧数 106573 − 1），106572 × 16.89 ms = 1 800 001 080 000 ns，余量 **+1.08 ms**；原文把帧数当区间数并算错乘积，已改（见参数 JSON `long_run_min_frames_derivation`）。 |
 | **N-3** | 计数单位与时机已声明（参数 JSON `counter_units`，并在 §10 与清单 checks/limitations 引用）：如 `timeouts` 计**提交帧**（240 帧 mixed 为 14，注入 TIMEOUT 结果数为 7）、`stale_cleared` 按**结果键**去重。 |
 | **N-4** | 帧级事件日志随证据落盘（`logs/events_mixed_240.jsonl`、`logs/events_long_run.jsonl.gz`），并提供独立复算器 `scripts/stage5_t03/recompute_from_log.py`（不导入流水线内存计数）。 |

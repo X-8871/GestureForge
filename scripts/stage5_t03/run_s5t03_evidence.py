@@ -427,7 +427,7 @@ def main(argv: list[str] | None = None) -> int:
         "= 1 800 001 080 000 ns，余量 +1.08 ms；不是板上耐久（板上 31.06 min 结论仍属既有合成源显示侧证据）。",
         *counter_unit_lines,
         "N-1：S5A-G0-v2 JSON 本轮只修 stale 判定域的**措辞**（阈值/几何/语义未变），哈希由 8eac7007… 变为 "
-        "10d24a39…；本轮 NB-4 又补 `revised_utc8_source` 说明键 ⇒ 现值 e3347c4e…（阈值/几何/语义自 N-1 后未再变）；"
+        "10d24a39…；本轮 NB-4 又补 `revised_utc8_source` 说明键 ⇒ 现值 af51a4bf…（阈值/几何/语义自 N-1 后未再变）；"
         "report/evidence/S5-A/s5a_g0_20261021_r03 等旧包绑定的仍是 8eac7007…，已按扫描判据登记（如实登记，未删除其证据）。",
         "取代关系：本包取代 r01 两个包（s5t03_offline_skeleton_20261024_r01、s5t03_takeover_20261024_r01）——"
         "r01 清单绑定的源文件在本轮 B-1/B-2/N-1..N-7 更正后字节已变，故 r01 清单对当前字节不再匹配；"
@@ -441,7 +441,7 @@ def main(argv: list[str] | None = None) -> int:
         "source_commit": args.source_commit,
         "base_commit": BASE_COMMIT,
         "input_scope_label": "synthetic_dynamic_reference",
-        "contract_revision": {"display_contract": "S5A-G0-v2（N-1 措辞修订 + NB-4 来源说明，哈希 e3347c4e…）",
+        "contract_revision": {"display_contract": "S5A-G0-v2（N-1 措辞修订 + NB-4 来源说明，哈希 af51a4bf…）",
                               "input_binding": "S5T03-INPUT-BINDING-v2（对齐阶段4 r04 7a9507a）",
                               "order_rule": "阶段4 r04 frame_sequence_rules：重复/乱序/回退一律拒绝并记 FAIL"},
         "supersedes_runs": ["report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01",
@@ -529,7 +529,7 @@ def main(argv: list[str] | None = None) -> int:
         "其清单对当前字节不再匹配；被取代证据保留、不删除、不就地改写）。",
         "- 旧哈希漂移登记（NB-2 扫描判据）：以 8eac7007… 绑定 S5A-G0-v2 JSON 的清单已全部登记；"
         f"扫描命中 {impact_summary.get('found_count', 'NA')} 个清单文件、登记 {impact_summary.get('registered_count', 'NA')} 个；"
-        "哈希轨迹 8eac7007… → 10d24a39… → e3347c4e…（阈值/几何/语义自 N-1 后未再变）。",
+        "哈希轨迹 8eac7007… → 10d24a39… → e3347c4e… → af51a4bf…（阈值/几何/语义自 N-1 后未再变）。",
         "",
     ]
     (run_dir / "summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")

@@ -52,6 +52,17 @@
 - **校验器**：`verification/s6e_acceptance_check.py`（E1..E11 + 6 类必 FAIL 注入；基线 ALL_PASS、6/6 捕获）。
 - **上板窗口申请材料**：`report/evidence/S6-E/s6e_acceptance_20261024_r01/board_window_request.md`（**未申请**，八类门禁逐项状态、11 字段模板、时长预算、停止条件与恢复）。
 
+## 无板卡轮（task-28，2026-10-24）
+- 全局事实：**Wong 已拔下板卡** ⇒ 板级工作暂停且不设期限（`decisions/board_detached_boardfree_plan_20261024_r01.md`）；6-E 实物验收暂停，恢复须先重做受连接判据。
+- **项 2 已交付（延迟方法学 + 占位模板）**：`docs/stage6/S6E_latency_methodology_v1.md` + `docs/stage6/s6e_latency_measurement_template_v1.json`（`S6E-LAT-v1`）
+  + 校验器 `verification/s6e_latency_template_check.py`（L1..L7 + 5 类必 FAIL 注入，基线 ALL_PASS、5/5 捕获，exit 0）。
+  结构禁填造：全部 `*_ns` 为 `null`、`acceptance_gate.t6_a03_limit_ms=null`、**`T6-A03` 数值仍 `NOT_RUN`**；**回放不构成实时证据**。
+- **项 3 已交付（窗口申请包就绪化）**：`report/evidence/S6-E/s6e_boardfree_20261024_r01/board_window_readiness.md`，
+  八类门禁与 P1–P7 **如实**核对，结论 **`NOT_READY`**（仅 `g0_approval` 部分满足：用例集冻结 + 24 参数批准）；未申请、不排期。
+- **项 1（回放驱动的 6-E 预演）`BLOCKED`**：依赖阶段4 回放结果包（`task-26`，前置 `task-25`）与阶段5 离线显示回归（`task-27`），两者均未产出；
+  解阻后跑 `S6E-ACC-v1` 的动作/未知/恢复用例，结论须标注「回放预演、非实物验收」，不得改写任何门禁状态。
+- 复用工具：通用证据包构建器 `verification/s6e_pack_build.py`（清单/哈希/两检查器真实退出码；不动点 + 收尾断言）。
+
 ## 阻碍 / 开放
 - `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）。
 - G3 板测未做；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 验收未执行；阶段7 暂不开工作树。
@@ -73,10 +84,12 @@
   `report/evidence/S6-E/s6e_acceptance_20261024_r01/delivery_manifest.json`、`report/evidence/S6-E/s6e_acceptance_20261024_r01/preserved_failures/`
 - 上一冻结（保留不改写）：`report/evidence/S6-A/s6a_g0_20261023_r12/`、`report/evidence/S6-B/s6b_core_20261023_r07/`
 - 本轮自证记录（提交前快照）：`report/evidence/S6-A/s6a_g0_20261024_r13_selfproof/`、`report/evidence/S6-B/s6b_core_20261024_r08_selfproof/`
+- 无板卡轮（task-28）：`report/evidence/S6-E/s6e_boardfree_20261024_r01/`、`report/evidence/S6-E/s6e_boardfree_20261024_r01/S6E_boardfree_run_summary.md`、
+  `report/evidence/S6-E/s6e_boardfree_20261024_r01/board_window_readiness.md`、`report/evidence/S6-E/s6e_boardfree_20261024_r01/delivery_manifest.json`
 
 ## 11 字段交接行
-任务：阶段6 交互控制（6-E 离线轮：结清遗留清单 + 冻结 6-E 验收用例） | 负责人：阶段6 总控 stage6-lead4 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |
+任务：阶段6 无板卡轮（task-28：延迟方法学 + 窗口申请包就绪化；回放预演待 task-26/27） | 负责人：阶段6 总控 stage6-lead4 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |
 起始提交：d8bc70e | 允许修改范围：w6 内 docs/stage6、src/stage6、verification、report/evidence/**、.codex/STATE.md |
-未提交改动归属：本轮 r13/r08/S6-E 与工具修改归本轮（提交后冻结） | 让出声明：未让出 | 心跳(UTC+8)：2026-10-24 02:1x |
-证据入口：见上 | 恢复命令：`python -B verification/s6e_acceptance_check.py --project-root D:/codex-worktrees/w6 --inject-self-test`；`python -B verification/approved_package_scan.py --project-root D:/codex-worktrees/w6 --run-dir report/evidence/S6-A/s6a_g0_20261024_r13 --inject-self-test` |
-状态/下一接手方：DELIVERED_PENDING_REVIEW（未冻结修订内容；待项目总控派增量复核）
+未提交改动归属：task-28 本轮产物归本轮（提交后冻结） | 让出声明：未让出 | 心跳(UTC+8)：2026-10-24 02:4x |
+证据入口：见上 | 恢复命令：`python -B verification/s6e_latency_template_check.py --project-root D:/codex-worktrees/w6 --inject-self-test`；`python -B verification/s6e_pack_build.py --project-root D:/codex-worktrees/w6 --run-dir report/evidence/S6-E/s6e_boardfree_20261024_r01 ...` |
+状态/下一接手方：DELIVERED_PENDING_REVIEW（task-23 增量复评进行中；task-28 项 1 待 task-26/27 解阻）

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "artifact": "s6e_latency_measurement_template",
+  "artifact_version": "S6E-LAT-v1",
+  "task_id": "S6-E",
+  "run_id": "s6e_boardfree_20261024_r01",
+  "stage": "stage6",
+  "title": "阶段6 6-E 端到端延迟测量占位模板（回放口径；禁用填造）",
+  "status": "TEMPLATE_ONLY_NOT_RUN",
+  "rule": {
+    "t6_a03_value": "NOT_RUN",
+    "must_not_fabricate": true,
+    "replay_is_not_realtime_evidence": true,
+    "blocking_input": "P_meas（阶段4 在同一部署身份上的真实实测帧周期）",
+    "prohibited_until": "在 P_meas 实测并绑定同一部署身份（bit/XSA/ELF 哈希一致）之前，任何 latency_interaction 数值或 T6-A03 上限结论不得填写",
+    "numeric_placeholder_rule": "本模板所有以 _ns 结尾的字段必须保持 null；任何填写必须同时给出 filled_from_run_id + evidence_class + 可复核命令"
+  },
+  "definitions": {
+    "t_trigger": "触发该动作的那条结果的显式输入时刻（须声明 time_source）",
+    "t_submit": "动作提交时刻（ACTION_SUBMITTED）",
+    "t_effective": "动作生效（显示侧回执）时刻（ACTION_EFFECTIVE；未观察不得算成功）",
+    "window_complete": "第一个同时满足「连续 WINDOW_MATCH 帧数 ≥ T6-S02」与「时长 ≥ T6-S01」的窗口推进帧的显式输入时刻（T6-S03 取较晚）",
+    "latency_action": "t_effective − t_trigger（受 T6-A01 ≤1000 ms 约束）",
+    "latency_interaction": "t_effective − window_complete（受 T6-A03 约束；上限数值 NOT_RUN）",
+    "w_min": "max(T6-S01, (T6-S02 − 1) · P) —— 仅下界，不得进入延迟统计",
+    "stale_rule": "age_result > 200 ms 判过期（严格 >；= 200 ms 不判过期）"
+  },
+  "time_sources": {
+    "allowed": ["board_monotonic", "injected", "replay"],
+    "board_evidence_requires": "board_monotonic + P_meas 来自同一部署身份 + 采集与显示同一 PS 单调时基",
+    "replay_clock_note": "回放时钟 ≠ 墙钟：必须声明时间缩放与基准；回放延迟只对回放输入有效，不构成实时证据，不得用于填写 T6-A03"
+  },
+  "approval_binding": {
+    "behavior_json": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+    "contract_version": "S6A-G0-v1.8",
+    "approval_receipt": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md",
+    "t6_a01_limit_ms": 1000,
+    "t6_a03": {"value": "NOT_RUN", "caliber": "t_effective − window_complete", "value_status": "NOT_RUN（无阶段4 实测帧周期 P，不得填造）"},
+    "stale_age_limit_ms": 200
+  },
+  "measurement_plan": [
+    {"id": "M1", "step": "绑定部署身份与时间基准", "required_fields": ["bit_sha256", "xsa_sha256", "elf_sha256", "time_source", "clock_note"]},
+    {"id": "M2", "step": "实测帧周期 P_meas（连续 ≥1000 帧，中位数与 p95）", "required_fields": ["P_meas_ns", "P_meas_p95_ns", "P_meas_source", "P_meas_measured_at_utc8"]},
+    {"id": "M3", "step": "逐试验记录四个时刻并同帧关联", "required_fields": ["t_trigger_ns", "window_complete_ns", "t_submit_ns", "t_effective_ns", "trigger_frame_id", "acquisition_id"]},
+    {"id": "M4", "step": "计算 latency_action 与 latency_interaction 并分别汇总", "required_fields": ["latency_action_p50_ns", "latency_interaction_p50_ns", "samples", "unobserved_count"]},
+    {"id": "M5", "step": "分位数与样本口径（分位数 50/95/99；分母含全部预定义试验）", "required_fields": ["latency_action_p95_ns", "latency_interaction_p95_ns", "latency_action_p99_ns", "latency_interaction_p99_ns"]},
+    {"id": "M6", "step": "与门槛比对", "required_fields": ["t6_a01_limit_ns", "t6_a03_limit_ns"]}
+  ],
+  "statistics": {
+    "percentiles": [50, 95, 99],
+    "denominator_rule": "分母含全部预定义试验；超时/错误动作/重复触发/执行失败与 unobserved 一律不得剔除",
+    "per_class_reporting": true,
+    "confidence_interval": "Clopper-Pearson（用于比率类指标）；延迟类单列分位数，不用点估计宣称上限达标",
+    "min_samples_guidance": "每类 ≥10 次有效记录；P_meas 连续 ≥1000 帧"
+  },
+  "placeholders": {
+    "bit_sha256": null,
+    "xsa_sha256": null,
+    "elf_sha256": null,
+    "time_source": null,
+    "clock_note": null,
+    "P_meas_ns": null,
+    "P_meas_p95_ns": null,
+    "P_meas_source": null,
+    "P_meas_measured_at_utc8": null,
+    "latency_action_p50_ns": null,
+    "latency_action_p95_ns": null,
+    "latency_action_p99_ns": null,
+    "latency_action_max_ns": null,
+    "latency_interaction_p50_ns": null,
+    "latency_interaction_p95_ns": null,
+    "latency_interaction_p99_ns": null,
+    "t6_a03_limit_ns": null,
+    "samples": null,
+    "unobserved_count": null,
+    "value_status": "NOT_RUN",
+    "filled_by": null,
+    "filled_from_run_id": null,
+    "evidence_class": null
+  },
+  "acceptance_gate": {
+    "t6_a01_limit_ms": 1000,
+    "t6_a01_limit_ns": 1000000000,
+    "t6_a03_limit_ms": null,
+    "t6_a03_value_status": "NOT_RUN",
+    "t6_a03_blocked_by": "P_meas（阶段4 真实实测帧周期）"
+  },
+  "replay_scope": "回放口径的延迟结果只对回放输入有效；回放不构成实时证据，不得用于 6-E 通过或实物验收结论。",
+  "not_claimed": [
+    "本模板不含任何测量结果：T6-A03 数值仍 NOT_RUN",
+    "G3 板测未做；6-D 集成依赖阶段4/5 接口冻结（BLOCKED）",
+    "板卡已由 Wong 拔下（2026-10-24）⇒ 板级工作暂停；P_meas 与实时延迟须在重连后的单次窗口内测量",
+    "回放延迟不得作为实时/实物证据"
+  ]
+}

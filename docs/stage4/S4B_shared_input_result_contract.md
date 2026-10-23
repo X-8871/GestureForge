@@ -1,4 +1,4 @@
-# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r04）
+# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r05）
 
 - 日期：2026-10-24（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`，DSH 阶段4 总控）；消费方：阶段5（**只读**消费冻结交付）。
 - 机器可读：[`s4b_shared_input_result_contract.json`](s4b_shared_input_result_contract.json)。
@@ -7,7 +7,12 @@
   1. 新增 `input_source_profiles`：按 `[CDX-015 §2.2]` 把输入契约改绑到阶段3 的**无补偿实时彩色**部署（bit/XSA/ELF、RGB565 传感器、DDR 转储 B/G/R、1280×720/stride 3840、原图坐标口径、采集时钟、逐帧源帧哈希），并定义 `camera_live_colour` / `camera_capture_replay_colour` **描述性范围标签**（回放必须标回放）。
   2. 显式更新已漂移的 `cdx_015` 绑定（r02 `a3ce50d2…` → r03 `be7b6520…`）并登记取代关系；新增 CDX-018/019、阶段6 批准记录、阶段3/4 方向决定、阶段3 彩色复测证据绑定。
   3. 应用已批准项：`stale_limit_ns` 由草案 `null` 变为 **200000000 ns**（`stale_limit_status = APPROVED_BY_WONG` + `approval_reference`），与 `[w5-G0]` 的 `STALE_AGE_LIMIT_NS` 同源同值。
-  4. r04 **尚未经独立复审**；本轮无任何硬件执行。
+  4. r04 已经独立复审 **`PASS`**（被审提交 `7a9507a`，阻断 0／非阻断 4）；本轮无任何硬件执行。
+- 修订 r05（本树，2026-10-24）：
+  1. 地址图重绑到 **r03**：新增 `raw_frame`/`raw_meta`、把**本阶段自设**禁区条目精确缩减至 `[0x12C08000,0x20000000)`（其余禁区不动）；`status` 仍 `DRAFT_PENDING_REVIEW`、两个新 region 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**、`enable_required=true`）。
+  2. 新增顶层 `binding_byte_basis` **绑定字节口径声明**：默认**工作树磁盘字节**；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径；dbdf 两项彩色证据（工作树 CRLF、dbdf 无 `-text` 覆盖）**改绑为 `git_blob_content`**，磁盘 SHA 降为注记。
+  3. 新增条件①事实绑定：阶段3 部署地址事实（采集=显示 `0x00110C00`、单缓冲、**运行期分配无静态保证**）与两份 Wong/DSH 决定记录。
+  4. **r05 尚未复审**；冻结前必须另行独立复审并引用**固定提交 + 被审 SHA**。
 - 来源标注：`[CDX-010 §3]`=4-B 共享契约与注入要求；`[CDX-014 §4]`=阶段5 五元组；`[CDX-014 §5.4]`=HUD 13 字段；`[CDX-015 §3/§5]`=执行与判定口径；`[S4-A]`=`docs/stage4/s4a_stage4_g0_fields.json`；`[w5-G0]`=`D:\codex-worktrees\w5\docs\stage5\s5a_stage5_display_g0_fields.json`。
 
 ## 0. 权威绑定与规则（T1）
@@ -16,17 +21,20 @@
 |---|---|---|---|
 | S4-A G0 契约（机器权威） | `docs/stage4/s4a_stage4_g0_fields.json` | `657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5` | `G0_ROUND_FROZEN_R06`（r06） |
 | S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
-| 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定 | `DRAFT_PENDING_REVIEW`，未冻结 |
+| 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r03**，取代 r02 `80104b80…d2046a`） | `DRAFT_PENDING_REVIEW`，未冻结 |
+| 阶段3 部署地址事实（条件①） | `dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md` | `19f754d8…ee9ec3` | 只读（不写 dbdf） |
+| Wong D1=A 批准记录 | `decisions/stage4_raw_address_optionA_20261024_r01.md` | `d18359aa…854f8` | 只读 |
+| DSH D1–D4 初裁记录 | `decisions/stage4_raw_address_d1_d4_20261024_r01.md` | `3d5b2abd…e2bf34` | 只读 |
 | CDX-010 阶段4 运行书 | 邮箱 `CDX-20261022-010-…md` | `4cd61ee0…1cf89` | 只读 |
 | CDX-014 阶段5 运行书 r02 | 邮箱 `CDX-20261022-014-…md` | `f25e5ebb…5a141` | 只读 |
 | CDX-015 执行总入口（内容 r03） | 邮箱 `CDX-20261022-015-…md` | `be7b6520…9508cde`（取代 r02 `a3ce50d2…170a7`） | 只读 |
-| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | `8eac7007…709911` | 只读引用（不写 w5） |
+| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `8eac7007…709911`（w5 工作树当前有未提交改动，磁盘注记 `10d24a39…b89fb` 不作绑定） | 只读引用（不写 w5） |
 | CDX-018 硬件协调 | 邮箱 `CDX-20261023-018-…md` | `9360ae1b…e6f6bd6` | 只读 |
 | CDX-019 阶段4 硬件暂缓 | 邮箱 `CDX-20261023-019-…md` | `57e14a15…cb970f` | 只读 |
 | 阶段6 批准记录（Wong 2026-10-23） | `decisions/stage6_approval_receipt_20261023_r01.md` | `d8edb848…e874fb` | 只读 |
 | 阶段3/4 方向决定（Wong 2026-10-24） | `decisions/stage_3_4_direction_20261024_r01.md` | `907084cd…e392a` | 只读 |
-| 阶段3 彩色复测哈希清单 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/hashes.txt` | `40ef1fda…e2aaf5` | 只读（不写 dbdf） |
-| 阶段3 彩色复测现场记录 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/README.md` | `aca598c7…f4a79` | 只读（不写 dbdf） |
+| 阶段3 彩色复测哈希清单 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/hashes.txt` | **blob 口径** `e29830c8…752f56d`（阶段3 新 HEAD 已归一化，disk==blob；旧值 `40ef1fda…`/`70cdd014…` 作废） | 只读（不写 dbdf） |
+| 阶段3 彩色复测现场记录 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/README.md` | **blob 口径** `d8029c39…0f70873`（磁盘注记 `e60bab01…f23e54d`，CRLF） | 只读（不写 dbdf） |
 
 规则：本契约只能引用**已提交且经独立审查**的权威版本，禁止引用“最新文件”；自检**现场复算**上述 SHA，任一不符即 FAIL，必须显式更新绑定并重新审查。权威被取代时必须记录取代关系（S4-A r05 `3524d02a…8afb87` → r06 `657ea2fb…930d5`）并通知阶段5 重新绑定。冻结前全部绑定必须与磁盘一致且权威自身已冻结。
 
@@ -56,6 +64,16 @@
 - **原图坐标口径**：检测框 `xyxy` 以原图（1280×720 采集帧）像素坐标为准；416 张量坐标不得直接充当原图坐标。
 - **逐帧源帧哈希**：每帧必须逐帧记录 `frame_integrity`（CRC32/SHA-256 + 实际字节数）并绑定 session/frame 与采集/回放时刻；回放另绑源文件路径、文件 SHA-256、解析出的宽高/stride/字节序及对应的阶段3 采集证据入口。
 - **时效边界**：以上仅为契约改绑；不表示真实彩色采集、回放或板级联调已执行（本轮 `NOT_RUN`）。
+
+## 0.2 绑定字节口径（r05 新增，N-1）
+
+- **默认口径 = 工作树磁盘字节**：`upstream_bindings[].sha256` 默认记录文件**原始字节**的 SHA-256（复算：对磁盘字节直接算 SHA-256）。
+- **跨换行环境要求**：复算必须使用 `-c core.autocrlf=false`（或改用 blob 口径），否则 checkout/commit 的换行归一化会造成失配。
+- **显式 blob 口径**：条目给出 `byte_basis = "git_blob_content"` 时，`sha256` 记录该路径在**所属工作树 HEAD 提交中的 blob 内容** SHA-256（复算：`git -C <tree> cat-file blob HEAD:<rel>` 后对原始字节算 SHA-256）；对应的 `worktree_disk_sha256_annotation` 仅为注记、**不参与校验**。
+- **覆盖范围**：本树 `-text` 已覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob，实测）；跨树引用（dbdf `report/evidence/S3-T05/**` → `check-attr text: unspecified`）必须显式声明口径。**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。
+- **口径选择原则**：**跨树引用（w5/dbdf/main 邮箱等绝对路径）优先按 `git_blob_content` 绑定**（只认已提交版本；他方活动树的工作树内容与未提交改动不得作为冻结输入）；**本树相对路径**在本树 `-text` 覆盖下 disk==blob，可按默认磁盘字节绑定。实测中发现 w5 工作树在编辑中、dbdf 已推进 HEAD，均按此原则改绑。
+- **事实依据**：`report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/binding_byte_semantics.json`（22 项四种口径逐项测量）与工具 `scripts/stage4_s4ctrl/check_binding_byte_semantics.py`；本批改绑后重新测量见 `t21_binding_byte_semantics_20261024_r04/`。
+- **负向对照**：把某条 blob 口径条目的 `sha256` 改成其磁盘 SHA（或改成任意错误值）时，自检必须判 FAIL。
 
 ## 1. 输入帧契约 `[CDX-010 §3.1]`
 
@@ -142,11 +160,18 @@
 
 - 阶段5 只读；任何字段增删/语义变化必须**新版本号** + 阶段4 所有者批准 + 适用回归；阶段5 只能消费已冻结版本。
 - 本契约和地址图当前均为 `DRAFT_PENDING_REVIEW`：经独立审查与 Lead 确认后再冻结；冻结前不得作为验收依据。
+- **r05 消费方重绑清单（只读请求，不改 w5/w6）**：
+  - **阶段5（w5）**：重绑 ① 地址图版本 r02 → **r03**（新增 `raw_frame`/`raw_meta`、自设禁区缩减）② 共享契约版本 r04 → **r05**；显示五元组/HUD/`display_semantics=B_latest_result_overlay` 语义**不变**；仍不得写阶段4 缓冲。
+  - **阶段6（w6）**：重绑 ① 共享契约版本 r04 → **r05**；跨阶段 `stale_age_limit` 常量值**不变**（仍 200000000 ns、同源）② `T6-A03` 数值仍待阶段4 实测帧周期 P（`NOT_RUN`）。
+  - 两个消费方均须以跨方请求（本树 `report/evidence/S4-CTRL/**` 唯一编号）确认重绑并做适用回归；本契约**不代改** w5/w6 行为表。
 
 ## 5. 限制
 
 - 不含真实板测结果；本轮无任何硬件执行（未装载位流、未打开 COM4/JTAG、未起 hw_server）。
-- **r04 的改绑内容尚未经独立复审**；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。
+- **r05 尚未经独立复审**（r04 已在被审提交 `7a9507a` 通过 `PASS`）；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。冻结前必须对**固定提交 + 被审 SHA** 另行独立复审。
+- 地址图 r03 的 `raw_frame`/`raw_meta` 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、`enable_required=true`）：**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到硬件窗口实测（CPU1 保持停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成。
+- 阶段3 部署实测的采集/显示帧基址为**运行期分配**（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须运行期回读，**禁止硬编码**。
+- 绑定字节口径：默认工作树磁盘字节；dbdf 两项按 `git_blob_content` 显式声明；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径。
 - 不定义阶段5 布局/像素门槛/显示 FPS 语义（属阶段5 G0）。
 - `camera_live_colour` / `camera_capture_replay_colour` 只是范围标签：写入本契约不代表真实彩色采集、回放或板级联调已执行；`capture_clock` 仍 `PENDING_MEASUREMENT`。
 - 候选上限、时间口径与异常行为取值以 S4-A 阶段4 G0 契约为准。

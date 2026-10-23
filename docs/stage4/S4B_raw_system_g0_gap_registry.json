@@ -4,6 +4,8 @@
   "stage": "4",
   "created_utc8": "2026-10-24T00:40:00+08:00",
   "owner": "DSH 阶段4 总控（stage4-lead）",
+  "updated_utc8": "2026-10-24T01:50:00+08:00",
+  "revision_note": "r02（2026-10-24）：按 Wong D1=A 决定落盘——G-01 补写设计级阻断描述与批准依据；G-02 记为已登记 owner（待复审）；新增/更新离线检查 `candidate_outside_shrunk_forbidden_gap` 与 `approved_regions_registered`；依据件重绑到地址图 r03 与 readiness 文档新哈希；N-4 更正旧哈希定位。",
   "hardware_execution": "NOT_RUN",
   "purpose": "承接 d4f30e3 的未完成 RAW 系统 G0 检查点，把 RAW RGB888 → PL 预处理(D2) → HP0 串行 owner → 冻结网络 → PS 解码/NMS 结果 链路的缺口逐项登记；本轮只关闭可离线判定部分。",
   "status_vocabulary": {
@@ -25,7 +27,7 @@
     "commit_subject": "docs(stage4): checkpoint unfinished RAW G0 on requested stop",
     "state": "CHECKPOINT_UNFINISHED_RAW_G0",
     "system_g0": "CHANGES_REQUIRED_NOT_CLOSED",
-    "address_policy": "候选禁用策略仍有效，材料 PASS ≠ 地址获批",
+    "address_policy": "D1=A 已由 Wong 批准并落盘为 region（`status` 仍 DRAFT_PENDING_REVIEW、region 非 FROZEN）；**ENABLE=0、不访问候选区**仍然有效，地址获批 ≠ 可访问，材料 PASS ≠ 实物通过",
     "stop_checkpoint_path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json",
     "remaining_findings_from_checkpoint": [
       "PS 无完整 golden 或参考摘要却要求网络前逐字节比较",
@@ -47,23 +49,27 @@
   "basis_bindings": [
     {"id": "stop_checkpoint", "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json", "sha256": "1b615cfe2e0ffddf79f972b6a8cb0b905e70289d8453d88bdb61e9ad4b55a87c", "role": "d4f30e3 未完成 RAW G0 的停止检查点与未闭合发现"},
     {"id": "input_scope_audit", "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json", "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968", "role": "109 帧冻结样本的 packed RGB888 容量事实"},
-    {"id": "address_map", "path": "docs/stage4/S4B_stage4_address_map.json", "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a", "role": "区域/空洞/准入禁区与缓存维护方向（仍 DRAFT_PENDING_REVIEW）"},
+    {"id": "address_map", "path": "docs/stage4/S4B_stage4_address_map.json", "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6", "role": "区域/空洞/准入禁区与缓存维护方向（r03：新增 raw_frame/raw_meta、自设禁区缩减；仍 DRAFT_PENDING_REVIEW）"},
     {"id": "r13_memory_ranges", "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json", "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80", "role": "PS 诊断 ELF 的实际分配事实（arena/staging/tensor arena）"},
-    {"id": "readiness_doc", "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md", "sha256": "156bee24370af3ac186af307a202b99e1e99ceb5d807b5679794ee7ca626af53", "role": "已批准路线的系统接口 G0 候选（§8.2 候选区间与 mailbox 布局）", "sha_note": "2026-10-24 task-21 在文档末尾追加了契约 r04 改绑、本登记表与 P 方案指针；r01/r02 审计对应的旧哈希 e6ae30a5… 保留在各自 RunId 证据中"},
+    {"id": "readiness_doc", "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md", "sha256": "760537c8ae00f2409543e4adedddf059eb409151552a4c24a73872162d1c2275", "role": "已批准路线的系统接口 G0 候选（§8.2 候选区间与 mailbox 布局）", "sha_note": "N-4 更正：旧哈希 `e6ae30a5…` 是 **S4-B 冻结快照证据** 里保存的 readiness 文档快照（`report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json` 绑定的 `snapshot_path`），该快照可从提交 `f6fa9f0` 复原；它**不是**本工作树磁盘版本在 r01/r02 审计时点之外的第二个文件。本行绑定的是当前工作树磁盘字节。"},
+    {"id": "stage3_window_address_facts", "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md", "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3", "role": "阶段3 视频通路部署地址事实（条件①第三方的书面事实；只读引用，不写 dbdf）"},
+    {"id": "stage4_raw_address_optionA_decision", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_optionA_20261024_r01.md", "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8", "role": "Wong D1=A 批准记录（G-01 的批准依据）"},
+    {"id": "stage4_raw_address_d1_d4_decision", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_d1_d4_20261024_r01.md", "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34", "role": "DSH D1–D4 初裁记录"},
     {"id": "raw_reference_109", "path": "report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/result.json", "sha256": "666a6ef131236ffb581201a443032e1f3ca66c7f1879ccbb364a9ae7b9602aa0", "role": "109 帧 RAW + 直接标量 D2 参考重生结果（本轮声称范围以该文件为准）"},
     {"id": "ddr_audit", "path": "report/evidence/S4-B/s4b_pl_ddr_g0_audit_20261023_r01/audit.json", "sha256": "31b7f4b753c27cfae187462dccbc76ad066a11bd63671da2c0b05f9149a04bfe", "role": "只读 DDR/所有权交叉审计（尚待独立 G0 审查）"},
     {"id": "frozen_specification", "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json", "sha256": "2b8bb49fa520a22623f1737eb4fe75848eb6e16e67e4b4fc9f6655741fd4a8cc", "role": "被审 readiness 文档快照绑定（source_commit 4639501）"}
   ],
 
   "candidate_intervals": {
-    "note": "以下为 readiness 文档 §8.2 的 BLOCKED 候选；登记用于算术与冲突检查，不代表已批准或可访问。",
-    "raw": {"start": 301989888, "end_exclusive": 314572800, "start_hex": "0x12000000", "end_hex": "0x12C00000", "bytes": 12582912, "status": "BLOCKED_CANDIDATE"},
-    "meta": {"start": 314572800, "end_exclusive": 314605568, "start_hex": "0x12C00000", "end_hex": "0x12C08000", "bytes": 32768, "status": "BLOCKED_CANDIDATE"},
+    "note": "以下区间已按 Wong D1=A 落盘为地址图 region（`raw_frame`/`raw_meta`），但 state 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**、`enable_required=true`）；登记用于算术与冲突检查，**不代表可访问**。",
+    "raw": {"start": 301989888, "end_exclusive": 314572800, "start_hex": "0x12000000", "end_hex": "0x12C00000", "bytes": 12582912, "status": "APPROVED_REGISTERED_NOT_FROZEN"},
+    "meta": {"start": 314572800, "end_exclusive": 314605568, "start_hex": "0x12C00000", "end_hex": "0x12C08000", "bytes": 32768, "status": "APPROVED_REGISTERED_NOT_FROZEN"},
     "combined": {"start": 301989888, "end_exclusive": 314605568, "bytes": 12615680}
   },
 
   "documented_historical_owners": [
     {"name": "w5_framebuffer_0", "start": 708608, "end_exclusive": 3898368, "start_hex": "0x00114C00", "end_hex": "0x003B7C00", "verification": "unverified_historical", "basis": "readiness §8.2（W5 P1 run manifest 与只读回读日志交叉绑定；匹配的最终 P1 ELF/map 未保留）"},
+    {"id": "stage3_shared_capture_display_buffer", "name": "stage3_video_capture_display_shared", "start": 1117184, "end_exclusive": 3881984, "start_hex": "0x00110C00", "end_hex": "0x003B3C00", "verification": "stage3_deployment_fact_runtime_readback", "basis": "阶段3 板级窗口只读回读 `address_facts.md`（S2MM=MM2S=0x00110C00、单缓冲、stride 0x0F00、720×3840=0x2A3000）；**运行期分配、无链接期静态保证**，消费方须运行期回读", "basis_sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3"},
     {"name": "w5_framebuffer_1", "start": 7354368, "end_exclusive": 10119168, "start_hex": "0x00703800", "end_hex": "0x009A6800", "verification": "unverified_historical", "basis": "readiness §8.2"},
     {"name": "w5_framebuffer_2", "start": 13575168, "end_exclusive": 16348160, "start_hex": "0x00CF2400", "end_hex": "0x00F95400", "verification": "unverified_historical", "basis": "readiness §8.2"}
   ],
@@ -74,7 +80,9 @@
     {"id": "geometry_table_arithmetic", "description": "X||Y 几何表 24 B entry × 416 × 2 与 mailbox 偏移", "expected": {"geometry_bytes": 19968, "x_start": 320, "x_end": 10304, "y_start": 10304, "y_end": 20288}},
     {"id": "mailbox_layout_arithmetic", "description": "32 KiB metadata 内部偏移与结果块上限", "expected": {"meta_bytes": 32768, "result_start": 20288, "result_end": 32768, "result_region_bytes": 12480, "max_result_block_bytes": 760}},
     {"id": "input_scope_consistency", "description": "109 帧容量事实与 input_scope_audit 自洽", "expected": {"sample_count": 109, "min_bytes": 519168, "max_bytes": 11059200, "over_4mib_count": 97, "over_8mib_count": 2}},
-    {"id": "candidate_inside_forbidden_gap", "description": "候选 RAW/META 仍落在地址图禁区 [0x12000000,0x20000000) 内，故必须保持 BLOCKED", "expected": {"forbidden_start": 301989888, "forbidden_end_exclusive": 536870912, "candidate_fully_inside": true}},
+    {"id": "candidate_outside_shrunk_forbidden_gap", "description": "候选 RAW/META 已不在缩减后的自设禁区内：禁区起点必须等于 raw_meta 末端，且缩减量恰为候选长度", "expected": {"forbidden_start": 314605568, "forbidden_end_exclusive": 536870912, "forbidden_bytes": 222265344, "candidate_fully_inside": false}},
+    {"id": "approved_regions_registered", "description": "地址图已按 D1=A 登记 raw_frame/raw_meta（区间/长度/64 B 对齐/非 FROZEN/enable_required）", "expected": {"raw": [301989888, 314572800], "meta": [314572800, 314605568], "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW", "enable_required": true}},
+    {"id": "stage3_owner_fact_bound", "description": "阶段3 部署地址事实已绑定且其观测上界低于候选起点", "expected": {"stage3_observed_hex": "0x00114C00", "candidate_start_hex": "0x12000000", "disjoint": true}},
     {"id": "no_overlap_with_known_owners", "description": "候选与 r13 实际分配及历史 framebuffer 不相交", "expected": {"overlaps_with_r13": 0, "overlaps_with_historical": 0, "adjacent_to_tensor_arena": true}},
     {"id": "draft_4mib_insufficient", "description": "地址图现有 4 MiB 草案区间不足以容纳最大冻结帧", "expected": {"draft_bytes": 4194304, "max_frame_bytes": 11059200, "insufficient": true}},
     {"id": "basis_hash_match", "description": "basis_bindings 逐项现场复算 SHA-256", "expected": {"mismatches": 0}}
@@ -82,20 +90,31 @@
 
   "gaps": [
     {
-      "id": "G-01", "title": "RAW/META 物理地址与准入未批准", "layer": "address",
-      "status": "BLOCKED_PENDING_APPROVAL", "requires_hardware": false,
-      "basis": ["readiness_doc", "address_map", "ddr_audit"],
-      "offline_action_this_round": "确认候选仍完整落在地址图禁区 [0x12000000,0x20000000) 内（offline_check: candidate_inside_forbidden_gap），因此生产 RAW/META 基址必须保持未绑定且 ENABLE=0。",
-      "remaining": "需 G0 批准地址与容量，并更新地址图解除 blocked；批准前不得访问候选区。",
-      "next_owner": "阶段4（待 Wong/阶段4 G0 批准）"
+      "id": "G-01", "title": "RAW/META 物理地址与准入：设计级阻断（窗口内容量不足）——已由 Wong 批准 A 方案落盘，待独立复审与硬件实测", "layer": "address",
+      "status": "PARTIALLY_CLOSED_OFFLINE", "requires_hardware": false,
+      "blocking_class": "DESIGN_LEVEL_CAPACITY_AND_BOUNDARY",
+      "blocking_statement": "2B 专属窗口 [0x10000000,0x12000000) 内最大连续可用区 9,825,540 B < 最大冻结帧 11,059,200 B，**缺口 1,233,660 B** ⇒ 仅批准不足以在窗口内解决，属设计级阻断，须 Wong 决策。",
+      "approved_by_wong": true,
+      "approval_record": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_optionA_20261024_r01.md",
+      "initial_ruling_record": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md",
+      "closed_by_d1a": [
+        "raw_region_arithmetic",
+        "candidate_outside_shrunk_forbidden_gap",
+        "approved_regions_registered",
+        "stage3_owner_fact_bound"
+      ],
+      "basis": ["readiness_doc", "address_map", "ddr_audit", "stage3_window_address_facts", "stage4_raw_address_optionA_decision", "stage4_raw_address_d1_d4_decision"],
+      "offline_action_this_round": "按 Wong D1=A 落盘 `raw_frame=[0x12000000,0x12C00000)` + `raw_meta=[0x12C00000,0x12C08000)`，并把本阶段自设禁区精确缩减为 `[0x12C08000,0x20000000)`；条件①三方交叉核对（2B/阶段5/阶段3）均不相交。",
+      "remaining": "① 独立复审（固定提交 + 被审 SHA）通过前 region 不得标 FROZEN；② 硬件窗口实测（CPU1 保持停止、无其他 DDR consumer、候选区板上未被占用、cache 维护与可见性）完成前 `ENABLE=0`、不访问候选区；③ D2 作废（不得用 107 帧子集）。",
+      "next_owner": "阶段4 写入方（落盘已完成）→ 独立 Reviewer（固定提交复审）→ 硬件窗口持有者（实测后 enable）"
     },
     {
-      "id": "G-02", "title": "RAW/META owner 未登记、地址图未更新", "layer": "ownership",
-      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
-      "basis": ["address_map", "ddr_audit"],
-      "offline_action_this_round": "复核交叉审计结论：候选与 r13 实际分配（arena/bss/heap/stack/staging/tensor arena）及历史 framebuffer 均不相交（offline_check: no_overlap_with_known_owners）。",
-      "remaining": "登记 RAW/META owner、填写地址图 interval/status 并接受独立 G0 审查；交叉审计本身仍待独立审查，且假设无其他 DDR consumer、CPU1 停止、未来会话独占。",
-      "next_owner": "阶段4 + 独立 Reviewer"
+      "id": "G-02", "title": "RAW/META owner 登记：已登记，待独立复审与批准条件闭环", "layer": "ownership",
+      "status": "PARTIALLY_CLOSED_OFFLINE", "requires_hardware": false,
+      "basis": ["address_map", "ddr_audit", "stage3_window_address_facts"],
+      "offline_action_this_round": "已在地址图 r03 登记 `raw_frame`/`raw_meta` 的 owner / access（ps_cpu、pl_hp0、pl_gp0_lite）/ `cache_maintenance`（方向、64 B 向外取整）/ `dma_completion_order` / `alignment_bytes` / `status`=PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW / `enable_required=true` / `required_before_use`；并复核与 r13 实际分配、历史 framebuffer、阶段3 部署事实均不相交。",
+      "remaining": "独立 G0 审查（固定提交）通过前不得标 FROZEN；交叉审计本身仍待独立审查，且假设无其他 DDR consumer、CPU1 停止、未来会话独占。",
+      "next_owner": "独立 Reviewer（固定提交复审）→ 阶段4（复审后更新 status）"
     },
     {
       "id": "G-03", "title": "单帧原始帧容量预算不足（4 MiB 草案 vs 11,059,200 B 最大帧）", "layer": "capacity",

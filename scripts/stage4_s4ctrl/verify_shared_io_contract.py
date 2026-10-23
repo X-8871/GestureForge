@@ -31,6 +31,7 @@ import copy
 import hashlib
 import json
 import platform
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -49,6 +50,7 @@ REQUIRED_TOP_KEYS = (
     "status",
     "upstream_bindings",
     "authority_rules",
+    "binding_byte_basis",
     "input_source_profiles",
     "input_frame_contract",
     "result_contract",
@@ -100,6 +102,46 @@ def resolve(path_text: str) -> Path:
     """相对路径按工作树解析，绝对路径原样使用。"""
     p = Path(path_text)
     return p if p.is_absolute() else WORKTREE / path_text
+
+
+def find_git_root(path: Path) -> Path | None:
+    """向上查找包含 `.git` 的目录（worktree 中 `.git` 可能是文件）。"""
+    for parent in [path.parent, *path.parents]:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def blob_content_sha256(path: Path) -> tuple[str | None, str | None]:
+    """按 git blob 内容口径计算 SHA-256；返回 (sha256, error)。"""
+    root = find_git_root(path)
+    if root is None:
+        return None, f"未找到 git 根：{path}"
+    rel = path.relative_to(root).as_posix()
+    proc = subprocess.run(["git", "-C", str(root), "cat-file", "blob", f"HEAD:{rel}"], capture_output=True)
+    if proc.returncode != 0:
+        return None, f"cat-file blob HEAD:{rel} 退出 {proc.returncode}（可能尚未提交）"
+    return hashlib.sha256(proc.stdout).hexdigest(), None
+
+
+def verify_binding_entry(binding: dict) -> tuple[str, str | None, str | None]:
+    """按条目声明口径校验单个绑定；返回 (status, actual, error)。
+
+    status: MATCH / MISMATCH / MISSING / BLOB_UNAVAILABLE / BAD_BYTE_BASIS
+    """
+    path = resolve(binding["path"])
+    basis = binding.get("byte_basis", "worktree_disk_bytes")
+    if not path.is_file():
+        return "MISSING", None, f"文件不存在：{path}"
+    if basis == "worktree_disk_bytes":
+        actual = sha256_of(path)
+    elif basis == "git_blob_content":
+        actual, error = blob_content_sha256(path)
+        if actual is None:
+            return "BLOB_UNAVAILABLE", None, error
+    else:
+        return "BAD_BYTE_BASIS", None, f"未知 byte_basis：{basis}"
+    return ("MATCH" if actual == binding.get("sha256") else "MISMATCH"), actual, None
 
 
 def find_key(obj: object, key: str):
@@ -376,17 +418,20 @@ def main() -> int:
         checked = 0
         for bid, b in bindings.items():
             path = resolve(b["path"])
-            entry: dict[str, object] = {"id": bid, "path": str(path), "expected": b.get("sha256")}
-            if not path.is_file():
-                entry["status"] = "MISSING"
+            entry: dict[str, object] = {
+                "id": bid, "path": str(path), "expected": b.get("sha256"),
+                "byte_basis": b.get("byte_basis", "worktree_disk_bytes"),
+            }
+            status, actual, error = verify_binding_entry(b)
+            entry["status"] = status
+            if error:
+                entry["error"] = error
+            if actual is not None:
+                entry["actual"] = actual
+            if status != "MATCH":
                 bad.append(entry)
-                continue
-            actual = sha256_of(path)
-            checked += 1
-            entry["actual"] = actual
-            entry["status"] = "MATCH" if actual == b.get("sha256") else "MISMATCH"
-            if entry["status"] != "MATCH":
-                bad.append(entry)
+            else:
+                checked += 1
         details["upstream_binding_checks"] = {"checked": checked, "total": len(bindings), "bad": bad}
         if bad:
             failures.append(f"权威绑定漂移（必须显式更新绑定并重新审查）：{bad}")
@@ -397,6 +442,46 @@ def main() -> int:
             failures.append("cdx_015 绑定被更新但未登记 replaces 取代关系（禁止静默改绑定）")
         else:
             passes.append("cdx_015 r02→r03 绑定取代关系已登记")
+
+        # 2b. 绑定字节口径声明（N-1）
+        bbb = contract.get("binding_byte_basis")
+        basis_errors: list[str] = []
+        blob_ids = [bid for bid, b in bindings.items() if b.get("byte_basis") == "git_blob_content"]
+        if not isinstance(bbb, dict):
+            basis_errors.append("缺少 binding_byte_basis（绑定字节口径未声明）")
+        else:
+            if bbb.get("default_basis") != "worktree_disk_bytes":
+                basis_errors.append("binding_byte_basis.default_basis 必须为 worktree_disk_bytes")
+            if "core.autocrlf=false" not in str(bbb.get("cross_newline_requirement", "")):
+                basis_errors.append("binding_byte_basis 必须声明 `-c core.autocrlf=false` 跨换行复算前提")
+            if not bbb.get("explicit_blob_basis"):
+                basis_errors.append("binding_byte_basis 必须声明 git_blob_content 口径语义")
+            if not bbb.get("negative_control_expectation"):
+                basis_errors.append("binding_byte_basis 必须声明负向对照预期")
+        if not blob_ids:
+            basis_errors.append("至少应有一个 git_blob_content 绑定（dbdf 两项彩色证据）")
+        # 负向对照：把 blob 口径条目改回其磁盘 SHA，必须被同一条口径规则判 MISMATCH
+        basis_controls: dict[str, bool] = {}
+        if blob_ids:
+            target = copy.deepcopy(bindings[blob_ids[0]])
+            original = target["sha256"]
+            target["sha256"] = ("0" if original[0] != "0" else "1") + original[1:]
+            basis_controls["wrong_sha_under_blob_basis"] = verify_binding_entry(target)[0] == "MISMATCH"
+            wrong = copy.deepcopy(bindings[blob_ids[0]])
+            wrong["byte_basis"] = "not_a_basis"
+            basis_controls["unknown_byte_basis"] = verify_binding_entry(wrong)[0] == "BAD_BYTE_BASIS"
+            disk_entry = copy.deepcopy(bindings[blob_ids[0]])
+            disk_sha = sha256_of(resolve(disk_entry["path"]))
+            if disk_sha != original:
+                disk_entry["sha256"] = disk_sha
+                basis_controls["disk_sha_under_blob_basis"] = verify_binding_entry(disk_entry)[0] == "MISMATCH"
+        details["binding_byte_basis"] = {"blob_entries": blob_ids, "negative_controls": basis_controls}
+        if basis_errors:
+            failures.extend(basis_errors)
+        elif not all(basis_controls.values()):
+            failures.append(f"绑定字节口径负向对照未全部检出：{basis_controls}")
+        else:
+            passes.append(f"绑定字节口径声明齐全（默认磁盘字节；blob 口径 {len(blob_ids)} 项）+ 2/2 负向对照被拒绝")
 
     s4a_path = resolve(bindings["s4a_g0_contract"]["path"]) if "s4a_g0_contract" in bindings else None
     w5_path = resolve(bindings["stage5_display_g0_fields"]["path"]) if "stage5_display_g0_fields" in bindings else None
@@ -650,7 +735,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4B-contract",
         "checker": "verify_shared_io_contract",
-        "checker_version": "r05",
+        "checker_version": "r06",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),

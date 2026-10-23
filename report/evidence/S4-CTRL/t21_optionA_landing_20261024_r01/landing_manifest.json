@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_optionA_landing_20261024_r01",
+  "source_commit_parent": "d050209",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_optionA_landing_20261024_r01",
+  "purpose": "Wong D1=A 一次性落盘批次：地址图 r03 + 契约 r05 + 缺口登记 r02 + 复审非阻断 N-1..N-4（全离线）",
+  "hardware_execution": "NOT_RUN",
+  "files": [
+    {
+      "path": "docs\\stage4\\S4B_stage4_address_map.json",
+      "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
+      "role": "source",
+      "keep_reason": "D1=A 落盘：新增 raw_frame/raw_meta、自设禁区缩减"
+    },
+    {
+      "path": "docs\\stage4\\s4b_shared_input_result_contract.json",
+      "sha256": "8dc79932fdff54a35b970a7dbd20dc7b6d5c6c8072cf9749639d482b0b0893f3",
+      "role": "source",
+      "keep_reason": "契约 r05：地址图重绑 + 绑定字节口径 + 消费方重绑"
+    },
+    {
+      "path": "docs\\stage4\\S4B_shared_input_result_contract.md",
+      "sha256": "5f9ffa00f04b4d6849d1c1b99f06195b0be3d5579de4e3a5bef552ecbe642313",
+      "role": "source",
+      "keep_reason": "契约人读镜像 r05"
+    },
+    {
+      "path": "docs\\stage4\\S4B_raw_system_g0_gap_registry.json",
+      "sha256": "35f7b41867599bbc09ed22ae962f3f3072e4692c4e10f3a6e63b272bb9ef4ae1",
+      "role": "source",
+      "keep_reason": "G-01/G-02 更新 + 依据重绑 + N-4 更正"
+    },
+    {
+      "path": "docs\\stage4\\S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "760537c8ae00f2409543e4adedddf059eb409151552a4c24a73872162d1c2275",
+      "role": "source",
+      "keep_reason": "r03 落盘指针（写权限内）"
+    },
+    {
+      "path": "scripts\\stage4_s4ctrl\\verify_shared_io_contract.py",
+      "sha256": "411a6d8c952fb859dc205100297543c1d478b065994bce640b2e49f1482f3e96",
+      "role": "source",
+      "keep_reason": "自检 r06：byte_basis + 负向对照"
+    },
+    {
+      "path": "scripts\\stage4_s4b\\audit_raw_system_g0_gaps.py",
+      "sha256": "5b36b43a966b097c82e57fefb43af346fd7c1b54ce665819f006f4bb23349ece",
+      "role": "source",
+      "keep_reason": "缺口复算：缩减后禁区 + region 登记 + 阶段3 事实"
+    },
+    {
+      "path": "scripts\\stage4_s4b\\crosscheck_raw_address_owners.py",
+      "sha256": "0f74ebc469dc508884503a6889f5207b4db0f5816f9d9b3a9ad5d65b1330d723",
+      "role": "source",
+      "keep_reason": "交叉核对：阶段3 书面事实绑定"
+    },
+    {
+      "path": "scripts\\stage4_s4ctrl\\check_binding_byte_semantics.py",
+      "sha256": "c48d81336121a60ab06891a133a8c4047bcfebc08c0ab5579e5d17c65ba79fe5",
+      "role": "source",
+      "keep_reason": "口径核查：尊重 byte_basis"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_contract_optionA_20261024_r02\\verify_shared_io_contract_result.json",
+      "sha256": "988b088dc16af4a679d4a825e32b52759d5023f900565a1ee22364fc87117597",
+      "role": "result",
+      "keep_reason": "自检 r06 结果（26 PASS/0 FAIL，exit 0）"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_contract_optionA_20261024_r02\\inject_frame_unittest_stdout.txt",
+      "sha256": "c3bc125db9ba6ac5b7a3011d4ae8980ef4f22af9595c32b9fcd8d080a83ccaf6",
+      "role": "log",
+      "keep_reason": "契约消费方回归（10/10 OK）"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_raw_g0_gap_registry_20261024_r05\\raw_system_g0_gap_audit_result.json",
+      "sha256": "ac395589b75fd5a5e20c20fa7eac0d7e11f789a20f31cc37cfa78272cb29e60f",
+      "role": "result",
+      "keep_reason": "缺口复算结果（11/11 + 纪律，exit 0）"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_frame_period_p_plan_20261024_r03\\frame_period_p_validation_result.json",
+      "sha256": "6e540894486660a2e1ac5fbaab70a7d7a8f5d8e157416e431e59b93718fb3c94",
+      "role": "result",
+      "keep_reason": "P 校验（6/6 负向对照，exit 0）"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_raw_address_crosscheck_20261024_r05\\raw_address_owner_crosscheck.json",
+      "sha256": "e3ac4fc83486a0516d50ebf243899ce9a4139c15f7f86b0643ad2b31a1450049",
+      "role": "result",
+      "keep_reason": "条件①交叉核对（SATISFIED_BY_BOUND_FACTS，exit 0）"
+    },
+    {
+      "path": "report\\evidence\\S4-CTRL\\t21_binding_byte_semantics_20261024_r04\\binding_byte_semantics.json",
+      "sha256": "b4eab82f1ecfeaf0bf6bf2ad41c3f20026001f663d3473999642dfd223c614c8",
+      "role": "result",
+      "keep_reason": "口径复测（22 项，按声明口径判定，exit 0）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "契约自检 r06（含绑定字节口径负向对照）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir report/evidence/S4-CTRL/t21_contract_optionA_20261024_r02",
+      "exit_code": 0,
+      "reason": "26 项通过、0 项失败"
+    },
+    {
+      "name": "缺口登记表复算（缩减后禁区 + region 登记 + 阶段3 事实）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_raw_g0_gap_registry_20261024_r05",
+      "exit_code": 0,
+      "reason": "离线算术 11/11、依据件 11/11、状态纪律通过"
+    },
+    {
+      "name": "条件①三方交叉核对",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/crosscheck_raw_address_owners.py --evidence-dir report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r05",
+      "exit_code": 0,
+      "reason": "2B（排除阶段4 自有 region 后）与阶段5/阶段3 均不相交；condition_1_status=SATISFIED_BY_BOUND_FACTS"
+    },
+    {
+      "name": "帧周期 P 证据校验",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/validate_frame_period_p_evidence.py --record docs/stage4/s4b_frame_period_p_evidence_template.json --evidence-dir report/evidence/S4-CTRL/t21_frame_period_p_plan_20261024_r03",
+      "exit_code": 0,
+      "reason": "模板 NOT_RUN 合规；6/6 负向对照被拒；P 数值仍 NOT_RUN"
+    },
+    {
+      "name": "契约消费方回归",
+      "status": "PASS",
+      "command": "python -B -m unittest verification.test_s4_inject_frame -v",
+      "exit_code": 0,
+      "reason": "Ran 10 tests，OK（地址图新增 region 后一致性/重叠/负例仍通过）"
+    },
+    {
+      "name": "绑定字节口径复测",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/check_binding_byte_semantics.py --evidence-dir report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r04",
+      "exit_code": 0,
+      "reason": "按声明口径判定：无『四口径全不匹配』条目；w4 未提交改动的 disk≠blob 属预期"
+    },
+    {
+      "name": "独立复审",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本批次尚未复审；未经复审不得标 FROZEN"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "ENABLE=0；未装载位流、未打开 COM4/JTAG、未起 hw_server"
+    }
+  ],
+  "limitations": [
+    "status 保持 DRAFT_PENDING_REVIEW；raw_frame/raw_meta 为 PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW（非 FROZEN）。",
+    "跨树引用按已提交 blob 口径绑定；w5 工作树当前有未提交改动（disk 不作绑定）。",
+    "未访问候选区、未做板级操作；地址获批≠可访问。",
+    "本 RunId 为批次汇总清单，未申报 check_stage_delivery 通用包装。"
+  ]
+}

@@ -3,9 +3,10 @@
   "contract_id": "s4-shared-io",
   "contract_version": "1.1.0",
   "status": "DRAFT_PENDING_REVIEW",
-  "revision": "r04",
+  "revision": "r05",
   "created_utc8": "2026-10-22T19:20:00+08:00",
-  "revision_note": "r04：按 CDX-20261022-015（r03）§2.2/§6 做真实彩色输入契约改绑与已批准项应用。① 新增 input_source_profiles：`camera_live_colour`/`camera_capture_replay_colour` 描述性范围标签、阶段3 无补偿部署 bit/XSA/ELF 绑定、传感器 RGB565 与 DDR 转储 B/G/R 三字节序（不得与模型 RGB888 混同）、宽高/stride 与原图坐标口径、采集时钟 PENDING_MEASUREMENT、逐帧源帧哈希规则、回放必须标回放；② 显式更新已漂移的 cdx_015 绑定（r02 `a3ce50d2…` → r03 `be7b6520…`）并登记取代关系；③ 新增 CDX-018/019、阶段6 批准记录、阶段3/4 方向决定与阶段3 彩色复测证据绑定；④ `stale_limit_ns` 由草案 null 变为已批准 200000000 ns（`stale_limit_status=APPROVED_BY_WONG` + approval_reference），并写明 S4-A r06 内 DRAFT 标签为历史快照、其取代值以批准记录为准。r03 及其证据保留。",
+  "revision_note": "r05（2026-10-24，全离线）：按 Wong D1=A 决定（`decisions/stage4_raw_address_optionA_20261024_r01.md`）与 DSH 初裁（`stage4_raw_address_d1_d4_20261024_r01.md`）落盘 ① 地址图重绑到 r03（新增 raw_frame/raw_meta、自设禁区精确缩减至 `[0x12C08000,0x20000000)`，`status` 仍 DRAFT_PENDING_REVIEW、region 未 FROZEN、ENABLE=0）；② 新增顶层 `binding_byte_basis` 绑定字节口径声明（默认工作树磁盘字节；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并把 dbdf 两项彩色证据改绑为 **git blob 内容口径**（保留磁盘 SHA 为注记）；③ 消费方重绑清单（阶段5/6）；④ 复审非阻断 N-1..N-4 同批处理。r04（含真实彩色改绑与已批准 stale=200ms）保留。",
+  "reviewed_baseline_note": "r04 已通过独立复审 PASS（被审提交 `7a9507a`，阻断 0／非阻断 4）；本 r05 为其后继，**尚未复审**，冻结前必须另行独立复审并引用固定提交 + 被审 SHA。",
   "task_id": "S4-CTRL/S4B-contract",
   "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
   "consumers": [
@@ -27,7 +28,14 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+      "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
+      "declared_revision": "r03",
+      "status_note": "地址图仍 `DRAFT_PENDING_REVIEW`；raw_frame/raw_meta 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、enable_required=true）",
+      "replaces": {
+        "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+        "declared_revision": "r02",
+        "reason": "r03 按 Wong D1=A 新增 raw_frame/raw_meta 并精确缩减自设禁区；本契约同版本重绑"
+      }
     },
     {
       "id": "cdx_010_stage4_runbook",
@@ -80,23 +88,62 @@
     },
     {
       "id": "stage3_colour_reverify_hashes",
-      "role": "阶段3 新模块彩色复测证据的哈希清单（6 项；本轮已独立复算 6/6 一致）",
+      "role": "阶段3 新模块彩色复测证据的哈希清单（6 项；已独立复算 6/6 一致）",
       "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\hashes.txt",
-      "sha256": "40ef1fda79ac0aac2c3ed768347e006ea01e4bd7ae2654bd8fe67c8b17e2aaf5",
+      "sha256": "e29830c8f1aceea9cef008eb90dd673799082252351449a4c4567e57d752f56d",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "N-1 改绑（跨树引用按已提交 blob 口径）：dbdf HEAD `0ad2000c…` 下该文件已归一化为 LF（disk==blob）；先前 r04 的磁盘口径值 `40ef1fda…` 与当时 blob 值 `70cdd014…` 均已随阶段3 提交失效。跨换行环境复算须用 blob 口径或 `-c core.autocrlf=false`。",
+      "worktree_disk_sha256_annotation": "e29830c8f1aceea9cef008eb90dd673799082252351449a4c4567e57d752f56d",
+      "replaces": {
+        "sha256": "40ef1fda79ac0aac2c3ed768347e006ea01e4bd7ae2654bd8fe67c8b17e2aaf5",
+        "basis": "worktree_disk_bytes",
+        "reason": "阶段3 于本轮窗口后提交新 HEAD，该证据文件内容与换行均变化；按『只绑已提交版本』规则改绑 blob 口径"
+      },
       "read_only_note": "dbdf 为阶段3 唯一写入方的工作树；本契约只读引用，不写入。"
     },
     {
       "id": "stage3_colour_reverify_readme",
       "role": "阶段3 新模块彩色复测的现场记录（部署 bit/XSA/ELF 身份与判据）",
       "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\README.md",
-      "sha256": "aca598c73ed1f2b7b2b35ad255517969d4867b929777327efd45285c791f4a79",
+      "sha256": "d8029c39cfa9fe11c892191a78c2bf8ff65ddba255cf0c6cbc7f19afe0f70873",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "N-1 改绑：dbdf 该路径无 `-text` 覆盖，工作树为 CRLF、blob 为 LF（当前 disk `e60bab01…` 2468 B / blob `d8029c39…` 2424 B）。跨树引用按已提交 blob 口径绑定；磁盘值仅注记。",
+      "worktree_disk_sha256_annotation": "e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d",
+      "replaces": {
+        "sha256": "aca598c73ed1f2b7b2b35ad255517969d4867b929777327efd45285c791f4a79",
+        "basis": "worktree_disk_bytes",
+        "reason": "阶段3 提交新 HEAD 后该文件内容变化；改绑 blob 口径"
+      },
       "read_only_note": "dbdf 为阶段3 唯一写入方的工作树；本契约只读引用，不写入。"
+    },
+    {
+      "id": "stage3_window_address_facts",
+      "role": "阶段3 视频通路部署地址事实（条件①交叉核对的事实来源；只读）",
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md",
+      "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3",
+      "read_only_note": "阶段3 板级窗口只读回读事实：采集=显示=0x00110C00、单缓冲、stride 0x0F00、帧 0x2A3000；**运行期分配、无链接期静态保证**，消费方须运行期回读、禁止硬编码。"
+    },
+    {
+      "id": "stage4_raw_address_optionA_decision",
+      "role": "Wong D1=A 批准记录（RAW/META 地址与自设禁区缩减的批准依据）",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_optionA_20261024_r01.md",
+      "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8"
+    },
+    {
+      "id": "stage4_raw_address_d1_d4_decision",
+      "role": "DSH D1–D4 初裁记录（条件①/②③④ 与不选 C/E 的依据）",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_d1_d4_20261024_r01.md",
+      "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34"
     },
     {
       "id": "stage5_display_g0_fields",
       "role": "阶段5 G0 显示语义/过期常量的权威（只读引用，不写 w5）",
       "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json",
-      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "跨树引用按**已提交 blob**口径绑定：w5（HEAD `22a8dcbe…`）该文件工作树当前有未提交改动（disk `10d24a39…` 18705 B ≠ blob `8eac7007…` 17421 B），磁盘值属阶段5 编辑中内容、**不作为绑定**；阶段5 需在提交后通知重绑，本契约随其提交更新。",
+      "worktree_disk_sha256_annotation": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+      "active_tree_note": "w5 为活动工作树：本绑定只声明『阶段4 消费的已提交版本』；其未提交改动不改变本绑定，也不得被当作冻结输入。"
     }
   ],
   "authority_rules": {
@@ -104,6 +151,15 @@
     "drift_detection": "自检脚本必须现场复算 upstream_bindings 的 SHA-256；任一不符即 FAIL，必须由本契约所有者显式更新绑定并重新审查，不得静默沿用。",
     "replacement_record": "权威被新版本取代时，必须在本契约记录被取代的 SHA 与取代关系（例如 S4-A r05 `3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87` → r06 `657ea2fb…`），并通知消费方（阶段5）重新绑定。",
     "freeze_precondition": "本契约冻结前，上述全部绑定必须与磁盘一致，且对应权威自身已冻结/提交。"
+  },
+  "binding_byte_basis": {
+    "default_basis": "worktree_disk_bytes",
+    "declaration": "本契约 `upstream_bindings` 的 `sha256` 默认记录**工作树磁盘字节**的 SHA-256（复算：对文件原始字节直接算 SHA-256）。",
+    "cross_newline_requirement": "跨换行环境复算必须使用 `-c core.autocrlf=false`（或按 blob 内容口径复算），否则 checkout/commit 的换行归一化会造成 SHA 失配。",
+    "explicit_blob_basis": "当条目给出 `byte_basis=git_blob_content` 时，`sha256` 记录的是**该路径在所属工作树 HEAD 提交中的 blob 内容** SHA-256（复算：`git -C <tree> cat-file blob HEAD:<rel>` 后对原始字节算 SHA-256）；此时另给 `worktree_disk_sha256_annotation` 作为注记，**不参与校验**。",
+    "scope_note": "本树 `-text` 已覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob）；跨树引用（如 dbdf `report/evidence/S3-T05/**`，`check-attr text: unspecified`）按上条显式声明口径。**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。",
+    "verification_tool": "scripts/stage4_s4ctrl/check_binding_byte_semantics.py（磁盘/过滤/原始/已提交 blob 四种口径逐项测量），证据 `report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/`。",
+    "negative_control_expectation": "把某条 `git_blob_content` 条目的 `sha256` 换回磁盘 SHA 时，自检必须判 FAIL（口径与值不一致）。"
   },
   "input_source_profiles": {
     "purpose": "按 CDX-20261022-015（r03）§2.2 把阶段4 输入契约显式改绑到阶段3 的无补偿实时彩色部署（1280×720、无补偿实时彩色）。本轮只做契约改绑与状态更新，不含任何实物执行。",
@@ -263,7 +319,7 @@
           "length_bytes",
           "alignment"
         ],
-        "semantics": "半开区间 [base_addr+offset_bytes, +length_bytes)；region_name 必须存在于地址图；长度与格式推导值不符即拒绝"
+        "semantics": "半开区间 [base_addr+offset_bytes, +length_bytes)；region_name 必须存在于地址图；长度与格式推导值不符即拒绝。当前可用输入 region 名：`raw_frame`（12 MiB，Wong D1=A 批准新增，支持 109/109 帧、余量 +1,523,712 B，**未 FROZEN、enable_required=true**）；`injection_frame_rgb`（4 MiB 草案，已被 raw_frame 取代，仅历史与负例对照，不得用于装载）"
       },
       {
         "name": "frame_integrity",
@@ -589,7 +645,9 @@
     "change_process": "阶段5 需求变化以跨方请求提出（本树 report/evidence/S4-CTRL/** 唯一编号），由阶段4 决定是否纳入并出新版本"
   },
   "limits": [
-    "本契约是草案（DRAFT_PENDING_REVIEW）：经独立审查与 Lead 提交后才冻结；冻结前不得作为验收依据。r04 的改绑内容**尚未经独立复审**，不得因自检 PASS 而视为已审查",
+    "本契约是草案（DRAFT_PENDING_REVIEW）：经独立审查与 Lead 提交后才冻结；冻结前不得作为验收依据。r04 已经独立复审 **PASS**（被审提交 `7a9507a`，阻断 0／非阻断 4）；**r05 尚未复审**，冻结前必须另行独立复审并引用固定提交 + 被审 SHA",
+    "地址图 r03 的 `raw_frame`/`raw_meta` 状态为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN）；**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到硬件窗口实测（CPU1 停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成",
+    "绑定字节口径：默认工作树磁盘字节；dbdf 两项彩色证据按 `git_blob_content` 显式声明；跨换行环境复算须 `-c core.autocrlf=false` 或 blob 口径（见 `binding_byte_basis`）",
     "不定义阶段5 的布局/像素门槛/显示 FPS 语义（属阶段5 G0）",
     "不含真实板测结果；本轮无任何硬件执行（未装载位流、未打开 COM4/JTAG、未起 hw_server）",
     "候选上限、时间口径、异常行为取值以 S4-A 阶段4 G0 契约为准",

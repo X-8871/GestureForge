@@ -170,18 +170,49 @@ def main() -> int:
            and len(over8) == 2 and len(recomputed_over8) == 2, actual,
            "每项 bytes 必须等于 width×height×3")
 
-    # 6. 候选仍落在地址图禁区内 ⇒ 必须保持 BLOCKED
-    forbidden = next((g for g in addr_map["gaps"] if g.get("base_addr_hex") == "0x12000000"), None)
+    # 6. 候选已不在缩减后的自设禁区内，且缩减起点恰为候选末端（Wong D1=A 落盘）
+    forbidden = next((g for g in addr_map["gaps"] if g.get("base_addr_hex") == "0x12C08000"), None)
     if forbidden:
         forbidden_start = int(forbidden["base_addr_hex"], 16)
         forbidden_end = int(forbidden["end_addr_exclusive_hex"], 16)
     else:
         forbidden_start = forbidden_end = None
-    inside = bool(forbidden) and forbidden_start == 301989888 and forbidden_end == 536870912 \
-        and combined["start"] >= forbidden_start and combined["end_exclusive"] <= forbidden_end
-    record("candidate_inside_forbidden_gap", inside,
+    inside = bool(forbidden) and combined["start"] >= forbidden_start and combined["end_exclusive"] <= forbidden_end
+    record("candidate_outside_shrunk_forbidden_gap",
+           bool(forbidden) and forbidden_start == combined["end_exclusive"]
+           and forbidden_end == 536870912 and (forbidden_end - forbidden_start) == 222265344 and not inside,
            {"forbidden_range": [forbidden_start, forbidden_end],
+            "forbidden_bytes": (forbidden_end - forbidden_start) if forbidden else None,
             "candidate": [combined["start"], combined["end_exclusive"]], "candidate_fully_inside": inside})
+
+    # 6b. 地址图已按 D1=A 登记 raw_frame/raw_meta（区间/长度/对齐/状态/使能开关）
+    regions_by_name = {r["name"]: r for r in addr_map["regions"]}
+    raw_region = regions_by_name.get("raw_frame")
+    meta_region = regions_by_name.get("raw_meta")
+    registered = bool(raw_region and meta_region) \
+        and (raw_region["base_addr"], raw_region["end_addr_exclusive"]) == (combined["start"], 314572800) \
+        and (meta_region["base_addr"], meta_region["end_addr_exclusive"]) == (314572800, combined["end_exclusive"]) \
+        and raw_region["length_bytes"] == 12582912 and meta_region["length_bytes"] == 32768 \
+        and raw_region["alignment_bytes"] == 64 and meta_region["alignment_bytes"] == 64 \
+        and raw_region.get("enable_required") is True and meta_region.get("enable_required") is True \
+        and raw_region.get("status") == "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW" \
+        and meta_region.get("status") == "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+    record("approved_regions_registered", registered, {
+        "raw_frame": [raw_region["base_addr"], raw_region["end_addr_exclusive"], raw_region.get("status")] if raw_region else None,
+        "raw_meta": [meta_region["base_addr"], meta_region["end_addr_exclusive"], meta_region.get("status")] if meta_region else None,
+    })
+
+    # 6c. 阶段3 书面部署事实已绑定，且其观测上界低于候选起点
+    facts_path = resolve("D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md")
+    observed = 0x00114C00 if facts_path.is_file() else None
+    facts_ok = False
+    if observed is not None:
+        facts_text = facts_path.read_text(encoding="utf-8", errors="replace")
+        facts_ok = "0x00110C00" in facts_text and "0x00114C00" in facts_text and "单缓冲" in facts_text
+    record("stage3_owner_fact_bound", bool(facts_ok and observed is not None and combined["start"] > observed),
+           {"stage3_observed_max_hex": hex(observed) if observed else None,
+            "candidate_start_hex": hex(combined["start"]),
+            "fact_file_present": observed is not None})
 
     # 7. 与已知 owner 不相交
     owner_names = ("ps_app_arena", "bss", "heap", "stack", "staging", "network_input_tensor", "s2b_tensor_arena")

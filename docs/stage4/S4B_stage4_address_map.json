@@ -3,10 +3,15 @@
   "task_id": "S4-B",
   "stage": "stage4",
   "worktree": "D:\\codex-worktrees\\w4",
-  "generated_utc8": "2026-10-22T19:40:00+08:00",
+  "generated_utc8": "2026-10-24T01:45:00+08:00",
   "status": "DRAFT_PENDING_REVIEW",
   "authority": "本图是共享契约 `docs/stage4/s4b_shared_input_result_contract.json` 中 `buffer.region_name` / region 方向语义的权威来源；契约只引用 region 名称，不重复数字。",
-  "revision_note": "r02：纠正输入读前 invalidate 顺序；拆分 2B BSP 确认的 32 B 硬件缓存行与本图采用的 64 B 维护对齐策略；地址图仍为 DRAFT_PENDING_REVIEW。显示缓冲未建立权威事实，仍不得猜地址。",
+  "revision_note": "r03（2026-10-24，全离线）：按 Wong D1=A 决定（`decisions/stage4_raw_address_optionA_20261024_r01.md`，承接 `stage4_raw_address_d1_d4_20261024_r01.md`）新增 `raw_frame=[0x12000000,0x12C00000)`（12 MiB）与 `raw_meta=[0x12C00000,0x12C08000)`（32 KiB），并把本阶段**自设**禁区条目从 `[0x12000000,0x20000000)` 精确缩减为 `[0x12C08000,0x20000000)`（其余禁区不动）。两个新 region 的 `status` 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**）、`enable_required=true`；条件①交叉核对已绑定阶段3 部署实测事实（采集=显示=`0x00110C00`、单缓冲；**运行期分配、无链接期静态保证**，消费方须运行期回读、禁止硬编码）与阶段5 送显缓冲事实。**`ENABLE=0`、不访问候选区、不装载位流**，硬件实测完成前不得启用。",
+  "decision_basis": [
+    "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md",
+    "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_optionA_20261024_r01.md",
+    "report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03/raw_address_owner_crosscheck.json"
+  ],
   "address_space": {
     "half_open": true,
     "byte_order": "little",
@@ -57,6 +62,41 @@
       "sha256": null,
       "status": "READONLY_ACTIVE_TREE",
       "notes": "阶段5 活动树，本轮只读引用、不绑定哈希；其 P1 节规定送显缓冲布局/地址/所有权必须只读核对、不得猜地址。"
+    },
+    {
+      "id": "W5-S5T01-OVERLAY-FACTS",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\run_manifest.json",
+      "sha256": "1ac44d28edea73b379736312e9cbd147bd000ae3ef7f4ae89564e4687aae1263",
+      "status": "READONLY_W5_EVIDENCE",
+      "notes": "阶段5 送显三缓冲实际地址事实（buf0/1/2 = 0x00114C00/0x00703800/0x00CF2400，每帧 0x2A3000）；用于条件①交叉核对。"
+    },
+    {
+      "id": "W5-S5T01-DOWNLOAD-FACTS",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_download_20261022_r01\\run_manifest.json",
+      "sha256": "38fa065a81370ff5b8c3bbdca160b74a2c7dfaa3929adabc01739766f40c81b5",
+      "status": "READONLY_W5_EVIDENCE",
+      "notes": "阶段5 VDMA 回读事实（ADDR_S2MM=0x00114C00、STRIDE=0xF00、720×3840）；用于条件①交叉核对。"
+    },
+    {
+      "id": "STAGE3-WINDOW-FACTS",
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md",
+      "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3",
+      "status": "READONLY_STAGE3_DEPLOYMENT_FACT",
+      "notes": "阶段3 板级窗口只读回读：采集(S2MM)=显示(MM2S)=0x00110C00、单缓冲（帧地址 1/2 均为 0）、stride 0x0F00、720 行、帧 0x2A3000；v11 冻结应用为 0x00114C00。**运行期由 dispCtrl.framePtr[curFrame] 分配，无链接期静态保证**；消费方使用前必须运行期回读，禁止硬编码。"
+    },
+    {
+      "id": "D1-A-DECISION",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_optionA_20261024_r01.md",
+      "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8",
+      "status": "DECISION_RECORD",
+      "notes": "Wong 2026-10-24：批准选项 A、不接受降覆盖；禁区精确缩减至 [0x12C08000,0x20000000)；status 保持 DRAFT_PENDING_REVIEW。"
+    },
+    {
+      "id": "D1-D4-DECISION",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_d1_d4_20261024_r01.md",
+      "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34",
+      "status": "DECISION_RECORD",
+      "notes": "DSH 2026-10-24 初裁：D1 有条件批准 A、D3 META 不强制相邻、D4 不前置 linker 冻结（E 排除）、条件①须三方交叉核对。"
     }
   ],
   "injection_point": {
@@ -246,10 +286,116 @@
         "G0/4-D 批准容量与几何默认值",
         "板上实测 flush/invalidate 生效与 DMA 完成顺序"
       ],
-      "notes": "该 region 是半开区间内的建议落点，不是从 2B 冻结产物抄来的既有地址；未获批准前不得据此装载/写入。",
+      "notes": "该 region 是半开区间内的建议落点，不是从 2B 冻结产物抄来的既有地址；**已被 `raw_frame`（12 MiB，Wong D1=A 批准）取代**，保留仅为历史与既有负例对照；不得据此装载/写入。",
+      "superseded_by": "raw_frame",
+      "superseded_note": "4 MiB 草案仅支持 12/109 冻结帧，不足以容纳最大帧 11,059,200 B；取代关系见 decision_basis。",
       "sources": [
         "W2B-INTERFACE",
         "W2B-PLATFORM"
+      ]
+    },
+    {
+      "name": "raw_frame",
+      "kind": "ddr",
+      "category": "input_frame",
+      "base_addr": 301989888,
+      "base_addr_hex": "0x12000000",
+      "end_addr_exclusive": 314572800,
+      "end_addr_exclusive_hex": "0x12C00000",
+      "length_bytes": 12582912,
+      "alignment_bytes": 64,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "owner": "阶段4 注入器/host（生产者，写 RAW） / D2 预处理所有者（消费者，读 RAW）",
+      "access": {
+        "ps_cpu": "producer_write_consumer_read",
+        "pl_hp0": "consumer_may_read",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "flush_writeback_then_consumer_invalidate",
+        "when": "生产者写完最后一字节 → flush（对外 64 B 取整）→ DSB → 发布所有权；消费者读取前 invalidate（对外 64 B 取整）→ DSB",
+        "maintenance_alignment_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "producer_write_complete",
+        "cache_flush_by_producer",
+        "ownership_publish_to_consumer",
+        "consumer_invalidate",
+        "consumer_start",
+        "consumer_done",
+        "buffer_release_to_producer"
+      ],
+      "capacity": {
+        "single_frame_max_bytes": 11059200,
+        "storage_rule": "storage_bytes = align_up(logical_bytes, 8)；host 把逻辑末尾到 storage 末尾写成零，PS 在 COMMIT 校验，PL 不把尾部当像素",
+        "margin_bytes": 1523712,
+        "frame_coverage": "109/109（冻结输入清单全集，含 2 张 1920x1920 two_up）"
+      },
+      "enable_required": true,
+      "required_before_use": [
+        "地址/所有权经独立复审（固定提交）后方可标 FROZEN",
+        "硬件窗口实测：CPU1 保持停止、无其他 DDR consumer、候选区板上实际未被占用、cache 维护与可见性",
+        "物理基址 enable=1 之前保持 ENABLE=0，且不产生任何 AXI 事务"
+      ],
+      "notes": "按 Wong 2026-10-24 D1=A 批准新增（12 MiB、109/109、余量 +1,523,712 B）。**状态仍 DRAFT_PENDING_REVIEW、未 FROZEN**；`ENABLE=0` 前不得访问。**保留条款**：阶段3 部署实测的采集/显示帧基址为运行期分配（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须**运行期回读**，**禁止硬编码**该地址。条件①三方交叉核对（2B/阶段5/阶段3）均不相交。",
+      "sources": [
+        "STAGE3-WINDOW-FACTS",
+        "W5-S5T01-OVERLAY-FACTS",
+        "W5-S5T01-DOWNLOAD-FACTS",
+        "D1-A-DECISION",
+        "D1-D4-DECISION"
+      ]
+    },
+    {
+      "name": "raw_meta",
+      "kind": "ddr",
+      "category": "input_frame_metadata",
+      "base_addr": 314572800,
+      "base_addr_hex": "0x12C00000",
+      "end_addr_exclusive": 314605568,
+      "end_addr_exclusive_hex": "0x12C08000",
+      "length_bytes": 32768,
+      "alignment_bytes": 64,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "owner": "阶段4 host/JTAG 描述符与几何表（写） / PS（ACK/GEOM/RESULT 写） / PL 预处理（几何表只读）",
+      "access": {
+        "ps_cpu": "read_write_cacheable",
+        "pl_hp0": "read_only_geometry_table",
+        "pl_gp0_lite": "none"
+      },
+      "cache_maintenance": {
+        "direction": "ps_clean_and_invalidate_around_publish",
+        "when": "PS 发布前对 mailbox 范围 clean+invalidate（对外 64 B 取整）→ DSB；host 写完后 PS invalidate → DSB；PL 只读几何表，其维护与 RAW 一致的 64 B 取整规则",
+        "maintenance_alignment_bytes": 64,
+        "outward_floor": true
+      },
+      "dma_completion_order": [
+        "host_descriptor_write_complete",
+        "ps_clean_invalidate_dsb",
+        "descriptor_publish",
+        "pl_geometry_table_read"
+      ],
+      "internal_layout": {
+        "note": "偏移为相对本 region 基址；布局权威见 docs/stage4/S4B_pl_preprocess_g0_readiness.md §8.2/§8.3",
+        "host_req_bytes": 128,
+        "ps_ack_bytes": 64,
+        "ps_geom_bytes": 64,
+        "ps_result_bytes": 64,
+        "geometry_table_bytes": 19968,
+        "result_data_region_bytes": 12480,
+        "max_result_block_bytes": 760
+      },
+      "enable_required": true,
+      "required_before_use": [
+        "地址/所有权经独立复审（固定提交）后方可标 FROZEN",
+        "硬件窗口实测 DAP/cache 可见性与提交原子性",
+        "物理基址 enable=1 之前保持 ENABLE=0"
+      ],
+      "notes": "按 Wong 2026-10-24 D1=A 批准新增（32 KiB，与 RAW 自然相邻）。**状态仍 DRAFT_PENDING_REVIEW、未 FROZEN**；`ENABLE=0` 前不得访问。与 `raw_frame` 同批登记 owner/access/cache/完成序；内部偏移只在契约/readiness 定义，本图不重复二进制布局。",
+      "sources": [
+        "D1-A-DECISION",
+        "D1-D4-DECISION"
       ]
     },
     {
@@ -421,10 +567,16 @@
     },
     {
       "address_space": "ddr",
-      "base_addr_hex": "0x12000000",
+      "base_addr_hex": "0x12C08000",
       "end_addr_exclusive_hex": "0x20000000",
-      "length_bytes": 234881024,
-      "rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围"
+      "length_bytes": 222265344,
+      "rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围（2026-10-24 由 Wong D1=A 决定精确缩减；原条目起点 0x12000000 已由 raw_frame/raw_meta 占用）",
+      "sources": [
+        "D1-A-DECISION",
+        "D1-D4-DECISION"
+      ],
+      "shrink_note": "本条为**本阶段自设**准入声明（原条目无 sources，非 2B 冻结保留）；缩减只覆盖 raw_frame/raw_meta 两个 region，其余禁区不动。",
+      "gap_exception": "raw_frame/raw_meta 位于本条被缩减掉的前 12.03 MiB 内，但其访问仍受 `enable_required=true` 与 `status=PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW` 约束：ENABLE=0、不访问候选区、不装载位流、不做板级操作。"
     },
     {
       "address_space": "pl_mmio",
@@ -455,9 +607,11 @@
       "gf8_weight_package",
       "injection_frame_rgb",
       "feature_envelope",
-      "pl_control_csr"
+      "pl_control_csr",
+      "raw_frame",
+      "raw_meta"
     ],
-    "pairs_checked": 10,
+    "pairs_checked": 28,
     "status": "PASS",
     "negative_control": {
       "mutation": "把 injection_frame_rgb.base_addr 改为 0x10500000（落入 gf8_weight_package [0x10100000,0x106A12FC)）",
@@ -482,8 +636,10 @@
   },
   "limitations": [
     "injection_frame_rgb 与 ps_app_arena 内部切分是阶段4 侧建议/未解析项，不来自 2B 冻结产物；未获 G0/4-D 批准前不得据其装载或写入。",
-    "display_buffer 无权威地址事实，按 w5 规定不得猜地址；本轮不提供任何显示缓冲数字。",
-    "本图为离线静态事实整理：所有板上前提（DMA 完成顺序、cache 维护生效、AXI 事务形态、可见性）均未实测，属 G3。",
-    "w5 阶段5 文档为活动树，引用不绑定哈希，避免把活动内容当冻结输入。"
+    "raw_frame/raw_meta 为 Wong D1=A 批准的新 region，但**地址图与契约仍 `DRAFT_PENDING_REVIEW`、region 未 FROZEN**；独立复审（固定提交）通过前不得标 FROZEN，`ENABLE=0` 前不得访问。",
+    "阶段3 部署实测的采集/显示帧基址为**运行期分配**（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须运行期回读，禁止硬编码。",
+    "display_buffer 无权威地址事实，按 w5 规定不得猜地址；本轮不提供任何显示缓冲数字（阶段5 已提交清单记录的是其 P1 运行实际使用的三个缓冲）。",
+    "本图为离线静态事实整理：所有板上前提（DMA 完成顺序、cache 维护生效、AXI 事务形态、可见性、候选区未被占用）均未实测，属 G3。",
+    "w5 阶段5 文档为活动树，引用不绑定哈希，避免把活动内容当冻结输入（本次另绑定其两份已提交运行清单）。"
   ]
 }

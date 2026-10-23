@@ -80,10 +80,12 @@ def line_ending_counts(data: bytes) -> dict[str, int]:
     return {"cr": data.count(b"\r"), "lf": data.count(b"\n"), "crlf": data.count(b"\r\n")}
 
 
-def measure(label: str, path_text: str, declared: str | None) -> dict[str, object]:
-    """测量一个绑定条目的三种口径。"""
+def measure(label: str, path_text: str, declared: str | None, declared_basis: str | None = None) -> dict[str, object]:
+    """测量一个绑定条目的三种口径，并按声明的字节口径判定。"""
     path = resolve_path(path_text)
-    entry: dict[str, object] = {"label": label, "path": str(path), "declared_sha256": declared}
+    basis = declared_basis or "worktree_disk_bytes"
+    entry: dict[str, object] = {"label": label, "path": str(path), "declared_sha256": declared,
+                                "declared_byte_basis": basis}
     if not path.is_file():
         entry["status"] = "MISSING"
         return entry
@@ -121,10 +123,15 @@ def measure(label: str, path_text: str, declared: str | None) -> dict[str, objec
         and declared == entry.get("committed_blob_content_sha256"),
     }
     entry["declared_matches"] = declared_matches
+    expected_key = "committed_blob_content" if basis == "git_blob_content" else "disk"
+    entry["expected_basis_key"] = expected_key
     if declared is None:
         entry["status"] = "NO_DECLARED_SHA"
-    elif any(declared_matches.values()):
+    elif declared_matches[expected_key]:
         entry["status"] = "MATCH"
+        entry["matched_basis"] = expected_key
+    elif any(declared_matches.values()):
+        entry["status"] = "MATCH_WRONG_BASIS"
         entry["matched_basis"] = [k for k, v in declared_matches.items() if v]
     else:
         entry["status"] = "MISMATCH_ALL_BASES"
@@ -149,17 +156,20 @@ def main() -> int:
     contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     registry = json.loads(REGISTRY.read_text(encoding="utf-8"))
 
-    targets: list[tuple[str, str, str | None]] = []
+    targets: list[tuple[str, str, str | None, str | None]] = []
     for binding in contract["upstream_bindings"]:
-        targets.append((f"contract.upstream_bindings[{binding['id']}]", binding["path"], binding.get("sha256")))
+        targets.append((f"contract.upstream_bindings[{binding['id']}]", binding["path"],
+                        binding.get("sha256"), binding.get("byte_basis")))
     for binding in registry["basis_bindings"]:
-        targets.append((f"registry.basis_bindings[{binding['id']}]", binding["path"], binding.get("sha256")))
-    targets.append(("contract.self", str(CONTRACT), None))
-    targets.append(("registry.self", str(REGISTRY), None))
+        targets.append((f"registry.basis_bindings[{binding['id']}]", binding["path"],
+                        binding.get("sha256"), binding.get("byte_basis")))
+    targets.append(("contract.self", str(CONTRACT), None, None))
+    targets.append(("registry.self", str(REGISTRY), None, None))
 
-    results = [measure(label, path, declared) for label, path, declared in targets]
-    mismatches = [r for r in results if r["status"] == "MISMATCH_ALL_BASES"]
-    disk_only = [r for r in results if r.get("declared_matches", {}).get("disk")
+    results = [measure(label, path, declared, basis) for label, path, declared, basis in targets]
+    mismatches = [r for r in results if r["status"] in ("MISMATCH_ALL_BASES", "MATCH_WRONG_BASIS")]
+    disk_only = [r for r in results if r["status"] == "MATCH" and r.get("expected_basis_key") == "disk"
+                 and r.get("declared_matches", {}).get("disk")
                  and not r.get("declared_matches", {}).get("committed_blob_content")]
 
     report = {

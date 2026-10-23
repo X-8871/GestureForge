@@ -32,6 +32,7 @@ W5_OVERLAY = Path("D:/codex-worktrees/w5/report/evidence/S5-T01/s5t01_board_over
 W5_DOWNLOAD = Path("D:/codex-worktrees/w5/report/evidence/S5-T01/s5t01_board_download_20261022_r01/run_manifest.json")
 DBDF_APP_PATCH = Path("D:/codex-worktrees/dbdf/board/stage3/software/sensor/s3_t04_app_diag_v12.patch")
 DBDF_README = Path("D:/codex-worktrees/dbdf/board/stage3/README.md")
+STAGE3_FACTS = Path("D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md")
 
 CANDIDATE = (0x12000000, 0x12C08000)  # RAW 12 MiB + META 32 KiB（选项 A）
 
@@ -56,7 +57,7 @@ def main() -> int:
     parser.add_argument("--evidence-dir", required=True)
     args = parser.parse_args()
 
-    for path in (ADDRESS_MAP, W2B_PLATFORM, W5_OVERLAY, W5_DOWNLOAD, DBDF_APP_PATCH, DBDF_README):
+    for path in (ADDRESS_MAP, W2B_PLATFORM, W5_OVERLAY, W5_DOWNLOAD, DBDF_APP_PATCH, DBDF_README, STAGE3_FACTS):
         if not path.is_file():
             print(f"[FAIL] 缺少事实来源：{path}")
             return 2
@@ -94,10 +95,11 @@ def main() -> int:
     if addr_s2mm != bufs[0]:
         failures.append("w5 清单内部不一致：ADDR_S2MM != buf0")
 
-    # 核对 1/2：2B 冻结对象与 2B 专属窗口
+    # 核对 1/2：2B 冻结对象与 2B 专属窗口（排除阶段4 自有 region，避免自证冲突）
     arena = (int(platform2b["memory"]["arena_base"], 16), int(platform2b["memory"]["arena_end_exclusive"], 16))
+    two_b_names = ("network_input_tensor", "gf8_weight_package", "feature_envelope")
     two_b = [{"name": r["name"], "start": r["base_addr"], "end_exclusive": r["end_addr_exclusive"]}
-             for r in address_map["regions"] if r["kind"] == "ddr"]
+             for r in address_map["regions"] if r["name"] in two_b_names]
     two_b_conflicts = [r["name"] for r in two_b
                        if overlaps(CANDIDATE[0], CANDIDATE[1], r["start"], r["end_exclusive"])]
     inside_arena = CANDIDATE[0] >= arena[0] and CANDIDATE[1] <= arena[1]
@@ -130,43 +132,49 @@ def main() -> int:
         "frame_len_token": "0x2A3000" in patch_text,
         "readme_buffer_ownership_unresolved": "采集与显示可能使用同一当前帧缓冲" in readme_text,
     }
-    stage3_static_available = False  # 阶段3 未发布静态地址表（见下 missing_facts）
-    stage3_observed_max = max(b["end_exclusive"] for b in w5_buffers)
+    # 阶段3 书面部署事实（2026-10-24 板级窗口只读回读）
+    stage3_text = STAGE3_FACTS.read_text(encoding="utf-8", errors="replace")
+    stage3_observed = [0x00110C00, 0x00114C00]
+    stage3_observed_max = max(stage3_observed) + frame_bytes  # 缓冲末端，用于不相交判定
+    stage3_fact_tokens = {
+        "s2mm_addr_token": "0x00110C00" in stage3_text,
+        "v11_addr_token": "0x00114C00" in stage3_text,
+        "single_buffer_token": "单缓冲" in stage3_text,
+        "shared_capture_display_token": "与采集完全相同" in stage3_text,
+        "runtime_alloc_no_static_token": "无静态编译期保证" in stage3_text or "无链接期静态保证" in stage3_text,
+        "no_hardcode_token": "禁止硬编码" in stage3_text,
+    }
+    stage3_fact_ok = all(stage3_fact_tokens.values())
     checks["stage3_video_buffer_fact"] = {
-        "status": "PARTIAL_FACT_ONLY",
+        "status": "PASS" if (stage3_fact_ok and CANDIDATE[0] > stage3_observed_max) else "FAIL",
+        "written_fact_source": str(STAGE3_FACTS),
+        "written_fact_tokens": stage3_fact_tokens,
         "code_level_fact": code_fact_tokens,
         "code_fact_source": str(DBDF_APP_PATCH),
-        "static_address_table_available": stage3_static_available,
+        "observed_addresses_hex": [hex(a) for a in stage3_observed],
         "observed_upper_bound_hex": hex(stage3_observed_max),
-        "observed_source": str(W5_OVERLAY),
-        "disjoint_from_candidate_on_observed_facts": CANDIDATE[0] > stage3_observed_max,
-        "note": "阶段3 自身文档给出的是运行时指针数组与每帧 0x2A3000（720×3840），未发布静态地址表；"
-                "实际地址事实仅见于阶段5 已提交运行清单。观测事实与候选不相交，但不足以替代阶段3 的书面静态事实。",
+        "disjoint_from_candidate": CANDIDATE[0] > stage3_observed_max,
+        "reservation_clause": "阶段3 帧基址为**运行期分配**（dispCtrl.framePtr[curFrame]）、**无链接期静态保证**，换应用会变；"
+                              "任何消费方使用前必须运行期回读、**禁止硬编码**（已写入地址图 raw_frame/raw_meta 的 notes）。",
     }
+    if not stage3_fact_ok:
+        failures.append("阶段3 书面事实缺少必要语义标记（采集/显示地址、单缓冲、共用、运行期分配、禁止硬编码）")
     if not (CANDIDATE[0] > stage3_observed_max):
         failures.append("候选与阶段3 观测到的视频缓冲上界相交")
 
-    # 核对 4（信息性）：BSP 软件窗口与现行禁区
+    # 核对 4（信息性）：BSP 软件窗口与现行禁区（r03 已缩减）
     bsp_window = (0x00100000, 0x40000000)
-    forbidden = next((g for g in address_map["gaps"] if g.get("base_addr_hex") == "0x12000000"), None)
+    forbidden = next((g for g in address_map["gaps"] if g.get("base_addr_hex") == "0x12C08000"), None)
     checks["informational"] = {
         "candidate_inside_bsp_software_window": CANDIDATE[0] >= bsp_window[0] and CANDIDATE[1] <= bsp_window[1],
-        "candidate_currently_inside_forbidden_gap": bool(forbidden) and forbidden["base_addr_hex"] == "0x12000000",
+        "candidate_currently_inside_forbidden_gap": bool(forbidden) and CANDIDATE[0] >= int(forbidden["base_addr_hex"], 16),
         "forbidden_rule": forbidden["rule"] if forbidden else None,
         "forbidden_has_sources": "sources" in (forbidden or {}),
+        "forbidden_span_hex": [forbidden["base_addr_hex"], forbidden["end_addr_exclusive_hex"]] if forbidden else None,
     }
 
-    missing_facts = []
-    if not stage3_static_available:
-        missing_facts.append({
-            "stage": "3",
-            "item": "视频缓冲（VDMA/framebuffer）静态地址事实",
-            "why": "dbdf 自身文档/证据未发布静态地址表；仅有代码级 dispCtrl.framePtr[curFrame] 与每帧 0x2A3000，"
-                   "以及阶段5 清单记录的实际地址。",
-            "request": "请阶段3 写入方在其正式文档中确认三缓冲地址集合（或发布地址图），供条件①闭合。",
-        })
-
-    condition1 = "INCOMPLETE_PENDING_STAGE3_WRITTEN_FACT" if missing_facts else "SATISFIED_BY_BOUND_FACTS"
+    missing_facts: list[dict[str, object]] = []
+    condition1 = "SATISFIED_BY_BOUND_FACTS" if (not failures and not missing_facts) else "INCOMPLETE"
     result = {
         "task_id": "S4-CTRL/S4-T21",
         "checker": "crosscheck_raw_address_owners",
@@ -186,6 +194,7 @@ def main() -> int:
             {"id": "w5_download_manifest", "path": str(W5_DOWNLOAD), "sha256": sha256_of(W5_DOWNLOAD)},
             {"id": "dbdf_stage3_app_patch_v12", "path": str(DBDF_APP_PATCH), "sha256": sha256_of(DBDF_APP_PATCH)},
             {"id": "dbdf_stage3_readme", "path": str(DBDF_README), "sha256": sha256_of(DBDF_README)},
+            {"id": "dbdf_stage3_window_address_facts", "path": str(STAGE3_FACTS), "sha256": sha256_of(STAGE3_FACTS)},
         ],
         "checks": checks,
         "missing_facts": missing_facts,

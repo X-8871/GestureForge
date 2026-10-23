@@ -253,7 +253,7 @@ def self_prove(tree: Path, work: Path, label: str, source_root: Path | None = No
         "label": label,
         "newline_alignment": alignment,
         "artifact_version": version_data.get("artifact_version"),
-        "run_id": run_id,
+        "run_id": Path(evidence_rel).name,  # BLK-D1：RunId 一律取自**显式** s6a_rel，不再来自行为表字段
         "evidence_dir": evidence_rel,
         "evidence_dir_file_count": len([p for p in evidence.rglob("*") if p.is_file()]) if evidence.is_dir() else 0,
         "state_declared_s6b_dir_files_in_commit": len(s6b_files),
@@ -271,6 +271,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="待自证提交（可多次）；与 --worktree-snapshot 可同时使用")
     parser.add_argument("--worktree-snapshot", action="store_true",
                         help="额外导出当前工作区快照做提交前自验")
+    parser.add_argument("--s6a-run", default=None,
+                        help="S6-A 证据目录（相对路径，如 report/evidence/S6-A/<run>）：**必填**；"
+                             "BLK-D1 之后不再按行为表 run_id 隐式查找")
     parser.add_argument("--s6b-run", default=None,
                         help="S6-B 证据目录（相对路径）：额外跑 S6-B 驱动 + 其 inputs/evidence 检查器")
     parser.add_argument("--out", default=None, help="报告输出路径（JSON）")

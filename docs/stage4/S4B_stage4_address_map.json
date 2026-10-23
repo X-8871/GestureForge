@@ -80,7 +80,10 @@
     {
       "id": "STAGE3-WINDOW-FACTS",
       "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md",
-      "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3",
+      "sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "B-2：dbdf 该路径有 `report/evidence/S3-T05/** -text` 覆盖（2026-10-01 起，`check-attr text: unset`），故按**已提交 blob**口径绑定（绑定记录时 dbdf HEAD=`6fa77a64`，disk==blob）；原先只写磁盘值 `19f754d8…` 且未声明口径，已更正。",
+      "worktree_disk_sha256_annotation": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a",
       "status": "READONLY_STAGE3_DEPLOYMENT_FACT",
       "notes": "阶段3 板级窗口只读回读：采集(S2MM)=显示(MM2S)=0x00110C00、单缓冲（帧地址 1/2 均为 0）、stride 0x0F00、720 行、帧 0x2A3000；v11 冻结应用为 0x00114C00。**运行期由 dispCtrl.framePtr[curFrame] 分配，无链接期静态保证**；消费方使用前必须运行期回读，禁止硬编码。"
     },
@@ -142,6 +145,7 @@
       "alignment_bytes": 4096,
       "status": "FROZEN_2B_CANDIDATE",
       "owner": "PS 应用（linker 声明的应用 arena：code/data/bss/heap/stack）",
+      "view_note": "N-c：本 region 为**2B 应用视角**的声明区间（`FROZEN_2B_CANDIDATE`）；它与阶段3 部署实测帧缓冲（`0x00110C00`）及阶段5 P1 送显缓冲（`0x00114C00/0x00703800/0x00CF2400`）在**低 DDR 区间上重叠**——这是既有事实（不同阶段各自声明、当前不并发），**与阶段4 候选区 `[0x12000000,0x12C08000)` 无关**；消费方不得据本条目推断那些缓冲的归属。",
       "access": {
         "ps_cpu": "read_write_cacheable",
         "pl_hp0": "none",
@@ -330,7 +334,7 @@
         "single_frame_max_bytes": 11059200,
         "storage_rule": "storage_bytes = align_up(logical_bytes, 8)；host 把逻辑末尾到 storage 末尾写成零，PS 在 COMMIT 校验，PL 不把尾部当像素",
         "margin_bytes": 1523712,
-        "frame_coverage": "109/109（冻结输入清单全集，含 2 张 1920x1920 two_up）"
+        "frame_coverage": "109/109 冻结帧**逐帧复用同一 region**（单帧独占；不是并发容量，也不是同时驻留 109 帧）"
       },
       "enable_required": true,
       "required_before_use": [
@@ -599,7 +603,7 @@
     "overlap_rejects": "任何对象与空洞的写入、任何对象间的相交、以及未列入本图的 region_name 一律拒绝。"
   },
   "overlap_proof": {
-    "method": "对每个 address_space 内的顶层 region 按 base_addr 排序，逐对检查 交集(半开区间) 为空；并另行验证 end-base==length、region 完全落在所属 address_space 内。",
+    "method": "N-b 修正文字与计数：对**全部顶层 region 逐对**检查交集（半开区间）为空（8 个 region ⇒ C(8,2)=**28 对**，**含跨 address_space 对**）；并另行验证 end-base==length、每个 region 完全落在其所属 address_space 内。按空间分列：ddr 内区段 7 个（含 ps_app_arena/网络/权重/草案/新增/feature）⇒ 21 对，pl_mmio 仅 1 个 ⇒ 0 对；跨空间（ddr↔pl_mmio）7 对。",
     "algorithm": "empty = max(a0,b0) >= min(a1,b1)",
     "top_level_regions_checked": [
       "ps_app_arena",
@@ -612,6 +616,8 @@
       "raw_meta"
     ],
     "pairs_checked": 28,
+    "pairs_checked_ddr": 21,
+    "pairs_checked_cross_space": 7,
     "status": "PASS",
     "negative_control": {
       "mutation": "把 injection_frame_rgb.base_addr 改为 0x10500000（落入 gf8_weight_package [0x10100000,0x106A12FC)）",

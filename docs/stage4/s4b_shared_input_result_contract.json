@@ -28,13 +28,13 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
-      "declared_revision": "r03",
+      "sha256": "04a7c3464558de203c3dc4017470de9b0f3b7ba39d5d4e3ebc49e89f0f2bf1d3",
+      "declared_revision": "r03（复审修复版：N-b/N-c/N-d 文字修正）",
       "status_note": "地址图仍 `DRAFT_PENDING_REVIEW`；raw_frame/raw_meta 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、enable_required=true）",
       "replaces": {
-        "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
-        "declared_revision": "r02",
-        "reason": "r03 按 Wong D1=A 新增 raw_frame/raw_meta 并精确缩减自设禁区；本契约同版本重绑"
+        "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
+        "declared_revision": "r03（D1=A 落盘首版）",
+        "reason": "复审非阻断 N-b/N-c/N-d 修改了地址图文字/计数（overlap_proof 方法、ps_app_arena 视图注、frame_coverage 口径），故同版本重绑；上一级取代值 `80104b80…`（r02）保留于同条目历史"
       }
     },
     {
@@ -92,7 +92,7 @@
       "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\hashes.txt",
       "sha256": "e29830c8f1aceea9cef008eb90dd673799082252351449a4c4567e57d752f56d",
       "byte_basis": "git_blob_content",
-      "byte_basis_note": "N-1 改绑（跨树引用按已提交 blob 口径）：dbdf HEAD `0ad2000c…` 下该文件已归一化为 LF（disk==blob）；先前 r04 的磁盘口径值 `40ef1fda…` 与当时 blob 值 `70cdd014…` 均已随阶段3 提交失效。跨换行环境复算须用 blob 口径或 `-c core.autocrlf=false`。",
+      "byte_basis_note": "N-1 改绑（跨树引用按已提交 blob 口径）：dbdf 新 HEAD `6fa77a64` 下该文件 disk==blob；先前 r04 的磁盘口径值 `40ef1fda…` 与当时 blob 值 `70cdd014…` 均已随阶段3 提交失效。跨换行环境复算须用 blob 口径或 `-c core.autocrlf=false`。",
       "worktree_disk_sha256_annotation": "e29830c8f1aceea9cef008eb90dd673799082252351449a4c4567e57d752f56d",
       "replaces": {
         "sha256": "40ef1fda79ac0aac2c3ed768347e006ea01e4bd7ae2654bd8fe67c8b17e2aaf5",
@@ -105,14 +105,14 @@
       "id": "stage3_colour_reverify_readme",
       "role": "阶段3 新模块彩色复测的现场记录（部署 bit/XSA/ELF 身份与判据）",
       "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\README.md",
-      "sha256": "d8029c39cfa9fe11c892191a78c2bf8ff65ddba255cf0c6cbc7f19afe0f70873",
+      "sha256": "e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d",
       "byte_basis": "git_blob_content",
-      "byte_basis_note": "N-1 改绑：dbdf 该路径无 `-text` 覆盖，工作树为 CRLF、blob 为 LF（当前 disk `e60bab01…` 2468 B / blob `d8029c39…` 2424 B）。跨树引用按已提交 blob 口径绑定；磁盘值仅注记。",
+      "byte_basis_note": "B-2/N-a 修正：dbdf **确实**有 `report/evidence/S3-T05/** -text` 覆盖（2026-10-01 起），`git check-attr -a` 返回 `text: unset`；上一版称『无 `-text` 覆盖/unspecified』**与事实不符**，此处更正。dbdf 已于 2026-10-24 提交新 HEAD（记录时 `6fa77a64`），该文件现 **disk==blob == 本值**（CRLF 版本已入库）；历史差额（disk CRLF 2468 B / blob LF 2424 B）成因是**该文件在 `-text` 生效前入库**、且索引 stat 缓存使 `git status` 一度看似干净——非本树可修复，按 `git_blob_content` 口径绑定即不受影响。",
       "worktree_disk_sha256_annotation": "e60bab012ee87f92fe8ac0239863985e1b4dcd58b92c0bf248f9cfac6f23e54d",
       "replaces": {
-        "sha256": "aca598c73ed1f2b7b2b35ad255517969d4867b929777327efd45285c791f4a79",
-        "basis": "worktree_disk_bytes",
-        "reason": "阶段3 提交新 HEAD 后该文件内容变化；改绑 blob 口径"
+        "sha256": "d8029c39cfa9fe11c892191a78c2bf8ff65ddba255cf0c6cbc7f19afe0f70873",
+        "basis": "git_blob_content",
+        "reason": "阶段3 新 HEAD（`6fa77a64`）下该文件 blob 已更新；上一级取代值 `aca598c7…`（r04 磁盘口径）保留于同条目历史"
       },
       "read_only_note": "dbdf 为阶段3 唯一写入方的工作树；本契约只读引用，不写入。"
     },
@@ -120,7 +120,15 @@
       "id": "stage3_window_address_facts",
       "role": "阶段3 视频通路部署地址事实（条件①交叉核对的事实来源；只读）",
       "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md",
-      "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3",
+      "sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "B-2 修正：三处登记（契约/registry/地址图 factsources）此前只写磁盘口径值 `19f754d8…` 而**未声明 `byte_basis`**，与契约默认口径 `worktree_disk_bytes` 冲突（dbdf 该路径有 `-text`，磁盘口径随时可能失配）。现统一补 `git_blob_content`：dbdf 新 HEAD（记录时 `6fa77a64`）下 blob = `d5ba4b6b…`（disk==blob）。",
+      "worktree_disk_sha256_annotation": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a",
+      "replaces": {
+        "sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3",
+        "basis": "worktree_disk_bytes",
+        "reason": "阶段3 在 2026-10-24 板级窗口后更新了该事实文件（新 HEAD `6fa77a64`）；同时补声明字节口径"
+      },
       "read_only_note": "阶段3 板级窗口只读回读事实：采集=显示=0x00110C00、单缓冲、stride 0x0F00、帧 0x2A3000；**运行期分配、无链接期静态保证**，消费方须运行期回读、禁止硬编码。"
     },
     {
@@ -139,10 +147,17 @@
       "id": "stage5_display_g0_fields",
       "role": "阶段5 G0 显示语义/过期常量的权威（只读引用，不写 w5）",
       "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json",
-      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+      "sha256": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
       "byte_basis": "git_blob_content",
-      "byte_basis_note": "跨树引用按**已提交 blob**口径绑定：w5（HEAD `22a8dcbe…`）该文件工作树当前有未提交改动（disk `10d24a39…` 18705 B ≠ blob `8eac7007…` 17421 B），磁盘值属阶段5 编辑中内容、**不作为绑定**；阶段5 需在提交后通知重绑，本契约随其提交更新。",
+      "byte_basis_note": "B-1 重绑：w5 已于 2026-10-24 01:48:18 提交 `b6d11d4`（该文件 blob 即本值）；本树 r05 首版误绑 `8eac7007…`（= 旧 HEAD `22a8dcbe` 的 blob）并误称『w5 有未提交改动』——该判断在其提交后已过期，属本次缺陷。现按 `git_blob_content` 绑定 w5 当前已提交 blob；绑定记录时 w5 HEAD=`a60d73b6`。",
+      "binding_status_note": "**待阶段5 r02 复审结论**，**不得声明为已冻结**；若阶段5 r02 结论改变该 JSON，则由阶段4 重绑并登记取代关系。",
+      "pending_review": "阶段5 r02 复审进行中",
       "worktree_disk_sha256_annotation": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+      "replaces": {
+        "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+        "basis": "git_blob_content",
+        "reason": "修 r02 前修订（w5 旧 HEAD `22a8dcbe` 的 blob）"
+      },
       "active_tree_note": "w5 为活动工作树：本绑定只声明『阶段4 消费的已提交版本』；其未提交改动不改变本绑定，也不得被当作冻结输入。"
     }
   ],
@@ -157,7 +172,7 @@
     "declaration": "本契约 `upstream_bindings` 的 `sha256` 默认记录**工作树磁盘字节**的 SHA-256（复算：对文件原始字节直接算 SHA-256）。",
     "cross_newline_requirement": "跨换行环境复算必须使用 `-c core.autocrlf=false`（或按 blob 内容口径复算），否则 checkout/commit 的换行归一化会造成 SHA 失配。",
     "explicit_blob_basis": "当条目给出 `byte_basis=git_blob_content` 时，`sha256` 记录的是**该路径在所属工作树 HEAD 提交中的 blob 内容** SHA-256（复算：`git -C <tree> cat-file blob HEAD:<rel>` 后对原始字节算 SHA-256）；此时另给 `worktree_disk_sha256_annotation` 作为注记，**不参与校验**。",
-    "scope_note": "本树 `-text` 已覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob）；跨树引用（如 dbdf `report/evidence/S3-T05/**`，`check-attr text: unspecified`）按上条显式声明口径。**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。",
+    "scope_note": "本树 `-text` 已覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob）；**dbdf 同样有 `report/evidence/S3-T05/** -text` 覆盖**（2026-10-01 起，`git check-attr -a` 返回 `text: unset`）——上一版称其『unspecified/无覆盖』**与事实不符，此处更正**。既有 disk≠blob 的成因是**文件在 `-text` 生效前入库**（索引 stat 缓存使 `git status` 一度看似干净），非本树可修复。因此**跨树引用统一按 `git_blob_content` 绑定**，磁盘值仅注记。**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。",
     "verification_tool": "scripts/stage4_s4ctrl/check_binding_byte_semantics.py（磁盘/过滤/原始/已提交 blob 四种口径逐项测量），证据 `report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/`。",
     "negative_control_expectation": "把某条 `git_blob_content` 条目的 `sha256` 换回磁盘 SHA 时，自检必须判 FAIL（口径与值不一致）。"
   },

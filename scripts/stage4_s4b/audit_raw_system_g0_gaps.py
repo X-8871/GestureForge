@@ -18,6 +18,7 @@ import argparse
 import hashlib
 import json
 import platform
+import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -47,6 +48,26 @@ def sha256_of(path: Path) -> str:
 def align_up(value: int, alignment: int) -> int:
     """向上对齐到给定字节边界。"""
     return ((value + alignment - 1) // alignment) * alignment
+
+
+def find_git_root(path: Path) -> Path | None:
+    """向上查找包含 `.git` 的目录（worktree 中 `.git` 可能是文件）。"""
+    for parent in [path.parent, *path.parents]:
+        if (parent / ".git").exists():
+            return parent
+    return None
+
+
+def blob_content_sha256(path: Path) -> tuple[str | None, str | None]:
+    """按 git blob 内容口径计算 SHA-256；返回 (sha256, error)。"""
+    root = find_git_root(path)
+    if root is None:
+        return None, f"未找到 git 根：{path}"
+    rel = path.relative_to(root).as_posix()
+    proc = subprocess.run(["git", "-C", str(root), "cat-file", "blob", f"HEAD:{rel}"], capture_output=True)
+    if proc.returncode != 0:
+        return None, f"cat-file blob HEAD:{rel} 退出 {proc.returncode}"
+    return hashlib.sha256(proc.stdout).hexdigest(), None
 
 
 def overlaps(a0: int, a1: int, b0: int, b1: int) -> bool:
@@ -87,10 +108,21 @@ def main() -> int:
         if not path.is_file():
             bad_basis.append({"id": entry["id"], "path": str(path), "status": "MISSING"})
             continue
-        actual = sha256_of(path)
+        basis = entry.get("byte_basis", "worktree_disk_bytes")
+        if basis == "git_blob_content":
+            actual, blob_error = blob_content_sha256(path)
+            if actual is None:
+                bad_basis.append({"id": entry["id"], "path": str(path), "status": "BLOB_UNAVAILABLE", "error": blob_error})
+                continue
+        elif basis == "worktree_disk_bytes":
+            actual = sha256_of(path)
+        else:
+            bad_basis.append({"id": entry["id"], "path": str(path), "status": "BAD_BYTE_BASIS", "byte_basis": basis})
+            continue
         checked += 1
         if actual != entry["sha256"]:
-            bad_basis.append({"id": entry["id"], "expected": entry["sha256"], "actual": actual, "status": "MISMATCH"})
+            bad_basis.append({"id": entry["id"], "expected": entry["sha256"], "actual": actual,
+                              "status": "MISMATCH", "byte_basis": basis})
     details["basis_checks"] = {"checked": checked, "total": len(registry["basis_bindings"]), "bad": bad_basis}
 
     scope = json.loads(resolve("report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json").read_text(encoding="utf-8"))

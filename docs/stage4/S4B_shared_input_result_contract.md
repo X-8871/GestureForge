@@ -22,19 +22,19 @@
 | S4-A G0 契约（机器权威） | `docs/stage4/s4a_stage4_g0_fields.json` | `657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5` | `G0_ROUND_FROZEN_R06`（r06） |
 | S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
 | 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r03**，取代 r02 `80104b80…d2046a`） | `DRAFT_PENDING_REVIEW`，未冻结 |
-| 阶段3 部署地址事实（条件①） | `dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md` | `19f754d8…ee9ec3` | 只读（不写 dbdf） |
+| 阶段3 部署地址事实（条件①） | `dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md` | **blob 口径** `d5ba4b6b…9de4f7a`（dbdf 新 HEAD `6fa77a64`；原磁盘值 `19f754d8…` 已失效） | 只读（不写 dbdf） |
 | Wong D1=A 批准记录 | `decisions/stage4_raw_address_optionA_20261024_r01.md` | `d18359aa…854f8` | 只读 |
 | DSH D1–D4 初裁记录 | `decisions/stage4_raw_address_d1_d4_20261024_r01.md` | `3d5b2abd…e2bf34` | 只读 |
 | CDX-010 阶段4 运行书 | 邮箱 `CDX-20261022-010-…md` | `4cd61ee0…1cf89` | 只读 |
 | CDX-014 阶段5 运行书 r02 | 邮箱 `CDX-20261022-014-…md` | `f25e5ebb…5a141` | 只读 |
 | CDX-015 执行总入口（内容 r03） | 邮箱 `CDX-20261022-015-…md` | `be7b6520…9508cde`（取代 r02 `a3ce50d2…170a7`） | 只读 |
-| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `8eac7007…709911`（w5 工作树当前有未提交改动，磁盘注记 `10d24a39…b89fb` 不作绑定） | 只读引用（不写 w5） |
+| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `10d24a39…b89fb`（w5 已提交 `b6d11d4`；`8eac7007…` 经 `replaces` 记为修 r02 前修订）**待阶段5 r02 复审结论、未冻结** | 只读引用（不写 w5） |
 | CDX-018 硬件协调 | 邮箱 `CDX-20261023-018-…md` | `9360ae1b…e6f6bd6` | 只读 |
 | CDX-019 阶段4 硬件暂缓 | 邮箱 `CDX-20261023-019-…md` | `57e14a15…cb970f` | 只读 |
 | 阶段6 批准记录（Wong 2026-10-23） | `decisions/stage6_approval_receipt_20261023_r01.md` | `d8edb848…e874fb` | 只读 |
 | 阶段3/4 方向决定（Wong 2026-10-24） | `decisions/stage_3_4_direction_20261024_r01.md` | `907084cd…e392a` | 只读 |
 | 阶段3 彩色复测哈希清单 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/hashes.txt` | **blob 口径** `e29830c8…752f56d`（阶段3 新 HEAD 已归一化，disk==blob；旧值 `40ef1fda…`/`70cdd014…` 作废） | 只读（不写 dbdf） |
-| 阶段3 彩色复测现场记录 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/README.md` | **blob 口径** `d8029c39…0f70873`（磁盘注记 `e60bab01…f23e54d`，CRLF） | 只读（不写 dbdf） |
+| 阶段3 彩色复测现场记录 | `dbdf/report/evidence/S3-T05/t05_new_module_reverify_20261023_r01/README.md` | **blob 口径** `e60bab01…f23e54d`（dbdf 新 HEAD `6fa77a64`，disk==blob；旧值 `d8029c39…`/`aca598c7…` 作废） | 只读（不写 dbdf） |
 
 规则：本契约只能引用**已提交且经独立审查**的权威版本，禁止引用“最新文件”；自检**现场复算**上述 SHA，任一不符即 FAIL，必须显式更新绑定并重新审查。权威被取代时必须记录取代关系（S4-A r05 `3524d02a…8afb87` → r06 `657ea2fb…930d5`）并通知阶段5 重新绑定。冻结前全部绑定必须与磁盘一致且权威自身已冻结。
 
@@ -70,9 +70,9 @@
 - **默认口径 = 工作树磁盘字节**：`upstream_bindings[].sha256` 默认记录文件**原始字节**的 SHA-256（复算：对磁盘字节直接算 SHA-256）。
 - **跨换行环境要求**：复算必须使用 `-c core.autocrlf=false`（或改用 blob 口径），否则 checkout/commit 的换行归一化会造成失配。
 - **显式 blob 口径**：条目给出 `byte_basis = "git_blob_content"` 时，`sha256` 记录该路径在**所属工作树 HEAD 提交中的 blob 内容** SHA-256（复算：`git -C <tree> cat-file blob HEAD:<rel>` 后对原始字节算 SHA-256）；对应的 `worktree_disk_sha256_annotation` 仅为注记、**不参与校验**。
-- **覆盖范围**：本树 `-text` 已覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob，实测）；跨树引用（dbdf `report/evidence/S3-T05/**` → `check-attr text: unspecified`）必须显式声明口径。**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。
-- **口径选择原则**：**跨树引用（w5/dbdf/main 邮箱等绝对路径）优先按 `git_blob_content` 绑定**（只认已提交版本；他方活动树的工作树内容与未提交改动不得作为冻结输入）；**本树相对路径**在本树 `-text` 覆盖下 disk==blob，可按默认磁盘字节绑定。实测中发现 w5 工作树在编辑中、dbdf 已推进 HEAD，均按此原则改绑。
-- **事实依据**：`report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/binding_byte_semantics.json`（22 项四种口径逐项测量）与工具 `scripts/stage4_s4ctrl/check_binding_byte_semantics.py`；本批改绑后重新测量见 `t21_binding_byte_semantics_20261024_r04/`。
+- **覆盖范围（N-a 更正）**：本树 `-text` 覆盖 w4 的 `docs/stage4/**` 与 `report/evidence/**`（disk==blob）；**dbdf 同样有 `report/evidence/S3-T05/** -text`**（2026-10-01 起，`git check-attr -a` 返回 `text: unset`）——上一版称其『unspecified/无覆盖』**与事实不符**。既有 disk≠blob 的成因是文件**在 `-text` 生效前入库**（索引 stat 缓存使 `git status` 一度看似干净）。因此**跨树引用统一按 `git_blob_content` 绑定**；**不再新增 `.gitattributes` 覆盖**（与阶段3 同口径）。
+- **fail-closed 漂移断言（B-3，复审立为规则）**：落盘清单为每个被绑树记录**期望 HEAD + 记录时间窗**，并断言**实际 HEAD == 记录值**；任一不等即该批次 **FAIL**（不得因“当时值是对的”而 PASS），须重绑、重跑并以新 RunId 落盘真实退出码。工具 `scripts/stage4_s4ctrl/check_bound_tree_heads.py`，清单 `report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02/bound_trees.json`。
+- **事实依据**：口径测量工具 `scripts/stage4_s4ctrl/check_binding_byte_semantics.py`（磁盘/过滤/原始/已提交 blob 四种口径）；证据 `t21_binding_byte_semantics_20261024_r04/`（本批改绑前）与 `t21_binding_byte_semantics_20261024_r05/`（改绑后复测）。
 - **负向对照**：把某条 blob 口径条目的 `sha256` 改成其磁盘 SHA（或改成任意错误值）时，自检必须判 FAIL。
 
 ## 1. 输入帧契约 `[CDX-010 §3.1]`

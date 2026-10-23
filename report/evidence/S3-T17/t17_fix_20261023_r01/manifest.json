@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_fix_20261023_r01",
+  "created_utc8": "2026-10-23T11:06:43+08:00",
+  "source_commit": "60b00dea458703bc80c6fe01e6604044c47f3987",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "python -B scripts/stage3_t17/check_t17_preflight.py --worktree D:/codex-worktrees/dbdf",
+    "bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_fix_preflight_20261023_r01",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest --repo-root D:/codex-worktrees/dbdf",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame <fixture_F.bin>",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame <fixture_F.bin> --strict-black-bits",
+    "git -c core.autocrlf=false clone --shared --no-checkout -b codex/stage3-video D:/FPGA_Competition <tmp>/clone_off",
+    "git clone --shared --no-checkout -b codex/stage3-video D:/FPGA_Competition <tmp>/clone_on",
+    "python -B scripts/stage3_t17/verify_t17_blob_identity.py --repo-root <clone> --commit HEAD",
+    "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/dbdf --record report/evidence/S3-CTRL/S3-T17/t17_takeover_20261023_r01/handoff_record_stage3_delivered.json"
+  ],
+  "exit_codes": {
+    "preflight_tool_frozen_head": 0,
+    "runner_preflight": 0,
+    "selftest": 0,
+    "fixture_F_aligned": 0,
+    "fixture_F_strict_probe": 3,
+    "clone_with_autocrlf_off": 0,
+    "clone_without_autocrlf_flag": 1,
+    "handoff_delivered_readonly": 0
+  },
+  "outputs": [
+    {
+      "path": "clone_with_autocrlf_off.json",
+      "size_bytes": 644,
+      "sha256": "139fe0ece0ce57d6f2271908570aaa7bfbff9a44f15b5657ae16d70a1c04fbeb"
+    },
+    {
+      "path": "clone_with_autocrlf_off.stdout.txt",
+      "size_bytes": 368,
+      "sha256": "d6b987fbaf779fb8146ebbdb7ee4999eede3671c77928550e65be89eda07530a"
+    },
+    {
+      "path": "clone_with_autocrlf_on.json",
+      "size_bytes": 17622,
+      "sha256": "7ec7cc3d2293db445deb5460c6ef25d1b34dbf0b583f22308631726069c69c8c"
+    },
+    {
+      "path": "clone_with_autocrlf_on.stdout.txt",
+      "size_bytes": 4305,
+      "sha256": "4775bac2b52b8704f66afd594c0c934b92ef4b4ffda6f49aa48c84c276ae395c"
+    },
+    {
+      "path": "fix_record.md",
+      "size_bytes": 7855,
+      "sha256": "56d18147cffeca73f5e1d26ca70b3f367f2332c08efb46b0430622bc141a4b75"
+    },
+    {
+      "path": "fixture_F_judgement.json",
+      "size_bytes": 28322,
+      "sha256": "29eef58b659cc482bb92c56f10e6ad4e43e418c9355cb164498d062ffee871ef"
+    },
+    {
+      "path": "fixture_F_judgement.stdout.txt",
+      "size_bytes": 712,
+      "sha256": "6974f23064fef66cb22fb74308e71a5c0c96db775af0d817e3446d87d4016f8d"
+    },
+    {
+      "path": "fixture_F_strict_probe.json",
+      "size_bytes": 27042,
+      "sha256": "4ef17639ff9d3edb752e5d9c6485162efaf537c9f619c3a7d42cd24c28633cee"
+    },
+    {
+      "path": "fixture_F_strict_probe.stdout.txt",
+      "size_bytes": 840,
+      "sha256": "282fa429faca6bb7b5c1db9e1304e5d1542bae89a5242c28823405d17c27797c"
+    },
+    {
+      "path": "handoff_delivered_readonly.json",
+      "size_bytes": 3540,
+      "sha256": "d22f41e40ef3e387fe92fd6fd58069df07b611254b98f91eaed0de3fe1ad5524"
+    },
+    {
+      "path": "handoff_delivered_readonly.stdout.txt",
+      "size_bytes": 3111,
+      "sha256": "a1927ca594e99d63562d43fb0189df3ffc6dd2dfbf5e5304a5221bad3afefd0d"
+    },
+    {
+      "path": "preflight_frozen_head.json",
+      "size_bytes": 5479,
+      "sha256": "32fa4513fe862e9c352dac1d87ec4ff680eb9f7aea75e22588b93f385d65bbf5"
+    },
+    {
+      "path": "preflight_frozen_head.stdout.txt",
+      "size_bytes": 1386,
+      "sha256": "d2c67666411d0af2397f9354ab12ba9e440c80c4d03cdae2ea7a11b9b6c1c2b1"
+    },
+    {
+      "path": "selftest.json",
+      "size_bytes": 10719,
+      "sha256": "5727acdb51cc621662760c0f68499462986a39d0e469911ebd4161dfa374b388"
+    },
+    {
+      "path": "selftest.stdout.txt",
+      "size_bytes": 867,
+      "sha256": "8626033624d08bf15bbb8cc2a12a36df3681efe941ef25577952401b9a5a3f1e"
+    }
+  ],
+  "scope": "task-17 阶段A 修复轮（评审 3 阻断 + 5 非阻断）证据；不代表阶段A 通过、颜色通过或独立审查",
+  "limitations": [
+    "本记录为修复轮复核；不含任何硬件阶段",
+    "无 .gitattributes 改动（DSH 决定）；工作区口径自证必须带 -c core.autocrlf=false"
+  ],
+  "not_run": [
+    "link/baseline/bars/restore 四个硬件阶段"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

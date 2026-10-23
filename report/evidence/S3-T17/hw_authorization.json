@@ -1,0 +1,42 @@
+{
+  "task": "task-21 阶段3 板级窗口（≥30 分钟实时耐久 + VDMA 粘滞核对 + 参考帧集采集）",
+  "wong_go": true,
+  "wong_go_time_utc8": "2026-10-24 00:5x",
+  "wong_go_quote": "「1.可开工」「2.现在用的是J11，J10不需要管了」「3.由DSH接手」（Wong 2026-10-24 三问三答，原话见 decision 记录 §1）",
+  "codex_hw_release": true,
+  "codex_hw_release_ref": "codex_mailbox/CDX-20261023-018-stage3-stage4-hardware-coordination.md",
+  "codex_hw_release_summary": "018 §3.1：「这里确认 Codex 侧不争用，不代 Wong 或 DSH 补实物授权」；§2 现场枚举：相关硬件/板测进程未发现、3121 无监听、COM4 未打开（独占持有方 UNKNOWN）。019：阶段4 本轮不再申请、不保留、不占用硬件窗口。DSH-20261024-002 §4.1 已接收该不争用确认。",
+  "declared_by": "DSH 阶段3 总控（stage3-lead，dbdf 唯一写入方）",
+  "declared_utc8": "2026-10-24 01:10",
+  "boundary": "本文件只登记硬件前提是否成立，不授予烧录 QSPI、改接线、电气测量或占用他人会话的权限；本窗口为单次、串行，结束即释放；自起 hw_server 必须终止；不得结束其他窗口的进程/服务。",
+  "window": {
+    "type": "single_serial",
+    "scope": ["≥30 分钟实时耐久（新模块 + 当前彩色部署）", "VDMA 粘滞 0x00015810 核对（启动原值/位解释/运行增量）", "参考帧集采集（真实彩色整帧 + 行样本，供阶段4 回放）"],
+    "not_in_scope": ["阶段4/5/6 板级工作（按 CDX-20261023-019 暂缓，DSH 接手 w4 后另行申请）", "QSPI 烧录", "改接线或电气测量", "J10 通道（Wong 2026-10-24：当前用 J11，J10 不纳入范围）"]
+  },
+  "references": [
+    "report/evidence/CTRL-DSH-HANDOFF/decisions/stage_3_4_direction_20261024_r01.md",
+    "report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md",
+    "report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261024-002-hardware-holder-and-stage3-retest-done.md",
+    "codex_mailbox/CDX-20261022-015-execution-index-r02.md"
+  ],
+  "reference_hashes": {
+    "report/evidence/CTRL-DSH-HANDOFF/decisions/stage_3_4_direction_20261024_r01.md": "907084cde48ce04e0ba94eefb3925de7f851655bcc8c256c8d28c0aff68e392a",
+    "report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md": "b820fcd1dbe8b213056f88f395ad3ac5a3569f153cde490a5816231a4c76510c",
+    "report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261023-018-stage3-stage4-hardware-coordination.md": "9360ae1bb21e77b6c98e63ff4cb0e3fdd04bb2b66e5ff993cc6eb7134e6f6bd6",
+    "report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261022-015-execution-index-r02.md": "be7b65205ceadb8f5a78f01ac25a976dd9400c5b9643fdabd7490a4da9508cde"
+  },
+  "deployment_identity": {
+    "bit": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+    "xsa": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+    "elf_live_colour": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+    "elf_freeze_v11": "c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4"
+  },
+  "safety_rules": [
+    "只做易失性 JTAG 下载（PS_RESET/FPGA_PROGRAM/PS7_INIT/DOW/RUN），不烧 QSPI",
+    "只读一律 stop → mrd → con；禁止对运行中 A9 直接 mrd",
+    "v12/0x503D 仅按既定彩条用例使用（本窗口不计划使用）",
+    "记录开始/结束时刻、bit/XSA/ELF、板上最终状态、JTAG/COM4/HDMI 与自起服务收尾",
+    "异常/复位/死锁：保留现场与原始日志，停止推进并上报"
+  ]
+}

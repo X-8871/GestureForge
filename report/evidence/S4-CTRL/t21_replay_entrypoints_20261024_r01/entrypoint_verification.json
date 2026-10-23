@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_replay_entrypoints_20261024_r01",
+  "purpose": "task-26 范围外第一步：核实既有离线参考入口的**真实命令与真实退出码**（不得引用未跑过的命令），并查明离线链的可用依赖",
+  "generated_utc8": "2026-10-24T02:30:00+08:00",
+  "hardware_execution": "NOT_RUN",
+  "boundary": "只读核实；未装位流、未开 COM4/JTAG、未起 hw_server；不代表 G0/G4/G5，也不代表板上路径可用",
+  "python_version": "3.12 (bundled interpreter)",
+  "worktree": "D:\\codex-worktrees\\w4",
+  "entrypoints": [
+    {
+      "id": "preproc_frame",
+      "path": "verification/run_s4b_preproc_frame.py",
+      "command": "python -B verification/run_s4b_preproc_frame.py --help",
+      "exit_code": 0,
+      "observed_interface": ["--run-dir (required)"],
+      "finding": "**只造合成夹具**（`_make_pixels` 带 salt、`_large_boundary_pixels`）并写仿真 TCL；**不吃原始相机帧**，真实运行需 xsim（本轮未跑仿真）。"
+    },
+    {
+      "id": "offline_chain",
+      "path": "scripts/stage4_s4b/run_s4b_offline_chain.py",
+      "command": "python -B scripts/stage4_s4b/run_s4b_offline_chain.py --help",
+      "exit_code": 0,
+      "observed_interface": ["--run-id (required)", "--samples (default 3)", "--gcc", "--contract", "--tolerance", "--expected-contract-sha256"],
+      "finding": "**从冻结 heads 起**（冻结 heads → C 解码/NMS → s2bu 风格帧 → 主机解帧 → 与 Python D9 对拍）；**不消费原始 RAW 帧**，因此不能直接吃阶段3 回放帧。"
+    },
+    {
+      "id": "d2_numeric_reference",
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "command": "python -B verification/s1_t02_d2_numeric_reference.py --help",
+      "exit_code": 0,
+      "observed_interface": ["--output (required, golden JSON)"],
+      "finding": "D2 数值黄金生成器（冻结 D2 离线等价入口）；输入为脚本内绑定的冻结样本集，**当前不接受任意外部图像/张量参数**。"
+    },
+    {
+      "id": "d2_int8_forward",
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "command": "python -B verification/s1_t02_d2_int8_forward.py --help",
+      "exit_code": 0,
+      "observed_interface": ["--cfg", "--weights", "--weight-package", "--weight-report", "--activation-report", "--calibration-list", "--sample-count", "--report", "--summary"],
+      "finding": "CPU INT8 前向（离线等价）；输入取自**校准清单**样本，**无 --input-tensor 之类任意输入参数**。"
+    },
+    {
+      "id": "d9_yolo_decode",
+      "path": "verification/s1_t02_d9_yolo_decode.py",
+      "command": "python -B verification/s1_t02_d9_yolo_decode.py --help",
+      "exit_code": 0,
+      "finding": "冻结 D9 解码参考入口存在且可调用（帮助正常）。"
+    },
+    {
+      "id": "s2a_decode_nms_reference",
+      "path": "verification/s2a_decode_nms_reference.py",
+      "command": "python -B verification/s2a_decode_nms_reference.py --preflight-only",
+      "exit_code": 2,
+      "observed_output": "T29_ERROR: 必需目录缺失或类型错误：report/evidence/S2A-T25/tensors",
+      "finding": "**真实依赖缺失**：w4 工作树无 `report/evidence/S2A-T25/tensors`；该分片存在于**主目录** `D:\\FPGA_Competition\\report\\evidence\\S2A-T25`。默认路径按本树解析 ⇒ 直接调用 exit 2。"
+    },
+    {
+      "id": "s4_replay_compare",
+      "path": "verification/s4_replay_compare.py",
+      "command": "python -B verification/s4_replay_compare.py --check-manifest-heads",
+      "exit_code": 0,
+      "observed_output": "[PASS] manifest 头部交叉核对：0 项失败",
+      "finding": "冻结清单头部常量交叉核对通过；该脚本内置 `DEFAULT_MAIN_TREE = D:\\FPGA_Competition`，即**设计上就跨树读取主目录的 T25/T29**。"
+    }
+  ],
+  "dependency_facts": [
+    {"id": "w4_t25_tensors", "path": "report/evidence/S2A-T25/tensors", "present": false},
+    {"id": "main_t25", "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25", "present": true},
+    {"id": "w4_t29", "path": "report/evidence/S2A-T29", "present": true},
+    {"id": "gf8_weight_package", "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8", "present": true, "bytes": 5903100},
+    {"id": "manifest_csv", "path": "D:\\FPGA_Data\\HaGRIDv2\\manifest.csv", "present": true, "bytes": 57672948},
+    {"id": "s4a_contract", "path": "docs/stage4/s4a_stage4_g0_fields.json", "present": true, "bytes": 70599}
+  ],
+  "conclusion": "既有入口均可调用（帮助 exit 0），但**没有任何既有入口能从阶段3 原始 BGR 帧出发跑到 PS 结果**：① 预处理入口只吃合成夹具；② 离线集成链从冻结 heads 起；③ CPU INT8 前向只吃校准清单样本；④ 解码/NMS 参考默认依赖本树缺失的 T25 分片（分片在主目录）。因此 task-26 目标 2 需要一个新的**桥接 harness**（BGR→RGB → D2 离线等价 → 前向 → 解码/NMS），并明确前向步骤的输入张量来源；该设计决策与依赖打通（只读主目录分片）须在下一步完成并留证据。",
+  "limits": [
+    "本轮只核实命令与退出码，未跑完整链；未跑仿真（无需 xsim）。",
+    "不声明任何数值一致性结论；数值核对照须在 harness 运行后另行取证。",
+    "未修改任何被审文件；本 RunId 属范围外证据。"
+  ]
+}

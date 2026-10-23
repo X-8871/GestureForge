@@ -25,8 +25,13 @@
    模块级调用 `sys.stdout/stderr.reconfigure(encoding="utf-8", errors="replace", newline="\n")`
    => 即使显式设置 `PYTHONIOENCODING=gbk` 也被覆盖，管道/重定向下不再崩，且输出为 UTF-8+LF。
 2. **代码内不再含 U+21D2**：`scripts/stage3_t17/**` 内 `=>` 全部换为 ASCII `=>`（实查剩余 0 处，`.pyc` 除外且已清理）。
-   说明：**已提交的历史证据**（如 `handoff_check_claim.json`、`fix_record.md`）**保持原字节不改**
-   （一次机械替换曾误改它们，已 `git checkout` 逐字节还原并复核 `CONTENT_DIFF_COUNT=0`）。
+   说明与**更正（评审 Q-3）**：一次机械替换波及受管范围内 22 个文件；发现后我对其中 **17 个证据文件**执行了
+   `git checkout` 并复核为逐字节回到提交态（该 17 个文件的 `CONTENT_DIFF_COUNT=0` 成立），但**另有 4 个证据文件
+   + `.codex/STATE.md` 未还原**：takeover README(2 行)、prep README(9 行)、`t17_judgement_table.json`(9 行)、
+   `t17_judgement_table.md`(2 行) 与 `.codex/STATE.md`(8 行) 的**纯机械 `⇒`→`=>` 行**被一并带走。
+   因此原文「已提交证据逐字节还原、`CONTENT_DIFF_COUNT=0`」**整体不成立**，已按复审要求选 **(a)**：
+   在 `task-20` 中把这些**纯机械替换行**用 `git checkout` 逐行还原回提交字节，本轮**有意修改**的行另附逐行 diff
+   （见 `report/evidence/S3-T17/t17_closeout_20261023_r01/q3_mechanical_restore.md`）。
 3. **JSON 先落盘、打印失败不影响结论**：`analyze_…` 先写 `--json-out`，再打印人类摘要；
    打印阶段异常被捕获并记为 `SUMMARY_PRINT_FAILED=…`，不改退出码、不丢 JSON。
 
@@ -42,16 +47,23 @@
 `--selftest` 新增的两条 **CLI 级回归**（`cli_regressions`，子进程 + 管道 stdout + `PYTHONIOENCODING=gbk`）：
 - `cli_archived_defect_exit1_json`：期望 exit 1，实际 **1**，JSON 落盘 **True**，匹配 **True**；
 - `cli_partial_blue_only_exit3_json`：期望 exit 3，实际 **3**，JSON 落盘 **True**，匹配 **True**。
-（旧版本这两条都会崩溃，故自测现在能**发现**该类缺陷。）
+（旧版本这两条都会崩溃；但**覆盖边界要如实说明**（评审 Q-5）：这两条回归断言的是「GBK 下**真实退出码 + JSON 落盘**」，
+而**不是**「删掉 `_force_utf8_streams()` 就必然失败」——第三重防护（JSON 先落盘 + 打印 try/except）会在缺少入口兜底时
+仍然兜住崩溃，使 `--selftest` 依旧 rc=0。故：`analyze…` 的 CLI 回归覆盖「结论/JSON 在 GBK 下不受损」，**不覆盖**
+「入口兜底存在性」；后者由 `verify_t17_blob_identity.py` 的新回归覆盖（该工具**没有**第三重防护，旧形态必崩，见 §五）。）
 
 ## 四、文本级处理
 
-- **N-1（依据不实，已改正）**：盘上实有 **56 份**同名厂商 `cmos_8_16bit*.v`（本轮实查，全部含
-  `pdata_o <= {pdata_i_d0, pdata_i}`）；**已入库参考**
+- **N-1（依据不实，已改正；Q-1/Q-2 再更正）**：**可复现口径** —— dbdf 内 `cmos_8_16bit*.v` 实查 **47 份**
+  （45 份恰为同名 `cmos_8_16bit.v`，另 `cmos_8_16bit_ref.v`、`cmos_8_16bit_gh.v` 各 1），**47/47 全部含**
+  `pdata_o <= {pdata_i_d0,pdata_i}`；复现命令：dbdf 根执行
+  `find . -name 'cmos_8_16bit*.v' -not -path './.git/*' | wc -l` ⇒ **47**，再逐份 grep 该语句。
+  其中**已入库参考 1 份**：
   `report/evidence/S3-T05/t05_github_ref_20261020_r01/cmos_8_16bit_ref.v`
-  （blob SHA-256 `08a325356fdb46fcbd87e1b594a2b5d3c30954b68d18e4ea22d36e914cd414b9`，3318 B）第 157 行
-  `pdata_o <= {pdata_i_d0,pdata_i};//8位数据转为16位，位拼接` => 先到字节进高半字。
-  `byte_order_evidence` 第 4 条已从「推断」升级为「**厂商源码 + 网表双重依据**」并给出路径/哈希/行号；
+  （blob SHA-256 `08a325356fdb46fcbd87e1b594a2b5d3c30954b68d18e4ea22d36e914cd414b9`，3318 B）内的拼接语句。
+  **行号更正（Q-1）**：该文件**不引用行号**——它含混合行尾，按 `\n` 计 **83 行**、Python `splitlines()` 计 **167 行**，
+  原文的『第 157 行』即由该计数假象产生；按 `\n` 行计该语句在第 **79** 行。此前「盘上 56 份」含**跨树**计数且未写命令/范围，**不可复现**，已作废。
+  `byte_order_evidence` 第 4 条已从「推断」升级为「**厂商源码 + 网表双重依据**」并给出路径/哈希；
   `naming_limitation` 保留（命名仍不宜直接引用），但其依据表述已改正；`t17_artifacts_verified.json`
   的 `sources_referenced` 新增该校验条目。
 - **N-3（写明运行时刻）**：takeover `README.md` §5 与 `handoff_record_stage3_delivered.json`

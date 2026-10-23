@@ -19,7 +19,7 @@
 # 退出码（评审 N-5 补齐 exit 4）：
 #   0  该阶段成功（preflight 的 OFFLINE_GO 也是 0）
 #   1  all 的 preflight 失败（T17_ABORT=PREFLIGHT_FAILED）
-#   2  用法错误（未知阶段/缺参数）；judge 阶段会把判定器退出码原样传播（0/1/2/3）
+#   2  用法错误（未知阶段/缺参数）或**运行位置护栏拒绝**（cwd ≠ WT，T17_GUARD_CWD_MISMATCH=1，未创建任何文件）；judge 阶段会把判定器退出码原样传播（0/1/2/3）
 #   3  硬件门禁未放行（T17_HW_BLOCKED=…）或目标目录已存在（T17_REFUSE=EXISTS）
 #   4  extract_addr_stride 取不到 ADDR_S2MM/STRIDE_S2MM（T17_ADDR_STRIDE_MISSING=1）—— 禁止用旧地址转储
 #
@@ -27,13 +27,17 @@
 #   `git -c core.autocrlf=false clone`（详见 scripts/stage3_t17/README.md）。
 # 前置 HEAD 判据（评审 B-3）：HEAD 只需是**声明基线或其后代**（可用 --baseline-commit / T17_BASELINE_COMMIT 覆盖）。
 #
-# 用法示例：
+# 用法示例（**必须在工作树内运行**：先 `cd D:/codex-worktrees/dbdf`；在克隆内跑须 `--wt <该克隆>` 或 `T17_WT=<该克隆>`，否则 exit 2 拒绝）：
+#   cd D:/codex-worktrees/dbdf
 #   bash scripts/stage3_t17/run_t17_color_retest.sh preflight
 #   bash scripts/stage3_t17/run_t17_color_retest.sh judge --frame <某帧.bin>
 #   bash scripts/stage3_t17/run_t17_color_retest.sh all --run-id t17_color_retest_20261023_r01 --allow-hardware
 set -u
 
-WT="D:/codex-worktrees/dbdf"
+# 工作树：默认 dbdf；可用 env `T17_WT` 或 `--wt <路径>` 覆盖。
+# **护栏（评审 Q-A）**：cwd 必须与 WT 指向同一目录，否则**拒绝运行（exit 2）且不创建任何文件**——
+# 因为 WT 决定全部写入位置（evidence/tmp/脚本/ELF），从克隆调用而 WT 仍指向 dbdf 会**静默写坏 dbdf 证据**。
+WT="${T17_WT:-D:/codex-worktrees/dbdf}"
 PHASE="${1:?用法: run_t17_color_retest.sh <preflight|judge|link|baseline|bars|all> [选项]}"
 shift || true
 
@@ -44,6 +48,7 @@ JUDGE_ARGS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
+    --wt) WT="${2:?--wt 需要工作树路径}"; shift 2 ;;
     --run-id) RUN_ID="${2:?--run-id 需要值}"; shift 2 ;;
     --allow-hardware) ALLOW_HW=1; shift ;;
     --frame) WANT_FRAME=1; JUDGE_ARGS+=("--frame" "${2:?--frame 需要路径}"); shift 2 ;;
@@ -53,6 +58,33 @@ while [ $# -gt 0 ]; do
 done
 
 PY="python"
+# ---------- 运行位置护栏（评审 Q-A；必须在任何 mkdir/写文件之前）----------
+# 归一化目录：优先 `pwd -W`（Git Bash 下给出 D:/... 形式），失败回退 `pwd`；大小写不敏感比较。
+norm_dir() { ( cd "$1" >/dev/null 2>&1 && { pwd -W 2>/dev/null || pwd; } ) || return 1; }
+WT_NORM="$(norm_dir "$WT")" || {
+  echo "T17_GUARD=WT_NOT_FOUND path=$WT"
+  echo "T17_RUN_ABORTED=1（未创建任何文件）"
+  exit 2
+}
+if [ ! -d "$WT/.git" ] && [ ! -f "$WT/.git" ]; then
+  echo "T17_GUARD=WT_NOT_A_GIT_WORKTREE path=$WT_NORM"
+  echo "T17_RUN_ABORTED=1（未创建任何文件）"
+  exit 2
+fi
+CWD_NORM="$(norm_dir .)" || {
+  echo "T17_GUARD=CWD_UNRESOLVED"
+  echo "T17_RUN_ABORTED=1（未创建任何文件）"
+  exit 2
+}
+if [ "$(printf '%s' "$CWD_NORM" | tr 'A-Z' 'a-z')" != "$(printf '%s' "$WT_NORM" | tr 'A-Z' 'a-z')" ]; then
+  echo "T17_GUARD_CWD_MISMATCH=1"
+  echo "T17_CWD=$CWD_NORM"
+  echo "T17_WT=$WT_NORM"
+  echo "T17_RUN_FROM_WORKTREE_REQUIRED=1（先 cd $WT_NORM 再执行，或显式 --wt <该工作树>／T17_WT=<该工作树>）"
+  echo "T17_RUN_ABORTED=1（未创建任何文件）"
+  exit 2
+fi
+echo "T17_GUARD_CWD_OK=1 WT=$WT_NORM"
 export PYTHONUTF8=1
 export XILINXD_LICENSE_FILE="D:/Xilinx_licenses/basic_only.lic"
 EVID="$WT/report/evidence/S3-T17/$RUN_ID"

@@ -27,7 +27,7 @@
 2. Codex 阶段三总控 2026-10-21 19:53 以 `S3CTRL-20261021-003-handoff-to-dsh-stage3.md` + 提交 `29c7cf0`（20:01）再次 OFFERED 并声明已停写；
 3. DSH 阶段三总控 2026-10-21 21:36（提交 `22b8b64`）CLAIMED→IN_PROGRESS，工作至 2026-10-22 15:19（`f94c25f`），该轮交接行状态为 **DONE**（上一轮任务收尾，颜色子项 `DEFERRED_PENDING_MODULE`）；
 4. 该轮写入方已停写、无活动写入者：心跳 `2026-10-21 23:35` 已超时、无 `index.lock`、无重型进程；
-5. DSH 项目总控（主 `.codex/STATE.md` 写权持有方）2026-10-23 把本树登记为 **OFFERED 待认领** 并派新任务卡 `task-17` => 本轮由新任务卡重开，起始状态取 OFFERED，DSH 阶段3 总控独占写入。
+5. DSH 项目总控（主 `.codex/STATE.md` 写权持有方）2026-10-23 把本树登记为 **OFFERED 待认领** 并派新任务卡 `task-17` ⇒ 本轮由新任务卡重开，起始状态取 OFFERED，DSH 阶段3 总控独占写入。
 
 **如实登记的两处不一致/过期声明**（不改写历史）：
 - 本树交接行上一轮状态写 `DONE`，主 STATE 与本 record 用 `OFFERED`（前者=上一轮任务状态，后者=本轮治理层登记）；
@@ -49,7 +49,7 @@
 
 - **必读前提（评审 N-4）**：`hashes_sha256.txt`、`manifest.json` 的 `inputs[].sha256`、以及
   `t17_artifacts_verified.json` 的 `sources_referenced[].sha256` 一律按 **git blob（LF）字节**计算。
-  本仓库系统级 `core.autocrlf=true` => 按**工作区**口径复核必须 `git -c core.autocrlf=false clone`
+  本仓库系统级 `core.autocrlf=true` ⇒ 按**工作区**口径复核必须 `git -c core.autocrlf=false clone`
   （或 `git cat-file blob <rev>:<path>`），否则克隆工作区为 CRLF、与记录哈希全部不匹配
   （评审实测 `git clone --no-local` 后 45/45 MISMATCH）。**DSH 已决定暂不为本三范围加 `.gitattributes -text`**，
   故该参数是复核的必读前提而非可选建议。

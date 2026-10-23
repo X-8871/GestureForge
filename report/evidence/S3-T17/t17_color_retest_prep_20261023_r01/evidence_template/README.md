@@ -9,8 +9,9 @@
    - `report/evidence/S3-T17/hw_authorization.json` ← 按 `hw_authorization_template.json` 据实填写
      （`wong_go` 与 `codex_hw_release` 必须同时为 true）；未填写时执行器对 `link`/`baseline`/`bars`
      一律退出 3，**不会动板**。
-3. 实测入口：
+3. 实测入口（**必须先 `cd` 到工作树**；评审 Q-A 护栏：cwd 与 `WT` 不一致时 exit 2 且不写任何文件）：
    ```bash
+   cd D:/codex-worktrees/dbdf
    bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id <run_id>
    bash scripts/stage3_t17/run_t17_color_retest.sh all --run-id <run_id> --allow-hardware
    ```

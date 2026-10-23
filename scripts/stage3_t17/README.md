@@ -15,9 +15,20 @@
   ```
 - 离线前置的 HEAD 判据是「**声明基线或其后代**」（`git merge-base --is-ancestor`）；基线默认 `f94c25f`，可用
   `--baseline-commit <rev>` 或 env `T17_BASELINE_COMMIT` 覆盖（评审 B-3）。
-- **编码前提（评审 R-1/R-2 已修）**：四个 Python 工具入口都强制 `stdout/stderr = UTF-8 + LF`，因此
-  **不需要设置 `PYTHONUTF8`**，在 GBK 控制台或在管道/重定向下都不会因非 GBK 字符崩溃；
-  退出码与 `--json-out` 也不受打印影响（JSON 先落盘）。
+- **编码前提（评审 R-1/R-2 已修；**覆盖边界**见 Q-5）**：四个 Python 工具入口都强制 `stdout/stderr = UTF-8 + LF`，
+  因此**不需要设置 `PYTHONUTF8`**，在 GBK 控制台或在管道/重定向下都不会因非 GBK 字符崩溃。
+  **三层防护与各自覆盖边界（如实说明，评审 Q-5）**：
+  ① 入口 `reconfigure(utf-8)`——覆盖「GBK 环境本身」；② 源码内无 `U+21D2`（ASCII `=>`）——覆盖「打印非 GBK 字符」；
+  ③ `analyze_…` 的「JSON 先落盘 + 打印 try/except」——**只**保证「打印失败也不改退出码、不丢 JSON」。
+  因此 `analyze_…` 的 `--selftest` CLI 回归断言的是**结论/JSON 在 GBK 下不受损**，**不**断言「删掉 ① 必然失败」
+  （③ 会兜住）。「入口兜底存在性」由 `verify_t17_blob_identity.py --selftest` 覆盖：该工具**没有**第三层，
+  其回归含一条**旧形态突变体**（去 ① + 恢复 `U+21D2`）=> 实测 **rc=1、无 JSON、报 `UnicodeEncodeError '\u21d2'`**。
+- **运行位置护栏（评审 Q-A，必须遵守）**：一键执行器 `run_t17_color_retest.sh` 由 `WT` 决定**全部写入位置**
+  （evidence/tmp/脚本/ELF 路径）。护栏：**cwd 必须与 WT 指向同一目录**，否则 **exit 2 且不创建任何文件**
+  （`T17_GUARD_CWD_MISMATCH=1`）。因此：
+  - **须在 dbdf 内运行**：`cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh …`；
+  - 在克隆/别处运行须**显式** `--wt <该工作树>` 或 `T17_WT=<该工作树>`（cwd 也要在该工作树内）；
+  - 旧文「可在克隆内跑」的说法**作废**（会让 `WT` 仍指向 dbdf 而静默写坏 dbdf 证据）。
 - **纯克隆的已知依赖**：`preflight` 会校验 7 件**未入库**的 `tmp/**` 冻结产物（基线 bit/XSA、三支 ELF、部署 bit/XSA）。
   在一个全新的纯克隆里它们不存在 => `preflight` 返回 **1**（失败项是「缺产物」，**不是** HEAD 判据问题）；
   若只关心 HEAD 判据，用 `--baseline-commit` 复跑并阅读 `checks.artifacts` 逐项结论。
@@ -35,13 +46,18 @@
 ## 常用命令
 
 ```bash
-# 离线（随时可跑，不动板）
+# 离线（随时可跑，不动板）；**执行器必须先 cd 到工作树**（评审 Q-A 护栏，否则 exit 2）
+cd D:/codex-worktrees/dbdf
 bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_color_retest_20261023_r01
 python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest
 python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --frame <frame_full.bin>
+python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest   # 自证工具的 CLI 回归（含旧形态突变对照）
 
 # 到货后（需 Wong 开工信号 + 硬件窗口书面确认，并先填 report/evidence/S3-T17/hw_authorization.json）
 bash scripts/stage3_t17/run_t17_color_retest.sh all --run-id t17_color_retest_20261023_r01 --allow-hardware
+
+# 在克隆内运行（cwd 与 --wt 都必须指向该克隆）
+cd <克隆目录> && bash <克隆目录>/scripts/stage3_t17/run_t17_color_retest.sh preflight --wt <克隆目录>
 ```
 
 ## 硬件安全规则（已内建）

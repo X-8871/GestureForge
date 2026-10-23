@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_closeout_20261023_r01",
+  "created_utc8": "2026-10-23T12:29:20+08:00",
+  "source_commit": "975f3a5b156ed73c3354721508d24eae30520528",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "bash -n scripts/stage3_t17/run_t17_color_retest.sh",
+    "cd D:/FPGA_Competition && bash <dbdf>/scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_guard_probe_20261023_r01",
+    "cd <clone> && bash <dbdf>/scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_guard_probe_20261023_r01",
+    "T17_WT=D:/nope/nothere bash <dbdf>/scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_guard_probe_20261023_r01",
+    "cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_guard_ok_20261023_r01",
+    "python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest --fixture-dir tmp/3/S3-T17/t17_verify_selftest_r01",
+    "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest --repo-root <dbdf> --fixture-dir <tmp绝对路径>",
+    "python -B tmp/3/S3-T17/_q3_restore.py（纯机械行还原）"
+  ],
+  "exit_codes": {
+    "guard_other_cwd": 2,
+    "guard_clone": 2,
+    "guard_bad_wt": 2,
+    "guard_positive_in_dbdf": 0,
+    "verify_selftest": 0,
+    "verify_cli_gbk": 0,
+    "mutant_old_form_detected": 1,
+    "bash_n": 0
+  },
+  "outputs": [
+    {
+      "path": "closeout_record.md",
+      "size_bytes": 7997,
+      "sha256": "dad1784cf9f93863efffc0eced33c96da41b822f53c06ea00f5eb07ed39aae4a"
+    },
+    {
+      "path": "q3_intentional_diff_f77f363_to_worktree.diff",
+      "size_bytes": 28361,
+      "sha256": "d33a55581b7ab57002afbdf2d0e1e17a553126f6c712b435faabfb5fe5124684"
+    },
+    {
+      "path": "q3_mechanical_restore.json",
+      "size_bytes": 1144,
+      "sha256": "554754bddfa35113717637006152fe68717e63bdbd205c168151c7dc22626593"
+    },
+    {
+      "path": "q3_mechanical_restore.md",
+      "size_bytes": 2612,
+      "sha256": "da156533cb73c191923f422a986b4e53ea06e8cb228b85d3b0dffd1cc4c8e935"
+    },
+    {
+      "path": "q5_verify_selftest.json",
+      "size_bytes": 1181,
+      "sha256": "1801b30ab95b7bbbc467317bdccfe8349e366eed4ed6b73136260e2e2b9a0554"
+    },
+    {
+      "path": "q5_verify_selftest.stdout.txt",
+      "size_bytes": 435,
+      "sha256": "9b0e72ba58d0bc37609192d0186b629f31581c620ebeed15c9be458531f81533"
+    },
+    {
+      "path": "qa_guard_bad_wt.stdout.txt",
+      "size_bytes": 91,
+      "sha256": "9cf6771a53a48c8c7268e1072a448bdef834bd884410e151343e353f0c1a52bb"
+    },
+    {
+      "path": "qa_guard_from_clone.stdout.txt",
+      "size_bytes": 298,
+      "sha256": "35739a11f0b030163cc47ece79d19d39d069bc3eaa2f5ed21480bf13763a8e7f"
+    },
+    {
+      "path": "qa_guard_from_other_cwd.stdout.txt",
+      "size_bytes": 269,
+      "sha256": "bf44c08cd908a90e03a408a4e5623f65087cbc77c6c144ced2a5ab725c37f9b0"
+    },
+    {
+      "path": "qa_guard_positive_in_dbdf.stdout.txt",
+      "size_bytes": 1498,
+      "sha256": "ad781999210d09a83546b0393c5411aba5a362aa65ba80a574f9fa22230ac6f4"
+    }
+  ],
+  "scope": "task-20 关闭项：执行器 WT 护栏（Q-A）+ 行号/计数/运行时刻更正（Q-1/Q-2/Q-4）+ 机械改写证据还原（Q-3）+ 覆盖口径与新 CLI 回归（Q-5）",
+  "limitations": [
+    "全部离线；未接触硬件；未做独立审查；未改判定逻辑与阈值"
+  ],
+  "not_run": [
+    "link/baseline/bars/restore 四个硬件阶段"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。"
+}

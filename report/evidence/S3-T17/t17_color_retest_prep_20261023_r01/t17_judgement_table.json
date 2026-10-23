@@ -11,16 +11,16 @@
     "frame_buffer_layout": "内存序 B,G,R；1280×720 → 每行 3840 字节；行 y 的地址 = FRAME0 + y×stride（stride 以运行期回读为准，禁硬编码）",
     "bit_map": {
       "cmos_d[9]": "两个 DVP 字节各自的 MSB；J11 CMOS2 变体落 FPGA 引脚 F17（LVCMOS33，Bank35）",
-      "effect_on_offset0_blue": "第一字节 MSB = B[4]（5 位域最高位）=> 帧缓冲 offset0（蓝）bit7（0x80）恒 0",
-      "effect_on_offset1_green": "第二字节 MSB = G[2]（6 位域第 3 位）=> 帧缓冲 offset1（绿）bit4（0x10）恒 0",
-      "offset2_red_intact": "R[4:0] 不落在任一丢失字节的 MSB（第二字节 MSB 为 G[2]）=> offset2（红）完好（对照组 C1）",
+      "effect_on_offset0_blue": "第一字节 MSB = B[4]（5 位域最高位）⇒ 帧缓冲 offset0（蓝）bit7（0x80）恒 0",
+      "effect_on_offset1_green": "第二字节 MSB = G[2]（6 位域第 3 位）⇒ 帧缓冲 offset1（绿）bit4（0x10）恒 0",
+      "offset2_red_intact": "R[4:0] 不落在任一丢失字节的 MSB（第二字节 MSB 为 G[2]）⇒ offset2（红）完好（对照组 C1）",
       "naming_limitation": "「蓝/绿」是帧缓冲通道名（offset0/offset1），其与 DVP 字节的对应来自归档网表（offset0=B、offset1=G、offset2=R）；DVP 两字节→16 位字的字节序有**厂商源码 + 网表双重依据**（见 byte_order_evidence）。命名限制仍然保留：阶段B 报告请以数值判据（offset0 bit7、offset1 bit4、offset2 完整）陈述，不单独依赖通道命名（评审 N-1）。"
     },
     "byte_order_evidence": [
       {"claim": "16 位字字段：B=word[15:11]、G=word[10:5]、R=word[4:0]", "kind": "归档网表复算（已入库）", "source": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/channel_mapping_report.json（axis_subset_converter 网表：m_axis_tdata[15:10]=s_axis_tdata[10:5]、[7:3]=[15:11]、[23:19]=[4:0]）"},
       {"claim": "HDMI 通道：红=高字节、绿=中字节、蓝=低字节", "kind": "归档源码摘录（已入库）", "source": "同上（rgb2dvi.vhd：pDataOut(2)=red、pDataOut(1)=green、pDataOut(0)=blue）"},
-      {"claim": "白条内存三字节 = 120/236/248 => offset0 缺 MSB、offset1 缺一位、offset2 完好", "kind": "真实归档帧量值", "source": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_values.txt"},
-      {"claim": "DVP 两字节→16 位字的字节序：先到字节进**高半字**（第一字节 = {b[4:0], g[5:3]}，MSB=B[4]；第二字节 = {g[2:0], r[4:0]}，MSB=G[2]）", "kind": "**厂商源码 + 网表双重依据（已入库）**", "source": "report/evidence/S3-T05/t05_github_ref_20261020_r01/cmos_8_16bit_ref.v（SHA-256 08a325356fdb46fcbd87e1b594a2b5d3c30954b68d18e4ea22d36e914cd414b9，3318 B）第 157 行 `pdata_o <= {pdata_i_d0,pdata_i};//8位数据转为16位，位拼接`（先到字节 pdata_i_d0 进高半字）；结合上行网表字段布局可完全支撑该字节序", "note": "先前版本称『盘上未找到厂商 cmos_8_16bit.v（已被缓存清理）』**不实**：盘上实有 56 份同名厂商源码（本轮实查，全部含该拼接语句），其中该已入库参考为准；本节据此从推断升级为双重依据（复审 N-1 更正）"}
+      {"claim": "白条内存三字节 = 120/236/248 ⇒ offset0 缺 MSB、offset1 缺一位、offset2 完好", "kind": "真实归档帧量值", "source": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_values.txt"},
+      {"claim": "DVP 两字节→16 位字的字节序：先到字节进**高半字**（第一字节 = {b[4:0], g[5:3]}，MSB=B[4]；第二字节 = {g[2:0], r[4:0]}，MSB=G[2]）", "kind": "**厂商源码 + 网表双重依据（已入库）**", "source": "report/evidence/S3-T05/t05_github_ref_20261020_r01/cmos_8_16bit_ref.v（blob SHA-256 08a325356fdb46fcbd87e1b594a2b5d3c30954b68d18e4ea22d36e914cd414b9，3318 B）中的拼接语句 `pdata_o <= {pdata_i_d0,pdata_i};//8位数据转为16位，位拼接`（先到字节 pdata_i_d0 进高半字）；结合上行网表字段布局可完全支撑该字节序", "line_ref_note": "**不引用行号**：该文件含混合行尾，按 `\\n` 计 83 行、Python `splitlines()` 计 167 行（先前引用的『第 157 行』即由此计数假象产生）；按 `\\n` 行计该语句在第 **79** 行（评审 Q-1）。引用以语句原文 + blob 哈希为准", "count_note": "**可复现口径（评审 Q-2）**：dbdf 内 `cmos_8_16bit*.v` 实查 **47 份**（45 份恰为同名 `cmos_8_16bit.v`，另 `cmos_8_16bit_ref.v`、`cmos_8_16bit_gh.v` 各 1），**47/47 全部含**该拼接语句；复现：在 dbdf 根执行 `find . -name 'cmos_8_16bit*.v' -not -path './.git/*' | wc -l`（本机实得 47）与对每份 grep 该语句。其中**已入库参考 1 份**即上列 `cmos_8_16bit_ref.v`。先前「盘上 56 份」含跨树计数且未写命令/范围，**不可复现**，已作废", "note": "先前版本称『盘上未找到厂商 cmos_8_16bit.v（已被缓存清理）』**不实**；本节据此从推断升级为双重依据（复审 N-1 更正）"}
     ]
   },
   "expected_values": {
@@ -54,7 +54,7 @@
     "total_display_bits": 24,
     "arithmetic": "R 字段 5 位（显示 bit7..3）+ R 结构性低位 3（bit2..0）= 8；G 字段 6 位（bit7..2）+ G 结构性低位 2（bit1..0）= 8；B 字段 5 位（bit7..3）+ B 结构性低位 3（bit2..0）= 8；合计 8×3 = 24 = 3 字节 × 8 位。字段位 5+6+5 = 16，结构性恒 0 = 3+2+3 = 8。",
     "field_tolerance": {"R": 1, "G": 2, "B": 1, "derivation": "TOL_BLACK(8) >> 3 = 1（R/B，5 位域）、8 >> 2 = 2（G，6 位域）"},
-    "measured_archived_defect_frame": {"discriminated_aligned": 14, "discriminated_strict_variant": 13, "not_discriminated_aligned": ["G field_bit 2（白条字段位为 0 => 缺位）", "B field_bit 4（白条字段位为 0 => 缺位）"], "source": "analyze_t17_bit_integrity.py 对归档帧 bars_raw_frame_full.bin 的实测输出（含 judge 证据）"},
+    "measured_archived_defect_frame": {"discriminated_aligned": 14, "discriminated_strict_variant": 13, "not_discriminated_aligned": ["G field_bit 2（白条字段位为 0 ⇒ 缺位）", "B field_bit 4（白条字段位为 0 ⇒ 缺位）"], "source": "analyze_t17_bit_integrity.py 对归档帧 bars_raw_frame_full.bin 的实测输出（含 judge 证据）"},
     "measured_fixture_F_table_if_fixed": {"discriminated_aligned": 16, "discriminated_strict_variant": 15, "verdict_aligned": "BIT_INTEGRITY_PASS(0)", "verdict_strict_probe": "INCONCLUSIVE_ATYPICAL(3)"}
   },
   "prerequisites": {
@@ -69,9 +69,9 @@
     "本次判定不等于 G3/G4/G5，也不等于独立审查。"
   ],
   "verdict_rules": {
-    "BIT_INTEGRITY_PASS": "C1..C7 全部通过 => 位完整性机器判定通过（exit 0）",
-    "DEFECT_REPRODUCED": "旧缺位签名成立且白条 G/B 未达满量程 => 判板侧/连接侧方向，颜色保持 DEFERRED（exit 1）",
-    "INCONCLUSIVE_ATYPICAL": "既非旧签名也非通过（如只修好一路）=> 人工判读，不得当通过（exit 3）",
+    "BIT_INTEGRITY_PASS": "C1..C7 全部通过 ⇒ 位完整性机器判定通过（exit 0）",
+    "DEFECT_REPRODUCED": "旧缺位签名成立且白条 G/B 未达满量程 ⇒ 判板侧/连接侧方向，颜色保持 DEFERRED（exit 1）",
+    "INCONCLUSIVE_ATYPICAL": "既非旧签名也非通过（如只修好一路）⇒ 人工判读，不得当通过（exit 3）",
     "USAGE_OR_INPUT_ERROR": "缺文件/长度非法/彩条段不足（exit 2）"
   },
   "exit_code_semantics_warning": "本表对应 scripts/stage3_t17/analyze_t17_bit_integrity.py：0=通过、1=复现旧缺陷、2=用法/输入、3=非典型。旧脚本 scripts/stage3_t05/analyze_missing_msb_signature.py 语义相反（0=符合旧缺位签名、1=不符合），两者不得混用；交接时注明所用脚本。",
@@ -82,7 +82,7 @@
     "one_key": "bash scripts/stage3_t17/run_t17_color_retest.sh all --run-id <run_id> --allow-hardware"
   },
   "hardware_localization_if_defect_reproduced": [
-    {"step": 1, "action": "新旧模块 × J11/J10 的 2×2 交叉矩阵（断电插拔，Wong 执行）", "purpose": "若新模块在 J11 正常 => 旧模块 D9 通路故障；若新模块在 J11 与 J10 都复现 => 系统性问题（板侧/接插件/约定），需继续第 2-5 项", "evidence": "每次换装的 UART + 转储 + 判定 JSON，独立 RunId"},
+    {"step": 1, "action": "新旧模块 × J11/J10 的 2×2 交叉矩阵（断电插拔，Wong 执行）", "purpose": "若新模块在 J11 正常 ⇒ 旧模块 D9 通路故障；若新模块在 J11 与 J10 都复现 ⇒ 系统性问题（板侧/接插件/约定），需继续第 2-5 项", "evidence": "每次换装的 UART + 转储 + 判定 JSON，独立 RunId"},
     {"step": 2, "action": "断电目视 J11 pin3 与模块 J3 pin3 触点（弯针/氧化/整排错位），核对 Pin1 对齐", "purpose": "排除机械接触", "evidence": "照片 + 文字记录（不代做电气测量）"},
     {"step": 3, "action": "核对线序：模块 pin3 = CMOS2_D9 → J11 pin3 → 原理图 33Ω 串阻 → FPGA F17（LVCMOS33/Bank35）", "purpose": "排除线序/映射错（映射已有五路证据一致，仍按实际 PCB/BOM 复核）", "evidence": "an5642_j11_cmos2.xdc + AX7020 手册 Table 7.5.1 + 原理图页引用"},
     {"step": 4, "action": "对照另一条同字节 MSB 线（如 J11 上 D8/J18）与已知良好通道的电平/连续性（需 Wong 授权与工具）", "purpose": "区分「单线断」与「bank/电平配置」", "evidence": "测量记录（不擅自做电气测量）"},

@@ -1,0 +1,146 @@
+{
+  "binding_id": "S5T03-INPUT-BINDING-v1",
+  "task_id": "S5-T03",
+  "stage": 5,
+  "run_id": "s5t03_offline_skeleton_20261024_r01",
+  "title": "阶段5 显示/关联输入契约改绑：真实彩色范围标签 + 阶段3 部署身份 + 坐标与帧关联键",
+  "status": "BINDING_PROPOSED_PENDING_STAGE4_G0",
+  "status_note": "本文件是**外围绑定与标签**，不是新的显示契约，也不冻结任何指标。S5A-G0-v2 的阈值、几何、取整规则与显示语义一律不变；阶段4 结果契约（S4-B r03）尚未冻结，标签到 source_kind 的实际枚举值须由阶段4 G0 确认。既有合成源证据与其结论一律保留原身份，不得因本绑定被升级为真实集成结论。",
+  "generated_utc8": "2026-10-24T01:10:00+08:00",
+  "relation_to_frozen_contract": {
+    "display_contract": "S5A-G0-v2",
+    "display_contract_json": "docs/stage5/s5a_stage5_display_g0_fields.json",
+    "display_contract_json_sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+    "geometry_reference": "verification/s5_display_geometry_reference.py",
+    "geometry_reference_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
+    "unchanged": ["coordinate_gate", "geometry", "overlay_layout 规则值", "display_semantics", "stale_age_limit_ns", "hud_fields 13 项", "test_cases 编号 T5-01..T5-12"],
+    "conflict_rule": "本文件与 S5A-G0-v2 冲突时，以 S5A-G0-v2 的 JSON 与冻结参考实现为准，并回改本文件"
+  },
+  "upstream_refs": [
+    {"id": "cdx_execution_index", "kind": "cross_party_doc", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-015-execution-index-r02.md", "version": "r03 / 2026-10-24", "note": "总入口 §2.2 规定输入契约须显式标 camera_live_colour 或 camera_capture_replay_colour，并要求绑定部署与坐标/关联键"},
+    {"id": "stage5_runbook", "kind": "cross_party_doc", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-014-stage5-display-runbook-r02.md", "version": "r02 / 2026-10-22", "note": "§4/§5 要求消费阶段4 记录、板上真实动态映射与过期边界；旧快照（等待摄像头/灰度部署）以 015 r03 为准"},
+    {"id": "wong_decision_20261024", "kind": "decision", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage_3_4_direction_20261024_r01.md", "note": "板级开工（阶段3）；J11/CMOS2 在用、J10 范围外；w4 由 DSH 接手；阶段5/6 继续不依赖板卡的契约改绑"},
+    {"id": "stage3_colour_evidence", "kind": "upstream_evidence", "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\", "note": "新模块实测恢复真彩色；缺位签名不符、彩条满量程；只读引用，本树不改 dbdf"},
+    {"id": "stage4_shared_contract_draft", "kind": "upstream_contract_draft", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json", "observed_commit": "f6fa9f0", "sha256_at_observed_commit": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e", "status": "DRAFT_NOT_FROZEN", "note": "source_kind 枚举与 mapping_key_roles 的字段名权威（草案）；工作区当时有未提交改动，本树不对其工作区哈希做冻结绑定"},
+    {"id": "stage4_shared_contract_md_draft", "kind": "upstream_contract_draft", "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_shared_input_result_contract.md", "observed_commit": "f6fa9f0", "sha256_at_observed_commit": "7b9c9d387d7adcfbbc4d0301b0a4303960783f6e6793939fdd34a2deec5b4b77", "status": "DRAFT_NOT_FROZEN"},
+    {"id": "stage4_takeover_claim", "kind": "cross_party_record", "path": "D:\\codex-worktrees\\w4\\report\\evidence\\CTRL-DSH-HANDOFF\\dsh_claim_20261024_r01\\handoff_record.json", "note": "w4 已由 DSH 认领（HANDOFF_OK PASS 9/FAIL 0）；硬件使用权未随工作树交接"},
+    {"id": "measured_display_period", "kind": "upstream_evidence", "path": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/recompute_fps.json", "note": "板上实测 display frame period 16.89 ms；仅用作离线骨架的虚拟时间步长"}
+  ],
+  "input_scope_labels": {
+    "role": "描述性范围标签：说明本次输入的真实性与可允许结论范围；标签本身不是阶段4/2B 接口的枚举值",
+    "labels": {
+      "camera_live_colour": {
+        "meaning": "实时真实彩色采集（新模块、无补偿基线、传感器内部不写测试寄存器）",
+        "stage4_source_kind": "camera",
+        "stage4_measurement_scope": {"capture_time_available": true, "capture_time_ns": "nonzero", "unavailable_fields_contains_capture_time_ns": false},
+        "mapping_status": "ALIGNED_WITH_STAGE4_DRAFT",
+        "allowed_conclusions": ["采集→预处理→推理→显示的真实链路结论（在其上游冻结且同源核对后）", "capture_fps 实测"],
+        "forbidden": ["使用本标签但实际输入来自合成/注入", "由本标签推导 J10 相关结论"]
+      },
+      "camera_capture_replay_colour": {
+        "meaning": "抓取到的**真实彩色帧**在回放/注入路径上重放（数据真实、时序非实时）",
+        "stage4_source_kind_candidates": ["file_injection", "synthetic"],
+        "mapping_status": "PROPOSED_PENDING_STAGE4_G0_CONFIRMATION",
+        "mapping_reason": "015 §2.2 规定实际枚举值须遵循该接口 G0；阶段4 S4-B r03 现有 source_kind 仅 file_injection/camera/synthetic，尚无「真实帧回放」专名。本树不自造第四个枚举值，也不改 w4 文件。",
+        "proposed_mapping": {
+          "file_injection": "若回放经板级注入链路（S4-E 夹具 ELF）进入 PS 显示缓冲",
+          "synthetic": "若仅在主机/离线路径重放；此时结论只能标离线回归"
+        },
+        "carry_fields": ["source_frame_sha256", "source_capture_time_ns", "source_frame_id", "source_bit_sha256", "source_elf_sha256", "replay_not_live=true"],
+        "required_labelling": ["证据包内必须出现 camera_capture_replay_colour 且与 camera_live_colour 互斥", "不得报告采集 FPS 为实测", "计时结论必须写明为回放时序", "end_to_end_latency_ns 不得由注入起点冒充采集起点"],
+        "stage4_g0_confirmation_request": "请阶段4 写入方在该接口 G0 中确认：(a) 真实彩色帧回放的 source_kind 取值；(b) 上列 carry_fields 是否纳入共享契约字段名；(c) 回放下的 measurement_scope。确认前本映射保持 PROPOSED。"
+      },
+      "synthetic_dynamic_reference": {
+        "meaning": "与阶段4 同 schema 的合成动态流（含既有 120 帧、31.06 分钟等结论）",
+        "stage4_source_kind": "synthetic",
+        "stage4_measurement_scope": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
+        "mapping_status": "ALIGNED_WITH_STAGE4_DRAFT",
+        "allowed_conclusions": ["显示通路、叠框、帧关联、计数与长跑**显示侧**结论"],
+        "forbidden": ["capture_fps 实测", "真实推理集成/真实采集链路结论", "把本标签结论改写为 camera_* 结论"]
+      }
+    },
+    "mutual_exclusion_rule": "任一证据包/运行只能属于一种输入范围标签；显示层五元组与产物清单必须携带该标签，且与阶段4 侧 source_kind 一一对应"
+  },
+  "stage3_deployment_binding": {
+    "verified_at_utc8": "2026-10-24T00:55:00+08:00",
+    "verification": "本轮独立只读重算（非引用文档转述）；命令与真实退出码见 report/evidence/S5-T03/s5t03_takeover_20261024_r01/console/deploy_hash_verify.txt",
+    "single_active_deployment": {
+      "bit": {"path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit", "sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710", "description": "无补偿 SOF 基线（当前彩色部署）", "matches_015_r03_prefix": true},
+      "xsa": {"path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\design_1_wrapper.xsa", "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3", "matches_015_r03_prefix": true},
+      "elf": {"path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\an5642_j11cmos2_v10_read.elf", "sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073", "description": "实时彩色读取应用（J11/CMOS2）", "matches_015_r03_prefix": true}
+    },
+    "recorded_discrepancy": {
+      "where": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_new_module_reverify_20261023_r01\\README.md",
+      "detail": "该 README 标题行写 `an5642_j11cmos2_v9_read.elf`，同文「处置」段写 `v10_read`；015 r03 与 dbdf 2026-10-24 00:35 窗口 prestate 均为 v10_read。",
+      "resolution": "本树按**独立重算**结果绑定 v10_read（sha256 与 015 r03、dbdf window_open_prestate.json 一致）；不据此改 dbdf 文件、也不自行判定其 README 的笔误归属，已在 unresolved_and_requests 中请求阶段3 写入方核对。"
+    },
+    "secondary_artifacts_read_only": {
+      "elf_v11_freeze": {"path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v11\\elf_build\\app\\an5642_j11cmos2_v11_freeze.elf", "sha256": "c01133b1bb0204f07a5be215dbeb58ca0dcc627115cd3a06f1c56f9b21ca26c4", "note": "冻结帧应用；本轮不部署"}
+    },
+    "historical_rollback_only": {
+      "gray_bit_std_luma": {"sha256_prefix": "44e609cc", "note": "历史灰度部署，仅作回退；不得作为当前彩色部署身份"},
+      "gray_bit_pure_green": {"sha256_prefix": "2f72aaa4"},
+      "compensated_colour_bit": {"sha256_prefix": "30db09ba"}
+    },
+    "out_of_scope": [
+      {"item": "J10 半屏黑", "state": "范围外（Wong 2026-10-24 决定，当前部署用 J11/CMOS2）；不得写成已修复/已关闭"},
+      {"item": "v12 / 0x503D 传感器内部彩条", "state": "仅既定彩条用例，用前存原值、读回、恢复 0x00；本轮不动硬件"}
+    ]
+  },
+  "capture_geometry": {
+    "source_width": 1280,
+    "source_height": 720,
+    "pixel_bytes": 3,
+    "row_stride_bytes": 3840,
+    "frame_bytes": 2764800,
+    "size_evidence": "dbdf S3-T05 t05_new_module_reverify_20261023_r01：bars_frame_full.bin 实测 2764800 字节、row_y100/400/600.bin 各 3840 字节（本轮只读核对文件大小，未重跑采集）",
+    "ddr_dump_channel_order": "B,G,R（三字节/像素）",
+    "sensor_format": "RGB565",
+    "channel_order_source": "015 §2.1/§2.2（DSH 复核）与阶段3 记录；本树未独立改判，仅登记",
+    "not_interchangeable": ["传感器 RGB565 展开、DDR 转储 B/G/R 字节序、模型 RGB888 语义三者不得直接混同", "转换/量化/补边必须与冻结 D2 对齐", "行尾填充未定义、不得被消费（stride 之外字节无效）"],
+    "display_canvas_in_skeleton": [1280, 720],
+    "canvas_fit_rule": "画布与源尺寸不同时按 S5A-G0-v2 整数倍等比缩放居中（k>=1），不得拉伸"
+  },
+  "original_coordinate_semantics": {
+    "field": "detections[].xyxy",
+    "meaning": "归一化原图坐标（含补边逆映射、裁剪到 [0,1]、正面积），原图 = 1280×720 采集帧",
+    "authority": "S5A-G0-v2 §7 + verification/s5_display_geometry_reference.py",
+    "display_rule": "显示层只允许使用该字段；不得自行反算第二份坐标",
+    "fallback": "仅当阶段4 缺失原图坐标时才启用冻结逆式（是否启用待阶段4 G0），且必须与冻结参考实现同源",
+    "display_mapping_chain": ["clip_unit_box（逐边钳到 [0,1]，零面积不绘制）", "original_norm_to_display_px（round_half_up(v*(span-1))，只在最后取整一次）", "border_pixel_sets（2 px 偶数线宽居中、逐边钳到画布内）", "标签锚点：框左上外侧→框内左上→安全区；分数文本容差 ≤1e-3"],
+    "tolerances_inherited": {"inverse_mapping_px": 1.0, "draw_fidelity_px": 1.0, "line_width_half_pixel_px": 0.5, "score_text": 1e-3, "discrete_fields": "完全一致"}
+  },
+  "frame_association_keys": {
+    "authority": "阶段4 S4-B r03 mapping_key_roles（草案，字段名权威）；显示侧消费 PS 侧记录（方案 B）",
+    "contract_result_key": ["session_id", "frame_id", "result_seq"],
+    "stage4a_join_key": ["session_id", "frame_id", "repeat_index"],
+    "ps_log_primary_key": ["session_id", "result_seq"],
+    "uart_observable_key": ["frame_id", "repeat_index", "sequence"],
+    "display_side_pair": {"displayed_frame_id": "显示帧自己的 frame_id", "result_frame_id": "被叠加结果所属 frame_id", "rule": "两者必须成对记录；语义 B 下不要求相等，禁止改写 frame_id 掩盖错配"},
+    "five_tuple": ["displayed_frame_id", "result_frame_id", "age_result_ns", "age_frame_ns", "display_semantics"],
+    "time_keys": {"capture_time_ns": "camera 范围标签下必须非零；file_injection/synthetic 下为 0 哨兵并在 unavailable_fields 列出", "result_time_ns": "结果记录发布时刻", "overlay_commit_ns": "显示提交时刻（PS 单调时基）"},
+    "ordering_keys": {"result_seq": "PS 旁路结果日志主键组成，从 1 单调递增、拒绝回绕", "sequence": "UART 可观测配对键，不是唯一主键"},
+    "uniqueness_rule": "(session_id, frame_id, result_seq) 唯一标识一条结果；重复结果只计数、不得当作新结果叠加；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据",
+    "timebase": "同一 PS 单调时钟；所有事件写帧级事件日志（frame_id、事件类型、时间戳），统计量必须可由日志复算"
+  },
+  "replay_labelling_rule": {
+    "rule": "凡是抓取帧回放/注入驱动的结论，产物清单、summary 与 HUD 必须显式携带 camera_capture_replay_colour（或 synthetic_dynamic_reference），并写明「回放/注入时序」；不得继承 camera_live_colour 的实时结论",
+    "not_evidence_for": ["实时采集端到端延迟", "capture_fps 实测", "真实推理集成无死锁"],
+    "allowed": ["颜色/预处理/数值链路的回放先验", "显示通路与日志口径的离线验证（标注范围）"]
+  },
+  "synthetic_results_scope": {
+    "already_completed_keep_as_is": [
+      {"item": "四 FPS 实测（display_fps=59.206、video_refresh 59.175）", "evidence": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/", "label": "合成源（PS 合成视频源）显示侧"},
+      {"item": "120 帧五元组 + 故障计数 + HUD", "evidence": "report/evidence/S5-T01/s5t01_board_5t_20261022_r02/", "label": "合成源显示侧"},
+      {"item": "30 分钟长跑（r03：125 轮/124 完整轮/31.06 min）", "evidence": "report/evidence/S5-T01/s5t01_board_soak_20261022_r03/", "label": "仅显示/叠加路径（inference_fps=NA）"}
+    ],
+    "rules": ["这些结论照旧有效，本轮**不重跑、不改写**其 RunId 与产物", "它们**不是**真实采集/真实推理集成结论，不得因本绑定被升级", "本轮骨架 PASS 同样只是离线骨架结论"],
+    "non_modification_check": "本轮提交前后用 git diff --name-only 654c72e -- report/evidence/S5-A report/evidence/S5-B report/evidence/S5-C report/evidence/S5-T01 核验为空；真实退出码见骨架证据包"
+  },
+  "unresolved_and_requests": [
+    {"id": "UR-1", "to": "阶段4 写入方（DSH，w4）", "request": "在 S4-B 接口 G0 确认 camera_capture_replay_colour 的 source_kind 取值与 carry_fields；确认后本树更新映射状态为 CONFIRMED", "blocking": "真实彩色回放/实时集成的分类与结论范围"},
+    {"id": "UR-2", "to": "阶段3 写入方（DSH，dbdf）", "request": "核对 t05_new_module_reverify_20261023_r01/README.md 标题行的 ELF 名称（v9_read vs v10_read）并如实更正；本树已按独立重算绑定 v10_read", "blocking": "部署身份的单一书面口径"},
+    {"id": "UR-3", "to": "Wong / 阶段5 正式 G0", "request": "成品允许延迟上限、颜色表与字号、阶段4 stale_age_limit 的正式冻结", "blocking": "阶段5 正式验收（不影响本轮离线骨架）"},
+    {"id": "UR-4", "to": "DSH 项目总控", "request": "阶段5 板级窗口申请（阶段4 结果冻结后按 CDX-20261023-018 §3 提出），见 docs/stage5/S5T03_board_verification_pending_v1.md", "blocking": "板上动态映射/过期边界/真实集成长跑"}
+  ]
+}

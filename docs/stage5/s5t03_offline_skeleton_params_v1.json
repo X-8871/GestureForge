@@ -1,0 +1,78 @@
+{
+  "params_id": "S5T03-SKELETON-PARAMS-v1",
+  "task_id": "S5-T03",
+  "stage": 5,
+  "run_id": "s5t03_offline_skeleton_20261024_r01",
+  "status": "FROZEN_BEFORE_RUN",
+  "frozen_utc8": "2026-10-24T01:00:00+08:00",
+  "scope_note": "本文件只冻结「离线用例骨架」的样本数与种子。它不构成阶段5 验收指标、不改 S5A-G0-v2、也不得替代板上实测；任何骨架 PASS 都不能写成真实集成通过。",
+  "inherited_from_s5a_g0_v2": {
+    "contract_id": "S5A-G0-v2",
+    "contract_json_sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+    "geometry_reference_path": "verification/s5_display_geometry_reference.py",
+    "geometry_reference_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
+    "items": {
+      "inverse_mapping_vs_float64_reference_px": 1.0,
+      "draw_fidelity_px": 1.0,
+      "line_width_half_pixel_px": 0.5,
+      "score_text_tolerance": 1e-3,
+      "discrete_fields_must_match": ["frame_id", "detection_count", "class_id", "class_name", "source_order"],
+      "stale_age_limit_ns": 200000000,
+      "stale_boundary_is_strict_greater": true,
+      "display_line_width_px": 2,
+      "line_width_semantics": "偶数线宽居中：几何线落于像素索引 p 时占 {p-1, p}，逐边钳到画布内",
+      "safe_area_px_1080p": 16,
+      "max_outputs_per_image": 15,
+      "class_order": ["fist", "palm", "one", "two_up", "three"],
+      "display_semantics": "B_latest_result_overlay",
+      "hud_fields": ["capture_fps", "inference_fps", "display_fps", "inference_time_ns", "age_result_ns", "age_frame_ns", "frame_id", "boxes", "stale_cleared", "dropped_frames", "timeouts", "warmup_state", "display_semantics"]
+    }
+  },
+  "newly_frozen_for_skeleton_only": {
+    "seed": 20261024,
+    "frame_association_min_frames_required": 100,
+    "frame_association_sample_frames": 120,
+    "long_run_virtual_duration_ns": 1800000000000,
+    "long_run_virtual_frame_period_ns": 16890000,
+    "long_run_virtual_frame_period_source": "report/evidence/S5-T01/s5t01_board_fps4_20261022_r02/recompute_fps.json（板上实测 display frame period 16.89 ms）；仅用作离线虚拟时间步长，不是本轮板上测量",
+    "long_run_min_frames": 106573,
+    "long_run_min_frames_derivation": "ceil(1_800_000_000_000 / 16_890_000) = 106573；106573*16.89ms = 1800.01797 s >= 1800 s",
+    "geometry_resolutions": [[1280, 720], [720, 1280], [683, 384]],
+    "display_canvas": [1280, 720],
+    "coordinate_cases": [
+      {"id": "C1-full", "xyxy": [0.0, 0.0, 1.0, 1.0], "hand_computed_px": {"x1": 0, "y1": 0, "x2": 1279, "y2": 719}},
+      {"id": "C2-quarter", "xyxy": [0.25, 0.5, 0.75, 0.75], "hand_computed_px": {"x1": 320, "y1": 360, "x2": 959, "y2": 539}},
+      {"id": "C3-half-up", "xyxy": [0.5, 0.5, 0.6, 0.6], "hand_computed_px": {"x1": 640, "y1": 360, "x2": 767, "y2": 431}, "note": "两个轴的起点都落在 .5 边界，验证 round_half_up=floor(v+0.5) 向上"},
+      {"id": "C4-corner-tr", "xyxy": [0.9, 0.0, 1.0, 0.1], "hand_computed_px": {"x1": 1151, "y1": 0, "x2": 1279, "y2": 72}},
+      {"id": "C5-corner-bl", "xyxy": [0.0, 0.9, 0.1, 1.0], "hand_computed_px": {"x1": 0, "y1": 647, "x2": 128, "y2": 719}}
+    ],
+    "hand_computed_derivation": "px = round_half_up(v*(span-1))；1280 画布 x 轴 span-1=1279，720 画布 y 轴 span-1=719。C2: 0.25*1279=319.75→320、0.5*719=359.5→360、0.75*1279=959.25→959、0.75*719=539.25→539。C3: 0.5*1279=639.5→640（floor(640.0)）、0.5*719=359.5→360、0.6*1279=767.4→767、0.6*719=431.4→431。C4: 0.9*1279=1151.1→1151、0.1*719=71.9→72。C5: 0.9*719=647.1→647、0.1*1279=127.9→128。",
+    "edge_and_degenerate_cases": [
+      {"id": "E1-partial-out-of-unit", "xyxy_in": [-0.1, -0.2, 1.1, 1.2], "expect_clipped": true, "expect_zero_area": false},
+      {"id": "E2-zero-area-after-clip", "xyxy_in": [-0.5, -0.5, 0.0, 0.5], "expect_clipped": true, "expect_zero_area": true},
+      {"id": "E3-upstream-non-positive-area", "xyxy_in": [0.6, 0.6, 0.4, 0.4], "expect": "ContractViolation（上游必须正面积）"}
+    ],
+    "stale_boundary_cases": ["age_equals_limit_not_stale", "age_limit_plus_one_stale", "explicit_stale_flag"],
+    "counted_once_rule": "同一结果键 (session_id, frame_id, result_seq) 的过期清除只计一次；重复结果与非过期重放不得再次累加 stale_cleared",
+    "exception_counters": ["warmup_frames", "dropped_frames", "timeouts", "error_results", "invalid_records", "stale_cleared", "duplicate_results", "out_of_order_results", "zero_hand_frames", "zero_area_dropped"],
+    "zero_hand_is_not_stale": true,
+    "timeout_error_not_zero_hand": true,
+    "stream_modes": ["sequential", "skip", "late", "dup", "ooo", "mixed"],
+    "stream_samples": {"sequential_frames": 120, "skip_frames": 120, "late_frames": 120, "dup_frames": 120, "ooo_frames": 120, "mixed_frames": 240},
+    "long_run_stream_mode": "mixed",
+    "long_run_min_commit_events": 106573,
+    "long_run_required_invariants": [
+      "每显示帧恰好一次 overlay 提交事件（无漏提交=无死锁）",
+      "提交时间戳单调不减",
+      "计数可由帧级事件日志完全复算并与在线计数逐项相等",
+      "同一结果键不得被当作新结果重复叠加（重复结果只计数）",
+      "过期结果不得复用为后续帧的绘制内容"
+    ]
+  },
+  "not_changed_by_this_file": [
+    "S5A-G0-v2 全部阈值与几何/取整规则",
+    "display_semantics（固定 B）",
+    "STALE_AGE_LIMIT_NS 与严格大于边界",
+    "既有合成源证据（S5-B r07 / S5-T01 r02/r03）与其结论"
+  ]
+}

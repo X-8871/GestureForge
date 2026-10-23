@@ -1,0 +1,159 @@
+{
+  "task_id": "S4-CTRL/S4-T21",
+  "checker": "crosscheck_raw_address_owners",
+  "checker_version": "r01",
+  "status": "PASS",
+  "generated_at_utc8": "2026-10-24T01:04:51+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\crosscheck_raw_address_owners.py --evidence-dir D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\t21_raw_address_crosscheck_20261024_r02",
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "hardware_execution": "NOT_RUN",
+  "candidate_hex": [
+    "0x12000000",
+    "0x12c08000"
+  ],
+  "condition_1_status": "INCOMPLETE_PENDING_STAGE3_WRITTEN_FACT",
+  "basis_facts": [
+    {
+      "id": "w4_address_map",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+    },
+    {
+      "id": "w2b_platform",
+      "path": "D:\\FPGA_Competition\\w2b\\board\\s2b_inference_platform.json",
+      "sha256": "6f69e6ad1d77eb455ab924d41c06e0c93703bfdb89be6743ea301868975ecd97"
+    },
+    {
+      "id": "w5_overlay_manifest",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\run_manifest.json",
+      "sha256": "1ac44d28edea73b379736312e9cbd147bd000ae3ef7f4ae89564e4687aae1263"
+    },
+    {
+      "id": "w5_download_manifest",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_download_20261022_r01\\run_manifest.json",
+      "sha256": "38fa065a81370ff5b8c3bbdca160b74a2c7dfaa3929adabc01739766f40c81b5"
+    },
+    {
+      "id": "dbdf_stage3_app_patch_v12",
+      "path": "D:\\codex-worktrees\\dbdf\\board\\stage3\\software\\sensor\\s3_t04_app_diag_v12.patch",
+      "sha256": "2517c98a3b9b328c51b194c8ff4bd3ac54fefa384700a55c44487314666556d8"
+    },
+    {
+      "id": "dbdf_stage3_readme",
+      "path": "D:\\codex-worktrees\\dbdf\\board\\stage3\\README.md",
+      "sha256": "cdae4743eca5d31b3b10c78234adb5e8e2f9f9c5777b5b7c0748441fb6feb881"
+    }
+  ],
+  "checks": {
+    "w5_addr_s2mm_equals_buf0": {
+      "status": "PASS",
+      "s2mm_hex": "0x114c00",
+      "buf0_hex": "0x114c00",
+      "note": "阶段5 清单记录的 VDMA 写地址与送显 buf0 相同（采集与显示共用当前帧缓冲，与阶段3 README 的未决项一致）"
+    },
+    "candidate_vs_2b_objects": {
+      "status": "PASS",
+      "conflicts": [],
+      "2b_objects": [
+        {
+          "name": "ps_app_arena",
+          "start": 1048576,
+          "end_exclusive": 17825792
+        },
+        {
+          "name": "network_input_tensor",
+          "start": 268435456,
+          "end_exclusive": 268954624
+        },
+        {
+          "name": "gf8_weight_package",
+          "start": 269484032,
+          "end_exclusive": 275387132
+        },
+        {
+          "name": "injection_frame_rgb",
+          "start": 275775488,
+          "end_exclusive": 279969792
+        },
+        {
+          "name": "feature_envelope",
+          "start": 285212672,
+          "end_exclusive": 296594872
+        }
+      ]
+    },
+    "candidate_vs_2b_arena": {
+      "status": "PASS",
+      "arena_hex": [
+        "0x10000000",
+        "0x12000000"
+      ],
+      "candidate_starts_at_or_above_arena_end": true,
+      "note": "候选整体位于 2B 专属窗口之外（其起点即窗口末端），与 2B 全部对象不相交"
+    },
+    "candidate_vs_w5_display_buffers": {
+      "status": "PASS",
+      "conflicts": [],
+      "w5_buffers": [
+        {
+          "name": "w5_display_buf0",
+          "start": 1133568,
+          "end_exclusive": 3898368,
+          "start_hex": "0x114c00",
+          "end_hex": "0x3b7c00"
+        },
+        {
+          "name": "w5_display_buf1",
+          "start": 7354368,
+          "end_exclusive": 10119168,
+          "start_hex": "0x703800",
+          "end_hex": "0x9a6800"
+        },
+        {
+          "name": "w5_display_buf2",
+          "start": 13575168,
+          "end_exclusive": 16339968,
+          "start_hex": "0xcf2400",
+          "end_hex": "0xf95400"
+        }
+      ],
+      "frame_bytes": 2764800,
+      "fact_source": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\run_manifest.json"
+    },
+    "stage3_video_buffer_fact": {
+      "status": "PARTIAL_FACT_ONLY",
+      "code_level_fact": {
+        "pointer_array": true,
+        "frame_len_token": true,
+        "readme_buffer_ownership_unresolved": true
+      },
+      "code_fact_source": "D:\\codex-worktrees\\dbdf\\board\\stage3\\software\\sensor\\s3_t04_app_diag_v12.patch",
+      "static_address_table_available": false,
+      "observed_upper_bound_hex": "0xf95400",
+      "observed_source": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\run_manifest.json",
+      "disjoint_from_candidate_on_observed_facts": true,
+      "note": "阶段3 自身文档给出的是运行时指针数组与每帧 0x2A3000（720×3840），未发布静态地址表；实际地址事实仅见于阶段5 已提交运行清单。观测事实与候选不相交，但不足以替代阶段3 的书面静态事实。"
+    },
+    "informational": {
+      "candidate_inside_bsp_software_window": true,
+      "candidate_currently_inside_forbidden_gap": true,
+      "forbidden_rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围",
+      "forbidden_has_sources": false
+    }
+  },
+  "missing_facts": [
+    {
+      "stage": "3",
+      "item": "视频缓冲（VDMA/framebuffer）静态地址事实",
+      "why": "dbdf 自身文档/证据未发布静态地址表；仅有代码级 dispCtrl.framePtr[curFrame] 与每帧 0x2A3000，以及阶段5 清单记录的实际地址。",
+      "request": "请阶段3 写入方在其正式文档中确认三缓冲地址集合（或发布地址图），供条件①闭合。"
+    }
+  ],
+  "failures": [],
+  "boundary": [
+    "只读取证；不构成地址批准、owner 登记或 G0/G4/G5 结论。",
+    "条件①在缺失事实补齐前不得判为满足；未实施任何地址图/契约改动。",
+    "本轮全离线：未装载位流、未打开 COM4/JTAG、未起 hw_server。"
+  ]
+}

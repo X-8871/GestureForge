@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_raw_address_crosscheck_20261024_r03",
+  "source_commit": "c8a231c",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03",
+  "purpose": "G-01 条件① 交叉核对取证：候选 [0x12000000,0x12C08000) 与 2B 冻结对象、阶段5 送显缓冲、阶段3 视频缓冲事实的不相交性",
+  "hardware_execution": "NOT_RUN",
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03/raw_address_owner_crosscheck.json",
+      "sha256": "98f6126b1050691a5358178bd7b68309cf58b344b7ddf24507fc5b431e4d1568",
+      "role": "result",
+      "keep_reason": "交叉核对结果与条件①判定"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03/crosscheck_stdout.txt",
+      "sha256": "91812896ebda1b43d4bebafec335a680e6608a7c229a7543ba1744dd9c238955",
+      "role": "log",
+      "keep_reason": "脚本真实 stdout"
+    },
+    {
+      "path": "scripts/stage4_s4b/crosscheck_raw_address_owners.py",
+      "sha256": "f8637dca04fc228ab7e10fc8172e0157ea319ac9a3ee6a35ea1e3972d7ad7cd7",
+      "role": "source",
+      "keep_reason": "可复跑交叉核对入口"
+    }
+  ],
+  "checks": [
+    {
+      "name": "候选 vs 2B 冻结对象与专属窗口",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4b/crosscheck_raw_address_owners.py --evidence-dir report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03",
+      "exit_code": 0,
+      "reason": "候选起点即 2B 窗口末端，与全部 2B DDR 对象不相交"
+    },
+    {
+      "name": "候选 vs 阶段5 送显缓冲",
+      "status": "PASS",
+      "command": null,
+      "exit_code": 0,
+      "reason": "w5 S5-T01 已提交清单三个缓冲 0x00114C00/0x00703800/0x00CF2400（每帧 0x2A3000）均低于 0x01100000，候选在 0x12000000 之上；ADDR_S2MM==buf0 内部一致"
+    },
+    {
+      "name": "候选 vs 阶段3 视频缓冲静态事实",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "阶段3 自身文档未发布静态地址表（仅代码级 dispCtrl.framePtr[curFrame] + 每帧 0x2A3000）；条件①记 INCOMPLETE_PENDING_STAGE3_WRITTEN_FACT，已请 lead 向阶段3 索取"
+    },
+    {
+      "name": "地址图/契约改动落盘",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "条件①未齐，按 lead 指令不实施；ENABLE=0、不访问候选区"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "依 CDX-20261023-019 全离线；未装载位流、未打开 COM4/JTAG"
+    }
+  ],
+  "limitations": [
+    "只读取证；不构成地址批准、owner 登记或 G0/G4/G5 结论。",
+    "阶段3 静态事实补齐前条件①不得判为满足。",
+    "本 RunId 未申报 check_stage_delivery 通用包装。"
+  ]
+}

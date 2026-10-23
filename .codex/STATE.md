@@ -35,7 +35,9 @@
 - RAW 系统 G0 缺口：地址/所有权批准（G-01/G-02 `BLOCKED_PENDING_APPROVAL`）、D2 整帧/padding 数值（G-04）、HP0 串行 owner 与排空（G-05）、平台 BD/XSA（G-07）、PS RAW task 与旧 memcpy 冲突（G-08）、协议项（G-09/G-10/G-11/G-13）、资源与布线后时序（G-14）、mailbox ABI 审查（G-15）。
 - 硬件相关**全部 `NOT_RUN`**：八类门禁与正式 OFFER/CLAIM（G-16）、4-D 验收（G-17）、真实彩色回归（G-18）、帧周期 P（G-19）。
 - 4-D 与阶段4 G5 未完成；不得把离线/回放结论升级为实物集成结论。
-- **待 lead 裁决**：G-01/G-02 提案的 D1–D4（提案 §5）；裁决前不动地址图/契约、不访问候选区。
+- **G-01/G-02 进展（lead 已裁 D1–D4）**：D1=**有条件批准选项 A**（不选 C）；D2 建议不接受 107 帧子集（决定权报 Wong）；D3 META 不强制与 RAW 相邻；D4 不前置 linker 冻结 ⇒ 选项 E 排除。裁决记录 `report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md`。
+- **条件①交叉核对已取证**：`report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03/`（`scripts/stage4_s4b/crosscheck_raw_address_owners.py` **exit 0**）。结论：候选 `[0x12000000,0x12C08000)` 与 **2B 全部对象**（含专属窗口——候选自窗口末端 `0x12000000` 起）及 **阶段5 送显三缓冲**（事实取 w5 `S5-T01` 已提交运行清单：`0x00114C00/0x00703800/0x00CF2400`，`ADDR_S2MM==buf0`，720×3840=0x2A3000/帧）**均不相交**；**阶段3 自身未发布静态地址事实**（仅有代码级 `dispCtrl.framePtr[curFrame]` 与每帧 0x2A3000）⇒ 条件①标记 **`INCOMPLETE_PENDING_STAGE3_WRITTEN_FACT`**。**取证未齐，故本轮未落盘任何地址图/契约改动**（`ENABLE=0`、不访问候选区）；已请 lead 向阶段3 索取书面静态事实。
+- **005 回执状态**：`dsh_mailbox/DSH-20261024-005-2b-address-confirm-raw-region.md` 已发出；`codex_mailbox/` 截至本轮**无 `CDX-20261024-*` 回执**，2B 书面确认未到。
 - **下一轮必修（不为此单独开轮）**：把 RunId 迁移前写入的 `--evidence-dir` 字符串在下一轮以新 RunId 重跑修正——`t21_contract_colour_rebind_20261024_r02/verify_shared_io_contract_result.json`、`t21_raw_g0_gap_registry_20261024_r03/raw_system_g0_gap_audit_result.json`、`t21_frame_period_p_plan_20261024_r01/frame_period_p_validation_result.json`；内容未改写，仅路径字符串差异。
 - **待排期改进项**：`handoff_check.py` 祖先/successor 语义（须连同 38 个单测与证据包一起改并重审）——本轮不展开。
 

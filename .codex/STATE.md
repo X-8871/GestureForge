@@ -1,8 +1,8 @@
-# 阶段4 状态（摄像头推理 · 离线修复与 G2 补齐）
+# 阶段4 状态（真实PS张量诊断接入准备）
 
-更新：2026-10-23 02:00（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+更新：2026-10-23 13:24（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
 **写权：Codex 阶段4接续总控受 Codex 项目总控委派独占，IN_PROGRESS。** 认领基线 `af85d5a8495598262395165492df5e4d0bfb723c`；DSH 于 00:35 OFFERED 并停止写入，00:42 现场复核 `handoff_check --claim` 得到 9 PASS / 0 FAIL / 0 SKIP，随后 CLAIMED→IN_PROGRESS。
-**本树只推进阶段4离线交付；完整阶段4未验收。** 4-D 板测与真实摄像头回归仍需正式硬件授权、会话交接及阶段3依赖。
+**Wong 要求持续推进至4-D结束；完整阶段4未验收。** 当前先闭合4-B真实PS诊断、原始帧PL预处理G0及板测操作入口；硬件执行前须完成正式授权记录、会话交接及适用G0，4-D不以张量诊断代替完整预处理路径。12:46在额度中断后由同一总控恢复，无写权转移。
 
 ## 继承的交付与版本
 
@@ -28,9 +28,12 @@
 - UART方案B：`s2bu/1.1`正文不变、扩展关闭，时间/丢帧/过期/状态只记PS侧；结果与旁路日志按会话/帧/结果序号明确关联。
 - 候选上限12675可行，尝试追加12676为硬错误；4096禁用；候选数与最终≤15框不同。
 - 注入须位于被验收预处理前；capture_time_available=false，capture_time_ns为0哨兵并注解，计时起点用injection_start_ns。灰度不能对旧彩色golden。
-- 当前仅主机离线实现；实际预处理接入、PS/BSP缓存与屏障、PL启动/完成及板上驱动尚未交付可执行闭环。
+- S4-B-REAL-01/02A离线源码与操作计划范围G2已闭合：三轮后重查Git源码/交付manifest/本次硬件记录来源模型，并从派生app重建RUN终态。R1来源计划PASS、R2运行终态PASS；37单测及34独立CRC快照探针exit0，17文件前后SHA匹配，原失败保留。新闭合包 `report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/` 含可恢复源码快照。ARM C/header/builder/Ctest未变，限定复用r12三单元/链接/map及strict host证据；旧r12清单不冒充当前整包。实际adapter另为02B开发中，未审查/运行；本项G2不代表完整4-B/G3/G4。
+- 原始RGB入口尚未接通；合法202×329→416半量化反例已独立复算（D2=100，精确有理数=101），不能自行改容限。`docs/stage4/S4B_pl_preprocess_g0_readiness.md` 的独立PS/JTAG描述符、HP0串行owner与PS跳过tensor拷贝候选已获“待决策材料”PASS；路线批准已异步提请Wong，仍DRAFT_NOT_APPROVED/G0_NOT_READY。数值证据包包装CHECKS_OK；新增资源/时序未知。实际装载、串口、板测仍NOT_RUN。
 - 阶段5仍绑定S4-A r05；请求 `S4CTRL-20261022-003` 由阶段5所有者改绑r06并确认共享契约，不写w5。
-- 摄像头待购；无真实摄像头回归不能声明完整阶段4 G5。不得操作板卡/JTAG/COM4或结束他人进程。
+- 摄像头待购；无真实摄像头回归不能声明完整阶段4 G5。4-D硬件门禁未闭合前不操作板卡/JTAG/COM4，不结束他人进程；阶段5已明确释放板卡，仍须核对当前注册表及正式接管条件。
+
+- 历史S4-C `s4c_replay_20261021_r05` 的109/109 PASS、0数值差异已独立核对，可精确复用CPU golden heads→D9→T29范围；本轮未重跑109样本/重哈希390MB分片，未覆盖D2/r06新字段或板卡。复用证据 `report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/` 包装CHECKS_OK；此前“109全量NOT_RUN”不能解释为历史离线回放未做。
 
 ## 证据与恢复入口
 
@@ -41,4 +44,4 @@
 
 ## 交接行（11字段）
 
-任务=`S4-CTRL 阶段4离线缺陷修复与G2补齐` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；保护旧冻结离线链与既有RunId` | 未提交改动归属=`认领时无；此后本轮STATE、认领证据及修复均归Codex阶段4接续总控` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占` | 心跳(UTC+8)=`2026-10-23 02:00` | 证据入口=`report/evidence/S4-CTRL/s4_g2_closure_20261023_r02/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`
+任务=`持续推进至4-D：PS诊断02A收尾、02B adapter、PL预处理G0待决策` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；保护旧冻结离线链与既有RunId` | 未提交改动归属=`认领时无；此后本轮STATE、认领证据及修复均归Codex阶段4接续总控；并行02B新文件仍WIP不混入02A提交` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占` | 心跳(UTC+8)=`2026-10-23 13:24` | 证据入口=`report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/；先前三轮见r01；旧离线修复见s4_g2_closure_20261023_r02` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`

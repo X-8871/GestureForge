@@ -1,0 +1,259 @@
+--- frozen-2b-app.c
++++ derived-s4b-ps-tensor-app.c
+@@ -5,6 +5,8 @@
+ #include <stdio.h>
+ #include <limits.h>
+ #include "s2a_ps_decode_nms_reference.h"
++#include "s4b_ps_trace.h"
++#include "s4b_ps_build_config.h"
+ 
+ #ifdef S2B_HOST_MOCK
+ #include "s2b_host_mock.h"
+@@ -93,11 +95,17 @@
+     uint32_t status, frame, error, reject;
+ } terminal_snapshot;
+ static int diag_ack_pending;
++static s4b_ps_trace_record *s4b_current_trace_record;
+ static terminal_snapshot diag_terminal;
+ 
+ #ifndef S2B_HOST_MOCK
+ static XUartPs uart;
+ static void barrier(void) { __asm__ volatile("dsb sy" ::: "memory"); }
++static void s4b_trace_cache_flush(void *address, size_t length)
++{
++    Xil_DCacheFlushRange((INTPTR)(UINTPTR)address, (uint32_t)length);
++}
++static void s4b_trace_barrier(void) { barrier(); }
+ static uint32_t csr_read(uint32_t offset) { return Xil_In32(CSR_BASE + offset); }
+ static void csr_write(uint32_t offset, uint32_t value) { Xil_Out32(CSR_BASE + offset, value); barrier(); }
+ static uint64_t ticks(void) { XTime value; XTime_GetTime(&value); return (uint64_t)value; }
+@@ -283,13 +291,80 @@
+     csr_write(0x008U, 4U);
+     return is_idle();
+ }
++static void s4b_trace_live_snapshot(s4b_ps_trace_record *record,
++                                   terminal_snapshot *snap)
++{
++    snap->status = csr_read(0x00CU);
++    snap->frame = csr_read(0x058U);
++    snap->error = csr_read(0x010U);
++    snap->reject = csr_read(0x064U);
++    (void)read_epoch(&snap->epoch);
++    s4b_ps_trace_mark_terminal(record, snap->epoch, snap->frame, snap->status,
++                               snap->error, snap->reject, 0, 0, 0U);
++}
++
++static int s4b_trace_snapshot_is_safe(const terminal_snapshot *snap)
++{
++    uint32_t state = snap->status & 7U;
++    if ((state != DONE_SAFE && state != ERROR_SAFE) ||
++        (snap->status & (SAFE_REUSE | TERMINAL)) != (SAFE_REUSE | TERMINAL) ||
++        (snap->status & (OWNER_PL | AXI_PENDING | FIRST_PENDING)) != 0U) return 0;
++    return state == DONE_SAFE ? ((snap->status & HEAD_VALID) != 0U && snap->error == 0U) :
++                               ((snap->status & HEAD_VALID) == 0U && snap->error != 0U);
++}
++
++static int s4b_trace_snapshot_has_terminal(const terminal_snapshot *snap)
++{
++    return (snap->status & TERMINAL) != 0U;
++}
++
++static int s4b_trace_commit_without_uart(s4b_ps_trace_record *record,
++                                         uint32_t response_status)
++{
++    int committed;
++    s4b_ps_trace_set_response(record, response_status, UINT32_MAX, 0U, 0U);
++    committed = s4b_ps_trace_commit(record, ticks());
++    s4b_current_trace_record = NULL;
++    return committed;
++}
++
++static int s4b_trace_send_result(const wire_header *request,
++                                 terminal_snapshot *snap, uint32_t index,
++                                 uint32_t response_status, uint32_t decode_status,
++                                 uint32_t detection_count, uint32_t raw_count,
++                                 int include_heads, int ack_after_send,
++                                 int success_path, s4b_ps_trace_record *record)
++{
++    uint64_t send_start, send_done;
++    int sent, acked;
++
++    s4b_ps_trace_set_response(record, response_status, decode_status,
++                              detection_count, raw_count);
++    if (!s4b_ps_trace_commit(record, ticks())) {
++        s4b_current_trace_record = NULL;
++        return 0;
++    }
++    send_start = ticks();
++    sent = send_response(request, snap, index, response_status,
++                         detection_count, raw_count, include_heads);
++    send_done = ticks();
++    s4b_ps_trace_mark_uart(record, send_start, send_done, sent);
++    acked = 0;
++    if (sent != 0 && ack_after_send != 0) {
++        acked = acknowledge(snap);
++        s4b_ps_trace_mark_ack(record, acked);
++    }
++    s4b_current_trace_record = NULL;
++    return success_path != 0 ? acked : 0;
++}
++
+ static int configure_start(uint32_t frame, uint32_t core_timeout, uint32_t drain_timeout, uint32_t input_bytes, uint64_t *expected)
+ {
+     uint64_t before;
+     if (!is_idle() || !read_epoch(&before) || before == UINT64_MAX) return 0;
+     csr_write(0x014U, frame); csr_write(0x018U, 0U); csr_write(0x01CU, input_bytes);
+     csr_write(0x020U, 0x00100000U); csr_write(0x024U, WEIGHT_BYTES);
+-    csr_write(0x028U, core_timeout); csr_write(0x02CU, drain_timeout); barrier(); csr_write(0x008U, 1U);
++    csr_write(0x028U, core_timeout); csr_write(0x02CU, drain_timeout); barrier(); if (s4b_current_trace_record != NULL) { s4b_ps_trace_mark_start_command(s4b_current_trace_record, ticks()); } csr_write(0x008U, 1U);
+     *expected = before + 1U;
+     return 1;
+ }
+@@ -306,34 +381,70 @@
+     }
+     return snap->epoch == expected && snap->frame == frame;
+ }
+-static int infer_one(const wire_header *request, uint32_t index, uint32_t core_timeout, uint32_t drain_timeout)
++static int infer_one(const wire_header *request, uint32_t index,
++                     uint32_t core_timeout, uint32_t drain_timeout)
+ {
+     terminal_snapshot snap = {0U,0U,0U,0U,0U};
+     uint64_t epoch;
+     size_t count = 0U, raw_count = 0U;
+     uint32_t offset;
+     int decoded;
+-    if (!is_idle()) return 0;
++    int safe_terminal;
++    s4b_ps_trace_record *trace_record =
++        s4b_ps_trace_begin_result(index, request->frame + index);
++
++    if (trace_record == NULL) return 0;
++    s4b_current_trace_record = trace_record;
++    if (!is_idle()) {
++        s4b_trace_live_snapshot(trace_record, &snap);
++        (void)s4b_trace_commit_without_uart(trace_record, BAD_STATE);
++        return 0;
++    }
+     prepare_cache();
+-    if (!configure_start(request->frame + index, core_timeout, drain_timeout, INPUT_BYTES, &epoch)) return 0;
++    if (!configure_start(request->frame + index, core_timeout, drain_timeout,
++                         INPUT_BYTES, &epoch)) {
++        s4b_trace_live_snapshot(trace_record, &snap);
++        (void)s4b_trace_commit_without_uart(trace_record, BAD_STATE);
++        return 0;
++    }
+     if (!wait_safe(&snap, epoch, request->frame + index)) {
+-        (void)send_response(request, &snap, index, OBSERVE_TIMEOUT, 0U, 0U, 0); return 0;
+-    }
++        int terminal_observed = s4b_trace_snapshot_has_terminal(&snap);
++        safe_terminal = s4b_trace_snapshot_is_safe(&snap);
++        s4b_ps_trace_mark_terminal(trace_record, snap.epoch, snap.frame,
++                                   snap.status, snap.error, snap.reject,
++                                   terminal_observed, safe_terminal, ticks());
++        return s4b_trace_send_result(request, &snap, index, OBSERVE_TIMEOUT,
++                                     UINT32_MAX, 0U, 0U, 0, 0, 0, trace_record);
++    }
++    s4b_ps_trace_mark_terminal(trace_record, snap.epoch, snap.frame,
++                               snap.status, snap.error, snap.reject,
++                               1, 1, ticks());
+     feature_invalidate();
+     if ((snap.status & 7U) != DONE_SAFE) {
+-        if (send_response(request, &snap, index, BOARD_ERROR, 0U, 0U, 0)) (void)acknowledge(&snap);
+-        return 0;
+-    }
+-    for (offset = 0U; offset < HEAD13_BYTES; ++offset) logits13[offset] = (double)(int8_t)arena[0x01A46100U + offset] * S2B_HEAD13_SCALE;
+-    for (offset = 0U; offset < HEAD26_BYTES; ++offset) logits26[offset] = (double)(int8_t)arena[0x01AD5E80U + offset] * S2B_HEAD26_SCALE;
++        return s4b_trace_send_result(request, &snap, index, BOARD_ERROR,
++                                     UINT32_MAX, 0U, 0U, 0, 1, 0, trace_record);
++    }
++    for (offset = 0U; offset < HEAD13_BYTES; ++offset) {
++        logits13[offset] = (double)(int8_t)arena[0x01A46100U + offset] * S2B_HEAD13_SCALE;
++    }
++    for (offset = 0U; offset < HEAD26_BYTES; ++offset) {
++        logits26[offset] = (double)(int8_t)arena[0x01AD5E80U + offset] * S2B_HEAD26_SCALE;
++    }
+     decoded = s2a_t62_decode_nms(logits13, HEAD13_BYTES, logits26, HEAD26_BYTES,
+-                                request->width, request->height, 0.25, boxes, 15U, &count, &raw_count);
++                                 request->width, request->height, 0.25,
++                                 boxes, 15U, &count, &raw_count);
++    s4b_ps_trace_mark_postprocess(trace_record, (uint32_t)decoded,
++                                  (uint32_t)count, (uint32_t)raw_count, ticks());
+     if (decoded != S2A_T62_OK) {
+-        (void)send_response(request, &snap, index, DECODE_ERROR, 0U, 0U, 0); return 0;
+-    }
+-    if (!send_response(request, &snap, index, RESPONSE_OK, (uint32_t)count, (uint32_t)raw_count, 1)) return 0;
+-    return acknowledge(&snap);
+-}
++        return s4b_trace_send_result(request, &snap, index, DECODE_ERROR,
++                                     (uint32_t)decoded, 0U, 0U, 0, 0, 0,
++                                     trace_record);
++    }
++    return s4b_trace_send_result(request, &snap, index, RESPONSE_OK,
++                                 (uint32_t)decoded, (uint32_t)count,
++                                 (uint32_t)raw_count, 1, 1, 1, trace_record);
++}
++
+ static int diagnostic(const wire_header *request)
+ {
+     uint32_t mode = get32(staging), core = get32(staging + 4U), drain = get32(staging + 8U);
+@@ -446,12 +557,42 @@
+         return send_response(&request, &snap, 0U, RESPONSE_OK, 0U, 0U, 0);
+     }
+     if (request.op == OP_DIAG) return diagnostic(&request);
++    uint32_t session_id;
++    uint64_t input_write_start, input_write_done;
++    uint32_t input_crc32;
++    int session_ready;
++
+     core = get32(staging); drain = get32(staging + 4U);
+     if (!weights_loaded || core == 0U || drain == 0U) {
+-        (void)send_response(&request, &snap, 0U, BAD_PARAMETERS, 0U, 0U, 0); return 0;
+-    }
+-    memcpy(arena, staging + 8U, INPUT_BYTES); input_loaded = 1;
+-    for (index = 0U; index < request.repeat; ++index) if (!infer_one(&request, index, core, drain)) return 0;
++        s4b_ps_trace_note_rejection(request.sequence, request.frame,
++                                    S4B_PS_TRACE_REJECT_BAD_RUN);
++        (void)send_response(&request, &snap, 0U, BAD_PARAMETERS, 0U, 0U, 0);
++        return 0;
++    }
++    input_crc32 = crc32_ieee(staging + 8U, INPUT_BYTES);
++    session_ready = s4b_ps_trace_begin_run(request.sequence, request.frame,
++                                           request.repeat, input_crc32,
++                                           INPUT_BYTES, &session_id);
++    if (!session_ready) {
++        snap.status = csr_read(0x00CU); snap.frame = csr_read(0x058U);
++        snap.error = csr_read(0x010U); snap.reject = csr_read(0x064U);
++        (void)read_epoch(&snap.epoch);
++        (void)send_response(&request, &snap, 0U, BAD_STATE, 0U, 0U, 0);
++        return 0;
++    }
++    (void)session_id;
++    input_write_start = ticks();
++    memcpy(arena, staging + 8U, INPUT_BYTES);
++    input_write_done = ticks();
++    s4b_ps_trace_set_input_write_ticks(input_write_start, input_write_done);
++    input_loaded = 1;
++    for (index = 0U; index < request.repeat; ++index) {
++        if (!infer_one(&request, index, core, drain)) {
++            (void)s4b_ps_trace_end_run(0);
++            return 0;
++        }
++    }
++    if (!s4b_ps_trace_end_run(1)) return 0;
+     return 1;
+ }
+ 
+@@ -488,7 +629,12 @@
+     int length;
+     uint64_t started;
+     if (!initialise()) { publish(0xE001U); return 1; }
+-    length = snprintf(banner, sizeof(banner), "S2B-INFERENCE/1 READY SOURCE=%s XSA=%s MODEL=%s\r\n",
++    if (!s4b_ps_trace_initialize(S4B_PS_BOOT_SEED, S4B_PS_SESSION_FIRST,
++                                 S4B_PS_SESSION_LAST, S2B_C_SOURCE_SHA256,
++                                 s4b_trace_cache_flush, s4b_trace_barrier)) {
++        publish(0xE004U); return 1;
++    }
++    length = snprintf(banner, sizeof(banner), "S2B-INFERENCE/1 READY SOURCE=%s XSA=%s MODEL=%s DIAG=s4b-ps-tensor/1 TRACE_ABI=1\r\n",
+                       S2B_C_SOURCE_SHA256, S2B_XSA_SHA256, S2B_MODEL_SHA256);
+     started = ticks();
+     if (length <= 0 || (size_t)length >= sizeof(banner) || !send_bytes((const uint8_t *)banner, (uint32_t)length, started)) {

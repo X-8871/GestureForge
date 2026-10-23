@@ -101,6 +101,6 @@ python -B verification/s4_replay_compare.py --actual <ACTUAL_DIR> --run-id <RUN_
 ## 8. 已知限制
 
 - 离线仅用主机 mock DDR/cache 与 gcc 编译；缓存回调只验证离线状态机与可见性建模，**不代表真实 PS/BSP 接通**；未接板卡、未接真实串口、未跑 PL，PL resize/letterbox 输入预处理也未接入。
-- 板上注入、真实 UART、摄像头、PL 时间/期限/吞吐、109 全量（S4-C）均为 `NOT_RUN`。
+- 本注入驱动未执行板上注入、真实 UART、摄像头、PL 时间/期限/吞吐或 S4-C 全量回放。历史 `report/evidence/S4-C/s4c_replay_20261021_r05/` 已有 109/109 纯 CPU golden 回放 PASS；其范围限于冻结 heads 的解码/NMS，不能作为本注入驱动、D2 预处理或真实 PL/PS 输出的实测结论。
 - 地址图中 `unresolved_regions`（阶段3/阶段5 未授权区域、显示缓冲精确边界）不得被本阶段访问或猜地址。
 - 契约中 `stale_limit_ns` 仍为 `DRAFT_PENDING_APPROVAL`（草案 200 ms），正式批准前不作为验收门槛。

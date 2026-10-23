@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-B-PL-G0-02",
+  "run_id": "s4b_pl_g0_numeric_20261023_r01",
+  "source_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "evidence_dir": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01",
+  "interfaces": [
+    {
+      "name": "D2 frozen numeric reference",
+      "version": "D2",
+      "frozen": true,
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/compare_d2_float_boundary.py",
+      "sha256": "e0fdaeb3fcf46be4164328facc58409f39b2d1067931672d2a89a32844f5af79",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/decision_material_review.json",
+      "sha256": "df909cbafc31ad75bb6ab25372ec19bbfd13b9d6eb3795e975a435dc0623c1b5",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/result.json",
+      "sha256": "78a7337039b4e36e5c534fd15b21c9518277975f23b1fe07c1c8dd1b926abb37",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/source_inventory.json",
+      "sha256": "3c8d1684583c721afb4a7edaf9283b47a6d2febd891ee58129e315a60d99286e",
+      "role": "result"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "input"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "5b651b3aaea1badfce1d90202282441ae0f62538ab91fd5be32a6d82866eaeef",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "numeric_counterexample",
+      "status": "PASS",
+      "command": "原compare_d2_float_boundary.py通过bundled Python -B运行，详见result.json及source_inventory.json",
+      "exit_code": 0
+    },
+    {
+      "name": "decision_material_independent_review",
+      "status": "PASS",
+      "command": "review_preproc_g0_decision只读审查，见decision_material_review.json",
+      "exit_code": null
+    },
+    {
+      "name": "architecture_approval",
+      "status": "BLOCKED",
+      "command": "Wong重大架构决策待答复",
+      "exit_code": null
+    },
+    {
+      "name": "hardware",
+      "status": "NOT_RUN",
+      "command": "未运行SDK/JTAG/UART",
+      "exit_code": null
+    }
+  ],
+  "tool_versions": {
+    "experiment_python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "limitations": [
+    "本包证明反例与待决策材料就绪，不是G0/G2实现/4D通过。",
+    "新增资源/时序/带宽仍未测；地址为draft，未获准写入。"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-B",
+  "run_id": "s4b_pl_g0_numeric_20261023_r01",
+  "source_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "evidence_dir": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01",
+  "interfaces": [
+    {
+      "name": "Wong批准的D2数值规则",
+      "version": "S1-T02-D2",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/compare_d2_float_boundary.py",
+      "sha256": "e0fdaeb3fcf46be4164328facc58409f39b2d1067931672d2a89a32844f5af79",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/decision_material_review.json",
+      "sha256": "df909cbafc31ad75bb6ab25372ec19bbfd13b9d6eb3795e975a435dc0623c1b5",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/delivery_manifest_initial_failed.json",
+      "sha256": "c7901dc8ba8683745596a534a85f997d5887f9e60ef2c2af409f0404400cc429",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/lead_reproduce/compare_d2_float_boundary.py",
+      "sha256": "e0fdaeb3fcf46be4164328facc58409f39b2d1067931672d2a89a32844f5af79",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/lead_reproduce/execution.json",
+      "sha256": "ffd6bbaeb987e0f055f7236fff730be8d5a86c3d7aebfdf1005d4b9db926649a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/lead_reproduce/result.json",
+      "sha256": "f82664a48b77d0ac3c067d30e199eec8aae5774b4fd71d8c8e53dfc8767e861c",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/result.json",
+      "sha256": "78a7337039b4e36e5c534fd15b21c9518277975f23b1fe07c1c8dd1b926abb37",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/source_inventory.json",
+      "sha256": "3c8d1684583c721afb4a7edaf9283b47a6d2febd891ee58129e315a60d99286e",
+      "role": "result"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "input"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "5b651b3aaea1badfce1d90202282441ae0f62538ab91fd5be32a6d82866eaeef",
+      "role": "input"
+    },
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "numeric_counterexample_lead_reproduction",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-PL-G0-02\\lead_reproduce_20261023_r01\\compare_d2_float_boundary.py",
+      "exit_code": 0
+    },
+    {
+      "name": "architecture_approval",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "重大架构路线已提请Wong，当前尚未答复。"
+    },
+    {
+      "name": "hardware",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本任务只有离线数值复算及候选方案审查；不连接SDK/JTAG/UART。"
+    }
+  ],
+  "tool_versions": {
+    "experiment_python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "limitations": [
+    "本包证明反例与待决策材料就绪，不是G0/G2实现/4D通过。",
+    "新增资源/时序/带宽仍未测；地址为draft，未获准写入。",
+    "独立Reviewer对待决策材料判PASS，记录于decision_material_review.json；此为人工审查而非伪造命令exit0。首版清单schema检查exit2及原文件保留。"
+  ]
+}

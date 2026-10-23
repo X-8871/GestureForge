@@ -1,0 +1,55 @@
+{
+  "reviewer": "review_s4b_injection",
+  "task_id": "S4-B-REAL-G2-R2-02",
+  "status": "CHANGES_REQUIRED",
+  "baseline_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "snapshot_sha256": "dc87596dbcae6bd539c23a821d726fbb9d155c824acbc03ac7d61cd643dd0348",
+  "frozen_files_checked_before_after": 17,
+  "frozen_files_mismatched_before_after": 0,
+  "delivery_manifest_sha256": "620878850e996dcd8a7e9214b4eb3b5e4219380f907be45bc35a3b0f5ef8b601",
+  "closed": [
+    "初始化整records flush→barrier→header→barrier；非法初始化保态/修正重试、成功后拒绝重复初始化。",
+    "expected派生SOURCE与非零boot seed绑定，CRC重算的错误SOURCE/seed与零seed拒绝。",
+    "逆序ticks、同session固定元数据变化、UART失败却ACK、timeout却ACK等反例拒绝。",
+    "合法成功、ERROR_SAFE+sent+ACK、FAULT timeout/noACK、无UART BAD_STATE、partial RUN及共享CPU复制时间均接受。"
+  ],
+  "remaining": [
+    {
+      "id": "R2-PS-04",
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "line": 194,
+      "issue": "物理safe但epoch/frame不匹配的OBSERVE_TIMEOUT是派生器合法失败快照，却被decoder拒绝。",
+      "observed": [
+        "safe+wrong frame拒为terminal_safe_status_or_frame_mismatch",
+        "safe+same frame但epoch不匹配语义拒为timeout_claims_safe_terminal"
+      ],
+      "close_when": "允许保留原始物理safe/实际epoch/frame的timeout，严格无ACK；成功/ACK路径仍按事务身份校验，不抹改快照。"
+    },
+    {
+      "id": "R2-PS-05",
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "line": 207,
+      "issue": "RESPONSE_OK缺必需START/后处理事件，或decode_status99、detection_count16仍被接受。",
+      "close_when": "按实际生成路径校验成功必需事件、S2A_T62_OK与输出数量边界；CRC重算负例与合法发送/ACK失败控制。"
+    }
+  ],
+  "independent_probe": {
+    "directory": "reviewer_r2_round02",
+    "inventory": "reviewer_r2_round02_inventory.json",
+    "decoder_final_exit_code": 0,
+    "c_compile_native_exit_code": 0,
+    "c_run_native_exit_code": 0,
+    "cli_success_native_exit_code": 0,
+    "cli_actual_safe_timeout_native_exit_code": 1,
+    "expected_identity": {
+      "derived_source_sha256": "1be7a551e26f61be1327cdb56672b08d86d17d16433ac405ebd263d5f35bf436",
+      "boot_seed": "0x5342424f4f543131"
+    },
+    "negative_log_note": "早期探针自身编写错误日志与修正后最终探针均保留；不将缺参数/TypeError当语义反例拒绝成功。"
+  },
+  "limitations": [
+    "R11的ARM/30Python通过来自已绑定构建证据，不代表Reviewer板测或PS执行。",
+    "底层cacheline/DDR、物理UART、PL时间仍UNKNOWN/G3未验证。",
+    "物理安全与事务身份匹配是不同条件；当前新PS G2尚未通过。"
+  ]
+}

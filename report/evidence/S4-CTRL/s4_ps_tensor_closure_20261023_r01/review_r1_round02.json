@@ -1,0 +1,44 @@
+{
+  "reviewer": "review_s4a_contract",
+  "task_id": "S4-B-REAL-G2-R1-02",
+  "status": "CHANGES_REQUIRED",
+  "baseline_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "snapshot_sha256": "dc87596dbcae6bd539c23a821d726fbb9d155c824acbc03ac7d61cd643dd0348",
+  "delivery_manifest_sha256": "620878850e996dcd8a7e9214b4eb3b5e4219380f907be45bc35a3b0f5ef8b601",
+  "identity_note": "任务消息的manifest标签有歧义；Lead与Reviewer分别复算并明确冻结快照和交付清单是两个文件，二者均未变化。",
+  "frozen_files_checked": 17,
+  "frozen_files_mismatched_before_after": 0,
+  "delivery_files_checked": 54,
+  "delivery_files_mismatched": 0,
+  "closed": [
+    {
+      "id": "R1-PS-01",
+      "evidence": "8种Windows/遍历/别名路径均在写入前拒绝；允许前缀内合法路径接受；实际解析根与大小写碰撞检查已加入。"
+    },
+    {
+      "id": "R1-PS-02",
+      "evidence": "完整.stack71680B、主栈65536B及各异常栈顺序/大小/边界核验已加入；独立探针验证缺IRQ符号及整体移出arena被拒绝。"
+    }
+  ],
+  "remaining": [
+    {
+      "id": "R1-PS-03",
+      "path": "docs/stage4/S4B_ps_tensor_injection_runbook.md",
+      "line": 67,
+      "issue": "READY及构建命令已正确；硬件段仍只有阶段/条件，未交付装载/启动/双读导出/停止调用模板。",
+      "close_when": "补明确PLAN_ONLY不可执行的Python SDK/受控adapter调用模板，完整绑定/门禁与OCM init→EOS1/PL/postconfig/冷CSR→DDR app，安全双读/身份传递/本次CPU0停止，未实现adapter不得伪称存在。"
+    }
+  ],
+  "independent_probe": {
+    "directory": "reviewer_r1_round02",
+    "inventory": "reviewer_r1_round02_inventory.json",
+    "source_sha256": "d0961a882dc2c4c9e7ace2fef2eea6bf668d3f36289f6e71630948f57834eb03",
+    "stdout_sha256": "ae222c1f4b2f0b8a39d0446a10e612b0d808bccd640a902e1347fb0cf06f1567",
+    "native_exit_code": 0
+  },
+  "limitations": [
+    "离线构建PASS_BUILD_ONLY；未重跑编译/测试，未连接硬件。",
+    "r11的13条实际构建/检查命令及30Python用例来自已绑定日志，不冒充Reviewer新执行。",
+    "真实PS/PL/UART/DDR及RGB未验证；计划模板未完成，不能声称上板准备/批准就绪。"
+  ]
+}

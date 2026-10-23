@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "status": "PASS_BUILD_ONLY",
+  "exit_code": 0,
+  "commands": [
+    {
+      "name": "aarch32_gcc_version",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "--version"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4",
+      "exit_code": 0,
+      "elapsed_seconds": 0.101676,
+      "stdout_path": "aarch32_gcc_version.stdout.txt",
+      "stdout_sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "stderr_path": "aarch32_gcc_version.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "host_gcc_version",
+      "command": [
+        "D:\\mingw64\\bin\\gcc.exe",
+        "--version"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4",
+      "exit_code": 0,
+      "elapsed_seconds": 0.099507,
+      "stdout_path": "host_gcc_version.stdout.txt",
+      "stdout_sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "stderr_path": "host_gcc_version.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "host_c_api_compile",
+      "command": [
+        "D:\\mingw64\\bin\\gcc.exe",
+        "-std=c11",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wconversion",
+        "-Wshadow",
+        "-Werror",
+        "-I",
+        "D:\\codex-worktrees\\w4\\vitis\\stage4\\ps",
+        "D:\\codex-worktrees\\w4\\vitis\\stage4\\ps\\s4b_ps_trace.c",
+        "D:\\codex-worktrees\\w4\\verification\\test_s4b_ps_trace_api.c",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\host_tests\\test_s4b_ps_trace_api.exe"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\host_tests",
+      "exit_code": 0,
+      "elapsed_seconds": 1.127434,
+      "stdout_path": "host_c_api_compile.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "host_c_api_compile.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "host_c_api_regression",
+      "command": [
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\host_tests\\test_s4b_ps_trace_api.exe"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\host_tests",
+      "exit_code": 0,
+      "elapsed_seconds": 0.131959,
+      "stdout_path": "host_c_api_regression.stdout.txt",
+      "stdout_sha256": "15288dc391aceaa5ca5eb74f861fb5a6eb06aa372a2fde2705e9bc7bbef46d8c",
+      "stderr_path": "host_c_api_regression.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "host_c_api_session_exhaustion",
+      "command": [
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\host_tests\\test_s4b_ps_trace_api.exe",
+        "--range-exhaustion"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\host_tests",
+      "exit_code": 0,
+      "elapsed_seconds": 0.009099,
+      "stdout_path": "host_c_api_session_exhaustion.stdout.txt",
+      "stdout_sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "stderr_path": "host_c_api_session_exhaustion.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "python_unit_suite",
+      "command": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "verification.test_s4b_ps_tensor",
+        "-v"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4",
+      "exit_code": 0,
+      "elapsed_seconds": 0.176625,
+      "stdout_path": "python_unit_suite.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "python_unit_suite.stderr.txt",
+      "stderr_sha256": "6ca5abe27df748a425217e14631d97828f126bc2f298fc79e627f955e826dd27"
+    },
+    {
+      "name": "compile_00_s2a_ps_decode_nms_reference",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "-DSDT",
+        "-mcpu=cortex-a9",
+        "-mfpu=vfpv3",
+        "-mfloat-abi=hard",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\x86_64-oesdk-mingw32\\usr\\lib\\arm-xilinx-eabi\\gcc\\arm-xilinx-eabi\\13.4.0\\include",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\x86_64-oesdk-mingw32\\usr\\lib\\arm-xilinx-eabi\\gcc\\arm-xilinx-eabi\\13.4.0\\include-fixed",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\aarch32-xilinx-eabi\\usr\\include",
+        "-specs=D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\Xilinx.spec",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\include",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g3",
+        "-std=gnu11",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-save-temps=obj",
+        "-U__clang__",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s2a_ps_decode_nms_reference.obj",
+        "-c",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src\\s2a_ps_decode_nms_reference.c"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.28412,
+      "stdout_path": "compile_00_s2a_ps_decode_nms_reference.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "compile_00_s2a_ps_decode_nms_reference.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "compile_01_s2b_inference_app",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "-DSDT",
+        "-mcpu=cortex-a9",
+        "-mfpu=vfpv3",
+        "-mfloat-abi=hard",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\x86_64-oesdk-mingw32\\usr\\lib\\arm-xilinx-eabi\\gcc\\arm-xilinx-eabi\\13.4.0\\include",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\x86_64-oesdk-mingw32\\usr\\lib\\arm-xilinx-eabi\\gcc\\arm-xilinx-eabi\\13.4.0\\include-fixed",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\aarch32-xilinx-eabi\\usr\\include",
+        "-specs=D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\Xilinx.spec",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\include",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g3",
+        "-std=gnu11",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-save-temps=obj",
+        "-U__clang__",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s2b_inference_app.obj",
+        "-c",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src\\s2b_inference_app.c"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.554405,
+      "stdout_path": "compile_01_s2b_inference_app.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "compile_01_s2b_inference_app.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "compile_02_s4b_ps_trace",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "-DSDT",
+        "-mcpu=cortex-a9",
+        "-mfpu=vfpv3",
+        "-mfloat-abi=hard",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\x86_64-oesdk-mingw32\\usr\\lib\\arm-xilinx-eabi\\gcc\\arm-xilinx-eabi\\13.4.0\\include",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\x86_64-oesdk-mingw32\\usr\\lib\\arm-xilinx-eabi\\gcc\\arm-xilinx-eabi\\13.4.0\\include-fixed",
+        "-isystem",
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\aarch32-xilinx-eabi\\usr\\include",
+        "-specs=D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\Xilinx.spec",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\include",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g3",
+        "-std=gnu11",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-save-temps=obj",
+        "-U__clang__",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_trace.obj",
+        "-c",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src\\s4b_ps_trace.c"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.180694,
+      "stdout_path": "compile_02_s4b_ps_trace.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "compile_02_s4b_ps_trace.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "link_s4b_ps_tensor",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+        "-DSDT",
+        "-mcpu=cortex-a9",
+        "-mfpu=vfpv3",
+        "-mfloat-abi=hard",
+        "-specs=D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\Xilinx.spec",
+        "-ID:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\include",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "-g3",
+        "-std=gnu11",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-save-temps=obj",
+        "-U__clang__",
+        "-Wl,-Map=D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_tensor_diagnostic.map,--cref,--gc-sections",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s2a_ps_decode_nms_reference.obj",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s2b_inference_app.obj",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_trace.obj",
+        "-o",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_tensor_diagnostic.elf",
+        "-LD:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\lib",
+        "-Wl,-T",
+        "-Wl,D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src\\lscript.ld",
+        "-LD:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\infer\\src",
+        "-LD:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\lib",
+        "-L/",
+        "-Wl,--start-group,-lxilstandalone,-lxiltimer,-lxil,-lgcc,-lc,-lm",
+        "-Wl,--end-group"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.260379,
+      "stdout_path": "link_s4b_ps_tensor.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_path": "link_s4b_ps_tensor.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "elf_size",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-size.exe",
+        "--format=berkeley",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_tensor_diagnostic.elf"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.069215,
+      "stdout_path": "elf_size.stdout.txt",
+      "stdout_sha256": "a85f7f6e97cd3e5cdc7a026b14538d48a6121ba3dd19505bb50469876d3715a7",
+      "stderr_path": "elf_size.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "elf_sections",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+        "-h",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_tensor_diagnostic.elf"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.085236,
+      "stdout_path": "elf_sections.stdout.txt",
+      "stdout_sha256": "e03f8acc5d569f48d2882a982a6cad2998e9ca5a231aa05b67435b37fee7e3d8",
+      "stderr_path": "elf_sections.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "elf_symbols",
+      "command": [
+        "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-nm.exe",
+        "-n",
+        "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build\\s4b_ps_tensor_diagnostic.elf"
+      ],
+      "cwd": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r12\\infer_build",
+      "exit_code": 0,
+      "elapsed_seconds": 0.070304,
+      "stdout_path": "elf_symbols.stdout.txt",
+      "stdout_sha256": "330d0d3f2363dc2b67b8d13f4d0e6af61759bceaf2e207de00362245a86ccfe6",
+      "stderr_path": "elf_symbols.stderr.txt",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "ARM ELF为冻结2B PS app的受控派生版本；不是原版2B ELF。",
+    "只使用冻结恢复包中的BSP头文件/静态库/链接脚本；未运行Vitis平台重建，也未重建PL。",
+    "旁路日志的时间戳为PS global timer原始ticks；首个安全终态观察时刻不是PL精确完成周期；timebase与ns换算未批准。",
+    "capture_time_available=false、capture_time_ns=0；stale/timebase及正式inference_time_ns不作验收结论。",
+    "真实板卡、UART、PL启动/完成、DDR导出、停止/恢复均NOT_RUN；RGB预处理BLOCKED_PENDING_G0。"
+  ],
+  "host_tests": {
+    "strict_host_c_compile": "PASS",
+    "direct_c_api_regression": "PASS",
+    "u32_session_exhaustion": "PASS",
+    "python_unit_tests": 33,
+    "python_unit_status": "PASS",
+    "host_c_test_executable_sha256": "07b78fdb5b3c56539a526a2a4e49c57af48b46476261e63ff5c14729d459576a",
+    "host_c_test_executable_bytes": 75516
+  },
+  "derived_app_sha256": "1be7a551e26f61be1327cdb56672b08d86d17d16433ac405ebd263d5f35bf436",
+  "elf_sha256": "f61300d26dc0b66410b9348b5e96719e7c06061ce807cbc86a8149962471718e",
+  "elf_bytes": 432548,
+  "map_sha256": "0fbeab6d269a5f31cc50be5c00e8bf4671bfbe99975cfe7e15e190f605d45b00",
+  "memory_ranges": {
+    "ps_app_arena": {
+      "start": 1048576,
+      "end_exclusive": 17825792,
+      "name": "ps_app_arena"
+    },
+    "bss": {
+      "start": 1147008,
+      "end_exclusive": 7464656,
+      "size_bytes": 6317648
+    },
+    "heap": {
+      "start": 7464656,
+      "end_exclusive": 8513232,
+      "size_bytes": 1048576
+    },
+    "stack": {
+      "start": 8513232,
+      "end_exclusive": 8584912,
+      "size_bytes": 71680
+    },
+    "thread_stack": {
+      "start": 8513232,
+      "end_exclusive": 8578768,
+      "size_bytes": 65536
+    },
+    "exception_stacks": {
+      "IRQ": {
+        "start": 8578768,
+        "end_exclusive": 8579792,
+        "size_bytes": 1024
+      },
+      "SVC": {
+        "start": 8579792,
+        "end_exclusive": 8581840,
+        "size_bytes": 2048
+      },
+      "ABT": {
+        "start": 8581840,
+        "end_exclusive": 8582864,
+        "size_bytes": 1024
+      },
+      "FIQ": {
+        "start": 8582864,
+        "end_exclusive": 8583888,
+        "size_bytes": 1024
+      },
+      "UND": {
+        "start": 8583888,
+        "end_exclusive": 8584912,
+        "size_bytes": 1024
+      }
+    },
+    "trace_header": {
+      "start": 7464512,
+      "end_exclusive": 7464656,
+      "size_bytes": 144
+    },
+    "trace_records": {
+      "start": 7280512,
+      "end_exclusive": 7464512,
+      "size_bytes": 184000,
+      "record_capacity": 1000,
+      "record_bytes": 184
+    },
+    "staging": {
+      "start": 1377344,
+      "end_exclusive": 7280444,
+      "size_bytes": 5903100
+    },
+    "network_input_tensor": {
+      "start": 268435456,
+      "end_exclusive": 268954624,
+      "size_bytes": 519168,
+      "name": "network_input_tensor"
+    },
+    "s2b_tensor_arena": {
+      "start": 268435456,
+      "end_exclusive": 301989888,
+      "size_bytes": 33554432,
+      "name": "s2b_tensor_arena"
+    },
+    "elf_sections": {
+      ".text": {
+        "size_bytes": 60012,
+        "vma": 1048576
+      },
+      ".init": {
+        "size_bytes": 12,
+        "vma": 1108588
+      },
+      ".fini": {
+        "size_bytes": 12,
+        "vma": 1108600
+      },
+      ".rodata": {
+        "size_bytes": 4051,
+        "vma": 1108616
+      },
+      ".data": {
+        "size_bytes": 1784,
+        "vma": 1112672
+      },
+      ".mmu_tbl": {
+        "size_bytes": 16384,
+        "vma": 1130496
+      },
+      ".ARM.exidx": {
+        "size_bytes": 8,
+        "vma": 1146880
+      },
+      ".init_array": {
+        "size_bytes": 8,
+        "vma": 1146888
+      },
+      ".fini_array": {
+        "size_bytes": 4,
+        "vma": 1146896
+      },
+      ".drvcfg_sec": {
+        "size_bytes": 64,
+        "vma": 1146900
+      },
+      ".ARM.attributes": {
+        "size_bytes": 51,
+        "vma": 1146964
+      },
+      ".bss": {
+        "size_bytes": 6317648,
+        "vma": 1147008
+      },
+      ".heap": {
+        "size_bytes": 1048576,
+        "vma": 7464656
+      },
+      ".stack": {
+        "size_bytes": 71680,
+        "vma": 8513232
+      },
+      ".s2b_tensor_ddr": {
+        "size_bytes": 33554432,
+        "vma": 268435456
+      },
+      ".comment": {
+        "size_bytes": 18,
+        "vma": 0
+      },
+      ".debug_info": {
+        "size_bytes": 75936,
+        "vma": 0
+      },
+      ".debug_abbrev": {
+        "size_bytes": 13438,
+        "vma": 0
+      },
+      ".debug_loclists": {
+        "size_bytes": 42473,
+        "vma": 0
+      },
+      ".debug_aranges": {
+        "size_bytes": 1272,
+        "vma": 0
+      },
+      ".debug_rnglists": {
+        "size_bytes": 5373,
+        "vma": 0
+      },
+      ".debug_macro": {
+        "size_bytes": 22240,
+        "vma": 0
+      },
+      ".debug_line": {
+        "size_bytes": 60444,
+        "vma": 0
+      },
+      ".debug_str": {
+        "size_bytes": 88940,
+        "vma": 0
+      },
+      ".debug_frame": {
+        "size_bytes": 5020,
+        "vma": 0
+      },
+      ".debug_line_str": {
+        "size_bytes": 317,
+        "vma": 0
+      }
+    }
+  },
+  "elapsed_seconds": 3.380964,
+  "bundle_manifest_source_commit": "03faa2d47a6e49d7475e387cf6b33edda4962c68",
+  "xsa_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+  "model_manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+  "bsp_reused": true,
+  "platform_rebuilt": false,
+  "pl_rebuilt": false,
+  "hardware_execution": "NOT_RUN",
+  "external_inputs_unchanged_after_build": true,
+  "derived_app_ready_identity": "SOURCE是派生app C源码SHA；DIAG与TRACE_ABI标识新增诊断ABI；最终装载身份还绑定ELF SHA。"
+}

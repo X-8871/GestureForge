@@ -1,0 +1,34 @@
+{
+  "baseline_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "snapshot_sha256": "b0113c93778d6bb7fc1aadb9849834ad73323bc2d8c33851bc053c763ec664d2",
+  "frozen_files_checked": 17,
+  "frozen_files_mismatched": 0,
+  "delivery_manifest_sha256": "a52c0886f1bedee0a141dbe9410b6b52e82cdcb85702a72b807123a829980e14",
+  "status": "CHANGES_REQUIRED",
+  "reviewer": "ps_review_r2_final",
+  "remaining": [
+    {
+      "id": "R2-PS-06",
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "line": 475,
+      "issue": "last_run_status1只检查数量，接受UART/ACK失败、BOARD_ERROR及DECODE_ERROR的不可能完成态。",
+      "close_when": "按派生app和trace C完整RUN结束语义校验，status1的末次session所有attempt均成功；失败尝试保留status2正例。"
+    }
+  ],
+  "closed": [
+    "R2-PS-04合法物理safe错epoch/frame超时保留且无ACK",
+    "R2-PS-05成功事件矩阵、decode状态及15/12675边界"
+  ],
+  "independent_probe": {
+    "inventory": "reviewer_r2_round03_inventory.json",
+    "r01_probe_exit": 1,
+    "r01_failure_kind": "探针字段路径错误，非decoder语义拒绝",
+    "r02_probe_exit": 0,
+    "r03_probe_exit": 0,
+    "unittest_exit": 0,
+    "unittest_count": 33
+  },
+  "limitations": [
+    "PASS_BUILD_ONLY；rawticks不是ns；copytime不是DDR可见时间；真实cache/UART/PL仍UNKNOWN。"
+  ]
+}

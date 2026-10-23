@@ -1,0 +1,464 @@
+{
+  "schema_version": "gestureforge_s4_shared_io_contract_v2",
+  "contract_id": "s4-shared-io",
+  "contract_version": "1.1.0",
+  "status": "DRAFT_PENDING_REVIEW",
+  "revision": "r03",
+  "created_utc8": "2026-10-22T19:20:00+08:00",
+  "revision_note": "r03：只修正未冻结草案与 S4-A r06 权威不一致处，保留 r02 及其证据；session_id 改为 S4-A u32，明确 join_key、PS 日志主键、UART 可观测键及桥接日志字段；固定 synthetic/file_injection/camera 到 S4-A source_kind 的一一映射和采集时间真值表；修正输入 invalidate 事件顺序。阶段5显示/HUD语义及 s2bu/1.1 正文与扩展保持不变。",
+  "task_id": "S4-CTRL/S4B-contract",
+  "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
+  "consumers": [
+    "阶段5（只读消费冻结交付）",
+    "阶段4 内部：注入通路 / 离线回归 / 板上注入 / 摄像头"
+  ],
+  "scope": "阶段4 与阶段5 共享的输入帧契约与结果契约。阶段4 实施，阶段5 只读消费；本文件不定义阶段5 的显示布局/像素门槛（属阶段5 G0），也不改 2B 的 `s2bu/1.1` 正文。",
+  "upstream_bindings": [
+    {
+      "id": "s4a_g0_contract",
+      "role": "阶段4 G0 结果记录/时间口径/异常/measurement_scope 的权威（机器可读）",
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "declared_status": "G0_ROUND_FROZEN_R06",
+      "declared_revision": "r06",
+      "status_note": "本契约以该 JSON 为唯一机器权威；其 md 人读镜像的一致性由 S4-A 自身自检保证，故此处不再重复绑定（避免与 S4-A 编辑期互相漂移）"
+    },
+    {
+      "id": "stage4_address_map",
+      "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+    },
+    {
+      "id": "cdx_010_stage4_runbook",
+      "role": "4-A/4-B 要求来源",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-010-stage4-inference-runbook.md",
+      "sha256": "4cd61ee0021440fd252bf06371bde87488c24941d78681992e40fc2d9521cf89"
+    },
+    {
+      "id": "cdx_014_stage5_runbook_r02",
+      "role": "阶段5 五元组/HUD/过期边界要求来源",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-014-stage5-display-runbook-r02.md",
+      "sha256": "f25e5ebb2e99c1b47a6e0e3aad3b8e903a496072c3c5fe148d129e353895a141"
+    },
+    {
+      "id": "cdx_015_execution_index_r02",
+      "role": "执行入口/证据与判定口径来源",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-015-execution-index-r02.md",
+      "sha256": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7"
+    },
+    {
+      "id": "stage5_display_g0_fields",
+      "role": "阶段5 G0 显示语义/过期常量的权威（只读引用，不写 w5）",
+      "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json",
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911"
+    }
+  ],
+  "authority_rules": {
+    "rule": "本契约只能引用**已提交且经独立审查**的权威版本；禁止引用模糊的“最新文件”。",
+    "drift_detection": "自检脚本必须现场复算 upstream_bindings 的 SHA-256；任一不符即 FAIL，必须由本契约所有者显式更新绑定并重新审查，不得静默沿用。",
+    "replacement_record": "权威被新版本取代时，必须在本契约记录被取代的 SHA 与取代关系（例如 S4-A r05 `3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87` → r06 `657ea2fb…`），并通知消费方（阶段5）重新绑定。",
+    "freeze_precondition": "本契约冻结前，上述全部绑定必须与磁盘一致，且对应权威自身已冻结/提交。"
+  },
+  "input_frame_contract": {
+    "description": "一帧送入阶段4 链路的输入。producer = 注入器或采集侧；consumer = 预处理/网络链路所有者。所有字段必须随该帧一起被记录（证据侧至少记为元数据 JSON）。",
+    "fields": [
+      {
+        "name": "contract_version",
+        "type": "string",
+        "required": true,
+        "semantics": "固定 's4-shared-io/1.1.0'；不匹配即拒绝消费"
+      },
+      {
+        "name": "source_kind",
+        "type": "enum",
+        "required": true,
+        "values": [
+          "file_injection",
+          "camera",
+          "synthetic"
+        ],
+        "semantics": "帧来源类别（取值与 C 实现/CLI 完全一致；映射到 S4-A 的 source_kind 见 vocabulary_mapping）：file_injection 覆盖注入链路、camera 覆盖真实采集、synthetic 用于合成/诊断；决定可用时间字段与允许的结论范围"
+      },
+      {
+        "name": "session_id",
+        "type": "uint32",
+        "required": true,
+        "semantics": "沿用 S4-A u32；PS 每次启动、复位 frame_id 计数或同一请求重开 RUN 时重新分配，同一会话内不变且 frame_id 不复用；按 S4-A 规则拒绝回绕。"
+      },
+      {
+        "name": "frame_id",
+        "type": "uint32",
+        "required": true,
+        "semantics": "PS 采集/注入侧按 +1 单调分配（沿用 S4-A frame_id_allocation），与送入 PL 的 FRAME_ID 同值"
+      },
+      {
+        "name": "width",
+        "type": "uint32",
+        "required": true,
+        "semantics": "原图像素宽；补边逆映射唯一基准"
+      },
+      {
+        "name": "height",
+        "type": "uint32",
+        "required": true,
+        "semantics": "原图像素高"
+      },
+      {
+        "name": "pixel_format",
+        "type": "enum",
+        "required": true,
+        "values": [
+          "RGB888",
+          "RGB565",
+          "GRAY8",
+          "INT8_CHW_416"
+        ],
+        "semantics": "缓冲格式；**覆盖范围由注入点决定**：RGB888/RGB565 在被验收预处理之前才覆盖预处理链；INT8_CHW_416 仅覆盖网络+后处理；GRAY8 仅诊断，不得与彩色 golden 比对"
+      },
+      {
+        "name": "byte_order",
+        "type": "string",
+        "required": true,
+        "values": [
+          "little"
+        ],
+        "semantics": "当前平台 little-endian；其他取值需显式声明并重新评审"
+      },
+      {
+        "name": "stride_bytes",
+        "type": "uint32",
+        "required": true,
+        "semantics": "行跨距（字节），>= 每行有效字节；行尾填充未定义、不得被消费"
+      },
+      {
+        "name": "buffer",
+        "type": "object",
+        "required": true,
+        "fields": [
+          "region_name",
+          "base_addr",
+          "offset_bytes",
+          "length_bytes",
+          "alignment"
+        ],
+        "semantics": "半开区间 [base_addr+offset_bytes, +length_bytes)；region_name 必须存在于地址图；长度与格式推导值不符即拒绝"
+      },
+      {
+        "name": "frame_integrity",
+        "type": "object",
+        "required": true,
+        "fields": [
+          "algorithm",
+          "value",
+          "length_bytes"
+        ],
+        "semantics": "逐帧完整性绑定：algorithm ∈ {crc32_ieee, sha256}；value 为摘要；length_bytes 为实际写入字节数。禁止只记一次"
+      },
+      {
+        "name": "capture_time_available",
+        "type": "boolean",
+        "required": true,
+        "semantics": "是否具有真实采集时间。必须与 measurement_scope.capture_time_available 一致：file_injection 与 synthetic 为 false，camera 为 true。前两者结果侧 capture_time_ns=0 并标记 unavailable_fields；camera 必须为非零且不得标记 unavailable。"
+      },
+      {
+        "name": "injection_start_ns",
+        "type": "uint64",
+        "required": false,
+        "semantics": "仅 FILE_INJECTION：PS 开始把该帧写入 DDR 的单调时刻。**它不是采集时间**，不得写入 capture_time_ns，也不得据此把它当采集延迟"
+      },
+      {
+        "name": "capture_time_ns",
+        "type": "uint64",
+        "required": false,
+        "semantics": "camera 必须提供非零的第一个有效像素时刻且不得列入 unavailable_fields；file_injection 与 synthetic 使用 0 哨兵并在 measurement_scope.unavailable_fields 列出 capture_time_ns，不得解释为采集时刻。"
+      },
+      {
+        "name": "timestamp_source",
+        "type": "object",
+        "required": true,
+        "fields": [
+          "clock",
+          "freq_hz",
+          "wrap_handling",
+          "epoch_note"
+        ],
+        "semantics": "PS 单调计数器（建议 XTime/global timer）；频率需核验后填；必须声明回绕处理"
+      },
+      {
+        "name": "clock_domain",
+        "type": "string",
+        "required": true,
+        "semantics": "时间戳所属时钟域（如 'PS 100MHz global timer'）；FILE_INJECTION 下必填；跨域测量必须显式声明"
+      },
+      {
+        "name": "measurement_scope",
+        "type": "object",
+        "required": true,
+        "semantics": "取值域与 S4-A evidence_annotation.measurement_scope 完全一致；source_kind 须与顶层 source_kind 一一对应，capture_time_available 须与顶层布尔值相同。file_injection/synthetic 下 unavailable_fields 必须包含 capture_time_ns 且 capture_time_ns=0；camera 下 capture_time_ns 必须非零且 unavailable_fields 不得包含它。"
+      }
+    ],
+    "vocabulary_mapping": {
+      "policy": "本契约使用与 S4-A 相同的取值域；下表给出跨命名映射，**不得新增 S4-A 未定义的枚举值**。",
+      "source_kind": {
+        "s4a": [
+          "OFFLINE_REGRESSION",
+          "BOARD_INJECTION",
+          "CAMERA"
+        ],
+        "contract": [
+          "file_injection",
+          "camera",
+          "synthetic"
+        ],
+        "map": {
+          "file_injection": "BOARD_INJECTION",
+          "synthetic": "OFFLINE_REGRESSION",
+          "camera": "CAMERA"
+        },
+        "note": "契约与 C 实现/CLI 使用同一小写取值；S4-A 使用大写 OFFLINE_REGRESSION/BOARD_INJECTION/CAMERA。证据中必须同时记录两侧取值或记录本映射，禁止出现第三种命名。"
+      },
+      "measurement_scope_keys": [
+        "source_kind",
+        "pl_timing",
+        "uart_transport",
+        "board_pl",
+        "capture_time_available",
+        "injection_start_ns",
+        "clock_domain",
+        "unavailable_fields"
+      ],
+      "pl_timing_allowed": [
+        "MEASURED",
+        "NOT_EXECUTED_OFFLINE"
+      ],
+      "uart_transport_allowed": [
+        "MEASURED",
+        "NOT_EXECUTED_OFFLINE"
+      ],
+      "board_pl_allowed": [
+        "MEASURED",
+        "NOT_EXECUTED_OFFLINE"
+      ],
+      "capture_time_available_allowed": [
+        true,
+        false
+      ],
+      "source_kind_mapping_rule": "映射严格为 file_injection→BOARD_INJECTION、synthetic→OFFLINE_REGRESSION、camera→CAMERA；不得存在额外映射或一对多映射。顶层 source_kind 和 measurement_scope.source_kind 必须映射到同一个 S4-A 值。",
+      "capture_time_truth_table": {
+        "file_injection": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
+        "synthetic": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
+        "camera": {"capture_time_available": true, "capture_time_ns": "nonzero", "unavailable_fields_contains_capture_time_ns": false}
+      },
+      "rule": "file_injection/BOARD_INJECTION 与 synthetic/OFFLINE_REGRESSION ⇒ capture_time_available=false、capture_time_ns=0 哨兵且 unavailable_fields 必须列出 capture_time_ns；file_injection 还必须给出 injection_start_ns 与 clock_domain。camera/CAMERA ⇒ capture_time_available=true、capture_time_ns 非零且不得标记 unavailable。"
+    },
+    "events": {
+      "order": [
+        "producer_write_start",
+        "producer_write_complete",
+        "cache_flush_by_producer",
+        "ownership_publish_to_consumer",
+        "consumer_invalidate",
+        "consumer_start",
+        "consumer_done",
+        "buffer_release_to_producer"
+      ],
+      "producer_write_complete": "写完最后一字节的事件（日志带 session_id/frame_id/length/frame_integrity）",
+      "ownership_publish_to_consumer": "所有权移交的显式事件；消费者在此之前不得读取",
+      "consumer_invalidate": "所有权发布后、消费者读取前，对输入帧区间 invalidate + DSB，确保消费者看到 backing DDR 中生产者写入的数据。",
+      "consumer_done": "消费者完成读取/推理（PL done 或离线 mock 等价事件）；超时不代表消费者已停止。",
+      "buffer_release_to_producer": "消费者放弃缓冲的显式事件；在此之前生产者不得覆盖该帧",
+      "rule": "任一事件缺失即该帧不可消费；不得用超时推断完成"
+    },
+    "cache_and_dma_rules": {
+      "hardware_cache_line_bytes": 32,
+      "maintenance_alignment_bytes": 64,
+      "alignment_note": "32 B 是冻结 2B BSP 源码声明的硬件缓存行参数；64 B 是本契约采用的保守维护区间向外取整/缓冲对齐策略，不代表 Cortex-A9 物理缓存行大小。",
+      "producer": "写完帧后、发布所有权前 flush（DCache 写回，按 64 B maintenance_alignment_bytes 向外取整）+ DSB",
+      "consumer": "读取输入帧前 invalidate（按 64 B maintenance_alignment_bytes 向外取整）+ DSB；不得读前 flush 覆盖他人写入",
+      "pl_output_visibility": "PL 写完 feature_envelope 并提交 done 后，PS 对输出 heads 区间独立 invalidate + DSB，再读取结果；这是 PL 输出可见性维护，不属于输入帧事件序列。",
+      "dma_completion_order": "DMA/PL 完成事件到达后仍需对 PL 输出做 cache 维护才能真正读到数据；不得仅凭状态位读内存",
+      "no_overwrite": "生产者不得覆盖仍被消费者（推理或显示）持有的帧；多缓冲数 ≥ 在途消费者数 + 1",
+      "region_direction": "各 region 的方向以地址图 cache_maintenance 为准"
+    },
+    "frame_sequence_rules": {
+      "duplicate_frame_id": "同一会话内重复的 frame_id（未声明为重放）必须**拒绝**并记 FAIL，不得幂等静默接受",
+      "regressed_frame_id": "frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位",
+      "out_of_order_result": "同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝。结果侧按独立 mapping_key_roles 所列用途连接，无法唯一关联或顺序矛盾的结果不得用于跨阶段证据。",
+      "rule": "以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因"
+    }
+  },
+  "result_contract": {
+    "description": "每帧的结果记录与显示关联。阶段4 产出；阶段5 只读消费。",
+    "result_record": {
+      "authority": "docs/stage4/s4a_stage4_g0_fields.json（upstream_bindings.s4a_g0_contract）",
+      "fields": [
+        "frame_id",
+        "result_seq",
+        "geometry",
+        "state",
+        "detection_count",
+        "detections",
+        "candidate_count",
+        "candidate_count_pre_threshold",
+        "candidate_overflow",
+        "capture_time_ns",
+        "result_time_ns",
+        "inference_time_ns",
+        "end_to_end_latency_ns",
+        "dropped_frames",
+        "stale",
+        "error_code"
+      ],
+      "detection_fields": [
+        "class_id",
+        "class_name",
+        "score",
+        "xyxy",
+        "xyxy_px",
+        "source_order"
+      ],
+      "injection_note": "FILE_INJECTION 下 capture_time_ns 按 S4-A 约定为 0 哨兵并以注解判别（不得当作实测采集时间，也不得用 injection_start_ns 冒充）；由它派生的 end_to_end_latency_ns 不可定义"
+    },
+    "display_linkage": {
+      "description": "阶段5 每显示帧必记的五元组（来源：CDX-20261022-014 §4）",
+      "fields": [
+        {
+          "name": "displayed_frame_id",
+          "type": "uint32",
+          "semantics": "该显示刷新实际展示的画面帧标识；不得为对齐而改写为 result_frame_id"
+        },
+        {
+          "name": "result_frame_id",
+          "type": "uint32",
+          "semantics": "叠加结果所属 frame_id（与 result_record.frame_id 同值）"
+        },
+        {
+          "name": "age_result_ns",
+          "type": "uint64",
+          "semantics": "t_overlay_commit − t_result_publish（与阶段5 G0 定义一致）；无 result_time 时不可用"
+        },
+        {
+          "name": "age_frame_ns",
+          "type": "uint64",
+          "semantics": "t_overlay_commit − t_capture(frame_id)；注入下以 injection_start_ns 为基准时必须显式声明"
+        },
+        {
+          "name": "display_semantics",
+          "type": "enum",
+          "values": [
+            "B_latest_result_overlay"
+          ],
+          "semantics": "**采用阶段5 G0 已决值**（wong decided 2026-10-21）；阶段5 G0 另登记 A/C 但未启用，本契约不得授权未批准语义"
+        }
+      ],
+      "display_semantics_source": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json#display_semantics.value（只读引用）"
+    },
+    "stale_rule": {
+      "expression": "stale_effective = stale_flag OR age_frame_ns > stale_limit_ns",
+      "stage4_stale_definition": "stale=true 当结果年龄（发布时刻 − result_time_ns）超过 stale_limit_ns，且仅 state ∈ {OK, NO_HAND}；与阶段5 G0 的 stage4_stale_definition 同义",
+      "dual_basis_note": "两个基准必须同时可复算：结果年龄（S4-A 的 stale）与 age_frame_ns（阶段5 显示）；二者共享**同一数值常量**，不得各造一份。",
+      "stale_limit_ns": null,
+      "stale_limit_status": "DRAFT_PENDING_APPROVAL",
+      "stale_limit_draft_value_ms": 200,
+      "single_source_of_truth": "阶段5 G0 字段 `STALE_AGE_LIMIT_NS`（当前 w5 记为 G0_FIXED_OFFLINE，值 200000000 ns）；阶段4 侧若使用该常量必须引用同一值并记录其来源与状态；阶段4 正式 G0 批准前不得作为验收门槛",
+      "per_result_rule": "每结果只计一次 stale，原因留日志"
+    },
+    "hud_field_sources": {
+      "capture_fps": "CAMERA 时可用；注入/合成下必须标 UNAVAILABLE",
+      "inference_fps": "阶段4 完成事件率（真实推理完成数/窗口）",
+      "display_fps": "阶段5 定义（不在本契约）",
+      "inference_time_ns": "result_record.inference_time_ns",
+      "age_result_ns": "display_linkage.age_result_ns",
+      "age_frame_ns": "display_linkage.age_frame_ns",
+      "frame_id": "displayed_frame_id 与 result_frame_id 成对展示",
+      "boxes": "detection_count（NO_HAND 合法为 0）",
+      "stale_cleared": "stale 结果的显式清除计数",
+      "dropped_frames": "result_record.dropped_frames 累计",
+      "timeouts": "state=TIMEOUT 计数（不得记作零框成功）",
+      "warmup_state": "阶段4/阶段5 各自声明并一致",
+      "display_semantics": "display_linkage.display_semantics"
+    },
+    "hud_field_sources_note": "本映射的键集合必须恰等于 HUD 13 字段（与 CDX-20261022-014 §5.4 及 w5 G0 的 hud_fields 一致）；说明性文字不得混入该映射。",
+    "ps_side_log": {
+      "description": "UART 方案 B 下承载 UART 缺失字段的 PS 侧日志；阶段5 必须从此日志读取，不得声称这些量来自 UART",
+      "unique_mapping_key": [
+        "session_id",
+        "frame_id",
+        "result_seq"
+      ],
+      "mapping_key_roles": {
+        "stage4a_join_key": {"fields": ["session_id", "frame_id", "repeat_index"], "role": "S4-A 结果记录与同一请求重复项的连接键。"},
+        "ps_log_primary_key": {"fields": ["session_id", "result_seq"], "role": "PS 旁路结果日志主键；result_seq 从 1 单调递增且按 S4-A 拒绝回绕。"},
+        "uart_observable_key": {"fields": ["frame_id", "repeat_index", "sequence"], "role": "UART 可观测的请求/响应配对键；sequence 只作配对与一致性核对，不是唯一键。"},
+        "bridge_log_fields": ["session_id", "frame_id", "repeat_index", "result_seq", "sequence", "source_kind", "frame_integrity", "ownership_events"],
+        "contract_result_key": {"fields": ["session_id", "frame_id", "result_seq"], "role": "阶段4/5 共享契约中唯一标识一条结果记录；不得替代上述各键在其各自日志/协议中的用途。"}
+      },
+      "fields": [
+        "session_id",
+        "frame_id",
+        "result_seq",
+        "capture_time_ns 或 injection_start_ns（按 source_kind）",
+        "publish/inference/result 时刻",
+        "inference_time_ns",
+        "age 相关原始时刻",
+        "dropped_frames/timeouts/queue_full 计数",
+        "ownership 状态迁移事件",
+        "frame_integrity（CRC/SHA + 长度）",
+        "重复/乱序/拒绝原因"
+      ],
+      "uniqueness_rule": "(session_id, frame_id, result_seq) 在本共享契约中唯一标识一条结果；S4-A join_key=(session_id, frame_id, repeat_index)、PS 日志主键=(session_id, result_seq)、UART 可观测键=(frame_id, repeat_index, sequence) 各有独立用途。桥接日志同时记录 mapping_key_roles.bridge_log_fields，禁止混用或把 UART sequence 当唯一主键。",
+      "conflict_handling": "映射冲突/缺失即该结果不可用于跨阶段关联，记 FAIL 并保留原始日志，不得静默挑选"
+    }
+  },
+  "scope_freeze": {
+    "offline_regression": {
+      "allowed_claims": [
+        "冻结输入与参考的数值一致性（2A 容限：离散字段完全一致、score/坐标绝对误差 ≤1e-6）",
+        "工具与判据有效性（含反例）"
+      ],
+      "forbidden_claims": [
+        "板上行为",
+        "UART 实收",
+        "真实采集质量"
+      ],
+      "evidence_requirement": "上游 SHA 绑定 + 逐样本/逐框差异 + 反例"
+    },
+    "board_injection": {
+      "allowed_claims": [
+        "注入帧经真实 PL/PS 链路的整数头与后处理结果与冻结参考一致",
+        "注入子项的时间/丢帧/过期记录（PS 侧）"
+      ],
+      "forbidden_claims": [
+        "真实摄像头采集质量/颜色",
+        "把注入时间当采集时间",
+        "完整阶段4 G5 通过"
+      ],
+      "evidence_requirement": "bit/XSA/ELF/输入 SHA、注入点声明、每帧 CRC/长度、heads 原始 INT8、逐框差异、错误与恢复统计"
+    },
+    "camera": {
+      "allowed_claims": [
+        "真实采集链路（RGB565 展开/颜色/缩放/补边/量化）与独立参考一致",
+        "真实场景交互与长跑结论"
+      ],
+      "forbidden_claims": [
+        "摄像头未交付时以注入/合成结果替代",
+        "灰度诊断帧作为真彩质量或总体准确率依据"
+      ],
+      "evidence_requirement": "≥100 帧真实网络输入逐值比对、≥30 分钟且 ≥1000 次有效推理、每类 ≥10 次交互观察",
+      "dependency": "阶段3 完整交付满足本任务依赖后方可执行"
+    }
+  },
+  "consumption_boundary": {
+    "stage5_access": "只读：可读取本契约、S4-A 契约、结果记录与 PS 侧日志、地址图只读区域说明；不得写阶段4 缓冲、不得修改本契约、不得反向要求阶段4 改写协议",
+    "versioning": "任何字段增删/语义变化必须新版本号 + 阶段4 所有者批准 + 适用回归；阶段5 只能消费已冻结版本",
+    "change_process": "阶段5 需求变化以跨方请求提出（本树 report/evidence/S4-CTRL/** 唯一编号），由阶段4 决定是否纳入并出新版本"
+  },
+  "limits": [
+    "本契约是草案（DRAFT_PENDING_REVIEW）：经独立审查与 Lead 提交后才冻结；冻结前不得作为验收依据",
+    "不定义阶段5 的布局/像素门槛/显示 FPS 语义（属阶段5 G0）",
+    "不含真实板测结果；本轮无任何硬件执行",
+    "候选上限、时间口径、异常行为取值以 S4-A 阶段4 G0 契约为准",
+    "upstream_bindings 记的是本次修订时点的实际 SHA；权威变更时绑定必须显式更新（自检会 FAIL 直到更新）"
+  ]
+}

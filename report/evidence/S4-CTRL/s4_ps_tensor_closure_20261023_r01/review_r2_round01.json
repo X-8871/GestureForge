@@ -1,0 +1,62 @@
+{
+  "reviewer": "review_s4b_injection",
+  "task_id": "S4-B-REAL-G2-R2-01",
+  "status": "CHANGES_REQUIRED",
+  "baseline_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "snapshot_sha256": "28ff4e5fd9a4b254509465a9eba98d8dab614299f4845843383b1adb12cb7f30",
+  "frozen_files_checked": 17,
+  "frozen_files_mismatched": 0,
+  "findings": [
+    {
+      "id": "R2-PS-01",
+      "path": "vitis/stage4/ps/s4b_ps_trace.c",
+      "line": 159,
+      "issue": "启用D-cache后的initialize只flush header，未将整records清零发布到DDR。",
+      "observed": "header_flushes=1 record_flushes=0 full_record_flushes=0 barriers=1 record0_cpu_zero=1",
+      "close_when": "records清零后整数组flush+barrier先于header发布；独立顺序/覆盖回归。"
+    },
+    {
+      "id": "R2-PS-02",
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "line": 121,
+      "issue": "CRC自洽但语义矛盾的终态、ACK、UART及tick字段被接受。",
+      "accepted_counterexamples": [
+        "FAULT_ISOLATED(6)却terminal_safe=1且ACK成功",
+        "UART发送失败却ACK成功",
+        "input_write_start_ticks大于done",
+        "同session第二repeat的UART sequence变化"
+      ],
+      "close_when": "按冻结CSR状态/位定义校验safe、frame、ACK/发送、事件时序与同session UARTsequence，加入CRC重算拒绝反例及合法错误路径控制。"
+    },
+    {
+      "id": "R2-PS-03",
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "line": 50,
+      "issue": "未返回/校验派生SOURCE身份；改写SHA或boot_seed=0并重算CRC仍被接受。",
+      "close_when": "要求受信构建清单/结果的expected派生SHA，解析返回并拒绝不匹配；非零seed与构建配置绑定及反例。"
+    }
+  ],
+  "independent_probes": {
+    "directory": "reviewer_r2_round01",
+    "inventory": "reviewer_r2_round01_inventory.json",
+    "decoder_counterexamples_exit_code": 0,
+    "strict_c_flush_compile_exit_code": 0,
+    "strict_c_flush_run_exit_code": 0,
+    "restart_fixed_compile_exit_code": 0,
+    "restart_run_exit_codes": [0, 0],
+    "restart_observation": "同构建参数重启两次均session=0x53421c00，跨重启唯一性依赖另行预留，固件不持久化保证。",
+    "prior_probe_failures": "decoder初次直接调用缺模块根路径exit1，仅见Reviewer工具历史/陈述，未见该次独立日志文件；restart初次printf格式编译失败的日志/源码已归档。这些不是实现测试失败，成功重跑日志另列。"
+  },
+  "passed_scope": [
+    "timeout/FAULT路径不ACK、不复位、不重新准入，失败后fail-stop；合法ERROR_SAFE沿用匹配ACK。",
+    "START前原冻结缓存维护/DSB仍保留；单记录flush+barrier先于header计数发布，发送/ACK分开更新。",
+    "C API容量拒绝与u32 session递增/不回绕、扩宽frame算术符合。"
+  ],
+  "limitations": [
+    "input_write_*只包住CPU memcpy，不能冒充cache writeback后的DDR/PL可见时刻。",
+    "缓存线共享与底层BSP flush实现未独立实测；PS/DAP/DDR真实可见性UNKNOWN，保留G3验证。",
+    "UART协议不携带session/result_seq，真实物理UART关联仍UNKNOWN。",
+    "未证明输入字节确为三平面内容；RGB/D2源与真实PS/PL均不在本构建验证范围。",
+    "仅离线独审，新PS G2目前不通过；构建PASS不代表实物或阶段验收。"
+  ]
+}

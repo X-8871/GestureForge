@@ -1,0 +1,138 @@
+{
+  "task_id": "S4-C-REUSE-01",
+  "created_utc8": "2026-10-23T08:01:09.078067+08:00",
+  "base_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "decision": "REUSE_HISTORICAL_CPU_GOLDEN_DECODE_ONLY",
+  "independent_auditor": "review_s4a_contract",
+  "historical_run": "s4c_replay_20261021_r05",
+  "old_contract_commit": "7e5717f2e75bb0938db7b318a29be3f2684e73fb",
+  "old_contract_sha256": "3524d02ae410ae365a9dbfc5f04dcd9f300f8013086a076259a641f7eb8afb87",
+  "current_contract_sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+  "frozen_constant_changes": {
+    "count": 2,
+    "paths": [
+      "candidate_theoretical_max_basis",
+      "frame_id_semantics"
+    ],
+    "nature": "仅候选来源说明、PL frame_id文字补充，数值常量不变。"
+  },
+  "small_file_hash_checks": [
+    {
+      "id": "s2a_t25_layer_golden_index",
+      "declared_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json",
+      "resolved_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json",
+      "sha256": "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d",
+      "status": "MATCH"
+    },
+    {
+      "id": "s2a_t25_shard_recovery_manifest",
+      "declared_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\t25_shard_recovery_manifest_20261002.json",
+      "resolved_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\t25_shard_recovery_manifest_20261002.json",
+      "sha256": "5352b2ef6edb8f40bb1e635aaa1337556171937db176db841fb044406657d0d9",
+      "status": "MATCH"
+    },
+    {
+      "id": "s2a_t29_cpu_decode_nms_reference",
+      "declared_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json",
+      "resolved_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json",
+      "sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "status": "MATCH"
+    },
+    {
+      "id": "s1_t02_d2_numeric_reference",
+      "declared_path": "verification/s1_t02_d2_numeric_reference.py",
+      "resolved_path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "status": "MATCH"
+    },
+    {
+      "id": "s1_t02_d9_decoder",
+      "declared_path": "verification/s1_t02_d9_yolo_decode.py",
+      "resolved_path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d9_yolo_decode.py",
+      "sha256": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+      "status": "MATCH"
+    },
+    {
+      "id": "s1_t02_d6_metrics",
+      "declared_path": "verification/s1_t02_d6_detection_metrics.py",
+      "resolved_path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d6_detection_metrics.py",
+      "sha256": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+      "status": "MATCH"
+    }
+  ],
+  "historical_summary": {
+    "samples_selected": 109,
+    "samples_passed": 109,
+    "samples_failed": 0,
+    "failed_sample_ids": [],
+    "mismatch_total": 0,
+    "byte_mismatch_samples": [],
+    "frame_mismatch_samples": [],
+    "upstream_identity_mismatch_samples": [],
+    "actual_input_mismatch_samples": [],
+    "byte_mismatch_count": 0,
+    "frame_mismatch_count": 0,
+    "total_detections_expected": 104,
+    "total_detections_actual": 104,
+    "max_score_abs_error": 0.0,
+    "max_xyxy_abs_error": 0.0,
+    "empty_detection_samples": 8
+  },
+  "replay_executed_this_round": false,
+  "shards_rehashed_this_round": false,
+  "D2_executed_this_round": false,
+  "hardware_executed": false,
+  "supported_claim": "历史109/109 CPU golden heads经D9解码对T29的数值一致性及历史8子集/构造actual正反例，可按精确范围复用；不是r06新运行。",
+  "not_covered": [
+    "r06字段集合/required、candidate字段及12675/12676边界、capture/session/time/stale",
+    "D2预处理执行、RGB质量、真实PS/BSP/PL/UART、独立数据集精度、阶段G3/G4/G5"
+  ],
+  "controls": "历史actual正例来自T25 golden导出，反例翻转head13首字节；不是真实板卡输出。",
+  "rerun_when": "T25/T29输入、D9/D6或协议/解码语义变化时做对应回归；新字段或D2须另有对应证据。",
+  "bindings": [
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
+    },
+    {
+      "path": "verification/s4_replay_compare.py",
+      "sha256": "3c2a61aeee7006ff394a6794333262f57c85aa00b86bb7cd3ecfe2ed41d32625"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f"
+    },
+    {
+      "path": "verification/s1_t02_d9_yolo_decode.py",
+      "sha256": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190"
+    },
+    {
+      "path": "verification/s1_t02_d6_detection_metrics.py",
+      "sha256": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a"
+    },
+    {
+      "path": "scripts/stage4_s4c/run_s4c_replay.py",
+      "sha256": "2dfccea4a2cecb59afdd3cf3ea8ed9b96c0cc590c15f6091e4b8ba06e1e565d9"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_replay_20261021_r05/replay_golden_109.json",
+      "sha256": "c5d25c64642ac10c9ace3370d20d57ced9aa6c9515628f1ecf324f5bd90e106d"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_replay_20261021_r05/s4c_run_manifest.json",
+      "sha256": "3123a285808f4ad14ab2a8d661297b4a315a13c4b1a5d2bb2e611d3898689540"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_replay_20261021_r05/S4C_replay_summary.md",
+      "sha256": "7b9aa13967966b1a1301d4a4f7711f067580735e51ba0dc1b22cd4c821197ed5"
+    }
+  ],
+  "tool_versions": {
+    "lead_python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "independent_review_commands": "只读Git历史、文件SHA与JSON字段比较，无回放/测试执行。"
+  },
+  "limitations": [
+    "未重新读取390MB分片；当前六项小文件已复算MATCH。",
+    "时基与200ms仍待批准；历史结果不得代替新PS应用或硬件验证。"
+  ]
+}

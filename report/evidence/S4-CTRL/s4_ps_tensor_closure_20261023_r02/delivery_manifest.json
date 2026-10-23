@@ -1,0 +1,2442 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-CTRL",
+  "run_id": "s4_ps_tensor_closure_20261023_r02",
+  "source_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "evidence_dir": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02",
+  "interfaces": [
+    {
+      "name": "S4-A authoritative field vocabulary",
+      "version": "S4-A r06",
+      "frozen": true,
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
+    },
+    {
+      "name": "S4B shared input/result contract",
+      "version": "s4-shared-io/1.1.0 r03 DRAFT_PENDING_REVIEW",
+      "frozen": false,
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e"
+    },
+    {
+      "name": "S4B stage4 address map",
+      "version": "r02 DRAFT_PENDING_REVIEW",
+      "frozen": false,
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage4/.gitattributes",
+      "sha256": "32e63a9d16652b26f6318e9eda73402bd8966c32cca5026e2c11ba06591f0099",
+      "role": "source"
+    },
+    {
+      "path": "docs/stage4/S4B_injection_path_runbook.md",
+      "sha256": "8280e1efbc3b5f8a823adb23783212d9464101f8528e70765b926a11dfab94aa",
+      "role": "source"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "5b651b3aaea1badfce1d90202282441ae0f62538ab91fd5be32a6d82866eaeef",
+      "role": "source"
+    },
+    {
+      "path": "docs/stage4/S4B_ps_tensor_injection_runbook.md",
+      "sha256": "d7aa79f3fc4280d694f8ecab39ab0545121c7468648aca553bc284328e76f573",
+      "role": "source"
+    },
+    {
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+      "role": "input"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "input"
+    },
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/.gitattributes",
+      "sha256": "adea3a9fd62c9732afd6d1ecf0eea4bf6fcd433c876d2bf81862150f1c2e58c1",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/compare_d2_float_boundary.py",
+      "sha256": "e0fdaeb3fcf46be4164328facc58409f39b2d1067931672d2a89a32844f5af79",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/decision_material_review.json",
+      "sha256": "df909cbafc31ad75bb6ab25372ec19bbfd13b9d6eb3795e975a435dc0623c1b5",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/delivery_manifest.json",
+      "sha256": "485ae05da717a6eb772d88acf2e9627c297d6978f3e6eb3bf06f09b2518cd253",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/delivery_manifest_initial_failed.json",
+      "sha256": "c7901dc8ba8683745596a534a85f997d5887f9e60ef2c2af409f0404400cc429",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/lead_reproduce/compare_d2_float_boundary.py",
+      "sha256": "e0fdaeb3fcf46be4164328facc58409f39b2d1067931672d2a89a32844f5af79",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/lead_reproduce/execution.json",
+      "sha256": "ffd6bbaeb987e0f055f7236fff730be8d5a86c3d7aebfdf1005d4b9db926649a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/lead_reproduce/result.json",
+      "sha256": "f82664a48b77d0ac3c067d30e199eec8aae5774b4fd71d8c8e53dfc8767e861c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/result.json",
+      "sha256": "78a7337039b4e36e5c534fd15b21c9518277975f23b1fe07c1c8dd1b926abb37",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_numeric_20261023_r01/source_inventory.json",
+      "sha256": "3c8d1684583c721afb4a7edaf9283b47a6d2febd891ee58129e315a60d99286e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r01/preliminary_python_test_failure.json",
+      "sha256": "4588f8bf53288aafa6ca7c3330228e276bd38f3e5882d2facf6e33ca559d5e83",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/commands.json",
+      "sha256": "762cf5bf3f7a237b2cf421fcfbba6e358aecec55087007bf0db8f9707417c190",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/external_inputs_inventory.json",
+      "sha256": "b329528df32ee12b0167842f69a8bfe597cbd5c0e9c69d7809236462a317b0ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/machine_result.json",
+      "sha256": "8418a5d28593e3b3832a9ebb3e71a7502155b67590d64c051bc85a413a774a9f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/python_unit_suite.stderr.txt",
+      "sha256": "3c5593bfee5ae15fd7b306a40c131e5520fc38f0e82d711770a683768b24236f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r02/run_config.json",
+      "sha256": "d125df11001dc8edab28af066bb5e1ce12cbbcde921966c731a698138ef5bf41",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/commands.json",
+      "sha256": "058ab4d899fe85c31d5de8a64a469273f3fcb1768eeaeb8d595874861bc98ad7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/derived_source.patch",
+      "sha256": "1b810e229f885c347af9c67d14da77ebb1ee6a9deb5b90b42cd8e0d8d52d8e80",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/external_inputs_inventory.json",
+      "sha256": "b329528df32ee12b0167842f69a8bfe597cbd5c0e9c69d7809236462a317b0ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/machine_result.json",
+      "sha256": "cdcfff7328b610b473b5b5a61319efc04d0cf479ea99d2f4ada926be6c43432c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/python_unit_suite.stderr.txt",
+      "sha256": "270d3540d5403b06fb0b5f04d2f5e7f0969a52564f4dd8c37e33bd77ad9faf22",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r03/run_config.json",
+      "sha256": "6d1c23688638fb14f1663e1f2bc0770f11a911fa81439b2241b17267088a10af",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/commands.json",
+      "sha256": "be14fbccd66654c320805452f1292c7e2b7ac24e7ee3589ec23d09053d274b77",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/compile_00_s2a_ps_decode_nms_reference.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/compile_00_s2a_ps_decode_nms_reference.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/compile_01_s2b_inference_app.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/compile_01_s2b_inference_app.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/compile_02_s4b_ps_trace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/compile_02_s4b_ps_trace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/derived_source.patch",
+      "sha256": "1b810e229f885c347af9c67d14da77ebb1ee6a9deb5b90b42cd8e0d8d52d8e80",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/derived_source_sha256.json",
+      "sha256": "6a56888b5078f7de8007763673ee22186d6d1496fd6b0145f7f4af5a365292ec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/elf_sections.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/elf_sections.stdout.txt",
+      "sha256": "50838b3c6b609df222b6855931de45ff14755af63928beac3f3c23f0a8d93476",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/elf_size.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/elf_size.stdout.txt",
+      "sha256": "b9aae20b45f3484e4e546360233aa48e973c451dced7aa74503158d78bbc4058",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/elf_symbols.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/elf_symbols.stdout.txt",
+      "sha256": "bd48ad6e50a112a1d901d2f838323438368d476b6d31362c66b00cbd6f7c308f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/external_inputs_inventory.json",
+      "sha256": "6b454d29ec9d22117f489d8b50545511e1ff335253665dd89be5c9ccc571bcee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/link_s4b_ps_tensor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/link_s4b_ps_tensor.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/machine_result.json",
+      "sha256": "a90b4f4e49f114f2b9102c11f4437ecdb656fd4b70c2b3452b004a38990e94eb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/memory_ranges.json",
+      "sha256": "38e5958a58c4777ec096d58ef6b27784f09feae8aa75748cb76116864965896d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/python_unit_suite.stderr.txt",
+      "sha256": "37bdeb2e509d2825e72610a7256e2c0f7650b978f941f7758c9f662806355d2e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/run_config.json",
+      "sha256": "d15a0c4ef438ff19b2819c3258e3da10f10c0687bd92f908a9167ffa03c931fa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.elf",
+      "sha256": "85dc56c409e2e2d09ba6579086b3475acf5f811f9cdf4d121ccc74ba4dc1a8dd",
+      "role": "input",
+      "keep_reason": "本机真实ARM诊断程序恢复依赖；只绑定本机原字节，不纳入源码Git提交。"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.map",
+      "sha256": "00fcee65c8cebfdf8b7d1b96217d8612cb412ba1d4e68ea56a64a6cf74634c13",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/commands.json",
+      "sha256": "8c6db2ac1b76260d3add432ad75b3c790c39dc279ea2048978771f71c4fee68b",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/compile_00_s2a_ps_decode_nms_reference.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/compile_00_s2a_ps_decode_nms_reference.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/compile_01_s2b_inference_app.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/compile_01_s2b_inference_app.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/compile_02_s4b_ps_trace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/compile_02_s4b_ps_trace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/derived_source.patch",
+      "sha256": "1b810e229f885c347af9c67d14da77ebb1ee6a9deb5b90b42cd8e0d8d52d8e80",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/derived_source_sha256.json",
+      "sha256": "6a56888b5078f7de8007763673ee22186d6d1496fd6b0145f7f4af5a365292ec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/elf_sections.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/elf_sections.stdout.txt",
+      "sha256": "5885c2fb05f7c645e285f91ffdb4129d08d10391fbab8567c92a41bf0b12ea27",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/elf_size.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/elf_size.stdout.txt",
+      "sha256": "f71110e2221661d9a318f3df6dbd4ea33062a78d0a2d8af179289ff044e065f5",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/elf_symbols.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/elf_symbols.stdout.txt",
+      "sha256": "bd48ad6e50a112a1d901d2f838323438368d476b6d31362c66b00cbd6f7c308f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/external_inputs_inventory.json",
+      "sha256": "6b454d29ec9d22117f489d8b50545511e1ff335253665dd89be5c9ccc571bcee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/link_s4b_ps_tensor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/link_s4b_ps_tensor.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/machine_result.json",
+      "sha256": "d100493a9509d8bb404c99bb01ee05b396a1ac52efd3dbd864e43a0b1baa23ed",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/memory_ranges.json",
+      "sha256": "9dac88a57f80cb0415878df8855215703e135157b90f385ecd4be56e24df645a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/python_unit_suite.stderr.txt",
+      "sha256": "270d3540d5403b06fb0b5f04d2f5e7f0969a52564f4dd8c37e33bd77ad9faf22",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/run_config.json",
+      "sha256": "821527b9a455e6a2e6e38c15743959f082b057608a14a736ca3bddd342293645",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.elf",
+      "sha256": "f2280f7a834856f3c89ad5e955a6ed0c80b8d9932617abb9fe82bf8033e48654",
+      "role": "input",
+      "keep_reason": "本机真实ARM诊断程序恢复依赖；只绑定本机原字节，不纳入源码Git提交。"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.map",
+      "sha256": "ab9d7b8d06d0deb23bf62bc53efb729930ae0be40fddd34d9fd2a4b9adf9c49f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/commands.json",
+      "sha256": "7c18ac7b8f76072697822a18979a9133d1f36bae4a6e89ed2be437c8d0533dd6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/external_inputs_inventory.json",
+      "sha256": "b329528df32ee12b0167842f69a8bfe597cbd5c0e9c69d7809236462a317b0ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/machine_result.json",
+      "sha256": "4499ca8c80885fa9d01f831499db513c4a34535373101b7bcb5e077dff4b0fbe",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/python_unit_suite.stderr.txt",
+      "sha256": "b3dbfb2b9ec8b16719cdc89e869610c1640d538778a19fb0da4fe502f877d971",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r06/run_config.json",
+      "sha256": "1279e46e96c4d4662748e224e812776952caa39a06b09aa1974022c961418c63",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/commands.json",
+      "sha256": "2a2272b415c8cfdbbb113f8c376d687c6f2381124b10521c394ebeb50595fa51",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/external_inputs_inventory.json",
+      "sha256": "b329528df32ee12b0167842f69a8bfe597cbd5c0e9c69d7809236462a317b0ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/machine_result.json",
+      "sha256": "7c179f562085997ff4d9c61e8ee51650ddd22299b37e2f9f00f37cf20ff74cc7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/python_unit_suite.stderr.txt",
+      "sha256": "793453621d5dcfe745efd9c71e51531bd7a52282e50459c563491f0e111fb9bb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r07/run_config.json",
+      "sha256": "eb2eabfa6d294b2ab5fa478a04887aaffa7d5e9a012ac78b2b78cba8c90e3624",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/commands.json",
+      "sha256": "4e14d9e08d29228a039a12e14300da420274908ea1b5ea68f8ac62a481ccb7ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/external_inputs_inventory.json",
+      "sha256": "b329528df32ee12b0167842f69a8bfe597cbd5c0e9c69d7809236462a317b0ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/machine_result.json",
+      "sha256": "7c121f90326979fed75c5e834797c10364017f817177a42d6c60e27266a259ce",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/python_unit_suite.stderr.txt",
+      "sha256": "b3dbfb2b9ec8b16719cdc89e869610c1640d538778a19fb0da4fe502f877d971",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r08/run_config.json",
+      "sha256": "634722fc334e8049d3d0f1adc17d442e84f1e42863bf873b0a3551f49d328508",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/commands.json",
+      "sha256": "52427a9d19230569e28970cc6633a0fd016c556fef89ec8fa75a8c3dbd10f751",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/compile_00_s2a_ps_decode_nms_reference.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/compile_00_s2a_ps_decode_nms_reference.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/compile_01_s2b_inference_app.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/compile_01_s2b_inference_app.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/compile_02_s4b_ps_trace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/compile_02_s4b_ps_trace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/delivery_check_console.txt",
+      "sha256": "035880e63447dfe2af9de19de82b7bd2993d1167b6d66c1cc3375f83efb206b6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/delivery_manifest.json",
+      "sha256": "a987957811babbd9149db343efd362edfb5621ffc5f5e3b9fc1b7635cb8566bd",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/derived_source.patch",
+      "sha256": "1b810e229f885c347af9c67d14da77ebb1ee6a9deb5b90b42cd8e0d8d52d8e80",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/derived_source_sha256.json",
+      "sha256": "6a56888b5078f7de8007763673ee22186d6d1496fd6b0145f7f4af5a365292ec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/elf_sections.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/elf_sections.stdout.txt",
+      "sha256": "54688958bf8243e86d4cda0d70da0e89541f33f88031f6b4b59a893fdd6c07bb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/elf_size.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/elf_size.stdout.txt",
+      "sha256": "0ec2a63232a2742e97ca6a960422006b4e22ded53240b2676afda473ca8de758",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/elf_symbols.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/elf_symbols.stdout.txt",
+      "sha256": "bd48ad6e50a112a1d901d2f838323438368d476b6d31362c66b00cbd6f7c308f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/external_inputs_inventory.json",
+      "sha256": "6b454d29ec9d22117f489d8b50545511e1ff335253665dd89be5c9ccc571bcee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_c_api_regression.stdout.txt",
+      "sha256": "5c41867ae63e0c17f9e6d4e50e74124950115228cf951250ab4a49b16c6fcee3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/link_s4b_ps_tensor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/link_s4b_ps_tensor.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/machine_result.json",
+      "sha256": "c80919f343a94f172713dddf4384711b7676fa8831f3bbf5195f8e7c5ac17a61",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/memory_ranges.json",
+      "sha256": "9dac88a57f80cb0415878df8855215703e135157b90f385ecd4be56e24df645a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/python_unit_suite.stderr.txt",
+      "sha256": "1e1c95fa941f0ccbf8234a5d1fd734df6378fed268c7c24eca4e4b9144eb9b19",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/run_config.json",
+      "sha256": "ea290b3ac980384e844ef29a8ed7bb8db684eda54840e5bbe562dcbb1edd01dd",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.elf",
+      "sha256": "e63cf0eea1110652d1152801e02dcf57cb06ba77aae096c6767eaf3f5c620d3b",
+      "role": "input",
+      "keep_reason": "本机真实ARM诊断程序恢复依赖；只绑定本机原字节，不纳入源码Git提交。"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.map",
+      "sha256": "d39f5e0c922602980d4a75b94da255eb555f8c39be90dbd1431ad910d2fe6bc7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/commands.json",
+      "sha256": "b4708c8f9446c96fbc3006b1a9d2bbafc069edf85445638bc595accbc21358ec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/external_inputs_inventory.json",
+      "sha256": "b329528df32ee12b0167842f69a8bfe597cbd5c0e9c69d7809236462a317b0ee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_c_api_regression.stdout.txt",
+      "sha256": "15288dc391aceaa5ca5eb74f861fb5a6eb06aa372a2fde2705e9bc7bbef46d8c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/machine_result.json",
+      "sha256": "8c19f67edeb80e6a404f5474697336c7d21a201a5b5daf71b95d68309c0c6216",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix01/exit_code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix01/stderr.bytes",
+      "sha256": "b3f3d52e0de7c4426ca480b05b72e24024c8c9fae607ecf95ef0712e216928d0",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix01/stderr.txt",
+      "sha256": "b3f3d52e0de7c4426ca480b05b72e24024c8c9fae607ecf95ef0712e216928d0",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix01/stdout.bytes",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix01/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix02/exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix02/stderr.bytes",
+      "sha256": "570e9703e3694d96ecfeb30b91d5a93a110181aab3d13800ba05dfb6eb90bcec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix02/stderr.txt",
+      "sha256": "570e9703e3694d96ecfeb30b91d5a93a110181aab3d13800ba05dfb6eb90bcec",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix02/stdout.bytes",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix02/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix03/exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix03/stderr.bytes",
+      "sha256": "93166aececb9e4f3d6c73c1b97812677c2bd6dada412e4ab72fc60a0da4ffa93",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix03/stderr.txt",
+      "sha256": "93166aececb9e4f3d6c73c1b97812677c2bd6dada412e4ab72fc60a0da4ffa93",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix03/stdout.bytes",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/preflight_fix03/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/python_unit_suite.stderr.txt",
+      "sha256": "766c7d9e3ad4420e7cc9e7168680376bbce3a92a9fc88c5452b8e72ed3feef71",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r10/run_config.json",
+      "sha256": "2d689f0be62e80abbc9f8e3a2786b71204510f65fb7c8d46580039ab6f3707ef",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/commands.json",
+      "sha256": "afc43b0419e873d50aefccb762021f159754a03432ecdc45dd8a0decb510327f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/compile_00_s2a_ps_decode_nms_reference.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/compile_00_s2a_ps_decode_nms_reference.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/compile_01_s2b_inference_app.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/compile_01_s2b_inference_app.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/compile_02_s4b_ps_trace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/compile_02_s4b_ps_trace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/delivery_check_console.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/delivery_check_console.stdout.txt",
+      "sha256": "2909c260df3afe56d457bce19d20089aa300c6a748a2b23a8b6fec9651c9841f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/delivery_check_exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/delivery_manifest.json",
+      "sha256": "620878850e996dcd8a7e9214b4eb3b5e4219380f907be45bc35a3b0f5ef8b601",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/derived_source.patch",
+      "sha256": "1b810e229f885c347af9c67d14da77ebb1ee6a9deb5b90b42cd8e0d8d52d8e80",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/derived_source_sha256.json",
+      "sha256": "70b9576aa63c3938cb6d3ccf8a3c169fe745392805c3cb7b433468ca912d444d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/elf_sections.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/elf_sections.stdout.txt",
+      "sha256": "771566020ce0a31fed842e9731f017c54b98b1afc039c3e8ec058ce6cf7578fa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/elf_size.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/elf_size.stdout.txt",
+      "sha256": "de28024ef5b1456cd0f735fe8452c9fe91511cfa2387318884b69a2d60a45260",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/elf_symbols.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/elf_symbols.stdout.txt",
+      "sha256": "330d0d3f2363dc2b67b8d13f4d0e6af61759bceaf2e207de00362245a86ccfe6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/external_inputs_inventory.json",
+      "sha256": "6b454d29ec9d22117f489d8b50545511e1ff335253665dd89be5c9ccc571bcee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_c_api_regression.stdout.txt",
+      "sha256": "15288dc391aceaa5ca5eb74f861fb5a6eb06aa372a2fde2705e9bc7bbef46d8c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/link_s4b_ps_tensor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/link_s4b_ps_tensor.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/machine_result.json",
+      "sha256": "ebb5f37de13001d31f7307cbea8b1ef7d19ec29d69556f41feabab6d5d154fe7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/memory_ranges.json",
+      "sha256": "d81924ae3f613f274bf6df17a059649cb72f91b3f681a5ca6f789ed6c5cd71a4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/python_unit_suite.stderr.txt",
+      "sha256": "93166aececb9e4f3d6c73c1b97812677c2bd6dada412e4ab72fc60a0da4ffa93",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/run_config.json",
+      "sha256": "5092aec2eae780486365f1926aaadb277623b055810fdbbc21d03188650c55e6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.elf",
+      "sha256": "7b8c469c11dcadd30be1150e1cce35c199e02f2119c995aa822b60a0fd1074d8",
+      "role": "input",
+      "keep_reason": "本机真实ARM诊断程序恢复依赖；只绑定本机原字节，不纳入源码Git提交。"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.map",
+      "sha256": "dbc7ab15ead170b6644c6eb6478b15a0b48659100bea5857f67b859517e85865",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/aarch32_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/aarch32_gcc_version.stdout.txt",
+      "sha256": "a8236b98dad3fa9a1f6ba7d128d807ef7f7491a2f94589df875787938244af25",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/commands.json",
+      "sha256": "4c4f5aed669d1400baa27c47c922ecf424c079eee0e346bd2f8458af40701743",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/compile_00_s2a_ps_decode_nms_reference.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/compile_00_s2a_ps_decode_nms_reference.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/compile_01_s2b_inference_app.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/compile_01_s2b_inference_app.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/compile_02_s4b_ps_trace.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/compile_02_s4b_ps_trace.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/delivery_manifest.json",
+      "sha256": "a52c0886f1bedee0a141dbe9410b6b52e82cdcb85702a72b807123a829980e14",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/derived_source.patch",
+      "sha256": "1b810e229f885c347af9c67d14da77ebb1ee6a9deb5b90b42cd8e0d8d52d8e80",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/derived_source_sha256.json",
+      "sha256": "70b9576aa63c3938cb6d3ccf8a3c169fe745392805c3cb7b433468ca912d444d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/elf_sections.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/elf_sections.stdout.txt",
+      "sha256": "e03f8acc5d569f48d2882a982a6cad2998e9ca5a231aa05b67435b37fee7e3d8",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/elf_size.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/elf_size.stdout.txt",
+      "sha256": "a85f7f6e97cd3e5cdc7a026b14538d48a6121ba3dd19505bb50469876d3715a7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/elf_symbols.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/elf_symbols.stdout.txt",
+      "sha256": "330d0d3f2363dc2b67b8d13f4d0e6af61759bceaf2e207de00362245a86ccfe6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/external_inputs_inventory.json",
+      "sha256": "6b454d29ec9d22117f489d8b50545511e1ff335253665dd89be5c9ccc571bcee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_c_api_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_c_api_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_c_api_regression.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_c_api_regression.stdout.txt",
+      "sha256": "15288dc391aceaa5ca5eb74f861fb5a6eb06aa372a2fde2705e9bc7bbef46d8c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_c_api_session_exhaustion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_c_api_session_exhaustion.stdout.txt",
+      "sha256": "ab2dd4763681ad9e40bbe4959a660c1ae00cbcf22af5a93a7ebbffc462d24883",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_gcc_version.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/host_gcc_version.stdout.txt",
+      "sha256": "836af1a0c0d60bba3bccbc6d3b01d1fc24120360901eb198040f4ae8b039a00a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/link_s4b_ps_tensor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/link_s4b_ps_tensor.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/machine_result.json",
+      "sha256": "15cf10403a0417909df2a30a5f727b10ec2f468d69b867a58a8e6d5093223082",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/memory_ranges.json",
+      "sha256": "d81924ae3f613f274bf6df17a059649cb72f91b3f681a5ca6f789ed6c5cd71a4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/python_unit_suite.stderr.txt",
+      "sha256": "6ca5abe27df748a425217e14631d97828f126bc2f298fc79e627f955e826dd27",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/python_unit_suite.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/run_config.json",
+      "sha256": "7b6797fdb9bd8eb3c4bfb17576859bea3c4a1239f74034feeaee9d95ecb9bbee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.elf",
+      "sha256": "f61300d26dc0b66410b9348b5e96719e7c06061ce807cbc86a8149962471718e",
+      "role": "input",
+      "keep_reason": "本机真实ARM诊断程序恢复依赖；只绑定本机原字节，不纳入源码Git提交。"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.map",
+      "sha256": "0fbeab6d269a5f31cc50be5c00e8bf4671bfbe99975cfe7e15e190f605d45b00",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/delivery_manifest.json",
+      "sha256": "d4fb5f30e3fd7341fecfb58d54429c15a58dd929d41e8021153c6de704f92acf",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/reuse_audit.json",
+      "sha256": "e5070db935d5f3fde111e86fcc795e29b0bcf249be97c3cda3c0c6ac449e9033",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/frozen_sources_r01.json",
+      "sha256": "28ff4e5fd9a4b254509465a9eba98d8dab614299f4845843383b1adb12cb7f30",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/frozen_sources_r02.json",
+      "sha256": "dc87596dbcae6bd539c23a821d726fbb9d155c824acbc03ac7d61cd643dd0348",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/frozen_sources_r03.json",
+      "sha256": "b0113c93778d6bb7fc1aadb9849834ad73323bc2d8c33851bc053c763ec664d2",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/g0_draft_review.json",
+      "sha256": "5eff16618be2812d5e64d3da331ef3e1932fb2cbbd6693811eb3ad16e25b1603",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/lead_r09_inputs_native_exit.json",
+      "sha256": "7ddea24e3b144cc3cde28b28954b5fb1c7e8185f2968606ef97bf42a3773bc8c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/lead_r09_packaging.json",
+      "sha256": "d0f0655867f5003244b329455c8bdfac7a8798950766d5b5866d92a926eef738",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/lead_r12_packaging.json",
+      "sha256": "09e2c81c33ed4904876b30c784171455a61069737b803c479b0ffc79e5db2e76",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/pl_budget_source_inventory.json",
+      "sha256": "20feb59ec3cee4aa4cd8126813134f682bf697f367476109410c459eefd83895",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/review_r1_round01.json",
+      "sha256": "335004f89a6cbeb5b5b63c5c40f09195a7ff82af57d2840532ca0737fbbd8743",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/review_r1_round02.json",
+      "sha256": "b694b9c9e25243e0137c3e94f92784134b77effd2695d4af9e9e1a41c047f43a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/review_r1_round03.json",
+      "sha256": "c89de6111aea7153241e2ad508e59589f9305ae66a917b2a721d98c57ff0ea0e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/review_r2_round01.json",
+      "sha256": "62b4cdac7651823f7474ea72e858e8af08e8b8ea8e9ebfb0cd363550a03c163a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/review_r2_round02.json",
+      "sha256": "d1e0a746762194072ae54e754727d5851620d858232f55884ca70acc9e1fec05",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/review_r2_round03.json",
+      "sha256": "854ff670f97465154eade741144805b7a1a3de784bdf2e5bccbe08be45a45444",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r1_round02/native_exit_code.txt",
+      "sha256": "58cffe64b58972ff6923e940fe84b426854c910629bef63c61cbf0930dd73b1f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r1_round02/review_probe.py",
+      "sha256": "d0961a882dc2c4c9e7ace2fef2eea6bf668d3f36289f6e71630948f57834eb03",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r1_round02/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r1_round02/stdout.txt",
+      "sha256": "ae222c1f4b2f0b8a39d0446a10e612b0d808bccd640a902e1347fb0cf06f1567",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r1_round02_inventory.json",
+      "sha256": "63de7e6a721399e2448326bba49e36a060095d896fb57417ae616dc13364a985",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/decoder_counterexamples.py",
+      "sha256": "b683721e3663fc717b77c7e0e65a7c4e0be1e1a22d709fa616c5ddb175ce8015",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/decoder_counterexamples.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/decoder_counterexamples.stdout.txt",
+      "sha256": "c2be59e4768d1b80fcb648588abf540575d280de35490ebdf4664f56a4e493a3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_compile.stderr.txt",
+      "sha256": "cd8f27c5056ff576cc83d40726136e37023309b9e757c9b67867b5aa35224310",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_fixed_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_fixed_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_probe.c",
+      "sha256": "5ee4c06077243927ae1a626010ea19df7fe826dd301539b21bc3933fac8a5561",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_probe_fixed.c",
+      "sha256": "42f4a7f4ed0a0e4f9514b00817615f6ebd4d8f5d22d341f8c4430d4396a532f3",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_run1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_run1.stdout.txt",
+      "sha256": "6e18a257193fc0e844a311508dd179ceeea65fe636de96a4808782914a7333fc",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_run2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/restart_session_run2.stdout.txt",
+      "sha256": "6e18a257193fc0e844a311508dd179ceeea65fe636de96a4808782914a7333fc",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/trace_flush_probe.c",
+      "sha256": "2da2f364f887ef1300135418be6e959f4e76315d5c6cc688e36200e6ed0cf138",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/trace_flush_probe.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/trace_flush_probe.stdout.txt",
+      "sha256": "c01962551b52e0af88dc2934c1ee44352b47dc45f88dfbca0d71cb320cf4a350",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/trace_flush_probe_compile.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01/trace_flush_probe_compile.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round01_inventory.json",
+      "sha256": "e7ea6f16ded9d608935f0e4ef33721772b7b2976263c58dc3e5638e8ebe4ce3f",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/cli_safe_timeout_mismatch.exit_code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/cli_safe_timeout_mismatch.stdout_stderr.log",
+      "sha256": "2399c91ce207b37b58a9c7b7505979ee4a169626d4065e45ba078ca29b507292",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/cli_valid_success.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/cli_valid_success.stdout_stderr.log",
+      "sha256": "443eda46313c9fb547341c8687dbea9007b6b16d74ea4628c64e4bde433f56d4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe.exit_code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe.stdout_stderr.log",
+      "sha256": "0fa0a52104257baadd1b6707264c3d1e40c55d3826f44502b1837836e9d146fb",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_final.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_final.stdout_stderr.log",
+      "sha256": "80ed23ca257bccb0848bb0ddae31a256bcf4265a84d528f3d53692d316bd8b7a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r02.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r02.stdout_stderr.log",
+      "sha256": "9611071f277736f6cdcbb512dc90e02047a015c4f599c7ab89cc2883c9e01f7a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r03.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r03.stdout_stderr.log",
+      "sha256": "92030d93d53122ad3a14c15750cf012faba37c09cf78317fdc96156d4074b333",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r04.exit_code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r04.stdout_stderr.log",
+      "sha256": "1761f07fe95a65934dac549b39d467cb7879fb77cb605606eb2ed6651d32c584",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r05.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/decoder_probe_r05.stdout_stderr.log",
+      "sha256": "059fa71cdb23b43011a57cc4c282895fabf282c712f8af487692ca5c733ca0dd",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/init_compile.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/init_compile_r02.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/init_probe.exit_code.txt",
+      "sha256": "1121cfccd5913f0a63fec40a6ffd44ea64f9dc135c66634ba001d10bcf4302a2",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/init_probe.stdout_stderr.log",
+      "sha256": "da54aa16ec3b3e07ba6a0d173d9254b282a9799e612e953a8001b052be0f7836",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/init_probe_r02.exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/init_probe_r02.stdout_stderr.log",
+      "sha256": "a70d6b8d65690ef28a24496fe030aa1d935bf416bd7ea5572e845612cd6b322a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/probe_decoder.py",
+      "sha256": "40209dfe91876b2450596041f6adddc6d7bdbc8049fa3e47e26a37a3d99b5cb6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/probe_init.c",
+      "sha256": "0a695bf9f9811fb517d943b387e1e4726925a36a6141962d2861f889f6f4ff56",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/safe_terminal_frame_mismatch_timeout.dump",
+      "sha256": "d0ea8fe9f7fb22c45f1e53800a7687e740fc57d407c2d7b4cd7dfbea2d620051",
+      "role": "input",
+      "keep_reason": "独立审查实际使用的CRC双读快照正负例，保存原始失败与复核输入。"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02/valid_success.dump",
+      "sha256": "62661d024affa467fb6d703c47ce5232c8ebb0ca788078b6713bcde19413c244",
+      "role": "input",
+      "keep_reason": "独立审查实际使用的CRC双读快照正负例，保存原始失败与复核输入。"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round02_inventory.json",
+      "sha256": "7d79fb1f43063dac87381814fce9df0e0ca1ee95f61ed5838a28351731dcf185",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/commands.txt",
+      "sha256": "9811f37238329cae64f6856e0763b1c2c0e662e83a952522672c0da1f357e361",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/probe.native_exit_code.txt",
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/probe.stderr.log",
+      "sha256": "e985a6057a051676cba501bb77dd309db185db5a7fa1db4a19459597a022510c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/probe.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/probe_r12_decoder.py",
+      "sha256": "e9c6d4ab9fcb3f4a5c995c472f8262dff8b1d929b96d6ba210aba9ad2f2c19c4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/unittest.native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/unittest.stderr.log",
+      "sha256": "d707ca569e4ed9baa13f26416c9aa032bb9d10348ecac8a5f85a6e58693370ba",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r01/unittest.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r02/commands.txt",
+      "sha256": "04daa7c45419b8aca44447413f87f568e4dd7e31bb00b82868b1a6ffac4de3d4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r02/probe.native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r02/probe.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r02/probe.stdout.log",
+      "sha256": "e1ce1c29f9f41c0d1104cfeac8d4080d4f356260a0efdfb1f3b1c9ebd8a9cf70",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r02/probe_r12_decoder.py",
+      "sha256": "bd23159c6e75104d5934479e7444164dd1e0ebe919d97576346985eb9196556c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r03/commands.txt",
+      "sha256": "42fd82225c7edccc0935b53e941b4a48d8ff1ac7a409e6a5468386628c378ef4",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r03/probe.native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r03/probe.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r03/probe.stdout.log",
+      "sha256": "ee8e746f803126cfaa85fb2e0ebb040aced74a208df6994f73176e56be86480c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03/r03/probe_completed_run_semantics.py",
+      "sha256": "ab0c25a425ded7c2d7a27bae3b0d8987d1f4faeac875020aa1fd35663689a22e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/reviewer_r2_round03_inventory.json",
+      "sha256": "d4764f6725e2f886a09c6beabc373da16597887ab17927202acaa82483fd5799",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/tool_origin_diagnosis.json",
+      "sha256": "7727b7fd0b9a63363bf8dabc07a00e2ce635b91f43ab11eb7ff5a59a4c8482d5",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r01/command.txt",
+      "sha256": "66a07ae3c4e065afef91cc128a563bf78bcb31288cc72e0525c8729507da134b",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r01/exit_code.txt",
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r01/run_unit_suite.py",
+      "sha256": "4fa880d07ab2319c86af20546851ff6f5e4d868ee8df5aa6abceb05f0a59d96a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r01/semantics.md",
+      "sha256": "f44e0143afc97f836660c9a0905cba49245fb3711ffbd0d250be9ce272bfd1ed",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r01/stderr.txt",
+      "sha256": "34d1c606a05706631fc11e57fc635ae3218d1ecc6c54318c9a6b577089d34bbc",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r01/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r02/command.txt",
+      "sha256": "66a07ae3c4e065afef91cc128a563bf78bcb31288cc72e0525c8729507da134b",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r02/exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r02/run_unit_suite.py",
+      "sha256": "4fa880d07ab2319c86af20546851ff6f5e4d868ee8df5aa6abceb05f0a59d96a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r02/semantics.md",
+      "sha256": "f44e0143afc97f836660c9a0905cba49245fb3711ffbd0d250be9ce272bfd1ed",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r02/stderr.txt",
+      "sha256": "f611d8a61876fde1b30c4642f7d66569b0150604785a1068f8110247b1586860",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics/s4b_ps_run_semantics_20261023_r02/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/developer_run_semantics_inventory.json",
+      "sha256": "f59f1782b8dce6bedb082a85303849b414459f513a7237b3ccd537143cc18676",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/frozen_sources.json",
+      "sha256": "53e18737457fdeee3bf9399403efacb6466299294f91a43ccb9e4df1f5c4220f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/hardware_readonly_audit.json",
+      "sha256": "d7b8dd165840187f6e9ef46a34fa434270beca363037e8fa4324e7f953e7f651",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/lead_g0_material_packaging.json",
+      "sha256": "b36f4e43e681c14f509f7047e1db095b96d68fa68e79a953ca4c7f90166bd0f7",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/lead_g0_material_packaging_corrected.json",
+      "sha256": "55f524cab974fd43ece36d5d1f3bb4df73d878d8ff2bb5272e223cffe23f1bdc",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/lead_precommit_scope_check.json",
+      "sha256": "94601c3aaf8f855340227550867626aff42500ebb44fc9caad9bf4af8a02353a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/review_r1_plan_origin_closure.json",
+      "sha256": "8c167650a0d68d27882d2c2b2605eb15bd2b39635d10ccfb8e1f681acfbd81a9",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/review_r2_state_semantics_closure.json",
+      "sha256": "cfe6a983875a7c8b54b2b444c346688198ced0077c34f4f703fae2a97aa6f558",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/capture_review.py",
+      "sha256": "b9b39f65605db53de388383fc3afa1b01e0199025d49aff51c9dc38d165c0517",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/commands.txt",
+      "sha256": "420edf7d7ea833287bc66e8a6d30a1a070b822fa4c492023541c825b397fc071",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/probe.native_exit_code.txt",
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/probe.stderr.log",
+      "sha256": "7ebf50aa4c824b5e9e4a116cf86cc0c35f81a441179c4dad4f58130aa1e92ab2",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/probe.stdout.log",
+      "sha256": "761faf61ecf1095168649e53355d7d486ed03fe5fae1bcb05cac2986f7ed3944",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/probe_s4b_status_semantics.py",
+      "sha256": "5211e0459c5041c3e1684976385ce5a04fdc4802f601cfcc95eb3842a9a32897",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/unittest.native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/unittest.stderr.log",
+      "sha256": "cc2ad0cd99cff8a52499b856f947ddef127990419747590393a82816545d9c6b",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r01/unittest.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/capture_review.py",
+      "sha256": "96a20b243262397ed5e55d1a4891a360fe26a5e6bc2ec2f9e6a331021e9cd889",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/commands.txt",
+      "sha256": "dcb650490b4d70bde946ea8a1d74db6e4c090b99629153df0e1f787998adacbb",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/probe.native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/probe.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/probe.stdout.log",
+      "sha256": "28f8afeb8056b9eeedb90a27ddaf7dcc45eb07dcf4b56990e0055a12c60a394c",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/probe_s4b_status_semantics.py",
+      "sha256": "30e1a9727a3524cd669b73b738369435cf2d2e4565356e4c964acde79682929e",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/unittest.native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/unittest.stderr.log",
+      "sha256": "7faae155e28a664436dfc956d9b233dc2de35ec65b56faf18df552ecf8d213e5",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics/independent_20261023_r02/unittest.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/reviewer_run_semantics_inventory.json",
+      "sha256": "790ddf33f443254414dc620b0ac75c70f4579967e45f7faba5a37aa6a9bb599c",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/run_scope.json",
+      "sha256": "3a5023e7f71a444d8c757db46ce0efa1ffb1d08e6ddcc789b22d647ee47d455a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/.gitattributes",
+      "sha256": "32e63a9d16652b26f6318e9eda73402bd8966c32cca5026e2c11ba06591f0099",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/S4B_injection_path_runbook.md",
+      "sha256": "8280e1efbc3b5f8a823adb23783212d9464101f8528e70765b926a11dfab94aa",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "5b651b3aaea1badfce1d90202282441ae0f62538ab91fd5be32a6d82866eaeef",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/S4B_ps_tensor_injection_runbook.md",
+      "sha256": "d7aa79f3fc4280d694f8ecab39ab0545121c7468648aca553bc284328e76f573",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "d1bff2a4333308b64782474b30da7f03f36f3fe98a02ef887181cb39baf6f53e",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/report/evidence/.gitattributes",
+      "sha256": "adea3a9fd62c9732afd6d1ecf0eea4bf6fcd433c876d2bf81862150f1c2e58c1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/scripts/stage4_s4b/.gitattributes",
+      "sha256": "5f726abab7d2f5d487e750396826607e482ff9e6baeb32fc75855993996caf3f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/scripts/stage4_s4b/build_s4b_ps_tensor.py",
+      "sha256": "310b52920c1f778f46d89c36b603113666051e4571b11b8e767ee579d42fc549",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "sha256": "015adb2a64d70ec9cc2dcfd0856f88e770314351edb51f034056e72523cdecdf",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/verification/.gitattributes",
+      "sha256": "734a92619629f537bae8c55b2d24820f3f17e474a53389c7ff04cc01d0581537",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/verification/test_s4b_ps_tensor.py",
+      "sha256": "c8fed3dbdd8e88240f025f7795d04fe67d276cc5f411ea7a038ff1d84cac37e6",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/verification/test_s4b_ps_trace_api.c",
+      "sha256": "6ff7c51e306ebabf5f39a0822655f303193197a07147d51de62f0801826aef22",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/vitis/stage4/.gitattributes",
+      "sha256": "eaa6de7e4eb0c97a0e355f5e2cb6a6912f8bce4ebfc6df6cbb77e92acd6b6c4a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/vitis/stage4/ps/s4b_ps_trace.c",
+      "sha256": "1a9ad676d607d8a2b497aa0d448cd1c3facdbcd55a8ee2261c1afaabd60d16d0",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/source_snapshot/vitis/stage4/ps/s4b_ps_trace.h",
+      "sha256": "833cb64a05399e6d28a982174b2c5e782154feaf7b523991db1fefc272171026",
+      "role": "result"
+    },
+    {
+      "path": "scripts/stage4_s4b/.gitattributes",
+      "sha256": "5f726abab7d2f5d487e750396826607e482ff9e6baeb32fc75855993996caf3f",
+      "role": "source"
+    },
+    {
+      "path": "scripts/stage4_s4b/build_s4b_ps_tensor.py",
+      "sha256": "310b52920c1f778f46d89c36b603113666051e4571b11b8e767ee579d42fc549",
+      "role": "source"
+    },
+    {
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "sha256": "015adb2a64d70ec9cc2dcfd0856f88e770314351edb51f034056e72523cdecdf",
+      "role": "source"
+    },
+    {
+      "path": "verification/.gitattributes",
+      "sha256": "734a92619629f537bae8c55b2d24820f3f17e474a53389c7ff04cc01d0581537",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s4b_ps_tensor.py",
+      "sha256": "c8fed3dbdd8e88240f025f7795d04fe67d276cc5f411ea7a038ff1d84cac37e6",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s4b_ps_trace_api.c",
+      "sha256": "6ff7c51e306ebabf5f39a0822655f303193197a07147d51de62f0801826aef22",
+      "role": "source"
+    },
+    {
+      "path": "vitis/stage4/.gitattributes",
+      "sha256": "eaa6de7e4eb0c97a0e355f5e2cb6a6912f8bce4ebfc6df6cbb77e92acd6b6c4a",
+      "role": "source"
+    },
+    {
+      "path": "vitis/stage4/ps/s4b_ps_trace.c",
+      "sha256": "1a9ad676d607d8a2b497aa0d448cd1c3facdbcd55a8ee2261c1afaabd60d16d0",
+      "role": "source"
+    },
+    {
+      "path": "vitis/stage4/ps/s4b_ps_trace.h",
+      "sha256": "833cb64a05399e6d28a982174b2c5e782154feaf7b523991db1fefc272171026",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r02/delivery_manifest_initial_failed.json",
+      "sha256": "1f8e3bf1a8bea81f460f2c666e55b5a79a10f8a4b2a1457b0fb6e8b369777dad",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/lead_r02_packaging_precommit.json",
+      "sha256": "7ac9e4919a1b4c8539abed762bcd12d809318e81a8ca9b8bb27e70014ca4654e",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/lead_r02_packaging_corrected.json",
+      "sha256": "8121e7de51347e5874816278aa2c167e0c44c697031661dff44e4e92f4a7030a",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/lead_git_validation_precommit.json",
+      "sha256": "a7109e22ce0b2cdd029d6ddb9ffcef93e21cf00dc952d7af569a11250ec03279",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "r12_unchanged_arm_build_only",
+      "status": "PASS",
+      "command": "& 'C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe' -B scripts/stage4_s4b/build_s4b_ps_tensor.py --run-id s4b_ps_tensor_20261023_r12 --boot-seed 0x5342424F4F543132 --session-first 0x53422800 --session-last 0x53422BE7",
+      "exit_code": 0,
+      "reason": "实际r12结果PASS_BUILD_ONLY，当前只复用未变的ARM编译输入与artifact绑定；不复用旧decoder测试作为当前验证。"
+    },
+    {
+      "name": "current_python_37",
+      "status": "PASS",
+      "command": "'C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe' -B -m unittest -v verification.test_s4b_ps_tensor",
+      "exit_code": 0
+    },
+    {
+      "name": "independent_crc_semantics_34_and_suite37",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -m unittest -v verification.test_s4b_ps_tensor\nC:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02A-G2\\independent_20261023_r02\\probe_s4b_status_semantics.py\nC:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02A-G2\\independent_20261023_r02\\capture_review.py",
+      "exit_code": 0
+    },
+    {
+      "name": "protected_frozen_chain",
+      "status": "PASS",
+      "command": "git diff --exit-code HEAD -- scripts/stage4_s4b/build_s4b_manifest.py scripts/stage4_s4b/run_s4b_offline_chain.py verification/test_s4_ps_decode.py vitis/stage4/s4_offline_host.c vitis/stage4/s4_ps_decode.c vitis/stage4/s4_ps_decode.h vitis/stage4/s4_uart_protocol.c vitis/stage4/s4_uart_protocol.h",
+      "exit_code": 0
+    },
+    {
+      "name": "actual_hardware",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本包仅离线代码/计划G2；实际adapter、批准、硬件会话交接与共享G0尚未闭合。"
+    },
+    {
+      "name": "raw_preprocessing_path",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "原始帧PL新版本路线待Wong决策，增量资源/时序/接口未完成。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14 (AMD64; bundled runtime)",
+    "host_gcc": "MinGW-W64 GCC 8.1.0",
+    "official_aarch32_gcc": "arm-xilinx-eabi GCC 13.4.0",
+    "aarch32_tools": "工具文件SHA-256记录于external_inputs_inventory.json",
+    "current_validation_python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "limitations": [
+    "仅PS张量诊断源码与PLAN_ONLY操作计划的离线G2，不是完整4-B/G3/G4/4D通过。",
+    "source_commit是开发基线；实际待审源码以files哈希与source_snapshot原字节绑定，提交后另报告真实提交哈希。",
+    "r12历史manifest仍绑定旧decoder/doc快照，不冒充当前整包；C/header/builder/Ctest不变才复用其ARM证据。",
+    "当前工具runtime与r12构建后发生漂移，原before/after记录不改；当前测试和数值复算分别绑定其真实runtime。",
+    "ELF及上游BSP/bit/XSA是本机外部恢复依赖，不混入本轮源码Git提交；路径/SHA在run_scope和上游清单保留。",
+    "原始失败/工具/fixture错误保留；CHECKS_OK不代表接口、测试或阶段通过；草案字段和未执行硬件均不改为通过。",
+    "本机5份链接map也不纳入源码提交；run_scope逐项绑定其实际SHA与恢复路径。"
+  ]
+}

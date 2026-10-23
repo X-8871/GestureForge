@@ -1,0 +1,144 @@
+test_bundle_paths_reject_windows_and_traversal_before_writes (verification.test_s4b_ps_tensor.BundlePathTests.test_bundle_paths_reject_windows_and_traversal_before_writes) ... ok
+test_derives_only_from_exact_frozen_source_and_updates_identity (verification.test_s4b_ps_tensor.DerivationBindingTests.test_derives_only_from_exact_frozen_source_and_updates_identity) ... ok
+test_rejects_changed_frozen_source_sha (verification.test_s4b_ps_tensor.DerivationBindingTests.test_rejects_changed_frozen_source_sha) ... ok
+test_rejects_missing_unique_anchor_after_source_hash_binding (verification.test_s4b_ps_tensor.DerivationBindingTests.test_rejects_missing_unique_anchor_after_source_hash_binding) ... ok
+test_memory_map_rejects_log_array_overlap (verification.test_s4b_ps_tensor.FullMemoryMapTests.test_memory_map_rejects_log_array_overlap) ... FAIL
+test_memory_map_rejects_missing_stack_symbol (verification.test_s4b_ps_tensor.FullMemoryMapTests.test_memory_map_rejects_missing_stack_symbol) ... ok
+test_memory_map_rejects_stack_overlap_and_out_of_bounds (verification.test_s4b_ps_tensor.FullMemoryMapTests.test_memory_map_rejects_stack_overlap_and_out_of_bounds) ... ok
+test_memory_map_reports_complete_exception_stacks (verification.test_s4b_ps_tensor.FullMemoryMapTests.test_memory_map_reports_complete_exception_stacks) ... ERROR
+test_network_input_range_matches_frozen_tensor_length (verification.test_s4b_ps_tensor.MemoryRangeTests.test_network_input_range_matches_frozen_tensor_length) ... ok
+test_network_input_range_rejects_short_arena (verification.test_s4b_ps_tensor.MemoryRangeTests.test_network_input_range_rejects_short_arena) ... ok
+test_decoder_accepts_committed_control_without_uart (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_accepts_committed_control_without_uart) ... ok
+test_decoder_accepts_error_safe_ack_and_partial_timeout_without_ack (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_accepts_error_safe_ack_and_partial_timeout_without_ack) ... ERROR
+test_decoder_rejects_changed_uart_sequence_and_run_metadata (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_rejects_changed_uart_sequence_and_run_metadata) ... FAIL
+test_decoder_rejects_crc_repaired_semantic_contradictions (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_rejects_crc_repaired_semantic_contradictions) ... ok
+test_decoder_rejects_session_and_last_run_header_mismatch (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_rejects_session_and_last_run_header_mismatch) ... FAIL
+test_decoder_requires_expected_source_and_boot_identity (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_requires_expected_source_and_boot_identity) ... ok
+test_double_read_snapshot_decodes_with_separate_keys_and_times (verification.test_s4b_ps_tensor.TraceDumpTests.test_double_read_snapshot_decodes_with_separate_keys_and_times) ... ERROR
+test_rejects_active_run_snapshot (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_active_run_snapshot) ... ok
+test_rejects_capture_time_claim (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_capture_time_claim) ... ok
+test_rejects_different_second_read (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_different_second_read) ... ok
+test_rejects_duplicate_ps_and_s4a_join_keys (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_duplicate_ps_and_s4a_join_keys) ... FAIL
+test_rejects_header_crc_damage (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_header_crc_damage) ... ok
+test_rejects_nonzero_uncommitted_slot (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_nonzero_uncommitted_slot) ... FAIL
+test_rejects_record_crc_damage (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_record_crc_damage) ... ok
+test_rejects_uncommitted_record_even_with_valid_crc (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_uncommitted_record_even_with_valid_crc) ... ok
+test_parses_actual_test_summary_with_crlf (verification.test_s4b_ps_tensor.UnittestSummaryTests.test_parses_actual_test_summary_with_crlf) ... ok
+test_parses_actual_test_summary_with_lf (verification.test_s4b_ps_tensor.UnittestSummaryTests.test_parses_actual_test_summary_with_lf) ... ok
+test_parses_singular_test_summary (verification.test_s4b_ps_tensor.UnittestSummaryTests.test_parses_singular_test_summary) ... ok
+test_rejects_missing_test_summary (verification.test_s4b_ps_tensor.UnittestSummaryTests.test_rejects_missing_test_summary) ... ok
+
+======================================================================
+ERROR: test_memory_map_reports_complete_exception_stacks (verification.test_s4b_ps_tensor.FullMemoryMapTests.test_memory_map_reports_complete_exception_stacks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 503, in test_memory_map_reports_complete_exception_stacks
+    ranges = builder.verify_memory_map(nm_text, section_text)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\scripts\stage4_s4b\build_s4b_ps_tensor.py", line 679, in verify_memory_map
+    raise BuildError("旁路记录数组与staging重叠")
+scripts.stage4_s4b.build_s4b_ps_tensor.BuildError: 旁路记录数组与staging重叠
+
+======================================================================
+ERROR: test_decoder_accepts_error_safe_ack_and_partial_timeout_without_ack (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_accepts_error_safe_ack_and_partial_timeout_without_ack)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 277, in test_decoder_accepts_error_safe_ack_and_partial_timeout_without_ack
+    error_result = decode_dump(error_blob)
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 25, in decode_dump
+    return decoder.decode_bytes(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\scripts\stage4_s4b\decode_s4b_ps_trace.py", line 334, in decode_bytes
+    record = _decode_record(records_data[start:start + record_bytes], index)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\scripts\stage4_s4b\decode_s4b_ps_trace.py", line 251, in _decode_record
+    raise TraceDecodeError(f"record_{index}_{label}_tick_without_event")
+scripts.stage4_s4b.decode_s4b_ps_trace.TraceDecodeError: record_0_start_command_tick_without_event
+
+======================================================================
+ERROR: test_double_read_snapshot_decodes_with_separate_keys_and_times (verification.test_s4b_ps_tensor.TraceDumpTests.test_double_read_snapshot_decodes_with_separate_keys_and_times)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 183, in test_double_read_snapshot_decodes_with_separate_keys_and_times
+    result = decode_dump(make_dump())
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 25, in decode_dump
+    return decoder.decode_bytes(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\scripts\stage4_s4b\decode_s4b_ps_trace.py", line 334, in decode_bytes
+    record = _decode_record(records_data[start:start + record_bytes], index)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w4\scripts\stage4_s4b\decode_s4b_ps_trace.py", line 251, in _decode_record
+    raise TraceDecodeError(f"record_{index}_{label}_tick_without_event")
+scripts.stage4_s4b.decode_s4b_ps_trace.TraceDecodeError: record_0_start_command_tick_without_event
+
+======================================================================
+FAIL: test_memory_map_rejects_log_array_overlap (verification.test_s4b_ps_tensor.FullMemoryMapTests.test_memory_map_rejects_log_array_overlap)
+----------------------------------------------------------------------
+scripts.stage4_s4b.build_s4b_ps_tensor.BuildError: 旁路日志头与staging重叠
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 551, in test_memory_map_rejects_log_array_overlap
+    with self.assertRaisesRegex(builder.BuildError, "记录数组与日志头重叠"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "记录数组与日志头重叠" does not match "旁路日志头与staging重叠"
+
+======================================================================
+FAIL: test_decoder_rejects_changed_uart_sequence_and_run_metadata (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_rejects_changed_uart_sequence_and_run_metadata)
+----------------------------------------------------------------------
+scripts.stage4_s4b.decode_s4b_ps_trace.TraceDecodeError: record_0_start_command_tick_without_event
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 326, in test_decoder_rejects_changed_uart_sequence_and_run_metadata
+    with self.assertRaisesRegex(decoder.TraceDecodeError, "uart_sequence_changed"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "uart_sequence_changed" does not match "record_0_start_command_tick_without_event"
+
+======================================================================
+FAIL: test_decoder_rejects_session_and_last_run_header_mismatch (verification.test_s4b_ps_tensor.TraceDumpTests.test_decoder_rejects_session_and_last_run_header_mismatch)
+----------------------------------------------------------------------
+scripts.stage4_s4b.decode_s4b_ps_trace.TraceDecodeError: record_0_start_command_tick_without_event
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 344, in test_decoder_rejects_session_and_last_run_header_mismatch
+    with self.assertRaisesRegex(decoder.TraceDecodeError, "completed_run_record_count_mismatch"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "completed_run_record_count_mismatch" does not match "record_0_start_command_tick_without_event"
+
+======================================================================
+FAIL: test_rejects_duplicate_ps_and_s4a_join_keys (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_duplicate_ps_and_s4a_join_keys)
+----------------------------------------------------------------------
+scripts.stage4_s4b.decode_s4b_ps_trace.TraceDecodeError: record_0_start_command_tick_without_event
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 266, in test_rejects_duplicate_ps_and_s4a_join_keys
+    with self.assertRaisesRegex(decoder.TraceDecodeError, "record_1_duplicate_key"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "record_1_duplicate_key" does not match "record_0_start_command_tick_without_event"
+
+======================================================================
+FAIL: test_rejects_nonzero_uncommitted_slot (verification.test_s4b_ps_tensor.TraceDumpTests.test_rejects_nonzero_uncommitted_slot)
+----------------------------------------------------------------------
+scripts.stage4_s4b.decode_s4b_ps_trace.TraceDecodeError: record_0_start_command_tick_without_event
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w4\verification\test_s4b_ps_tensor.py", line 250, in test_rejects_nonzero_uncommitted_slot
+    with self.assertRaisesRegex(decoder.TraceDecodeError, "uncommitted_record_slot_nonzero"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "uncommitted_record_slot_nonzero" does not match "record_0_start_command_tick_without_event"
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.041s
+
+FAILED (failures=5, errors=3)

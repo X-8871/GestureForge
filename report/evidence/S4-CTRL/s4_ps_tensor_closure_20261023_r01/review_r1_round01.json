@@ -1,0 +1,54 @@
+{
+  "reviewer": "review_s4a_contract",
+  "task_id": "S4-B-REAL-G2-R1-01",
+  "status": "CHANGES_REQUIRED",
+  "baseline_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "snapshot": "report/evidence/S4-CTRL/s4_ps_tensor_closure_20261023_r01/frozen_sources_r01.json",
+  "snapshot_sha256": "28ff4e5fd9a4b254509465a9eba98d8dab614299f4845843383b1adb12cb7f30",
+  "frozen_files_checked": 17,
+  "frozen_files_mismatched": 0,
+  "external_inputs_checked": 12,
+  "external_inputs_mismatched": 0,
+  "findings": [
+    {
+      "id": "R1-PS-01",
+      "path": "scripts/stage4_s4b/build_s4b_ps_tensor.py",
+      "line": 395,
+      "issue": "PurePosixPath未拒绝Windows反斜杠/盘符越界形式。",
+      "evidence": "无写入探针：../escape拒绝；..\\escape和C:/escape未被防护拒绝。当前固定ZIP85成员均安全，不是当前实包越界写入证明。",
+      "close_when": "拒绝反斜杠/盘符/UNC/绝对路径，限制允许前缀，目标解析仍位于解包根；增加反例。"
+    },
+    {
+      "id": "R1-PS-02",
+      "path": "scripts/stage4_s4b/build_s4b_ps_tensor.py",
+      "line": 579,
+      "issue": "仅校验65536B主栈，未覆盖71680B完整.stack及异常栈。当前实际ELF未证明越界，但布局PASS依据不完整。",
+      "close_when": "完整.stack和IRQ/SVC/ABT/FIQ/UND各栈符号的范围、大小、app arena/heap/日志关系全部校验并输出。"
+    },
+    {
+      "id": "R1-PS-03",
+      "path": "docs/stage4/S4B_ps_tensor_injection_runbook.md",
+      "line": 15,
+      "issue": "READY文本前缀与S2BU帧协议混淆；缺实际离线构建命令及受门控装载/启动/导出/停止计划。",
+      "close_when": "READY改为S2B-INFERENCE/1；补可复现构建和操作计划、前置条件/预期/中止点；adapter未实现处必须标不可执行。"
+    }
+  ],
+  "passed_scope": [
+    "冻结source/ZIP/member set与长度SHA、外部12项前后绑定、工具SHA一致。",
+    "源SHA变异被拒绝；参数数组subprocess未启shell。",
+    "实际ARM3单元编译与链接日志、ELF/map身份、18Python计数和52文件绑定一致。",
+    "权重响应不计推理记录；raw ticks/capture不可用/stale未批准限制准确。",
+    "共享契约/地址图仍草案；输入检查失败不应通过篡改frozen状态关闭。"
+  ],
+  "checks": [
+    {"name": "frozen_source_hashes", "exit_code": 0},
+    {"name": "source_mutation_and_path_guard_memory_probe", "exit_code": 0},
+    {"name": "delivery_evidence", "exit_code": 0},
+    {"name": "delivery_inputs_native_python", "exit_code": 2}
+  ],
+  "limitations": [
+    "审查只读；路径变异仅内存探针，未写文件，首轮未保存独立探针日志。",
+    "未重跑构建或测试；未做32位行为/真实PS/PL/UART/DDR/板测。",
+    "G0草案静态PASS不等于架构批准或G0通过；新PS程序当前G2不通过。"
+  ]
+}

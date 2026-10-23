@@ -1,0 +1,32 @@
+[
+  {
+    "mode": "evidence",
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "verification/check_stage_delivery.py",
+      "--mode",
+      "evidence",
+      "--manifest",
+      "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/delivery_manifest.json"
+    ],
+    "native_exit_code": 0,
+    "stdout": "{\"status\":\"CHECKS_OK\",\"mode\":\"evidence\",\"task_id\":\"S4-B\",\"run_id\":\"s4b_ps_tensor_20261023_r12\",\"interfaces_not_applicable\":null,\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"external_frozen_input_hashes\",\"reason\":\"builder在构建前后核对恢复ZIP、冻结2B app、回执、清单、XSA、模型清单和工具SHA；external_inputs_inventory.json绑定外部路径、长度与真实SHA。\"},{\"status\":\"PASS\",\"name\":\"strict_host_c_api_compile\",\"reason\":\"严格C11编译使用-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror，stdout/stderr为空。\"},{\"status\":\"PASS\",\"name\":\"direct_host_c_api_regression\",\"reason\":\"独立C API回归输出PASS trace_api；包括records全数组清零flush和barrier先于header发布。1000条容量仅为离线API上限/拒绝用例，不代表1000次有效板上推理。\"},{\"status\":\"PASS\",\"name\":\"u32_session_range_exhaustion\",\"reason\":\"u32 session范围耗尽回归PASS；不回绕、不重用。\"},{\"status\":\"PASS\",\"name\":\"python_snapshot_binding_path_memory_suite\",\"reason\":\"33/33 Python测试PASS；包含路径/全栈、身份/CRC、物理safe事务不匹配日志、成功/错误/发送失败事件矩阵反例。\"},{\"status\":\"PASS\",\"name\":\"official_aarch32_compile_link\",\"reason\":\"AArch32 GCC三编译单元及真实BSP静态库链接退出0；逐条命令、SHA、退出码和空stderr均记录。\"},{\"status\":\"PASS\",\"name\":\"elf_memory_layout\",\"reason\":\"检查输入半开区间[0x10000000,0x1007EC00)长度519168B、32MiB arena、完整71680B stack及IRQ/SVC/ABT/FIQ/UND范围、trace/staging/heap不重叠；仅离线链接范围。\"},{\"status\":\"NOT_RUN\",\"name\":\"hardware_board_ps_pl_uart\",\"reason\":\"未执行板卡装载、PS运行、PL、UART、JTAG、DDR导出、停止或恢复。\"},{\"status\":\"BLOCKED\",\"name\":\"rgb_preprocessing\",\"reason\":\"RGB预处理仍BLOCKED_PENDING_G0；本ELF只接收已准备的INT8_CHW_416张量。\"}],\"errors\":[],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}\n",
+    "stderr": ""
+  },
+  {
+    "mode": "inputs",
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "verification/check_stage_delivery.py",
+      "--mode",
+      "inputs",
+      "--manifest",
+      "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/delivery_manifest.json"
+    ],
+    "native_exit_code": 2,
+    "stdout": "{\"status\":\"CHECKS_FAILED\",\"mode\":\"inputs\",\"task_id\":\"S4-B\",\"run_id\":\"s4b_ps_tensor_20261023_r12\",\"interfaces_not_applicable\":null,\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"external_frozen_input_hashes\",\"reason\":\"builder在构建前后核对恢复ZIP、冻结2B app、回执、清单、XSA、模型清单和工具SHA；external_inputs_inventory.json绑定外部路径、长度与真实SHA。\"},{\"status\":\"PASS\",\"name\":\"strict_host_c_api_compile\",\"reason\":\"严格C11编译使用-Wall -Wextra -Wpedantic -Wconversion -Wshadow -Werror，stdout/stderr为空。\"},{\"status\":\"PASS\",\"name\":\"direct_host_c_api_regression\",\"reason\":\"独立C API回归输出PASS trace_api；包括records全数组清零flush和barrier先于header发布。1000条容量仅为离线API上限/拒绝用例，不代表1000次有效板上推理。\"},{\"status\":\"PASS\",\"name\":\"u32_session_range_exhaustion\",\"reason\":\"u32 session范围耗尽回归PASS；不回绕、不重用。\"},{\"status\":\"PASS\",\"name\":\"python_snapshot_binding_path_memory_suite\",\"reason\":\"33/33 Python测试PASS；包含路径/全栈、身份/CRC、物理safe事务不匹配日志、成功/错误/发送失败事件矩阵反例。\"},{\"status\":\"PASS\",\"name\":\"official_aarch32_compile_link\",\"reason\":\"AArch32 GCC三编译单元及真实BSP静态库链接退出0；逐条命令、SHA、退出码和空stderr均记录。\"},{\"status\":\"PASS\",\"name\":\"elf_memory_layout\",\"reason\":\"检查输入半开区间[0x10000000,0x1007EC00)长度519168B、32MiB arena、完整71680B stack及IRQ/SVC/ABT/FIQ/UND范围、trace/staging/heap不重叠；仅离线链接范围。\"},{\"status\":\"NOT_RUN\",\"name\":\"hardware_board_ps_pl_uart\",\"reason\":\"未执行板卡装载、PS运行、PL、UART、JTAG、DDR导出、停止或恢复。\"},{\"status\":\"BLOCKED\",\"name\":\"rgb_preprocessing\",\"reason\":\"RGB预处理仍BLOCKED_PENDING_G0；本ELF只接收已准备的INT8_CHW_416张量。\"}],\"errors\":[\"interfaces[1] 接口未冻结，阻断 inputs 核验\",\"interfaces[2] 接口未冻结，阻断 inputs 核验\",\"checks[7] 依赖检查状态为 NOT_RUN，阻断 inputs 核验\",\"checks[8] 依赖检查状态为 BLOCKED，阻断 inputs 核验\"],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-C",
+  "run_id": "s4c_evidence_reuse_20261023_r01",
+  "source_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+  "evidence_dir": "report/evidence/S4-C/s4c_evidence_reuse_20261023_r01",
+  "interfaces": [
+    {
+      "name": "S4-A当前权威",
+      "version": "r06",
+      "frozen": true,
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "input"
+    },
+    {
+      "path": "verification/s4_replay_compare.py",
+      "sha256": "3c2a61aeee7006ff394a6794333262f57c85aa00b86bb7cd3ecfe2ed41d32625",
+      "role": "source"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "source"
+    },
+    {
+      "path": "verification/s1_t02_d9_yolo_decode.py",
+      "sha256": "94dacdac18968e70871e1c21d24d5f4c3a9941881eaf37ffaab4d5372e28d190",
+      "role": "source"
+    },
+    {
+      "path": "verification/s1_t02_d6_detection_metrics.py",
+      "sha256": "4dcf0f7d9586b7096be015faf2c5037489b03b04baeec0daea4cadec89be591a",
+      "role": "source"
+    },
+    {
+      "path": "scripts/stage4_s4c/run_s4c_replay.py",
+      "sha256": "2dfccea4a2cecb59afdd3cf3ea8ed9b96c0cc590c15f6091e4b8ba06e1e565d9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_replay_20261021_r05/replay_golden_109.json",
+      "sha256": "c5d25c64642ac10c9ace3370d20d57ced9aa6c9515628f1ecf324f5bd90e106d",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_replay_20261021_r05/s4c_run_manifest.json",
+      "sha256": "3123a285808f4ad14ab2a8d661297b4a315a13c4b1a5d2bb2e611d3898689540",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_replay_20261021_r05/S4C_replay_summary.md",
+      "sha256": "7b9aa13967966b1a1301d4a4f7711f067580735e51ba0dc1b22cd4c821197ed5",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/reuse_audit.json",
+      "sha256": "e5070db935d5f3fde111e86fcc795e29b0bcf249be97c3cda3c0c6ac449e9033",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "historical_evidence_reuse_audit",
+      "status": "PASS",
+      "command": "只读Git历史/SHA-256/JSON字段核对",
+      "exit_code": 0,
+      "reason": "独立Reviewer与Lead核对：数值常量不变，6项小文件匹配；允许历史109/109 CPU golden decode精确范围复用。"
+    },
+    {
+      "name": "fresh_replay",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "未重跑回放或390MB分片；不把历史结果冒充r06新运行。"
+    },
+    {
+      "name": "real_hardware",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "不覆盖D2执行、真实PS/PL/UART与完整阶段验收。"
+    }
+  ],
+  "tool_versions": {
+    "lead_python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "independent_review_commands": "只读Git历史、文件SHA与JSON字段比较，无回放/测试执行。"
+  },
+  "limitations": [
+    "未重新读取390MB分片；当前六项小文件已复算MATCH。",
+    "时基与200ms仍待批准；历史结果不得代替新PS应用或硬件验证。"
+  ]
+}

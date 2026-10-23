@@ -1,0 +1,115 @@
+{
+  "checks": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\w4\\verification\\check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4_ps_tensor_closure_20261023_r02\\delivery_manifest.json"
+      ],
+      "mode": "evidence",
+      "native_exit_code": 0,
+      "stdout": {
+        "status": "CHECKS_OK",
+        "mode": "evidence",
+        "task_id": "S4-CTRL",
+        "run_id": "s4_ps_tensor_closure_20261023_r02",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "r12_unchanged_arm_build_only",
+            "reason": "实际r12结果PASS_BUILD_ONLY，当前只复用未变的ARM编译输入与artifact绑定；不复用旧decoder测试作为当前验证。"
+          },
+          {
+            "status": "PASS",
+            "name": "current_python_37"
+          },
+          {
+            "status": "PASS",
+            "name": "independent_crc_semantics_34_and_suite37"
+          },
+          {
+            "status": "PASS",
+            "name": "protected_frozen_chain"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "actual_hardware",
+            "reason": "本包仅离线代码/计划G2；实际adapter、批准、硬件会话交接与共享G0尚未闭合。"
+          },
+          {
+            "status": "BLOCKED",
+            "name": "raw_preprocessing_path",
+            "reason": "原始帧PL新版本路线待Wong决策，增量资源/时序/接口未完成。"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      },
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\w4\\verification\\check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4_ps_tensor_closure_20261023_r02\\delivery_manifest.json"
+      ],
+      "mode": "inputs",
+      "native_exit_code": 2,
+      "stdout": {
+        "status": "CHECKS_FAILED",
+        "mode": "inputs",
+        "task_id": "S4-CTRL",
+        "run_id": "s4_ps_tensor_closure_20261023_r02",
+        "interfaces_not_applicable": null,
+        "check_statuses": [
+          {
+            "status": "PASS",
+            "name": "r12_unchanged_arm_build_only",
+            "reason": "实际r12结果PASS_BUILD_ONLY，当前只复用未变的ARM编译输入与artifact绑定；不复用旧decoder测试作为当前验证。"
+          },
+          {
+            "status": "PASS",
+            "name": "current_python_37"
+          },
+          {
+            "status": "PASS",
+            "name": "independent_crc_semantics_34_and_suite37"
+          },
+          {
+            "status": "PASS",
+            "name": "protected_frozen_chain"
+          },
+          {
+            "status": "NOT_RUN",
+            "name": "actual_hardware",
+            "reason": "本包仅离线代码/计划G2；实际adapter、批准、硬件会话交接与共享G0尚未闭合。"
+          },
+          {
+            "status": "BLOCKED",
+            "name": "raw_preprocessing_path",
+            "reason": "原始帧PL新版本路线待Wong决策，增量资源/时序/接口未完成。"
+          }
+        ],
+        "errors": [
+          "interfaces[1] 接口未冻结，阻断 inputs 核验",
+          "interfaces[2] 接口未冻结，阻断 inputs 核验",
+          "checks[4] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[5] 依赖检查状态为 BLOCKED，阻断 inputs 核验"
+        ],
+        "warnings": [],
+        "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+      },
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "fixtures": [
+    {
+      "name": "A_real_archived_defect",
+      "source": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin",
+      "sha256": "1c52577e539083b31acbdc81b951626ae0dfe3bc8239d2ff4b2d35f2a472fb89",
+      "bytes": 2764800,
+      "kind": "真实归档缺陷帧"
+    },
+    {
+      "name": "B_synthetic_criterion",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\fixture_B_criterion.bin",
+      "sha256": "b7d5a63f9717e5993a79408898725f3521aacbcb997939cb83bffbdbd3e87e98",
+      "bytes": 2764800,
+      "kind": "合成判定表夹具（非传感器数据）"
+    },
+    {
+      "name": "C_blue_only_restored",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\fixture_C_blue_only.bin",
+      "sha256": "4b48b9f65597085d2ba0edf91b4b7c06419f237ed2b3ec78d5387bbe0c3b5bc7",
+      "bytes": 2764800,
+      "kind": "真实缺陷帧只恢复蓝 MSB（绿仍缺）——非典型夹具"
+    },
+    {
+      "name": "D_both_bits_restored_black_also_set",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\fixture_D.bin",
+      "sha256": "798e72db54470b052a77908bfb886537367e82842e2f9d29d4630b5737e73446",
+      "bytes": 2764800,
+      "kind": "真实缺陷帧两处缺位均 OR 恢复（黑条随之被置位）=> 应判非典型，不得当通过",
+      "white_segment_index": 0,
+      "black_segment_index": 7
+    },
+    {
+      "name": "E_D_plus_black_cleared",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\fixture_E.bin",
+      "sha256": "5da4a696f55f28930b84e3d7d5d933501845561e9ce32e4ceefd705afec9ff07",
+      "bytes": 2764800,
+      "kind": "D 再把黑条清零 => 应通过（证明 exit 0 可达）",
+      "white_segment_index": 0,
+      "black_segment_index": 7
+    },
+    {
+      "name": "F_table_if_fixed_white_full_black_residual",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\fixture_F.bin",
+      "sha256": "4b26dce5db081689048f7d587296ec2fd84edce667a66b2c650da3ead18e3bca",
+      "bytes": 2764800,
+      "kind": "判定表自声明 if_fixed（白 248/252/248、黑 0,4,0）=> 对齐口径必须 exit 0（评审 B-2 关闭）",
+      "white_segment_index": 0,
+      "black_segment_index": 7
+    }
+  ],
+  "results": [
+    {
+      "fixture": "A_real_archived_defect",
+      "strict_black_bits": false,
+      "expected_verdict": "DEFECT_REPRODUCED",
+      "expected_exit_code": 1,
+      "actual_verdict": "DEFECT_REPRODUCED",
+      "actual_exit_code": 1,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 236,
+        "b": 120,
+        "r_field5": 31,
+        "g_field6": 59,
+        "b_field5": 15
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 4,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 1,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.0,
+      "green_bit4_set_rate": 0.0,
+      "per_bit_mode": "TOLERANCE_ALIGNED_WITH_C5",
+      "discriminated_used_for_c7": 14,
+      "discriminated_aligned": 14,
+      "discriminated_strict_variant": 13,
+      "field_bits_total": 16,
+      "not_discriminated": [
+        "G field_bit 2（WHITE_BIT_NOT_SET（白条字段位为 0 => 缺位））",
+        "B field_bit 4（WHITE_BIT_NOT_SET（白条字段位为 0 => 缺位））"
+      ],
+      "failed_criteria": [
+        "C2_white_G_full_scale",
+        "C3_white_B_full_scale",
+        "C4_white_neutral",
+        "C6_old_defect_signature_absent",
+        "C7_per_bit_discriminable"
+      ]
+    },
+    {
+      "fixture": "B_synthetic_criterion",
+      "strict_black_bits": false,
+      "expected_verdict": "BIT_INTEGRITY_PASS",
+      "expected_exit_code": 0,
+      "actual_verdict": "BIT_INTEGRITY_PASS",
+      "actual_exit_code": 0,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 252,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 63,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 0,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 0,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.50078125,
+      "green_bit4_set_rate": 0.50078125,
+      "per_bit_mode": "TOLERANCE_ALIGNED_WITH_C5",
+      "discriminated_used_for_c7": 16,
+      "discriminated_aligned": 16,
+      "discriminated_strict_variant": 16,
+      "field_bits_total": 16,
+      "not_discriminated": [],
+      "failed_criteria": []
+    },
+    {
+      "fixture": "C_blue_only_restored",
+      "strict_black_bits": false,
+      "expected_verdict": "INCONCLUSIVE_ATYPICAL",
+      "expected_exit_code": 3,
+      "actual_verdict": "INCONCLUSIVE_ATYPICAL",
+      "actual_exit_code": 3,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 236,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 59,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 4,
+        "b": 128,
+        "r_field5": 0,
+        "g_field6": 1,
+        "b_field5": 16
+      },
+      "blue_bit7_set_rate": 1.0,
+      "green_bit4_set_rate": 0.0,
+      "per_bit_mode": "TOLERANCE_ALIGNED_WITH_C5",
+      "discriminated_used_for_c7": 14,
+      "discriminated_aligned": 14,
+      "discriminated_strict_variant": 13,
+      "field_bits_total": 16,
+      "not_discriminated": [
+        "G field_bit 2（WHITE_BIT_NOT_SET（白条字段位为 0 => 缺位））",
+        "B field_bit 4（BLACK_FIELD_EXCEEDS_TOLERANCE（黑条字段值超容差且该位为 1））"
+      ],
+      "failed_criteria": [
+        "C2_white_G_full_scale",
+        "C4_white_neutral",
+        "C5_black_zero",
+        "C7_per_bit_discriminable"
+      ]
+    },
+    {
+      "fixture": "D_both_bits_restored_black_also_set",
+      "strict_black_bits": false,
+      "expected_verdict": "INCONCLUSIVE_ATYPICAL",
+      "expected_exit_code": 3,
+      "actual_verdict": "INCONCLUSIVE_ATYPICAL",
+      "actual_exit_code": 3,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 252,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 63,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 20,
+        "b": 128,
+        "r_field5": 0,
+        "g_field6": 5,
+        "b_field5": 16
+      },
+      "blue_bit7_set_rate": 1.0,
+      "green_bit4_set_rate": 1.0,
+      "per_bit_mode": "TOLERANCE_ALIGNED_WITH_C5",
+      "discriminated_used_for_c7": 13,
+      "discriminated_aligned": 13,
+      "discriminated_strict_variant": 13,
+      "field_bits_total": 16,
+      "not_discriminated": [
+        "G field_bit 2（BLACK_FIELD_EXCEEDS_TOLERANCE（黑条字段值超容差且该位为 1））",
+        "G field_bit 0（BLACK_FIELD_EXCEEDS_TOLERANCE（黑条字段值超容差且该位为 1））",
+        "B field_bit 4（BLACK_FIELD_EXCEEDS_TOLERANCE（黑条字段值超容差且该位为 1））"
+      ],
+      "failed_criteria": [
+        "C5_black_zero",
+        "C7_per_bit_discriminable"
+      ]
+    },
+    {
+      "fixture": "E_D_plus_black_cleared",
+      "strict_black_bits": false,
+      "expected_verdict": "BIT_INTEGRITY_PASS",
+      "expected_exit_code": 0,
+      "actual_verdict": "BIT_INTEGRITY_PASS",
+      "actual_exit_code": 0,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 252,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 63,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 0,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 0,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.87578125,
+      "green_bit4_set_rate": 0.87578125,
+      "per_bit_mode": "TOLERANCE_ALIGNED_WITH_C5",
+      "discriminated_used_for_c7": 16,
+      "discriminated_aligned": 16,
+      "discriminated_strict_variant": 16,
+      "field_bits_total": 16,
+      "not_discriminated": [],
+      "failed_criteria": []
+    },
+    {
+      "fixture": "F_table_if_fixed_white_full_black_residual",
+      "strict_black_bits": false,
+      "expected_verdict": "BIT_INTEGRITY_PASS",
+      "expected_exit_code": 0,
+      "actual_verdict": "BIT_INTEGRITY_PASS",
+      "actual_exit_code": 0,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 252,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 63,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 4,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 1,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.12578125,
+      "green_bit4_set_rate": 0.12578125,
+      "per_bit_mode": "TOLERANCE_ALIGNED_WITH_C5",
+      "discriminated_used_for_c7": 16,
+      "discriminated_aligned": 16,
+      "discriminated_strict_variant": 15,
+      "field_bits_total": 16,
+      "not_discriminated": [],
+      "failed_criteria": []
+    },
+    {
+      "fixture": "F_probe_strict_black_bits",
+      "strict_black_bits": true,
+      "expected_verdict": "INCONCLUSIVE_ATYPICAL",
+      "expected_exit_code": 3,
+      "actual_verdict": "INCONCLUSIVE_ATYPICAL",
+      "actual_exit_code": 3,
+      "matched": true,
+      "white_segment": {
+        "x": 80,
+        "r": 248,
+        "g": 252,
+        "b": 248,
+        "r_field5": 31,
+        "g_field6": 63,
+        "b_field5": 31
+      },
+      "black_segment": {
+        "x": 1200,
+        "r": 0,
+        "g": 4,
+        "b": 0,
+        "r_field5": 0,
+        "g_field6": 1,
+        "b_field5": 0
+      },
+      "blue_bit7_set_rate": 0.12578125,
+      "green_bit4_set_rate": 0.12578125,
+      "per_bit_mode": "STRICT_BLACK_BITS",
+      "discriminated_used_for_c7": 15,
+      "discriminated_aligned": 16,
+      "discriminated_strict_variant": 15,
+      "field_bits_total": 16,
+      "not_discriminated": [
+        "G field_bit 0（BLACK_BIT_SET_STRICT（严格口径：黑条该位为 1））"
+      ],
+      "failed_criteria": [
+        "C7_per_bit_discriminable"
+      ]
+    }
+  ],
+  "conclusion": "SELFTEST_PASS",
+  "cli_regressions": [
+    {
+      "name": "cli_archived_defect_exit1_json",
+      "frame": "D:\\codex-worktrees\\dbdf\\report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin",
+      "expected_exit_code": 1,
+      "actual_exit_code": 1,
+      "json_out": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\cli_archived_defect_exit1_json.json",
+      "json_written": true,
+      "json_verdict": "DEFECT_REPRODUCED",
+      "stdout_head": "判定=DEFECT_REPRODUCED 退出码=1\n扫描行=[200, 360, 500] 像素=3840 蓝bit7置位率=0.0000% 绿bit4置位率=0.0000%\n白条(R,G,B)=248,236,120  黑条=0,4,0\n字段位计数：字段位 16 / �",
+      "stderr_tail": "",
+      "matched": true
+    },
+    {
+      "name": "cli_partial_blue_only_exit3_json",
+      "frame": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\fixture_C_blue_only.bin",
+      "expected_exit_code": 3,
+      "actual_exit_code": 3,
+      "json_out": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_analyzer_selftest_r06\\cli_partial_blue_only_exit3_json.json",
+      "json_written": true,
+      "json_verdict": "INCONCLUSIVE_ATYPICAL",
+      "stdout_head": "判定=INCONCLUSIVE_ATYPICAL 退出码=3\n扫描行=[200, 360, 500] 像素=3840 蓝bit7置位率=100.0000% 绿bit4置位率=0.0000%\n白条(R,G,B)=248,236,248  黑条=0,4,128\n字段位计数：字段位",
+      "stderr_tail": "",
+      "matched": true
+    }
+  ],
+  "exit_code": 0,
+  "note": "自测证明判定器能区分「旧缺位」「满足判定表」「非典型（只修蓝 / 缺位恢复但黑条被置位）」；夹具 F（判定表自声明 if_fixed）在对齐口径下 exit 0，其严格口径探针 exit 3 —— 证明「修好即通过」可达且修复可见（评审 B-2/B-1）；`cli_regressions` 为 CLI 级回归（子进程 + 管道 stdout + 强制 GBK）：归档缺陷帧必须 exit 1 且写 JSON、只修一路必须 exit 3 且写 JSON（评审 R-2）。夹具 B/F 为合成或改写数据，只校准判定表，不代表传感器行为。",
+  "created_utc8": "2026-10-23T12:29:50+08:00"
+}

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "task_id": "S3-T17",
   "run_id": "t17_closeout_20261023_r01",
-  "created_utc8": "2026-10-23T12:29:20+08:00",
-  "source_commit": "975f3a5b156ed73c3354721508d24eae30520528",
+  "created_utc8": "2026-10-23T12:31:04+08:00",
+  "source_commit": "4939dfaa2015861ee40f9da75897f11edfe1fcf5",
   "source_branch": "codex/stage3-video",
   "commands": [
     "bash -n scripts/stage3_t17/run_t17_color_retest.sh",
@@ -13,16 +13,22 @@
     "cd D:/codex-worktrees/dbdf && bash scripts/stage3_t17/run_t17_color_retest.sh preflight --run-id t17_guard_ok_20261023_r01",
     "python -B scripts/stage3_t17/verify_t17_blob_identity.py --selftest --fixture-dir tmp/3/S3-T17/t17_verify_selftest_r01",
     "python -B scripts/stage3_t17/analyze_t17_bit_integrity.py --selftest --repo-root <dbdf> --fixture-dir <tmp绝对路径>",
-    "python -B tmp/3/S3-T17/_q3_restore.py（纯机械行还原）"
+    "git -c core.autocrlf=false clone --shared --no-checkout -b codex/stage3-video D:/FPGA_Competition <tmp>/clone_lf_g5",
+    "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree <dbdf> --record <takeover>/handoff_record_stage3_delivered.json"
   ],
   "exit_codes": {
     "guard_other_cwd": 2,
     "guard_clone": 2,
     "guard_bad_wt": 2,
     "guard_positive_in_dbdf": 0,
-    "verify_selftest": 0,
-    "verify_cli_gbk": 0,
-    "mutant_old_form_detected": 1,
+    "g5_guard_other_cwd": 2,
+    "g5_analyzer_selftest": 0,
+    "g5_verify_selftest": 0,
+    "g5_cli_gbk": 0,
+    "g5_mutant_detected": 1,
+    "g5_preflight": 0,
+    "g5_clone_selfproof": 0,
+    "g5_handoff_delivered": 0,
     "bash_n": 0
   },
   "outputs": [
@@ -30,6 +36,71 @@
       "path": "closeout_record.md",
       "size_bytes": 7997,
       "sha256": "dad1784cf9f93863efffc0eced33c96da41b822f53c06ea00f5eb07ed39aae4a"
+    },
+    {
+      "path": "g5_analyzer_selftest.json",
+      "size_bytes": 12357,
+      "sha256": "70c1aeeed203f973421c3a50a70f4a36cf4a06f3cb5d54ab3ee9284caf998930"
+    },
+    {
+      "path": "g5_analyzer_selftest.stdout.txt",
+      "size_bytes": 1066,
+      "sha256": "cfebbc32c6f163660d74b11f9b28ee7c9e12a45d12d947d9dfb5cdca3d0b2d77"
+    },
+    {
+      "path": "g5_blob_identity_head.json",
+      "size_bytes": 2839,
+      "sha256": "a5b69188e41c32d649829806386e3a028026cc96a313beb311cfa9fb9cb26094"
+    },
+    {
+      "path": "g5_blob_identity_head.stdout.txt",
+      "size_bytes": 1401,
+      "sha256": "7e2dd20caf6efc39642a3c8b8d434420800bf85fb1d55ffbfaadc23a4f53eca7"
+    },
+    {
+      "path": "g5_clone_with_autocrlf_off.json",
+      "size_bytes": 647,
+      "sha256": "5cc3659b53cf076378afe7f0230e3ce63f96bc9f9fadd713a3f32836dc9c22bb"
+    },
+    {
+      "path": "g5_clone_with_autocrlf_off.stdout.txt",
+      "size_bytes": 376,
+      "sha256": "09df4ec4af128cb1927d529278596ac580f1aa5fe5f07947b120a0cc45cb9dfd"
+    },
+    {
+      "path": "g5_guard_other_cwd.stdout.txt",
+      "size_bytes": 264,
+      "sha256": "c15bbc2f43263eaebd62cd7b94670094eae462fe5f7315aa7b44ae74976d7a4a"
+    },
+    {
+      "path": "g5_handoff_delivered.json",
+      "size_bytes": 3553,
+      "sha256": "9d290b1c91aa6df960d8d3584f4eed7b68637a2a7494b1e4942dab81ceff28e6"
+    },
+    {
+      "path": "g5_handoff_delivered.stdout.txt",
+      "size_bytes": 3124,
+      "sha256": "a30b30db8afa39f9b4c9a6fd06cb82f0e8c139a805ee2c452da435ba56d06154"
+    },
+    {
+      "path": "g5_preflight.stdout.txt",
+      "size_bytes": 1346,
+      "sha256": "650538f50f25ff894c600b4c61058bf45fa6d114a963ba7f848b4e7ccd595513"
+    },
+    {
+      "path": "g5_verification.md",
+      "size_bytes": 2956,
+      "sha256": "57f68292ba3f430ce5b5d749e05d455d9e61546bc3fd120c7fc2b63582393d0a"
+    },
+    {
+      "path": "g5_verify_selftest.json",
+      "size_bytes": 1181,
+      "sha256": "157814a2837d22eaf32102aaf7e99575c272165b086c8202633ae7888b8e34d7"
+    },
+    {
+      "path": "g5_verify_selftest.stdout.txt",
+      "size_bytes": 435,
+      "sha256": "75d0605f50dd1b46116706b32f0aeaf1468bafd3d19dc02dadf2a0f70a3008ee"
     },
     {
       "path": "q3_intentional_diff_f77f363_to_worktree.diff",
@@ -58,26 +129,26 @@
     },
     {
       "path": "qa_guard_bad_wt.stdout.txt",
-      "size_bytes": 91,
-      "sha256": "9cf6771a53a48c8c7268e1072a448bdef834bd884410e151343e353f0c1a52bb"
+      "size_bytes": 89,
+      "sha256": "a2841b6dd9f293f032f441d0dabf45917f03efcae847e18c0c739cb33666c695"
     },
     {
       "path": "qa_guard_from_clone.stdout.txt",
-      "size_bytes": 298,
-      "sha256": "35739a11f0b030163cc47ece79d19d39d069bc3eaa2f5ed21480bf13763a8e7f"
+      "size_bytes": 293,
+      "sha256": "b0521f332aedd0a8ef8321f97d770d3e15f71a46655f0d21665541c2fc356b30"
     },
     {
       "path": "qa_guard_from_other_cwd.stdout.txt",
-      "size_bytes": 269,
-      "sha256": "bf44c08cd908a90e03a408a4e5623f65087cbc77c6c144ced2a5ab725c37f9b0"
+      "size_bytes": 264,
+      "sha256": "c15bbc2f43263eaebd62cd7b94670094eae462fe5f7315aa7b44ae74976d7a4a"
     },
     {
       "path": "qa_guard_positive_in_dbdf.stdout.txt",
-      "size_bytes": 1498,
-      "sha256": "ad781999210d09a83546b0393c5411aba5a362aa65ba80a574f9fa22230ac6f4"
+      "size_bytes": 1480,
+      "sha256": "671301d630292cd6d6b9843d5f7e6f3a1a4f31d4b511d25ac2c9ccdb74aa8d21"
     }
   ],
-  "scope": "task-20 关闭项：执行器 WT 护栏（Q-A）+ 行号/计数/运行时刻更正（Q-1/Q-2/Q-4）+ 机械改写证据还原（Q-3）+ 覆盖口径与新 CLI 回归（Q-5）",
+  "scope": "task-20 关闭项：执行器 WT 护栏（Q-A）+ 行号/计数/运行时刻更正（Q-1/Q-2/Q-4）+ 机械改写证据还原（Q-3）+ 覆盖口径与新 CLI 回归（Q-5）；G5 提交后复跑见 g5_verification.md",
   "limitations": [
     "全部离线；未接触硬件；未做独立审查；未改判定逻辑与阈值"
   ],

@@ -1,0 +1,26 @@
+{
+  "created_utc8": "2026-10-23T12:29:52+08:00",
+  "conclusion": "SELFTEST_PASS",
+  "exit_code": 0,
+  "checks": [
+    {
+      "name": "cli_verify_gbk_exit0_json",
+      "expectation": "exit 0 且 JSON 落盘（GBK + 管道下不崩）",
+      "actual_exit_code": 0,
+      "json_written": true,
+      "matched": true,
+      "stderr_tail": ""
+    },
+    {
+      "name": "mutant_old_form_detected",
+      "expectation": "非 0 退出或未写 JSON（旧形态：无入口兜底 + 打印 U+21D2）",
+      "actual_exit_code": 1,
+      "json_written": false,
+      "mutation_applied": true,
+      "matched": true,
+      "stderr_tail": "st_r01\\verify_old_form.py\", line 194, in main\r\n    print(f\"CORE_AUTOCRLF={autocrlf_value}\"\r\nUnicodeEncodeError: 'gbk' codec can't encode character '\\u21d2' in position 24: illegal multibyte sequence\r\n"
+    }
+  ],
+  "fixture_dir": "D:\\codex-worktrees\\dbdf\\tmp\\3\\S3-T17\\t17_verify_selftest_r01",
+  "note": "本工具防护层次 = ①入口 UTF-8 reconfigure ②源码无 U+21D2（**无**第三重防护，打印在写 JSON 之前）；故旧形态突变体（去 ① + 恢复 U+21D2）在 GBK + 管道下必崩，回归可检出。"
+}

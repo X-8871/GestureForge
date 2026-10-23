@@ -1,0 +1,50 @@
+{
+  "artifact_identity": {
+    "bit_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+    "boot_seed": 5999430562011689266,
+    "build_run_id": "s4b_ps_tensor_20261023_r12",
+    "derived_source_sha256": "1be7a551e26f61be1327cdb56672b08d86d17d16433ac405ebd263d5f35bf436",
+    "elf_sha256": "f61300d26dc0b66410b9348b5e96719e7c06061ce807cbc86a8149962471718e",
+    "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+    "map_sha256": "0fbeab6d269a5f31cc50be5c00e8bf4671bfbe99975cfe7e15e190f605d45b00",
+    "memory_ranges_sha256": "d81924ae3f613f274bf6df17a059649cb72f91b3f681a5ca6f789ed6c5cd71a4",
+    "model_manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "model_weights_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+    "reservation_status": "BUILD_ONLY_NOT_RESERVED_FOR_HARDWARE",
+    "session_first": 1396844544,
+    "session_last": 1396845543,
+    "source_commit": "23aaac6afcbe28d7c4bac6dbc43d9b9d7503b351",
+    "trace_abi": 1,
+    "trace_log_abi": "s4b-ps-tensor/1",
+    "xsa_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+  },
+  "automatic_recovery": "NONE",
+  "error": "有限IDLE/trace完成观察期限到期：RUN ACK后尚未回到IDLE_PS/terminal0，或owner/pending/epoch/frame不安全；不ACK/reset/释放/重试",
+  "error_type": "AdapterError",
+  "fail_state": "NOT_ASSUMED_SAFE",
+  "gate_record_sha256": {},
+  "hardware_execution": "FAILED_OR_INCOMPLETE",
+  "hardware_run_id": "fake_execute_bad_1792749212037300200",
+  "operator_authorization_id": "synthetic-unit-control-only",
+  "safety_policy": {
+    "ack_used": false,
+    "automatic_release": false,
+    "retry_used": false,
+    "serial_port_opened_or_closed": false,
+    "session_created_or_closed": false
+  },
+  "schema_version": 1,
+  "sdk_call_count": 5,
+  "status": "FAILED",
+  "task_id": "S4-B-REAL-02B",
+  "tensor_identity": {
+    "bytes": 519168,
+    "format": "INT8_CHW_416",
+    "path": "fake-tensor.bin",
+    "sha256": "c93f2b864edc8fea51b1aec943d8303bfafc0b634922df4690683bb004390df7",
+    "source_id": "unit-only"
+  },
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\s4b_ps_tensor_adapter.py\", line 1877, in execute_prepared\n    csr_before, completion_header = _wait_for_safe_idle(\n                                    ^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\s4b_ps_tensor_adapter.py\", line 687, in _wait_for_safe_idle\n    raise AdapterError(f\"有限IDLE/trace完成观察期限到期：{last_reason}；不ACK/reset/释放/重试\")\nscripts.stage4_s4b.s4b_ps_tensor_adapter.AdapterError: 有限IDLE/trace完成观察期限到期：RUN ACK后尚未回到IDLE_PS/terminal0，或owner/pending/epoch/frame不安全；不ACK/reset/释放/重试\n",
+  "uart_read_write_operations": 5,
+  "weight_sha256": "4488ce5d9de0e034d7f28ba6558cb76e51756d37202548459068926e4d8f1856"
+}

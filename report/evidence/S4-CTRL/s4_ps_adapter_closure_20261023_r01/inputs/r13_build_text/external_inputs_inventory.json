@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "task_scope": "仅INT8_CHW_416网络推理与后处理诊断；不含RGB预处理、PL重建或硬件执行。",
+  "external_inputs": [
+    {
+      "label": "2B恢复输入ZIP",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\recovery_inputs_20261019_r02\\recovery_bundle.zip",
+      "exists": true,
+      "bytes": 697551,
+      "sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "expected_sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结2B app源码",
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_inference_app.c",
+      "exists": true,
+      "bytes": 23212,
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "expected_sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "status": "PASS"
+    },
+    {
+      "label": "2B冻结回执",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_receipt_20261022_r01\\freeze_receipt.json",
+      "exists": true,
+      "bytes": 6506,
+      "sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "expected_sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "status": "PASS"
+    },
+    {
+      "label": "2B冻结交付清单",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\delivery_manifest.json",
+      "exists": true,
+      "bytes": 20761,
+      "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "expected_sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结XSA引用",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "exists": true,
+      "bytes": 848620,
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "expected_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结模型manifest",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "exists": true,
+      "bytes": 22153976,
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "expected_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 GCC",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "exists": true,
+      "bytes": 26624,
+      "sha256": "5564b16b151c1c8d626531440c538866aa938bdcecd7460be03ab6a43377a72f",
+      "expected_sha256": "5564b16b151c1c8d626531440c538866aa938bdcecd7460be03ab6a43377a72f",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 objdump",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+      "exists": true,
+      "bytes": 1445668,
+      "sha256": "e3950ce4ea6c8986839f8533a35b1b86906887d0d974a5eb91450d7d06abcc69",
+      "expected_sha256": "e3950ce4ea6c8986839f8533a35b1b86906887d0d974a5eb91450d7d06abcc69",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 nm",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-nm.exe",
+      "exists": true,
+      "bytes": 1019105,
+      "sha256": "7ab9b8d31f486b20618fe3c3f96c9bab5efce82309dad91d1f1255098dadefb7",
+      "expected_sha256": "7ab9b8d31f486b20618fe3c3f96c9bab5efce82309dad91d1f1255098dadefb7",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 size",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-size.exe",
+      "exists": true,
+      "bytes": 1007214,
+      "sha256": "9194dc657881a92e005fb8edb95eb5242725e109a7e7fbe96850281a7b27fbac",
+      "expected_sha256": "9194dc657881a92e005fb8edb95eb5242725e109a7e7fbe96850281a7b27fbac",
+      "status": "PASS"
+    },
+    {
+      "label": "host GCC测试编译器；记录实际SHA",
+      "path": "D:\\mingw64\\bin\\gcc.exe",
+      "exists": true,
+      "bytes": 1956352,
+      "sha256": "4708bd0be9332b9d3a44d2b272586d6c025ad9de5f056316a78ba759f6e14499",
+      "expected_sha256": null,
+      "status": "PASS"
+    },
+    {
+      "label": "Python测试运行时；记录实际SHA",
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "exists": true,
+      "bytes": 104952,
+      "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+      "expected_sha256": null,
+      "status": "PASS"
+    }
+  ],
+  "2b_frozen_commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+  "recovery_bundle_member_manifest": "bundle/workspace/manifest.json",
+  "bsp_and_static_libraries": "只从已绑定恢复ZIP解包到本RunId的tmp；不复制进证据目录或Git。",
+  "xsa_use": "只绑定冻结XSA的SHA作为硬件身份依据；本任务不调用平台生成器或重建XSA/PL。",
+  "external_inputs_before_build": [
+    {
+      "label": "2B恢复输入ZIP",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\recovery_inputs_20261019_r02\\recovery_bundle.zip",
+      "exists": true,
+      "bytes": 697551,
+      "sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "expected_sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结2B app源码",
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_inference_app.c",
+      "exists": true,
+      "bytes": 23212,
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "expected_sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "status": "PASS"
+    },
+    {
+      "label": "2B冻结回执",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_receipt_20261022_r01\\freeze_receipt.json",
+      "exists": true,
+      "bytes": 6506,
+      "sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "expected_sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "status": "PASS"
+    },
+    {
+      "label": "2B冻结交付清单",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\delivery_manifest.json",
+      "exists": true,
+      "bytes": 20761,
+      "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "expected_sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结XSA引用",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "exists": true,
+      "bytes": 848620,
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "expected_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结模型manifest",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "exists": true,
+      "bytes": 22153976,
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "expected_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 GCC",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "exists": true,
+      "bytes": 26624,
+      "sha256": "5564b16b151c1c8d626531440c538866aa938bdcecd7460be03ab6a43377a72f",
+      "expected_sha256": "5564b16b151c1c8d626531440c538866aa938bdcecd7460be03ab6a43377a72f",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 objdump",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+      "exists": true,
+      "bytes": 1445668,
+      "sha256": "e3950ce4ea6c8986839f8533a35b1b86906887d0d974a5eb91450d7d06abcc69",
+      "expected_sha256": "e3950ce4ea6c8986839f8533a35b1b86906887d0d974a5eb91450d7d06abcc69",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 nm",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-nm.exe",
+      "exists": true,
+      "bytes": 1019105,
+      "sha256": "7ab9b8d31f486b20618fe3c3f96c9bab5efce82309dad91d1f1255098dadefb7",
+      "expected_sha256": "7ab9b8d31f486b20618fe3c3f96c9bab5efce82309dad91d1f1255098dadefb7",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 size",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-size.exe",
+      "exists": true,
+      "bytes": 1007214,
+      "sha256": "9194dc657881a92e005fb8edb95eb5242725e109a7e7fbe96850281a7b27fbac",
+      "expected_sha256": "9194dc657881a92e005fb8edb95eb5242725e109a7e7fbe96850281a7b27fbac",
+      "status": "PASS"
+    },
+    {
+      "label": "host GCC测试编译器；记录实际SHA",
+      "path": "D:\\mingw64\\bin\\gcc.exe",
+      "exists": true,
+      "bytes": 1956352,
+      "sha256": "4708bd0be9332b9d3a44d2b272586d6c025ad9de5f056316a78ba759f6e14499",
+      "expected_sha256": null,
+      "status": "PASS"
+    },
+    {
+      "label": "Python测试运行时；记录实际SHA",
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "exists": true,
+      "bytes": 104952,
+      "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+      "expected_sha256": null,
+      "status": "PASS"
+    }
+  ],
+  "external_inputs_after_build": [
+    {
+      "label": "2B恢复输入ZIP",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\recovery_inputs_20261019_r02\\recovery_bundle.zip",
+      "exists": true,
+      "bytes": 697551,
+      "sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "expected_sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结2B app源码",
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_inference_app.c",
+      "exists": true,
+      "bytes": 23212,
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "expected_sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39",
+      "status": "PASS"
+    },
+    {
+      "label": "2B冻结回执",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_receipt_20261022_r01\\freeze_receipt.json",
+      "exists": true,
+      "bytes": 6506,
+      "sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "expected_sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "status": "PASS"
+    },
+    {
+      "label": "2B冻结交付清单",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\delivery_manifest.json",
+      "exists": true,
+      "bytes": 20761,
+      "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "expected_sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结XSA引用",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "exists": true,
+      "bytes": 848620,
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "expected_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "status": "PASS"
+    },
+    {
+      "label": "冻结模型manifest",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "exists": true,
+      "bytes": 22153976,
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "expected_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 GCC",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "exists": true,
+      "bytes": 26624,
+      "sha256": "5564b16b151c1c8d626531440c538866aa938bdcecd7460be03ab6a43377a72f",
+      "expected_sha256": "5564b16b151c1c8d626531440c538866aa938bdcecd7460be03ab6a43377a72f",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 objdump",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+      "exists": true,
+      "bytes": 1445668,
+      "sha256": "e3950ce4ea6c8986839f8533a35b1b86906887d0d974a5eb91450d7d06abcc69",
+      "expected_sha256": "e3950ce4ea6c8986839f8533a35b1b86906887d0d974a5eb91450d7d06abcc69",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 nm",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-nm.exe",
+      "exists": true,
+      "bytes": 1019105,
+      "sha256": "7ab9b8d31f486b20618fe3c3f96c9bab5efce82309dad91d1f1255098dadefb7",
+      "expected_sha256": "7ab9b8d31f486b20618fe3c3f96c9bab5efce82309dad91d1f1255098dadefb7",
+      "status": "PASS"
+    },
+    {
+      "label": "AArch32 size",
+      "path": "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-size.exe",
+      "exists": true,
+      "bytes": 1007214,
+      "sha256": "9194dc657881a92e005fb8edb95eb5242725e109a7e7fbe96850281a7b27fbac",
+      "expected_sha256": "9194dc657881a92e005fb8edb95eb5242725e109a7e7fbe96850281a7b27fbac",
+      "status": "PASS"
+    },
+    {
+      "label": "host GCC测试编译器；记录实际SHA",
+      "path": "D:\\mingw64\\bin\\gcc.exe",
+      "exists": true,
+      "bytes": 1956352,
+      "sha256": "4708bd0be9332b9d3a44d2b272586d6c025ad9de5f056316a78ba759f6e14499",
+      "expected_sha256": null,
+      "status": "PASS"
+    },
+    {
+      "label": "Python测试运行时；记录实际SHA",
+      "path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "exists": true,
+      "bytes": 104952,
+      "sha256": "4d6f5f81a4bca11191c4c7c6b43632694d0a4ce74e068619d8fdc161d469859a",
+      "expected_sha256": null,
+      "status": "PASS"
+    }
+  ],
+  "before_after_sha256_and_byte_count_equal": true
+}

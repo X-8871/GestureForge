@@ -1,0 +1,60 @@
+{
+  "status": "PASS_G2_OFFLINE_SOURCE_AND_R13_ONE_SHOT_REVIEW_ONLY",
+  "source_baseline_commit": "e1e79fcfcedd653681336e45c323de6ba3ed5558",
+  "head_at_packaging": "521ea60f880234918831bbfaf42e258acfdfebe0",
+  "head_delta_note": "HEAD推进到独立OOC证据/STATE提交；本包源输入仍严格以e1e79fc基线及r04冻结四源/runbook SHA绑定。",
+  "rounds": [
+    {
+      "round": "original_and_repair1",
+      "status": "CHANGES_REQUIRED",
+      "summary": "初审发现产物/恢复成员等来源及API/trace边界问题；修复1复审仍发现caller自证owner/branch/commit/scope和成功RUN后再接受请求/stop竞态。对应各轮原始证据保留。"
+    },
+    {
+      "round": "repair2_review",
+      "status": "CHANGES_REQUIRED",
+      "summary": "权威main OFFER/w4 CLAIM来源与one-shot/stop问题已核查关闭；本轮剩余RunId使用子串导致_r01匹配_r010，以及负向测试写入旧preparation RunId两项阻断。",
+      "source_freeze": "report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r03/frozen_sources.json",
+      "source_freeze_sha256": "74c762c3903d788399a8d7f7e5eed83f40d1c8e59a3b0479bd9ad4640bbe88c4"
+    },
+    {
+      "round": "repair3_review",
+      "status": "PASS",
+      "summary": "精确唯一key=value解析并与受信main OFFER及w4 CLAIM Git行、commit/blob/SHA/source/run/scope交叉绑定；_r01/_r010双向误配及重复/多余键拒绝。测试证据仅写独立EVIDENCE目录。实际ARM反汇编确认真正RUN成功end_run(1)后publish(2)进入永久WFE；stop前紧邻CSR重比较，变化则不stop。"
+    }
+  ],
+  "r04_freeze": {
+    "path": "report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r04/frozen_sources.json",
+    "sha256": "ecde9ec0fca0d9cca3ea835f861b32199656b0141af4e91aa6d61f7dc5fed366",
+    "source_hashes": {
+      "scripts/stage4_s4b/s4b_ps_tensor_adapter.py": "9c74f5206063aec68157f6bf4f9070993c754b6af05e0a857fcfc0b13480c467",
+      "verification/test_s4b_ps_tensor_adapter.py": "fc366c552be38263f2e000a1003ba2e1f065d89795188c3a1d98d30f0282970b",
+      "scripts/stage4_s4b/build_s4b_ps_tensor.py": "10a7aeeb54f48e374004c224bdac08f66b65ae714d53027941d065c059ed6448",
+      "verification/test_s4b_ps_tensor.py": "3eb7ddb2e5a83858b4268af87a26f5e5d2e7a1f5a10b213bf4eceb2f6a902a24"
+    }
+  },
+  "current_runbook": {
+    "path": "docs/stage4/S4B_ps_tensor_injection_runbook.md",
+    "sha256": "757d70ca98a987e304becfe78f1aa96fb01a9816657d9cbf0d27ada6d267d957"
+  },
+  "tests": {
+    "developer_prepare_exit": 0,
+    "developer_validate_exit": 0,
+    "developer_adapter_tests": 22,
+    "developer_tensor_tests": 38,
+    "independent_final_adapter_tests": 22,
+    "independent_final_tensor_tests": 38,
+    "mock_execution_is_authorization_proof": false
+  },
+  "arm_one_shot": {
+    "app_sha256": "7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102",
+    "elf_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+    "disassembly_sha256": "b085166da435c749352040560edda92269143f20a5f940b767d1957627a2bcbbc",
+    "actual_RUN_success_path": "trace_end_run(1) -> publish(2) -> 0x10d338 WFE self-loop",
+    "ordinary_success_path": "publish(2) -> 0x10ca88 receive loop"
+  },
+  "real_hardware_authorization": "NOT_PRESENT; main OFFER and w4 CLAIM absent; adapter must fail closed.",
+  "G3": "NOT_RUN",
+  "G4": "NOT_COMPLETE",
+  "actual_sdk_46000_word_readback": "NOT_RUN",
+  "rgb_preprocessing_and_full_integration": "OUT_OF_SCOPE_AND_INPUTS_REMAIN_DRAFT"
+}

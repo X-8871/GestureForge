@@ -327,8 +327,27 @@ static int s4b_trace_send_result(const wire_header *request,
         }
     }
     if (!s4b_ps_trace_end_run(1)) return 0;
-    return 1;'''
+    return 2;'''
     source = replace_once(source, service_anchor, service_replacement, "run_session_and_input_hooks")
+
+    main_loop_anchor = (
+        "    while (service_request()) publish(2U);\n"
+        "    /* 失败保留所有权、账本和未ACK终态；不会复位PL或自动重新准入。 */\n"
+    )
+    main_loop_replacement = (
+        "    for (;;) {\n"
+        "        int service_status = service_request();\n"
+        "        if (service_status == 0) break;\n"
+        "        publish(2U);\n"
+        "        if (service_status == 2) {\n"
+        "            /* 成功RUN终态后不再读取后续请求，保持应用停泊。 */\n"
+        "            for (;;) __asm__ volatile(\"wfe\" ::: \"memory\");\n"
+        "        }\n"
+        "    }\n"
+        "    /* 失败保留所有权、账本和未ACK终态；不会复位PL或自动重新准入。 */\n"
+    )
+    source = replace_once(source, main_loop_anchor, main_loop_replacement,
+                          "one_shot_successful_run_park")
 
     main_init_anchor = "    if (!initialise()) { publish(0xE001U); return 1; }\n"
     main_init_replacement = (

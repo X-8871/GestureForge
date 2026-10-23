@@ -760,6 +760,16 @@ class DerivationBindingTests(unittest.TestCase):
         updated = builder.replace_embedded_source_sha(platform, derived_sha).decode("utf-8")
         self.assertIn(f'#define S2B_C_SOURCE_SHA256 "{derived_sha}"', updated)
 
+    def test_successful_run_parks_without_accepting_a_second_request(self) -> None:
+        derived, _ = builder.derive_source(self.base_source)
+        text = derived.decode("utf-8")
+        main = text[text.rfind("int main(void)"):]
+        self.assertIn("if (!s4b_ps_trace_end_run(1)) return 0;\n    return 2;", text)
+        self.assertEqual(main.count("service_request()"), 1)
+        self.assertIn("if (service_status == 2)", main)
+        self.assertIn('for (;;) __asm__ volatile("wfe" ::: "memory");', main)
+        self.assertNotIn("while (service_request())", main)
+
     def test_rejects_changed_frozen_source_sha(self) -> None:
         altered = bytearray(self.base_source)
         altered[-1] ^= 1

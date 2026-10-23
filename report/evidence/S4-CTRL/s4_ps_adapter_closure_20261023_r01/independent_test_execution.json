@@ -1,0 +1,39 @@
+{
+  "runtime": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "preparation": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_adapter_prepare_s4br3_20261023_r01\\adapter_preparation.json",
+    "sha256": "73d8dcd1524433bcad64302c121d9ec58a83b0bae2c3741684bbaeffa7a1b4b1",
+    "bytes": 56964,
+    "developer_prepare_exit_code": 0,
+    "developer_validate_exit_code": 0
+  },
+  "independent_reviewer_env": {
+    "S4B_ADAPTER_TEST_PREPARATION": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_adapter_prepare_s4br3_20261023_r01\\adapter_preparation.json",
+    "S4B_ADAPTER_TEST_EVIDENCE_DIR": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_ps_adapter_g2r3_reviewer_20261023_r02",
+    "TEMP": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B-G2-R1\\s4b_ps_adapter_g2r3_reviewer_20261023_r02",
+    "TMP": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B-G2-R1\\s4b_ps_adapter_g2r3_reviewer_20261023_r02"
+  },
+  "independent_commands": [
+    {
+      "command": "python.exe -B -m unittest verification.test_s4b_ps_tensor_adapter -v",
+      "tests": 22,
+      "result": "OK",
+      "native_exit_code": 0,
+      "log": "history/repair2_and_repair3/reviewer_g2_r1/s4b_ps_adapter_g2r3_reviewer_20261023_r02/logs/adapter_tests.log"
+    },
+    {
+      "command": "python.exe -B -m unittest verification.test_s4b_ps_tensor -v",
+      "tests": 38,
+      "result": "OK",
+      "native_exit_code": 0,
+      "log": "history/repair2_and_repair3/reviewer_g2_r1/s4b_ps_adapter_g2r3_reviewer_20261023_r02/logs/tensor_tests.log"
+    }
+  ],
+  "first_independent_attempt": {
+    "path": "tmp/4/S4-B-REAL-02B-G2-R1/s4b_ps_adapter_g2r3_reviewer_20261023_r01",
+    "native_exit_code": 3,
+    "result": "CHANGES_REQUIRED_FOR_TEST_ISOLATION_ONLY",
+    "reason": "测试 evidence 目录不满足测试副本要求的任务目录父路径，test_valid_preparation_rehashes_bound_inputs失败；失败日志原样保留，随后用新RunId与直接子目录复跑通过。"
+  },
+  "generated_probe_policy": "测试在S4B_ADAPTER_TEST_EVIDENCE_DIR写入JSON反例；prep文件SHA在测试前后不变。其28-byte forged_init.elf不复制，路径和SHA在storage_policy.json记录。"
+}

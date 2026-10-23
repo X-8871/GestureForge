@@ -3,7 +3,7 @@
   "stage": "6",
   "task_id": "S6-A",
   "run_id": "s6a_g0_20261023_r12",
-  "source_commit": "bf05d450a90347e7414efb3909f2bd09bdb30d02",
+  "source_commit": "9b9d572e101b61714a2a350edab1b57bd302ada2",
   "evidence_dir": "report/evidence/S6-A/s6a_g0_20261023_r12",
   "interfaces": [
     {
@@ -89,7 +89,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/check_evidence_mode_output.txt",
-      "sha256": "701b21a60cadf22566e98c96d4fa7972f2ad4c3362553776f22565021aea1f0c",
+      "sha256": "96c4b0d4a8322f6236f613a7f3306fdcbee98332b8135d3455e8b65057bb50ab",
       "role": "result",
       "keep_reason": "check_stage_delivery --mode evidence 真实 stdout"
     },
@@ -101,13 +101,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json",
-      "sha256": "4422778360c7deaad7d1edeecbf66ab2bd688b32044993e2cc2f9df21ba1db7a",
+      "sha256": "0f169ef064080a9e0eb640e089f84e9978c99b40563c0540635e5f86f4ef3c56",
       "role": "result",
       "keep_reason": "证据文件：claim_verification.json"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.md",
-      "sha256": "829ba300056e58985d94e524cf832606c18cbc66601a21766c5f2c6677c42b6c",
+      "sha256": "375db0dd168e3d20cacb9ac664d56f8fd9045572f11befc3889f4267ddbc9818",
       "role": "log",
       "keep_reason": "证据文件：claim_verification.md"
     },
@@ -149,13 +149,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/hashes_sha256.txt",
-      "sha256": "6aa11a4b40efa0f95dabad0e47c459576c4ee99c89cb8b0775d032d672db4377",
+      "sha256": "7437f67f8b6aaecf527eb695507e23fcee55d128a834d9ca4cac618d865e6c8f",
       "role": "result",
       "keep_reason": "证据目录已存在文件的 SHA-256 清单"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/inputs_manifest.json",
-      "sha256": "335b0f80bca7559e445671861ccdc3a9b38ce44854aac85ee99c1b613f7a0562",
+      "sha256": "629bb0689d7bc7a68432a7766fe183f3d1ad69b173f422d27dd7e07164c3ec29",
       "role": "input",
       "keep_reason": "输入清单（冻结上游接口与输入文件绑定）"
     },
@@ -263,7 +263,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/S6A_run_summary.md",
-      "sha256": "328b341a1ef4cf0d6f913e4f00e94ab1db12994e50b1b3aedd561605f198a179",
+      "sha256": "73fff0454a7714069dc072a95d047a931620d9f212302768db89d94094b5cb7e",
       "role": "log",
       "keep_reason": "运行摘要（真实命令、退出码入口与结论边界）"
     },
@@ -275,7 +275,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_c11_stdout.txt",
-      "sha256": "9c5d5e8fdfa153acf3d8308d86fdea83e592c5a836a08b1564d38d90ba0952a4",
+      "sha256": "920b58d401f4cfec03278d59abf49c088517e2e0425c3bd79355774f9bd2c3e1",
       "role": "diagnostic",
       "keep_reason": "完整 C11 自检运行 stdout"
     },
@@ -329,7 +329,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_result.json",
-      "sha256": "4e7e338728f12a0751696ea03c7438dbf93b4014a4cb676e9c8e2b219259bc59",
+      "sha256": "213068ae5569ecf95b6b5831a58e1b98bada4b9efc00689309d3ca1704a082c1",
       "role": "result",
       "keep_reason": "修复包自检结果（含完整 C11 清单/STATE 核对）"
     },
@@ -362,9 +362,10 @@
     },
     {
       "name": "check_stage_delivery.py --mode evidence",
-      "status": "PASS",
-      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261023_r12\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
-      "exit_code": 0
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "首版清单生成后立即实跑"
     }
   ],
   "tool_versions": {
@@ -372,7 +373,7 @@
     "git": "git version 2.56.0.windows.2"
   },
   "limitations": [
-    "source_commit = 本轮构建时的 HEAD（修订基线 bf05d450a90347e7414efb3909f2bd09bdb30d02）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
+    "source_commit = 本轮构建时的 HEAD（修订基线 9b9d572e101b61714a2a350edab1b57bd302ada2）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
     "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。",
     "全部阈值与指标已于 2026-10-23 批准（值仍为草案值）；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
     "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1、BLK-r07-1）。",

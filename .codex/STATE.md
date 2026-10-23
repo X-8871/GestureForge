@@ -40,7 +40,6 @@ Wong/项目总控派增量复核（只审上一冻结相对差异）；硬件到
 ## 证据入口
 - S6-A：`report/evidence/S6-A/s6a_g0_20261023_r12/`（`S6A_run_summary.md`、`delivery_manifest.json`、`claim_verification.*`）
 - S6-B：`report/evidence/S6-B/s6b_core_20261023_r07/`（见 `report/evidence/S6-B/s6b_core_20261023_r07/s6b_run_summary.md` 与 `report/evidence/S6-B/s6b_core_20261023_r07/delivery_manifest.json`）
-- 自证记录：`report/evidence/S6-A/s6a_g0_20261023_r12_selfproof/`、`report/evidence/S6-B/s6b_core_20261023_r07_selfproof/`
 
 ## 11 字段交接行
 任务：阶段6 交互控制（离线部分） | 负责人：阶段6 总控 stage6-lead3 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |

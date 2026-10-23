@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T05",
+  "run_id": "t05_dcp_readonly_20261024_r01",
+  "created_utc8": "2026-10-24T02:06:34+08:00",
+  "source_commit": "4aada6dd3f0e5356e675d7ea8caf684bbc1622a8",
+  "source_branch": "codex/stage3-video",
+  "commands": [
+    "bash tmp/3/S3-T05/t05_dcp_readonly_20261024_r01/run_dcp_readonly.sh <routed.dcp> <out> <tcl>"
+  ],
+  "exit_codes": {
+    "v1": 1,
+    "v2": 1,
+    "v3": 0
+  },
+  "outputs": [
+    {
+      "path": "README.md",
+      "size_bytes": 1453,
+      "sha256": "d4f32b19b86c49a78a8e8ca683ff32c707f3fb40e55eb38ad96175ac738e8b5d"
+    },
+    {
+      "path": "dcp_readonly_findings.md",
+      "size_bytes": 5775,
+      "sha256": "2376d2e2429b3f191db4c0432996ba68ec0229d471cf6e55b7f1e42544c28844"
+    },
+    {
+      "path": "v1_failed_partial_clocks.rpt",
+      "size_bytes": 3409,
+      "sha256": "82027eff33289bee9759cf439c66b04fa77c9b91a9873a28927149f5a98fcba6"
+    },
+    {
+      "path": "v1_failed_partial_exceptions.rpt",
+      "size_bytes": 11295,
+      "sha256": "77c1f57753de0ddb1bdea999feab7854cf2f97d3363d8785fd9f35096319f2d8"
+    },
+    {
+      "path": "v2_check_timing.rpt",
+      "size_bytes": 69616,
+      "sha256": "2621fa62b8899c15a33f699dd858b05bd619434b3ecbcc91b7c0cf5c27cf9f71"
+    },
+    {
+      "path": "v2_clocks.rpt",
+      "size_bytes": 3412,
+      "sha256": "663c125fe3d186a7a67979c9bc5d98ba833f2318192e402bde09008422799449"
+    },
+    {
+      "path": "v2_constraints_exported.xdc",
+      "size_bytes": 13263,
+      "sha256": "aa369d2ffbb12fa290df460739595de4b0ddcd20a4b9f9c22799f3ad71ca0326"
+    },
+    {
+      "path": "v2_exceptions.rpt",
+      "size_bytes": 11298,
+      "sha256": "ac09ac90fe8abe43c4bbc54f05ed500615fb56618d53a5c559a38387902a2286"
+    },
+    {
+      "path": "v2_methodology.rpt",
+      "size_bytes": 70807,
+      "sha256": "adb0d5370a661e7ad36d0b5cf5525044392c43c20c6b05f102adf10295cbe79c"
+    },
+    {
+      "path": "v2_timing_summary.rpt",
+      "size_bytes": 268788,
+      "sha256": "1709c085e7eaf3b4828332a265bb90ca1cf9508ca606dc4bd306abfefde52339"
+    },
+    {
+      "path": "v3_check_timing.rpt",
+      "size_bytes": 69616,
+      "sha256": "d7eccbe906067078669f5103e05582679f9e54b57c8af70602391f1c6165c240"
+    },
+    {
+      "path": "v3_clocks.rpt",
+      "size_bytes": 3412,
+      "sha256": "3758e9bf38e02767bd5fdee823191559984c66aeacc97007660eede88bd32594"
+    },
+    {
+      "path": "v3_constraints_exported.xdc",
+      "size_bytes": 13263,
+      "sha256": "b6ecb117565c2b8ce3b59757461c0cb590d9d47ea5d1e3fc432713ed7e8cbcd6"
+    },
+    {
+      "path": "v3_exceptions.rpt",
+      "size_bytes": 11298,
+      "sha256": "74798fddece5ab55c86da3953ba7bc30f0b7c3edb763d7f43fdea53a886db4a9"
+    },
+    {
+      "path": "v3_methodology.rpt",
+      "size_bytes": 70807,
+      "sha256": "f3726bb662b4b8aaa52e1fa76f4f43069f46c20d9ba5e9f0890dadc485d1b6df"
+    },
+    {
+      "path": "v3_timing_summary.rpt",
+      "size_bytes": 268788,
+      "sha256": "8b532cc5478dd2af0bb4617423ec426bafa6acc71263c7e438b976499bb5a939"
+    }
+  ],
+  "scope": "部署 routed DCP 只读重跑（授权自 DSH 项目总控）：替换 TIMING/I-O 报告口径 + 确认 Timing 38-249 归因；只读，不改设计/不重跑实现/不碰板卡",
+  "limitations": [
+    "v1 的 report_methodology -checks timing 参数非法；v2 尾部自造查询 get_exceptions 不存在（报告均已产出）；两者退出码如实记录"
+  ],
+  "not_run": [
+    "RTL 仿真/等价性、约束变更（38-249 的 create_clock 建议）、板级测量"
+  ],
+  "note": "退出码为调用方传入的真实值；未列出的阶段即未执行（不得当作通过）。",
+  "hash_basis": "commit blob bytes（`git show :<path>`；`.gitattributes` 的 `report/evidence/S3-T05/** -text` 生效 ⇒ 提交字节 == 原始字节）",
+  "certified_scope": "report/evidence/S3-T05/t05_dcp_readonly_20261024_r01",
+  "selfproof_artifacts": [
+    "blob_oids.txt",
+    "hash_basis_check.txt",
+    "selfproof_F.json",
+    "selfproof_G.json"
+  ],
+  "repacked_utc8": "2026-10-24T02:06:42+08:00",
+  "repack_note": "按评审 B-2/B-3 要求改为**提交字节**基准重算；语义字段（commands/exit_codes/limitations/not_run/scope）保持原值不变。"
+}

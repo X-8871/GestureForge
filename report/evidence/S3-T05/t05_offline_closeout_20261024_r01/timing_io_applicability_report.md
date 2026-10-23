@@ -7,7 +7,7 @@
 - 依据报告（**已入库、本版实测产物**）：
   `report/evidence/S3-T05/t05_sof_fix_20261020_r01/report_timing_summary_impl.rpt`（`report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose`）、
   `…/report_drc_impl.rpt`、`…/build_report.json`。
-- 性质：**离线适用性判定**；本轮**未**重跑 Vivado。判定三态：`APPLICABLE_CLOSED` / `APPLICABLE_OPEN` / `NOT_APPLICABLE(理由)`。
+- 性质：**离线适用性判定**。**口径更新（2026-10-24）**：本报告的时钟/时序/方法论数字已由**部署 routed DCP 只读重跑**（`../t05_dcp_readonly_20261024_r01/`，v3 真实退出码 0）**在 DCP 上重测确认**——数值与既有报告一致（`WNS 1.055 / TNS 0 / WHS 0.059 / THS 0 / WPWS 0.529`、`no_clock 240`、`unconstrained_internal_endpoints 520`、`TIMING-17 240 / TIMING-36 1`），故『本版既有报告』一语的来源已由 DCP 实测替代。
 
 ## 1. 版本实测数字（勿与旧轮混用）
 
@@ -41,12 +41,12 @@
 |---|---|---|---|
 | C1 | PS FCLK 与显示域内时钟已声明 | **APPLICABLE_CLOSED** | Clock Summary 出现 `clk_fpga_0/1`、`axi_dynclk_0_PXL_CLK_O`、`SerialClk`；组内 WNS/WHS 为正 |
 | C2 | **采集域 `cmos1_pclk` 是否有 `create_clock`** | **APPLICABLE_OPEN** | Clock Summary **无 `cmos1_pclk`**；用户 XDC 无 `create_clock`；`no_clock (240)` |
-| C3 | `rgb2dvi` SerialClk ×5 关系 | **APPLICABLE_CLOSED（声明在 IP XDC）** + 告警归因待证 | §2；`38-249` 仍在日志中 ⇒ 归因假设见 §5 |
+| C3 | `rgb2dvi` SerialClk ×5 关系 | **APPLICABLE_CLOSED（声明在 IP XDC）**；**`38-249` 归因已确认**（DCP 实测） | §2；`report_clocks` 显示 `Master Source = .../PixelClk`、`Master Clock = axi_dynclk_0_PXL_CLK_O`、`Multiply By 5`，而告警为『无逻辑路径』；另有 `TIMING-30`（主源引脚选择次优）同源 ⇒ 见 `../t05_dcp_readonly_20261024_r01/dcp_readonly_findings.md` |
 | I1 | 采集输入 `cmos1_d[9:0]` / `pclk` / `href` / `vsync` 的 I/O delay | **APPLICABLE_OPEN** | 用户 XDC 无任何 `set_input_delay`；`unconstrained_internal_endpoints (520)`、Unconstrained Path Table 的 `(none) → clk_*` 行 |
 | I2 | I2C（`cmos1_i2c_scl_io`/`sda_io`）I/O delay | **APPLICABLE_OPEN** | 同上（仅有 PULLUP/IOSTANDARD） |
 | I3 | HDMI 输出（经 `rgb2dvi`）的 output delay | **APPLICABLE_OPEN（用户约束侧）** | 用户 XDC 无 `set_output_delay`；IP 内置输出路径约束未在本轮逐条核对（见 §5） |
 | C4 | `CLOCK_DEDICATED_ROUTE FALSE [get_nets cmos1_pclk_IBUF]` | **有意识例外，需登记** | 用户 XDC 显式放宽（PCLK 未走专用时钟引脚）；**属"已知例外"，不得当作隐藏缺省** |
-| E1 | 现存 false path / multicycle / clock groups | **无**（用户 XDC 未定义） | ⇒ 不存在"用虚假例外换通过"的情况；但也意味着 **C2/I1–I3 的跨域路径未被约束** |
+| E1 | 现存 false path / multicycle / clock groups | **用户 XDC 无**；**实现内存在厂商 IP 自带例外** | 用户 `an5642_j11_cmos2.xdc` 未定义任何例外；DCP 只读 `report_exceptions` 显示的例外来自**厂商 IP 约束**（`cdc_tig` false path、`s_axi_aclk` max_dpo、`src_arst` false path、gray-code CDC max_dpo 等），**非本任务添加**，归属详见 `../t05_dcp_readonly_20261024_r01/dcp_readonly_findings.md` |
 
 ## 4. 与验收口径的关系（015 §2.4）
 
@@ -71,8 +71,23 @@
 - OV5640/AN5642 板级 I/O 时序资料**未在本树入库**；AX7020 V3.0 手册/原理图的引用目前在既有证据中为**引脚层面**（Table 7.5.1），未见数据建立/保持章节。
 ⇒ 因此 **I1/I2/I3 当前无法给数值约束**，只能记 **OPEN**（有缺口、无依据），并把"取得资料或明确批准范围排除"列为关闭条件。
 
+## 8. 局限备案（Wong 2026-10-24 决定；**非**通过、**非**闭合）
+
+- 依据：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage3_io_delay_c2_limitation_20261024_r01.md`
+  （sha256 `e66c44bb19e5cd6a8288bea62995bee2cfe7989a5f78aeb1b14ba40331439046`）——Wong 答复「**a**」：接受为**已记录的局限**、不宣称已验证、交付前再评估。
+- **显式声明**：
+  1. **I/O delay 约束未施加；**经 Wong 2026-10-24 决定接受为已记录局限**，**未宣称已验证**，**交付前重评****。影响面：跨器件/板级 I/O 时序**未受约束**，不得据此宣称接口时序通过。
+  2. **C2（`cmos1_pclk` 无 `create_clock`）同此口径**（采集域未建时钟；`no_clock (240)` 与
+     `unconstrained_internal_endpoints (520)` 即其表现）。
+  3. **`CLOCK_DEDICATED_ROUTE FALSE [get_nets cmos1_pclk_IBUF]` 保持登记为已知例外**（不隐藏、不当隐藏缺省）。
+- **不得据此宣称**：① TIMING-17/36 或 I/O 时序**通过**；② 阶段3 G5 通过或阶段冻结；③ 本局限已关闭。
+  **禁止**表述：「I/O 时序已批准 / 已通过 / 已闭合」。
+- **与未闭合项的关系**：本备案**不冲抵** TIMING-17/36 的未闭合状态；`38-249` 归因仍待 DCP 只读重跑确认；
+  C1/C3 维持 §3 既有结论（就「已声明」关闭）。
+- **重评触发**：取得器件/板级 I/O 时序资料，或上游给出明确范围排除依据；届时以新 RunId 更新本报告。
+
 ## 7. 本轮状态
 
 - **已完成**：基于本版既有报告的适用性判定（三态）、时钟表复算、`38-249` 归因假设与确认路径、资料可得性回查。
 - **NOT_RUN**：Vivado 离线报告重跑、I/O delay 数值、`38-249` 归因确认。
-- **仍开放**：C2、I1、I2、I3（约束缺口）、`38-249` 归因。**本报告不等于时序签核通过。**
+- **仍开放**：C2、I1、I2、I3（约束缺口；**已按 §8 备案为「已记录局限」，仍未闭合**）、`38-249` 归因。**本报告不等于时序签核通过。**

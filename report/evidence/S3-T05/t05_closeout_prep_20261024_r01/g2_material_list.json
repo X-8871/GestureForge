@@ -144,5 +144,36 @@
       "DSH 项目总控另派 Reviewer（015 §2.4）"
     ]
   },
-  "not_a_pass": "本清单只固定被审版本与材料；CHECKS_OK/清单齐全不替代测试成功、实物验收或独立审查结论。"
+  "not_a_pass": "本清单只固定被审版本与材料；CHECKS_OK/清单齐全不替代测试成功、实物验收或独立审查结论。 另：I/O delay（I1/I2/I3）与 C2 已按 Wong 2026-10-24 决定备案为**已记录局限**，**不构成通过或闭合**，且不冲抵 TIMING-17/36 的未闭合状态。",
+  "recorded_limitations": {
+    "declared_utc8": "2026-10-24",
+    "decision_record": {
+      "path": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage3_io_delay_c2_limitation_20261024_r01.md",
+      "sha256": "e66c44bb19e5cd6a8288bea62995bee2cfe7989a5f78aeb1b14ba40331439046",
+      "answer": "a（接受为已记录局限、不宣称已验证、交付前重评）"
+    },
+    "items": [
+      {
+        "id": "I1-I3",
+        "statement": "I/O delay 约束未施加；**经 Wong 2026-10-24 决定接受为已记录局限**，**未宣称已验证**，**交付前重评**",
+        "impact": "跨器件/板级 I/O 时序未受约束；不得据此宣称接口时序通过"
+      },
+      {
+        "id": "C2",
+        "statement": "cmos1_pclk 无 create_clock（同上口径）",
+        "impact": "no_clock (240) 与 unconstrained_internal_endpoints (520)"
+      },
+      {
+        "id": "known-exception",
+        "statement": "CLOCK_DEDICATED_ROUTE FALSE [get_nets cmos1_pclk_IBUF]（保持登记，不隐藏）",
+        "impact": "PCLK 未走专用时钟引脚，属有意识例外"
+      }
+    ],
+    "must_not_be_read_as": [
+      "I/O 时序已批准/已通过/已闭合",
+      "TIMING-17/36 已闭合",
+      "阶段3 G5 通过或阶段冻结",
+      "本局限已关闭"
+    ]
+  }
 }

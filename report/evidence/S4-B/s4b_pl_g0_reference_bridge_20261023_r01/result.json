@@ -1,0 +1,1198 @@
+{
+  "scope": "合成 uint8 RGB 小样本与指定 202x329→416 半边界桥接；不覆盖 109 样本、PL 或 4D 验收",
+  "status": "PASS_SYNTHETIC_BRIDGE",
+  "cases": [
+    {
+      "name": "black_with_padding",
+      "synthetic_generation": "全黑 1x1 合成帧",
+      "input_shape_hwc": [
+        1,
+        1,
+        3
+      ],
+      "input_sha256": "709e80c88487a2411e1ee4dfb9f22a861492d20c4765150c0c794abd70f8147c",
+      "output_shape_chw": [
+        3,
+        4,
+        5
+      ],
+      "geometry": {
+        "src_width": 1,
+        "src_height": 1,
+        "dst_width": 5,
+        "dst_height": 4,
+        "new_width": 4,
+        "new_height": 4,
+        "offset_x": 0,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "310477a3ba8d95ce07337a150b74241c8ad13637b45edf6f10a06fc1bef09568",
+      "d2_output_sha256": "310477a3ba8d95ce07337a150b74241c8ad13637b45edf6f10a06fc1bef09568",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00031659999513067305
+    },
+    {
+      "name": "white_with_padding",
+      "synthetic_generation": "全白 1x1 合成帧",
+      "input_shape_hwc": [
+        1,
+        1,
+        3
+      ],
+      "input_sha256": "5ae7e6a42304dc6e4176210b83c43024f99a0bce9a870c3b6d2c95fc8ebfb74c",
+      "output_shape_chw": [
+        3,
+        4,
+        5
+      ],
+      "geometry": {
+        "src_width": 1,
+        "src_height": 1,
+        "dst_width": 5,
+        "dst_height": 4,
+        "new_width": 4,
+        "new_height": 4,
+        "offset_x": 0,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "a94acffe57195fc1c51c677d9c472ab687b1af245f54232bc0c04c4ab96e4f22",
+      "d2_output_sha256": "a94acffe57195fc1c51c677d9c472ab687b1af245f54232bc0c04c4ab96e4f22",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00024670000129844993
+    },
+    {
+      "name": "channel_distinction",
+      "synthetic_generation": "按坐标构造 RGB 通道区别",
+      "input_shape_hwc": [
+        2,
+        3,
+        3
+      ],
+      "input_sha256": "80a22438b5f1c69b9b3da2d8389fca3b3f974c6657a5d2122b404eb758e6d452",
+      "output_shape_chw": [
+        3,
+        7,
+        7
+      ],
+      "geometry": {
+        "src_width": 3,
+        "src_height": 2,
+        "dst_width": 7,
+        "dst_height": 7,
+        "new_width": 7,
+        "new_height": 4,
+        "offset_x": 0,
+        "offset_y": 1,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "f52290189e91d2e86d9a5360d890f9dfdaaa2a4dcb1916e2344d75d48beaa73f",
+      "d2_output_sha256": "f52290189e91d2e86d9a5360d890f9dfdaaa2a4dcb1916e2344d75d48beaa73f",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00022799998987466097
+    },
+    {
+      "name": "odd_padding_non_square",
+      "synthetic_generation": "按坐标构造非方形且奇数补边",
+      "input_shape_hwc": [
+        2,
+        4,
+        3
+      ],
+      "input_sha256": "3b9961fd957961b39500c818936ac73c7b8a18d3f54c95b74fff10c68446681c",
+      "output_shape_chw": [
+        3,
+        7,
+        5
+      ],
+      "geometry": {
+        "src_width": 4,
+        "src_height": 2,
+        "dst_width": 5,
+        "dst_height": 7,
+        "new_width": 5,
+        "new_height": 2,
+        "offset_x": 0,
+        "offset_y": 2,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "bd61fa62fd2c5032e630dbbcdc9d392b3ec1b7e0321d8c0fb8105fa3f3811853",
+      "d2_output_sha256": "bd61fa62fd2c5032e630dbbcdc9d392b3ec1b7e0321d8c0fb8105fa3f3811853",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0001664000010350719
+    },
+    {
+      "name": "source_width_one",
+      "synthetic_generation": "按坐标构造源宽为 1",
+      "input_shape_hwc": [
+        5,
+        1,
+        3
+      ],
+      "input_sha256": "19fee11463059da95db1dc9c31413e585d8ca99237490f977ad72b5dce10be2c",
+      "output_shape_chw": [
+        3,
+        7,
+        4
+      ],
+      "geometry": {
+        "src_width": 1,
+        "src_height": 5,
+        "dst_width": 4,
+        "dst_height": 7,
+        "new_width": 1,
+        "new_height": 7,
+        "offset_x": 1,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "6acebc7ea6e6203b608db19170f3874a02dfe86a4839f9c5894480bd27b4ace5",
+      "d2_output_sha256": "6acebc7ea6e6203b608db19170f3874a02dfe86a4839f9c5894480bd27b4ace5",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0001416999875800684
+    },
+    {
+      "name": "source_height_one",
+      "synthetic_generation": "按坐标构造源高为 1",
+      "input_shape_hwc": [
+        1,
+        5,
+        3
+      ],
+      "input_sha256": "a93a81771ba5ca4b84e8fd8c03a3f5e7e204050e05574756aa6eaf3a900e9fb3",
+      "output_shape_chw": [
+        3,
+        4,
+        7
+      ],
+      "geometry": {
+        "src_width": 5,
+        "src_height": 1,
+        "dst_width": 7,
+        "dst_height": 4,
+        "new_width": 7,
+        "new_height": 1,
+        "offset_x": 0,
+        "offset_y": 1,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "d0a1663f1e14d3e89242114ea66aaf9ee091f46397ead9f8f60952b36b211130",
+      "d2_output_sha256": "d0a1663f1e14d3e89242114ea66aaf9ee091f46397ead9f8f60952b36b211130",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00014159998681861907
+    },
+    {
+      "name": "destination_width_one",
+      "synthetic_generation": "按坐标构造目标宽为 1",
+      "input_shape_hwc": [
+        5,
+        2,
+        3
+      ],
+      "input_sha256": "7bde0dcee7c7c59204e045a8544a17a1af8eff24749aa61c052d1ee9c887db8e",
+      "output_shape_chw": [
+        3,
+        7,
+        1
+      ],
+      "geometry": {
+        "src_width": 2,
+        "src_height": 5,
+        "dst_width": 1,
+        "dst_height": 7,
+        "new_width": 1,
+        "new_height": 2,
+        "offset_x": 0,
+        "offset_y": 2,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "8a3ab85ac4c7e6a5a51bb2bd4028e8e2ed264362a86391dea873d8ac505eb403",
+      "d2_output_sha256": "8a3ab85ac4c7e6a5a51bb2bd4028e8e2ed264362a86391dea873d8ac505eb403",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 8.910000906325877e-05
+    },
+    {
+      "name": "destination_height_one",
+      "synthetic_generation": "按坐标构造目标高为 1",
+      "input_shape_hwc": [
+        2,
+        5,
+        3
+      ],
+      "input_sha256": "bd86f6208391145bdd9547404db35661edfe8710182ea7033d1f4144aee1dea4",
+      "output_shape_chw": [
+        3,
+        1,
+        7
+      ],
+      "geometry": {
+        "src_width": 5,
+        "src_height": 2,
+        "dst_width": 7,
+        "dst_height": 1,
+        "new_width": 2,
+        "new_height": 1,
+        "offset_x": 2,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "e9d12ac394cbf3e318dfcb15206a47c462f481d213ca3e047d558e007b791fdf",
+      "d2_output_sha256": "e9d12ac394cbf3e318dfcb15206a47c462f481d213ca3e047d558e007b791fdf",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 8.919999527279288e-05
+    },
+    {
+      "name": "same_geometry",
+      "synthetic_generation": "按坐标构造同尺寸输入",
+      "input_shape_hwc": [
+        3,
+        4,
+        3
+      ],
+      "input_sha256": "9684ac501413a0cfb3d3513cf753ef04b7153df28c09d30f5b0d6414aa5a686d",
+      "output_shape_chw": [
+        3,
+        3,
+        4
+      ],
+      "geometry": {
+        "src_width": 4,
+        "src_height": 3,
+        "dst_width": 4,
+        "dst_height": 3,
+        "new_width": 4,
+        "new_height": 3,
+        "offset_x": 0,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "06714db4f6b0484b14bed02ed5103c114a5201efd3d62493b6bc699dead958c7",
+      "d2_output_sha256": "06714db4f6b0484b14bed02ed5103c114a5201efd3d62493b6bc699dead958c7",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 8.060000254772604e-05
+    },
+    {
+      "name": "seeded_random_00",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        6,
+        4,
+        3
+      ],
+      "input_sha256": "1b43afa4bb1afc63d06b91426e1747cca769e676219b2cfa4e9a5d934390374a",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 4,
+        "src_height": 6,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 7,
+        "new_height": 11,
+        "offset_x": 3,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "163a3085c1953899c0c3cc86dfafcbe71df1fe957e2ab8dc0b8bf7be22900b69",
+      "d2_output_sha256": "163a3085c1953899c0c3cc86dfafcbe71df1fe957e2ab8dc0b8bf7be22900b69",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00046669998846482486
+    },
+    {
+      "name": "seeded_random_01",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        7,
+        8,
+        3
+      ],
+      "input_sha256": "4d1e6f620fd16e20a41c135d41bb0806c7849bc2c9c37522c7781c4f84ee3636",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 8,
+        "src_height": 7,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 12,
+        "new_height": 11,
+        "offset_x": 0,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "574590113843bd364a1abd06de8f334dfa2a435bee2bc541443eb50a0f416dca",
+      "d2_output_sha256": "574590113843bd364a1abd06de8f334dfa2a435bee2bc541443eb50a0f416dca",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0005401999951573089
+    },
+    {
+      "name": "seeded_random_02",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        7,
+        1,
+        3
+      ],
+      "input_sha256": "5252e76966b7e2d34c04dd0fbce79e5dd5266935440cd53cd18c5dcfc47b69a9",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 1,
+        "src_height": 7,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 1,
+        "new_height": 11,
+        "offset_x": 6,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "e3c1195a20df63eef6e8cc5593b84a56b61025874b451036b6ca9618d22b5ba3",
+      "d2_output_sha256": "e3c1195a20df63eef6e8cc5593b84a56b61025874b451036b6ca9618d22b5ba3",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00034329999471083283
+    },
+    {
+      "name": "seeded_random_03",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        10,
+        5,
+        3
+      ],
+      "input_sha256": "492a6a391470caa73ae821eb29091a5de9dee22b0351fef0f86b946129f8a713",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 5,
+        "src_height": 10,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 5,
+        "new_height": 11,
+        "offset_x": 4,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "3855bb6a52bc2f4b10003b82aad44df5d224618a4b85620efd6843e891bbcac5",
+      "d2_output_sha256": "3855bb6a52bc2f4b10003b82aad44df5d224618a4b85620efd6843e891bbcac5",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0005338000046322122
+    },
+    {
+      "name": "seeded_random_04",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        8,
+        4,
+        3
+      ],
+      "input_sha256": "a4dd21fd8c5247ad3631bf06216005cd5dc2405ed1d123f4e4d44cbea4fe63a4",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 4,
+        "src_height": 8,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 5,
+        "new_height": 11,
+        "offset_x": 4,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "0cdd61d46f5be919b4ea47c69a6f666232fa5b358e01e91df28f7a1a268398a6",
+      "d2_output_sha256": "0cdd61d46f5be919b4ea47c69a6f666232fa5b358e01e91df28f7a1a268398a6",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00043590000132098794
+    },
+    {
+      "name": "seeded_random_05",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        8,
+        8,
+        3
+      ],
+      "input_sha256": "1e4d1ddeccfb914cc73d4bbfc7c0785f4d1fa9229f56987398771b0244919444",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 8,
+        "src_height": 8,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 11,
+        "new_height": 11,
+        "offset_x": 1,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "c3b64363b3f7ef9655e9ea0e1c1b8b8663bd198aab80ed393430c088ae54a2d8",
+      "d2_output_sha256": "c3b64363b3f7ef9655e9ea0e1c1b8b8663bd198aab80ed393430c088ae54a2d8",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0005467000009957701
+    },
+    {
+      "name": "seeded_random_06",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        1,
+        10,
+        3
+      ],
+      "input_sha256": "a802d437a0a3baa380fea9e20e7168683615adec497763f901ef03a9ef75f5c7",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 10,
+        "src_height": 1,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 1,
+        "offset_x": 0,
+        "offset_y": 5,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "522a839e13128a463ac6059c7c9f93cf52d6711bc674e874068afb23d467d6ab",
+      "d2_output_sha256": "522a839e13128a463ac6059c7c9f93cf52d6711bc674e874068afb23d467d6ab",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00033859998802654445
+    },
+    {
+      "name": "seeded_random_07",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        1,
+        9,
+        3
+      ],
+      "input_sha256": "faecf0b97b4fadcb044917f4682fa6de7cef0721afab8cf54806b4b3d2a5aa28",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 9,
+        "src_height": 1,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 1,
+        "offset_x": 0,
+        "offset_y": 5,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "f59426a524974b7a10b91635b186e2b3db86d6ef03d9b250faf3126f1894851b",
+      "d2_output_sha256": "f59426a524974b7a10b91635b186e2b3db86d6ef03d9b250faf3126f1894851b",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.000331000002915971
+    },
+    {
+      "name": "seeded_random_08",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        2,
+        6,
+        3
+      ],
+      "input_sha256": "35c7a1afda62e6d229180581e5c03a2fa8c5d998716a6f33ddcd1a4f023d2432",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 6,
+        "src_height": 2,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 4,
+        "offset_x": 0,
+        "offset_y": 3,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "5c03b5cb288f466fd0e61d6714d30d2914a86f5fbbe6c734ab4dd1baccc825b6",
+      "d2_output_sha256": "5c03b5cb288f466fd0e61d6714d30d2914a86f5fbbe6c734ab4dd1baccc825b6",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0003997999883722514
+    },
+    {
+      "name": "seeded_random_09",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        6,
+        3,
+        3
+      ],
+      "input_sha256": "69d2dcc26897a4ef50a6b47597d4e7beef1538e180623d2d307dbbee1657354c",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 3,
+        "src_height": 6,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 5,
+        "new_height": 11,
+        "offset_x": 4,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "fa08d12bbb1baf32d111fa2cf54182c6fa55414f315656325b0a9d3e4dba3ba9",
+      "d2_output_sha256": "fa08d12bbb1baf32d111fa2cf54182c6fa55414f315656325b0a9d3e4dba3ba9",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.000803299990366213
+    },
+    {
+      "name": "seeded_random_10",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        5,
+        3,
+        3
+      ],
+      "input_sha256": "a382841106a599bdf207be16f4435ea6ec7cf9b63038be818669fc2a9654b3c3",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 3,
+        "src_height": 5,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 6,
+        "new_height": 11,
+        "offset_x": 3,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "4bf746d1bcbf1a3f6e7c2d10dab2a94d98498517a6f96a20776570e5ba05f406",
+      "d2_output_sha256": "4bf746d1bcbf1a3f6e7c2d10dab2a94d98498517a6f96a20776570e5ba05f406",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00045649999810848385
+    },
+    {
+      "name": "seeded_random_11",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        2,
+        8,
+        3
+      ],
+      "input_sha256": "3b0046fccffd81bec4768518356295a49eeb1511cf8bb336af607783681ed0bb",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 8,
+        "src_height": 2,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 3,
+        "offset_x": 0,
+        "offset_y": 4,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "7e08d633f766bd23aa33de441d54650f3411405d589ccaa53841644bdc85afa5",
+      "d2_output_sha256": "7e08d633f766bd23aa33de441d54650f3411405d589ccaa53841644bdc85afa5",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00039339999784715474
+    },
+    {
+      "name": "seeded_random_12",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        3,
+        9,
+        3
+      ],
+      "input_sha256": "37043335440f8eed0d6052d84411712346824f13a3d029994fe50f0e63bbc439",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 9,
+        "src_height": 3,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 4,
+        "offset_x": 0,
+        "offset_y": 3,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "9a4538f3ca0a45a64779b55e702a75b04db657c7176ca46f0270961599fbdf7e",
+      "d2_output_sha256": "9a4538f3ca0a45a64779b55e702a75b04db657c7176ca46f0270961599fbdf7e",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00041840001358650625
+    },
+    {
+      "name": "seeded_random_13",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        2,
+        3,
+        3
+      ],
+      "input_sha256": "c87f7a3d8f0637ec56f17b81dec18eab1b1647fca6e01b7fbede5e245e152252",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 3,
+        "src_height": 2,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 8,
+        "offset_x": 0,
+        "offset_y": 1,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "d3e32e19fdd86298e4669526600da3f546333683251ab74684795fcffac0df8b",
+      "d2_output_sha256": "d3e32e19fdd86298e4669526600da3f546333683251ab74684795fcffac0df8b",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0005154999962542206
+    },
+    {
+      "name": "seeded_random_14",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        9,
+        2,
+        3
+      ],
+      "input_sha256": "5a9c009d4a4aaa9f5cb0e958fa355f5cc8b9d0e747ded83e8655f32a8fe1ae05",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 2,
+        "src_height": 9,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 2,
+        "new_height": 11,
+        "offset_x": 5,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "13c134d20370d1463502c4cd75defa1a3ee77847b103dbaa7bff089e689044d6",
+      "d2_output_sha256": "13c134d20370d1463502c4cd75defa1a3ee77847b103dbaa7bff089e689044d6",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00035850000858772546
+    },
+    {
+      "name": "seeded_random_15",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        7,
+        8,
+        3
+      ],
+      "input_sha256": "703347edf3ef92ade4df75dccb943e1ac8f3990e8b09393640e21ca17d076040",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 8,
+        "src_height": 7,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 12,
+        "new_height": 11,
+        "offset_x": 0,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "fa1e7eb21783cf7562bd338680146b43594ddef2bd9c54f624590501aa243221",
+      "d2_output_sha256": "fa1e7eb21783cf7562bd338680146b43594ddef2bd9c54f624590501aa243221",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0005404999974416569
+    },
+    {
+      "name": "seeded_random_16",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        1,
+        2,
+        3
+      ],
+      "input_sha256": "19929c1197e7d0ecf02e6af335517389ad389ff2866f05a0b01fb18cd168108d",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 2,
+        "src_height": 1,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 6,
+        "offset_x": 0,
+        "offset_y": 2,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "289328580c8857f2e30fdba5378cee1c96b8f4d0d1d6fa50d769ca9404791a92",
+      "d2_output_sha256": "289328580c8857f2e30fdba5378cee1c96b8f4d0d1d6fa50d769ca9404791a92",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00043759999971371144
+    },
+    {
+      "name": "seeded_random_17",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        1,
+        10,
+        3
+      ],
+      "input_sha256": "4b39dcbb3b3e096203bdc0fe41c75fc56a201f87162524dd6745db0eaf97acbc",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 10,
+        "src_height": 1,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 1,
+        "offset_x": 0,
+        "offset_y": 5,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "fb5a355ba45a2db87328d5a37a5d1e8522ca1c8020e7337c1b61816e4769df08",
+      "d2_output_sha256": "fb5a355ba45a2db87328d5a37a5d1e8522ca1c8020e7337c1b61816e4769df08",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0003556000010576099
+    },
+    {
+      "name": "seeded_random_18",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        10,
+        4,
+        3
+      ],
+      "input_sha256": "864b6016c5fa71d0d8ebd2c8ad5059b26376360ad9f56e92edea79e8284bb10e",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 4,
+        "src_height": 10,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 4,
+        "new_height": 11,
+        "offset_x": 4,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "74f1dd4d7b68b68d14dc1d3efcf0638aba7f4933b0e02442006996fca5f635b8",
+      "d2_output_sha256": "74f1dd4d7b68b68d14dc1d3efcf0638aba7f4933b0e02442006996fca5f635b8",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0004423000063979998
+    },
+    {
+      "name": "seeded_random_19",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        3,
+        9,
+        3
+      ],
+      "input_sha256": "8fb31b1d790da7447322e2f39bdd28099a500f6aeef1d1b50b984804ff68d3e1",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 9,
+        "src_height": 3,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 4,
+        "offset_x": 0,
+        "offset_y": 3,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "feda2c5be9ed902511461e6e278bd452c08f75d9613db97d8bc1e53bc15e5869",
+      "d2_output_sha256": "feda2c5be9ed902511461e6e278bd452c08f75d9613db97d8bc1e53bc15e5869",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0004138999938732013
+    },
+    {
+      "name": "seeded_random_20",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        4,
+        5,
+        3
+      ],
+      "input_sha256": "c797cc76caa36ad2d2ad37101af0256583dee42d1948d9f137e850b0d1f3b76b",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 5,
+        "src_height": 4,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 13,
+        "new_height": 10,
+        "offset_x": 0,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "1a2294a144480880ceed56098be956757db3cde3e5e3b0dac1689ab74666cd4a",
+      "d2_output_sha256": "1a2294a144480880ceed56098be956757db3cde3e5e3b0dac1689ab74666cd4a",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.000538099993718788
+    },
+    {
+      "name": "seeded_random_21",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        3,
+        1,
+        3
+      ],
+      "input_sha256": "51bbf90472e8ff8c23ede8927ade0a2b2e1d6303d2a304a00d1ef49245bdd1f4",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 1,
+        "src_height": 3,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 3,
+        "new_height": 11,
+        "offset_x": 5,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "d86e9681895a42692499774ac268019684a4e67e75c4ca5b18498bc2072a6001",
+      "d2_output_sha256": "d86e9681895a42692499774ac268019684a4e67e75c4ca5b18498bc2072a6001",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00037850000080652535
+    },
+    {
+      "name": "seeded_random_22",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        6,
+        1,
+        3
+      ],
+      "input_sha256": "f852b14486dcca05de682d640e2379b999e4cc4178dcb6a6a49dca24ee403594",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 1,
+        "src_height": 6,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 1,
+        "new_height": 11,
+        "offset_x": 6,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "4839488f027556837491aff0c6d327a3bb97601b05eddf7aaf13cbd541e5b78d",
+      "d2_output_sha256": "4839488f027556837491aff0c6d327a3bb97601b05eddf7aaf13cbd541e5b78d",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.00033260000054724514
+    },
+    {
+      "name": "seeded_random_23",
+      "synthetic_generation": "NumPy default_rng seed=20261023, 独立生成 uint8 RGB",
+      "input_shape_hwc": [
+        8,
+        7,
+        3
+      ],
+      "input_sha256": "74e84ca20ae3440a71a918a956fcec64e4dd398ac855e757f97dbc9cc53863c2",
+      "output_shape_chw": [
+        3,
+        11,
+        13
+      ],
+      "geometry": {
+        "src_width": 7,
+        "src_height": 8,
+        "dst_width": 13,
+        "dst_height": 11,
+        "new_width": 9,
+        "new_height": 11,
+        "offset_x": 2,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "4227aaedbe24c7ab08fd34663094a770b99cb330b3b6505d41fe8120fa30f2a2",
+      "d2_output_sha256": "4227aaedbe24c7ab08fd34663094a770b99cb330b3b6505d41fe8120fa30f2a2",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.0004940000071655959
+    },
+    {
+      "name": "half_boundary_202x329_to_416",
+      "synthetic_generation": "全零合成帧；首行相邻 RGB 值 201、202；固定边界向量",
+      "input_shape_hwc": [
+        329,
+        202,
+        3
+      ],
+      "input_sha256": "6c05c948620447ff0c5c5e371adb1e34f1fec346be15496dae1fc55762edceb1",
+      "output_shape_chw": [
+        3,
+        416,
+        416
+      ],
+      "geometry": {
+        "src_width": 202,
+        "src_height": 329,
+        "dst_width": 416,
+        "dst_height": 416,
+        "new_width": 255,
+        "new_height": 416,
+        "offset_x": 80,
+        "offset_y": 0,
+        "padding_normalized": 0.5,
+        "padding_uint8": 128
+      },
+      "generator_output_sha256": "350e6775adb096c5c4e4296380d946181c919452cb0ead268783904f8b1e7eb2",
+      "d2_output_sha256": "350e6775adb096c5c4e4296380d946181c919452cb0ead268783904f8b1e7eb2",
+      "elementwise_equal": true,
+      "difference_count": 0,
+      "difference_examples": [],
+      "elapsed_seconds": 0.5811343000095803
+    }
+  ],
+  "limits": {
+    "max_runtime_seconds": 60.0,
+    "max_memory_bytes": 1073741824
+  },
+  "case_count": 34,
+  "fixed_random_seed": 20261023,
+  "random_case_count": 24,
+  "half_boundary": {
+    "source_geometry_wh": [
+      202,
+      329
+    ],
+    "target_geometry_wh": [
+      416,
+      416
+    ],
+    "expected_letterbox_geometry": {
+      "new_width": 255,
+      "new_height": 416,
+      "offset_x": 80,
+      "offset_y": 0
+    },
+    "target_chw_positions": [
+      [
+        0,
+        0,
+        81
+      ],
+      [
+        1,
+        0,
+        81
+      ],
+      [
+        2,
+        0,
+        81
+      ]
+    ],
+    "generator_values": [
+      100,
+      100,
+      100
+    ],
+    "d2_values": [
+      100,
+      100,
+      100
+    ],
+    "both_equal_100": true
+  },
+  "mismatch_case_count": 0,
+  "elapsed_seconds": 1.3914160000131233,
+  "peak_memory": {
+    "peak_working_set_bytes": 83075072,
+    "private_usage_bytes": 570650624
+  },
+  "memory_below_1gib": true,
+  "algorithm_analysis": [
+    "两路坐标均以 binary64 计算 (src-1)/(dst-1) 与整数坐标乘该系数；端点及尺寸为 1 时均选最后源点。",
+    "两路水平项均为 (1-dx)*左值 + dx*右值，垂直项均为 (1-dy)*top + dy*bottom；乘法交换因子次序不改变 binary64 乘积，乘加未合并。",
+    "两路均在 0..255 域完成插值，再除 255、裁剪、HWC→CHW、除以同一 INPUT_SCALE、半数远离零并饱和到 [-127,127]。",
+    "本实验的逐值比较是当前 Python/NumPy runtime 与合成向量的证据，不是跨平台形式化证明，也不重跑 frozen_test_samples109。"
+  ],
+  "limitations": [
+    "不读取模型、人像、既有 390 MB golden 或样本清单；不导入原模块，生成器顶层代码未执行。",
+    "只编译 extraction_manifest.json 列出的 AST 常量、纯函数与异常类；源代码未改写。",
+    "不证明所有可能输入、所有 Python/NumPy 版本、PL 实现或 4D 通过。"
+  ],
+  "completed_at_utc8": "2026-10-23T13:45:18.926363+08:00"
+}

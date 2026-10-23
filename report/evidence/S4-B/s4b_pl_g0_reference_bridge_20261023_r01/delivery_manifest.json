@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-B",
+  "run_id": "s4b_pl_g0_reference_bridge_20261023_r01",
+  "source_commit": "0d3ad04be26efeb366ecf20487848a613a0a63fe",
+  "evidence_dir": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01",
+  "interfaces": [
+    {
+      "name": "Wong批准的D2数值规则",
+      "version": "S1-T02-D2",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/bridge_runner.py",
+      "sha256": "f21ce038eaf3c8266a3cf481cd3a68e49619d2ee247fcf38874017cd56f04ffb",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/command_stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/command_stdout.txt",
+      "sha256": "bf60dac561260714972e1205900f12f7f9614f2841e870565315b87b133e716f",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/extraction_manifest.json",
+      "sha256": "25559c2a8e42a3609cb8ea42f0fa0f631076036b79b337e2245cbeee479937e1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/location_incident_preservation.json",
+      "sha256": "7d41c0d9023a680493d0cc186fb916defb21167086dedd20bcb61e069d591295",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/location_restore_result.json",
+      "sha256": "e6d61fe3af5197ad46bf19aaaf6c718d0967a3565fca61f7fcfb6c1d5888a788",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/native_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_reference_bridge_20261023_r01/result.json",
+      "sha256": "4922ba534e5d19f72e301901cc69007278c0ca2e8096ffde7f8368b52d6816a7",
+      "role": "result"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "f2fdd5a1e18a241ecc835aafe41396d64146e1da64e151bbe4a6bfd419ac7a20",
+      "role": "source"
+    },
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
+      "role": "input"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "input"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "synthetic_reference_bridge_34",
+      "status": "PASS",
+      "command": "bridge_runner.py::launch_and_capture [sys.executable, '-B', 'D:\\FPGA_Competition\\tmp\\4\\S4-B-PL-G0-REFERENCE\\20261023_r01\\bridge_runner.py', '--worker']",
+      "exit_code": 0,
+      "reason": "此为原实验实际子进程调用，原路径已恢复清理，不得重跑；当前完整原文件已保全到本树。"
+    },
+    {
+      "name": "wong_architecture_decision",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "新PL原帧路线重大架构问题已提请Wong，尚未答复；本包不批准地址或容量。"
+    },
+    {
+      "name": "actual_raw_pl_hardware",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "无新PL实现或板测；本包只含离线输入预算/所测合成参考桥接。"
+    }
+  ],
+  "tool_versions": {
+    "capacity_recheck_python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "synthetic_bridge_python": "3.12.14",
+    "synthetic_bridge_numpy": "2.3.5"
+  },
+  "limitations": [
+    "仅待决策材料事实及所测合成向量；无109帧逐值重生成、无新PL/4D通过。",
+    "D2原字节身份分别保存，只读换行比较不等于改写源或替换冻结哈希。",
+    "原实验误写落点已完整保全并精确恢复，历史命令路径不是后续写入入口。",
+    "架构/原帧区/尺寸stride边界/增量资源与性能仍待G0核定。"
+  ]
+}

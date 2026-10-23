@@ -1,0 +1,263 @@
+{
+  "source_files": {
+    "generator": {
+      "path": "D:\\FPGA_Competition\\verification\\s2a_model_delivery.py",
+      "bytes": 103291,
+      "sha256": "4831fff0e8ebb189ac9767ae423ad8d5268fc5bee5e333cc2a132112ccfdaab8"
+    },
+    "main_d2": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_numeric_reference.py",
+      "bytes": 17935,
+      "sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90"
+    },
+    "w4_d2": {
+      "path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d2_numeric_reference.py",
+      "bytes": 18337,
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f"
+    },
+    "rounder": {
+      "path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+      "bytes": 47597,
+      "sha256": "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393"
+    },
+    "d2_line_ending_comparison": {
+      "main_normalized_sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+      "w4_normalized_sha256": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
+      "normalized_bytes_equal": true,
+      "interpretation": "仅在换行规范化后相同；原始源码哈希仍分别保留"
+    }
+  },
+  "extracted_nodes": [
+    {
+      "label": "d2_callable",
+      "source_path": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d2_numeric_reference.py",
+      "nodes": [
+        {
+          "name": null,
+          "node_type": "Assign",
+          "source_lines": [
+            15,
+            15
+          ],
+          "ast_sha256": "b84dc1dbf49e297ffadea0825045464e019171f7b5d52163603a1a12057aeb16",
+          "ast": "Assign(targets=[Name(id='INT8_MIN', ctx=Store())], value=UnaryOp(op=USub(), operand=Constant(value=127)))"
+        },
+        {
+          "name": null,
+          "node_type": "Assign",
+          "source_lines": [
+            16,
+            16
+          ],
+          "ast_sha256": "d1265c112e3ecd796058725244d7a5af4ec0d0411807ae9518589c6ee08a2114",
+          "ast": "Assign(targets=[Name(id='INT8_MAX', ctx=Store())], value=Constant(value=127))"
+        },
+        {
+          "name": null,
+          "node_type": "Assign",
+          "source_lines": [
+            21,
+            21
+          ],
+          "ast_sha256": "f74e81a69e5dd02cbb6c18ec843912ee7d884de56eebf87a975331cd9c67c2c2",
+          "ast": "Assign(targets=[Name(id='INPUT_SCALE', ctx=Store())], value=BinOp(left=Constant(value=1.0), op=Div(), right=Constant(value=127.0)))"
+        },
+        {
+          "name": "_finite",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            24,
+            29
+          ],
+          "ast_sha256": "c3246fa294ec9e655884d595c681b046c8224ea689947decc950b9bcad3e20e2",
+          "ast": "FunctionDef(name='_finite', args=arguments(posonlyargs=[], args=[arg(arg='value', annotation=Name(id='float', ctx=Load())), arg(arg='name', annotation=Name(id='str', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Constant(value='value')]), body=[Expr(value=Constant(value='拒绝 NaN/Inf，返回可参与计算的浮点数。')), Assign(targets=[Name(id='converted', ctx=Store())], value=Call(func=Name(id='float', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[])), If(test=UnaryOp(op=Not(), operand=Call(func=Attribute(value=Name(id='math', ctx=Load()), attr='isfinite', ctx=Load()), args=[Name(id='converted', ctx=Load())], keywords=[])), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[JoinedStr(values=[FormattedValue(value=Name(id='name', ctx=Load()), conversion=-1), Constant(value=' 必须是有限数')])], keywords=[]))], orelse=[]), Return(value=Name(id='converted', ctx=Load()))], decorator_list=[], returns=Name(id='float', ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "round_away_from_zero",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            32,
+            36
+          ],
+          "ast_sha256": "bdadbf949a124f1919405452cd9c434805feb857e39847eb613fc1e669810968",
+          "ast": "FunctionDef(name='round_away_from_zero', args=arguments(posonlyargs=[], args=[arg(arg='value', annotation=Name(id='float', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='执行正负对称、半数远离零的舍入。')), Assign(targets=[Name(id='value', ctx=Store())], value=Call(func=Name(id='_finite', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[])), Assign(targets=[Name(id='magnitude', ctx=Store())], value=Call(func=Attribute(value=Name(id='math', ctx=Load()), attr='floor', ctx=Load()), args=[BinOp(left=Call(func=Name(id='abs', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[]), op=Add(), right=Constant(value=0.5))], keywords=[])), Return(value=Call(func=Name(id='int', ctx=Load()), args=[IfExp(test=Compare(left=Name(id='value', ctx=Load()), ops=[GtE()], comparators=[Constant(value=0)]), body=Name(id='magnitude', ctx=Load()), orelse=UnaryOp(op=USub(), operand=Name(id='magnitude', ctx=Load())))], keywords=[]))], decorator_list=[], returns=Name(id='int', ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "saturate_int8",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            39,
+            43
+          ],
+          "ast_sha256": "37bbfa493a7a69b46a012af6aac4381b08f6b367c2bad4fe9f22d8c68d8c1545",
+          "ast": "FunctionDef(name='saturate_int8', args=arguments(posonlyargs=[], args=[arg(arg='value', annotation=Name(id='int', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='将整数饱和到本项目规定的有符号 [-127, 127]。')), If(test=Compare(left=Call(func=Name(id='type', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[]), ops=[IsNot()], comparators=[Name(id='int', ctx=Load())]), body=[Raise(exc=Call(func=Name(id='TypeError', ctx=Load()), args=[Constant(value='INT8 饱和输入必须是整数')], keywords=[]))], orelse=[]), Return(value=Call(func=Name(id='max', ctx=Load()), args=[Name(id='INT8_MIN', ctx=Load()), Call(func=Name(id='min', ctx=Load()), args=[Name(id='INT8_MAX', ctx=Load()), Name(id='value', ctx=Load())], keywords=[])], keywords=[]))], decorator_list=[], returns=Name(id='int', ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "quantize_symmetric",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            46,
+            51
+          ],
+          "ast_sha256": "d8fd9444c9b4ed0074048ec1d8032178d361f2f057415e76b59a096f393d28f8",
+          "ast": "FunctionDef(name='quantize_symmetric', args=arguments(posonlyargs=[], args=[arg(arg='value', annotation=Name(id='float', ctx=Load())), arg(arg='scale', annotation=Name(id='float', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='按零点为零的对称规则量化一个浮点值。')), Assign(targets=[Name(id='scale', ctx=Store())], value=Call(func=Name(id='_finite', ctx=Load()), args=[Name(id='scale', ctx=Load()), Constant(value='scale')], keywords=[])), If(test=Compare(left=Name(id='scale', ctx=Load()), ops=[LtE()], comparators=[Constant(value=0)]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='scale 必须为正数')], keywords=[]))], orelse=[]), Return(value=Call(func=Name(id='saturate_int8', ctx=Load()), args=[Call(func=Name(id='round_away_from_zero', ctx=Load()), args=[BinOp(left=Call(func=Name(id='_finite', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[]), op=Div(), right=Name(id='scale', ctx=Load()))], keywords=[])], keywords=[]))], decorator_list=[], returns=Name(id='int', ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "letterbox_geometry",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            116,
+            137
+          ],
+          "ast_sha256": "62ecb03fc22b1031e9b506d49b542c94c25dcc7b5a829f4e20c1812a50a31514",
+          "ast": "FunctionDef(name='letterbox_geometry', args=arguments(posonlyargs=[], args=[arg(arg='src_width', annotation=Name(id='int', ctx=Load())), arg(arg='src_height', annotation=Name(id='int', ctx=Load())), arg(arg='dst_width', annotation=Name(id='int', ctx=Load())), arg(arg='dst_height', annotation=Name(id='int', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='复现 Darknet letterbox_image 的整数尺寸和左上 floor 偏移。')), If(test=Compare(left=Call(func=Name(id='min', ctx=Load()), args=[Name(id='src_width', ctx=Load()), Name(id='src_height', ctx=Load()), Name(id='dst_width', ctx=Load()), Name(id='dst_height', ctx=Load())], keywords=[]), ops=[LtE()], comparators=[Constant(value=0)]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='图像尺寸必须为正整数')], keywords=[]))], orelse=[]), If(test=Compare(left=BinOp(left=Call(func=Name(id='float', ctx=Load()), args=[Name(id='dst_width', ctx=Load())], keywords=[]), op=Div(), right=Name(id='src_width', ctx=Load())), ops=[Lt()], comparators=[BinOp(left=Call(func=Name(id='float', ctx=Load()), args=[Name(id='dst_height', ctx=Load())], keywords=[]), op=Div(), right=Name(id='src_height', ctx=Load()))]), body=[Assign(targets=[Name(id='new_width', ctx=Store())], value=Name(id='dst_width', ctx=Load())), Assign(targets=[Name(id='new_height', ctx=Store())], value=BinOp(left=BinOp(left=Name(id='src_height', ctx=Load()), op=Mult(), right=Name(id='dst_width', ctx=Load())), op=FloorDiv(), right=Name(id='src_width', ctx=Load())))], orelse=[Assign(targets=[Name(id='new_height', ctx=Store())], value=Name(id='dst_height', ctx=Load())), Assign(targets=[Name(id='new_width', ctx=Store())], value=BinOp(left=BinOp(left=Name(id='src_width', ctx=Load()), op=Mult(), right=Name(id='dst_height', ctx=Load())), op=FloorDiv(), right=Name(id='src_height', ctx=Load())))]), Return(value=Dict(keys=[Constant(value='src_width'), Constant(value='src_height'), Constant(value='dst_width'), Constant(value='dst_height'), Constant(value='new_width'), Constant(value='new_height'), Constant(value='offset_x'), Constant(value='offset_y'), Constant(value='padding_normalized'), Constant(value='padding_uint8')], values=[Name(id='src_width', ctx=Load()), Name(id='src_height', ctx=Load()), Name(id='dst_width', ctx=Load()), Name(id='dst_height', ctx=Load()), Name(id='new_width', ctx=Load()), Name(id='new_height', ctx=Load()), BinOp(left=BinOp(left=Name(id='dst_width', ctx=Load()), op=Sub(), right=Name(id='new_width', ctx=Load())), op=FloorDiv(), right=Constant(value=2)), BinOp(left=BinOp(left=Name(id='dst_height', ctx=Load()), op=Sub(), right=Name(id='new_height', ctx=Load())), op=FloorDiv(), right=Constant(value=2)), Constant(value=0.5), Constant(value=128)]))], decorator_list=[], returns=Subscript(value=Name(id='dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), BinOp(left=Name(id='int', ctx=Load()), op=BitOr(), right=Name(id='float', ctx=Load()))], ctx=Load()), ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "_resize_bilinear_rgb_values",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            140,
+            179
+          ],
+          "ast_sha256": "b084c02845d2493966458653d4150e8106914cd0e4c642fba329aeb7827a1680",
+          "ast": "FunctionDef(name='_resize_bilinear_rgb_values', args=arguments(posonlyargs=[], args=[arg(arg='rgb', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='float', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load())), arg(arg='new_width', annotation=Name(id='int', ctx=Load())), arg(arg='new_height', annotation=Name(id='int', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='复现 Darknet resize_image 的端点对齐双线性插值。')), Assign(targets=[Name(id='src_height', ctx=Store())], value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='rgb', ctx=Load())], keywords=[])), Assign(targets=[Name(id='src_width', ctx=Store())], value=IfExp(test=Name(id='src_height', ctx=Load()), body=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='rgb', ctx=Load()), slice=Constant(value=0), ctx=Load())], keywords=[]), orelse=Constant(value=0))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='src_width', ctx=Load()), ops=[LtE()], comparators=[Constant(value=0)]), Compare(left=Name(id='src_height', ctx=Load()), ops=[LtE()], comparators=[Constant(value=0)]), Compare(left=Name(id='new_width', ctx=Load()), ops=[LtE()], comparators=[Constant(value=0)]), Compare(left=Name(id='new_height', ctx=Load()), ops=[LtE()], comparators=[Constant(value=0)])]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='resize 尺寸必须为正数')], keywords=[]))], orelse=[]), If(test=BoolOp(op=And(), values=[Compare(left=Name(id='src_width', ctx=Load()), ops=[Eq()], comparators=[Name(id='new_width', ctx=Load())]), Compare(left=Name(id='src_height', ctx=Load()), ops=[Eq()], comparators=[Name(id='new_height', ctx=Load())])]), body=[Return(value=ListComp(elt=ListComp(elt=Call(func=Name(id='list', ctx=Load()), args=[Name(id='pixel', ctx=Load())], keywords=[]), generators=[comprehension(target=Name(id='pixel', ctx=Store()), iter=Name(id='row', ctx=Load()), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='rgb', ctx=Load()), ifs=[], is_async=0)]))], orelse=[]), Assign(targets=[Name(id='result', ctx=Store())], value=ListComp(elt=ListComp(elt=ListComp(elt=Constant(value=0.0), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Constant(value=3)], keywords=[]), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='new_width', ctx=Load())], keywords=[]), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='new_height', ctx=Load())], keywords=[]), ifs=[], is_async=0)])), Assign(targets=[Name(id='w_scale', ctx=Store())], value=IfExp(test=Compare(left=Name(id='new_width', ctx=Load()), ops=[NotEq()], comparators=[Constant(value=1)]), body=BinOp(left=BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1)), op=Div(), right=BinOp(left=Name(id='new_width', ctx=Load()), op=Sub(), right=Constant(value=1))), orelse=Constant(value=0.0))), Assign(targets=[Name(id='h_scale', ctx=Store())], value=IfExp(test=Compare(left=Name(id='new_height', ctx=Load()), ops=[NotEq()], comparators=[Constant(value=1)]), body=BinOp(left=BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1)), op=Div(), right=BinOp(left=Name(id='new_height', ctx=Load()), op=Sub(), right=Constant(value=1))), orelse=Constant(value=0.0))), For(target=Name(id='y', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='new_height', ctx=Load())], keywords=[]), body=[If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='new_height', ctx=Load()), ops=[Eq()], comparators=[Constant(value=1)]), Compare(left=Name(id='y', ctx=Load()), ops=[Eq()], comparators=[BinOp(left=Name(id='new_height', ctx=Load()), op=Sub(), right=Constant(value=1))])]), body=[Assign(targets=[Name(id='iy', ctx=Store())], value=BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1))), Assign(targets=[Name(id='iy1', ctx=Store())], value=Name(id='iy', ctx=Load())), Assign(targets=[Name(id='dy', ctx=Store())], value=Constant(value=0.0))], orelse=[Assign(targets=[Name(id='sy', ctx=Store())], value=BinOp(left=Name(id='y', ctx=Load()), op=Mult(), right=Name(id='h_scale', ctx=Load()))), Assign(targets=[Name(id='iy', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[Name(id='sy', ctx=Load())], keywords=[])), Assign(targets=[Name(id='dy', ctx=Store())], value=BinOp(left=Name(id='sy', ctx=Load()), op=Sub(), right=Name(id='iy', ctx=Load()))), Assign(targets=[Name(id='iy1', ctx=Store())], value=Call(func=Name(id='min', ctx=Load()), args=[BinOp(left=Name(id='iy', ctx=Load()), op=Add(), right=Constant(value=1)), BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1))], keywords=[]))]), For(target=Name(id='x', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='new_width', ctx=Load())], keywords=[]), body=[If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='new_width', ctx=Load()), ops=[Eq()], comparators=[Constant(value=1)]), Compare(left=Name(id='x', ctx=Load()), ops=[Eq()], comparators=[BinOp(left=Name(id='new_width', ctx=Load()), op=Sub(), right=Constant(value=1))])]), body=[Assign(targets=[Name(id='ix', ctx=Store())], value=BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1))), Assign(targets=[Name(id='ix1', ctx=Store())], value=Name(id='ix', ctx=Load())), Assign(targets=[Name(id='dx', ctx=Store())], value=Constant(value=0.0))], orelse=[Assign(targets=[Name(id='sx', ctx=Store())], value=BinOp(left=Name(id='x', ctx=Load()), op=Mult(), right=Name(id='w_scale', ctx=Load()))), Assign(targets=[Name(id='ix', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[Name(id='sx', ctx=Load())], keywords=[])), Assign(targets=[Name(id='dx', ctx=Store())], value=BinOp(left=Name(id='sx', ctx=Load()), op=Sub(), right=Name(id='ix', ctx=Load()))), Assign(targets=[Name(id='ix1', ctx=Store())], value=Call(func=Name(id='min', ctx=Load()), args=[BinOp(left=Name(id='ix', ctx=Load()), op=Add(), right=Constant(value=1)), BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1))], keywords=[]))]), For(target=Name(id='channel', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Constant(value=3)], keywords=[]), body=[Assign(targets=[Name(id='top', ctx=Store())], value=BinOp(left=BinOp(left=BinOp(left=Constant(value=1.0), op=Sub(), right=Name(id='dx', ctx=Load())), op=Mult(), right=Subscript(value=Subscript(value=Subscript(value=Name(id='rgb', ctx=Load()), slice=Name(id='iy', ctx=Load()), ctx=Load()), slice=Name(id='ix', ctx=Load()), ctx=Load()), slice=Name(id='channel', ctx=Load()), ctx=Load())), op=Add(), right=BinOp(left=Name(id='dx', ctx=Load()), op=Mult(), right=Subscript(value=Subscript(value=Subscript(value=Name(id='rgb', ctx=Load()), slice=Name(id='iy', ctx=Load()), ctx=Load()), slice=Name(id='ix1', ctx=Load()), ctx=Load()), slice=Name(id='channel', ctx=Load()), ctx=Load())))), Assign(targets=[Name(id='bottom', ctx=Store())], value=BinOp(left=BinOp(left=BinOp(left=Constant(value=1.0), op=Sub(), right=Name(id='dx', ctx=Load())), op=Mult(), right=Subscript(value=Subscript(value=Subscript(value=Name(id='rgb', ctx=Load()), slice=Name(id='iy1', ctx=Load()), ctx=Load()), slice=Name(id='ix', ctx=Load()), ctx=Load()), slice=Name(id='channel', ctx=Load()), ctx=Load())), op=Add(), right=BinOp(left=Name(id='dx', ctx=Load()), op=Mult(), right=Subscript(value=Subscript(value=Subscript(value=Name(id='rgb', ctx=Load()), slice=Name(id='iy1', ctx=Load()), ctx=Load()), slice=Name(id='ix1', ctx=Load()), ctx=Load()), slice=Name(id='channel', ctx=Load()), ctx=Load())))), Assign(targets=[Subscript(value=Subscript(value=Subscript(value=Name(id='result', ctx=Load()), slice=Name(id='y', ctx=Load()), ctx=Load()), slice=Name(id='x', ctx=Load()), ctx=Load()), slice=Name(id='channel', ctx=Load()), ctx=Store())], value=BinOp(left=BinOp(left=BinOp(left=Constant(value=1.0), op=Sub(), right=Name(id='dy', ctx=Load())), op=Mult(), right=Name(id='top', ctx=Load())), op=Add(), right=BinOp(left=Name(id='dy', ctx=Load()), op=Mult(), right=Name(id='bottom', ctx=Load()))))], orelse=[])], orelse=[])], orelse=[]), Return(value=Name(id='result', ctx=Load()))], decorator_list=[], returns=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='float', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "letterbox_rgb_normalized",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            201,
+            217
+          ],
+          "ast_sha256": "e8a6653776e77250fe6e7ac477a3044c5cec5f87c46dee6ba17a583e494ffe8b",
+          "ast": "FunctionDef(name='letterbox_rgb_normalized', args=arguments(posonlyargs=[], args=[arg(arg='rgb', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='int', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load())), arg(arg='dst_width', annotation=Name(id='int', ctx=Load())), arg(arg='dst_height', annotation=Name(id='int', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='将原始 8-bit RGB letterbox 后转换为 0..1 单位，补边为 0.5。')), Assign(targets=[Name(id='src_height', ctx=Store())], value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='rgb', ctx=Load())], keywords=[])), Assign(targets=[Name(id='src_width', ctx=Store())], value=IfExp(test=Name(id='src_height', ctx=Load()), body=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='rgb', ctx=Load()), slice=Constant(value=0), ctx=Load())], keywords=[]), orelse=Constant(value=0))), Assign(targets=[Name(id='geometry', ctx=Store())], value=Call(func=Name(id='letterbox_geometry', ctx=Load()), args=[Name(id='src_width', ctx=Load()), Name(id='src_height', ctx=Load()), Name(id='dst_width', ctx=Load()), Name(id='dst_height', ctx=Load())], keywords=[])), For(target=Name(id='row', ctx=Store()), iter=Name(id='rgb', ctx=Load()), body=[For(target=Name(id='pixel', ctx=Store()), iter=Name(id='row', ctx=Load()), body=[If(test=BoolOp(op=Or(), values=[Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='pixel', ctx=Load())], keywords=[]), ops=[NotEq()], comparators=[Constant(value=3)]), Call(func=Name(id='any', ctx=Load()), args=[GeneratorExp(elt=BoolOp(op=Or(), values=[Compare(left=Call(func=Name(id='type', ctx=Load()), args=[Name(id='value', ctx=Load())], keywords=[]), ops=[IsNot()], comparators=[Name(id='int', ctx=Load())]), UnaryOp(op=Not(), operand=Compare(left=Constant(value=0), ops=[LtE(), LtE()], comparators=[Name(id='value', ctx=Load()), Constant(value=255)]))]), generators=[comprehension(target=Name(id='value', ctx=Store()), iter=Name(id='pixel', ctx=Load()), ifs=[], is_async=0)])], keywords=[])]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='原始 RGB 输入必须是三个 8-bit 整数通道')], keywords=[]))], orelse=[])], orelse=[])], orelse=[]), Assign(targets=[Name(id='resized', ctx=Store())], value=Call(func=Name(id='_resize_bilinear_rgb_values', ctx=Load()), args=[Name(id='rgb', ctx=Load()), Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='new_width'), ctx=Load())], keywords=[]), Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='new_height'), ctx=Load())], keywords=[])], keywords=[])), Assign(targets=[Name(id='boxed', ctx=Store())], value=ListComp(elt=ListComp(elt=List(elts=[Constant(value=0.5), Constant(value=0.5), Constant(value=0.5)], ctx=Load()), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='dst_width', ctx=Load())], keywords=[]), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='dst_height', ctx=Load())], keywords=[]), ifs=[], is_async=0)])), For(target=Tuple(elts=[Name(id='y', ctx=Store()), Name(id='row', ctx=Store())], ctx=Store()), iter=Call(func=Name(id='enumerate', ctx=Load()), args=[Name(id='resized', ctx=Load())], keywords=[]), body=[For(target=Tuple(elts=[Name(id='x', ctx=Store()), Name(id='pixel', ctx=Store())], ctx=Store()), iter=Call(func=Name(id='enumerate', ctx=Load()), args=[Name(id='row', ctx=Load())], keywords=[]), body=[Assign(targets=[Subscript(value=Subscript(value=Name(id='boxed', ctx=Load()), slice=BinOp(left=Name(id='y', ctx=Load()), op=Add(), right=Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='offset_y'), ctx=Load())], keywords=[])), ctx=Load()), slice=BinOp(left=Name(id='x', ctx=Load()), op=Add(), right=Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='offset_x'), ctx=Load())], keywords=[])), ctx=Store())], value=ListComp(elt=Call(func=Name(id='max', ctx=Load()), args=[Constant(value=0.0), Call(func=Name(id='min', ctx=Load()), args=[Constant(value=1.0), BinOp(left=Call(func=Name(id='_finite', ctx=Load()), args=[Name(id='value', ctx=Load()), Constant(value='resized_rgb')], keywords=[]), op=Div(), right=Constant(value=255.0))], keywords=[])], keywords=[]), generators=[comprehension(target=Name(id='value', ctx=Store()), iter=Name(id='pixel', ctx=Load()), ifs=[], is_async=0)]))], orelse=[])], orelse=[]), Return(value=Name(id='boxed', ctx=Load()))], decorator_list=[], returns=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='float', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "normalized_hwc_to_chw",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            228,
+            246
+          ],
+          "ast_sha256": "b517d1ebc6fc833b262f7a864da9709a3012cb4ca8d342002c6dc22d7163588e",
+          "ast": "FunctionDef(name='normalized_hwc_to_chw', args=arguments(posonlyargs=[], args=[arg(arg='normalized_hwc', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='float', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='将已经处于 0..1 单位的 HWC RGB 转为 CHW，不再次除以 255。')), Assign(targets=[Name(id='height', ctx=Store())], value=Call(func=Name(id='len', ctx=Load()), args=[Name(id='normalized_hwc', ctx=Load())], keywords=[])), Assign(targets=[Name(id='width', ctx=Store())], value=IfExp(test=Name(id='height', ctx=Load()), body=Call(func=Name(id='len', ctx=Load()), args=[Subscript(value=Name(id='normalized_hwc', ctx=Load()), slice=Constant(value=0), ctx=Load())], keywords=[]), orelse=Constant(value=0))), If(test=BoolOp(op=Or(), values=[Compare(left=Name(id='height', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)]), Compare(left=Name(id='width', ctx=Load()), ops=[Eq()], comparators=[Constant(value=0)])]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='归一化 RGB 图像不能为空')], keywords=[]))], orelse=[]), Assign(targets=[Name(id='output', ctx=Store())], value=ListComp(elt=ListComp(elt=ListComp(elt=Constant(value=0.0), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='width', ctx=Load())], keywords=[]), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Name(id='height', ctx=Load())], keywords=[]), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='_', ctx=Store()), iter=Call(func=Name(id='range', ctx=Load()), args=[Constant(value=3)], keywords=[]), ifs=[], is_async=0)])), For(target=Tuple(elts=[Name(id='y', ctx=Store()), Name(id='row', ctx=Store())], ctx=Store()), iter=Call(func=Name(id='enumerate', ctx=Load()), args=[Name(id='normalized_hwc', ctx=Load())], keywords=[]), body=[If(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='row', ctx=Load())], keywords=[]), ops=[NotEq()], comparators=[Name(id='width', ctx=Load())]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='归一化 RGB 图像行宽不一致')], keywords=[]))], orelse=[]), For(target=Tuple(elts=[Name(id='x', ctx=Store()), Name(id='pixel', ctx=Store())], ctx=Store()), iter=Call(func=Name(id='enumerate', ctx=Load()), args=[Name(id='row', ctx=Load())], keywords=[]), body=[If(test=Compare(left=Call(func=Name(id='len', ctx=Load()), args=[Name(id='pixel', ctx=Load())], keywords=[]), ops=[NotEq()], comparators=[Constant(value=3)]), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='归一化 RGB 图像必须有三个通道')], keywords=[]))], orelse=[]), For(target=Tuple(elts=[Name(id='channel', ctx=Store()), Name(id='value', ctx=Store())], ctx=Store()), iter=Call(func=Name(id='enumerate', ctx=Load()), args=[Name(id='pixel', ctx=Load())], keywords=[]), body=[Assign(targets=[Name(id='value', ctx=Store())], value=Call(func=Name(id='_finite', ctx=Load()), args=[Name(id='value', ctx=Load()), Constant(value='normalized_rgb')], keywords=[])), If(test=UnaryOp(op=Not(), operand=Compare(left=Constant(value=0.0), ops=[LtE(), LtE()], comparators=[Name(id='value', ctx=Load()), Constant(value=1.0)])), body=[Raise(exc=Call(func=Name(id='ValueError', ctx=Load()), args=[Constant(value='归一化 RGB 像素必须位于 [0, 1]')], keywords=[]))], orelse=[]), Assign(targets=[Subscript(value=Subscript(value=Subscript(value=Name(id='output', ctx=Load()), slice=Name(id='channel', ctx=Load()), ctx=Load()), slice=Name(id='y', ctx=Load()), ctx=Load()), slice=Name(id='x', ctx=Load()), ctx=Store())], value=Name(id='value', ctx=Load()))], orelse=[])], orelse=[])], orelse=[]), Return(value=Name(id='output', ctx=Load()))], decorator_list=[], returns=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='float', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "quantize_input_chw",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            249,
+            254
+          ],
+          "ast_sha256": "d56eb6a0d3fe7ca799f6f951b9916237178556b3be7a21ef71cfb8430aee7333",
+          "ast": "FunctionDef(name='quantize_input_chw', args=arguments(posonlyargs=[], args=[arg(arg='normalized_chw', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='float', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='对已经归一化为 0..1 的 CHW 输入执行固定 scale=1/127 量化。')), Return(value=ListComp(elt=ListComp(elt=ListComp(elt=Call(func=Name(id='quantize_symmetric', ctx=Load()), args=[Name(id='value', ctx=Load()), Name(id='INPUT_SCALE', ctx=Load())], keywords=[]), generators=[comprehension(target=Name(id='value', ctx=Store()), iter=Name(id='row', ctx=Load()), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='row', ctx=Store()), iter=Name(id='channel', ctx=Load()), ifs=[], is_async=0)]), generators=[comprehension(target=Name(id='channel', ctx=Store()), iter=Name(id='normalized_chw', ctx=Load()), ifs=[], is_async=0)]))], decorator_list=[], returns=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='int', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "preprocess_rgb_uint8_to_chw_int8",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            257,
+            262
+          ],
+          "ast_sha256": "b28119da1f43ea05d309e3509e42f54e39652d3de71a380e98ad34de2457ebec",
+          "ast": "FunctionDef(name='preprocess_rgb_uint8_to_chw_int8', args=arguments(posonlyargs=[], args=[arg(arg='rgb', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='int', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load())), arg(arg='dst_width', annotation=Name(id='int', ctx=Load())), arg(arg='dst_height', annotation=Name(id='int', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='执行原始 8-bit RGB -> letterbox -> CHW/255 -> 固定输入 INT8 的完整路径。')), Assign(targets=[Name(id='normalized_hwc', ctx=Store())], value=Call(func=Name(id='letterbox_rgb_normalized', ctx=Load()), args=[Name(id='rgb', ctx=Load()), Name(id='dst_width', ctx=Load()), Name(id='dst_height', ctx=Load())], keywords=[])), Return(value=Call(func=Name(id='quantize_input_chw', ctx=Load()), args=[Call(func=Name(id='normalized_hwc_to_chw', ctx=Load()), args=[Name(id='normalized_hwc', ctx=Load())], keywords=[])], keywords=[]))], decorator_list=[], returns=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Subscript(value=Name(id='list', ctx=Load()), slice=Name(id='int', ctx=Load()), ctx=Load()), ctx=Load()), ctx=Load()), type_params=[])"
+        }
+      ]
+    },
+    {
+      "label": "quantizer_helpers",
+      "source_path": "D:\\FPGA_Competition\\verification\\s1_t02_d2_int8_forward.py",
+      "nodes": [
+        {
+          "name": null,
+          "node_type": "Assign",
+          "source_lines": [
+            30,
+            30
+          ],
+          "ast_sha256": "b84dc1dbf49e297ffadea0825045464e019171f7b5d52163603a1a12057aeb16",
+          "ast": "Assign(targets=[Name(id='INT8_MIN', ctx=Store())], value=UnaryOp(op=USub(), operand=Constant(value=127)))"
+        },
+        {
+          "name": null,
+          "node_type": "Assign",
+          "source_lines": [
+            31,
+            31
+          ],
+          "ast_sha256": "d1265c112e3ecd796058725244d7a5af4ec0d0411807ae9518589c6ee08a2114",
+          "ast": "Assign(targets=[Name(id='INT8_MAX', ctx=Store())], value=Constant(value=127))"
+        },
+        {
+          "name": null,
+          "node_type": "Assign",
+          "source_lines": [
+            36,
+            36
+          ],
+          "ast_sha256": "f74e81a69e5dd02cbb6c18ec843912ee7d884de56eebf87a975331cd9c67c2c2",
+          "ast": "Assign(targets=[Name(id='INPUT_SCALE', ctx=Store())], value=BinOp(left=Constant(value=1.0), op=Div(), right=Constant(value=127.0)))"
+        },
+        {
+          "name": "round_away_array",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            130,
+            135
+          ],
+          "ast_sha256": "25cc5b4089fa6ef410c93d1d4536b71fae7334ab9f90a24145dbc6880e6aa5aa",
+          "ast": "FunctionDef(name='round_away_array', args=arguments(posonlyargs=[], args=[arg(arg='values', annotation=Attribute(value=Name(id='np', ctx=Load()), attr='ndarray', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='对数组执行正负对称、半数远离零点的舍入。')), Assign(targets=[Name(id='values', ctx=Store())], value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='asarray', ctx=Load()), args=[Name(id='values', ctx=Load())], keywords=[keyword(arg='dtype', value=Attribute(value=Name(id='np', ctx=Load()), attr='float64', ctx=Load()))])), Assign(targets=[Name(id='magnitudes', ctx=Store())], value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='floor', ctx=Load()), args=[BinOp(left=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='abs', ctx=Load()), args=[Name(id='values', ctx=Load())], keywords=[]), op=Add(), right=Constant(value=0.5))], keywords=[])), Return(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='where', ctx=Load()), args=[Compare(left=Name(id='values', ctx=Load()), ops=[GtE()], comparators=[Constant(value=0.0)]), Name(id='magnitudes', ctx=Load()), UnaryOp(op=USub(), operand=Name(id='magnitudes', ctx=Load()))], keywords=[]), attr='astype', ctx=Load()), args=[Attribute(value=Name(id='np', ctx=Load()), attr='int64', ctx=Load())], keywords=[]))], decorator_list=[], returns=Attribute(value=Name(id='np', ctx=Load()), attr='ndarray', ctx=Load()), type_params=[])"
+        },
+        {
+          "name": "saturate_array",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            138,
+            141
+          ],
+          "ast_sha256": "7ba3d8857d446f3de57e0828c7d0c1ae6ae01331acc5c7bb17e2ee67cccdcfcc",
+          "ast": "FunctionDef(name='saturate_array', args=arguments(posonlyargs=[], args=[arg(arg='values', annotation=Attribute(value=Name(id='np', ctx=Load()), attr='ndarray', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Constant(value='把数组饱和到项目规定的 [-127,127]。')), Return(value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='clip', ctx=Load()), args=[Name(id='values', ctx=Load()), Name(id='INT8_MIN', ctx=Load()), Name(id='INT8_MAX', ctx=Load())], keywords=[]), attr='astype', ctx=Load()), args=[Attribute(value=Name(id='np', ctx=Load()), attr='int8', ctx=Load())], keywords=[]))], decorator_list=[], returns=Attribute(value=Name(id='np', ctx=Load()), attr='ndarray', ctx=Load()), type_params=[])"
+        }
+      ]
+    },
+    {
+      "label": "numpy_generator",
+      "source_path": "D:\\FPGA_Competition\\verification\\s2a_model_delivery.py",
+      "nodes": [
+        {
+          "name": "DeliveryError",
+          "node_type": "ClassDef",
+          "source_lines": [
+            61,
+            62
+          ],
+          "ast_sha256": "43ba2553d680ec196d48eb2eefe1cb3a474f484bbb8091ce0adccd494bfdcbd1",
+          "ast": "ClassDef(name='DeliveryError', bases=[Name(id='ValueError', ctx=Load())], keywords=[], body=[Expr(value=Constant(value='表示模型交付绑定、cfg 或样本清单错误。'))], decorator_list=[], type_params=[])"
+        },
+        {
+          "name": "preprocess_rgb_chw_int8",
+          "node_type": "FunctionDef",
+          "source_lines": [
+            91,
+            138
+          ],
+          "ast_sha256": "265fd8b595ad4c3e8092335847848fb23dac481361e6ca2347cc2e78f0929524",
+          "ast": "FunctionDef(name='preprocess_rgb_chw_int8', args=arguments(posonlyargs=[], args=[arg(arg='rgb', annotation=Attribute(value=Name(id='np', ctx=Load()), attr='ndarray', ctx=Load())), arg(arg='dst_width', annotation=Name(id='int', ctx=Load())), arg(arg='dst_height', annotation=Name(id='int', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[Constant(value=416), Constant(value=416)]), body=[Expr(value=Constant(value='向量化复现 D2 RGB letterbox、CHW/255 和对称 INT8 量化。')), If(test=BoolOp(op=Or(), values=[Compare(left=Attribute(value=Name(id='rgb', ctx=Load()), attr='ndim', ctx=Load()), ops=[NotEq()], comparators=[Constant(value=3)]), Compare(left=Subscript(value=Attribute(value=Name(id='rgb', ctx=Load()), attr='shape', ctx=Load()), slice=Constant(value=2), ctx=Load()), ops=[NotEq()], comparators=[Constant(value=3)]), Compare(left=Attribute(value=Name(id='rgb', ctx=Load()), attr='dtype', ctx=Load()), ops=[NotEq()], comparators=[Attribute(value=Name(id='np', ctx=Load()), attr='uint8', ctx=Load())])]), body=[Raise(exc=Call(func=Name(id='DeliveryError', ctx=Load()), args=[Constant(value='预处理输入必须为 HWC RGB uint8')], keywords=[]))], orelse=[]), Assign(targets=[Tuple(elts=[Name(id='src_height', ctx=Store()), Name(id='src_width', ctx=Store())], ctx=Store())], value=Subscript(value=Attribute(value=Name(id='rgb', ctx=Load()), attr='shape', ctx=Load()), slice=Slice(upper=Constant(value=2)), ctx=Load())), Assign(targets=[Name(id='geometry', ctx=Store())], value=Call(func=Name(id='letterbox_geometry', ctx=Load()), args=[Name(id='src_width', ctx=Load()), Name(id='src_height', ctx=Load()), Name(id='dst_width', ctx=Load()), Name(id='dst_height', ctx=Load())], keywords=[])), Assign(targets=[Name(id='new_width', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='new_width'), ctx=Load())], keywords=[])), Assign(targets=[Name(id='new_height', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='new_height'), ctx=Load())], keywords=[])), Assign(targets=[Name(id='offset_x', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='offset_x'), ctx=Load())], keywords=[])), Assign(targets=[Name(id='offset_y', ctx=Store())], value=Call(func=Name(id='int', ctx=Load()), args=[Subscript(value=Name(id='geometry', ctx=Load()), slice=Constant(value='offset_y'), ctx=Load())], keywords=[])), Assign(targets=[Name(id='source', ctx=Store())], value=Call(func=Attribute(value=Name(id='rgb', ctx=Load()), attr='astype', ctx=Load()), args=[Attribute(value=Name(id='np', ctx=Load()), attr='float64', ctx=Load())], keywords=[])), If(test=Compare(left=Tuple(elts=[Name(id='src_width', ctx=Load()), Name(id='src_height', ctx=Load())], ctx=Load()), ops=[Eq()], comparators=[Tuple(elts=[Name(id='new_width', ctx=Load()), Name(id='new_height', ctx=Load())], ctx=Load())]), body=[Assign(targets=[Name(id='resized', ctx=Store())], value=Name(id='source', ctx=Load()))], orelse=[Assign(targets=[Name(id='x_scale', ctx=Store())], value=IfExp(test=Compare(left=Name(id='new_width', ctx=Load()), ops=[NotEq()], comparators=[Constant(value=1)]), body=BinOp(left=BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1)), op=Div(), right=BinOp(left=Name(id='new_width', ctx=Load()), op=Sub(), right=Constant(value=1))), orelse=Constant(value=0.0))), Assign(targets=[Name(id='y_scale', ctx=Store())], value=IfExp(test=Compare(left=Name(id='new_height', ctx=Load()), ops=[NotEq()], comparators=[Constant(value=1)]), body=BinOp(left=BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1)), op=Div(), right=BinOp(left=Name(id='new_height', ctx=Load()), op=Sub(), right=Constant(value=1))), orelse=Constant(value=0.0))), Assign(targets=[Name(id='x_positions', ctx=Store())], value=BinOp(left=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='arange', ctx=Load()), args=[Name(id='new_width', ctx=Load())], keywords=[keyword(arg='dtype', value=Attribute(value=Name(id='np', ctx=Load()), attr='float64', ctx=Load()))]), op=Mult(), right=Name(id='x_scale', ctx=Load()))), Assign(targets=[Name(id='y_positions', ctx=Store())], value=BinOp(left=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='arange', ctx=Load()), args=[Name(id='new_height', ctx=Load())], keywords=[keyword(arg='dtype', value=Attribute(value=Name(id='np', ctx=Load()), attr='float64', ctx=Load()))]), op=Mult(), right=Name(id='y_scale', ctx=Load()))), Assign(targets=[Name(id='x0', ctx=Store())], value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='floor', ctx=Load()), args=[Name(id='x_positions', ctx=Load())], keywords=[]), attr='astype', ctx=Load()), args=[Attribute(value=Name(id='np', ctx=Load()), attr='int64', ctx=Load())], keywords=[])), Assign(targets=[Name(id='y0', ctx=Store())], value=Call(func=Attribute(value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='floor', ctx=Load()), args=[Name(id='y_positions', ctx=Load())], keywords=[]), attr='astype', ctx=Load()), args=[Attribute(value=Name(id='np', ctx=Load()), attr='int64', ctx=Load())], keywords=[])), Assign(targets=[Name(id='x1', ctx=Store())], value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='minimum', ctx=Load()), args=[BinOp(left=Name(id='x0', ctx=Load()), op=Add(), right=Constant(value=1)), BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1))], keywords=[])), Assign(targets=[Name(id='y1', ctx=Store())], value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='minimum', ctx=Load()), args=[BinOp(left=Name(id='y0', ctx=Load()), op=Add(), right=Constant(value=1)), BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1))], keywords=[])), If(test=Compare(left=Name(id='new_width', ctx=Load()), ops=[Eq()], comparators=[Constant(value=1)]), body=[Assign(targets=[Subscript(value=Name(id='x0', ctx=Load()), slice=Constant(value=0), ctx=Store()), Subscript(value=Name(id='x1', ctx=Load()), slice=Constant(value=0), ctx=Store())], value=BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1)))], orelse=[Assign(targets=[Subscript(value=Name(id='x0', ctx=Load()), slice=UnaryOp(op=USub(), operand=Constant(value=1)), ctx=Store()), Subscript(value=Name(id='x1', ctx=Load()), slice=UnaryOp(op=USub(), operand=Constant(value=1)), ctx=Store())], value=BinOp(left=Name(id='src_width', ctx=Load()), op=Sub(), right=Constant(value=1)))]), If(test=Compare(left=Name(id='new_height', ctx=Load()), ops=[Eq()], comparators=[Constant(value=1)]), body=[Assign(targets=[Subscript(value=Name(id='y0', ctx=Load()), slice=Constant(value=0), ctx=Store()), Subscript(value=Name(id='y1', ctx=Load()), slice=Constant(value=0), ctx=Store())], value=BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1)))], orelse=[Assign(targets=[Subscript(value=Name(id='y0', ctx=Load()), slice=UnaryOp(op=USub(), operand=Constant(value=1)), ctx=Store()), Subscript(value=Name(id='y1', ctx=Load()), slice=UnaryOp(op=USub(), operand=Constant(value=1)), ctx=Store())], value=BinOp(left=Name(id='src_height', ctx=Load()), op=Sub(), right=Constant(value=1)))]), Assign(targets=[Name(id='dx', ctx=Store())], value=Call(func=Attribute(value=BinOp(left=Name(id='x_positions', ctx=Load()), op=Sub(), right=Name(id='x0', ctx=Load())), attr='reshape', ctx=Load()), args=[Constant(value=1), Name(id='new_width', ctx=Load()), Constant(value=1)], keywords=[])), Assign(targets=[Name(id='dy', ctx=Store())], value=Call(func=Attribute(value=BinOp(left=Name(id='y_positions', ctx=Load()), op=Sub(), right=Name(id='y0', ctx=Load())), attr='reshape', ctx=Load()), args=[Name(id='new_height', ctx=Load()), Constant(value=1), Constant(value=1)], keywords=[])), Assign(targets=[Subscript(value=Name(id='dx', ctx=Load()), slice=Tuple(elts=[Slice(), UnaryOp(op=USub(), operand=Constant(value=1)), Slice()], ctx=Load()), ctx=Store())], value=Constant(value=0.0)), Assign(targets=[Subscript(value=Name(id='dy', ctx=Load()), slice=Tuple(elts=[UnaryOp(op=USub(), operand=Constant(value=1)), Slice(), Slice()], ctx=Load()), ctx=Store())], value=Constant(value=0.0)), Assign(targets=[Name(id='top', ctx=Store())], value=BinOp(left=BinOp(left=Subscript(value=Name(id='source', ctx=Load()), slice=Tuple(elts=[Subscript(value=Name(id='y0', ctx=Load()), slice=Tuple(elts=[Slice(), Constant(value=None)], ctx=Load()), ctx=Load()), Subscript(value=Name(id='x0', ctx=Load()), slice=Tuple(elts=[Constant(value=None), Slice()], ctx=Load()), ctx=Load()), Slice()], ctx=Load()), ctx=Load()), op=Mult(), right=BinOp(left=Constant(value=1.0), op=Sub(), right=Name(id='dx', ctx=Load()))), op=Add(), right=BinOp(left=Subscript(value=Name(id='source', ctx=Load()), slice=Tuple(elts=[Subscript(value=Name(id='y0', ctx=Load()), slice=Tuple(elts=[Slice(), Constant(value=None)], ctx=Load()), ctx=Load()), Subscript(value=Name(id='x1', ctx=Load()), slice=Tuple(elts=[Constant(value=None), Slice()], ctx=Load()), ctx=Load()), Slice()], ctx=Load()), ctx=Load()), op=Mult(), right=Name(id='dx', ctx=Load())))), Assign(targets=[Name(id='bottom', ctx=Store())], value=BinOp(left=BinOp(left=Subscript(value=Name(id='source', ctx=Load()), slice=Tuple(elts=[Subscript(value=Name(id='y1', ctx=Load()), slice=Tuple(elts=[Slice(), Constant(value=None)], ctx=Load()), ctx=Load()), Subscript(value=Name(id='x0', ctx=Load()), slice=Tuple(elts=[Constant(value=None), Slice()], ctx=Load()), ctx=Load()), Slice()], ctx=Load()), ctx=Load()), op=Mult(), right=BinOp(left=Constant(value=1.0), op=Sub(), right=Name(id='dx', ctx=Load()))), op=Add(), right=BinOp(left=Subscript(value=Name(id='source', ctx=Load()), slice=Tuple(elts=[Subscript(value=Name(id='y1', ctx=Load()), slice=Tuple(elts=[Slice(), Constant(value=None)], ctx=Load()), ctx=Load()), Subscript(value=Name(id='x1', ctx=Load()), slice=Tuple(elts=[Constant(value=None), Slice()], ctx=Load()), ctx=Load()), Slice()], ctx=Load()), ctx=Load()), op=Mult(), right=Name(id='dx', ctx=Load())))), Assign(targets=[Name(id='resized', ctx=Store())], value=BinOp(left=BinOp(left=Name(id='top', ctx=Load()), op=Mult(), right=BinOp(left=Constant(value=1.0), op=Sub(), right=Name(id='dy', ctx=Load()))), op=Add(), right=BinOp(left=Name(id='bottom', ctx=Load()), op=Mult(), right=Name(id='dy', ctx=Load()))))]), Assign(targets=[Name(id='boxed', ctx=Store())], value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='full', ctx=Load()), args=[Tuple(elts=[Name(id='dst_height', ctx=Load()), Name(id='dst_width', ctx=Load()), Constant(value=3)], ctx=Load()), Constant(value=0.5)], keywords=[keyword(arg='dtype', value=Attribute(value=Name(id='np', ctx=Load()), attr='float64', ctx=Load()))])), Assign(targets=[Name(id='normalized', ctx=Store())], value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='clip', ctx=Load()), args=[BinOp(left=Name(id='resized', ctx=Load()), op=Div(), right=Constant(value=255.0)), Constant(value=0.0), Constant(value=1.0)], keywords=[])), Assign(targets=[Subscript(value=Name(id='boxed', ctx=Load()), slice=Tuple(elts=[Slice(lower=Name(id='offset_y', ctx=Load()), upper=BinOp(left=Name(id='offset_y', ctx=Load()), op=Add(), right=Name(id='new_height', ctx=Load()))), Slice(lower=Name(id='offset_x', ctx=Load()), upper=BinOp(left=Name(id='offset_x', ctx=Load()), op=Add(), right=Name(id='new_width', ctx=Load()))), Slice()], ctx=Load()), ctx=Store())], value=Name(id='normalized', ctx=Load())), Assign(targets=[Name(id='chw', ctx=Store())], value=Call(func=Attribute(value=Name(id='boxed', ctx=Load()), attr='transpose', ctx=Load()), args=[Constant(value=2), Constant(value=0), Constant(value=1)], keywords=[])), Assign(targets=[Name(id='quantized', ctx=Store())], value=Call(func=Name(id='saturate_array', ctx=Load()), args=[Call(func=Name(id='round_away_array', ctx=Load()), args=[BinOp(left=Name(id='chw', ctx=Load()), op=Div(), right=Name(id='INPUT_SCALE', ctx=Load()))], keywords=[])], keywords=[])), If(test=Compare(left=Attribute(value=Name(id='quantized', ctx=Load()), attr='shape', ctx=Load()), ops=[NotEq()], comparators=[Tuple(elts=[Constant(value=3), Name(id='dst_height', ctx=Load()), Name(id='dst_width', ctx=Load())], ctx=Load())]), body=[Raise(exc=Call(func=Name(id='DeliveryError', ctx=Load()), args=[Constant(value='D2 预处理输出形状错误')], keywords=[]))], orelse=[]), If(test=BoolOp(op=And(), values=[Attribute(value=Name(id='quantized', ctx=Load()), attr='size', ctx=Load()), BoolOp(op=Or(), values=[Compare(left=Call(func=Name(id='int', ctx=Load()), args=[Call(func=Attribute(value=Name(id='quantized', ctx=Load()), attr='min', ctx=Load()), args=[], keywords=[])], keywords=[]), ops=[Lt()], comparators=[Name(id='INT8_MIN', ctx=Load())]), Compare(left=Call(func=Name(id='int', ctx=Load()), args=[Call(func=Attribute(value=Name(id='quantized', ctx=Load()), attr='max', ctx=Load()), args=[], keywords=[])], keywords=[]), ops=[Gt()], comparators=[Name(id='INT8_MAX', ctx=Load())])])]), body=[Raise(exc=Call(func=Name(id='DeliveryError', ctx=Load()), args=[Constant(value='D2 输入量化超出对称 INT8 范围')], keywords=[]))], orelse=[]), Return(value=Call(func=Attribute(value=Name(id='np', ctx=Load()), attr='ascontiguousarray', ctx=Load()), args=[Name(id='quantized', ctx=Load())], keywords=[]))], decorator_list=[], returns=Attribute(value=Name(id='np', ctx=Load()), attr='ndarray', ctx=Load()), type_params=[])"
+        }
+      ]
+    }
+  ],
+  "top_level_module_execution": false,
+  "algorithm_rewritten": false,
+  "execution_limits": {
+    "only_listed_ast_nodes_compiled": true,
+    "no_model_or_image_files_opened": true,
+    "no_network_access": true,
+    "max_runtime_seconds": 60.0,
+    "max_memory_bytes": 1073741824
+  },
+  "runtime": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "numpy": "2.3.5"
+  }
+}

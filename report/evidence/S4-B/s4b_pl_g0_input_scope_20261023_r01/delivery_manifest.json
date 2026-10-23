@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "stage": "stage4",
+  "task_id": "S4-B",
+  "run_id": "s4b_pl_g0_input_scope_20261023_r01",
+  "source_commit": "0d3ad04be26efeb366ecf20487848a613a0a63fe",
+  "evidence_dir": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01",
+  "interfaces": [
+    {
+      "name": "Wong批准的D2数值规则",
+      "version": "S1-T02-D2",
+      "frozen": true,
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/independent_material_review.json",
+      "sha256": "89a79a9154771969fbf5f68273792b835c5d52b3680c35a20e3f6aad1c73e94d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json",
+      "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968",
+      "role": "result"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "f2fdd5a1e18a241ecc835aafe41396d64146e1da64e151bbe4a6bfd419ac7a20",
+      "role": "source"
+    },
+    {
+      "path": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
+      "role": "input"
+    },
+    {
+      "path": "verification/s1_t02_d2_numeric_reference.py",
+      "sha256": "6a3453d5bd60ab122c236667fbc9bcb5aa161d14b76bc7115b602743d5cbe54f",
+      "role": "input"
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "read_only_capacity_metadata_recheck",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -",
+      "exit_code": 0,
+      "reason": "总控实际stdin程序只读已绑定固定样本JSON，按width*height*3统计；公式、逐样本超限列表与D2原字节身份见input_scope_audit.json。"
+    },
+    {
+      "name": "wong_architecture_decision",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "新PL原帧路线重大架构问题已提请Wong，尚未答复；本包不批准地址或容量。"
+    },
+    {
+      "name": "actual_raw_pl_hardware",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "无新PL实现或板测；本包只含离线输入预算/所测合成参考桥接。"
+    }
+  ],
+  "tool_versions": {
+    "capacity_recheck_python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "synthetic_bridge_python": "3.12.14",
+    "synthetic_bridge_numpy": "2.3.5"
+  },
+  "limitations": [
+    "仅待决策材料事实及所测合成向量；无109帧逐值重生成、无新PL/4D通过。",
+    "D2原字节身份分别保存，只读换行比较不等于改写源或替换冻结哈希。",
+    "原实验误写落点已完整保全并精确恢复，历史命令路径不是后续写入入口。",
+    "架构/原帧区/尺寸stride边界/增量资源与性能仍待G0核定。"
+  ]
+}

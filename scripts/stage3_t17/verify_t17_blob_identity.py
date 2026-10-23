@@ -5,11 +5,17 @@
     证明证据包里 `hashes_sha256.txt` 记录的字节确实等于提交内字节；第三方可复跑。
 
 用法：
-    python -B scripts/stage3_t17/verify_t17_blob_identity.py [--commit <rev>] [--json-out f.json]
+    python -B scripts/stage3_t17/verify_t17_blob_identity.py [--commit <rev>] [--json-out f.json] \
+        [--scope <dir>]... [--certify <被认证的 run 目录>]...
 默认范围：`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**`、`scripts/stage3_t17/**`
 的文本文件（.json/.md/.txt/.py/.sh/.tcl）。
 
-退出码：0 全部一致；1 存在不一致（列出路径）；2 参数/环境错误。
+范围断言（评审 B-2，**fail-closed**）：每个 `--certify <dir>` 必须被 `--scope` 覆盖（同路径或其后代）；
+否则**拒绝给出结论**并以退出码 4 结束，明确打印 `SCOPE_ASSERTION_FAILED` 与未被覆盖的目录。
+理由：曾出现「默认范围只含 S3-T17，却对外声称覆盖了本次窗口证据」的口径错误；断言使该错误无法静默通过。
+每次运行都会打印生效范围与真实退出码（`SCOPE=...`、`CERTIFY=...`、`EXIT_CODE=...`）。
+
+退出码：0 全部一致；1 存在不一致（列出路径）；2 参数/环境错误；3 自测失败；4 范围断言失败（fail-closed）。
 边界：只读；不写仓库文件（--json-out 只写调用方指定的路径）；结论不代表 G0/G4/G5 或独立审查。
 """
 from __future__ import annotations
@@ -77,6 +83,30 @@ def _make_old_form_mutant(script: str, dest: str) -> str:
     return dest
 
 
+def _scope_covers(scopes, path: str) -> str | None:
+    """返回覆盖 path 的范围（同路径或祖先），无则 None。用于 fail-closed 范围断言。"""
+    p = path.replace("\\", "/").strip("/")
+    for scope in scopes:
+        s = scope.replace("\\", "/").strip("/")
+        if p == s or p.startswith(s + "/"):
+            return s
+    return None
+
+
+def _run_verify_args(script: str, repo: str, extra: list, json_out: str | None = None):
+    """以子进程运行本工具并返回 (CompletedProcess, json_written, stdout_text)。"""
+    if json_out and os.path.exists(json_out):
+        os.remove(json_out)
+    argv = [sys.executable, "-B", script, "--repo-root", repo, "--commit", "HEAD"] + list(extra)
+    if json_out:
+        argv += ["--json-out", json_out]
+    env = dict(os.environ)
+    env.pop("PYTHONUTF8", None)
+    env["PYTHONIOENCODING"] = "gbk"
+    cp = subprocess.run(argv, capture_output=True, env=env)
+    return cp, (os.path.isfile(json_out) if json_out else False), cp.stdout.decode("utf-8", "replace")
+
+
 def run_selftest(fixture_dir: str) -> dict:
     """CLI 级回归（评审 Q-5）：本工具**没有**第三重防护（打印在写 JSON 之前），故
     ① 正规路径在 GBK + 管道下必须 exit 0 且写 JSON；② 「旧形态」突变体必须被检出（非 0 退出或缺 JSON）。"""
@@ -91,6 +121,16 @@ def run_selftest(fixture_dir: str) -> dict:
         subprocess.run(["git", "-C", repo, "add", "-A"], capture_output=True)
         subprocess.run(["git", "-C", repo, "-c", "user.email=t17@local", "-c", "user.name=t17",
                         "commit", "-q", "-m", "selftest probe"], capture_output=True)
+    # 范围断言自测夹具（评审 B-2）：一个位于「自定义范围」下的 run 目录
+    runfix_rel = "report/evidence/S3-T05/runfix_selftest_r01"
+    runfix = os.path.join(repo, runfix_rel.replace("/", os.sep))
+    os.makedirs(runfix, exist_ok=True)
+    with open(os.path.join(runfix, "note.md"), "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("runfix selftest run dir\n")
+    subprocess.run(["git", "-C", repo, "add", "-A"], capture_output=True)
+    subprocess.run(["git", "-C", repo, "-c", "user.email=t17@local", "-c", "user.name=t17",
+                    "commit", "-q", "-m", "selftest run dir"], capture_output=True)
+
     checks = []
 
     good_json = os.path.join(fixture_dir, "cli_verify_gbk.json")
@@ -119,6 +159,36 @@ def run_selftest(fixture_dir: str) -> dict:
         "mutation_applied": mutation_applied,
         "matched": mutation_applied and detected,
         "stderr_tail": cp2.stderr[-200:].decode("utf-8", "replace"),
+    })
+
+    # 评审 B-2 的 must-fail 回归：**范围不覆盖被认证 run 目录** ⇒ 必须 fail-closed（退出码 4，且不得给 PASS）
+    bad_json = os.path.join(fixture_dir, "cli_scope_uncovered.json")
+    cp3, json_ok3, out3 = _run_verify_args(
+        os.path.abspath(__file__), repo,
+        ["--scope", "scripts/stage3_t17", "--certify", runfix_rel], bad_json)
+    checks.append({
+        "name": "must_fail_scope_not_covering_certified_dir",
+        "expectation": "退出码 4 且 stdout 不含 BLOB_BYTE_IDENTITY_OK（fail-closed 拒绝给结论）",
+        "actual_exit_code": cp3.returncode,
+        "json_written": json_ok3,
+        "pass_verdict_in_stdout": "BLOB_BYTE_IDENTITY_OK" in out3,
+        "matched": cp3.returncode == 4 and ("BLOB_BYTE_IDENTITY_OK" not in out3),
+        "stdout_tail": out3[-220:],
+    })
+
+    # 正向对照：范围**覆盖**该 run 目录 ⇒ exit 0 且给出 PASS
+    ok_json = os.path.join(fixture_dir, "cli_scope_covered.json")
+    cp4, json_ok4, out4 = _run_verify_args(
+        os.path.abspath(__file__), repo,
+        ["--scope", "report/evidence/S3-T05", "--certify", runfix_rel], ok_json)
+    checks.append({
+        "name": "scope_covering_certified_dir_passes",
+        "expectation": "退出码 0 且 stdout 含 BLOB_BYTE_IDENTITY_OK",
+        "actual_exit_code": cp4.returncode,
+        "json_written": json_ok4,
+        "pass_verdict_in_stdout": "BLOB_BYTE_IDENTITY_OK" in out4,
+        "matched": cp4.returncode == 0 and ("BLOB_BYTE_IDENTITY_OK" in out4),
+        "stdout_tail": out4[-220:],
     })
 
     ok = all(item["matched"] for item in checks)
@@ -153,6 +223,9 @@ def main(argv):
     ap.add_argument("--exclude", action="append", default=[],
                     help="排除的自证产物（仓库相对路径，可重复）。用于 F/G 两段式："
                          "对内容提交 F 核验时排除仅在自证提交 G 中新增的本工具与自证输出。")
+    ap.add_argument("--certify", action="append", default=[],
+                    help="必须被 --scope 覆盖的目录（如本次被认证的 run 目录，可重复）；"
+                         "未被覆盖 ⇒ 退出码 4 且拒绝给结论（fail-closed，评审 B-2）")
     ap.add_argument("--json-out", default=None)
     ap.add_argument("--selftest", action="store_true",
                     help="CLI 级回归（评审 Q-5）：GBK+管道下必须 exit 0 且写 JSON，并能检出『旧形态』突变体")
@@ -186,6 +259,35 @@ def main(argv):
         return 2
     scopes = tuple(args.scope) or DEFAULT_SCOPES
     excluded = {item.replace("\\", "/") for item in args.exclude}
+
+    # 评审 B-2：fail-closed 范围断言——声明的范围必须覆盖每一个被认证目录，否则拒绝给结论。
+    certified = [item.replace("\\", "/").strip("/") for item in args.certify]
+    print(f"SCOPE={','.join(scopes)}")
+    if certified:
+        print(f"CERTIFY={','.join(certified)}")
+    uncovered = [item for item in certified if _scope_covers(scopes, item) is None]
+    if uncovered:
+        print("SCOPE_ASSERTION_FAILED：声明范围未覆盖被认证目录 ⇒ 拒绝给出结论（fail-closed）")
+        for item in uncovered:
+            print(f"  UNCOVERED {item}")
+        result = {
+            "created_utc8": datetime.now(UTC8).strftime("%Y-%m-%dT%H:%M:%S+08:00"),
+            "repo_root": repo,
+            "commit": rev,
+            "scopes": list(scopes),
+            "certified_dirs": certified,
+            "uncovered_dirs": uncovered,
+            "files_checked": 0,
+            "verdict": "SCOPE_ASSERTION_FAILED",
+            "note": "范围断言失败：本次运行不得被引用为任何范围的自证通过（评审 B-2）。",
+        }
+        if args.json_out:
+            os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)
+            with open(args.json_out, "w", encoding="utf-8", newline="\n") as fh:
+                json.dump(result, fh, ensure_ascii=False, indent=2)
+            print(f"JSON_OUT={args.json_out}")
+        print("EXIT_CODE=4")
+        return 4
 
     # 评审 N-4：本仓库 core.autocrlf=true 会让 clone 的工作区变 CRLF，使按 LF 记录的哈希全部不匹配。
     # 本工具只比较「提交 blob vs 工作区」；若工作区是 CRLF 检出，请改用 git -c core.autocrlf=false clone。
@@ -230,6 +332,7 @@ def main(argv):
         "core_autocrlf": autocrlf_value,
         "commit": rev,
         "scopes": list(scopes),
+        "certified_dirs": certified,
         "excluded_selfproof_artifacts": sorted(excluded),
         "files_checked": len(files),
         "mismatch_count": len(mismatches),
@@ -237,7 +340,9 @@ def main(argv):
         "not_in_commit": missing,
         "crlf_files_in_worktree": crlf,
         "verdict": "BLOB_BYTE_IDENTITY_OK" if not mismatches and not missing else "BLOB_BYTE_IDENTITY_MISMATCH",
-        "note": "逐文件比较 git blob 字节与工作区字节；本仓库 autocrlf=true，故哈希一律以 blob（LF）为准。",
+        "note": "逐文件比较 git blob 字节与工作区字节。本仓库 core.autocrlf=true：**未被 `-text` 覆盖**的范围里"
+                "git 会把 CRLF 归一为 LF，故只有 `-text` 覆盖（如 report/evidence/S3-T05/**）的文件才保证"
+                "「提交字节 == 原始字节」；对未覆盖范围，本工具的不一致是口径差而非证据损坏。",
     }
     print(f"提交={rev} 检查文件={len(files)} 不一致={len(mismatches)} 提交内缺失={len(missing)} 工作区含 CRLF={len(crlf)}")
     for item in mismatches:
@@ -250,7 +355,9 @@ def main(argv):
         with open(args.json_out, "w", encoding="utf-8", newline="\n") as fh:
             json.dump(result, fh, ensure_ascii=False, indent=2)
         print(f"JSON_OUT={args.json_out}")
-    return 0 if result["verdict"] == "BLOB_BYTE_IDENTITY_OK" else 1
+    code = 0 if result["verdict"] == "BLOB_BYTE_IDENTITY_OK" else 1
+    print(f"EXIT_CODE={code}")
+    return code
 
 
 if __name__ == "__main__":

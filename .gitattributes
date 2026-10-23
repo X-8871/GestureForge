@@ -159,3 +159,7 @@ verification/test_s2a_t65_layer0_golden.py -text
 
 # S2A-T63 动态 ROM 夹具与证据保持 SHA-256 绑定的原始字节
 report/evidence/S2A-T63/** -text
+# 阶段3 板级窗口证据（S3-T05）保留原始字节：证据内含 cmd/xsdb 产生的 CRLF 原貌，
+# autocrlf 归一会使「提交字节 ≠ 原始字节」，导致 SHA-256 绑定失配（评审 B-2）。
+report/evidence/S3-T05/** -text
+scripts/stage3_t05/** -text

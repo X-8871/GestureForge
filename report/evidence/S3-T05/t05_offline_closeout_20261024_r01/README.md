@@ -5,7 +5,7 @@
 
 | 文件 | 内容 | 状态 |
 |---|---|---|
-| `timing_io_applicability_report.md` | TIMING-17/36 与 I/O delay 的**适用性报告**（时钟表复算、逐项三态判定、`38-249` 归因假设与确认路径、资料可得性） | C1/C3 关闭（就"已声明"而言）；**C2/I1/I2/I3 OPEN**（约束缺口）；`38-249` 归因待证 |
+| `timing_io_applicability_report.md` | TIMING-17/36 与 I/O delay 的**适用性报告**（时钟表复算、逐项三态判定、`38-249` 归因（**已由部署 DCP 只读重跑确认**）、资料可得性） | C1/C3 关闭（就"已声明"而言）；**C2/I1/I2/I3 OPEN**（约束缺口）；`38-249` **已确认** |
 | `task11_netlist_crosscheck.md` | task-11 **有界网表交叉核对**：补丁 → 部署 XSA → OOC 综合后网表（`7b8f457c…`，含 `cmos_hblank_low_cnt` 160 处） | 有界部分**关闭**；阈值数值与 RTL↔网表等价性 **NOT_RUN** |
 | `vdma_fsz_more_analysis.md` | `FSZ_MORE` 根因分析材料（已证事实 F1–F6、官方手册可得性、候选假设 H1–H4 与核对方法、关闭条件） | **材料完成**；根因**未定**（不猜、不关闭） |
 

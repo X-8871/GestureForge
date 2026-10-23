@@ -1,0 +1,14 @@
+# UART 日志去重前的三份字节同一证明（评审 NB-4 落盘）
+
+- 目的：证明删除「未版本化副本」之前，三份文件**逐字节相同**（避免被读成丢证据）。
+- 命令（可复跑）：
+  `python -B -c "import hashlib;[print(hashlib.sha256(open(p,'rb').read()).hexdigest(), p) for p in [...]]"`
+
+| 对象 | sha256 | 字节 | 其中 CRLF |
+|---|---|---|---|
+| 入库副本 `uart_window_20261024_003501-011001.log` | `ffd52e6b189eee9b05c288548f08b22cece42ab7e7bd78d1a2c24fa179647c20` | 3727 | 60 |
+| tmp 原始件 `tmp/3/S3-T05/t05_stage3_window_20261024_r01/logs/uart_window.log` | `ffd52e6b189eee9b05c288548f08b22cece42ab7e7bd78d1a2c24fa179647c20` | 3727 | 60 |
+
+- 结论：`sha256` 与字节数**完全一致** ⇒ 删除的只是**同一内容的重复副本**；入库副本与 tmp 原始件均保留。
+- 另：当时被删除的未版本化副本 `…/t05_stage3_window_20261024_r01/uart_window.log` 与上表两份同哈希
+  （sha256 `ffd52e6b189eee9b05c288548f08b22cece42ab7e7bd78d1a2c24fa179647c20`，3,727 B），该值取自删除前实测输出。

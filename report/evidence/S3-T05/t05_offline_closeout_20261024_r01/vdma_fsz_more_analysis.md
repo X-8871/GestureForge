@@ -8,10 +8,10 @@
 
 | # | 事实 | 证据 |
 |---|---|---|
-| F1 | 置位位集 = `INT(0x10) + FSZ_MORE(0x800) + ERR_IRQ(0x4000)`（+帧计数状态位 `0x1000`） | 应用自身 `S3_DIAG5_SR_DECODE`；`addr_map_final2.txt` |
-| F2 | **两次独立启动**都在应用启动阶段出现同一值（`phase=0` 时 `0x00014810`，`t=5 s` 起 `0x00015810`） | `uart_window.log`、`uart_restore.stdout` |
+| F1 | 置位位集 = `INT(0x10) + FSZ_MORE(0x800) + ERR_IRQ(0x4000)`（+帧计数状态位 `0x1000`） | 应用自身 `S3_DIAG5_SR_DECODE`；`t05_stage3_window_20261024_r01/addr_map_final2.txt`（MM2S 标签更正见 `addr_map_mislabel_correction.md`） |
+| F2 | **两次独立启动**都在应用启动阶段出现同一值（`phase=0` 时 `0x00014810`，`t=5 s` 起 `0x00015810`） | `t05_stage3_window_20261024_r01/uart_window_20261024_003501-011001.log`、`…/uart_restore.stdout` |
 | F3 | 清一次后再运行 **31 分钟 / 7 次回读**，错误位**未复现**，SR 恒为 `0x00011000`（仅状态位） | `endurance_probes.txt` |
-| F4 | 全程无功能影响：`HALTED=0`、`IDLE=0`、`MM2S_SR=0x00011000`、活写标记 5/5、帧指纹随时间变化 | 同上 + `uart_window.log` |
+| F4 | 全程无功能影响：`HALTED=0`、`IDLE=0`、`MM2S_SR=0x00011000`、活写标记 5/5、帧指纹随时间变化 | 同上 + `…/uart_window_20261024_003501-011001.log` |
 | F5 | S2MM 配置：`VSIZE=0x2D0(720)`、`HSIZE=0x0F00(3840)`、`STRIDE=0x0F00`、单缓冲 `ADDR=0x00110C00`（与 MM2S 同一缓冲） | `address_facts.md` |
 | F6 | IP 配置：`C_INCLUDE_S2MM=1`、`C_INCLUDE_S2MM_SF=1`（store-and-forward）、`C_SMM_SOF_ENABLE=1`、`C_S_AXIS_S2MM_TDATA_WIDTH=24` | `t05_sw_20261020_r01/sr_bit_sources/design_axi_vdma_1_config.txt`（IP 配置文本） |
 
@@ -45,3 +45,9 @@
 2. 按 §3 的任一假设做**启动窗口密集采样**（板级，新 RunId），把置位时刻与假设预测对齐；
 3. 给出根因（或证明仅启动瞬态且无影响）+ 在匹配版本上复核 ⇒ 才能改判 `CLOSED`。
    在此之前本项**保持 PARTIAL/开放**。
+
+## 6. 取证落盘（评审 NB-4）
+
+- 参考实现：`../t05_stage3_window_20261024_r01/uart_window_20261024_003501-011001.log`（入库文件；文件名带抓取起止）。
+- 去重时的**三份字节同一**证明已落盘：`../t05_stage3_window_20261024_r01/uart_dedup_byte_identity.txt`
+  （未版本化副本 / 入库副本 / tmp 原始件三者的 sha256 与字节数一致，随后才删除重复件）。

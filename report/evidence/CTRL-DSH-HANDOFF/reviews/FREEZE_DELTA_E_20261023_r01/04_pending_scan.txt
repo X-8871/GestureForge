@@ -1,0 +1,122 @@
+### A. 扫描器门槛内命中的行（scanner hits）
+  (none)
+
+### B. 我独立口径下（不受 TOKENS 门槛限制）仍未被豁免的 PENDING 行
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:9: > **状态：`G0_PACKET_APPROVED_20261023`（待批准）。** 本文是阶段6 的 G0 交付包：阶段6 目标与范围、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:171: **表 A-1（动作映射为提案，待批准）**。本轮 `supported_types` 仅 `A_SWITCH_UI` 与 `A_SWITCH_CHANNEL`；`A_DISPLAY_STATE` 在 r01 JSON 中登记但从未被任何类映射，r02 已删除（U6-15），若后续需要须回 G0 冻结。
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:185: - **逐类用户体验要求（r02 补，N-06；具体可见时长待批准）**：五类动作共用同一反馈骨架——生效必须有可观察显示状态变化（`ACTION_EFFECTIVE`）、失败/未观察必须显示 `last_action_result` 且不得虚报成功、同一动作重复提交不得产生闪烁或额外可见变化（幂等）；反馈不得遮挡手势置信信息。各类目标状态见表 A-1。具体反馈可见时长与过渡动画属待批准项（U6-14），获批前只能按「可观察、可区分、不
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:320: - **动作延迟**：`latency_action = t_effective − t_trigger`，其中 `t_trigger` = 触发该动作的那条结果的显式输入时刻。受 `T6-A01` 约束（待批准）。
+  docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:321: - **交互延迟**：`latency_interaction = t_effective − window_complete`，**不得**用 `t_capture(窗口首个 `WINDOW_MATCH` 帧)` 或 `W_min` 顶替（B-04）；其上限为 `T6-A03`（**待批准**，草案未给值，且必须先有实测 P）。
+  docs/stage6/s6a_stage6_g0_behavior_v1.json:1272: "pending_confirmation": "U6-16：若 G0 改为不锁存，属实质语义变更，需补 STABLE→CANDIDATE 迁移并同步 §4/§10/M5 与本块。",
+  report/evidence/S6-A/s6a_g0_20261023_r12/approval_regression.json:12: "injected_pending": {
+  report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json:113: "{\"status\": \"ALL_PASS\", \"errors\": [], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C2\", \"name\": \"ID 唯一性与最小规模\", \"status\": \"PASS\", \
+  report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.md:62: - 可观察输出：['{"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id
+  report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:122: "location": "§14 T6-01（PENDING_APPROVAL）"
+  report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:127: "location": "§14 T6-02 + §11.4（PENDING_APPROVAL）"
+  report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:132: "location": "§14 T6-03（PENDING_APPROVAL）"
+  report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:206: "C4": "待批准纪律（24 项）",
+  report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:16: "all_parameters_pending_approval": true,
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_b07_old_wording_stdout.txt:1: {"status": "FAILED", "errors": ["C14: behavior_rows.B07.condition 缺少统一窗口完成口径「第一个同时满足帧数与时长（取较晚）的帧」（F1）"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_b13_predicates_used_added_stdout.txt:1: {"status": "FAILED", "errors": ["C12: predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）"], "checks": [{"id": "C1", "name"
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_baseline_no_injection_stdout.txt:1: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_case_out_of_sequence_index_stdout.txt:1: {"status": "FAILED", "errors": ["C7: HC-32.completion_index 预期 7 与复算 -1 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_case_span_wrong_stdout.txt:1: {"status": "FAILED", "errors": ["C7: HC-31.m3_fires 预期 False 与复算 True 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS",
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_case_timeout_frame_action_stdout.txt:1: {"status": "FAILED", "errors": ["C7: HC-30.action_at_gate_open_frame 预期 {'gate_opens_on_timeout': True, 'gate_opens_on_ok': True} 与复算 {'gate_opens_on_timeout': False, 'gate_opens_on_ok': True} 不符"], "checks": [{"id": "C1
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_empty_predicates_used_stdout.txt:1: {"status": "FAILED", "errors": ["C12: M2.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模"
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_historical_model_check_r05_stdout.txt:1: {"status": "FAILED", "errors": ["C1: artifact_version 必须为 ('S6A-G0-v1', 'S6A-G0-v1.1', 'S6A-G0-v1.2', 'S6A-G0-v1.3', 'S6A-G0-v1.4')，实际 'S6A-G0-v1.8'", "C4: T6-A01 的 approval_status 必须是 PENDING_APPROVAL", "C7: HC-23.m4_re
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_historical_model_check_r06_stdout.txt:1: {"status": "FAILED", "errors": ["C1: artifact_version 必须为 ('S6A-G0-v1', 'S6A-G0-v1.1', 'S6A-G0-v1.2', 'S6A-G0-v1.3', 'S6A-G0-v1.4', 'S6A-G0-v1.5')，实际 'S6A-G0-v1.8'", "C4: T6-A01 的 approval_status 必须是 PENDING_APPROVAL", "
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_m4_conflict_phrase_stdout.txt:1: {"status": "FAILED", "errors": ["C16: 交付文件仍出现 M4 不可达类表述（语义判定）：行为表 JSON:1671（字面 M4 不可达）：\"T6-S04\": \"草案 500ms ≥ T6-L02 300ms，M4 不可达（U6-12）；本行不得计入覆盖声明。\","], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS"
+  report/evidence/S6-A/s6a_g0_20261023_r12/probe_m5_window_advance_removed_stdout.txt:1: {"status": "FAILED", "errors": ["C12: M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04
+  report/evidence/S6-A/s6a_g0_20261023_r12/S6A_run_summary.md:42: 见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4 可达并计入覆盖、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_approved_probe.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_c11_stdout.txt:1: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure.json:73: "detail": "STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW"
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure.json:120: "C11: STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW",
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C2: 硬不变量少于 10 条（H-10 全局冷却门必须存在）", "C3: M10.from 不一致：JSON '*' vs 文档 ''；M14.from 不一致：JSON 'IDLE' vs 文档 'IDLE|LOST'；M2.from 不一致：JSON '*' vs 文档 ''；JSON 有而文档 §14 表缺的参数：['T6-S03']；T6-U00_W comp
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r02_blk1_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r02_blk1_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C4: 缺少 approval_record（批准记录引用 receipt 与 date）", "C7: HC-07 复算异常：KeyError: 't_last_submit_ms'", "C9: 文档缺少必备关键词：['DELIVERED_APPROVED_20261023', 'APPROVED_20261023']", "C12: M1 的条件/输出未绑定 TAR
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r03_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r03_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C4: 缺少 approval_record（批准记录引用 receipt 与 date）", "C7: lost_time 样例缺少 t_last_target_continues_ms（r04 已废弃 t_last_match_ms，见 R3-B01）", "C9: 文档缺少必备关键词：['DELIVERED_APPROVED_20261023', 'APPROVED
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r04_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r04_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C4: 缺少 approval_record（批准记录引用 receipt 与 date）", "C7: HC-23.m4_reachable_under_draft 预期 False 与复算 True 不符", "C9: 文档缺少必备关键词：['DELIVERED_APPROVED_20261023', 'APPROVED_20261023']", "C12: pred
+  report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_result.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+  report/evidence/S6-B/s6b_core_20261023_r07/params_snapshot.json:243: "any_parameter_pending_approval": false,
+  report/evidence/S6-B/s6b_core_20261023_r07/reachability_notes.json:5: "derived_from": "S6A-G0-v1.6 draft parameters (PENDING_APPROVAL)",
+  report/evidence/S6-B/s6b_core_20261023_r07/run_report.json:9: "any_parameter_pending_approval": false,
+
+### C. 死正则判定
+  pattern#3 'all_parameters_pending_approval': assert_match=True token_gate_match=False -> DEAD (token gate blocks it)
+  pattern#4 'parameters_pending_approval': assert_match=True token_gate_match=False -> DEAD (token gate blocks it)
+  pattern#5 'thresholds_are_draft_not_approved': assert_match=True token_gate_match=False -> DEAD (token gate blocks it)
+
+### D. 全部含 token 的行（含被豁免行）
+[MY-HIT-ONLY] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:9: > **状态：`G0_PACKET_APPROVED_20261023`（待批准）。** 本文是阶段6 的 G0 交付包：阶段6 目标与范围、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。
+[HIST/SKIP/ALLOW] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:128: 每行给出：条件 → 转移 → 输出 → 必须记录 → 判定依据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_APPROVED_20261023`，**已批准（2026-10-23）、不是已冻结**）；**其中全部数值参数为待批准**。　【历史语境：上述为当时状态（该版本产出时尚未批准）】
+[MY-HIT-ONLY] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:171: **表 A-1（动作映射为提案，待批准）**。本轮 `supported_types` 仅 `A_SWITCH_UI` 与 `A_SWITCH_CHANNEL`；`A_DISPLAY_STATE` 在 r01 JSON 中登记但从未被任何类映射，r02 已删除（U6-15），若后续需要须回 G0 冻结。
+[MY-HIT-ONLY] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:185: - **逐类用户体验要求（r02 补，N-06；具体可见时长待批准）**：五类动作共用同一反馈骨架——生效必须有可观察显示状态变化（`ACTION_EFFECTIVE`）、失败/未观察必须显示 `last_action_result` 且不得虚报成功、同一动作重复提交不得产生闪烁或额外可见变化（幂等）；反馈不得遮挡手势置信信息。各类目标状态见表 A-1。具体反馈可见时长与过渡动画属待批准项（U6-14），获批前只能按「可观察、可区分、不
+[MY-HIT-ONLY] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:320: - **动作延迟**：`latency_action = t_effective − t_trigger`，其中 `t_trigger` = 触发该动作的那条结果的显式输入时刻。受 `T6-A01` 约束（待批准）。
+[MY-HIT-ONLY] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:321: - **交互延迟**：`latency_interaction = t_effective − window_complete`，**不得**用 `t_capture(窗口首个 `WINDOW_MATCH` 帧)` 或 `W_min` 顶替（B-04）；其上限为 `T6-A03`（**待批准**，草案未给值，且必须先有实测 P）。
+[HIST/SKIP/ALLOW] docs/stage6/S6A_stage6_g0_behavior_spec_v1.md:397: - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按
+[MY-HIT-ONLY] docs/stage6/s6a_stage6_g0_behavior_v1.json:1272: "pending_confirmation": "U6-16：若 G0 改为不锁存，属实质语义变更，需补 STABLE→CANDIDATE 迁移并同步 §4/§10/M5 与本块。",
+[HIST/SKIP/ALLOW] docs/stage6/s6a_stage6_g0_behavior_v1.json:1346: "status": "DECLARED_BY_STAGE6_PENDING_CONFIRMATION",
+[HIST/SKIP/ALLOW] docs/stage6/s6a_stage6_g0_behavior_v1.json:1388: "status": "BLOCKED_PENDING_MODULE",
+[HIST/SKIP/ALLOW] docs/stage6/s6a_stage6_g0_behavior_v1.json:1506: "review_status": "PENDING_REVIEW",
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/approval_regression.json:4: "rule": "C4 必须在注入 PENDING_APPROVAL 后 FAIL（基线 ALL_PASS）；全部操作在临时副本内",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/approval_regression.json:12: "injected_pending": {
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json:81: "statement": "C4 批准纪律的反向自测：人为把一项参数改回 PENDING_APPROVAL → C4 必须 FAIL；基线（未注入）必须 ALL_PASS。全部操作在临时副本内，不触碰真实证据目录。",
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json:94: "statement": "已批准版包内**不得出现 PENDING/待批准 陈述**（机读扫描；历史语境行除外），并用注入自测证明该断言有判别力（注入后必须 FAIL）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json:113: "{\"status\": \"ALL_PASS\", \"errors\": [], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C2\", \"name\": \"ID 唯一性与最小规模\", \"status\": \"PASS\", \
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.md:45: - 声明：C4 批准纪律的反向自测：人为把一项参数改回 PENDING_APPROVAL → C4 必须 FAIL；基线（未注入）必须 ALL_PASS。全部操作在临时副本内，不触碰真实证据目录。
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.md:52: - 声明：已批准版包内**不得出现 PENDING/待批准 陈述**（机读扫描；历史语境行除外），并用注入自测证明该断言有判别力（注入后必须 FAIL）
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.md:62: - 可观察输出：['{"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:46: "status": "DONE_DECLARED_PENDING_CONFIRMATION（U6-02 待 Wong 确认）"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:122: "location": "§14 T6-01（PENDING_APPROVAL）"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:127: "location": "§14 T6-02 + §11.4（PENDING_APPROVAL）"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:132: "location": "§14 T6-03（PENDING_APPROVAL）"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:181: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:186: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:191: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:196: "status": "FIXED_PENDING_REVIEW"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/coverage_matrix.json:206: "C4": "待批准纪律（24 项）",
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:10: "review_status_after_fix": "PENDING_REVIEW（是否再复评由项目总控决定；本记录不构成通过）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:16: "all_parameters_pending_approval": true,
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:33: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:44: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:56: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:65: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.json:76: "status": "FIXED_PENDING_REVIEW"
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/fix_record.md:6: - 状态：**PENDING_REVIEW（增量专项复核）**
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/hand_computed_cases.json:7: "derivation_note": "【历史语境】原推导说明（按当时 v1.7 行为表独立推导）：全部预期值由人工按行为表 v1.7（含 r08 的 M4 可达性统一与 HC-23 机器断言修正）独立推导。r08：HC-23 的 `expected.m4_reachable_under_draft` 由 false 改为 **true**（TARGET_CONTINUES 不含 score ≥ T6-P02 → 低分中断不推进 mis
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/limitations_not_executed.json:86: "reason": "阶段6 总控会话委派深度已用尽；由项目总控另派（本包状态 PENDING_REVIEW）。"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_b07_old_wording_stdout.txt:1: {"status": "FAILED", "errors": ["C14: behavior_rows.B07.condition 缺少统一窗口完成口径「第一个同时满足帧数与时长（取较晚）的帧」（F1）"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_b13_predicates_used_added_stdout.txt:1: {"status": "FAILED", "errors": ["C12: predicates.TARGET_CONTINUES.used_by 与 predicates_used 非双向一致：仅 used_by 有 []；仅 predicates_used 有 ['B13']；B13 实际没有 predicates_used 字段，叙述不得声称已绑定（R3-B02）"], "checks": [{"id": "C1", "name"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_baseline_no_injection_stdout.txt:1: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_case_out_of_sequence_index_stdout.txt:1: {"status": "FAILED", "errors": ["C7: HC-32.completion_index 预期 7 与复算 -1 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_case_span_wrong_stdout.txt:1: {"status": "FAILED", "errors": ["C7: HC-31.m3_fires 预期 False 与复算 True 不符"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_case_timeout_frame_action_stdout.txt:1: {"status": "FAILED", "errors": ["C7: HC-30.action_at_gate_open_frame 预期 {'gate_opens_on_timeout': True, 'gate_opens_on_ok': True} 与复算 {'gate_opens_on_timeout': False, 'gate_opens_on_ok': True} 不符"], "checks": [{"id": "C1
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_empty_predicates_used_stdout.txt:1: {"status": "FAILED", "errors": ["C12: M2.predicates_used 必须是非空列表（显式空列表/非列表均不合法，N-r04-03）：[]"], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_historical_model_check_r05_stdout.txt:1: {"status": "FAILED", "errors": ["C1: artifact_version 必须为 ('S6A-G0-v1', 'S6A-G0-v1.1', 'S6A-G0-v1.2', 'S6A-G0-v1.3', 'S6A-G0-v1.4')，实际 'S6A-G0-v1.8'", "C4: T6-A01 的 approval_status 必须是 PENDING_APPROVAL", "C7: HC-23.m4_re
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_historical_model_check_r06_stdout.txt:1: {"status": "FAILED", "errors": ["C1: artifact_version 必须为 ('S6A-G0-v1', 'S6A-G0-v1.1', 'S6A-G0-v1.2', 'S6A-G0-v1.3', 'S6A-G0-v1.4', 'S6A-G0-v1.5')，实际 'S6A-G0-v1.8'", "C4: T6-A01 的 approval_status 必须是 PENDING_APPROVAL", "
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_m4_conflict_phrase_stdout.txt:1: {"status": "FAILED", "errors": ["C16: 交付文件仍出现 M4 不可达类表述（语义判定）：行为表 JSON:1671（字面 M4 不可达）：\"T6-S04\": \"草案 500ms ≥ T6-L02 300ms，M4 不可达（U6-12）；本行不得计入覆盖声明。\","], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/probe_m5_window_advance_removed_stdout.txt:1: {"status": "FAILED", "errors": ["C12: M5 条件未复述窗口推进帧限定 '窗口推进帧'（N-r04-01）；M5 条件未复述窗口推进帧限定 'state ∈ {OK,NO_HAND}'（N-r04-01）；M5 条件未复述窗口推进帧限定 'stale=false'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非重复'（N-r04-01）；M5 条件未复述窗口推进帧限定 '非倒序'（N-r04
+[HIST/SKIP/ALLOW] report/evidence/S6-A/s6a_g0_20261023_r12/S6A_run_summary.md:5: - 状态：**DELIVERED_PENDING_REVIEW**（复评由项目总控另派；本摘要不构成通过）
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/S6A_run_summary.md:42: 见 `limitations_not_executed.json`（T6-A03 NOT_RUN、M4 可达并计入覆盖、阶段4/5 依赖 BLOCKED、独立复评 PENDING）。
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_approved_probe.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_c11_stdout.txt:1: {"status": "ALL_PASS", "errors": [], "checks": [{"id": "C1", "name": "JSON 身份与必填块", "status": "PASS", "detail": "identity ok"}, {"id": "C2", "name": "ID 唯一性与最小规模", "status": "PASS", "detail": "unique ok"}, {"id": "C3", "
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure.json:73: "detail": "STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW"
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure.json:120: "C11: STATE 仍写有 'S6-A DONE'；应改为 DELIVERED_PENDING_APPROVAL/REVIEW",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_old_package_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C2: 硬不变量少于 10 条（H-10 全局冷却门必须存在）", "C3: M10.from 不一致：JSON '*' vs 文档 ''；M14.from 不一致：JSON 'IDLE' vs 文档 'IDLE|LOST'；M2.from 不一致：JSON '*' vs 文档 ''；JSON 有而文档 §14 表缺的参数：['T6-S03']；T6-U00_W comp
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r02_blk1_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r02_blk1_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C4: 缺少 approval_record（批准记录引用 receipt 与 date）", "C7: HC-07 复算异常：KeyError: 't_last_submit_ms'", "C9: 文档缺少必备关键词：['DELIVERED_APPROVED_20261023', 'APPROVED_20261023']", "C12: M1 的条件/输出未绑定 TAR
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r03_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r03_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C4: 缺少 approval_record（批准记录引用 receipt 与 date）", "C7: lost_time 样例缺少 t_last_target_continues_ms（r04 已废弃 t_last_match_ms，见 R3-B01）", "C9: 文档缺少必备关键词：['DELIVERED_APPROVED_20261023', 'APPROVED
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r04_failure.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_r04_failure_stdout.txt:1: {"status": "FAILED", "errors": ["C4: 缺少 approval_record（批准记录引用 receipt 与 date）", "C7: HC-23.m4_reachable_under_draft 预期 False 与复算 True 不符", "C9: 文档缺少必备关键词：['DELIVERED_APPROVED_20261023', 'APPROVED_20261023']", "C12: pred
+[MY-HIT-ONLY] report/evidence/S6-A/s6a_g0_20261023_r12/selfcheck_result.json:29: "name": "批准纪律（不得存在 PENDING；每项有批准索引）",
+[HIST/SKIP/ALLOW] report/evidence/S6-B/s6b_core_20261023_r07/cases/build_case_matrix.py:516: "参数全部为 PENDING_APPROVAL 草案值，任何结论只对注入输入有效。"
+[HIST/SKIP/ALLOW] report/evidence/S6-B/s6b_core_20261023_r07/cases/case_matrix.json:168: "expected_derivation_note": "expected 全部由行为表 v1.4（§4 迁移表、§9 窗口、§10 冷却/一次获取一次、§13 帧序、§14 参数草案值）人工推导：周期、帧号、时间偏移均在用例内显式给出；不使用状态机输出作为预期（H-7）。参数全部为 PENDING_APPROVAL 草案值，任何结论只对注入输入有效。",
+[MY-HIT-ONLY] report/evidence/S6-B/s6b_core_20261023_r07/params_snapshot.json:243: "any_parameter_pending_approval": false,
+[MY-HIT-ONLY] report/evidence/S6-B/s6b_core_20261023_r07/reachability_notes.json:5: "derived_from": "S6A-G0-v1.6 draft parameters (PENDING_APPROVAL)",
+[MY-HIT-ONLY] report/evidence/S6-B/s6b_core_20261023_r07/run_report.json:9: "any_parameter_pending_approval": false,

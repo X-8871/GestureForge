@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_export_selfproof",
+  "task_id": "S6-A",
+  "rule": "任何冻结/交付提交必须自证：导出该提交后，自检 + inputs + evidence 三项检查全部 exit 0。",
+  "tool": "verification/export_selfproof.py",
+  "generated_at": "2026-10-23 10:23:26+0800",
+  "subjects": [
+    {
+      "label": "commit_538b7923354417915c5dbcbcf7052b88faa0da7e",
+      "newline_alignment": {
+        "aligned": 55,
+        "unresolved": [],
+        "note": "仅选择换行口径（LF/CRLF）；两者都不匹配即内容不同，保留原字节并登记",
+        "worktree_bytes": {
+          "aligned": 0,
+          "content_differs": []
+        },
+        "order_note": "先工作区口径、后清单口径（N-r07-1 修正）"
+      },
+      "artifact_version": "S6A-G0-v1.8",
+      "run_id": "s6a_g0_20261023_r12",
+      "evidence_dir": "report/evidence/S6-A/s6a_g0_20261023_r12",
+      "evidence_dir_file_count": 45,
+      "state_declared_s6b_dir_files_in_commit": 346,
+      "checks": [
+        {
+          "name": "selfcheck（C11：仅 STATE 声明存在性；S6-B 模式下不复算 S6-A 旧轮次清单哈希）",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\verification\\s6_g0_selfcheck.py --json D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\report\\evidence\\S6-A\\s6a_g0_20261023_r12\\hand_computed_cases.json --upstream D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\report\\evidence\\S6-A\\s6a_g0_20261023_r12\\upstream_bindings.json --out D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e_selfcheck.json --project-root D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e --evidence-dir D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\report\\evidence\\S6-A\\s6a_g0_20261023_r12 --state D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\.codex\\STATE.md",
+          "exit_code": 0,
+          "stdout_tail": "{\"status\": \"ALL_PASS\", \"errors\": [], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C2\", \"name\": \"ID 唯一性与最小规模\", \"status\": \"PASS\", \"detail\": \"unique ok\"}, {\"id\": \"C3\", \"name\": \"文档↔JSON 标识集合双向一致\", \"status\": \"PASS\", \"detail\": \"10 不变量 / 14 迁移(含 from/to) / 24 参数(§14 行) / 20 事件 / 7 状态 / 28 行为行 / 2 动作类型 双向一致\"}, {\"id\": \"C4\", \"name\": \"批准纪律（不得存在 PENDING；每项有批准索引）\", \"status\": \"PASS\", \"detail\": \"24 项与动作映射均为 APPROVED_20261023 且批准索引齐全\"}, {\"id\": \"C5\", \"name\": \"五类动作映射一致\", \"status\": \"PASS\", \"detail\": \"5 类映射一致，target 唯一\"}, {\"id\": \"C6\", \"name\": \"硬不变量与唯一触发解释\", \"status\": \"PASS\", \"detail\": \"H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一\"}, {\"id\": \"C7\", \"name\": \"人工手算样例独立复算\", \"status\": \"PASS\", \"detail\": \"32 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧、HC-32 完成帧超出所给序列（序列不足以判定，F7））\"}, {\"id\": \"C8\", \"name\": \"上游只读文件哈希复算\", \"status\": \"PASS\", \"detail\": \"11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d)\"}, {\"id\": \"C9\", \"name\": \"文档必备覆盖与章节\", \"status\": \"PASS\", \"detail\": \"关键词与章节齐全\"}, {\"id\": \"C10\", \"name\": \"禁止声明扫描（窄口径）\", \"status\": \"PASS\", \"detail\": \"未发现禁止声明\"}, {\"id\": \"C11\", \"name\": \"证据清单/STATE 声明 vs 实际文件\", \"status\": \"PASS\", \"detail\": \"实际文件 45 个；STATE 声明 2 个文件、2 个目录与 2 个含路径文件全部存在\"}, {\"id\": \"C12\", \"name\": \"谓词拆分一致性（B-05/R3-B01/R3-B02）\", \"status\": \"PASS\", \"detail\": \"谓词定义、引用、禁用标识符与全量双向绑定一致\"}, {\"id\": \"C13\", \"name\": \"冷却全局门一致性（B-03/H-10）\", \"status\": \"PASS\", \"detail\": \"全局门字段与引用一致\"}, {\"id\": \"C14\", \"name\": \"W_min/窗口完成口径（B-04/N-05/F1）\", \"status\": \"PASS\", \"detail\": \"W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致\"}, {\"id\": \"C15\", \"name\": \"H-4/NO_HAND 一致性（B-02）\", \"status\": \"PASS\", \"detail\": \"NO_HAND 不推进匹配计数、零框不得完成窗口\"}, {\"id\": \"C16\", \"name\": \"迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1/BLK-r08-1）\", \"status\": \"PASS\", \"detail\": \"M4 可达并计入覆盖（M7 构造上不参与覆盖）；11 个交付文件经语义扫描一致\"}, {\"id\": \"C17\", \"name\": \"STABLE 锁存语义一致性（观察项）\", \"status\": \"PASS\", \"detail\": \"STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认\"}]}",
+          "stderr_tail": ""
+        },
+        {
+          "name": "S6-B 确定性用例驱动（该提交内）",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\verification\\s6b_run_cases.py --project-root D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e --run-dir D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\report\\evidence\\S6-B\\s6b_core_20261023_r07",
+          "exit_code": 0,
+          "stdout_tail": "{\"status\": \"PASS\", \"case_count\": 26, \"assertions_failed\": 0, \"failed_cases\": []}",
+          "stderr_tail": ""
+        },
+        {
+          "name": "S6-B check_stage_delivery --mode inputs",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\report\\evidence\\S6-B\\s6b_core_20261023_r07\\inputs_manifest.json --project-root D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e",
+          "exit_code": 0,
+          "stdout_tail": "{\"status\":\"CHECKS_OK\",\"mode\":\"inputs\",\"task_id\":\"S6-B\",\"run_id\":\"s6b_core_20261023_r07\",\"interfaces_not_applicable\":{\"status\":\"NOT_APPLICABLE\",\"reason\":\"S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.8），其 24 项阈值已于 2026-10-23 批准（值仍为草案值），但接口契约本身仍未冻结；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。\",\"review_note\":\"其适用性仍须正式G0/Reviewer确认\"},\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"输入文件 SHA-256 复算\"}],\"errors\":[],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}",
+          "stderr_tail": ""
+        },
+        {
+          "name": "S6-B check_stage_delivery --mode evidence",
+          "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e\\report\\evidence\\S6-B\\s6b_core_20261023_r07\\delivery_manifest.json --project-root D:\\tmp\\s6a_selfproof_5prka6n0\\commit_538b7923354417915c5dbcbcf7052b88faa0da7e",
+          "exit_code": 0,
+          "stdout_tail": "{\"status\":\"CHECKS_OK\",\"mode\":\"evidence\",\"task_id\":\"S6-B\",\"run_id\":\"s6b_core_20261023_r07\",\"interfaces_not_applicable\":{\"status\":\"NOT_APPLICABLE\",\"reason\":\"S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.8），其 24 项阈值已于 2026-10-23 批准（值仍为草案值），但接口契约本身仍未冻结；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。\",\"review_note\":\"其适用性仍须正式G0/Reviewer确认\"},\"check_statuses\":[{\"status\":\"PASS\",\"name\":\"claim_verification.verdict == ALL_CLAIMS_VERIFIED\"},{\"status\":\"PASS\",\"name\":\"冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）\",\"reason\":\"工具判定 ALL_SELF_PROVEN；逐项退出码 {'commit 0a2abc4956242c118b7d5ef6d4a1fe1b1ff28351': [0, 0, 0, 0], 'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': [0, 0, 0, 0]}\"},{\"status\":\"PASS\",\"name\":\"S6-B 确定性用例（26 条 / 11 类）\"},{\"status\":\"PASS\",\"name\":\"S6-B 判别力探针（4 项）\"},{\"status\":\"PASS\",\"name\":\"check_stage_delivery.py --mode inputs\"},{\"status\":\"PASS\",\"name\":\"check_stage_delivery.py --mode evidence\"}],\"errors\":[],\"warnings\":[],\"scope_statement\":\"检查结果不代表 G0/G4/G5 或实物验收。\"}",
+          "stderr_tail": ""
+        }
+      ],
+      "selfcheck_status": "ALL_PASS",
+      "selfcheck_errors": [],
+      "verdict": "SELF_PROVEN",
+      "subject": "commit 538b7923354417915c5dbcbcf7052b88faa0da7e",
+      "commit_tree": "ac2155893788899a5f3394dc165f4089c4cfcc3a"
+    }
+  ],
+  "verdict": "ALL_SELF_PROVEN",
+  "scope_statement": "导出复跑只证明该提交的证据自足性与清单/STATE 一致性；不代表语义正确、独立审查或实物验收通过。",
+  "degradation_note": "S6-B 模式（--s6b-run）下**不复算 S6-A 旧轮次的 inputs/evidence 清单**：旧轮次清单绑定其构建时的源码字节，工作区前进后哈希自然不匹配（NB-10 显式声明）。该模式下仍跑 S6-A 自检（仅校验 STATE 声明存在性）与 S6-B 驱动 + S6-B 两个检查器。",
+  "live_document_note": "活文档（.codex/STATE.md）**不进硬哈希集合**（lead 裁定 (a)）：STATE 每轮维护都会变化，绑哈希会让证据包当场失效；此处以信息性快照记录其哈希，F6 判定仍依赖「STATE 声明的文件/目录是否真实存在」。",
+  "state_snapshot_sha256": "809604bc56db625eba3bee08e6530e6fe8ecb4703e17e54191d2df0958f0c1d4",
+  "subject_note": "报告主体至少包含：交付轮次的工作区快照；提交后可用同一命令追加 `--commit <交付提交>`，把交付提交本身列为主体（N-r07-2）。报告存放在同 RunId 的 `_selfproof` 兄弟目录，不属于被清单声明的运行目录，故可在提交后原地更新而不影响清单绑定。",
+  "newline_note": "既有口径 O1：工作区 MD/JSON 为 CRLF、.py/STATE 为 LF，git blob 为 LF。本工具只对「内容与工作区一致、仅换行不同」的文件做换行口径对齐，内容真正不同的文件保留提交字节并由检查器如实报错；不对内容做任何修正。",
+  "work_dir_note": "每次运行的导出副本与自检结果落在系统临时目录，不写入被审工作树。"
+}

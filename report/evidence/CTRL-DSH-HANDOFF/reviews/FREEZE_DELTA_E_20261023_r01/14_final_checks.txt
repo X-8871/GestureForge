@@ -1,0 +1,36 @@
+
+=== ancestry (verbatim, exit codes) ===
+is_ancestor bf05d450 -> 9b9d572e : exit=0
+is_ancestor 9b9d572e -> 0a2abc49 : exit=0
+is_ancestor 0a2abc49 -> a2d232da : exit=0
+is_ancestor a2d232da -> 2f16d668 : exit=0
+is_ancestor 2f16d668 -> 538b7923 : exit=0
+is_ancestor 61caac0d -> 2f16d668 : exit=0
+is_ancestor 2f16d668 -> a2d232da (expect NON-zero: G6 is F6d's parent, not descendant)
+  exit=1
+
+=== diff composition 61caac0d..2f16d668 ===
+total_entries=116 A=104 M=12 D=0
+M entries:
+  M	.codex/STATE.md
+  M	docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+  M	docs/stage6/s6a_stage6_g0_behavior_v1.json
+  M	src/stage6/s6_params.py
+  M	verification/approval_regression.py
+  M	verification/claim_verify.py
+  M	verification/export_selfproof.py
+  M	verification/m4_residual_regression.py
+  M	verification/s6_g0_selfcheck.py
+  M	verification/s6a_build_evidence.py
+  M	verification/s6b_build_evidence.py
+  M	verification/s6b_run_cases.py
+non-r12/r07 A entries:
+  A	verification/approved_package_scan.py
+
+=== src/stage6 core semantics untouched? ===
+''
+src/stage6 changed files in delta:
+  src/stage6/s6_params.py
+
+=== fsck ===
+fsck_exit=0

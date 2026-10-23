@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_export_selfproof",
+  "task_id": "S6-A",
+  "rule": "任何冻结/交付提交必须自证：导出该提交后，自检 + inputs + evidence 三项检查全部 exit 0。",
+  "tool": "verification/export_selfproof.py",
+  "generated_at": "2026-10-23 10:17:58+0800",
+  "subjects": [
+    {
+      "label": "commit_2f16d668a14604ad3d4846e29c8a0f10489ac08b",
+      "verdict": "NOT_SELF_PROVEN",
+      "error": "缺少显式 --s6a-run（BLK-D1 之后不再按行为表 run_id 隐式查找）",
+      "subject": "commit 2f16d668a14604ad3d4846e29c8a0f10489ac08b",
+      "commit_tree": "9e31c264bbb2765fae2381ad6061e12a3de73bd4"
+    }
+  ],
+  "verdict": "NOT_ALL_SELF_PROVEN",
+  "scope_statement": "导出复跑只证明该提交的证据自足性与清单/STATE 一致性；不代表语义正确、独立审查或实物验收通过。",
+  "degradation_note": "S6-B 模式（--s6b-run）下**不复算 S6-A 旧轮次的 inputs/evidence 清单**：旧轮次清单绑定其构建时的源码字节，工作区前进后哈希自然不匹配（NB-10 显式声明）。该模式下仍跑 S6-A 自检（仅校验 STATE 声明存在性）与 S6-B 驱动 + S6-B 两个检查器。",
+  "live_document_note": "活文档（.codex/STATE.md）**不进硬哈希集合**（lead 裁定 (a)）：STATE 每轮维护都会变化，绑哈希会让证据包当场失效；此处以信息性快照记录其哈希，F6 判定仍依赖「STATE 声明的文件/目录是否真实存在」。",
+  "state_snapshot_sha256": "809604bc56db625eba3bee08e6530e6fe8ecb4703e17e54191d2df0958f0c1d4",
+  "subject_note": "报告主体至少包含：交付轮次的工作区快照；提交后可用同一命令追加 `--commit <交付提交>`，把交付提交本身列为主体（N-r07-2）。报告存放在同 RunId 的 `_selfproof` 兄弟目录，不属于被清单声明的运行目录，故可在提交后原地更新而不影响清单绑定。",
+  "newline_note": "既有口径 O1：工作区 MD/JSON 为 CRLF、.py/STATE 为 LF，git blob 为 LF。本工具只对「内容与工作区一致、仅换行不同」的文件做换行口径对齐，内容真正不同的文件保留提交字节并由检查器如实报错；不对内容做任何修正。",
+  "work_dir_note": "每次运行的导出副本与自检结果落在系统临时目录，不写入被审工作树。"
+}

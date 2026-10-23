@@ -1,0 +1,44 @@
+### 独立注入反例（扫描器无 --inject-self-test，直接对真实 run-dir 注入）
+
+--- S6B run-dir: report/evidence/S6-B/s6b_core_20261023_r07
+  B1 JSON approval_status=PENDING_APPROVAL
+    exit=1 verdict=PENDING_TEXT_FOUND hits=1 caught=YES
+    hit[0]=INJECTED_probe.txt:1: "approval_status": "PENDING_APPROVAL"
+  B2 本包阈值仍为待批准状态（自然语言）
+    exit=1 verdict=PENDING_TEXT_FOUND hits=1 caught=YES
+    hit[0]=INJECTED_probe.txt:1: 本包全部阈值与指标仍为待批准状态
+  B3 旧机读假字段 all_parameters_pending_approval=true
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B4 旧机读假字段 thresholds_are_draft_not_approved=true
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B5 旧机读假字段 parameters_pending_approval=true
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B6 文档状态行 APPROVED_20261023（待批准）
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B7 T6-A01 约束（待批准）
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B8 局部字段 pending_confirmation（开放项）
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  baseline(no injection): exit=0 stdout={"verdict": "CLEAN", "hits": 0, "self_test": null}
+
+--- S6A run-dir: report/evidence/S6-A/s6a_g0_20261023_r12
+  B1 JSON approval_status=PENDING_APPROVAL
+    exit=1 verdict=PENDING_TEXT_FOUND hits=1 caught=YES
+    hit[0]=INJECTED_probe.txt:1: "approval_status": "PENDING_APPROVAL"
+  B2 本包阈值仍为待批准状态（自然语言）
+    exit=1 verdict=PENDING_TEXT_FOUND hits=1 caught=YES
+    hit[0]=INJECTED_probe.txt:1: 本包全部阈值与指标仍为待批准状态
+  B3 旧机读假字段 all_parameters_pending_approval=true
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B4 旧机读假字段 thresholds_are_draft_not_approved=true
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B5 旧机读假字段 parameters_pending_approval=true
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B6 文档状态行 APPROVED_20261023（待批准）
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B7 T6-A01 约束（待批准）
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  B8 局部字段 pending_confirmation（开放项）
+    exit=0 verdict=CLEAN hits=0 caught=NO（fail-open）
+  baseline(no injection): exit=0 stdout={"verdict": "CLEAN", "hits": 0, "self_test": null}
+

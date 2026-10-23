@@ -1,0 +1,8 @@
+### open_gaps_batch_c
+  - 批次 C 三项开放缺口（本轮**未做**，如实登记；不得作为通过凭据）：① 上一轮 r10 入库的 fresh_selfcheck_pair.json 为陈旧 FAILED 记录（本轮 r11 已重新生成并通过 C6）；② tool_self_tests.py 的两条必 FAIL 例会对真实 run-dir 跑 claim_verify（跑套件即改写冻结附录）→ 需改为仅临时副本；③ 套件 skipped 用例曾计为 AS_EXPECTED（fail-open）→ 需改为 fail-closed 且套件产物直接入库。
+### known_limitations
+  - 工具自测套件的 `selfproof_valid_commit` 曾用 `--commit HEAD`：HEAD 变更（例如冻结记录提交 G）后该例不可复现；现已**固定指向交付提交**（默认 `stage6-freeze-20261023-r2^`），解析不到时跳过并标注。本包内 `tool_self_tests.json` 若显示该例 `skipped`，属该已知条件，不代表回归。
+  - 上一轮冻结记录提交 G（`1e2a66c`）自身快照自证不绿：其 STATE 以 `` `report/evidence/...` `` 形式声明**文件**，而当时 C11 一律按目录要求 `is_dir()`。本轮已修为区分文件/目录（限制①），故 **G2 全绿、G 保持不绿**；F2 为交付提交，F 仍为历史冻结。
+### known_costs
+  - 工具自测套件约 20 分钟/次（冻结时总控与复核方各一次）
+  - 传输克隆自证：clone --no-local 后复跑检查器（分钟级）

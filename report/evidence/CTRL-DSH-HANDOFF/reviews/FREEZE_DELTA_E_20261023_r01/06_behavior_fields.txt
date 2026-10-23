@@ -1,0 +1,66 @@
+artifact_version = "S6A-G0-v1.8"
+run_id = "s6a_g0_20261023_r12"
+supersedes_run_id = "s6a_g0_20261023_r11"
+status = "G0_PACKET_APPROVED_20261023"
+status_label = "阶段6 G0 包与行为表 v1.9（r11 批准版）：24 项参数按草案值获 Wong 批准（2026-10-23）；T6-A03 数值仍 NOT_RUN（待阶段4 实测帧周期 P）"
+status_note = "批准记录：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md`（用户原文「按你建议」「阶段7暂时不开」，2026-10-23）。批准的是**草案值**：参数值未修改，仅 approval_status 与 approval_ref 变化。边界：本批准不等于 G4/G5 通过；G3 板测未做、集成（6-D）待阶段4/5 接口冻结。"
+revision = {"run_id": "s6a_g0_20261022_r08", "supersedes_run_id": "s6a_g0_20261022_r07", "review_source": "report/evidence/CTRL-DSH-HANDOFF/reviews/S6A_r07_20261023_r01/", "review_verdict": "CHANGES_REQUIRED（1 阻断 BLK-r07-1 + 6 非阻断 N-r07-1..6）", "semantic_changes": true, "parameter_value_changes": false, "parameter_approval_changes": false, "changes": [{"issue": "BLK-r07-1", "summary": "r08 统一了 5 处（JSON parameter_notes.T6-S04 / reachability.consequence / reachability.M4.review_correction、HC-23 机器断言、文档 §18），**r09 补齐余下 3 处**（limitations_not_executed.not_run[7]、coverage_matrix.runbook_coverage[item4]、STATE L61）并把 transitions.M4.reachability 一并统一（NB-r03-10，共 9 处）；C16 扫描范围扩到**全部交付文件**并改**语义判定**，另有两个表示法的交叉一致性断言。历史语境除外", "where": "selfcheck C16（禁语扫描）/ HC-23 / JSON / 文档 §18 / builder / STATE"}, {"issue": "N-r07-1", "summary": "自证工具换行对齐顺序改正（先工作区口径、后清单口径），消除干净克隆 + autocrlf=true 下的假阴性（NOT_SELF_PROVEN）", "where": "verification/export_selfproof.py normalize_line_endings/align_by_manifest_hashes 顺序"}, {"issue": "N-r07-2", "summary": "自证报告自洽并把交付提交列为主体：报告移到同 RunId 的 _selfproof 兄弟目录，提交后可原地更新而不影响清单绑定", "where": "report/evidence/S6-A/s6a_g0_20261022_r08_selfproof/"}, {"issue": "F2", "summary": "source_commit 口径三处统一（manifest / STATE 11 字段 / JSON baseline）并写明语义", "where": "builder / STATE / JSON baseline"}, {"issue": "F4", "summary": "keep_reason 与同包证据统一为「样例数不足 32：29（缺 HC-30/31/32）」", "where": "builder keep_reason_for"}, {"issue": "F5/F11", "summary": "STATE 陈旧行与 coverage/limitations 的旧版本令牌统一", "where": ".codex/STATE.md / coverage_matrix / limitations_not_executed"}], "deleted_transitions": [{"id": "M14", "reason": "M10→M11 使 LOST→IDLE 立即完成，原 M14 的 LOST 分支不可达、IDLE 分支与 M1 同效；重获统一表达为 M10→M11→M1（新 acquisition_id）"}], "review_status": "PENDING_REVIEW", "retained_from_r05": {"artifact_version": "S6A-G0-v1.6", "run_id": "s6a_g0_20261022_r07", "note": "r07 的 F1–F11 与 F6 规则全部保留；r08 只做 M4 口径统一与工具/文本收尾。"}}
+human_doc = "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md"
+
+### approval_record
+{
+ "decided_by": "Wong",
+ "date": "2026-10-23",
+ "user_words": [
+  "按你建议",
+  "阶段7暂时不开"
+ ],
+ "receipt": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md",
+ "sheet": "report/evidence/CTRL-DSH-HANDOFF/approval_sheet_20261023_r01/stage6_approval_sheet.md",
+ "scope": "24 项参数按**草案值**批准（值未修改）；逐项生效决定见 receipt §1；边界见 receipt §3（不等于 G4/G5 通过；T6-A03 数值 NOT_RUN；G3 板测未做）。",
+ "parameter_status_field": "approval_status",
+ "parameter_ref_field": "approval_ref",
+ "t6_a03_value_status": "NOT_RUN（待阶段4 实测帧周期 P，不得填造）",
+ "stale_age_limit": {
+  "value_ms": 200,
+  "note": "阶段4/5/6 同一常量"
+ },
+ "stage7": "暂不开工作树（Wong 决定）"
+}
+
+### parameters: n=24
+params_not_approved_or_missing_ref = []
+
+### actions.map_status = "APPROVED_20261023"
+### behavior_rows semantics_status values = ["BEHAVIOR_V1_APPROVED_20261023"]
+### behavior_rows B16 = null
+### reachability = {"method": "按当前草案参数、§3 谓词定义与求值顺序推导；不改任何阈值。M4 的可达性由 TARGET_CONTINUES 的口径决定（不含 score ≥ T6-P02），不能只比较 T6-S04 与 T6-L02 的大小。", "draft_params_used": {"T6-S04_ms": 500, "T6-L02_ms": 300, "T6-L01_frames": 5, "T6-J01_frames": 1, "T6-K01_ms": 1000, "T6-A02_ms": 500}, "transitions": {"M1": {"status": "REACHABLE"}, "M2": {"status": "REACHABLE"}, "M3": {"status": "REACHABLE"}, "M4": {"status": "REACHABLE", "reason": "TARGET_CONTINUES（§3）不含 score ≥ T6-P02：低分或位移造成的 WINDOW_MATCH 中断仍满足 TARGET_CONTINUES，t_last_target_continues 继续刷新、miss_streak 不增 → M10 不会先命中，候选停留可达到 T6-S04(500 ms) → M4 可达（S6-B 实现轮复评 BLK-1；见 C4-jitter-reset 的 M4@f7）", "resolution": "M4/T6-S04 保留并计入覆盖；G0 可决定是否让 T6-S04 早于 T6-L02 命中以改变兜底次序（不改变 M4 存在性，见 U6-12）", "evidence": "S6-B 实现轮复评 BLK-1 + S6-B 用例 C4-jitter-reset（expected transitions=['M1','M4']，实测 M4@f7）", "review_correction": "原声明仅按 T6-S04 与 T6-L02 的大小比较就得出「不可达」结论，忽略了 TARGET_CONTINUES 不含 score ≥ T6-P02；r07 起修正为可达，r08 把全包表述（含机器断言 HC-23）统一到可达并计入覆盖。"}, "M5": {"status": "REACHABLE"}, "M6": {"status": "REACHABLE"}, "M7": {"status": "UNREACHABLE_BY_CONSTRUCTION", "reason": "M5 同步提交；不存在 TRIGGERED 之后、提交之前的丢失窗口", "resolution": "保留编号以便追溯；实现不得为 M7 造路径"}, "M8": {"status": "REACHABLE"}, "M9": {
+### parameter_notes keys = ["T6-A03", "T6-S04", "T6-STALE_LIMIT"]
+### parameter_notes.T6-S04 = "草案 500ms ≥ T6-L02 300ms **不是可达性的判定依据**：§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移中断不推进 miss_streak → M10 不先命中 → 候选停留可达 T6-S04。M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（未计入项见 reachability.not_counted_note；S6-B C4-jitter-reset 实测 M4@f7）。"
+### parameter_notes.T6-A03 = "草案无值；测量需阶段4 实测 P_meas（U6-13），否则 NOT_RUN。"
+
+### param value payload (id, draft_value, comparison, unit, kind)
+["T6-A01", 1000, "<=", "ms", "timing"]
+["T6-A02", 500, "suppress_if_lt", "ms", "timing"]
+["T6-A03", null, "<=", "ms", "timing"]
+["T6-C01", 2, ">=", "frames", "timing"]
+["T6-S01", 200, ">=", "ms", "timing"]
+["T6-S02", 6, ">=", "frames", "timing"]
+["T6-S03", "同时满足帧数与时长，取较晚满足者", "later_of", null, "logic"]
+["T6-S04", 500, ">=", "ms", "timing"]
+["T6-L01", 5, ">=", "frames", "timing"]
+["T6-L02", 300, ">=", "ms", "timing"]
+["T6-K01", 1000, ">=", "ms", "timing"]
+["T6-J01", 1, "<=", "frames", "timing"]
+["T6-U00_W", 3, "sliding_window", "frames", "timing"]
+["T6-U00_N", 3, ">=", "frames", "timing"]
+["T6-U01", 5, ">=", "frames", "timing"]
+["T6-P01", 0.35, ">=", "score", "score"]
+["T6-P02", 0.3, ">=", "score", "score"]
+["T6-P03", 0.3, ">=", "ratio", "geometry"]
+["T6-P04", 0.15, "<=", "normalized", "geometry"]
+["T6-P05", 0.05, "<=", "normalized", "geometry"]
+["T6-STALE_LIMIT", 200, ">", "ms", "timing"]
+["T6-01", 0.9, ">=", "ratio", "metric"]
+["T6-02", 0.05, "<=", "ratio", "metric"]
+["T6-03", 1, "<=", "count_per_1800s", "metric"]

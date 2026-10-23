@@ -1,0 +1,103 @@
+
+=== clone: cat-file -t referenced commits ===
+bf05d450 -> commit exit=0
+9b9d572e -> commit exit=0
+0a2abc49 -> commit exit=0
+2f16d668 -> commit exit=0
+a2d232da -> commit exit=0
+538b7923 -> commit exit=0
+caa9728 -> commit exit=0
+61caac0d -> commit exit=0
+6b8e5f2 -> commit exit=0
+f5b749e -> commit exit=0
+8ecd92c -> commit exit=0
+1e2a66c -> commit exit=0
+33b1fee -> commit exit=0
+efb9f19 -> commit exit=0
+c7ae6b4 -> commit exit=0
+
+=== clone: tag -> commit (peeled) ===
+stage6-freeze-20261023           type=tag   -> 1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e exit=0
+stage6-freeze-20261023-r2        type=tag   -> 8ecd92cb35a34c29fc9570d5fcbed955f2063fd8 exit=0
+stage6-freeze-20261023-r3        type=tag   -> f5b749ed1a49dc7e05238511d3b69d63bf3e9b8d exit=0
+stage6-freeze-20261023-r4        type=tag   -> 61caac0d8ce7be6f2ef8dfcd2380f3943cd6029f exit=0
+stage6-freeze-20261023-r5        type=tag   -> a2d232daa0405ed1a7601173af50883de5250ec8 exit=0
+stage6-freeze-20261023-r6        type=tag   -> 538b7923354417915c5dbcbcf7052b88faa0da7e exit=0
+s6a-g0-v1.8-r09                  type=tag   -> 1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e exit=0
+s6b-core-r04                     type=tag   -> 1e2a66c904b15ed7e8a01206c3c2fe4a43dc760e exit=0
+
+=== ancestry first-parent ===
+ancestor bf05d450 -> 9b9d572e exit=0
+ancestor 9b9d572e -> 0a2abc49 exit=0
+ancestor 0a2abc49 -> 2f16d668 exit=0
+ancestor 2f16d668 -> a2d232da exit=1
+ancestor a2d232da -> 538b7923 exit=0
+ancestor 61caac0d -> 2f16d668 exit=0
+ancestor caa9728 -> 61caac0d exit=0
+
+=== parents of each new commit ===
+bf05d450a90347e7414efb3909f2bd09bdb30d02 c7ae6b4991bc769bdbd9683036a3c210b153c620
+9b9d572e101b61714a2a350edab1b57bd302ada2 bf05d450a90347e7414efb3909f2bd09bdb30d02
+0a2abc4956242c118b7d5ef6d4a1fe1b1ff28351 9b9d572e101b61714a2a350edab1b57bd302ada2
+2f16d668a14604ad3d4846e29c8a0f10489ac08b a2d232daa0405ed1a7601173af50883de5250ec8
+a2d232daa0405ed1a7601173af50883de5250ec8 0a2abc4956242c118b7d5ef6d4a1fe1b1ff28351
+538b7923354417915c5dbcbcf7052b88faa0da7e 2f16d668a14604ad3d4846e29c8a0f10489ac08b
+
+=== G6b show --stat ===
+ .codex/STATE.md                                    | 13 +++---
+ .../export_selfproof.json                          | 41 ++++++++---------
+ .../export_selfproof.md                            |  8 ++--
+ .../transport_clone_selfproof.json                 | 20 ++++-----
+ .../transport_clone_selfproof.md                   |  6 +--
+ .../export_selfproof.json                          | 51 +++++++++++-----------
+ .../export_selfproof.md                            |  8 ++--
+ .../transport_clone_selfproof.json                 | 24 +++++-----
+ .../transport_clone_selfproof.md                   |  6 +--
+
+=== old RunIds untouched (diff 61caac0d..2f16d668) ===
+report/evidence/S6-A/s6a_g0_20261023_r10: '' exit=0
+report/evidence/S6-B/s6b_core_20261023_r05: '' exit=0
+report/evidence/S6-A/s6a_g0_20261023_r11: '' exit=0
+report/evidence/S6-B/s6b_core_20261023_r06: '' exit=0
+
+=== w6 reflog (HEAD) filtered for new commits ===
+538b792 HEAD@{2026-10-23 10:08:55 +0800}: commit: chore(stage6): G6b = self-proof records for F6d (all hard conditions green in a transport clone) + STATE freeze chain
+2f16d66 HEAD@{2026-10-23 10:06:27 +0800}: commit: fix(stage6): F6d = S6-B approved-caliber texts (no PENDING statements) + C5 scan claim effective; packages rebuilt
+a2d232d HEAD@{2026-10-23 10:02:46 +0800}: commit: chore(stage6): G6 = self-proof records for F6c (transport-clone dual ALL_SELF_PROVEN) + STATE freeze chain and r4 disposition
+0a2abc4 HEAD@{2026-10-23 09:59:52 +0800}: commit: fix(stage6): F6c = STATE must not declare untracked empty dirs (C11 in an export); r12 rebuilt
+9b9d572 HEAD@{2026-10-23 09:56:50 +0800}: commit: fix(stage6): F6b = actually register --s6a-run and derive run_id from the explicit run dir (F6 lacked the flag); packages rebuilt against the fixed tool
+bf05d45 HEAD@{2026-10-23 09:54:58 +0800}: reset: moving to HEAD
+bf05d45 HEAD@{2026-10-23 09:53:21 +0800}: commit: fix(stage6): F6 = BLK-D1 (explicit --s6a-run, run_id synced to r12) + BLK-D2 (approved-caliber texts, history restored, params_snapshot truthful, S6-B approval assertion); RunIds r12/r07
+c7ae6b4 HEAD@{2026-10-23 09:23:15 +0800}: commit: docs(stage6): G5b = STATE records F5/G5 hashes, clone-side verification and the toolchain gap (new commit, no amend)
+61caac0 HEAD@{2026-10-23 09:21:13 +0800}: commit: chore(stage6): G5 = self-proof records for F5 (approval applied) + STATE F5/G5 and toolchain gap note
+caa9728 HEAD@{2026-10-23 09:17:39 +0800}: commit: feat(stage6): F5 = apply Wong's approval (24 params APPROVED_20261023 + approval_record), C4 semantics + reverse self-test, new RunIds r11/r06
+f5b749e HEAD@{2026-10-23 08:31:50 +0800}: commit: chore(stage6): G4 = self-proof records for F4 (transport-clone verified) + STATE supersession note
+6b8e5f2 HEAD@{2026-10-23 08:29:08 +0800}: commit: fix(stage6): F4 = rebuild r10/r05 against the final tools with a reachable source_commit (F3)
+efb9f19 HEAD@{2026-10-23 08:25:07 +0800}: commit (amend): fix(stage6): F3 = claim C5 reads the in-package self-test artifact (reproducible in a clean clone); suite pins the newest freeze tag; packages rebuilt against the final tools
+66f45dd HEAD@{2026-10-23 08:24:07 +0800}: commit: fix(stage6): F3 = claim C5 reads the in-package self-test artifact (reproducible in a clean clone); suite pins the newest freeze tag
+8ecd92c HEAD@{2026-10-23 08:18:57 +0800}: commit: chore(stage6): G2 = self-proof records for F2 (transport-clone verified) + STATE F2/G2
+33b1fee HEAD@{2026-10-23 08:15:45 +0800}: commit: fix(stage6): F2 = claim_verification B-1 fix (unreachable append), count/verdict assertions, C11 file-vs-dir, delivery-pinned self-tests; new RunIds r10/r05
+1e2a66c HEAD@{2026-10-23 07:27:11 +0800}: commit: chore(stage6): G = self-proof records for F (transport-clone verified, tags attached here)
+0725d9c HEAD@{2026-10-23 07:23:52 +0800}: commit: feat(stage6): F = S6-A v1.8/r09 + S6-B r04 delivery content
+1839766 HEAD@{2026-10-23 04:48:43 +0800}: commit (amend): chore(stage6): freeze S6-A v1.7/r08 + S6-B r03
+aabce4c HEAD@{2026-10-23 04:45:59 +0800}: commit: chore(stage6): freeze S6-A v1.7/r08 + S6-B r03
+f3c537d HEAD@{2026-10-23 04:35:15 +0800}: commit: docs(stage6): addendum - self-proof reports list the delivery commits (r08 e3aeb09, r03 05126fd)
+e3aeb09 HEAD@{2026-10-23 04:33:34 +0800}: commit (amend): fix(stage6): S6-B r03 really increments acquisition_id, ships action_records in the evidence (BLK-r02-1/2)
+05126fd HEAD@{2026-10-23 04:31:14 +0800}: commit: fix(stage6): S6-B r03 really increments acquisition_id, ships action_records in the evidence (BLK-r02-1/2)
+902be77 HEAD@{2026-10-23 04:30:47 +0800}: commit: fix(stage6): S6-A v1.7/r08 unifies M4 reachability wording (8 places) and fixes the F6 self-proof rule
+87a6bdc HEAD@{2026-10-23 03:36:28 +0800}: commit: fix(stage6): S6-B r02 fixes BLK-1 (M4 is reachable) and N-01..N-10; evidence regenerated with F6 self-proof
+bdcf896 HEAD@{2026-10-23 03:21:12 +0800}: commit: fix(stage6): S6-A v1.6/r07 closes review F1..F11, adds F6 export self-proof rule, corrects M4 reachability (S6-B BLK-1)
+43f7995 HEAD@{2026-10-23 02:40:04 +0800}: commit (amend): feat(stage6): S6-B pure core + action layer + 6-C deterministic matrix (22 cases / 11 classes)
+6560b69 HEAD@{2026-10-23 02:38:07 +0800}: commit: feat(stage6): S6-B pure core + action layer + 6-C deterministic matrix (22 cases / 11 classes)
+04ea58e HEAD@{2026-10-23 02:36:37 +0800}: commit: fix(stage6): S6-A v1.5/r06 fixes N-r05-04 (30fps later-of window completion) and N-r05-01..03
+1632761 HEAD@{2026-10-23 02:26:26 +0800}: reset: moving to HEAD
+1632761 HEAD@{2026-10-23 02:09:05 +0800}: commit: fix(stage6): S6-A v1.4/r05 closes 4th-review non-blocking items N-r04-01..05
+b20b670 HEAD@{2026-10-23 01:40:03 +0800}: commit: fix(stage6): S6-A v1.3/r04 closes third-round review R3-B01/R3-B02, N01..N05 and STABLE latch
+2ce290f HEAD@{2026-10-22 19:58:43 +0800}: commit: fix(stage6): S6-A v1.2/r03 closes review BLK-1..BLK-3 and NBL-1..NBL-5
+3b59674 HEAD@{2026-10-22 19:45:36 +0800}: commit: fix(stage6): S6-A v1.1/r02 closes review B-01..B-05 and N-01..N-10
+1fe4648 HEAD@{2026-10-22 19:28:48 +0800}: commit: feat(stage6): S6-A G0 packet and interaction behaviour table v1 (28 rows, 24 pending parameters)
+d8bc70e HEAD@{2026-10-22 12:57:38 +0800}: reset: moving to HEAD
+d8bc70e HEAD@{2026-10-22 12:57:37 +0800}: 
+
+=== fsck (clone, shallow) ===
+fsck_exit=0

@@ -1,0 +1,74 @@
+### F5 复评点名的文本点在 F6d（2f16d668）的实际内容
+
+L9: pending_token=True historical_marker=False
+    > **状态：`G0_PACKET_APPROVED_20261023`（待批准）。** 本文是阶段6 的 G0 交付包：阶段6 目标与范围、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。
+
+L10: pending_token=False historical_marker=False
+    > **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为**已批准**（2026-10-23；值仍为草案值）（`APPROVED_20261023`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过。
+
+L128: pending_token=True historical_marker=True
+    每行给出：条件 → 转移 → 输出 → 必须记录 → 判定依据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_APPROVED_20261023`，**已批准（2026-10-23）、不是已冻结**）；**其中全部数值参数为待批准**。　【历史语境：上述为当时状态（该版本产出时尚未批准）】
+
+L130: pending_token=False historical_marker=False
+    | ID | 行为 | 条件 → 转移 | 输出/动作 | 必须记录 | 判定依据 | 参数（已批准 2026-10-23） |
+
+L171: pending_token=True historical_marker=False
+    **表 A-1（动作映射为提案，待批准）**。本轮 `supported_types` 仅 `A_SWITCH_UI` 与 `A_SWITCH_CHANNEL`；`A_DISPLAY_STATE` 在 r01 JSON 中登记但从未被任何类映射，r02 已删除（U6-15），若后续需要须回 G0 冻结。
+
+L185: pending_token=True historical_marker=False
+    - **逐类用户体验要求（r02 补，N-06；具体可见时长待批准）**：五类动作共用同一反馈骨架——生效必须有可观察显示状态变化（`ACTION_EFFECTIVE`）、失败/未观察必须显示 `last_action_result` 且不得虚报成功、同一动作重复提交不得产生闪烁或额外可见变化（幂等）；反馈不得遮挡手势置信信息。各类目标状态见表 A-1。具体反馈可见时长与过渡动画属待批准项（U6-14），获批前只能按「可观察、可区分、不虚报」做离线断言。
+
+L280: pending_token=False historical_marker=False
+    ## 14. 阈值与指标登记（**全部已批准 2026-10-23**）
+
+L282: pending_token=False historical_marker=False
+    下表全部为 `APPROVED_20261023`：`草案值` 指上游草案建议或本 G0 提议，**不是**已批准门槛。批准权在 Wong（由项目总控转呈）。
+
+L320: pending_token=True historical_marker=False
+    - **动作延迟**：`latency_action = t_effective − t_trigger`，其中 `t_trigger` = 触发该动作的那条结果的显式输入时刻。受 `T6-A01` 约束（待批准）。
+
+L321: pending_token=True historical_marker=False
+    - **交互延迟**：`latency_interaction = t_effective − window_complete`，**不得**用 `t_capture(窗口首个 `WINDOW_MATCH` 帧)` 或 `W_min` 顶替（B-04）；其上限为 `T6-A03`（**待批准**，草案未给值，且必须先有实测 P）。
+
+L397: pending_token=True historical_marker=True
+    - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1）。　【历史语境：上述为当时状态（该版本产出时尚未批准）】
+
+### 8 条历史修订记录行（含 APPROVED_20261023 的修订行）的实际标记状态
+
+L9: historical_machine_marker=False
+    > **状态：`G0_PACKET_APPROVED_20261023`（待批准）。** 本文是阶段6 的 G0 交付包：阶段6 目标与范围、上游绑定与冻结状态、状态机架构硬不变量、**交互行为表 v1**、时间边界口径、异常与恢复行为、低 FPS 交互延迟口径。...
+
+L10: historical_machine_marker=False
+    > **本文未冻结任何阈值或验收指标。** 全部数值参数（分数门、窗口、帧数、冷却、样本数、指标门槛）一律登记为**已批准**（2026-10-23；值仍为草案值）（`APPROVED_20261023`），由项目总控转呈 Wong 决定；在获批前，任何统计结果只能报告为「观测值」，不得据此宣称通过...
+
+L14: historical_machine_marker=True
+    > BLK-r08-1（M4 表述共 9 处 + C16 扫描范围与语义判定 + 两表示法交叉断言）、BLK-r08-2（claim_verification 真实退出码、首版即中止、清单引用 verdict）、N-r08-1（source_commit 可达性 + 传输克隆检查 + 本地附注 ta...
+
+L21: historical_machine_marker=False
+    > - 全部 24 项参数值与 `APPROVED_20261023` 未改；复评由项目总控另行安排；本包不因收尾而视为通过。...
+
+L28: historical_machine_marker=False
+    > - 全部 24 项参数值与 `APPROVED_20261023` 状态未改；复评由项目总控另行安排；本包不因收尾而视为通过。...
+
+L30: historical_machine_marker=False
+    > **修订记录（v1.5 / r06，2026-10-23）**：r05 包（提交 `1632761`，契约 `S6A-G0-v1.4`）已通过**第 5 轮独立复评** `S6A_r05_20261023_r01`（`PASS`，0 阻断），现按该轮 4 项非阻断建议收尾：**N-r05-04*...
+
+L32: historical_machine_marker=False
+    > **上一轮修订记录（v1.4 / r05，2026-10-23）**：本包已通过**第 4 轮独立复评** `S6A_r04_20261023_r01`（`PASS`，0 阻断 / 5 项非阻断），现按该 5 项非阻断建议收尾：**N-r04-01** M5 条件补「本帧必须为窗口推进帧（`st...
+
+L34: historical_machine_marker=False
+    > **上一轮修订记录（v1.3 / r04，2026-10-23）**：本包针对**第三轮独立复评** `S6A_r03_20261022_r01`（`CHANGES_REQUIRED`，R3-B01/R3-B02 + N01..N05 + 观察项）修订：**R3-B01** §12 `T6-S0...
+
+L36: historical_machine_marker=False
+    > **上一轮修订记录（v1.2 / r03，2026-10-22）**：本包针对**复评** `S6A_20261022_r02`（`CHANGES_REQUIRED`，BLK-1/BLK-2/BLK-3 + NBL-1..NBL-5）修订：**BLK-1** 谓词拆分落到全部迁移与行为行（M3 ...
+
+L38: historical_machine_marker=False
+    > **更早修订记录（v1.1 / r02，2026-10-22）**：针对独立评审 `S6A_20261022_r01`（`CHANGES_REQUIRED`，B-01..B-05 阻断 + N-01..N-10）修订，按项目总控裁定关闭：**B-01** 真实生成证据清单与真实退出码；**B-0...
+
+### 规格文档中所有出现【历史语境】标记的行
+L14: > BLK-r08-1（M4 表述共 9 处 + C16 扫描范围与语义判定 + 两表示法交叉断言）、BLK-r08-2（claim_verification 真实退出码、首版即中止、清单引用 verdict）、N-r08-1（source_commit 可达性 + 传输克隆检查 + 本地附注 tag）、NB-r03-10（M4 第 9 处）。24 项参数与 APPROVED_20261023 未
+L17: > - **`BLK-r07-1`**：M4 可达性口径统一（**r08 5 处 + r09 补齐 3 处 + 两个表示法 = 9 处**）——JSON `parameter_notes.T6-S04`/`reachability.consequence`/`reachability.M4.review_correction`、**`hand_computed_cases.json` 的 HC-2
+L105: > 历史说明（历史语境除外）：r07 之前本节曾按参数大小比较得出错误结论；r07 起修正为可达，r09 统一全部表示法。
+L128: 每行给出：条件 → 转移 → 输出 → 必须记录 → 判定依据 → 参数与批准状态。行为表 v1.1 基线已声明（状态 `DELIVERED_APPROVED_20261023`，**已批准（2026-10-23）、不是已冻结**）；**其中全部数值参数为待批准**。　【历史语境：上述为当时状态（该版本产出时尚未批准）】
+L392: - 本轮（v1.8 / r09）运行证据：`report/evidence/S6-A/s6a_g0_20261022_r09/` 与 `report/evidence/S6-A/s6a_g0_20261022_r09_selfproof/`。历史语境除外
+L397: - 限制：阶段4 结果记录与阶段5 显示契约均未冻结 → 集成验收依赖 `BLOCKED`；阶段4 文件在本轮期间被 w4 窗口并发修改（未提交），本 G0 绑定的是提交 `73c3dad` 版本（见 §1 与 `upstream_bindings.json`）；显示侧新增 HUD 字段为提案；动作映射为提案；全部阈值待批准；无硬件授权，未做任何板上验证。M4/T6-S04 保留并计入覆盖；覆盖声

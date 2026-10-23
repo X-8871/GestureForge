@@ -39,7 +39,10 @@
   新增 `--simulate-skip` 必 FAIL 自测，套件产物 `tool_self_tests.json` 直接入库。
 - **A8 复跑**：见「证据入口」中三包清单 `checks` 的真实退出码（r13 4/4、r08 6/6、S6-E 4/4 全 PASS 且 exit 0）。
 - **快照自证（提交前，2026-10-24）**：S6-A 剖面 `--worktree-snapshot --s6a-run r13` → `ALL_SELF_PROVEN [0,0,0]` exit 0；
-  双剖面（+`--s6b-run r08`）→ `ALL_SELF_PROVEN [0,0,0,0]` exit 0；报告见两条 `_selfproof` 目录（提交后另以 `--commit <交付提交>` 追加提交主体）。
+  双剖面（+`--s6b-run r08`）→ `ALL_SELF_PROVEN [0,0,0,0]` exit 0；报告见两条 `_selfproof` 目录。
+- **提交级自证（2026-10-24）**：交付提交 **`509e39e`**（本轮 A+B 内容）经
+  `export_selfproof --commit 509e39e… --s6a-run r13 [--s6b-run r08]` 复跑 → S6-A 剖面 `[0,0,0]`、双剖面 `[0,0,0,0]`，
+  均 `ALL_SELF_PROVEN` exit 0（报告含 commit 与快照两个主体）。**G 段记录提交本身未再做第三层提交级自证**（如实披露）。
 
 ## 6-E 离线轮完成项（B 组：真实推理验收用例与窗口材料）
 - **用例集 v1**（`S6E-ACC-v1`，26 条：动作 11 / 未知 3 / 恢复 8 / 离线自检 4），绑定已批准 24 项与 `stale=200ms`；

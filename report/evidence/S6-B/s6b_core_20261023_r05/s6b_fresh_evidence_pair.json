@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_fresh_evidence_pair",
+  "rule": "构建后间隔 gap_seconds 跑两次 --mode evidence，两次都必须 exit 0 且 CHECKS_OK",
+  "gap_seconds": 30,
+  "first": {
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S6-B/s6b_core_20261023_r05/delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+    "exit_code": 0,
+    "status": "CHECKS_OK",
+    "output_file": "D:\\codex-worktrees\\w6\\tmp\\6\\s6b_fresh_evidence_1.txt"
+  },
+  "second": {
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S6-B/s6b_core_20261023_r05/delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+    "exit_code": 0,
+    "status": "CHECKS_OK",
+    "output_file": "D:\\codex-worktrees\\w6\\tmp\\6\\s6b_fresh_evidence_2.txt"
+  },
+  "verdict": "BOTH_CHECKS_OK"
+}

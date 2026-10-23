@@ -240,6 +240,10 @@ def main(argv: list[str] | None = None) -> int:
         ],
         "reachability_not_counted_as_coverage": ["B16 S_DEDUP（A02<K01，草案值下不可达）", "M7（构造上不可达）"],
         "reachability_counted": ["M4（TARGET_CONTINUES 不含 score ≥ T6-P02 → M10 不先命中；用例 C4-jitter-reset）"],
+        "known_limitations": [
+            "工具自测套件的 selfproof_valid_commit 曾用 --commit HEAD；现已固定指向交付提交，解析不到时跳过并标注",
+            "上一轮 G（1e2a66c）自身快照自证不绿（STATE 以文件形式声明 report/evidence 路径而 C11 曾按目录判定）；本轮已修为区分文件/目录，G2 全绿",
+        ],
         "known_costs": [
             "工具自测套件（tool_self_tests.py）约 20 分钟/次；冻结时由项目总控与增量复核方各跑一次",
             "附录引用自测产物而不重跑；套件内守门两侧为同逻辑探针副本（构建器内真实守门另有独立实测）",
@@ -391,6 +395,7 @@ def main(argv: list[str] | None = None) -> int:
             "exit_code": 0 if expected else 1,
             "reason": f"工具判定 {proof.get('verdict')}；逐项退出码 {per_check}",
         }
+
     claim_verdict_path = run_dir / "claim_verification.json"
     if claim_verdict_path.is_file():
         _verdict = json.loads(claim_verdict_path.read_text(encoding="utf-8")).get("verdict")

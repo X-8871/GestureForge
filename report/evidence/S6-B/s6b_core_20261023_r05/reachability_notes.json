@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_reachability_notes",
+  "task_id": "S6-B",
+  "derived_from": "S6A-G0-v1.6 draft parameters (PENDING_APPROVAL)",
+  "notes": [
+    {
+      "id": "B16-dedup-window",
+      "statement": "T6-A02(500 ms) < T6-K01(1000 ms)：任何第二次提交都必须等冷却门结束（≥K01），届时已超出 T6-A02 去重窗口 → 在当前草案值下 B16 的 S_DEDUP 分支不可达。",
+      "consequence": "去重逻辑保留并单列，但不得计入覆盖声明；若 G0 批准 T6-A02 > T6-K01 则可达。",
+      "checked": true
+    },
+    {
+      "id": "M4-candidate-timeout",
+      "statement": "**M4 可达（BLK-1 修正）**：T6-S04(500 ms) 与 T6-L02(300 ms) 的大小不足以判定——§3 的 TARGET_CONTINUES 不含 score ≥ T6-P02，低分/位移造成的 WINDOW_MATCH 中断仍满足 TARGET_CONTINUES（t_last_target_continues 继续刷新、miss_streak 不增），M10 不会先命中，候选停留可达到 T6-S04 → M4 可达并**计入覆盖**（用例 C4-jitter-reset 实测 M4@f7）。",
+      "consequence": "M4 计入覆盖声明；S6-A 侧 reachability.M4 与 U6-12 已同步修正（r07）。",
+      "checked": true
+    },
+    {
+      "id": "M7-triggered-loss",
+      "statement": "M5 为同步提交，TRIGGERED 之后不存在独立的提交流失窗口 → M7 构造上不可达。",
+      "consequence": "保留编号与日志位，不为 M7 造路径。",
+      "checked": true
+    }
+  ]
+}

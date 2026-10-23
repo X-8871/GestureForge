@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_old_package_under_test",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261023_r10",
+  "purpose": "用 r01 真实字节证明加固自检能捕获旧缺陷；r03 同时修正 r02 的哈希绑定错误（BLK-2）。",
+  "git_commit": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff",
+  "files_under_test": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "git_ref": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff:docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261023_r10/legacy/r01/old_behavior.json",
+      "sha256": "1cd0cfc357f3b02a8d8367fead64e5ba8b9cf900607fd65caab76fa88937c583",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "git_ref": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff:docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261023_r10/legacy/r01/old_doc.md",
+      "sha256": "12bce40313289acb2f3f618630b82c53293fca15579355c12e329160c1585220",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json",
+      "git_ref": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff:report/evidence/S6-A/s6a_g0_20261022_r01/hand_computed_cases.json",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261023_r10/legacy/r01/old_cases.json",
+      "sha256": "34d35202e546740d0e9885a141afed686dbfbe232cb15a666e735d1209b969f1",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r01/upstream_bindings.json",
+      "git_ref": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff:report/evidence/S6-A/s6a_g0_20261022_r01/upstream_bindings.json",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261023_r10/legacy/r01/old_bindings.json",
+      "sha256": "9a50df0755029529fc2f5b3601041a81d7c670274de58c88623b07aecc0e525b",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "git_ref": "1fe4648cba5a9f1ffc87dbe21cea732b72716bff:.codex/STATE.md",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261023_r10/legacy/r01/old_state.md",
+      "sha256": "7f5ae6f3aea810ee53ba6de0de20fe56a833e19f0df86577ad890f8ab55cf6b8",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    }
+  ],
+  "evidence_dir_under_test": {
+    "path": "report/evidence/S6-A/s6a_g0_20261022_r01",
+    "actual_files": [
+      "S6A_run_summary.md",
+      "coverage_matrix.json",
+      "hand_computed_cases.json",
+      "limitations_not_executed.json",
+      "selfcheck_result.json",
+      "upstream_bindings.json"
+    ]
+  },
+  "expected_outcome": "FAILED（exit 1）",
+  "observed": {
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261023_r10\\legacy\\r01\\old_behavior.json --doc D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261023_r10\\legacy\\r01\\old_doc.md --cases D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261023_r10\\legacy\\r01\\old_cases.json --upstream D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261023_r10\\legacy\\r01\\old_bindings.json --out D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261023_r10\\selfcheck_old_package_failure.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r01 --state D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261023_r10\\legacy\\r01\\old_state.md",
+    "exit_code": 1,
+    "status": "FAILED",
+    "failed_checks": [
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C9",
+      "C11",
+      "C12",
+      "C13",
+      "C14",
+      "C15",
+      "C16",
+      "C17"
+    ],
+    "failure_json": "selfcheck_old_package_failure.json",
+    "failure_stdout": "selfcheck_old_package_failure_stdout.txt"
+  },
+  "extraction_policy": "git cat-file blob 二进制输出直接落盘；SHA-256 对 git 字节计算（N03/N05）",
+  "r02_hash_error_explanation": "r02 的旧包哈希曾用 PowerShell 文本管道提取（git show | Set-Content -Encoding utf8）直接改写字节：LF→CRLF 且文件末尾被补 CRLF，故 5/5 哈希与 git 对象不符（复评 BLK-2；成因措辞按 N05 更正，不再声称“编码”被改写）。本文件一律改为 git cat-file blob 二进制提取，SHA-256 直接对 git 字节计算；失败结论（exit 1）不变。"
+}

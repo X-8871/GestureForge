@@ -363,15 +363,7 @@ def main(argv: list[str] | None = None) -> int:
         if st_run["exit_code"] != 0:
             print(st_run["stdout"]); print(st_run["stderr"]); return 1
 
-    claim_cmd = [sys.executable, "-B", str(root / "verification/claim_verify.py"),
-                 "--package", "s6a", "--run-dir", str(run_dir), "--project-root", str(root)]
-    claim_run = run_command(claim_cmd, root)
-    _guard_check("claim-verify")
-    print(f"[claim-verify] exit={claim_run['exit_code']}")
-    if claim_run["exit_code"] != 0:
-        # BLK-r08-2④：**首版也必须中止**——绝不允许发布 NOT_ALL_VERIFIED 的附录。
-        print(claim_run["stdout"]); print(claim_run["stderr"]); return 1
-
+    # （claim 步骤已移入下方 FIXPOINT 循环：附录必须在清单之前生成，且 C6 需要清单存在）
     inputs_manifest_path = run_dir / "inputs_manifest.json"
     inputs_output_path = run_dir / "check_inputs_mode_output.txt"
     evidence_output_path = run_dir / "check_evidence_mode_output.txt"
@@ -583,6 +575,14 @@ def main(argv: list[str] | None = None) -> int:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     # ---- 结构规则（lead 冻结级阻断）：清单必须是最后写入者；写完清单立即新鲜自检并迭代到不动点 ----
     for _round in range(3):
+        claim_cmd = [sys.executable, "-B", str(root / "verification/claim_verify.py"),
+                     "--package", "s6a", "--run-dir", str(run_dir), "--project-root", str(root)]
+        claim_run = run_command(claim_cmd, root)
+        _guard_check("claim-verify")
+        print(f"[claim-verify] exit={claim_run['exit_code']}")
+        if claim_run["exit_code"] != 0:
+            # BLK-r08-2④：**首版也必须中止**——绝不允许发布 NOT_ALL_VERIFIED 的附录。
+            print(claim_run["stdout"]); print(claim_run["stderr"]); return 1
         write_hashes()
         write_manifest(None, None, "")
         # 必须带 --manifest：否则 C11 不核清单哈希绑定，收敛判定会"假通过"

@@ -148,6 +148,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--package", choices=["s6a", "s6b"], required=True)
     parser.add_argument("--run-dir", required=True)
     parser.add_argument("--project-root", required=True)
+    parser.add_argument("--simulate-defect", choices=["none", "count_mismatch", "empty"], default="none",
+                        help="仅工具自测用：人为制造数量不符/空列表，证明判定会返回 NOT_ALL_VERIFIED")
     args = parser.parse_args(argv)
 
     root = Path(args.project_root).resolve()
@@ -157,10 +159,16 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     out_dir = root / "tmp/6/claim_runs" / run_dir.name
     out_dir.mkdir(parents=True, exist_ok=True)
-    claims = s6a_claims(root, args.run_dir, out_dir) if args.package == "s6a" else s6b_claims(root, args.run_dir, out_dir)
+    # 命令文本一律用**项目根相对 POSIX 路径**：绝对 Windows 路径含反斜杠，放进 `python -c` 字符串会被转义破坏
+    _run_path = Path(args.run_dir)
+    run_rel = _run_path.resolve().relative_to(root).as_posix() if _run_path.is_absolute() else _run_path.as_posix()
+    claims = s6a_claims(root, run_rel, out_dir) if args.package == "s6a" else s6b_claims(root, run_rel, out_dir)
 
-    results = []
+    results: list[dict] = []
     readonly_guard: dict[str, dict[str, str]] = {}
+    declared = len(claims)
+    expected_count = declared + 1  # 含内置的 self_test_false_claim
+
     for claim in claims:
         _before = _hand_hashes(run_dir)
         exit_code, output = run(claim["argv"], root)
@@ -169,16 +177,16 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[RO-TRACE] {claim['id']} changed={_changed}")
         if _changed:
             readonly_guard[claim["id"]] = {"changed": _changed}
-    if readonly_guard:
-        print("[RO-GUARD] 只读约束被破坏（下述 claim 改写了证据目录）：" + json.dumps(readonly_guard, ensure_ascii=False))
-        return 1
+        ok = (exit_code == claim["expect_exit"]) and not _changed
+        # B-1 修复：append 必须在**循环体内**（此前它位于 `return 1` 之后，永不可达 ⇒ 附录只剩 1 条却自称 ALL_CLAIMS_VERIFIED）
         results.append({
             "claim_id": claim["id"], "statement": claim["statement"],
             "command": subprocess.list2cmdline(claim["argv"]),
             "exit_code": exit_code, "expected_exit": claim["expect_exit"],
             "observable": claim["observable"],
             "output_tail": output.strip().splitlines()[-3:] if output.strip() else [],
-            "verdict": "VERIFIED" if exit_code == claim["expect_exit"] else "NOT_VERIFIED",
+            "readonly_violation": _changed,
+            "verdict": "VERIFIED" if ok else "NOT_VERIFIED",
         })
 
     false_exit, false_out = run([PY, "-B", "-c", "print('deliberately false claim');assert 1 == 2"], root)
@@ -188,8 +196,27 @@ def main(argv: list[str] | None = None) -> int:
         "command": subprocess.list2cmdline([PY, "-B", "-c", "assert 1==2"]),
         "exit_code": false_exit, "expected_exit": "非 0",
         "observable": "self-test", "output_tail": false_out.strip().splitlines()[-1:],
+        "readonly_violation": [],
         "verdict": "VERIFIED" if false_exit != 0 else "NOT_VERIFIED",
     })
+
+    if readonly_guard:
+        print("[RO-GUARD] 只读约束被破坏（下述 claim 改写了证据目录，已如实记为 NOT_VERIFIED）："
+              + json.dumps(readonly_guard, ensure_ascii=False))
+
+    # ---- 新增断言 (a)：数量必须等于该包定义的 claim 数 + 1（含 false self-test）----
+    simulate = getattr(args, "simulate_defect", "none")
+    if simulate == "empty":
+        results = []
+    elif simulate == "count_mismatch":
+        results = results[:-1]  # 人为丢掉一条，制造数量不符
+    count_ok = len(results) == expected_count
+    if not count_ok:
+        print(f"[COUNT-ASSERT] claims 数量不符：记录 {len(results)}，期望 {expected_count}（定义 {declared} + 1）")
+
+    # ---- 新增断言 (b)：verdict 由**全部** claim 的 exit_code 计算；空列表或数量不符一律 NOT_ALL_VERIFIED ----
+    all_ok = bool(results) and count_ok and all(c["verdict"] == "VERIFIED" for c in results)
+    verdict = "ALL_CLAIMS_VERIFIED" if all_ok else "NOT_ALL_VERIFIED"
 
     payload = {
         "schema_version": 1,
@@ -197,12 +224,17 @@ def main(argv: list[str] | None = None) -> int:
         "task_id": "S6-A" if args.package == "s6a" else "S6-B",
         "run_id": run_dir.name,
         "rule": ("每条声明的 exit_code 均为**真实 subprocess 退出码**；命令可独立复算（无占位符）；"
-                 "内置 self_test_false_claim 证明本工具对假声明会 FAIL。"),
+                 "内置 self_test_false_claim 证明本工具对假声明会 FAIL；"
+                 "verdict 由**全部** claim 计算，且 claims 数量必须等于定义数 + 1，空列表/数量不符一律 NOT_ALL_VERIFIED。"),
         "reproduce": (f"python -B verification/claim_verify.py --package {args.package} "
                       f"--run-dir {args.run_dir} --project-root {root}"),
         "generated_at_utc8": datetime.now(UTC8).strftime("%Y-%m-%d %H:%M:%S"),
+        "claims_declared": declared,
+        "claims_recorded": len(results),
+        "count_ok": count_ok,
+        "readonly_violations": readonly_guard,
         "claims": results,
-        "verdict": "ALL_CLAIMS_VERIFIED" if all(c["verdict"] == "VERIFIED" for c in results) else "NOT_ALL_VERIFIED",
+        "verdict": verdict,
         "scope_statement": "本附录只证明这些声明在**本次真实执行**下成立；不代表独立审查或验收通过。",
     }
     (run_dir / "claim_verification.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",

@@ -202,7 +202,8 @@ def check_identity(data: dict[str, Any]) -> None:
         "S6A-G0-v1.5": "s6a_g0_20261022_r06",
         "S6A-G0-v1.6": "s6a_g0_20261022_r07",
         "S6A-G0-v1.7": "s6a_g0_20261022_r08",
-        "S6A-G0-v1.8": "s6a_g0_20261022_r09",
+        # 同一 artifact_version 允许多个 RunId（旧轮次仍可复现，新轮次追加）
+        "S6A-G0-v1.8": ("s6a_g0_20261022_r09", "s6a_g0_20261023_r10"),
         "S6A-G0-v1.7": "s6a_g0_20261022_r08",
     }
     if version in expected_runs:
@@ -210,8 +211,10 @@ def check_identity(data: dict[str, Any]) -> None:
         for key in ("run_id", "review_source", "changes", "review_status"):
             if not revision.get(key):
                 raise CheckFailure(f"{version} 缺少 revision.{key}")
-        if data.get("run_id") != expected_runs[version]:
-            raise CheckFailure(f"{version} 的 run_id 必须是 {expected_runs[version]}")
+        _allowed_runs = expected_runs[version]
+        _allowed_runs = (_allowed_runs,) if isinstance(_allowed_runs, str) else tuple(_allowed_runs)
+        if data.get("run_id") not in _allowed_runs:
+            raise CheckFailure(f"{version} 的 run_id 必须是 {_allowed_runs} 之一，实际 {data.get('run_id')!r}")
         if not data.get("supersedes_run_id"):
             raise CheckFailure(f"{version} 必须声明 supersedes_run_id")
 
@@ -1163,6 +1166,7 @@ def check_evidence_integrity(
         lines = state_text.splitlines()
         declared_files: set[str] = set()
         declared_dirs: set[str] = set()
+        declared_repo_files: set[str] = set()  # 全路径（项目根相对）的**文件**声明（限制①：不得一律当目录）
         for line in lines:
             if "证据入口" not in line and "report/evidence" not in line:
                 continue
@@ -1174,7 +1178,12 @@ def check_evidence_integrity(
                 ):
                     declared_files.add(token)
                 elif token.startswith("report/evidence/"):
-                    declared_dirs.add(token.rstrip("/"))
+                    # 限制① 修复：带文件扩展名的 token 是**文件**（此前一律当目录并要求 is_dir ⇒ 兄弟目录里的自证记录被误判）
+                    cleaned = token.rstrip("/")
+                    if re.search(r"\.(json|md|txt|jsonl)$", cleaned):
+                        declared_repo_files.add(cleaned)
+                    else:
+                        declared_dirs.add(cleaned)
         if not declared_files and not declared_dirs:
             raise CheckFailure("STATE 未解析到任何证据声明（不得以空声明通过）")
         missing_files = sorted(name for name in declared_files if not (evidence_dir / name).is_file())
@@ -1185,8 +1194,14 @@ def check_evidence_integrity(
         )
         if missing_dirs:
             raise CheckFailure(f"STATE 声明的证据目录不存在：{missing_dirs}")
+        missing_repo_files = sorted(
+            path for path in declared_repo_files if not (project_root / path).is_file()
+        )
+        if missing_repo_files:
+            raise CheckFailure(f"STATE 声明的证据文件不存在（按项目根解析）：{missing_repo_files}")
         details.append(
-            f"STATE 声明 {len(declared_files)} 个文件与 {len(declared_dirs)} 个目录全部存在"
+            f"STATE 声明 {len(declared_files)} 个文件、{len(declared_dirs)} 个目录与 "
+            f"{len(declared_repo_files)} 个含路径文件全部存在"
         )
     return "；".join(details)
 

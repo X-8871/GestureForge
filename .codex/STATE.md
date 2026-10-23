@@ -1,6 +1,6 @@
 # 阶段4 状态（真实PS张量诊断接入准备）
 
-更新：2026-10-23 18:51（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+更新：2026-10-23 19:16（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
 **写权：Codex 阶段4接续总控受 Codex 项目总控委派独占，IN_PROGRESS。** 认领基线 `af85d5a8495598262395165492df5e4d0bfb723c`；DSH 于 00:35 OFFERED 并停止写入，00:42 现场复核 `handoff_check --claim` 得到 9 PASS / 0 FAIL / 0 SKIP，随后 CLAIMED→IN_PROGRESS。
 **Wong 要求持续推进至4-D结束；完整阶段4未验收。** 当前先闭合4-B真实PS诊断、原始帧PL预处理G0及板测操作入口；硬件执行前须完成正式授权记录、会话交接及适用G0，4-D不以张量诊断代替完整预处理路径。12:46在额度中断后由同一总控恢复，无写权转移。
 
@@ -36,7 +36,9 @@
 
 - G0材料已独审PASS并提交 `161401e644bf5830931758fe776c6e8bdf823742`：109帧中97帧>4MiB，最大packed RGB888=11,059,200B，4MiB草案仅容12帧；按109完整覆盖预算。D2旧/新SHA仅EOL差；34合成桥接一致，未重生成/逐值核验109帧或PL。证据 `S4-B/s4b_pl_g0_input_scope_20261023_r01/`、`s4b_pl_g0_reference_bridge_20261023_r01/`、`S4-CTRL/s4_pl_g0_materials_20261023_r01/` 保持当时待批准身份；本次批准不改写旧证据。6份桥接文件误落主tmp已保全/恢复，记录保留。
 - 后续109 RAW+直接标量D2重生完成：109/109匹配冻结输入SHA，exit0、190.075秒；RAW808263072B、参考56589312B留w4新tmp RunId，已对218输入逐文件机器核验。长期脚本/日志/结果/恢复政策 `report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/`，不代表PL/4D。
-- PL单通道数值核G2独审PASS：r04 XSim 547 FP64逐位、10pixel及6系数错误通过，工具exit0；Reviewer独立重建127阈值、381邻界点/1021整数半整数/10000固定种子点并重核547期望。5源冻结 `S4-B/s4b_pl_numeric_g2_20261023_r02/`，record SHA `a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd`；闭合包 `S4-CTRL/s4_pl_numeric_closure_20261023_r01/` evidence0、inputs2（声明OOC/硬件NOT_RUN）。仅单通道、不含padding/几何/整帧；无综合/OOC/资源或板测。geometry修复2冻结r03最终复审中；系统G0细化中。02B修复2复审发现测试目录隔离及RunId子串匹配，待第3轮修复。main/硬件跨方协调消息已提请Wong授权，尚未发送。
+- PL单通道数值核G2独审PASS并提交 `c9bab114d535191ae2dc2ef8bdcd087f15ed672a`：r04 XSim 547 FP64逐位、10pixel及6系数错误通过，工具exit0；Reviewer独立重建127阈值、381邻界点/1021整数半整数/10000固定种子点并重核547期望。5源冻结 `S4-B/s4b_pl_numeric_g2_20261023_r02/`，record SHA `a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd`；闭合包 `S4-CTRL/s4_pl_numeric_closure_20261023_r01/` evidence0、inputs2（当时OOC/硬件NOT_RUN）。仅单通道、不含padding/几何/整帧。
+- 后续单次OOC综合exit0：xc7z020clg400-2，LUT1930/FF1674/BRAM0/DSP0、43秒、Vivado peak2008.668MB。综合后施加20ns/IOdelay0，WNS+9.411ns、WHS−0.276ns（288输入端点），HD.CLK_SRC未设、无布局布线；整体时序未闭合，不外推FPS/整网。报告 `S4-B/s4b_pl_numeric_ooc_20261023_r01/` 待独审；自有Vivado会话已关闭，无实物操作。
+- geometry修复2冻结r03独审PASS：42设备名及6路径别名在文件IO前拒绝，13tests0，202×329真实D2边界和目标轴1/同尺寸分支独立复核。闭合包 `S4-CTRL/s4_pl_geometry_closure_20261023_r01/` 保留27份各轮记录；仅metadata，不含硬件ABI/整帧PL。系统G0细化中；02B修复2复审发现测试目录隔离及RunId子串匹配，正在第3轮修复。main/硬件跨方协调消息已提请Wong授权，尚未发送。
 
 - 历史S4-C `s4c_replay_20261021_r05` 的109/109 PASS、0数值差异已独立核对，可精确复用CPU golden heads→D9→T29范围；本轮未重跑109样本/重哈希390MB分片，未覆盖D2/r06新字段或板卡。复用证据 `report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/` 包装CHECKS_OK；此前“109全量NOT_RUN”不能解释为历史离线回放未做。
 
@@ -49,4 +51,4 @@
 
 ## 交接行（11字段）
 
-任务=`持续推进至4-D：02B轮2/PL数值核独审、geometry修复与系统G0` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；保护旧冻结离线链与既有RunId` | 未提交改动归属=`既有提交至b7aceb8；STATE/RAW参考、02B与PL/geometry未提交源证据均归本总控；6ELF/6map本机恢复依赖不入源码提交` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占；硬件尚未认领` | 心跳(UTC+8)=`2026-10-23 18:51` | 证据入口=`report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r03/；s4b_pl_numeric_g2_20261023_r02/；s4b_raw_reference_109_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`
+任务=`持续推进至4-D：02B轮3修复、geometry闭合、数值核OOC审查与系统G0` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；保护旧冻结离线链与既有RunId` | 未提交改动归属=`既有提交至c9bab11；STATE/02B、geometry及OOC证据、系统G0文档未提交改动均归本总控；6ELF/6map本机恢复依赖不入源码提交` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占；硬件尚未认领` | 心跳(UTC+8)=`2026-10-23 19:16` | 证据入口=`report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r03/；s4b_pl_numeric_ooc_20261023_r01/；S4-CTRL/s4_pl_geometry_closure_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`

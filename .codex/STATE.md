@@ -31,14 +31,20 @@
 
 ## 未闭合 / 下一步
 
-- 契约 r04、RAW 缺口登记表与 P 方案**尚无独立复审**（本阶段总控受委派深度限制，不能创建子代理）；须由 DSH 项目总控派 Reviewer。
+- 契约 r04、RAW 缺口登记表与 P 方案已经在**被审提交 `7a9507a`** 上通过独立复审 **`PASS`**（阻断 0／非阻断 4）：契约 r04 可作为阶段4 **当前基线**（冻结时必须显式引用 `r04` + 被审 SHA）；G-01 被独立确认为**设计级阻断**（窗口内最大连续可用区 9,825,540 B < 最大帧 11,059,200 B，缺口 **1,233,660 B** ⇒ 批准不足以解决，须 Wong 决定）。
+- **流程纠正（下一轮起严格执行）**：① 交审前先声明**固定基线**并**停写被审对象**；审查期间只允许改**审查范围之外**的文件且必须**先报 lead**；② 冻结/引用基线必须写明**提交号 + 被审 SHA**，不得写“最新”；③ 若须在审查期间改动同范围 ⇒ **对新基线另行复审**，不得沿用旧结论。（本次成因是排程重叠，已在 lead 侧记录。）
 - RAW 系统 G0 缺口：地址/所有权批准（G-01/G-02 `BLOCKED_PENDING_APPROVAL`）、D2 整帧/padding 数值（G-04）、HP0 串行 owner 与排空（G-05）、平台 BD/XSA（G-07）、PS RAW task 与旧 memcpy 冲突（G-08）、协议项（G-09/G-10/G-11/G-13）、资源与布线后时序（G-14）、mailbox ABI 审查（G-15）。
 - 硬件相关**全部 `NOT_RUN`**：八类门禁与正式 OFFER/CLAIM（G-16）、4-D 验收（G-17）、真实彩色回归（G-18）、帧周期 P（G-19）。
 - 4-D 与阶段4 G5 未完成；不得把离线/回放结论升级为实物集成结论。
 - **G-01/G-02 进展（lead 已裁 D1–D4）**：D1=**有条件批准选项 A**（不选 C）；D2 建议不接受 107 帧子集（决定权报 Wong）；D3 META 不强制与 RAW 相邻；D4 不前置 linker 冻结 ⇒ 选项 E 排除。裁决记录 `report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md`。
 - **条件①交叉核对已取证**：`report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r03/`（`scripts/stage4_s4b/crosscheck_raw_address_owners.py` **exit 0**）。结论：候选 `[0x12000000,0x12C08000)` 与 **2B 全部对象**（含专属窗口——候选自窗口末端 `0x12000000` 起）及 **阶段5 送显三缓冲**（事实取 w5 `S5-T01` 已提交运行清单：`0x00114C00/0x00703800/0x00CF2400`，`ADDR_S2MM==buf0`，720×3840=0x2A3000/帧）**均不相交**；**阶段3 自身未发布静态地址事实**（仅有代码级 `dispCtrl.framePtr[curFrame]` 与每帧 0x2A3000）⇒ 条件①标记 **`INCOMPLETE_PENDING_STAGE3_WRITTEN_FACT`**。**取证未齐，故本轮未落盘任何地址图/契约改动**（`ENABLE=0`、不访问候选区）；已请 lead 向阶段3 索取书面静态事实。
 - **005 回执状态**：`dsh_mailbox/DSH-20261024-005-2b-address-confirm-raw-region.md` 已发出；`codex_mailbox/` 截至本轮**无 `CDX-20261024-*` 回执**，2B 书面确认未到。
-- **下一轮必修（不为此单独开轮）**：把 RunId 迁移前写入的 `--evidence-dir` 字符串在下一轮以新 RunId 重跑修正——`t21_contract_colour_rebind_20261024_r02/verify_shared_io_contract_result.json`、`t21_raw_g0_gap_registry_20261024_r03/raw_system_g0_gap_audit_result.json`、`t21_frame_period_p_plan_20261024_r01/frame_period_p_validation_result.json`；内容未改写，仅路径字符串差异。
+- **下一版同批处理（与地址改动一起，不单独开轮；落盘前仍不动被审文件）**：
+  - **N-1（绑定字节口径，已独立核实）**：工具 `scripts/stage4_s4ctrl/check_binding_byte_semantics.py`，证据 `report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/`（r01 为 `ls-tree` 解析缺陷的首轮，保留）。实测 22 项中**仅 2 项**不符 blob 口径：dbdf `stage3_colour_reverify_hashes`（disk CRLF 7 个 / blob LF，`40ef1fda…` vs `70cdd014…`）与 `_readme`（disk CR 42 / blob LF，`aca598c7…` vs `7318c813…`），`attrs=(none)`（dbdf 无 `-text` 覆盖该路径）；其余 18 项 disk==blob==声明值。处置：**不加 `.gitattributes` 覆盖**；契约新增顶层**绑定口径声明**（记录的是**工作树磁盘字节 SHA**；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并把该 2 项**改绑为 blob 内容口径**（同时保留磁盘 SHA 为注记）。
+  - **N-2**：缺口登记表 G-01 补写“**窗口内无足够容量的设计级阻断（缺口 1,233,660 B），须 Wong 决策**”，`next_owner` 写准。
+  - **N-3**：三处迁移前 `--evidence-dir` 字符串以新 RunId 重跑修正——`t21_contract_colour_rebind_20261024_r02/verify_shared_io_contract_result.json`、`t21_raw_g0_gap_registry_20261024_r03/raw_system_g0_gap_audit_result.json`、`t21_frame_period_p_plan_20261024_r01/frame_period_p_validation_result.json`。
+  - **N-4**：`readiness_doc.sha_note` 对旧哈希 `e6ae30a5…` 的定位表述更正——该哈希属 S4-B 冻结快照证据（`report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json` 绑定的快照），可从 `f6fa9f0` 复原。
+- **等待中（未到位前不改地址图/契约、`ENABLE=0`、不动硬件）**：Wong 对 **D1**（是否允许用窗口外 12 MiB）与 **D2**（是否接受 107 帧子集）的答复；以及 `DSH-20261024-005` 回执或 lead 通知。
 - **待排期改进项**：`handoff_check.py` 祖先/successor 语义（须连同 38 个单测与证据包一起改并重审）——本轮不展开。
 
 ## 必须保持的接口与边界（承接）

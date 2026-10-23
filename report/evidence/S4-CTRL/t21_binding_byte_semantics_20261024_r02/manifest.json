@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_binding_byte_semantics_20261024_r02",
+  "source_commit": "0bc1890",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02",
+  "purpose": "N-1 独立核实：22 项绑定的磁盘字节 / clean 过滤后字节 / 原始字节 / 已提交 blob 内容四种口径比对",
+  "hardware_execution": "NOT_RUN",
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/binding_byte_semantics.json",
+      "sha256": "d024bc912c4ca9eb09e8014c55220c050496f0053c07d94ad09911b18d7f7d8c",
+      "role": "result",
+      "keep_reason": "四种口径逐项测量结果"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02/semantics_stdout.txt",
+      "sha256": "29962f213befecdcd09f97cf573572f80e84db0d99667a95b8dd60b8a0fed507",
+      "role": "log",
+      "keep_reason": "脚本真实 stdout"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/check_binding_byte_semantics.py",
+      "sha256": "e1a2e03a79ef9f65c044f76bc6d780d791267e95939447f3ecf928ce43aa95b3",
+      "role": "source",
+      "keep_reason": "可复跑口径核查入口"
+    }
+  ],
+  "checks": [
+    {
+      "name": "绑定字节口径核查（22 项）",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/check_binding_byte_semantics.py --evidence-dir report/evidence/S4-CTRL/t21_binding_byte_semantics_20261024_r02",
+      "exit_code": 0,
+      "reason": "20 项声明值同时等于磁盘字节与已提交 blob 内容；仅 dbdf 两项为 disk-only（CRLF vs LF）；无四口径全不匹配条目"
+    },
+    {
+      "name": "N-1 处置落盘",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "按 lead 安排与地址改动同批（下一版），本轮不改被审契约"
+    },
+    {
+      "name": "硬件操作",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "只读；未涉及板卡"
+    }
+  ],
+  "limitations": [
+    "只读测量；不修改任何绑定或文件。",
+    "本 RunId 未申报 check_stage_delivery 通用包装。"
+  ]
+}

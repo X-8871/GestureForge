@@ -6,14 +6,22 @@
   "scope": "阶段 A 离线判定表（到货后实测直接套用）；期望值由上次位丢失算术给出，不凭记忆。",
   "display_path": {
     "sensor": "OV5640（AN5642 模块，型号与上次相同）",
-    "format": "DVP 两字节拼接 RGB565：第一字节 = {g[2:0], b[4:0]}，第二字节 = {r[4:0], g[5:3]}（0x4300=0x60）",
+    "format": "DVP 两字节拼接 RGB565（0x4300=0x60）：第一字节 = {b[4:0], g[5:3]}（MSB = B[4]）、第二字节 = {g[2:0], r[4:0]}（MSB = G[2]）；16 位字字段布局 R=word[4:0]、G=word[10:5]、B=word[15:11]",
     "connector_channel": "模块插 J11，走模块 CMOS2 通道；XDC board/stage3/hardware/an5642_j11_cmos2.xdc",
     "frame_buffer_layout": "内存序 B,G,R；1280×720 → 每行 3840 字节；行 y 的地址 = FRAME0 + y×stride（stride 以运行期回读为准，禁硬编码）",
     "bit_map": {
       "cmos_d[9]": "两个 DVP 字节各自的 MSB；J11 CMOS2 变体落 FPGA 引脚 F17（LVCMOS33，Bank35）",
-      "effect_on_blue": "第一字节 MSB = B[4]（5 位域最高位）⇒ 显示字节蓝 bit7（0x80）恒 0",
-      "effect_on_green": "第二字节 MSB = G[2]（6 位域第 3 位）⇒ 显示字节绿 bit4（0x10）恒 0"
-    }
+      "effect_on_offset0_blue": "第一字节 MSB = B[4]（5 位域最高位）⇒ 帧缓冲 offset0（蓝）bit7（0x80）恒 0",
+      "effect_on_offset1_green": "第二字节 MSB = G[2]（6 位域第 3 位）⇒ 帧缓冲 offset1（绿）bit4（0x10）恒 0",
+      "offset2_red_intact": "R[4:0] 不落在任一丢失字节的 MSB（第二字节 MSB 为 G[2]）⇒ offset2（红）完好（对照组 C1）",
+      "naming_limitation": "「蓝/绿」是帧缓冲通道名（offset0/offset1），其与 DVP 字节的对应来自归档网表（offset0=B、offset1=G、offset2=R）；本轮盘上未找到厂商 cmos_8_16bit.v 拼接源码（已被缓存清理）⇒ 字节↔通道对应属推断。阶段B 报告请以数值判据（offset0 bit7、offset1 bit4、offset2 完整）陈述，不单独依赖通道命名（评审 N-1）。"
+    },
+    "byte_order_evidence": [
+      {"claim": "16 位字字段：B=word[15:11]、G=word[10:5]、R=word[4:0]", "kind": "归档网表复算", "source": "report/evidence/S3-CTRL/S3-T05/t05_takeover_20261021_r03/channel_mapping_report.json（axis_subset_converter 网表：m_axis_tdata[15:10]=s_axis_tdata[10:5]、[7:3]=[15:11]、[23:19]=[4:0]）"},
+      {"claim": "HDMI 通道：红=高字节、绿=中字节、蓝=低字节", "kind": "归档源码摘录", "source": "同上（rgb2dvi.vhd：pDataOut(2)=red、pDataOut(1)=green、pDataOut(0)=blue）"},
+      {"claim": "白条内存三字节 = 120/236/248 ⇒ offset0 缺 MSB、offset1 缺一位、offset2 完好", "kind": "真实归档帧量值", "source": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_values.txt"},
+      {"claim": "DVP 两字节→16 位字的字节序（第一字节={b[4:0],g[5:3]}）", "kind": "推断（未独立确认，须在阶段B 用源码/受控单比特实验确认）", "source": "本轮盘上未找到厂商 cmos_8_16bit.v（缓存已清理）；由「同一单线丢失必须同时命中 B[4] 与 G[2]」反推"}
+    ]
   },
   "expected_values": {
     "white_segment_bar1": {
@@ -38,10 +46,24 @@
     {"id": "C4", "name": "白条中性度（机器可判真彩部分）", "observed": "|R-G|,|G-B|,|R-B|", "rule": "三差值均 <= 8", "expected_if_fixed": "0..4", "expected_with_defect": "|G-B|=116", "discriminates": true},
     {"id": "C5", "name": "黑条零值", "observed": "黑条 R,G,B", "rule": "R==0 且 G<=8 且 B<=8", "expected_if_fixed": "0,4,0", "expected_with_defect": "0,4,0", "discriminates": false, "note": "对照/负样本：防止把「全部拉满」误判为通过"},
     {"id": "C6", "name": "旧缺位签名不存在", "observed": "全样本蓝 bit7 置位率、绿 bit4 置位率", "rule": "两者不同时为 0", "expected_if_fixed": "> 0", "expected_with_defect": "0.000% / 0.000%", "discriminates": true},
-    {"id": "C7", "name": "字段位逐位可辨", "observed": "白条应为 1 / 黑条应为 0 的每一位", "rule": "R5(5 位)+G6(6 位)+B5(5 位) 全部字段位可辨；显示字节低位（R/B bit2..0、G bit1..0）为结构性恒 0", "expected_if_fixed": "11/11 可辨", "expected_with_defect": "B5 bit4 与 G6 bit2 不可辨", "discriminates": true}
+    {"id": "C7", "name": "字段位逐位可辨", "observed": "白条字段位应为 1；黑条字段值须在 C5 容差内", "rule": "16 个字段位（R5+G6+B5，见 c7_basis）逐位可辨；8 个结构性恒 0 低位不参与；黑条字段值 <= 容差（R/B:1、G:2）时不计不可辨（与 C5 一致）", "expected_if_fixed": "16/16（对齐口径）", "expected_with_defect": "14/16（对齐口径）；严格口径 13/16（多出的 1 位来自黑条 1 LSB 残差 G6 bit0）", "discriminates": true, "note": "评审 B-1/B-2 关闭：位数按 5+6+5=16 字段位 / 3+2+3=8 结构性低位；口径与 C5 对齐，否则「已修好」时判不过（工具实测：夹具 F 对齐 0、严格 3）"}
   ],
+  "c7_basis": {
+    "field_bits_total": 16,
+    "structural_zero_bits_total": 8,
+    "total_display_bits": 24,
+    "arithmetic": "R 字段 5 位（显示 bit7..3）+ R 结构性低位 3（bit2..0）= 8；G 字段 6 位（bit7..2）+ G 结构性低位 2（bit1..0）= 8；B 字段 5 位（bit7..3）+ B 结构性低位 3（bit2..0）= 8；合计 8×3 = 24 = 3 字节 × 8 位。字段位 5+6+5 = 16，结构性恒 0 = 3+2+3 = 8。",
+    "field_tolerance": {"R": 1, "G": 2, "B": 1, "derivation": "TOL_BLACK(8) >> 3 = 1（R/B，5 位域）、8 >> 2 = 2（G，6 位域）"},
+    "measured_archived_defect_frame": {"discriminated_aligned": 14, "discriminated_strict_variant": 13, "not_discriminated_aligned": ["G field_bit 2（白条字段位为 0 ⇒ 缺位）", "B field_bit 4（白条字段位为 0 ⇒ 缺位）"], "source": "analyze_t17_bit_integrity.py 对归档帧 bars_raw_frame_full.bin 的实测输出（含 judge 证据）"},
+    "measured_fixture_F_table_if_fixed": {"discriminated_aligned": 16, "discriminated_strict_variant": 15, "verdict_aligned": "BIT_INTEGRITY_PASS(0)", "verdict_strict_probe": "INCONCLUSIVE_ATYPICAL(3)"}
+  },
+  "prerequisites": {
+    "core_autocrlf": "本仓库 core.autocrlf=true；按工作区口径复核哈希/自证必须 git -c core.autocrlf=false clone（或 git cat-file blob）——评审 N-4，DSH 已决定暂不加 .gitattributes -text。",
+    "hardware": "阶段B 双前提：Wong 开工信号 + 硬件窗口书面让出/时间窗（hw_authorization.json 两字段同时 true）；缺一即 exit 3，不动板。",
+    "dump_address": "转储前必须回读 ADDR_S2MM/STRIDE_S2MM，禁止硬编码旧地址（runner 缺地址时 exit 4）。"
+  },
   "boundaries": [
-    "「每个字节 8 位逐位可辨」在本链路不可字面达成：RGB565 为 5/6/5 移位扩展，R/B 显示字节 bit2..0 与 G 显示字节 bit1..0 结构性恒 0；可辨位数为有效字段位（R5+G6+B5=16 位中的 11 个字段位；低 5 位为移位填充）。",
+    "「每个字节 8 位逐位可辨」在本链路不可字面达成：RGB565 为 5/6/5 移位扩展，R/B 显示字节 bit2..0 与 G 显示字节 bit1..0 **结构性恒 0（合计 8 位）**；可辨的是 **16 个有效字段位（R5+G6+B5）**。计数依据见 `c7_basis`（5+6+5 / 3+2+3）。",
     "判定器不能代替 Wong 目视：真彩验收还需 HDMI 上画面「不偏黄、不偏青」，脚本只输出中性度与满量程的机器证据（requires_human_visual=true）。",
     "彩条寄存器 0x503D 属传感器内部图案，仅在模块插好、供电与 I2C 正常时可用；它只测数传通路，不证明真实场景色彩。",
     "本次判定不等于 G3/G4/G5，也不等于独立审查。"

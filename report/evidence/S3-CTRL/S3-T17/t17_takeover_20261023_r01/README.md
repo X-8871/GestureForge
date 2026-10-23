@@ -47,8 +47,12 @@
 
 ## 4. 哈希口径与 CRLF 修正（本轮实查发现的缺陷，已修）
 
-- **口径**：`hashes_sha256.txt` 与 `manifest.json` 的 `inputs[].sha256` 一律按 **git blob（LF）字节**计算
-  （工作树在本仓库 `core.autocrlf=true` 下可能被转成 CRLF，两者会不同）。
+- **必读前提（评审 N-4）**：`hashes_sha256.txt`、`manifest.json` 的 `inputs[].sha256`、以及
+  `t17_artifacts_verified.json` 的 `sources_referenced[].sha256` 一律按 **git blob（LF）字节**计算。
+  本仓库系统级 `core.autocrlf=true` ⇒ 按**工作区**口径复核必须 `git -c core.autocrlf=false clone`
+  （或 `git cat-file blob <rev>:<path>`），否则克隆工作区为 CRLF、与记录哈希全部不匹配
+  （评审实测 `git clone --no-local` 后 45/45 MISMATCH）。**DSH 已决定暂不为本三范围加 `.gitattributes -text`**，
+  故该参数是复核的必读前提而非可选建议。
 - **发现**：C1 提交（`900cd0a`）后实查发现 2 个文件「提交内 blob 字节 ≠ 记录哈希字节」——
   `t17_color_retest_prep_.../manifest.json`（Python 文本模式写入产生 CRLF）与本目录 `hashes_sha256.txt`
   （PowerShell 显式 CRLF 写入）；原始比对输出保留在 `blob_byte_identity.txt`（`MISMATCH_COUNT=2`，**失败证据不删**）。
@@ -65,12 +69,19 @@
   `report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**`、`scripts/stage3_t17/**` 增加
   `.gitattributes` 的 `-text` 条目（与仓库既有 S2A 各段做法一致）。
 
-## 5. 关于检查项 a 的说明（避免误判）
+## 5. 检查项 a 与交付态复核（评审 N-3 修正后）
 
-`handoff_record_stage3_r01.json` 的 `base_commit` 是「**起始提交**」`f94c25f`；`handoff_check.py` 的检查项 a 按
-*前缀匹配 HEAD*，因此在 HEAD 已推进到后续提交（如 `900cd0a` 及以后）后再用该 record 复跑，检查项 a 会判 FAIL ——
-**这是设计行为（该 record 记录的是接管时刻）**。复核交付状态请改用
-`handoff_record_stage3_delivered.json`（`status=IN_PROGRESS`，不带 `--claim`）。
+- `handoff_record_stage3_r01.json` 的 `base_commit` 是「**起始提交**」`f94c25f`；`handoff_check.py` 的检查项 a 按
+  *前缀匹配 HEAD*，因此在 HEAD 已推进（`900cd0a` 及以后）后再用该 record 复跑会判 FAIL ——
+  **这是设计行为（该 record 记录接管时刻）**。
+- **交付态复核（评审 N-3 关闭）**：交付态改用 `handoff_record_stage3_delivered.json`，其 `base_commit`
+  **随本轮冻结 HEAD 更新**；实测命令、真实退出码与输出见
+  `report/evidence/S3-T17/t17_fix_20261023_r01/handoff_delivered_readonly.{json,stdout.txt}`（**exit 0**）。
+- 若 HEAD 再次推进：把该 record 的 `base_commit` 更新为当前 HEAD 后再跑；
+  **推荐**由持有 `verification/handoff_check.py` 写权的一方把检查项 a 改为祖先判定（本阶段无权改主仓工具）。
+- 本目录 `blob_byte_identity_final.json` 的 F 证明对应内容提交 `9d5c638`（`BLOB_BYTE_IDENTITY_OK`，42/0/0）；
+  自证提交 `525e4f35` 的即时自证亦为 OK（45/0/0，见 `selfproof_hashes_sha256.txt`）。修复轮见
+  `report/evidence/S3-T17/t17_fix_20261023_r01/`。
 
 ## 6. 限制
 

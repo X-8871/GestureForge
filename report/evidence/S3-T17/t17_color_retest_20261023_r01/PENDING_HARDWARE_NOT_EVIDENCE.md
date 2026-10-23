@@ -1,6 +1,6 @@
 # 本目录状态：仅离线准备，**尚未实测**（勿当作阶段 B 证据）
 
-- 任务：`task-17` 阶段3 色彩复测；工作树 `D:\codex-worktrees\dbdf`，分支 `codex/stage3-video`，基线 HEAD `f94c25f`。
+- 任务：`task-17` 阶段3 色彩复测；工作树 `D:\codex-worktrees\dbdf`，分支 `codex/stage3-video`；接管基线 HEAD `f94c25f`，**本修复轮冻结 HEAD 见 `.codex/STATE.md` 交接行与 `../t17_fix_20261023_r01/`**（评审 N-5：不再把基线写成当前交付版本）。
 - 本目录**当前只有阶段 A 的离线产物**：
   - `run_log.txt`：执行器在 `preflight` / `judge` 阶段写入的运行日志（离线）；
   - `preflight.json`：离线前置检查结果（`OFFLINE_GO`，7 件冻结产物哈希一致，`hardware_window_confirmed=false`）；

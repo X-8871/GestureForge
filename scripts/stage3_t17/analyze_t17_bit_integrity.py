@@ -2,12 +2,21 @@
 """S3-T17：DVP 位完整性 / 真彩（机器可判部分）判定器（只读、可离线自测）。
 
 背景（必须与证据一致，不凭记忆）
-- 显示管道为 DVP 两字节拼接 RGB565：第一字节 = {g[2:0], b[4:0]}，第二字节 = {r[4:0], g[5:3]}；
+- 显示管道为 DVP 两字节拼接 RGB565：**第一字节 = {b[4:0], g[5:3]}（MSB = B[4]）、
+  第二字节 = {g[2:0], r[4:0]}（MSB = G[2]）**；16 位字字段布局 R=word[4:0]、G=word[10:5]、
+  B=word[15:11]（由归档 subset-converter 网表复算：`m_axis_tdata[15:10]=s_axis_tdata[10:5]`、
+  `m_axis_tdata[7:3]=s_axis_tdata[15:11]`、`m_axis_tdata[23:19]=s_axis_tdata[4:0]`）。
   两个字节各自的 MSB 在厂商 IP 里走同一条 `cmos_d[9]`（本设计 J11/CMOS2 变体落 FPGA 引脚 F17）。
 - 该线无信号时必然同时造成：显示蓝 bit7（B[4] 丢失）恒 0、显示绿 bit4（G[2] 丢失）恒 0。
   上次实测：蓝 bit7 置位率 0.000%、绿 bit4 置位率 0.000%，白条蓝 5 位 = 15(120) 而非 31(248)、
   绿 6 位 = 59(236) 而非 63(252) ⇒ 真缺位（通道置换无法修复）。
+- **命名限制（评审 N-1）**：「蓝 bit7 / 绿 bit4」是**帧缓冲通道名**（offset0/offset1），其与 DVP 字节的
+  对应来自归档网表（offset0=B、offset1=G、offset2=R）；本轮盘上**没有**厂商 `cmos_8_16bit.v` 拼接源码
+  （已被缓存清理），故「哪个 DVP 字节承载哪个通道」属**推断**。阶段B 报告请以**数值判据**陈述
+  （offset0 bit7、offset1 bit4、offset2 完整），不单独依赖通道命名。
 - 帧缓冲内存序为 B,G,R；1280×720 时每行 3840 字节。
+- **前提（评审 N-4）**：本仓库 `core.autocrlf=true`；工作区口径复核须用
+  `git -c core.autocrlf=false clone` 或 `git cat-file blob <rev>:<path>`，见 `scripts/stage3_t17/README.md`。
 
 判定口径见 `report/evidence/S3-T17/t17_color_retest_prep_20261023_r01/t17_judgement_table.json`。
 
@@ -49,6 +58,16 @@ TOL_G_FULL = 248
 TOL_B_FULL = 240
 TOL_NEUTRAL = 8
 TOL_BLACK = 8
+
+# C7 字段位计数（评审 B-1）：每个显示字节 8 位 = 字段位 + 结构性恒 0 低位
+#   R：字段 5 位（field4..0 → 显示 bit7..3）+ 结构性低位 3（显示 bit2..0）
+#   G：字段 6 位（field5..0 → 显示 bit7..2）+ 结构性低位 2（显示 bit1..0）
+#   B：字段 5 位（field4..0 → 显示 bit7..3）+ 结构性低位 3（显示 bit2..0）
+#   ⇒ 字段位合计 5+6+5 = 16；结构性恒 0 低位合计 3+2+3 = 8（16+8 = 3 字节 × 8 = 24）
+FIELD_BITS = {"R": 5, "G": 6, "B": 5}
+STRUCTURAL_ZERO_BITS = {"R": 3, "G": 2, "B": 3}
+# 黑条字段容差（与 C5 的 TOL_BLACK=8 一致）：字段值 <= 该值视为「容差内 0」，不判不可辨（评审 B-2）
+FIELD_TOLERANCE = {ch: TOL_BLACK >> (3 if ch in ("R", "B") else 2) for ch in ("R", "G", "B")}  # R/B:1, G:2
 
 EXIT_PASS = 0
 EXIT_DEFECT = 1
@@ -140,28 +159,50 @@ def bar_table(chunk: bytes) -> list[dict]:
     return out
 
 
-def per_bit_table(white: dict, black: dict) -> list[dict]:
-    """按 RGB565 有效字段逐位列出「白条应为 1 / 黑条应为 0」的可辨性。"""
+def per_bit_table(white: dict, black: dict, strict_black_bits: bool = False) -> list[dict]:
+    """按 RGB565 有效字段逐位列出可辨性（C7）。
+
+    对齐口径（默认，与 C5 一致，评审 B-2 关闭）：黑条字段值落在 `FIELD_TOLERANCE` 内视为
+    「容差内 0」，不因传感器黑条自身的 1 LSB 残差（G=4 ⇒ G6=1）判不可辨 ⇒ 修好时可达 16/16。
+    严格口径（`strict_black_bits=True`，仅供对照/自证）：黑条字段位必须为 0 ⇒ 黑条残差会多判
+    G6 bit0 不可辨（修好时最多 15/16，与 C5 冲突），**已弃用为默认**。
+    """
     rows = []
-    for channel, bits, white_key, black_key in (
-        ("R", 5, "r_field5", "r_field5"),
-        ("G", 6, "g_field6", "g_field6"),
-        ("B", 5, "b_field5", "b_field5"),
-    ):
+    for channel, bits, key in (("R", 5, "r_field5"), ("G", 6, "g_field6"), ("B", 5, "b_field5")):
+        w_val, b_val = white[key], black[key]
+        tol = FIELD_TOLERANCE[channel]
         for k in range(bits - 1, -1, -1):
-            exp_w = (white[white_key] >> k) & 1
-            exp_b = (black[black_key] >> k) & 1
-            ok = (exp_w == 1 and exp_b == 0)
-            rows.append({
+            w_bit = (w_val >> k) & 1
+            b_bit = (b_val >> k) & 1
+            row = {
                 "channel": channel,
                 "field_bit": k,
                 "display_byte_bit": k + (3 if channel in ("R", "B") else 2),
                 "white_expected": 1,
                 "black_expected": 0,
-                "white_observed": exp_w,
-                "black_observed": exp_b,
-                "status": "OBSERVABLE_BOTH" if ok else "NOT_DISCRIMINATED",
-            })
+                "white_observed": w_bit,
+                "black_observed": b_bit,
+                "black_field_value": b_val,
+                "black_within_tolerance": b_val <= tol,
+            }
+            if w_bit != 1:
+                row["status"] = "NOT_DISCRIMINATED"
+                row["reason"] = "WHITE_BIT_NOT_SET（白条字段位为 0 ⇒ 缺位）"
+            elif strict_black_bits:
+                if b_bit == 0:
+                    row["status"] = "OBSERVABLE_BOTH"
+                else:
+                    row["status"] = "NOT_DISCRIMINATED"
+                    row["reason"] = "BLACK_BIT_SET_STRICT（严格口径：黑条该位为 1）"
+            elif b_val <= tol:
+                row["status"] = "OBSERVABLE_BOTH"
+                row["reason"] = "BLACK_WITHIN_TOLERANCE（黑条字段值在 C5 容差内，不计不可辨）"
+            elif b_bit:
+                row["status"] = "NOT_DISCRIMINATED"
+                row["reason"] = "BLACK_FIELD_EXCEEDS_TOLERANCE（黑条字段值超容差且该位为 1）"
+            else:
+                row["status"] = "OBSERVABLE_BOTH"
+            rows.append(row)
     for channel, low_bits, shift in (("R", 3, 3), ("B", 3, 3), ("G", 2, 2)):
         for k in range(low_bits - 1, -1, -1):
             rows.append({
@@ -174,8 +215,12 @@ def per_bit_table(white: dict, black: dict) -> list[dict]:
     return rows
 
 
-def evaluate(rows: dict[int, str], frame_bytes: bytes | None) -> dict:
-    """按判定表评估；返回 dict（含 exit_code 与结论）。"""
+def evaluate(rows: dict[int, str], frame_bytes: bytes | None,
+             strict_black_bits: bool = False) -> dict:
+    """按判定表评估；返回 dict（含 exit_code 与结论）。
+
+    `strict_black_bits=True` 用于复现修复前的严格口径（仅供对照/自证），默认用与 C5 对齐的口径。
+    """
     result: dict = {
         "inputs": [],
         "rows": {},
@@ -246,9 +291,33 @@ def evaluate(rows: dict[int, str], frame_bytes: bytes | None) -> dict:
           and abs(white["r"] - white["b"]) <= TOL_NEUTRAL)
     c5 = (black["r"] == 0 and black["g"] <= TOL_BLACK and black["b"] <= TOL_BLACK)
     c6 = not signature_present
-    bits = per_bit_table(white, black)
+    aligned_bits = per_bit_table(white, black)
+    strict_bits = per_bit_table(white, black, strict_black_bits=True)
+    bits = strict_bits if strict_black_bits else aligned_bits
     result["per_bit"] = bits
+    result["per_bit_aligned"] = aligned_bits
+    result["per_bit_strict_variant"] = strict_bits
+    result["per_bit_mode"] = "STRICT_BLACK_BITS" if strict_black_bits else "TOLERANCE_ALIGNED_WITH_C5"
     c7 = all(item["status"] != "NOT_DISCRIMINATED" for item in bits)
+    field_total = sum(FIELD_BITS.values())                     # 5+6+5 = 16
+    structural_total = sum(STRUCTURAL_ZERO_BITS.values())      # 3+2+3 = 8
+    disc = sum(1 for i in bits if i["status"] == "OBSERVABLE_BOTH")
+    disc_aligned = sum(1 for i in aligned_bits if i["status"] == "OBSERVABLE_BOTH")
+    disc_strict = sum(1 for i in strict_bits if i["status"] == "OBSERVABLE_BOTH")
+    result["per_bit_count"] = {
+        "field_bits_total": field_total,
+        "structural_zero_bits_total": structural_total,
+        "total_display_bits": field_total + structural_total,
+        "basis": "R 字段 5 + G 字段 6 + B 字段 5 = 16；R/B 结构性低位各 3、G 结构性低位 2 ⇒ 8；16+8 = 24 = 3 字节 × 8 位",
+        "verdict_mode": result["per_bit_mode"],
+        "discriminated_used_for_c7": disc,
+        "discriminated_aligned": disc_aligned,
+        "discriminated_strict_variant": disc_strict,
+        "not_discriminated": [f"{i['channel']} field_bit {i['field_bit']}（{i.get('reason')}）"
+                              for i in bits if i["status"] == "NOT_DISCRIMINATED"],
+        "field_tolerance": FIELD_TOLERANCE,
+        "note": "C7 默认采用对齐口径（黑条字段值 <= FIELD_TOLERANCE 不计不可辨）；严格口径仅作对照（评审 B-2）。",
+    }
     result["criteria"] = {
         "C1_white_R_full_scale": {"pass": c1, "observed": white["r"], "threshold": f">={TOL_R_FULL} (期望 248=31<<3)"},
         "C2_white_G_full_scale": {"pass": c2, "observed": white["g"], "threshold": f">={TOL_G_FULL} (期望 252=63<<2)"},
@@ -256,8 +325,15 @@ def evaluate(rows: dict[int, str], frame_bytes: bytes | None) -> dict:
         "C4_white_neutral": {"pass": c4, "observed": [white["r"], white["g"], white["b"]], "threshold": f"三通道差 <={TOL_NEUTRAL}"},
         "C5_black_zero": {"pass": c5, "observed": [black["r"], black["g"], black["b"]], "threshold": f"R=0 且 G,B<={TOL_BLACK}"},
         "C6_old_defect_signature_absent": {"pass": c6, "observed": signature_present},
-        "C7_per_bit_discriminable": {"pass": c7, "discriminated": sum(1 for i in bits if i["status"] == "OBSERVABLE_BOTH"),
-                                     "structural_na": sum(1 for i in bits if i["status"] == "NOT_APPLICABLE_STRUCTURAL_ZERO")},
+        "C7_per_bit_discriminable": {
+            "pass": c7,
+            "discriminated_used_for_verdict": f"{disc}/{field_total}",
+            "discriminated_aligned": f"{disc_aligned}/{field_total}",
+            "discriminated_strict_variant": f"{disc_strict}/{field_total}",
+            "structural_na": structural_total,
+            "verdict_mode": result["per_bit_mode"],
+            "tolerance_aligned_with_C5": not strict_black_bits,
+        },
     }
     failed = [k for k, v in result["criteria"].items() if not v["pass"]]
     if not failed:
@@ -306,6 +382,34 @@ def restore_missing_bits(frame: bytes, fix_blue: bool, fix_green: bool) -> bytes
     return bytes(out)
 
 
+def segment_index_for_x(x: int) -> int:
+    """按最近彩条中心确定像素所属段序号（与 bar_table 的取样位置一致）。"""
+    return min(range(len(BAR_X)), key=lambda i: abs(BAR_X[i] - x))
+
+
+def set_segments(frame: bytes, overrides: dict) -> bytes:
+    """把指定彩条段整体替换为给定 (r,g,b)（内存序 B,G,R）；其余像素逐字节保持不变。"""
+    out = bytearray(frame)
+    for y in range(len(out) // ROW_BYTES):
+        base = y * ROW_BYTES
+        for x in range(WIDTH):
+            idx = segment_index_for_x(x)
+            if idx in overrides:
+                r, g, b = overrides[idx]
+                i = base + x * 3
+                out[i], out[i + 1], out[i + 2] = b, g, r
+    return bytes(out)
+
+
+def segment_indices_of(frame: bytes) -> tuple[int, int]:
+    """用 y=360 行判定白条/黑条所在段序号。"""
+    row = frame[360 * ROW_BYTES:(360 + 1) * ROW_BYTES]
+    segs = bar_table(row)
+    white_idx = max(range(len(segs)), key=lambda i: segs[i]["r"] + segs[i]["g"] + segs[i]["b"])
+    black_idx = min(range(len(segs)), key=lambda i: segs[i]["r"] + segs[i]["g"] + segs[i]["b"])
+    return white_idx, black_idx
+
+
 def run_selftest(fixture_dir: str, repo_root: str) -> dict:
     os.makedirs(fixture_dir, exist_ok=True)
     archived = os.path.join(repo_root, ARCHIVED_DEFECT_FRAME)
@@ -332,19 +436,43 @@ def run_selftest(fixture_dir: str, repo_root: str) -> dict:
                                "sha256": hashlib.sha256(fixture_c).hexdigest(), "bytes": len(fixture_c),
                                "kind": "真实缺陷帧只恢复蓝 MSB（绿仍缺）——非典型夹具"})
 
+    white_idx, black_idx = segment_indices_of(real)
+    fixture_d = restore_missing_bits(real, fix_blue=True, fix_green=True)
+    fixture_e = set_segments(fixture_d, {black_idx: (0, 0, 0)})
+    fixture_f = set_segments(real, {white_idx: (248, 252, 248), black_idx: (0, 4, 0)})
+    extra = (
+        ("D_both_bits_restored_black_also_set", fixture_d,
+         "真实缺陷帧两处缺位均 OR 恢复（黑条随之被置位）⇒ 应判非典型，不得当通过"),
+        ("E_D_plus_black_cleared", fixture_e, "D 再把黑条清零 ⇒ 应通过（证明 exit 0 可达）"),
+        ("F_table_if_fixed_white_full_black_residual", fixture_f,
+         "判定表自声明 if_fixed（白 248/252/248、黑 0,4,0）⇒ 对齐口径必须 exit 0（评审 B-2 关闭）"),
+    )
+    for name, data, kind in extra:
+        path = os.path.join(fixture_dir, f"fixture_{name[0]}.bin")
+        open(path, "wb").write(data)
+        report["fixtures"].append({"name": name, "path": path,
+                                   "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data),
+                                   "kind": kind, "white_segment_index": white_idx,
+                                   "black_segment_index": black_idx})
+
     expectations = (
-        ("A_real_archived_defect", real, "DEFECT_REPRODUCED", EXIT_DEFECT),
-        ("B_synthetic_criterion", fixture_b, "BIT_INTEGRITY_PASS", EXIT_PASS),
-        ("C_blue_only_restored", fixture_c, "INCONCLUSIVE_ATYPICAL", EXIT_ATYPICAL),
+        ("A_real_archived_defect", real, False, "DEFECT_REPRODUCED", EXIT_DEFECT),
+        ("B_synthetic_criterion", fixture_b, False, "BIT_INTEGRITY_PASS", EXIT_PASS),
+        ("C_blue_only_restored", fixture_c, False, "INCONCLUSIVE_ATYPICAL", EXIT_ATYPICAL),
+        ("D_both_bits_restored_black_also_set", fixture_d, False, "INCONCLUSIVE_ATYPICAL", EXIT_ATYPICAL),
+        ("E_D_plus_black_cleared", fixture_e, False, "BIT_INTEGRITY_PASS", EXIT_PASS),
+        ("F_table_if_fixed_white_full_black_residual", fixture_f, False, "BIT_INTEGRITY_PASS", EXIT_PASS),
+        ("F_probe_strict_black_bits", fixture_f, True, "INCONCLUSIVE_ATYPICAL", EXIT_ATYPICAL),
     )
     ok = True
-    for name, data, want_verdict, want_code in expectations:
+    for name, data, strict, want_verdict, want_code in expectations:
         rows = {y: data for y in FRAME_ROWS}
-        res = evaluate(rows, data)
+        res = evaluate(rows, data, strict_black_bits=strict)
         matched = (res["verdict"] == want_verdict and res["exit_code"] == want_code)
         ok = ok and matched
         report["results"].append({
             "fixture": name,
+            "strict_black_bits": strict,
             "expected_verdict": want_verdict,
             "expected_exit_code": want_code,
             "actual_verdict": res["verdict"],
@@ -354,11 +482,20 @@ def run_selftest(fixture_dir: str, repo_root: str) -> dict:
             "black_segment": res.get("black_segment"),
             "blue_bit7_set_rate": res["signature"].get("blue_bit7_set_rate"),
             "green_bit4_set_rate": res["signature"].get("green_bit4_set_rate"),
+            "per_bit_mode": res.get("per_bit_mode"),
+            "discriminated_used_for_c7": res.get("per_bit_count", {}).get("discriminated_used_for_c7"),
+            "discriminated_aligned": res.get("per_bit_count", {}).get("discriminated_aligned"),
+            "discriminated_strict_variant": res.get("per_bit_count", {}).get("discriminated_strict_variant"),
+            "field_bits_total": res.get("per_bit_count", {}).get("field_bits_total"),
+            "not_discriminated": res.get("per_bit_count", {}).get("not_discriminated"),
+            "failed_criteria": res.get("failed_criteria"),
         })
     report["conclusion"] = "SELFTEST_PASS" if ok else "SELFTEST_FAIL"
     report["exit_code"] = EXIT_PASS if ok else EXIT_ATYPICAL
-    report["note"] = ("自测证明判定器能区分「旧缺位」「满足判定表」「非典型（只修蓝）」三类；"
-                      "夹具B为合成数据，只校准判定表，不代表传感器行为。")
+    report["note"] = ("自测证明判定器能区分「旧缺位」「满足判定表」「非典型（只修蓝 / 缺位恢复但黑条被置位）」；"
+                      "夹具 F（判定表自声明 if_fixed）在对齐口径下 exit 0，其严格口径探针 exit 3 —— "
+                      "证明「修好即通过」可达且修复可见（评审 B-2/B-1）。"
+                      "夹具 B/F 为合成或改写数据，只校准判定表，不代表传感器行为。")
     return report
 
 
@@ -369,6 +506,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--selftest", action="store_true", help="离线自测：真实缺陷帧 + 合成夹具")
     ap.add_argument("--fixture-dir", default=DEFAULT_FIXTURE_DIR, help="自测夹具输出目录（缓存，不入库）")
     ap.add_argument("--repo-root", default=os.getcwd(), help="仓库根（解析归档缺陷帧）")
+    ap.add_argument("--strict-black-bits", action="store_true",
+                    help="复现修复前的严格口径（黑条字段位必须为 0）；仅供对照/自证，不建议用于验收")
     ap.add_argument("--json-out", default=None, help="把完整结果写入该 JSON 文件")
     args = ap.parse_args(argv)
 
@@ -395,7 +534,7 @@ def main(argv: list[str]) -> int:
             code = EXIT_USAGE
             print("输入问题：" + "；".join(problems))
         else:
-            out = evaluate(rows, frame_bytes)
+            out = evaluate(rows, frame_bytes, strict_black_bits=args.strict_black_bits)
             out["created_utc8"] = stamp
             code = out["exit_code"]
             print("判定=%s 退出码=%d" % (out["verdict"], code))
@@ -406,6 +545,14 @@ def main(argv: list[str]) -> int:
             if out.get("white_segment"):
                 w, b = out["white_segment"], out["black_segment"]
                 print("白条(R,G,B)=%d,%d,%d  黑条=%d,%d,%d" % (w["r"], w["g"], w["b"], b["r"], b["g"], b["b"]))
+            cnt = out.get("per_bit_count", {})
+            print("字段位计数：字段位 %s / 结构性恒 0 %s（共 %s）；口径=%s；可辨 %s（对齐口径 %s、严格口径 %s）" % (
+                cnt.get("field_bits_total"), cnt.get("structural_zero_bits_total"),
+                cnt.get("total_display_bits"), cnt.get("verdict_mode"),
+                cnt.get("discriminated_used_for_c7"), cnt.get("discriminated_aligned"),
+                cnt.get("discriminated_strict_variant")))
+            if cnt.get("not_discriminated"):
+                print("不可辨位：" + "；".join(cnt["not_discriminated"]))
             for k, v in out["criteria"].items():
                 print("  [%s] %s" % ("PASS" if v["pass"] else "FAIL", k))
             if out.get("failed_criteria"):

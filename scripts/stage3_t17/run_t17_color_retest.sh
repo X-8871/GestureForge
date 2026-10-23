@@ -16,6 +16,17 @@
 # 硬边界：只写本工作树；只做易失 JTAG；不烧 QSPI；不改接线；一次只跑一个重型任务；
 #         自起的 hw_server 用完即终止，运行前已存在的他人会话一律不动。
 #
+# 退出码（评审 N-5 补齐 exit 4）：
+#   0  该阶段成功（preflight 的 OFFLINE_GO 也是 0）
+#   1  all 的 preflight 失败（T17_ABORT=PREFLIGHT_FAILED）
+#   2  用法错误（未知阶段/缺参数）；judge 阶段会把判定器退出码原样传播（0/1/2/3）
+#   3  硬件门禁未放行（T17_HW_BLOCKED=…）或目标目录已存在（T17_REFUSE=EXISTS）
+#   4  extract_addr_stride 取不到 ADDR_S2MM/STRIDE_S2MM（T17_ADDR_STRIDE_MISSING=1）—— 禁止用旧地址转储
+#
+# 前提（评审 N-4）：本仓库 core.autocrlf=true；按工作区口径复核哈希/自证须
+#   `git -c core.autocrlf=false clone`（详见 scripts/stage3_t17/README.md）。
+# 前置 HEAD 判据（评审 B-3）：HEAD 只需是**声明基线或其后代**（可用 --baseline-commit / T17_BASELINE_COMMIT 覆盖）。
+#
 # 用法示例：
 #   bash scripts/stage3_t17/run_t17_color_retest.sh preflight
 #   bash scripts/stage3_t17/run_t17_color_retest.sh judge --frame <某帧.bin>

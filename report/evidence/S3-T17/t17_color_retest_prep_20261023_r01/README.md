@@ -1,7 +1,8 @@
 # S3-T17 阶段3 色彩复测：到货前离线准备包（2026-10-23）
 
 - 任务：共享看板 `task-17`（阶段3 色彩复测：新摄像头到货前后，DVP 位完整性 + 真彩通路）。
-- 工作树/分支：`D:\codex-worktrees\dbdf` / `codex/stage3-video`，基线 HEAD `f94c25f`（接管提交见证据入口）。
+- 工作树/分支：`D:\codex-worktrees\dbdf` / `codex/stage3-video`；接管基线 HEAD `f94c25f`，**本修复轮冻结 HEAD 见 `.codex/STATE.md` 交接行与 `report/evidence/S3-T17/t17_fix_20261023_r01/`**。
+- **前提（评审 N-4）**：本仓库系统级 `core.autocrlf=true` ⇒ 按工作区口径复核哈希/自证必须 `git -c core.autocrlf=false clone`（或 `git cat-file blob <rev>:<path>`）；DSH 已决定暂不为本三范围加 `.gitattributes -text`。
 - 本包性质：**纯离线准备**。本次**未接触任何硬件**（无 JTAG/COM4/hw_server/烧录），阶段 B 待 Wong 开工信号 + 硬件窗口书面确认。
 - 运行状态：颜色子项仍为 `DEFERRED_PENDING_MODULE`（Wong 2026-10-22 决定）；本包**不宣称颜色通过**。
 
@@ -22,7 +23,8 @@
   - 注意：`board/stage3/board_test_runbook.md` 仍写 J10/CMOS1，属旧（2026-10-03）口径；**以本树 STATE 与实际构建脚本 `run_t04_camera_j11_cmos2_build.sh` 为准**（J11+CMOS2 当前能出图）。
 - 采集 1280×720、RGB565、DVP（`0x4300=0x60`、`0x501F=0x01` ISP RGB）。
 - 帧缓冲内存序 **B,G,R**，每行 3840 字节；行地址 = `FRAME0 + y×stride`，**运行期回读**取 `ADDR_S2MM/STRIDE_S2MM`，禁止硬编码旧地址。
-- `cmos_d[9]` = 两个 DVP 字节各自的 MSB → 显示蓝 bit7（B[4]）与绿 bit4（G[2]）。
+- `cmos_d[9]` = 两个 DVP 字节各自的 MSB；字节布局 **第一字节 = `{b[4:0], g[5:3]}`（MSB=`B[4]`）、第二字节 = `{g[2:0], r[4:0]}`（MSB=`G[2]`）**，16 位字 `R=word[4:0]`、`G=word[10:5]`、`B=word[15:11]` ⇒ 帧缓冲 **offset0（蓝）bit7** 与 **offset1（绿）bit4** 恒 0、**offset2（红）完好**。
+  - **命名限制（评审 N-1）**：「蓝/绿」是帧缓冲通道名，字节↔通道对应来自归档网表（`…/t05_takeover_20261021_r03/channel_mapping_report.json`：offset0=B、offset1=G、offset2=R）；**DVP 字节序属推断**（厂商 `cmos_8_16bit.v` 已被缓存清理，本轮盘上未找到）⇒ 阶段B 报告用数值判据（offset0 bit7、offset1 bit4、offset2 完整）陈述，不单独依赖通道命名。
 - 电气安全（Wong 执行实物）：断电插拔；Pin1 对齐；Pin2 是 +5V 供电脚；BANK35 为 3.3V，不得接 5V I/O。
 
 ## 3. 判定标准（完整表见 `t17_judgement_table.json` / `.md`）
@@ -35,9 +37,9 @@
 | C6 旧签名不存在（蓝 bit7 与绿 bit4 置位率不同时为 0） | 两者 > 0 | 0.000% / 0.000% |
 | C1 白条 R 满量程（对照组） | 248 | 248 |
 | C5 黑条零值（负样本） | 0,4,0 | 0,4,0 |
-| C7 字段位逐位可辨（R5+G6+B5 = 11 个字段位） | 11/11 | B5 bit4、G6 bit2 不可辨 |
+| C7 字段位逐位可辨（16 字段位 = R5+G6+B5；8 结构性低位不计） | **16/16** | **14/16**（对齐口径；严格口径 13/16） |
 
-**边界（必须如实说明）**：「每个字节 8 位逐位可辨」在本链路**不可字面达成**——RGB565 为 5/6/5 移位扩展，R/B 显示字节 bit2..0、G 显示字节 bit1..0 结构性恒 0；可辨的是有效字段位。8 位显示值为**移位扩展**（248=31<<3、252=63<<2），故「修好」的期望值不是 255。
+**边界（必须如实说明）**：「每个字节 8 位逐位可辨」在本链路**不可字面达成**——RGB565 为 5/6/5 移位扩展，R/B 显示字节 bit2..0、G 显示字节 bit1..0 结构性恒 0（合计 **8 位**）；可辨的是 **16 个字段位**（依据 `5+6+5=16`、`3+2+3=8`、`16+8=24=3×8`）。8 位显示值为**移位扩展**（248=31<<3、252=63<<2），故「修好」的期望值不是 255。**C7 口径与 C5 对齐**（黑条字段值 ≤ 容差 R/B:1、G:2 不计不可辨）：对齐口径缺陷 14/16、修好 16/16；严格口径缺陷 13/16、修好最多 15/16（与 C5 冲突，仅 `--strict-black-bits` 对照用）——评审 B-1/B-2 关闭依据。
 
 ### ② 真彩帧（机器部分 + 目视）
 - 机器部分（C4）：白条中性度 `|R−G|、|G−B|、|R−B| ≤ 8`（旧缺陷下 `|G−B|=116`，画面偏黄）。
@@ -60,21 +62,22 @@
 | `scripts/stage3_t17/make_t17_manifest.py` | 实测后打包 manifest + hashes（退出码只接受真实值） |
 
 离线自测证据（本次真实执行）：
-- `t17_analyzer_selftest.json/.stdout.txt`：`SELFTEST_PASS`（真实归档缺陷帧→`DEFECT_REPRODUCED`(1)、合成满足夹具→`BIT_INTEGRITY_PASS`(0)、只修蓝→`INCONCLUSIVE_ATYPICAL`(3)），**退出码 0**。
-- `t17_archived_frame_judgement.json/.stdout.txt`：对上次归档彩条帧独立复算，得白条 `(248,236,120)`、蓝 bit7/绿 bit4 置位率 `0.000%/0.000%`、`DEFECT_REPRODUCED`，**退出码 1** —— 与上次结论一致。
-- `t17_preflight_now.json/.stdout.txt`：`OFFLINE_GO`，7 件冻结产物 + 判定器**存在且 SHA-256 全部一致**；`hardware_window_confirmed=false`。
+- `t17_analyzer_selftest.json/.stdout.txt`：`SELFTEST_PASS`（7 例：真实归档缺陷帧→`DEFECT_REPRODUCED`(1)、合成满足→(0)、只修蓝→(3)、双缺位 OR 恢复但黑条被置位→(3)、该例再清黑条→(0)、**判定表自声明 if_fixed 夹具 F→(0)**、夹具 F 严格口径探针→(3)），**退出码 0**；其中夹具 F 的 exit 0 即评审 B-2 关闭证据。
+- `t17_archived_frame_judgement.json/.stdout.txt`：对上次归档彩条帧独立复算，得白条 `(248,236,120)`、蓝 bit7/绿 bit4 置位率 `0.000%/0.000%`、**字段位 14/16（严格口径 13/16）**、`DEFECT_REPRODUCED`，**退出码 1** —— 与上次结论一致。
+- `t17_preflight_now.json/.stdout.txt`：在接管基线 `f94c25f` 上 `OFFLINE_GO`（7 件冻结产物哈希一致）；**冻结 HEAD 上的复跑见 `report/evidence/S3-T17/t17_fix_20261023_r01/preflight_frozen_head.*`**。
 - 硬件门禁实测（**未动板**）：`link`/`baseline`/`bars` 在缺开关或缺授权时一律退出 **3**（`T17_HW_BLOCKED=...`）。
 - `t17_artifacts_verified.json`：产物哈希清单；其中 v9/v10/v12 三支 ELF 的 `_input` 位流/XSA 与无补偿基线**逐字节一致** ⇒ 无 ELF↔位流错配风险。
 
 ## 5. 到货后 15 分钟内可执行的步骤清单
 
 前置（离线，随时可跑）：`bash scripts/stage3_t17/run_t17_color_retest.sh preflight` → 应 `OFFLINE_GO`。
+前置判据（评审 B-3 关闭后）：HEAD 只需是**声明基线或其后代**（`git merge-base --is-ancestor`），基线默认 `f94c25f`，可用 `--baseline-commit <rev>` 或 env `T17_BASELINE_COMMIT` 覆盖；因此本交付物在其自身冻结 HEAD（含 `525e4f35` 与后续提交）上都会通过，不再钉死在某一提交。
 
 Wong 开工信号 + 硬件窗口书面确认到位后，写入 `report/evidence/S3-T17/hw_authorization.json`（模板见 `evidence_template/`），然后：
 
 | # | 时间预算 | 步骤 | 命令/要点 | 预期 |
 |---|---|---|---|---|
-| 1 | 0–1 min | 离线前置 | `run_t17_color_retest.sh preflight` | `OFFLINE_GO`；无 index.lock/无重型进程 |
+| 1 | 0–1 min | 离线前置 | `run_t17_color_retest.sh preflight` | `OFFLINE_GO`；无 index.lock/无重型进程；基线关系为 `equal`/`descendant` |
 | 2 | 1–3 min | **断电**换模块到 J11（Pin1 对齐），上电；记录新旧模块身份 | 实物由 Wong 执行 | 模块插好、供电正常 |
 | 3 | 3–4 min | 只读 JTAG 链路确认 | `run_t17_color_retest.sh link --allow-hardware` | `T17_JTAG_TARGET_COUNT ≥ 1`、`T17_JTAG_LINK=OK`；用后自动终止自起 `hw_server` |
 | 4 | 4–7 min | 刷**无补偿基线** `7cb33068…` + `v9_read`，抓 UART，只读回读取地址/stride | `run_t17_color_retest.sh baseline --allow-hardware` | UART 见 `S3_DIAG_SENSOR_ID=0x5640`、`0x503D=0x00`；回读到 `ADDR_S2MM/STRIDE_S2MM` |

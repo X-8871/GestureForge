@@ -3,9 +3,14 @@
 
 检查内容（全部离线）：
   1. 工作树 / 分支 / HEAD / index.lock / 未提交改动（交由 handoff 契约的同一口径，但不重复实现状态机）；
+     **HEAD 校验为「声明基线或其后代」**（`git merge-base --is-ancestor`），基线可用
+     `--baseline-commit` 或环境变量 `T17_BASELINE_COMMIT` 覆盖 —— 避免把交付物钉死在某一提交
+     （评审 B-3：修复前 `EXPECTED_HEAD=f94c25f` 使冻结版本自检必然失败、阶段B 到不了硬件阶段）；
   2. 重型进程（vivado/xsim/xelab/xvlog/hw_server/cs_server/xsdb）；
   3. 复测所需冻结产物的**实际存在性与 SHA-256**（缓存已被清理过，不得凭历史 manifest 推断存在）；
   4. 硬件门禁：是否存在 `hw_authorization.json`（Wong 开工信号 + 硬件窗口书面让出/时间窗）。
+
+前提：本仓库 `core.autocrlf=true`；工作区口径复核须 `git -c core.autocrlf=false clone`（评审 N-4）。
 
 退出码：
   0 = OFFLINE_GO（离线前置通过；是否可动板另看 hardware_window_confirmed）
@@ -29,7 +34,11 @@ from datetime import datetime, timedelta, timezone
 UTC8 = timezone(timedelta(hours=8))
 WT = "D:/codex-worktrees/dbdf"
 EXPECTED_BRANCH = "codex/stage3-video"
-EXPECTED_HEAD = "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7"
+# 声明基线（本树 task-17 接管基线）。判定为「基线或其**后代**」，因此交付物在自身冻结提交及其
+# 后续提交上都能通过（评审 B-3）；如需换基线，用 --baseline-commit 或 env T17_BASELINE_COMMIT。
+DEFAULT_BASELINE_COMMITS = (
+    "f94c25ff2bd539e2ca45b450334ddc8bb8cde6e7",  # 接管基线 f94c25f
+)
 HEAVY = ("vivado", "xsim", "xelab", "xvlog", "hw_server", "cs_server", "xsdb")
 
 # 到货后复测所需冻结产物（哈希取自各证据包与冻结记录，读取前逐项实算比对）
@@ -105,6 +114,18 @@ def run_git(args, cwd):
     return (cp.stdout or "").strip(), None
 
 
+def is_ancestor(ancestor: str, descendant: str, cwd: str) -> bool:
+    """`git merge-base --is-ancestor`：ancestor 是 descendant 的祖先（或相等）时为真。"""
+    try:
+        cp = subprocess.run(
+            ["git", "--no-optional-locks", "-C", cwd, "merge-base", "--is-ancestor",
+             ancestor, descendant],
+            capture_output=True, text=True, check=False)
+    except OSError:
+        return False
+    return cp.returncode == 0
+
+
 def detect_heavy():
     if os.name == "nt":
         try:
@@ -135,6 +156,9 @@ def detect_heavy():
 def main(argv):
     ap = argparse.ArgumentParser(description="S3-T17 离线前置检查", allow_abbrev=False)
     ap.add_argument("--worktree", default=WT)
+    ap.add_argument("--baseline-commit", action="append", default=[],
+                    help="声明基线提交（可重复）；HEAD 为基线或其祖先关系为 descendant 时通过。"
+                         "缺省用 DEFAULT_BASELINE_COMMITS；也可用 env T17_BASELINE_COMMIT。")
     ap.add_argument("--json-out", default=None)
     args = ap.parse_args(argv)
 
@@ -154,9 +178,31 @@ def main(argv):
     head, err2 = run_git(("rev-parse", "HEAD"), wt)
     status, err3 = run_git(("status", "--short"), wt)
     lockpath, err4 = run_git(("rev-parse", "--git-path", "index.lock"), wt)
+
+    baselines = [b.strip() for b in args.baseline_commit if b and b.strip()]
+    env_baseline = os.environ.get("T17_BASELINE_COMMIT", "").strip()
+    if env_baseline:
+        baselines.append(env_baseline)
+    if not baselines:
+        baselines = list(DEFAULT_BASELINE_COMMITS)
+    relations = []
+    for baseline in baselines:
+        if head and head == baseline:
+            relation = "equal"
+        elif head and is_ancestor(baseline, head, wt):
+            relation = "descendant"
+        else:
+            relation = "unrelated"
+        relations.append({"baseline": baseline, "relation": relation})
+    head_ok = any(item["relation"] in ("equal", "descendant") for item in relations)
+
     report["checks"]["git"] = {
         "branch": branch, "head": head,
-        "branch_ok": branch == EXPECTED_BRANCH, "head_ok": head == EXPECTED_HEAD,
+        "branch_ok": branch == EXPECTED_BRANCH,
+        "baselines": relations,
+        "head_relation": relations[0]["relation"] if len(relations) == 1 else [r["relation"] for r in relations],
+        "head_ok": head_ok,
+        "head_check_rule": "HEAD == 基线 或 基线为 HEAD 的祖先（git merge-base --is-ancestor）",
         "status_short": (status or "").splitlines(),
         "index_lock_path": lockpath,
         "index_lock_present": bool(lockpath) and os.path.lexists(lockpath if os.path.isabs(lockpath) else os.path.join(wt, lockpath)),
@@ -164,8 +210,9 @@ def main(argv):
     }
     if not report["checks"]["git"]["branch_ok"]:
         fails.append(f"分支不是 {EXPECTED_BRANCH}：{branch}")
-    if not report["checks"]["git"]["head_ok"]:
-        fails.append(f"HEAD 不是本轮基线 {EXPECTED_HEAD}：{head}")
+    if not head_ok:
+        fails.append("HEAD 不是声明基线或其后代：{}；基线={}".format(
+            head, "、".join(f"{r['baseline']}({r['relation']})" for r in relations)))
     if report["checks"]["git"]["index_lock_present"]:
         fails.append("存在 index.lock：可能有未完成的 git 写操作，不得动板")
 
@@ -218,6 +265,8 @@ def main(argv):
     report["exit_code"] = 1 if fails else 0
     print(f"前置检查结论={report['verdict']}（离线）")
     print(f"分支={branch} HEAD={head} index.lock={report['checks']['git']['index_lock_present']}")
+    print("基线关系=" + "；".join(f"{r['baseline']}={r['relation']}" for r in relations)
+          + f"（判定规则：{report['checks']['git']['head_check_rule']}）")
     print(f"未提交改动={len(report['checks']['git']['status_short'])} 项")
     print(f"重型进程={'无' if not hits else hits}")
     for entry in artifacts:

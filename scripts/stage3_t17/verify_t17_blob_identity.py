@@ -67,6 +67,15 @@ def main(argv):
     scopes = tuple(args.scope) or DEFAULT_SCOPES
     excluded = {item.replace("\\", "/") for item in args.exclude}
 
+    # 评审 N-4：本仓库 core.autocrlf=true 会让 clone 的工作区变 CRLF，使按 LF 记录的哈希全部不匹配。
+    # 本工具只比较「提交 blob vs 工作区」；若工作区是 CRLF 检出，请改用 git -c core.autocrlf=false clone。
+    autocrlf = subprocess.run(["git", "--no-optional-locks", "-C", repo, "config", "--get",
+                              "core.autocrlf"], capture_output=True, text=True)
+    autocrlf_value = (autocrlf.stdout or "").strip() or "(unset)"
+    print(f"CORE_AUTOCRLF={autocrlf_value}"
+          + ("（true ⇒ 若本仓库是 CRLF 检出的克隆，请用 git -c core.autocrlf=false clone 复核）"
+             if autocrlf_value.lower() == "true" else ""))
+
     files = []
     for scope in scopes:
         root = os.path.join(repo, scope.replace("/", os.sep))
@@ -98,6 +107,7 @@ def main(argv):
     result = {
         "created_utc8": datetime.now(UTC8).strftime("%Y-%m-%dT%H:%M:%S+08:00"),
         "repo_root": repo,
+        "core_autocrlf": autocrlf_value,
         "commit": rev,
         "scopes": list(scopes),
         "excluded_selfproof_artifacts": sorted(excluded),

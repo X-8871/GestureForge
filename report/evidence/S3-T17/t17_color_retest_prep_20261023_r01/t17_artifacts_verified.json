@@ -75,29 +75,110 @@
     "purpose": "确认 v9/v10/v12 三支 RE 用 ELF 与无补偿基线位流属同一硬件定义，避免 ELF↔位流错配",
     "result": "三支 ELF 构建时使用的 _input 位流与 XSA 与无补偿基线逐字节一致",
     "evidence": [
-      {"elf": "elf_v9", "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710", "input_xsa_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"},
-      {"elf": "elf_v10", "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710", "input_xsa_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"},
-      {"elf": "elf_v11", "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710", "input_xsa_sha256": null},
-      {"elf": "elf_v12", "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710", "input_xsa_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"}
+      {
+        "elf": "elf_v9",
+        "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+        "input_xsa_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"
+      },
+      {
+        "elf": "elf_v10",
+        "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+        "input_xsa_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"
+      },
+      {
+        "elf": "elf_v11",
+        "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+        "input_xsa_sha256": null
+      },
+      {
+        "elf": "elf_v12",
+        "input_bit_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+        "input_xsa_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"
+      }
     ],
     "limitation": "静态一致不等于运行期地址相同：实测仍必须回读 ADDR_S2MM/STRIDE_S2MM 并用其转储。"
   },
   "sources_referenced": [
-    {"path": ".codex/STATE.md", "sha256": "6ef6d7fd27abff77ab24702a7acaecd915cff58340d9745b9a423e99fcbd3b62"},
-    {"path": "report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md", "sha256": "16927b5caec18c6d554b53cf08beb7476722713ac456822fdcae5d6cec87ae8f"},
-    {"path": "report/evidence/S3-T05/t05_freeze_20261021_r01/README.md", "sha256": "70dacccbb571604d8feda51624adc74f0090c37e53214222f26e70e6dda68fa9"},
-    {"path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/manifest.json", "sha256": "50cad33347be2e76395f4b9e610fa5ee0bf5dbd8fe6f63ad005eaea0f085b415"},
-    {"path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_values.txt", "sha256": "b4e366f644bfee26afff8746aaf707049748809d66e992e99286daca7381b223"},
-    {"path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin", "sha256": "1c52577e539083b31acbdc81b951626ae0dfe3bc8239d2ff4b2d35f2a472fb89"},
-    {"path": "report/evidence/S3-T14/v12_bars_freeze_tool_20261022_r01/README.md", "sha256": "1d5ecc19ae27cea3a87e4182e85b73e7a875ffd006104d09a74d34dc440a80c4"},
-    {"path": "scripts/stage3_t05/analyze_missing_msb_signature.py", "sha256": "76c045d61a7017e75ccdafb10b78a047e1c4bdacbba327e760ea65e2f4caa29a"},
-    {"path": "board/stage3/hardware/an5642_j11_cmos2.xdc", "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"},
-    {"path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261022-007-colorbar-recheck.md", "sha256": "b252e7494683beadf966a52ec461a3be040b09bf4af633f291735cfc97dda443"},
-    {"path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261023-013-stage3-camera-hw-window.md", "sha256": "cfab43cb918d30d3d3c574e59a69fb78c172883d22cee619a535239f6946f2bc"},
-    {"path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261022-009-stage3-camera-runbook.md", "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48"}
+    {
+      "path": ".codex/STATE.md",
+      "sha256": "85be520a595e72a160a2a10af7e94dbf2ab07a10c2f9bf4c5ab9a59a9b4169dc",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": true
+    },
+    {
+      "path": "report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md",
+      "sha256": "16927b5caec18c6d554b53cf08beb7476722713ac456822fdcae5d6cec87ae8f",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_freeze_20261021_r01/README.md",
+      "sha256": "70dacccbb571604d8feda51624adc74f0090c37e53214222f26e70e6dda68fa9",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/manifest.json",
+      "sha256": "d445888f4da9b49e40e33951979e8c0ada273b318f215d57ef2d25ba640998ec",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": true
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_values.txt",
+      "sha256": "2c75adca1b8c05933fb644d5e687d1d09ae9b9a18b0117844a8bf606dc5328fc",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": true
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_color_msb_missing_20261022_r01/bars_raw_frame_full.bin",
+      "sha256": "1c52577e539083b31acbdc81b951626ae0dfe3bc8239d2ff4b2d35f2a472fb89",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "report/evidence/S3-T14/v12_bars_freeze_tool_20261022_r01/README.md",
+      "sha256": "d23cdaf74707ba645cf56a8c7f6460da1d1e438c616cbbfef23ffe8a07a546f8",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": true
+    },
+    {
+      "path": "scripts/stage3_t05/analyze_missing_msb_signature.py",
+      "sha256": "76c045d61a7017e75ccdafb10b78a047e1c4bdacbba327e760ea65e2f4caa29a",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2",
+      "hash_basis": "dbdf@525e4f35 blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261022-007-colorbar-recheck.md",
+      "sha256": "b252e7494683beadf966a52ec461a3be040b09bf4af633f291735cfc97dda443",
+      "hash_basis": "main@HEAD blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261023-013-stage3-camera-hw-window.md",
+      "sha256": "cfab43cb918d30d3d3c574e59a69fb78c172883d22cee619a535239f6946f2bc",
+      "hash_basis": "main@HEAD blob（LF）",
+      "changed": false
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261022-009-stage3-camera-runbook.md",
+      "sha256": "6ab7261fba2490f9cbb8213903e09c47bfb58b87551d2d71aec0b76e51680e48",
+      "hash_basis": "main@HEAD blob（LF）",
+      "changed": false
+    }
   ],
   "limitations": [
     "本表为到货前的存在性与哈希核验；不代表任何实测结果。",
     "tmp/** 为可重建缓存，不入 Git；若后续被清理，需按上表哈希或证据包重建后再执行实测。"
-  ]
+  ],
+  "hash_convention": "本文件与 hashes_sha256.txt 的哈希一律按 git blob（LF）字节计算；仓库 core.autocrlf=true（评审 N-4），按工作区口径复核须 git -c core.autocrlf=false clone 或用 git cat-file blob。",
+  "rolling_inputs": [
+    ".codex/STATE.md"
+  ],
+  "rolling_input_note": "`.codex/STATE.md` 为滚动输入：上表哈希绑定其在本轮冻结提交上的 blob 字节；该文件随每轮交接更新，复核时以交接行记录的提交为准（评审 N-2）。"
 }

@@ -1,8 +1,8 @@
 # 阶段4 状态（真实PS张量诊断接入准备）
 
-更新：2026-10-23 22:51（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+更新：2026-10-23 23:32（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
 **写权：Codex 阶段4接续总控受 Codex 项目总控委派独占，IN_PROGRESS。** 认领基线 `af85d5a8495598262395165492df5e4d0bfb723c`；DSH 于 00:35 OFFERED 并停止写入，00:42 现场复核 `handoff_check --claim` 得到 9 PASS / 0 FAIL / 0 SKIP，随后 CLAIMED→IN_PROGRESS。
-**Wong 要求持续推进至4-D结束；完整阶段4未验收。** 当前先闭合4-B真实PS诊断、原始帧PL预处理G0及板测操作入口；硬件执行前须完成正式授权记录、会话交接及适用G0，4-D不以张量诊断代替完整预处理路径。12:46在额度中断后由同一总控恢复，无写权转移。
+**Wong 最新要求：先完成当前整帧PL小程序，然后结束本轮。4-D及完整阶段4尚未验收。** 仅收尾该小程序的必要仿真、独审和提交；系统集成/板测不继续开启。工作树写权无转移；硬件未认领、SDK/JTAG/UART均未操作。
 
 ## 继承的交付与版本
 
@@ -38,9 +38,11 @@
 - 后续109 RAW+直接标量D2重生完成：109/109匹配冻结输入SHA，exit0、190.075秒；RAW808263072B、参考56589312B留w4新tmp RunId，已对218输入逐文件机器核验。长期脚本/日志/结果/恢复政策 `report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/`，不代表PL/4D。
 - PL单通道数值核G2独审PASS并提交 `c9bab114d535191ae2dc2ef8bdcd087f15ed672a`：r04 XSim 547 FP64逐位、10pixel及6系数错误通过，工具exit0；Reviewer独立重建127阈值、381邻界点/1021整数半整数/10000固定种子点并重核547期望。5源冻结 `S4-B/s4b_pl_numeric_g2_20261023_r02/`，record SHA `a091bae3b4fcd98bc898bfb77cd89a5fa3a1bbb4dfd0f012b20404b17935b7bd`；闭合包 `S4-CTRL/s4_pl_numeric_closure_20261023_r01/` evidence0、inputs2（当时OOC/硬件NOT_RUN）。仅单通道、不含padding/几何/整帧。
 - 后续单次OOC综合exit0：xc7z020clg400-2，LUT1930/FF1674/BRAM0/DSP0、43秒、Vivado peak2008.668MB。综合后施加20ns/IOdelay0，WNS+9.411ns、WHS−0.276ns（288保持违例端点；仅最差路径已证实为输入到寄存器），HD.CLK_SRC未设、无布局布线；整体时序未闭合，不外推FPS/整网。报告 `S4-B/s4b_pl_numeric_ooc_20261023_r01/` 已独审PASS其证据和限制口径，timing检查真实exit1、evidence0/inputs2；自有Vivado会话已关闭，无实物操作。
-- geometry修复2冻结r03独审PASS并提交 `e1e79fcfcedd653681336e45c323de6ba3ed5558`：42设备名及6路径别名在文件IO前拒绝，13tests0，202×329真实D2边界和目标轴1/同尺寸分支独立复核。闭合包 `S4-CTRL/s4_pl_geometry_closure_20261023_r01/` 保留27份各轮记录；仅metadata，不含硬件ABI/整帧PL。系统G0修正中，DDR carve-out独立审计中，参数化整帧PL引擎局部G0已明确；26份2B固定Git源已逐SHA恢复到新隔离tmp，不改w2b。19时子代理额度中断，22:48同一总控恢复、无移权，四个整帧目标文件尚未创建，现已恢复Developer。Wong先暂不发送、后明确“可以发送”，22:48已向“新项目总控”成功发送硬件窗口/DSH协调请求；尚无交接回执或实物操作。
+- geometry修复2冻结r03独审PASS并提交 `e1e79fcfcedd653681336e45c323de6ba3ed5558`：42设备名及6路径别名在文件IO前拒绝，13tests0，202×329真实D2边界和目标轴1/同尺寸分支独立复核。闭合包 `S4-CTRL/s4_pl_geometry_closure_20261023_r01/` 保留27份各轮记录；仅metadata，不含硬件ABI/整帧PL。DDR材料事实独审PASS；系统G0独审CHANGES_REQUIRED（PS无golden参考、全owner期START gate、COMMIT精确回显、跨启动session唯一性、注入PS时基五项），按停止指令封存草案，不称系统G0通过；独立参数化整帧引擎局部G0已明确；26份2B固定Git源已逐SHA恢复到新隔离tmp，不改w2b。19时子代理额度中断，22:48同一总控恢复、无移权，四个整帧目标文件尚未创建，现已恢复Developer。Wong先暂不发送、后明确“可以发送”，22:48已向“新项目总控”成功发送硬件窗口/DSH协调请求；项目总控回执CDX-20261023-018建议摄像头先行、阶段4就绪后再申请，窗口未落实、COM4持有者未核实。随后已通知项目总控本轮收尾停止、不申请OFFER/窗口；无实物操作。
 
 - 历史S4-C `s4c_replay_20261021_r05` 的109/109 PASS、0数值差异已独立核对，可精确复用CPU golden heads→D9→T29范围；本轮未重跑109样本/重哈希390MB分片，未覆盖D2/r06新字段或板卡。复用证据 `report/evidence/S4-C/s4c_evidence_reuse_20261023_r01/` 包装CHECKS_OK；此前“109全量NOT_RUN”不能解释为历史离线回放未做。
+
+- 当前小程序 S4B-PL-FRAME-01：r07 prepare/5 Python tests/XSim各0，TEST_PASS cycles29978；两4×4完整CHW及202×329→416通道0前88B/abort，非完整416验证或吞吐。四源已停写，冻结 `S4-B/s4b_pl_frame_g2_20261023_r01/`，record SHA `28d820ab0034adc99aac74cdb375f8eae9e7a75f95267f0c608112bcb965bb67`；最终独审中。r03–r06失败/工具审批拒绝及归属核验保留；本任务Vivado会话均关闭。
 
 ## 证据与恢复入口
 
@@ -51,4 +53,4 @@
 
 ## 交接行（11字段）
 
-任务=`持续推进至4-D：02B闭合、系统G0修正/DDR审计、离线整帧PL开发` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；Wong批准PL路线所需src/、sim/、vivado/受控新增；保护旧冻结离线链与既有RunId` | 未提交改动归属=`既有提交至521ea60；STATE/02B及闭合证据、系统G0文档、DDR审计与整帧PL新源均归本总控；6ELF/6map本机恢复依赖不入源码提交` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占；硬件尚未认领` | 心跳(UTC+8)=`2026-10-23 19:36` | 证据入口=`report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r04/；S4-CTRL/s4_ps_adapter_closure_20261023_r01/；S4-B/s4b_pl_numeric_ooc_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`
+任务=`按Wong收尾当前整帧PL小程序，独审提交后结束本轮` | 负责人=`Codex 阶段4接续总控（受Codex项目总控委派）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`af85d5a8495598262395165492df5e4d0bfb723c` | 允许修改范围=`本树docs/、verification/、scripts/、vitis/、report/evidence/、tmp/4/、.codex/STATE.md；Wong批准PL路线所需src/、sim/、vivado/受控新增；保护旧冻结离线链与既有RunId` | 未提交改动归属=`截至4639501已提交；系统G0草案/DDR审计、当前小程序与证据均本总控；6ELF/6map本机恢复依赖不入源码提交` | 让出声明=`未让出；本树写权由Codex阶段4接续总控独占；硬件尚未认领` | 心跳(UTC+8)=`2026-10-23 23:32` | 证据入口=`report/evidence/S4-B/s4b_ps_adapter_g2_20261023_r04/；S4-CTRL/s4_ps_adapter_closure_20261023_r01/；S4-B/s4b_pl_numeric_ooc_20261023_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 rev-parse --git-path index.lock` | 状态/下一接手方=`IN_PROGRESS / 当前Codex阶段4接续总控`

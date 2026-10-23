@@ -1,0 +1,515 @@
+{
+  "schema_version": 1,
+  "task_id": "S4B-PL-DDR-G0-04",
+  "run_id": "s4b_pl_ddr_g0_audit_20261023_r01",
+  "generated_at_utc8": "2026-10-23T23:02:55+08:00",
+  "audit_kind": "read_only_address_ownership_audit",
+  "source_snapshot": {
+    "fixed_worktrees": [
+      {
+        "path": "D:\\codex-worktrees\\w4",
+        "task_start_head": "521ea60f880234918831bbfaf42e258acfdfebe0",
+        "observed_head_at_capture": "4639501c7c0badeded139e9a2a76017ca8294adc"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b",
+        "observed_head_at_capture": "07c3d3958578b9cc9d3b8eae3758711fe08724c2"
+      },
+      {
+        "path": "D:\\codex-worktrees\\w5",
+        "observed_head_at_capture": "654c72eb8e883b1a43fe8b6c3f073a9cb6f023b9"
+      },
+      {
+        "path": "D:\\codex-worktrees\\dbdf",
+        "observed_head_at_capture": "66aa8a6ccc31f8e2fc732ffc97500bb55b218ff6"
+      }
+    ],
+    "w4_worktree_status": {
+      "docs/stage4/S4B_stage4_address_map.json": "clean_at_capture",
+      "docs/stage4/S4B_pl_preprocess_g0_readiness.md": "modified_concurrently; excluded_from_fixed_evidence",
+      "report_target_before_write": "absent",
+      "temp_run_target_before_write": "absent"
+    },
+    "head_transition_after_task_start": {
+      "commit": "4639501c7c0badeded139e9a2a76017ca8294adc",
+      "subject": "feat(stage4): close reviewed PS tensor adapter and one-shot export",
+      "commit_time_utc8": "2026-10-23T22:55:26+08:00",
+      "relation_to_this_audit": "并发总控提交；审计结论依赖的address map、r13 memory_ranges、map、ELF SHA在提交后复核不变。"
+    }
+  },
+  "xsa_binding": {
+    "selected_absolute_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+    "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+    "why_selected": [
+      "r13 external_inputs_inventory.json准确记录该绝对路径、848620字节、exists=true、expected_sha256匹配、status=PASS。",
+      "S2B-T18冻结回执及交付清单记录相同R04 XSA SHA，并以2B冻结提交16ce2cdf8c00c6214435629d75a5e4b63acb66a为正式冻结代码版本。",
+      "R04 input_record将生成输入基线记为6f5c6dc871d92fe32e5d37a58ff693442b793903；该生成基线与后续冻结提交是不同身份，报告分别绑定。"
+    ],
+    "commit_roles": {
+      "xsa_generation_input_commit": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+      "xsa_freeze_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "r13_derived_ps_application_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9"
+    },
+    "no_alternate_platform_profile_used": true
+  },
+  "ddr_facts_by_layer": {
+    "xsa_static_ps_configuration": {
+      "xsa_member": "ps7_init.html",
+      "memory_part": "MT41K256M16TW-107",
+      "component_density_mbit": 4096,
+      "configured_ddr_bus_width_bits": 32,
+      "configured_ddr_operating_frequency_mhz": 533.333333,
+      "hwh_ddr_dq_pin_interval": "[0:31]",
+      "interpretation": "XSA/PS初始化的静态目标配置，不证明当前实板实际装配、器件数量、容量、电压、信号完整性或时序裕量。"
+    },
+    "hp0_interface": {
+      "xsa_member": "s2b_inference.hwh",
+      "interface": "PL master connected to PS S_AXI_HP0",
+      "data_width_bits": 64,
+      "clock_source": "PS FCLK_CLK0",
+      "clock_frequency_hz": 50000000,
+      "evidence": "HWH把64位m_axi_rdata连接至PS S_AXI_HP0_RDATA；该主接口时钟端口标为50000000Hz并连接PS FCLK_CLK0。"
+    },
+    "hardware_ddr_decode": {
+      "status": "not_live_verified",
+      "note": "XSA含PS DDR接口及静态PS初始化配置；本审计未读取板上地址译码、PS状态或DDR控制器readback。"
+    },
+    "physical_population": {
+      "selected_component_model": "MT41K256M16TW-107",
+      "component_density_mbit": 4096,
+      "installed_component_count": null,
+      "total_installed_capacity": null,
+      "verification_status": "not_verified_from_PCB_BOM_or_hardware"
+    },
+    "firmware_addressability": {
+      "source": "r13导入xparameters.h",
+      "interval_half_open": "[0x00100000,0x40000000)",
+      "base_macro": "XPAR_PS7_DDR_0_BASEADDRESS=0x00100000",
+      "inclusive_high_macro": "XPAR_PS7_DDR_0_HIGHADDRESS=0x3fffffff",
+      "size_bytes": 1072693248,
+      "interpretation": "BSP提供的PS软件地址范围；不能单独证明物理容量或当前已加载平台。"
+    },
+    "current_address_map_domain": {
+      "interval_half_open": "[0x00000000,0x20000000)",
+      "size_bytes": 536870912,
+      "source": "w4 S4B_stage4_address_map.json",
+      "interpretation": "草案显式建模的512MiB范围，与BSP的[0x00100000,0x40000000)软件范围不同；RAW候选在两者交集内，较高端DDR空间不在本审计结论内。"
+    }
+  },
+  "r13_actual_ps_layout": {
+    "artifact_identity": {
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "xsa_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "elf_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+      "status": "offline_build_only_not_loaded"
+    },
+    "linker_memory_regions": [
+      {
+        "name": "ps7_ddr_0_memory_0",
+        "interval_half_open": "[0x00100000,0x01100000)",
+        "size_bytes": 16777216,
+        "owner": "r13 PS application link arena"
+      },
+      {
+        "name": "s2b_tensor_ddr",
+        "interval_half_open": "[0x10000000,0x12000000)",
+        "size_bytes": 33554432,
+        "owner": "existing Stage2B tensor arena used by r13"
+      }
+    ],
+    "actual_ps_segments": [
+      {
+        "name": "BSS",
+        "interval_half_open": "[0x00118080,0x0071E6D0)",
+        "size_bytes": 6317648,
+        "ownership": "r13 PS application"
+      },
+      {
+        "name": "staging_buffer",
+        "interval_half_open": "[0x00150440,0x006F173C)",
+        "size_bytes": 5903100,
+        "ownership": "inside r13 BSS"
+      },
+      {
+        "name": "trace_records",
+        "interval_half_open": "[0x006F1780,0x0071E640)",
+        "size_bytes": 184000,
+        "ownership": "inside r13 BSS"
+      },
+      {
+        "name": "trace_header",
+        "interval_half_open": "[0x0071E640,0x0071E6D0)",
+        "size_bytes": 144,
+        "ownership": "inside r13 BSS"
+      },
+      {
+        "name": "heap",
+        "interval_half_open": "[0x0071E6D0,0x0081E6D0)",
+        "size_bytes": 1048576,
+        "ownership": "r13 PS application"
+      },
+      {
+        "name": "stack_and_exception_stacks",
+        "interval_half_open": "[0x0081E6D0,0x0082FED0)",
+        "size_bytes": 71680,
+        "ownership": "r13 PS application"
+      },
+      {
+        "name": "network_input_tensor",
+        "interval_half_open": "[0x10000000,0x1007EC00)",
+        "size_bytes": 519168,
+        "ownership": "PL writes; network master reads per current map"
+      }
+    ],
+    "generated_linker_default_range_note": "map中的*default* 0x00000000..0xffffffff是链接器默认段，不作为DDR owner证据。"
+  },
+  "candidate_allocation": {
+    "source_task_decision": "Wong已批准RAW→PL→HP0串行owner→冻结网络路线；此审计只核对地址冲突与范围。",
+    "sample_scope": {
+      "frozen_sample_count": 109,
+      "maximum_sample_id": "test_two_up_062",
+      "processing_mode": "单RAW缓冲依次复用；不做109帧同时驻留或双缓冲，不减少冻结样本数。",
+      "format": "紧密RGB888，stride=width*3",
+      "maximum_single_sample_logical_bytes": 11059200,
+      "candidate_raw_capacity_bytes": 12582912,
+      "arithmetic_slack_bytes": 1523712,
+      "source_fixed_samples_manifest_sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed"
+    },
+    "raw": {
+      "interval_half_open": "[0x12000000,0x12C00000)",
+      "size_bytes": 12582912,
+      "proposed_owner": "S4-B RAW阶段单帧输入缓存；按批准路线与PL预处理串行交接",
+      "implementation_status": "candidate_only"
+    },
+    "metadata": {
+      "interval_half_open": "[0x12C00000,0x12C08000)",
+      "size_bytes": 32768,
+      "proposed_owner": "S4-B descriptor/ACK/geometry/mailbox控制区",
+      "implementation_status": "candidate_only"
+    },
+    "combined_interval_half_open": "[0x12000000,0x12C08000)",
+    "combined_size_bytes": 12615680
+  },
+  "existing_policy": {
+    "forbidden_interval_half_open": "[0x12000000,0x20000000)",
+    "exact_rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围",
+    "reason_classification": "当前S4B草案的范围/准入规则；文档没有把该跨度登记为具体已占用owner。",
+    "candidate_effect": "需由获授权文档写入方在实施前把RAW和metadata作为独立分配加入地址图，清除该候选对象的旧blocked策略记录并重新核对。"
+  },
+  "stage3_and_w5_display": {
+    "stage3_platform_xsa_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+    "stage3_v12_elf_sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+    "w5_run_id": "s5t01_board_overlay_20261022_r01",
+    "w5_run_source_head": "184adc35bb4f12ca29be6ce98e14c4ab85bbaac2",
+    "w5_run_platform": "Stage3灰度XSA/bitstream上的PS合成视频overlay历史运行",
+    "w5_run_status": "manifest记录P1构建、下载、运行和buffer探针成功；不是当前平台加载状态",
+    "w5_manifest_elf_hashes": {
+      "cycle": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac",
+      "case5": "3632e9fb29f9f70d779039c18e1d50b6ecb7b4e796fc77356352859b60d055b5"
+    },
+    "final_elf_and_map_retention": {
+      "current_build_directory": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\p1_app\\build",
+      "matching_final_elfs_present": false,
+      "map_files_present": false,
+      "only_observed_residual_elf": {
+        "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\p1_app\\build\\s5t01_frames_r05b.elf",
+        "sha256": "4260d20a138e3a88d2a9cd8f6b74ef6ba85070cc98542e459b7ad197960aada5",
+        "matches_manifest_cycle_or_case5": false
+      },
+      "limitation": "不将当前残留ELF冒认为manifest绑定的final ELF；buffer地址由历史运行manifest及只读数据日志交叉核对。"
+    },
+    "framebuffer_intervals": [
+      {
+        "name": "buf0",
+        "interval_half_open": "[0x00114C00,0x003B7C00)",
+        "size_bytes": 2764800
+      },
+      {
+        "name": "buf1",
+        "interval_half_open": "[0x00703800,0x009A6800)",
+        "size_bytes": 2764800
+      },
+      {
+        "name": "buf2",
+        "interval_half_open": "[0x00CF2400,0x00F95400)",
+        "size_bytes": 2764800
+      }
+    ],
+    "layout_relation": "三个Stage3历史FB区均不与RAW/metadata候选交叠；它们处于r13 PS app arena内，但Stage3视频XSA不在批准的Stage4平台路线中，不按并发owner计入。路线或平台共存关系变化时须重做交叉表。"
+  },
+  "conflict_cross_table": [
+    {
+      "candidate": "RAW + metadata [0x12000000,0x12C08000)",
+      "observed_resource": "r13 PS app arena [0x00100000,0x01100000)",
+      "interval_relation": "disjoint",
+      "platform_relation": "same proposed S4-B application platform; r13 is offline diagnostic ELF and not loaded",
+      "result": "no_address_overlap"
+    },
+    {
+      "candidate": "RAW + metadata [0x12000000,0x12C08000)",
+      "observed_resource": "existing Stage2B tensor arena [0x10000000,0x12000000)",
+      "interval_relation": "adjacent_at_0x12000000; half-open ranges do not overlap",
+      "platform_relation": "bound to selected R04 XSA/r13 app profile",
+      "result": "no_address_overlap"
+    },
+    {
+      "candidate": "RAW + metadata [0x12000000,0x12C08000)",
+      "observed_resource": "Stage3/W5 P1 framebuffer intervals [0x00114C00,0x003B7C00), [0x00703800,0x009A6800), [0x00CF2400,0x00F95400)",
+      "interval_relation": "disjoint",
+      "platform_relation": "historical Stage3 gray XSA; excluded from current S4-B platform by approved route",
+      "result": "no_candidate_address_overlap; not a simultaneous consumer"
+    },
+    {
+      "candidate": "RAW + metadata [0x12000000,0x12C08000)",
+      "observed_resource": "draft policy gap [0x12000000,0x20000000)",
+      "interval_relation": "candidate is contained by policy interval",
+      "platform_relation": "same address-map document",
+      "result": "policy_block_not_ownership_conflict"
+    },
+    {
+      "candidate": "RAW + metadata [0x12000000,0x12C08000)",
+      "observed_resource": "unlisted PS firmware, other PL masters, DMA or board reservations",
+      "interval_relation": "not established by inspected sources",
+      "platform_relation": "excluded only by explicit G0 assumptions",
+      "result": "conditional_on_no_other_DDR_consumers"
+    }
+  ],
+  "g0_assessment": {
+    "status": "READY_FOR_INDEPENDENT_G0_REVIEW_CANDIDATE_ONLY",
+    "technical_conflict_conclusion": "未发现已列owner与候选区间重叠；草案政策禁用仍有效。",
+    "physical_ddr_integration_status": "BLOCKED_PENDING_ADDRESS_MAP_AND_OWNER_REVIEW",
+    "basis": [
+      "RAW 12MiB足以容纳109样本中最大单帧11,059,200B，保留1,523,712B余量；测试样本按单缓冲串行处理。",
+      "候选区完全位于选定XSA导出的BSP DDR软件地址范围和当前地址图512MiB建模范围内。",
+      "候选RAW从已分配Stage2B 32MiB tensor arena半开区间末端开始，无边界重叠。",
+      "r13实际map/linker显示PS app、BSS、heap、stack、staging、trace和tensor的所有已识别区间均不覆盖候选。",
+      "Stage3历史视频framebuffer不与候选重叠，且Stage3/video平台不与本轮Stage4平台并发加载。"
+    ],
+    "assumptions_required_for_this_result": [
+      "本轮加载的Stage4平台不包含Stage3/video消费者。",
+      "除清单内Stage4 app/PL/网络owner之外，没有其他DDR消费者或保留区。",
+      "CPU1保持Stopped。",
+      "执行未来硬件工作时由同一负责人持有独占硬件会话。",
+      "RAW/metadata按批准串行owner状态交接；任何新增双缓冲或并行消费者都需重新计算空间。"
+    ],
+    "before_implementation": [
+      "现有地址图解除candidate范围的blocked策略并登记RAW/metadata具体owner前，禁止把候选物理基址用于板上访问或运行；更新后须重新核对地址图与消费者集合。",
+      "在任何实板操作前单独核对当时加载XSA/bit身份、CPU1状态、会话独占和DDR消费者清单。"
+    ],
+    "not_a_claim_of": [
+      "本报告不证明实板当前加载任何XSA/ELF。",
+      "本报告不证明当前CPU1状态、独占会话、DDR实测或未知固件/PL master不存在。",
+      "本报告不证明PCB修订、实际装配容量、供电、电气或工业温度条件。"
+    ]
+  },
+  "audit_actions": {
+    "source_read_only_commands": [
+      {
+        "command": "git -C <worktree> rev-parse HEAD",
+        "result": "exit 0"
+      },
+      {
+        "command": "sha256sum <精确证据文件绝对路径>",
+        "result": "对报告列出的现存文件exit 0"
+      },
+      {
+        "command": "指定Python 3.12 -B只读解析固定109样本清单",
+        "result": "sample_count=109，实际样本行=109，最大RGB888帧=11059200B（test_two_up_062，1920x1920）"
+      },
+      {
+        "command": "unzip -p <ea52 XSA> s2b_inference.hwh / ps7_init.html",
+        "result": "读取冻结XSA归档成员，未解包落盘"
+      },
+      {
+        "command": "rg -n / sed -n <已核准小范围文件>",
+        "result": "检查XSA字段、linker/map和清单"
+      },
+      {
+        "command": "find <W5指定运行或输出目录> -maxdepth 3 -type f",
+        "result": "确认历史运行日志及当前输出目录内未见map文件"
+      }
+    ],
+    "hardware_or_vendor_tools_run": false,
+    "sdk_or_uart_run": false,
+    "user_scripts_run": false,
+    "source_or_state_files_modified": false,
+    "tests_run": false,
+    "git_staging_or_commit": false
+  },
+  "limitations": [
+    "current address map只覆盖到0x20000000，r13 BSP宏延伸至0x40000000；候选位于共同范围内，0x20000000以上未审计。",
+    "XSA静态配置不能替代现场DDR地址读回、物理装配清点或当前会话状态。",
+    "W5 P1运行manifest保留了最终ELF SHA和现场buffer地址，但对应final ELF/map目前未在指定构建目录保留；当前残留ELF SHA与manifest哈希不同。",
+    "S4B readiness文档在审计期间被他方并发修改，未作为固定哈希证据或占用结论依据；RAW/META候选数值来自父任务输入，最大帧由固定样本清单直接复算。",
+    "未知的其他DDR consumer只能由后续独占硬件任务执行前检查并按G0假设排除；本只读审计未做全仓历史或所有工作树扫描。"
+  ],
+  "evidence": [
+    {
+      "role": "本轮冻结XSA实际字节",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "artifact_generation_source_commit": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+      "formal_freeze_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "binding_reason": "r13 external_inputs_inventory.json 三处绑定此精确绝对路径和SHA；S2B-T18冻结回执及交付清单均绑定同一SHA。"
+    },
+    {
+      "role": "R04 XSA构建输入记录",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_commit": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+      "note": "仅用于说明R04产物生成输入提交；input_record整体status为FAIL，不单独作为冻结通过依据。"
+    },
+    {
+      "role": "2B冻结交付清单",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\delivery_manifest.json",
+      "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "note": "列出S2B-T19 R04 XSA SHA，冻结交付依据。"
+    },
+    {
+      "role": "2B正式冻结回执",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_receipt_20261022_r01\\freeze_receipt.json",
+      "sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "note": "冻结状态PASS；标记DDR manual candidate MT41K256M16TW-107、配置50MHz；同时声明未证实实装PCB/器件。"
+    },
+    {
+      "role": "r13外部输入绑定清单",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\external_inputs_inventory.json",
+      "sha256": "dc99031b1f03af8c5cfddbb31dd319e835e3153c838813033efdbf31962ec74f",
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "note": "候选XSA的exists=true、expected_sha256匹配且status=PASS，共三处绑定相同路径与SHA。"
+    },
+    {
+      "role": "r13交付清单及构建基线",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\delivery_manifest.json",
+      "sha256": "0c29d6e39d8d9a59eeb87939692520cad91f9ee928f1b52af8ff1a7f2d9257c8",
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "note": "r13离线构建基线；记录板卡、PL启动/完成、DDR导出及停止/恢复均NOT_RUN。"
+    },
+    {
+      "role": "r13硬件预留状态",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\run_config.json",
+      "sha256": "e4ffd5c40992dd8b46954b36989d3c21067b01f1a2a204bd53b97ede030d9e62",
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "note": "hardware_reservation_status=BUILD_ONLY_NOT_RESERVED_FOR_HARDWARE。"
+    },
+    {
+      "role": "r13固件内存范围提取",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\memory_ranges.json",
+      "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80",
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9"
+    },
+    {
+      "role": "r13实际链接地图",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\s4b_ps_tensor_diagnostic.map",
+      "sha256": "4a0f9cf8e281482a70459f5e247c9b42863bff058b91c38eb7fcf832fcc1d62d",
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9"
+    },
+    {
+      "role": "r13离线诊断ELF",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\s4b_ps_tensor_diagnostic.elf",
+      "sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+      "source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "loaded_on_hardware": false
+    },
+    {
+      "role": "r13恢复包内PS应用链接脚本",
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\infer\\src\\lscript.ld",
+      "sha256": "8f3efdbc02d190d8c4f193a6762bbacb4301f326ba6e334fd21cbc00b6379805",
+      "generation_source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "note": "bundle抽取文件；由r13交付清单绑定。"
+    },
+    {
+      "role": "r13导入BSP DDR地址宏",
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\include\\xparameters.h",
+      "sha256": "7361be552faffb0b59b37d157c7fe7e332bea52841a17095e2ff7b8c80f04a36",
+      "generation_source_commit": "b7aceb8e81fe297511d0581d43c08aabf7df46f9",
+      "note": "r13 bundle中由对应BSP导出；宏声明DDR base=0x00100000、high=0x3fffffff。"
+    },
+    {
+      "role": "S4B草案地址图",
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_stage4_address_map.json",
+      "sha256": "80104b8031f86f8cf1653bc5efdc542d11519cebcae073b5f9ea747b0ed2046a",
+      "source_commit": "521ea60f880234918831bbfaf42e258acfdfebe0",
+      "worktree_modified": false
+    },
+    {
+      "role": "109样本固定清单",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S2A-T01\\fixed_test_samples.json",
+      "sha256": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
+      "source_commit": null
+    },
+    {
+      "role": "W5 Stage3灰度视频P1运行清单",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\run_manifest.json",
+      "sha256": "1ac44d28edea73b379736312e9cbd147bd000ae3ef7f4ae89564e4687aae1263",
+      "source_head": "184adc35bb4f12ca29be6ce98e14c4ab85bbaac2",
+      "note": "历史运行于Stage3灰度XSA/bitstream；不能当作本轮Stage4已加载。"
+    },
+    {
+      "role": "W5 P1 framebuffer现场只读数据",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\console\\read_overlay_buf.txt",
+      "sha256": "fa4143b2203226a0add263f0b1573eedca6931fe38873b554905d165ec9fd212",
+      "source_head": "184adc35bb4f12ca29be6ce98e14c4ab85bbaac2"
+    },
+    {
+      "role": "W5 P1构建日志",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\console\\build_cycle.log",
+      "sha256": "6869cf8c4d33b3648a44e077b202226ba25b9cd0dc4882483477904014de1fa1",
+      "source_head": "184adc35bb4f12ca29be6ce98e14c4ab85bbaac2"
+    },
+    {
+      "role": "W5 P1 UART运行日志",
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\console\\uart_overlaycycle.log",
+      "sha256": "9722510b02ec062568782625ab0414b0378fb8c3db8c8820c70352bc61d12111",
+      "source_head": "184adc35bb4f12ca29be6ce98e14c4ab85bbaac2"
+    },
+    {
+      "role": "W5 P1构建脚本",
+      "path": "D:\\codex-worktrees\\w5\\scripts\\stage5_t01\\build_p1_app.sh",
+      "sha256": "3a5d10f29bf8c0b6895de4cd9ca8e4cd524d7aba30ed33a6fb2fe66eb28b7378",
+      "worktree_head": "654c72eb8e883b1a43fe8b6c3f073a9cb6f023b9"
+    },
+    {
+      "role": "W5当前临时构建目录内非本次manifest ELF，仅用于核对不可冒认",
+      "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\p1_app\\build\\s5t01_frames_r05b.elf",
+      "sha256": "4260d20a138e3a88d2a9cd8f6b74ef6ba85070cc98542e459b7ad197960aada5",
+      "worktree_head": null,
+      "used_as_overlay_run_artifact": false
+    },
+    {
+      "role": "W5临时构建目录内链接脚本",
+      "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\p1_app\\build\\lscript.ld",
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a",
+      "worktree_head": null,
+      "note": "与Stage3 v12链接脚本相同字节；不是W5最终ELF map。"
+    },
+    {
+      "role": "Stage3 T05关闭清单",
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_closeout_20261022_r01\\manifest.json",
+      "sha256": "313b1d959b2908e18d5109e8f34f8e161efb80d61f09590a91d7532e68257bb9",
+      "current_worktree_head": "66aa8a6ccc31f8e2fc732ffc97500bb55b218ff6",
+      "artifact_source_commit_recorded": false
+    },
+    {
+      "role": "Stage3灰度XSA实际文件",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_stdluma_20261022_r01\\design_1_wrapper.xsa",
+      "sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+      "bound_by_manifest": "313b1d959b2908e18d5109e8f34f8e161efb80d61d09590a91d7532e68257bb9"
+    },
+    {
+      "role": "Stage3 v12实际PS ELF",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\an5642_j11cmos2_v12_bars_freeze.elf",
+      "sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+      "bound_by_manifest": "313b1d959b2908e18d5109e8f34f8e161efb80d61d09590a91d7532e68257bb9"
+    },
+    {
+      "role": "Stage3 v12链接脚本",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\lscript.ld",
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a",
+      "current_worktree_head": "66aa8a6ccc31f8e2fc732ffc97500bb55b218ff6",
+      "note": "链接脚本DDR范围为[0x00100000,0x40000000)。"
+    }
+  ]
+}

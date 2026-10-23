@@ -1,0 +1,72 @@
+{
+  "review_id": "S4B-PL-SYSTEM-G0-03",
+  "verdict": "CHANGES_REQUIRED",
+  "review_scope": "冻结系统规格是否足以启动参数化离线RTL/PS/host开发；不批准物理地址、实板交接、G3或G4。",
+  "baseline_head": "4639501c7c0badeded139e9a2a76017ca8294adc",
+  "frozen_inputs": {
+    "specification_json": {
+      "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json",
+      "sha256": "2b8bb49fa520a22623f1737eb4fe75848eb6e16e67e4b4fc9f6655741fd4a8cc"
+    },
+    "document": {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "e6ae30a5328b041505d1101fd2c4332723571f025017600d806af3fbe7c3f77d",
+      "snapshot_sha256": "e6ae30a5328b041505d1101fd2c4332723571f025017600d806af3fbe7c3f77d",
+      "size_bytes": 67656
+    }
+  },
+  "findings": [
+    {
+      "id": "SYS-G0-01",
+      "severity": "blocker",
+      "location": "docs/stage4/S4B_pl_preprocess_g0_readiness.md lines 205, 289, 297-298",
+      "finding": "规格要求PS在网络启动前将完整519168字节tensor与同一RAW的冻结D2直接参考逐字节比较，但PS不执行像素预处理；RAW/geometry元数据没有参考tensor/hash/CRC，32KiB metadata区也不能容纳519168字节参考，且没有host确认阶段。因此所述PS侧golden比较不可实现。",
+      "close_when": "将PS职责改为产生并记录PL tensor CRC；DONE后由host通过JTAG读取tensor并与CPU D2参考逐字节比较，再逐层核对head/boxes。仅在host完成比较后发送既有RESULT_CONSUMED；失败时保持结果未消费、阻止下一帧。不得要求PS预存整份golden，也不需新增opcode。"
+    },
+    {
+      "id": "SYS-G0-02",
+      "severity": "blocker",
+      "location": "docs/stage4/S4B_pl_preprocess_g0_readiness.md lines 331, 337; frozen S2B CSR START behavior",
+      "finding": "START屏障只明确覆盖START_PREPROC/TENSOR_READY附近，而冻结S2B旧CSR的0x008 START仅在其自身controller为IDLE_PS时受理。PL预处理持有HP0期间，网络controller仍可能处于IDLE_PS，外部CSR写可能绕开token并并发取走HP0。",
+      "close_when": "从预处理owner取得/开始资格至PP_RUN、PP_DRAIN、PP_ERROR_DRAIN和安全错误状态完成合法交接的整个owner持有期，外部CSR 0x008 START须被原子拒绝且无副作用；只有匹配token在TENSOR_READY状态可由新命令启动网络。"
+    },
+    {
+      "id": "SYS-G0-03",
+      "severity": "blocker",
+      "location": "docs/stage4/S4B_pl_preprocess_g0_readiness.md section 8.2 RAW_BEGIN/COMMIT",
+      "finding": "COMMIT描述session/frame回显，但未要求其width/height/stride/pixel format/logical bytes/storage bytes/raw CRC与已接受RAW_BEGIN及授权buffer完全一致；存在对不同payload元数据提交的歧义。",
+      "close_when": "明确COMMIT必须逐字段精确回显RAW_BEGIN已接受的全部payload元数据及授权buffer身份；不匹配时在接受COMMIT及任何所有权/状态副作用前拒绝，并覆盖正反例。"
+    },
+    {
+      "id": "SYS-G0-04",
+      "severity": "blocker",
+      "location": "docs/stage4/S4B_pl_preprocess_g0_readiness.md sections 8.1-8.2; S4-A session rule",
+      "finding": "文档要求每次PS启动/reset分配新session_id并以非零u32表示，但没有定义跨启动唯一性来源；本地u64 boot_seed未进入协议字段，无法保证session_id不复用。",
+      "close_when": "给出满足跨PS启动/reset不复用的非零u32分配来源/生命周期和耗尽处理，并与S4-A规则一致；或明确缩小session身份保证并取得必要规格决策。"
+    },
+    {
+      "id": "SYS-G0-05",
+      "severity": "blocker",
+      "location": "docs/stage4/S4B_pl_preprocess_g0_readiness.md section 8.3; S4-A injection_start_ns definition",
+      "finding": "S4-A要求injection_start_ns来自PS单调时钟域；新文档记录host_raw_first_write为host时钟且明确禁止未经校准跨时钟相减，但未给出该字段可用来源或不可用时策略。",
+      "close_when": "定义PS域捕获/经校准转换的来源，或将契约一致地改为显式不可用/空值并说明限制；不得把host时钟值标记为PS单调时间。"
+    }
+  ],
+  "verified": [
+    "冻结规格JSON、正文和快照SHA与声明一致；冻结HEAD为4639501c7c0badeded139e9a2a76017ca8294adc。",
+    "声明的S4-A、S2B、D2及PS/geometry实现绑定哈希已只读核对匹配。",
+    "三opcode RAW_BEGIN/COMMIT/RESULT_CONSUMED生命周期、128B/64B记录布局和CRC字段、geometry 24B槽布局与未使用slot清零、JTAG_RAW_TASK边界、≥30分钟与≥1000次两个独立最低值等条款已静态核查；这些通过项不关闭上述阻断项。"
+  ],
+  "execution": {
+    "source_or_doc_modified": false,
+    "state_or_git_modified": false,
+    "hardware_or_vivado_run": false,
+    "heavy_tests_or_probe_run": false,
+    "native_exit_code_for_read_only_hash_and_binding_checks": 0
+  },
+  "limitations": [
+    "本结论只针对被冻结系统决策材料能否支撑G0参数化离线开发。",
+    "不构成实现G1/G2、物理地址启用、硬件交接、实板G3、任务G4或阶段验收。",
+    "不审查另行运行的整帧PL小程序。"
+  ]
+}

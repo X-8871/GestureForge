@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "artifact": "s6e_acceptance_check",
+  "run_id": "s6e_acceptance_20261024_r01",
+  "checks": "E1..E11（身份/用例/参数绑定/24 项集合/stale 常量/T6-A03 禁填造/证据类别/统计口径/八类门禁/文档一致/11 类覆盖）",
+  "baseline": {
+    "verdict": "ALL_PASS",
+    "errors": []
+  },
+  "verdict": "AS_EXPECTED",
+  "injections": [
+    {
+      "id": "I1-stale-constant-drift",
+      "caught": true,
+      "errors": [
+        "E5: stale_age_limit_ms=150 与行为表 T6-STALE_LIMIT=200 不一致",
+        "E5: stale 常量必须为 200 ms（实际 150）"
+      ]
+    },
+    {
+      "id": "I2-t6-a03-fabricated-value",
+      "caught": true,
+      "errors": [
+        "E6: T6-A03 value 必须为 NOT_RUN（实际 250）",
+        "E6: T6-A03 块出现数值字段 ['value']（禁止填造）"
+      ]
+    },
+    {
+      "id": "I3-approved-param-missing",
+      "caught": true,
+      "errors": [
+        "E4: 参数集合不一致（用例集多 []；行为表多 ['T6-03']）"
+      ]
+    },
+    {
+      "id": "I4-unknown-downgraded-offline",
+      "caught": true,
+      "errors": [
+        "E7: UNK-01 属动作/未知/恢复组，不得标离线自检（实际 OFFLINE_SELFCHECK）",
+        "E7: UNK-01 必须为 REAL_INFERENCE_REQUIRED"
+      ]
+    },
+    {
+      "id": "I5-cases-cleared",
+      "caught": true,
+      "errors": [
+        "E2: 用例数 0 < 26",
+        "E7: REC-07 必须为 REAL_CAPTURE_REQUIRED（连续真实时间 ≥30 min）",
+        "E7: UNK-01 必须为 REAL_INFERENCE_REQUIRED"
+      ]
+    },
+    {
+      "id": "I6-illegal-parameter-name",
+      "caught": true,
+      "errors": [
+        "E3: ACT-01 绑定了非已批准参数 ['T6-NOT_A_PARAM']"
+      ]
+    }
+  ],
+  "self_test": {
+    "verdict": "AS_EXPECTED",
+    "all_injections_caught": true
+  }
+}

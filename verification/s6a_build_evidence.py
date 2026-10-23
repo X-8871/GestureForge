@@ -171,6 +171,7 @@ def source_entries(root: Path) -> list[dict[str, str]]:
         ("verification/tool_self_tests.py", "工具自测两例（必 PASS / 必 FAIL）"),
         ("verification/hash_convention_check.py", "O1 换行口径双向反例（真实 verify_hash）"),
         ("verification/claim_verify.py", "验证附录生成器（声明↔命令↔真实退出码↔可观察输出）"),
+        ("verification/approved_package_scan.py", "已批准包状态声明扫描器（大小写不敏感 + 两向注入自测；claim C8）"),
         ("verification/export_selfproof.py", "冻结自证工具（导出提交后复跑自检 + 两个交付检查器，F6 规则）"),
         ("verification/s6_g0_selfcheck.py", "加固后的 S6-A 自检脚本"),
         ("verification/s6a_build_evidence.py", "证据清单构建器（真实执行检查并记录退出码）"),
@@ -279,7 +280,11 @@ def build_delivery_manifest(task_id, run_id, stage, source_commit, checks, files
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="生成 S6-A 证据清单并实跑检查器（r03 不动点迭代）")
     parser.add_argument("--self-tests", action="store_true",
-                        help="构建前跑工具自测套件并产生产物（C5 引用该产物）")
+                        help="构建前跑工具自测套件并**把产物入库**（<run-dir>/tool_self_tests.json；claim C5 引用该产物）")
+    parser.add_argument("--s6b-run", default=None,
+                        help="自证/套件引用的 S6-B 证据目录（提供时自证兼跑 S6-B 剖面；缺省则只跑 S6-A 剖面）")
+    parser.add_argument("--delivery-commit", default=None,
+                        help="自证套件引用的**交付提交**（缺省由套件按冻结 tag 解析）")
     parser.add_argument("--run-dir", required=False)
     parser.add_argument("--project-root", required=False)
     parser.add_argument("--stage", default="6")
@@ -355,13 +360,9 @@ def main(argv: list[str] | None = None) -> int:
     summary_path = run_dir / "S6A_run_summary.md"
     result_path = run_dir / "selfcheck_result.json"
     c11_stdout_path = run_dir / "selfcheck_c11_stdout.txt"
-    if args.self_tests:
-        st_cmd = [sys.executable, "-B", str(root / "verification/tool_self_tests.py"),
-                  "--project-root", str(root)]
-        st_run = run_command(st_cmd, root)
-        print(f"[self-tests] exit={st_run['exit_code']}")
-        if st_run["exit_code"] != 0:
-            print(st_run["stdout"]); print(st_run["stderr"]); return 1
+    # （工具自测套件已移至「自检不动点之后、claim 不动点之前」：那时 run-dir 已具备
+    #   delivery_manifest/selfcheck_result，套件内的 claim/m4/扫描用例才能对着**已构建好的包**跑，
+    #   其产物也才真正随包入库并被 claim S6A-C5 引用。）
 
     # （claim 步骤已移入下方 FIXPOINT 循环：附录必须在清单之前生成，且 C6 需要清单存在）
     inputs_manifest_path = run_dir / "inputs_manifest.json"
@@ -369,7 +370,12 @@ def main(argv: list[str] | None = None) -> int:
     evidence_output_path = run_dir / "check_evidence_mode_output.txt"
 
     # 预置本轮将写入的 stdout 证据文件，保证 C11 的 STATE 声明在首次完整自检时已存在
-    for placeholder in (c11_stdout_path, inputs_output_path, evidence_output_path):
+    # （`tool_self_tests.json` 由套件阶段、`fresh_selfcheck_pair.json` 由 claim 阶段生成，
+    #   均晚于首次自检；占位保证「STATE 声明 → 文件存在」的顺序不被破坏，随后由真实产物覆盖。）
+    _placeholders = [c11_stdout_path, inputs_output_path, evidence_output_path]
+    if args.self_tests:
+        _placeholders += [run_dir / "tool_self_tests.json", run_dir / "fresh_selfcheck_pair.json"]
+    for placeholder in _placeholders:
         if not placeholder.exists():
             placeholder.write_text("", encoding="utf-8")
 
@@ -415,7 +421,7 @@ def main(argv: list[str] | None = None) -> int:
     inputs_output_path.write_text(inputs_final["stdout"], encoding="utf-8")
 
     summary_lines = [
-        "# S6-A v1.8 / r09 运行摘要",
+        f"# S6-A {run_id} 运行摘要（artifact_version 与批准状态见行为表与 §14）",
         "",
         f"- 任务：`{args.task_id}`；RunId：`{run_id}`；工作树：`{root}`",
         f"- 绑定提交：`{source_commit}`（证据由该次构建的工作树生成；交付提交由 `verification/export_selfproof.py` 导出复跑自证）",
@@ -448,6 +454,8 @@ def main(argv: list[str] | None = None) -> int:
         "- `probe_summary.json` + `probe_*_stdout.txt`（基线 1 例 exit 0；注入 7 例各自捕获预期检查项，含 F1 的 `b07_old_wording` 与 F7 的 `case_out_of_sequence_index`；历史口径对照 2 例必须失败）",
         "- `export_selfproof.json`/`export_selfproof.md`（F6 规则：导出副本复跑的三项真实退出码；r06 实测 C11 FAIL、本包快照 SELF_PROVEN）",
         "- `fix_record.json` / `fix_record.md`、`coverage_matrix.json`、`limitations_not_executed.json`、`hand_computed_cases.json`、`upstream_bindings.json`",
+        "- `tool_self_tests.json`（工具自测套件产物：必 PASS / 必 FAIL 两侧；**skipped 不计绿**，存在跳过即判 `INCOMPLETE_SKIPPED` 且套件退出码非 0）",
+        "- `fresh_selfcheck_pair.json`（构建后间隔 30 s 的两次新鲜自检真实退出码与 C11 状态；由 claim S6A-C6 实跑生成并入库）",
         "",
         "## 结论边界",
         "",
@@ -534,6 +542,7 @@ def main(argv: list[str] | None = None) -> int:
     write_manifest(None, evidence_run["exit_code"], "")
 
     selfcheck_exit: int | None = None
+    selfcheck_command_text: str = ""
     previous_state: tuple | None = None
     for iteration in range(1, 7):
         run = run_command(selfcheck_cmd, root)
@@ -541,6 +550,7 @@ def main(argv: list[str] | None = None) -> int:
         if run["exit_code"] != 0:
             print(run["stdout"]); print(run["stderr"]); return 1
         selfcheck_exit = run["exit_code"]
+        selfcheck_command_text = run["command_text"]
         c11_stdout_path.write_text(run["stdout"], encoding="utf-8")
         write_hashes()
         write_manifest(selfcheck_exit, evidence_run["exit_code"], run["command_text"])
@@ -573,6 +583,27 @@ def main(argv: list[str] | None = None) -> int:
         print(f"C11 未执行完整清单/STATE 核对：{c11}")
         return 1
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    # ---- A7③：工具自测套件（产物真正入库；skipped 不得计绿 ⇒ 退出码非 0 即中止）----
+    if args.self_tests:
+        st_cmd = [sys.executable, "-B", str(root / "verification/tool_self_tests.py"),
+                  "--project-root", str(root), "--package", "s6a",
+                  "--run-dir", args.run_dir, "--s6a-run", args.run_dir,
+                  "--out", f"{args.run_dir}/tool_self_tests.json"]
+        if args.s6b_run:
+            st_cmd += ["--s6b-run", args.s6b_run]
+        if args.delivery_commit:
+            st_cmd += ["--delivery-commit", args.delivery_commit]
+        st_run = run_command(st_cmd, root)
+        _guard_check("tool-self-tests")
+        print(f"[self-tests] exit={st_run['exit_code']}")
+        if st_run["exit_code"] != 0:
+            print(st_run["stdout"]); print(st_run["stderr"]); return 1
+        # 套件刚写入 tool_self_tests.json（替换占位）⇒ 必须立刻刷新清单，
+        # 否则紧随其后的 claim C6（带 --manifest 的两次自检）会因清单过期而假失败。
+        write_hashes()
+        write_manifest(selfcheck_exit, evidence_run["exit_code"], selfcheck_command_text)
+
     # ---- 结构规则（lead 冻结级阻断）：清单必须是最后写入者；写完清单立即新鲜自检并迭代到不动点 ----
     for _round in range(3):
         claim_cmd = [sys.executable, "-B", str(root / "verification/claim_verify.py"),
@@ -584,7 +615,9 @@ def main(argv: list[str] | None = None) -> int:
             # BLK-r08-2④：**首版也必须中止**——绝不允许发布 NOT_ALL_VERIFIED 的附录。
             print(claim_run["stdout"]); print(claim_run["stderr"]); return 1
         write_hashes()
-        write_manifest(None, None, "")
+        # 清单必须由**最后写入者**书写，并如实记录自检/检查器的真实退出码（不再写 NOT_RUN）：
+        # 这样 claim C6（带 --manifest 的两次自检）看到的是当前清单，manifest.checks 也与实际一致。
+        write_manifest(selfcheck_exit, evidence_run["exit_code"], selfcheck_command_text)
         # 必须带 --manifest：否则 C11 不核清单哈希绑定，收敛判定会"假通过"
         # 验证自检的输出必须落在 run-dir **之外**：否则它会重写被声明的 selfcheck_result.json，
         # 使刚写好的清单立刻过期（本轮冻结级顺序问题的最后一环）。

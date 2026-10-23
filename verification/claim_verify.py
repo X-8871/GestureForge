@@ -81,9 +81,10 @@ def s6a_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
          "statement": ("构建结束后**新鲜自检两次**（间隔 30s）均 ALL_PASS 且 C11 不再报任何被声明文件哈希不符"
                        "（证明「清单写在被绑定文件之后」的结构问题已修、且构建后无残留写入者）"),
          "argv": [PY, "-B", "verification/s6a_fresh_selfcheck_twice.py", "--project-root", str(root),
-                  "--run-dir", run_rel, "--gap-seconds", "30"],
+                  "--run-dir", run_rel, "--gap-seconds", "30",
+                  "--out", f"{run_rel}/fresh_selfcheck_pair.json"],
          "expect_exit": 0,
-         "observable": "tmp/6/fresh_selfcheck_pair.json（两次的真实退出码与 C11 状态）"},
+         "observable": f"{run_rel}/fresh_selfcheck_pair.json（两次的真实退出码与 C11 状态；产物随包入库）"},
         {"id": "S6A-C7-approval-c4-regression",
          "statement": ("C4 批准纪律的反向自测：人为把一项参数改回 PENDING_APPROVAL → C4 必须 FAIL；"
                        "基线（未注入）必须 ALL_PASS。全部操作在临时副本内，不触碰真实证据目录。"),
@@ -92,8 +93,9 @@ def s6a_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
          "expect_exit": 0,
          "observable": "stdout: baseline [0, PASS] 与 injected [非0, FAIL]；产物 JSON 落盘"},
         {"id": "S6A-C8-approved-package-scan",
-         "statement": ("已批准版包内**不得出现 PENDING/待批准 陈述**（机读扫描；历史语境行除外），"
-                       "并用注入自测证明该断言有判别力（注入后必须 FAIL）"),
+         "statement": ("已批准版包内**不得出现 PENDING/待批准 陈述**（大小写不敏感机读扫描；逐行机读历史标记/"
+                       "非批准类状态/禁止性规则描述除外；probe_* 与 selfcheck_*failure* 按文件豁免）；"
+                       "并以**两向注入自测**证明判别力：B1..B7 必判失败形态全部命中、C1..C4 必须放行对照全部不命中"),
          "argv": [PY, "-B", "verification/approved_package_scan.py", "--project-root", str(root),
                   "--run-dir", run_rel, "--inject-self-test",
                   "--out", str(out_dir / "approved_package_scan.json")],
@@ -146,8 +148,9 @@ def s6b_claims(root: Path, run_rel: str, out_dir: Path) -> list[dict]:
          "argv": [PY, "-B", "verification/s6b_no_dead_constants.py"], "expect_exit": 0,
          "observable": "stdout: unused=[]"},
         {"id": "S6B-C5-approved-package-scan",
-         "statement": ("S6-B 侧等价断言：已批准版包内**不得出现 PENDING/待批准 陈述**"
-                       "（S6-B 此前完全无 approval 断言，属不可接受缺口）；含注入自测（必须 FAIL）"),
+         "statement": ("S6-B 侧等价断言：已批准版包内**不得出现 PENDING/待批准 陈述**（大小写不敏感机读扫描；"
+                       "逐行机读历史标记/非批准类状态/禁止性规则描述除外；probe_* 与 selfcheck_*failure* 按文件豁免）；"
+                       "S6-B 此前完全无 approval 断言，属不可接受缺口；含**两向注入自测**"),
          "argv": [PY, "-B", "verification/approved_package_scan.py", "--project-root", str(root),
                   "--run-dir", run_rel, "--inject-self-test",
                   "--out", str(out_dir / "approved_package_scan.json")],

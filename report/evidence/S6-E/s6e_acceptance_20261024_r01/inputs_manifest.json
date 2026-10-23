@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-E",
+  "run_id": "s6e_acceptance_20261024_r01",
+  "source_commit": "538b7923354417915c5dbcbcf7052b88faa0da7e",
+  "evidence_dir": "report/evidence/S6-E/s6e_acceptance_20261024_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "S6-E 不消费已冻结的接口：其输入是阶段6 自己的已批准行为表（参数已批准但接口契约未冻结）与本轮冻结的用例集；阶段4 结果记录与阶段5 显示契约仍未冻结，验收执行依赖 BLOCKED。",
+  "files": [
+    {
+      "path": "docs/stage6/s6e_stage6_acceptance_cases_v1.json",
+      "sha256": "7fc733c94104526ebe5ca9628a9db9ffec804f46e819ed2c12e653fdcf216123",
+      "role": "input",
+      "keep_reason": "6-E 验收用例集（本包主体）"
+    },
+    {
+      "path": "docs/stage6/S6E_stage6_acceptance_cases_v1.md",
+      "sha256": "942b9d3d7c641c383f625ab6bea437827d109a5b48043f96e843febb2c9dd514",
+      "role": "input",
+      "keep_reason": "6-E 验收用例集人读版"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "6abd2c7983731f1773cb1622403f35267c1ba45ee48d6bc59e84cf42bb6fb322",
+      "role": "input",
+      "keep_reason": "24 项参数与 threshold 的机读来源（已批准 2026-10-23）"
+    },
+    {
+      "path": "verification/s6e_acceptance_check.py",
+      "sha256": "c144cc6b590e881a518c2c6170ce4d1db5c39f9db18aeb8b1c4f85894e1fb702",
+      "role": "input",
+      "keep_reason": "用例集机器校验器（E1..E11；含 6 类必 FAIL 注入）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "输入文件 SHA-256 复算",
+      "status": "PASS",
+      "command": "内置复算（构建器）",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "批准记录 `report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md` 在 main 树内，不在 w6 工作树；因此**不绑其哈希**，只在 delivery_manifest.limitations 披露该引用，不伪造绑定。",
+    "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表用例集语义正确或验收通过。"
+  ]
+}

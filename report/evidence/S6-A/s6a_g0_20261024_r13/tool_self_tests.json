@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "artifact": "tool_self_tests",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261024_r13",
+  "package": "s6a",
+  "rule": "每个验证工具必须同时给出**必 PASS**与**必 FAIL**两侧用例；任一侧不符合预期即不得冻结。**跳过（skipped）不得计绿**：存在跳过时总判定为 INCOMPLETE_SKIPPED 且退出码非 0。（教训：合成退出码 / 换行假阴性 / 守门作用域 / 空转 skipped / 缺 --s6a-run 数次工具自身出错，均因只有一侧被验证过。）",
+  "cases": [
+    {
+      "case_id": "guard_no_change_must_pass",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "exit=0"
+      ],
+      "note": "无变化时守门不得报错（真实调用 _guard_check）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "guard_change_must_abort",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "exit=1"
+      ],
+      "note": "受保护文件被改动时守门必须中止（真实调用 _guard_check，exit 1）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "selfproof_delivery_commit_must_pass",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "{\"verdict\": \"ALL_SELF_PROVEN\", \"subjects\": [[\"commit 2f16d668a14604ad3d4846e29c8a0f10489ac08b\", \"SELF_PROVEN\", [0, 0, 0, 0]]]}"
+      ],
+      "note": "交付提交 2f16d668a1 自证应 exit 0（显式 --s6a-run report/evidence/S6-A/s6a_g0_20261023_r12）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "selfproof_worktree_snapshot_must_pass",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "[snapshot] 2531 个文件（不含 .git/tmp 与本工具输出）",
+        "{\"verdict\": \"ALL_SELF_PROVEN\", \"subjects\": [[\"worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）\", \"SELF_PROVEN\", [0, 0, 0, 0]]]}"
+      ],
+      "note": "当前工作区快照自证应 exit 0（--s6a-run report/evidence/S6-A/s6a_g0_20261024_r13 --s6b-run report/evidence/S6-B/s6b_core_20261024_r08）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "selfproof_unresolvable_commit",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "    raise RuntimeError(f\"checkout {rev} 失败：{checkout.stderr.strip()}\")",
+        "RuntimeError: checkout 0000000000000000000000000000000000000000 失败：fatal: unable to read tree (0000000000000000000000000000000000000000)"
+      ],
+      "note": "不可解析提交必须非 0（不得静默成功）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_verify_normal_must_pass",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "[RO-TRACE] S6A-C4-selfcheck-all-pass changed=[]",
+        "{\"verdict\": \"NOT_ALL_VERIFIED\", \"claims\": [[\"S6A-C1-m4-residual-regression\", 0, \"VERIFIED\"], [\"S6A-C2-hash-convention-both-directions\", 0, \"VERIFIED\"], [\"S6A-C3-m4-two-representations\", 0, \"VERIFIED\"], [\"S6A-C5-tool-self-tests\", 0, \"VERIFIED\"], [\"S6A-C6-fresh-selfcheck-after-build\", 1, \"NOT_VERIFIED\"], [\"S6A-C7-approval-c4-regression\", 1, \"NOT_VERIFIED\"], [\"S6A-C8-approved-package-scan\", 0, \"VERIFIED\"], [\"S6A-C4-selfcheck-all-pass\", 1, \"NOT_VERIFIED\"], [\"self_test_false_claim\", 1, \"VERIFIED\"]]}"
+      ],
+      "note": "全部声明经真实执行 VERIFIED 时 exit 0（package=s6a）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_count_mismatch_must_fail",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "[COUNT-ASSERT] claims 数量不符：记录 8，期望 9（定义 8 + 1）",
+        "{\"verdict\": \"NOT_ALL_VERIFIED\", \"claims\": [[\"S6A-C1-m4-residual-regression\", 0, \"VERIFIED\"], [\"S6A-C2-hash-convention-both-directions\", 0, \"VERIFIED\"], [\"S6A-C3-m4-two-representations\", 0, \"VERIFIED\"], [\"S6A-C5-tool-self-tests\", 0, \"VERIFIED\"], [\"S6A-C6-fresh-selfcheck-after-build\", 1, \"NOT_VERIFIED\"], [\"S6A-C7-approval-c4-regression\", 1, \"NOT_VERIFIED\"], [\"S6A-C8-approved-package-scan\", 0, \"VERIFIED\"], [\"S6A-C4-selfcheck-all-pass\", 1, \"NOT_VERIFIED\"]]}"
+      ],
+      "note": "人为制造 count_mismatch ⇒ 必须 NOT_ALL_VERIFIED 且 exit 非 0（仅在临时副本内运行）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "empty_claim_list_must_fail",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "[COUNT-ASSERT] claims 数量不符：记录 0，期望 9（定义 8 + 1）",
+        "{\"verdict\": \"NOT_ALL_VERIFIED\", \"claims\": []}"
+      ],
+      "note": "人为制造 empty ⇒ 必须 NOT_ALL_VERIFIED 且 exit 非 0（仅在临时副本内运行）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_verify_false_claim_must_fail",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "[\"AssertionError\"]"
+      ],
+      "note": "假声明（assert 1==2）的真实退出码必须非 0",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "regression_residuals_must_be_caught",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "{\"verdict\": \"ALL_AS_EXPECTED\", \"results\": [[\"baseline\", \"PASS\", \"AS_EXPECTED\"], [\"R1-limitations-not-run\", \"FAIL\", \"AS_EXPECTED\"], [\"R2-coverage-item4\", \"FAIL\", \"AS_EXPECTED\"], [\"R3-state-line\", \"FAIL\", \"AS_EXPECTED\"]]}"
+      ],
+      "note": "3 条真实残留行注入后 C16 必须 FAIL（脚本判定 ALL_AS_EXPECTED）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "regression_missing_run_must_refuse",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\tmp\\\\tmp_1f2jkqg\\\\report\\\\evidence\\\\S6-A\\\\__not_a_run__\\\\limitations_not_executed.json'"
+      ],
+      "note": "run-dir 不存在时必须拒绝运行（fail-closed）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "approval_scan_counterexamples_must_fail",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "{\"verdict\": \"AS_EXPECTED\", \"hits\": 0, \"self_test\": \"AS_EXPECTED\", \"missed_forms\": [], \"false_positive_forms\": []}"
+      ],
+      "note": "B1..B7 必判失败形态全部被捕获、C1..C4 必须放行对照全部不命中（exit 0 = AS_EXPECTED）",
+      "verdict": "AS_EXPECTED"
+    }
+  ],
+  "unexpected": [],
+  "skipped_cases": [],
+  "verdict": "ALL_AS_EXPECTED"
+}

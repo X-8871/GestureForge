@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "artifact": "s6e_a_group_verify",
+  "run_id": "s6e_acceptance_20261024_r01",
+  "scope": "终审批次 E §七 关闭条件（A1..A7）与 A8 退出口径的逐项只读核验",
+  "items": [
+    {
+      "id": "A1-state-correction",
+      "desc": "STATE 更正 G6b 的「8 条历史行已写回」失实表述并声明本轮真正落实",
+      "verdict": "PASS",
+      "command": "read .codex/STATE.md",
+      "detail": "含 A1 段=True；含失实定性与落实声明=True"
+    },
+    {
+      "id": "A2-spec-wording",
+      "desc": "规格 L9/L171/L185/L282/L320/L321 改准（无残留「待批准」状态行）",
+      "verdict": "PASS",
+      "command": "read docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "detail": "缺失=[]；仍含旧状态行=False"
+    },
+    {
+      "id": "A3-history-lines",
+      "desc": "8 条历史修订行写回当时状态并逐行加机读标记",
+      "verdict": "PASS",
+      "command": "read docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "detail": "「（当时状态）」计数=8（期望 8）；【历史语境】计数=8（期望 8）；PENDING_APPROVAL 计数=8"
+    },
+    {
+      "id": "A4-false-claim-cleared",
+      "desc": "r13 清除机读假命题、身份改准为 r13；r12（旧 RunId）未被就地改写",
+      "verdict": "PASS",
+      "command": "read r13/fix_record.json + git show HEAD:r12/fix_record.json",
+      "detail": "r13 机读假字段键=[]；new_run_id=s6a_g0_20261024_r13；r12 仍保有历史假字段键=True"
+    },
+    {
+      "id": "A5-scanner-tightened",
+      "desc": "扫描器大小写不敏感并收窄豁免；旧包 r12 仍报命中、r13/r08 CLEAN",
+      "verdict": "PASS",
+      "command": "approved_package_scan.py --run-dir {r12,r13,r08}",
+      "detail": "源码标记=True；退出码/命中 r12=(1, 5) r13=(0, 0) r08=(0, 0)"
+    },
+    {
+      "id": "A6-must-fail-injections",
+      "desc": "B1..B7 必判失败形态全部被捕获 + C1..C4 放行对照全部不命中",
+      "verdict": "PASS",
+      "command": "approved_package_scan.py --run-dir r13 --inject-self-test",
+      "detail": "exit=0；verdict=AS_EXPECTED；caught={'B1-approval-status-field': True, 'B2-package-thresholds-pending': True, 'B3-machine-field-all-params': True, 'B4-machine-field-thresholds': True, 'B5-machine-field-params': True, 'B6-doc-status-line': True, 'B7-doc-constraint-line': True}；clean={'C1-pending-confirmation': False, 'C2-pending-review': False, 'C3-historical-marker': False, 'C4-prohibition-rule': False}"
+    },
+    {
+      "id": "A7-batch-c",
+      "desc": "① 新鲜证据对真实产出并入库 ② 必 FAIL 例改临时副本 ③ skipped fail-closed + 套件入库",
+      "verdict": "PASS",
+      "command": "read r13/fresh_selfcheck_pair.json, r08/s6b_fresh_evidence_pair.json, tool_self_tests.py, tmp/6/simulate_skip_suite.json",
+      "detail": "① r13 对=True r08 对=True；② 临时副本=True；③ fail-closed 源码=True、--simulate-skip 产物 INCOMPLETE_SKIPPED=True"
+    },
+    {
+      "id": "A8-package-checks",
+      "desc": "r13/r08/S6-E 三包清单内全部检查项均为 PASS 且 exit_code=0",
+      "verdict": "PASS",
+      "command": "read {r13,r08,S6-E}/delivery_manifest.json",
+      "detail": "{\"report/evidence/S6-A/s6a_g0_20261024_r13\": [[\"S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）\", \"PASS\", 0], [\"check_stage_delivery.py --mode inputs\", \"PASS\", 0], [\"check_stage_delivery.py --mode evidence\", \"PASS\", 0]], \"report/evidence/S6-B/s6b_core_20261024_r08\": [[\"claim_verification.verdict == ALL_CLAIMS_VERIFIED\", \"PASS\", 0], [\"S6-B 确定性用例（26 条 / 11 类）\", \"PASS\", 0], [\"S6-B 判别力探针（4 "
+    }
+  ],
+  "verdict": "ALL_PASS"
+}

@@ -36,6 +36,10 @@ SOURCES = (
     "verification/s6b_run_cases.py",
     "verification/s6b_probe.py",
     "verification/s6b_build_evidence.py",
+    "verification/s6b_fresh_evidence_twice.py",
+    "verification/tool_self_tests.py",
+    "verification/claim_verify.py",
+    "verification/approved_package_scan.py",
     "docs/stage6/s6a_stage6_g0_behavior_v1.json",
     "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
     "docs/stage6/s6b_frozen_interface_v1.json",
@@ -143,6 +147,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-dir", required=True)
     parser.add_argument("--project-root", required=True)
     parser.add_argument("--cases", default=None)
+    parser.add_argument("--fresh-pair", action="store_true",
+                        help="在不动点内跑「间隔 30 s 两次 --mode evidence」并把产物入库"
+                             "（清单写入后立即跑，保证记录的是**清单当前**时的真实退出码）")
     args = parser.parse_args(argv)
 
     root = Path(args.project_root).resolve()
@@ -195,7 +202,7 @@ def main(argv: list[str] | None = None) -> int:
     thresholds = pack.threshold_bundle()
     write_json(run_dir / "reachability_notes.json", {
         "schema_version": 1, "artifact": "s6b_reachability_notes", "task_id": "S6-B",
-        "derived_from": "S6A-G0-v1.6 draft parameters (PENDING_APPROVAL)",
+        "derived_from": (f"{pack.data.get('artifact_version')} 已批准参数（APPROVED_20261023，2026-10-23 批准；值仍为草案值）"),
         "notes": [
             {
                 "id": "B16-dedup-window",
@@ -274,10 +281,10 @@ def main(argv: list[str] | None = None) -> int:
     })
 
     summary_lines = [
-        "# S6-B 确定性状态机与用例矩阵运行摘要（v1.6 契约，S6-A r07）",
+        f"# S6-B 确定性状态机与用例矩阵运行摘要（契约 {pack.data.get('artifact_version')}；RunId {run_dir.name}）",
         "",
         f"- RunId：`{run_dir.name}`；工作树：`{root}`",
-        f"- 契约：`{pack.data.get('artifact_version')}`（S6-A r07；r05/r06 已分别过第 5/6 轮复评 PASS）",
+        f"- 契约：`{pack.data.get('artifact_version')}`（S6-A 侧行为表；批准状态 APPROVED_20261023）",
         f"- 用例：{report['case_count']} 条，覆盖 CDX-20261022-012 §4 全部 11 类；结果 **{report['status']}**",
         f"- 预期：运行前冻结，`expected_freeze.json` SHA-256 = `{freeze_sha}`",
         f"- 参数：全部 `APPROVED_20261023`（2026-10-23 批准，值仍为草案值；见 `params_snapshot.json`）；未写死、未在测试集调参",
@@ -366,7 +373,7 @@ def main(argv: list[str] | None = None) -> int:
         "checks": [{"name": "输入文件 SHA-256 复算", "status": "PASS",
                     "command": "内置复算（构建器）", "exit_code": 0}],
         "limitations": [
-            "interfaces 为空：S6-B 没有可声明为 frozen 的接口，阈值已于 2026-10-23 批准（值仍为草案值） 草案值。",
+            "interfaces 为空：S6-B 没有可声明为 frozen 的接口；24 项阈值已于 2026-10-23 批准（值仍为草案值）。",
             "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或验收通过。",
         ],
     })
@@ -467,6 +474,18 @@ def main(argv: list[str] | None = None) -> int:
                 _summary_path.write_text(_text, encoding="utf-8")
         write_hashes()
         write_manifest()
+        # 新鲜证据对必须在**清单刚写好、仍然当前**的时刻跑，产物直接入库；否则记录到的是
+        # 「清单已过期」的假失败（批次 C ① 的同类问题）。
+        if args.fresh_pair:
+            fp = run_command([sys.executable, "-B", str(root / "verification/s6b_fresh_evidence_twice.py"),
+                              "--project-root", str(root), "--run-dir", args.run_dir,
+                              "--gap-seconds", "30",
+                              "--out", f"{args.run_dir}/s6b_fresh_evidence_pair.json"], root)
+            print(f"[fresh-pair:iter{iteration}] exit={fp['exit_code']}")
+            if fp["exit_code"] != 0:
+                print(fp["stdout"]); print(fp["stderr"]); return 1
+            write_hashes()
+            write_manifest()
         # 验证自检的输出必须落在 run-dir **之外**（否则会改写被声明文件、让清单当场过期）
         _verify_out = root / "tmp/6" / f"fixpoint_area_{run_dir.name}.txt"
         _verify = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",

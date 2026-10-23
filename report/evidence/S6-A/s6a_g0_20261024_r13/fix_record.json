@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_revision_fix_record",
+  "artifact_version": "S6A-G0-v1.8",
+  "task_id": "S6-A",
+  "run_id": "report/evidence/S6-A/s6a_g0_20261024_r13",
+  "supersedes_run_id": "s6a_g0_20261023_r12",
+  "review_source": "FREEZE_DELTA_E_20261023_r01/REVIEW_VERDICT_F6d.md（终审批次 E，判 CHANGES_REQUIRED）＋本 6-E 离线轮自检",
+  "review_verdict": "F6d = CHANGES_REQUIRED（BLK-D2①..⑤ 四项未关闭 + 批次 C 三项开放）",
+  "review_status_after_fix": "PENDING_REVIEW（本轮不构成通过；是否复评由项目总控决定）",
+  "revision_discipline": {
+    "new_run_id": "s6a_g0_20261024_r13",
+    "r01..r06_preserved_untouched": true,
+    "parameter_values_changed": false,
+    "parameter_approval_status_changed": false,
+    "hardware_touched": false,
+    "self_proof_rule": "任何冻结/交付提交必须自证：`git clone` 导出该提交后，用该提交内的自检 + 两个检查器复跑，三项 exit 0；r08 另附 claim_verification 附录。",
+    "self_check_before_after": "先跑注入与历史口径对照证明新断言可捕获缺陷（C12/C7/C14 + r05/r06 旧脚本），再对 r07 出 ALL_PASS（17 项，C7 = 32 例）",
+    "all_parameters_approved_20261023": true,
+    "batch_c_closed_this_round": true,
+    "superseded_run_id": "s6a_g0_20261023_r12",
+    "false_machine_claims_present": false,
+    "false_machine_claim_note": "机读假命题字段已从本记录删除；其原始字段名仅在下文 six_e_round 的禁止性说明中出现（非断言）。"
+  },
+  "blocking_items": [
+    {
+      "id": "BLK-r07-1",
+      "problem": "M4 可达性修正在 S6-A 侧漏改多处（旧口径措辞），其中 `hand_computed_cases.json` 的 HC-23 `expected.m4_reachable_under_draft` 与 C16 结论相反 → C7 与 C16 同时通过却结论相反。历史语境除外",
+      "fix": "8 处统一为「M4 可达并计入覆盖；不可达仅 B16 S_DEDUP 与 M7」；HC-23 的机器断言改为 true 并保留「若 TARGET_CONTINUES 含分数门」的历史对照字段（仅对照、不参与判定）；C16 新增全包禁语断言防复发。",
+      "evidence": [
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json（parameter_notes.T6-S04 / reachability.consequence / review_correction）",
+        "report/evidence/S6-A/s6a_g0_20261022_r08/hand_computed_cases.json（HC-23）",
+        "verification/s6_g0_selfcheck.py（C16 禁语断言）",
+        "probe_m4_conflict_phrase_stdout.txt（注入实测 exit 1）",
+        "claim_verification.json（S6A-C1/S6A-C2）"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "BLK-r08-1/BLK-r08-2（终审 A）+ NB-r03-10（终审 B，r09 关闭）",
+      "problem": "r08 只改了 5 处（余 3 处 + transitions.M4.reachability 共 9 处）；C16 只扫文档/JSON/手算样例且仅字面量；claim_verification 的 exit_code 是自算值、路径含 tmp 即整体跳过、首版不中止；source_commit 为不可达对象。",
+      "fix": "r09 补齐 3 处并统一第 9 处；C16 扩到全部交付文件 + 语义判定 + 交叉断言；claim_verify 改真实 subprocess 退出码、run_dir 相对路径跳过判定、首版即中止、清单引用 verdict；source_commit 改可达提交 + 传输克隆可解析性检查；本地附注 tag。",
+      "evidence": [
+        "report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json",
+        "verification/hash_convention_check.py",
+        "verification/m4_residual_regression.py"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "non_blocking_items": [
+    {
+      "id": "N-r07-1",
+      "problem": "自证工具在清单口径对齐后又无条件按工作区口径写回，干净克隆 + autocrlf=true 下产生假阴性。",
+      "fix": "调整顺序（先工作区、后清单）；报告内写明 order_note。",
+      "evidence": [
+        "verification/export_selfproof.py",
+        "export_selfproof.json"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "N-r07-2",
+      "problem": "入库自证报告内嵌陈旧 FAIL 且未把交付提交列为主体。",
+      "fix": "报告移至 `_selfproof` 兄弟目录（不进清单绑定域），提交后可原地补入交付提交主体；S6-B 模式跳过 S6-A 旧轮次清单复算的降级口径已显式写明（NB-10）。",
+      "evidence": [
+        "report/evidence/S6-A/s6a_g0_20261022_r08_selfproof/export_selfproof.json"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    },
+    {
+      "id": "F2/F4/F5/F11",
+      "problem": "source_commit 三处口径不一；keep_reason 与同包证据数值矛盾；STATE 陈旧行；旧版本令牌。",
+      "fix": "统一口径并写明语义；keep_reason 归因统一为「样例数不足 32：29」；STATE 按实际更新；令牌统一 v1.7。",
+      "evidence": [
+        "delivery_manifest.json",
+        ".codex/STATE.md",
+        "coverage_matrix.json"
+      ],
+      "status": "FIXED_PENDING_REVIEW"
+    }
+  ],
+  "notes": [
+    "本记录是修订者自述，不是独立审查结论；是否再复评由项目总控决定。",
+    "全部 24 项参数值未改；批准状态已按批准记录更新；未在测试集上调整任何参数。",
+    "r01..r07 证据保持原样不改写（RunId 证据不可覆盖）；更正记于本记录与本包。",
+    "新增硬规则：任何『已关闭/已落盘/已同步』声明必须附 `claim_verification` 附录（命令 + 真实退出码 + 可观察输出）。",
+    "未触碰硬件；未 push；未改 main/w4/w5/dbdf/w2b 与厂商原件。"
+  ],
+  "items": [
+    {
+      "id": "NB-r03-08",
+      "kind": "semantic_change",
+      "title": "`candidate_dwell_start_ns` 判空改用显式 `is None`",
+      "detail": "此前 `x or t_now_ns` 在 `t = 0` 时会把 dwell 锚点误取为 M1 帧时刻（0 为假值）；改为显式 `candidate_dwell_start_ns is None` 判定。**属语义改动**（终审 B 第 122 行要求登记）：仅在 `t = 0` 的边界序列上改变 dwell 起点，其余序列逐字节不变。",
+      "closed": true,
+      "verified_by": "S6-B r05 的 C12 用例与 26 条确定性用例（含 t=0 边界）；实测退出码 0"
+    }
+  ],
+  "fixes": [
+    {
+      "id": "NB-r03-08",
+      "kind": "semantic_change",
+      "title": "`candidate_dwell_start_ns` 判空改用显式 `is None`",
+      "detail": "此前 `x or t_now_ns` 在 `t = 0` 时会把 dwell 锚点误取为 M1 帧时刻（0 为假值）；改为显式 `candidate_dwell_start_ns is None` 判定。**属语义改动**（终审 B 第 122 行要求登记）：仅在 `t = 0` 的边界序列上改变 dwell 起点，其余序列逐字节不变。",
+      "closed": true,
+      "verified_by": "S6-B r05 的 C12 用例与 26 条确定性用例（含 t=0 边界）；实测退出码 0"
+    }
+  ],
+  "review_fix_notes": [
+    "NB-r03-08：`candidate_dwell_start_ns` 改显式 `is None`（语义改动，已登记）。"
+  ],
+  "six_e_round": {
+    "scope": "结清被推迟到 6-E 轮的遗留清单 + 冻结真实推理验收用例（离线；不动硬件）",
+    "closed": [
+      "BLK-D2① 规格文档 L9/L171/L185/L320/L321 改准，L282 口径改准（L128/L397 保留机读历史标记）",
+      "BLK-D2② 8 条历史修订行写回当时状态（PENDING_APPROVAL）并逐行加机读标记【历史语境】",
+      "BLK-D2④ 本 RunId 内不再出现 all_parameters_pending_approval 等机读假命题；覆盖矩阵位置标签与 C4 标签改准",
+      "BLK-D2⑤ approved_package_scan 改为大小写不敏感 + 收窄豁免，并新增两向注入自测（B1..B7 必命中 / C1..C4 必放行）",
+      "批次 C 三项：新鲜自检重生成并入库、必 FAIL 例改临时副本、skipped fail-closed 且套件产物入库"
+    ],
+    "not_closed": [
+      "T6-A03 交互延迟数值仍 NOT_RUN（缺阶段4 实测帧周期 P；禁止填造）",
+      "G3 板测未做；6-D 集成依赖阶段4/5 接口冻结（BLOCKED）"
+    ]
+  },
+  "machine_readable_claim_scan": {
+    "false_machine_fields_present": false,
+    "scanned_keys": [
+      "revision_discipline",
+      "blocking_items",
+      "non_blocking_items",
+      "six_e_round"
+    ],
+    "scan_tool": "verification/approved_package_scan.py（大小写不敏感；禁止性说明行豁免）"
+  }
+}

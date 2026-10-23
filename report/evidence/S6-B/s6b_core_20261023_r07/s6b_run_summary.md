@@ -4,7 +4,7 @@
 - 契约：`S6A-G0-v1.8`（S6-A r07；r05/r06 已分别过第 5/6 轮复评 PASS）
 - 用例：26 条，覆盖 CDX-20261022-012 §4 全部 11 类；结果 **PASS**
 - 预期：运行前冻结，`expected_freeze.json` SHA-256 = `ce4d37c5fada9ea845249003e050546459c855bdca2a701d0abfbf688ade0fa5`
-- 参数：全部 `PENDING_APPROVAL`（见 `params_snapshot.json`）；未写死、未在测试集调参
+- 参数：全部 `APPROVED_20261023`（2026-10-23 批准，值仍为草案值；见 `params_snapshot.json`）；未写死、未在测试集调参
 
 ## 真实命令与退出码
 

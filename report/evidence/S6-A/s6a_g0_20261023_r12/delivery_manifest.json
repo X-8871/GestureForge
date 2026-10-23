@@ -3,7 +3,7 @@
   "stage": "6",
   "task_id": "S6-A",
   "run_id": "s6a_g0_20261023_r12",
-  "source_commit": "9b9d572e101b61714a2a350edab1b57bd302ada2",
+  "source_commit": "a2d232daa0405ed1a7601173af50883de5250ec8",
   "evidence_dir": "report/evidence/S6-A/s6a_g0_20261023_r12",
   "interfaces": [
     {
@@ -89,7 +89,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/check_evidence_mode_output.txt",
-      "sha256": "96c4b0d4a8322f6236f613a7f3306fdcbee98332b8135d3455e8b65057bb50ab",
+      "sha256": "abc1f778f0964214a30336e95e1c7d354c2b5d88cf9bdebeadcb3733cbefe465",
       "role": "result",
       "keep_reason": "check_stage_delivery --mode evidence 真实 stdout"
     },
@@ -101,13 +101,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.json",
-      "sha256": "0f169ef064080a9e0eb640e089f84e9978c99b40563c0540635e5f86f4ef3c56",
+      "sha256": "3fb82bab6a1cb926bed4a6db4bfb5df161f93e406629e7a094a32cf0eb5b4be4",
       "role": "result",
       "keep_reason": "证据文件：claim_verification.json"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/claim_verification.md",
-      "sha256": "375db0dd168e3d20cacb9ac664d56f8fd9045572f11befc3889f4267ddbc9818",
+      "sha256": "61147fbf06cdeef981381847a34b3246eb4b608ec1fad5cd7e80412a16a7f0e9",
       "role": "log",
       "keep_reason": "证据文件：claim_verification.md"
     },
@@ -149,13 +149,13 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/hashes_sha256.txt",
-      "sha256": "7437f67f8b6aaecf527eb695507e23fcee55d128a834d9ca4cac618d865e6c8f",
+      "sha256": "429319f949570533edd0758a85db467ac2b7fdccb2f53c14df0e49a415bbf265",
       "role": "result",
       "keep_reason": "证据目录已存在文件的 SHA-256 清单"
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/inputs_manifest.json",
-      "sha256": "629bb0689d7bc7a68432a7766fe183f3d1ad69b173f422d27dd7e07164c3ec29",
+      "sha256": "5826cdcf05c543e8d2133bcf1321a437cf7371aa65ec00e53146f65fbadf24d2",
       "role": "input",
       "keep_reason": "输入清单（冻结上游接口与输入文件绑定）"
     },
@@ -263,7 +263,7 @@
     },
     {
       "path": "report/evidence/S6-A/s6a_g0_20261023_r12/S6A_run_summary.md",
-      "sha256": "73fff0454a7714069dc072a95d047a931620d9f212302768db89d94094b5cb7e",
+      "sha256": "fad2e085b261a1655216e16e2cea1ec2daad36782efcf3711761cdcc2d891e56",
       "role": "log",
       "keep_reason": "运行摘要（真实命令、退出码入口与结论边界）"
     },
@@ -348,6 +348,13 @@
   ],
   "checks": [
     {
+      "name": "冻结自证（导出副本复跑，F6：历史提交应 FAIL / 本包快照应 PASS）",
+      "status": "PASS",
+      "command": "`python -B verification/export_selfproof.py --project-root <abs> --commit <历史提交> --worktree-snapshot [--out <run>/export_selfproof.json]`",
+      "exit_code": 0,
+      "reason": "断言 = 本包快照 SELF_PROVEN；实测 subjects={'commit 0a2abc4956242c118b7d5ef6d4a1fe1b1ff28351': 'SELF_PROVEN', 'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': 'SELF_PROVEN'}；工具总体判定 ALL_SELF_PROVEN"
+    },
+    {
       "name": "S6-A 自检（17 项：规格一致性/算术/证据存在性/C11 清单与 STATE/C12 全量双向/C17 锁存）",
       "status": "NOT_RUN",
       "command": null,
@@ -373,7 +380,7 @@
     "git": "git version 2.56.0.windows.2"
   },
   "limitations": [
-    "source_commit = 本轮构建时的 HEAD（修订基线 9b9d572e101b61714a2a350edab1b57bd302ada2）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
+    "source_commit = 本轮构建时的 HEAD（修订基线 a2d232daa0405ed1a7601173af50883de5250ec8）；本清单绑定的源码字节 = 该提交 + 本轮未提交差异（F2 口径三处统一：manifest / STATE 11 字段 / JSON baseline 均指向同一提交）；交付提交由 export_selfproof.py 导出复跑自证（见 _selfproof/export_selfproof.json）。",
     "r01/r02/r03/r04 旧包失败证据由 verification/s6a_rerun_legacy_failures.py 用最终脚本重跑生成，提取一律 git cat-file blob 二进制（N03）。",
     "全部阈值与指标已于 2026-10-23 批准（值仍为草案值）；T6-A03/交互延迟因缺阶段4 实测 P 记 NOT_RUN（U6-13）。",
     "M4/T6-S04 保留并计入覆盖；覆盖声明覆盖全部可达迁移（B16 与 M7 按登记另行说明）（r08/BLK-1、BLK-r07-1）。",

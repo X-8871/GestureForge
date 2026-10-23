@@ -3,10 +3,10 @@
   "stage": "6",
   "task_id": "S6-B",
   "run_id": "s6b_core_20261023_r07",
-  "source_commit": "bf05d450a90347e7414efb3909f2bd09bdb30d02",
+  "source_commit": "a2d232daa0405ed1a7601173af50883de5250ec8",
   "evidence_dir": "report/evidence/S6-B/s6b_core_20261023_r07",
   "interfaces": [],
-  "interfaces_not_applicable_reason": "S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.8），其 24 项阈值全部为 PENDING_APPROVAL，按契约不得声明 frozen；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。",
+  "interfaces_not_applicable_reason": "S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.8），其 24 项阈值已于 2026-10-23 批准（值仍为草案值），但接口契约本身仍未冻结；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。",
   "files": [
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/cases/build_case_matrix.py",
@@ -22,13 +22,13 @@
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/check_evidence_mode_output.txt",
-      "sha256": "957efb928013a74f26b580e1df743b0e0ace6843ca8ba6967dede3b06f7213df",
+      "sha256": "e313bca48d6410eead16f0c8a268a172a0931b7300770e98194d4cdf390e688a",
       "role": "result",
       "keep_reason": "S6-B 证据文件：check_evidence_mode_output.txt"
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/check_inputs_mode_output.txt",
-      "sha256": "03e4ffb43770f8f138c3086f6ce3b2689dd41de0a573d3243feeff967f9c6d94",
+      "sha256": "1d012399ac960cda2536381b6deba2b66c3ae214313e7e01a207ba5bbc999abb",
       "role": "result",
       "keep_reason": "S6-B 证据文件：check_inputs_mode_output.txt"
     },
@@ -58,19 +58,19 @@
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/hashes_sha256.txt",
-      "sha256": "b85f2014e01e52a5433251e747a7e077ff0182d7f1f584409f6aea2901dd48c7",
+      "sha256": "a24b3008ebf863b9c6037ca8af83eba40ce18c8904aa59b675453126258ab4db",
       "role": "result",
       "keep_reason": "S6-B 证据文件：hashes_sha256.txt"
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/inputs_manifest.json",
-      "sha256": "25b4736f61d2fdd5b1b54ada35d730e645c2dadaad768e07dae4c82c19d9b624",
+      "sha256": "6c3660204690610b37de815ff466f78e886e23c0a552e7b5b083e64564c55da8",
       "role": "result",
       "keep_reason": "S6-B 证据文件：inputs_manifest.json"
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/limitations_not_executed.json",
-      "sha256": "2c18ede8acb9dedf79ca2edfe04e4bad0462bc5ad47c96c37656903fc63b1281",
+      "sha256": "dc69507d8b8744f737fd566530b85593823d9d0c015f2032cb4f004a39db90e8",
       "role": "result",
       "keep_reason": "S6-B 证据文件：limitations_not_executed.json"
     },
@@ -292,7 +292,7 @@
     },
     {
       "path": "report/evidence/S6-B/s6b_core_20261023_r07/s6b_run_summary.md",
-      "sha256": "64b3795ce9cbddedf4af3f49a86cdcd428da4a537d330dbea62590d61bab88f3",
+      "sha256": "1ba9c5d29f67a8f8953f1d55249585aa6f38592d9908a92029118367ed55e575",
       "role": "result",
       "keep_reason": "S6-B 证据文件：s6b_run_summary.md"
     },
@@ -334,7 +334,7 @@
     },
     {
       "path": "verification/s6b_build_evidence.py",
-      "sha256": "501d95618376d6796fdf71b6d9c9b42ff976d672d3e671e9028ae3874b2b716a",
+      "sha256": "7c169d87eb4d597d077be5fa0256c11d8bee29d12926da2b5391c487fdc50fc5",
       "role": "source",
       "keep_reason": "S6-B 实现/契约/状态绑定"
     },
@@ -363,6 +363,13 @@
       "status": "PASS",
       "command": "python -B verification/claim_verify.py --package s6b --run-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261023_r07 --project-root D:\\codex-worktrees\\w6",
       "exit_code": 0
+    },
+    {
+      "name": "冻结自证（git clone 导出后跑该提交内 S6-A 自检 + S6-B 驱动 + 两个检查器）",
+      "status": "PASS",
+      "command": "`python -B verification/export_selfproof.py --project-root <abs> --s6b-run report/evidence/S6-B/<run> --worktree-snapshot [--commit <rev>]`",
+      "exit_code": 0,
+      "reason": "工具判定 ALL_SELF_PROVEN；逐项退出码 {'commit 0a2abc4956242c118b7d5ef6d4a1fe1b1ff28351': [0, 0, 0, 0], 'worktree snapshot（提交前自验；不含 .git/tmp 与本工具输出）': [0, 0, 0, 0]}"
     },
     {
       "name": "S6-B 确定性用例（26 条 / 11 类）",
@@ -394,7 +401,7 @@
     "git": "git version 2.56.0.windows.2"
   },
   "limitations": [
-    "source_commit 为本次构建时的 HEAD（动态取值 bf05d450a90347e7414efb3909f2bd09bdb30d02）；实际交付提交由 verification/export_selfproof.py 导出后复跑自证。",
+    "source_commit 为本次构建时的 HEAD（动态取值 a2d232daa0405ed1a7601173af50883de5250ec8）；实际交付提交由 verification/export_selfproof.py 导出后复跑自证。",
     "全部阈值为 2026-10-23 批准的草案值（值未修改）；interfaces 为空表示没有可声明为 frozen 的接口。",
     "结论只对注入输入 + 虚拟单调时钟有效。",
     "计入覆盖：M4（BLK-1 修正）；不计入覆盖：B16 S_DEDUP、M7。",

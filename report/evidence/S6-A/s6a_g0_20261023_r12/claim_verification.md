@@ -2,7 +2,7 @@
 
 每条声明的 exit_code 均为**真实 subprocess 退出码**；命令可独立复算（无占位符）；内置 self_test_false_claim 证明本工具对假声明会 FAIL；verdict 由**全部** claim 计算，且 claims 数量必须等于定义数 + 1，空列表/数量不符一律 NOT_ALL_VERIFIED。
 
-- 生成：2026-10-23 09:59:30；判定：**ALL_CLAIMS_VERIFIED**
+- 生成：2026-10-23 10:06:00；判定：**ALL_CLAIMS_VERIFIED**
 - 复算命令：`python -B verification/claim_verify.py --package s6a --run-dir D:\codex-worktrees\w6\report\evidence\S6-A\s6a_g0_20261023_r12 --project-root D:\codex-worktrees\w6`
 
 ## S6A-C1-m4-residual-regression — VERIFIED

@@ -72,7 +72,7 @@ def interface_reason(version: str) -> str:
     """interfaces 为空时的适用性说明（版本随行为表动态取，避免声明与契约版本漂移）。"""
     return (
         "S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json"
-        f"（{version}），其 24 项阈值全部为 PENDING_APPROVAL，按契约不得声明 frozen；"
+        f"（{version}），其 24 项阈值已于 2026-10-23 批准（值仍为草案值），但接口契约本身仍未冻结；"
         "阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。"
     )
 
@@ -269,7 +269,7 @@ def main(argv: list[str] | None = None) -> int:
             "未体现 T6-S03「取较晚」；现改为在 M3 成立帧（计数与时长同时满足的第一帧）写入，"
             "新增 30fps 用例 C9c-30fps-later-of 断言 window_complete_ns=233100000（P=33.3 ms 时旧逻辑会给 166.5 ms 帧）。",
         ],
-        "parameter_discipline": "全部阈值来自行为表 JSON（PENDING_APPROVAL），实现与用例均未写死、未调参。",
+        "parameter_discipline": "全部阈值来自行为表 JSON（APPROVED_20261023，值仍为草案值），实现与用例均未写死、未调参。",
         "replay_scope": "全部结论只对注入输入 + 虚拟单调时钟有效，不代表摄像头/板上行为。",
     })
 
@@ -280,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
         f"- 契约：`{pack.data.get('artifact_version')}`（S6-A r07；r05/r06 已分别过第 5/6 轮复评 PASS）",
         f"- 用例：{report['case_count']} 条，覆盖 CDX-20261022-012 §4 全部 11 类；结果 **{report['status']}**",
         f"- 预期：运行前冻结，`expected_freeze.json` SHA-256 = `{freeze_sha}`",
-        f"- 参数：全部 `PENDING_APPROVAL`（见 `params_snapshot.json`）；未写死、未在测试集调参",
+        f"- 参数：全部 `APPROVED_20261023`（2026-10-23 批准，值仍为草案值；见 `params_snapshot.json`）；未写死、未在测试集调参",
         "",
         "## 真实命令与退出码",
         "",
@@ -362,7 +362,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "files": [{"path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
                    "sha256": pack.behavior_sha256, "role": "input",
-                   "keep_reason": "S6-B 唯一的阈值来源（全部 PENDING_APPROVAL）"}],
+                   "keep_reason": "S6-B 唯一的阈值来源（已于 2026-10-23 批准，值仍为草案值）"}],
         "checks": [{"name": "输入文件 SHA-256 复算", "status": "PASS",
                     "command": "内置复算（构建器）", "exit_code": 0}],
         "limitations": [

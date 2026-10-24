@@ -4,7 +4,7 @@
 阶段6 交互控制：五类动作判定、多框选择/同分排序、目标保持与重获、抖动/稳定窗口、冷却与再触发、
 持续保持只触发一次；产出 G0 行为表 + S6-B/S6-C 实现与确定性证据 + 6-E 验收用例集。硬件（摄像头/板测）不在本轮。
 
-## 当前事实（2026-10-24，6-E 离线轮）
+## 当前事实（2026-10-25，6-E/6-B 离线轮）
 - 契约：`S6A-G0-v1.8`；**24 项参数按草案值获 Wong 批准**（2026-10-23，批准记录在 main：
   CTRL-DSH-HANDOFF/decisions/`stage6_approval_receipt_20261023_r01.md`）；行为表含 `approval_record` +
   24 项 `approval_status=APPROVED_20261023` 与 `approval_ref`；**参数值未修改**。
@@ -66,25 +66,27 @@
 ## 阻碍 / 开放
 - **2026-10-24 Codex 门禁修复轮（优先于上文历史自证结论）**：正常 claim 保留真实退出码并核验全部声明；ACT/UNK/REC 逐 ID 固定真实证据类别并全禁合成替代；24 项状态、回执引用、原始参数/批准 ID 数量、类型与唯一性均精确校验。
 - E4 修复首轮复核发现重复参数/批准 ID 可被字典/集合掩盖；r03 已修正。独立复核 PASS：定向 unittest 9 项 exit 0、验收基线 `ALL_PASS`、14/14 注入捕获 exit 0、重复 ID 探针 exit 0。
-- 新增证据 `report/evidence/S6-E/s6e_gate_fix_20261024_r03/`；源码与测试哈希见该目录 `validation_summary.json`。`.gitattributes` 对 r01/r02/r03 限定为逐字节保存，避免全局 autocrlf 破坏原始哈希。
+- 新增证据 `report/evidence/S6-E/s6e_gate_fix_20261024_r03/`；源码与测试哈希见 `report/evidence/S6-E/s6e_gate_fix_20261024_r03/validation_summary.json`。`.gitattributes` 对 r01/r02/r03 限定为逐字节保存，避免全局 autocrlf 破坏原始哈希。
 - r02 完整工具套件为 **exit 1 / UNEXPECTED**：其正常 claim 和快照自证针对旧 r13 运行包；C11 确认旧 r13 清单仍绑定旧版 `verification/tool_self_tests.py`，因此 C6 真实失败。旧 r13 与 r01/r02 失败证据均保留，不重写、不引用为通过。
-- **开放**：E4 修复后尚未用新源码重建 S6-A/S6-B 包，也未重跑完整工具套件；完整 S6-A/S6-B 增量独立复审仍待完成。当前 PASS 仅覆盖本轮门禁源码与定向判别力验证，不表示完整 Stage 6 或 G5 通过。
-- `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）；G3 板测未做；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 验收未执行；阶段7 暂不开工作树。
-- `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）。
-- G3 板测未做；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 验收未执行；阶段7 暂不开工作树。
-- 独立复评未做：本轮 r13/r08/S6-E 为**未冻结修订内容**，等待项目总控派增量复核。
+- **S6-A G0 交付状态**：`DELIVERED_PENDING_G0_CONFIRMATION`；r14/r15/r16 失败与过期包均保留。r17 已构建：17 项自检 `ALL_PASS`，inputs/evidence 检查均 PASS，source commit=`bc9b2b7`；独立增量包审查 PASS，整体 G0/G5 仍未通过。
+- **S6-B 重建**：r10-r13 全部保留；r11 是缺输入失败包，r12 虽清单检查 PASS 但摘要仍记录修复前 evidence exit 2，r13 只有部分初始产物且无 manifest。代码修复 `ef2f74d` 与 closing 独立封存修复 `c539828` 均经 Reviewer PASS；探针基线计数修复 `72c10e5` 经独立复审 PASS、定向测试 4/4。r01 保留为前版证据：closing 退出码未有独立 sidecar/清单绑定。r02 保留并标记 `CHANGES_REQUIRED`：probe 摘要把基线写成 23 例，矩阵及运行报告为 26 例，尽管结构/哈希检查通过。新包 `s6b_core_20261025_r03` 基于 `72c10e5470c6e1d4deecee3fec538605e16499d4` 与用例矩阵 SHA-256 `3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552`：26/26 用例、4 项探针、inputs、最终 evidence 与独立 closing evidence 均 PASS/exit 0；fixpoint 第 3 轮收敛，首轮 evidence 预检 exit 2 保留。r03 增量包审查 PASS；离线检查不代表 G0/G4/G5 通过。
+- **工具自测路径隔离修复**：`verification/tool_self_tests.py`、`verification/hash_convention_check.py`、`verification/test_s6_gate_regression.py` 已独立审查 PASS 并提交 `bc9b2b7`。最终路径回归 10/10 PASS；最新源码的完整工具套件在隔离克隆仅运行一次，16/16 `ALL_AS_EXPECTED`、无跳过，JSON SHA-256 `caf5af32c0002543d55d17efae7445d92ec8934828b646b058d2f35170cafecb`。旧 RunId、STATE 和共享输出指纹前后未变。复制前路径复验缩小了本机非对抗并发 TOCTOU 窗口，但不能消除最终检查与系统调用之间的竞态。
+- `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）；G3 板测未做且板卡已拔下；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 实物验收未执行；阶段7 暂不开工作树。
+- 阶段6 增量独立复审待办：仍需覆盖 F6d → task-23/task-28/E4 修复；S6-A r17 与 S6-B 20261025_r03 包已独立审查 PASS，r02 摘要计数矛盾已确认并保留。不得把代码审查 PASS 或离线自测 PASS 写成 G3/G4/G5。
 
 ## 下一步
-先提交已独立复核通过的门禁修复，再以提交后的源码重建 S6-A/S6-B 新 RunId 包并重跑完整工具套件；之后完成覆盖 F6d → task-23/task-28/本轮差异的增量复审。阶段4 产出真实推理结果并冻结结果契约后，按 `board_window_request.md` 申请 6-E 板级窗口。
+完成覆盖 F6d → task-23/task-28/E4 修复的增量独立复审。6-D 仍依赖阶段4/5 契约冻结；板级/6-E 工作须等用户授权窗口并重做受连接判据。
 
 ## 证据入口
 （C11 口径：凡带扩展名的反引号 token 按**项目根**解析；此处只用全路径，避免被当作本证据目录内文件。）
 - S6-A（本轮）：`report/evidence/S6-A/s6a_g0_20261024_r13/`、`report/evidence/S6-A/s6a_g0_20261024_r13/S6A_run_summary.md`、
   `report/evidence/S6-A/s6a_g0_20261024_r13/delivery_manifest.json`、`report/evidence/S6-A/s6a_g0_20261024_r13/claim_verification.json`、
   `report/evidence/S6-A/s6a_g0_20261024_r13/tool_self_tests.json`、`report/evidence/S6-A/s6a_g0_20261024_r13/fresh_selfcheck_pair.json`
+- S6-A r17：`report/evidence/S6-A/s6a_g0_20261024_r17/`（17 项自检与 inputs/evidence 检查均 PASS；增量独立审查 PASS；source commit `bc9b2b7`；不代表整体 G0/G5 通过）；失败/过期包保留：`report/evidence/S6-A/s6a_g0_20261024_r14/`、`report/evidence/S6-A/s6a_g0_20261024_r15/`、`report/evidence/S6-A/s6a_g0_20261024_r16/`
 - S6-B（本轮）：`report/evidence/S6-B/s6b_core_20261024_r08/`、`report/evidence/S6-B/s6b_core_20261024_r08/s6b_run_summary.md`、
   `report/evidence/S6-B/s6b_core_20261024_r08/delivery_manifest.json`、`report/evidence/S6-B/s6b_core_20261024_r08/claim_verification.json`、
   `report/evidence/S6-B/s6b_core_20261024_r08/tool_self_tests.json`、`report/evidence/S6-B/s6b_core_20261024_r08/s6b_fresh_evidence_pair.json`
+- S6-B 修复后包 r01（保留，closing 未独立绑定）：`report/evidence/S6-B/s6b_core_20261025_r01/`（source commit `ef2f74d`）。r02（保留，Reviewer `CHANGES_REQUIRED`）：`report/evidence/S6-B/s6b_core_20261025_r02/`（probe 摘要基线注记 23 与实际 26 矛盾；inputs/evidence 结构检查 PASS 不关闭此语义问题）。新包 r03：`report/evidence/S6-B/s6b_core_20261025_r03/`（source commit `72c10e5`；26/26、探针 4/4、inputs/evidence/closing 均 PASS/exit 0；首轮预检 exit 2 如实保留），增量证据审查 PASS。r10-r13 全部保留；r12 是修复前摘要不一致包，r13 未完成且无 manifest。
 - S6-E（本轮）：`report/evidence/S6-E/s6e_acceptance_20261024_r01/`、`report/evidence/S6-E/s6e_acceptance_20261024_r01/S6E_run_summary.md`、
   `report/evidence/S6-E/s6e_acceptance_20261024_r01/board_window_request.md`、`report/evidence/S6-E/s6e_acceptance_20261024_r01/s6e_acceptance_check.json`、
   `report/evidence/S6-E/s6e_acceptance_20261024_r01/delivery_manifest.json`、`report/evidence/S6-E/s6e_acceptance_20261024_r01/preserved_failures/`
@@ -95,8 +97,8 @@
 - 门禁修复（保留所有失败与修复轮）：`report/evidence/S6-E/s6e_gate_fix_20261024_r01/`、`report/evidence/S6-E/s6e_gate_fix_20261024_r02/`、`report/evidence/S6-E/s6e_gate_fix_20261024_r03/`
 
 ## 11 字段交接行
-任务：阶段6 门禁修复（真实 claim、真实证据类别、E4 精确批准集合）及新包重建待办 | 负责人：Codex 项目总控 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |
-起始提交：8d232abb581ee0e548c52e23a795ffd92cc131df | 允许修改范围：verification/s6e_acceptance_check.py、verification/tool_self_tests.py、定向测试、.gitattributes、S6-E 本轮 RunId、.codex/STATE.md |
-未提交改动归属：本轮 Codex 修复与 r01/r02/r03 证据，Developer 已停写，由项目总控统一提交；旧证据失败内容不改 | 让出声明：DSH-20261024-006 明确 main 与四阶段树交回 Codex；当前 E4 差异独立 Reviewer PASS，Codex 项目总控继续单写；未向外方让出 | 心跳(UTC+8)：2026-10-24 19:22 |
-证据入口：`report/evidence/S6-E/s6e_gate_fix_20261024_r01/`、`r02/`、`r03/` | 恢复命令：`python -B verification/test_s6_gate_regression.py`；提交后重建 S6-A/S6-B 新包并重跑完整工具套件 |
-状态/下一接手方：E4 门禁修复 REVIEWED_PASS / Codex 项目总控；新包构建、完整工具套件、阶段增量复审仍开放，非阶段验收通过。
+任务：S6-B builder/探针修复与 r03 证据复审/提交 | 负责人：Codex 项目总控 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |
+起始提交：`d662e483229d4b63916aac708a73d257db1cb939` | 允许修改范围：S6-B builder/探针与定向测试（修复已提交 `ef2f74d`、`c539828`、`72c10e5`）、S6-A r17/S6-B r01-r03 证据、`.codex/STATE.md` |
+未提交改动归属：旧 STATE 差异与 S6-A r14-r17、S6-B r10-r13 旧包保留；S6-B r01-r03 与本轮 STATE 更新归当前 Codex lead，按独立复审结论精确提交 | 让出声明：DSH-20261024-006 已正式交回主目录与四阶段树；Developer 已停写，builder/探针修复经独立 Reviewer PASS；w6 由 Codex 项目 lead 单写，无硬件操作 | 心跳(UTC+8)：2026-10-25 01:05 |
+证据入口：`report/evidence/S6-E/s6e_gate_fix_20261024_r03/`、`report/evidence/S6-B/s6b_core_20261025_r02/`、`report/evidence/S6-B/s6b_core_20261025_r03/`、`report/evidence/S6-A/s6a_g0_20261024_r17/` | 恢复命令：`python -B -m unittest test_s6b_build_evidence -v`（verification/）；后续复审 F6d → task-23/task-28/E4 增量 |
+状态/下一接手方：S6-B builder/探针修复 REVIEWED_PASS / `72c10e5`；r02 证据 CHANGES_REQUIRED 并保留，r03 包审查 PASS；S6-A r17 增量包审查 PASS；F6d → task-23/task-28/E4 整体增量复审未完成；6-D、实物验收及阶段 G5 仍 BLOCKED/NOT_RUN。

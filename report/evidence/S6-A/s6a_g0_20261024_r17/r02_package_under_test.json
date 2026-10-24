@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_r02_package_under_test",
+  "task_id": "S6-A",
+  "run_id": "s6a_g0_20261024_r17",
+  "purpose": "r02 被检版本字节与哈希；加固自检的 C12 必须在 r02 上捕获 BLK-1（predicates.used_by 未登记 M3）。",
+  "git_commit": "3b59674f93e8a2c020a0670fa475ee6a15330833",
+  "files_under_test": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "git_ref": "3b59674f93e8a2c020a0670fa475ee6a15330833:docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261024_r17/legacy/r02/r02_behavior.json",
+      "sha256": "4959707f2dae0094629d2647aeaab50e1f9d1a43abe3b00bf799a5c5292213dd",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "git_ref": "3b59674f93e8a2c020a0670fa475ee6a15330833:docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261024_r17/legacy/r02/r02_doc.md",
+      "sha256": "e8acc0cad60cf8f700c156e8d04b16117db4a27a628baac774970d963588be58",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r02/hand_computed_cases.json",
+      "git_ref": "3b59674f93e8a2c020a0670fa475ee6a15330833:report/evidence/S6-A/s6a_g0_20261022_r02/hand_computed_cases.json",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261024_r17/legacy/r02/r02_cases.json",
+      "sha256": "80b3bdba79496a5daa1016dee0b3b83acb188112ff9bec17afba52041eb35393",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261022_r02/upstream_bindings.json",
+      "git_ref": "3b59674f93e8a2c020a0670fa475ee6a15330833:report/evidence/S6-A/s6a_g0_20261022_r02/upstream_bindings.json",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261024_r17/legacy/r02/r02_bindings.json",
+      "sha256": "46b412142e2693315693c8433ddf63df5095101ef23f917082bbdb1e503acffc",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "git_ref": "3b59674f93e8a2c020a0670fa475ee6a15330833:.codex/STATE.md",
+      "extracted_copy": "tmp/6/S6-A/s6a_g0_20261024_r17/legacy/r02/r02_state.md",
+      "sha256": "16c1f044056470f941126e87367a3ba7b58a4ba55a013b7ff36f9167c83c6468",
+      "extraction": "git cat-file blob <commit>:<path> 的二进制输出直接 write_bytes（无文本/换行转换）"
+    }
+  ],
+  "evidence_dir_under_test": {
+    "path": "report/evidence/S6-A/s6a_g0_20261022_r02",
+    "actual_files": [
+      "S6A_run_summary.md",
+      "coverage_matrix.json",
+      "delivery_manifest.json",
+      "fix_record.json",
+      "fix_record.md",
+      "hand_computed_cases.json",
+      "hashes_sha256.txt",
+      "inputs_manifest.json",
+      "limitations_not_executed.json",
+      "old_package_under_test.json",
+      "selfcheck_old_package_failure.json",
+      "selfcheck_old_package_failure_stdout.txt",
+      "selfcheck_result.json",
+      "upstream_bindings.json"
+    ]
+  },
+  "expected_outcome": "FAILED（exit 1）",
+  "observed": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261024_r17\\legacy\\r02\\r02_behavior.json --doc D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261024_r17\\legacy\\r02\\r02_doc.md --cases D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261024_r17\\legacy\\r02\\r02_cases.json --upstream D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261024_r17\\legacy\\r02\\r02_bindings.json --out D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261024_r17\\selfcheck_r02_blk1_failure.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261022_r02 --state D:\\codex-worktrees\\w6\\tmp\\6\\S6-A\\s6a_g0_20261024_r17\\legacy\\r02\\r02_state.md",
+    "exit_code": 1,
+    "status": "FAILED",
+    "failed_checks": [
+      "C4",
+      "C7",
+      "C9",
+      "C12",
+      "C13",
+      "C14",
+      "C16",
+      "C17"
+    ],
+    "failure_json": "selfcheck_r02_blk1_failure.json",
+    "failure_stdout": "selfcheck_r02_blk1_failure_stdout.txt"
+  },
+  "extraction_policy": "git cat-file blob 二进制输出直接落盘；SHA-256 对 git 字节计算（N03/N05）"
+}

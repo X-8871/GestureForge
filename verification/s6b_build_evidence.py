@@ -72,6 +72,55 @@ def sha256_file(path: Path) -> str:
 
 
 
+def evidence_check_manifest_entry(check_result: dict) -> dict:
+    """把收敛后的 evidence 检查结果转换为清单记录。"""
+    exit_code = check_result.get("exit_code")
+    command = check_result.get("command_text")
+    if type(exit_code) is not int or not isinstance(command, str) or not command:
+        raise ValueError("最终 evidence 检查必须包含整数退出码和命令")
+    return {
+        "name": "check_stage_delivery.py --mode evidence",
+        "status": "PASS" if exit_code == 0 else "FAIL",
+        "command": command,
+        "exit_code": exit_code,
+    }
+
+
+def format_evidence_summary_rows(first_precheck: dict | None,
+                                 final_check: dict | None) -> tuple[str, str]:
+    """格式化首次预检与最终收敛检查，命令和退出码对应各自的真实结果。"""
+    def format_row(label: str, result: dict | None) -> str:
+        if result is None:
+            return f"| 交付检查 evidence {label} | 未运行 | — |"
+        command = result.get("command_text") or result.get("command")
+        exit_code = result.get("exit_code")
+        if not isinstance(command, str) or not command or type(exit_code) is not int:
+            raise ValueError(f"{label} 必须包含命令和整数退出码")
+        return f"| 交付检查 evidence {label} | `{command}` | 实测 {exit_code} |"
+
+    return (
+        format_row("首次预检（fixpoint iteration 0）", first_precheck),
+        format_row("最终收敛检查", final_check),
+    )
+
+
+def update_evidence_summary_rows(summary_text: str, first_precheck: dict,
+                                  final_check: dict) -> str:
+    """在摘要现有行中更新退出码，避免另增一份未绑定的结果文本。"""
+    rows = format_evidence_summary_rows(first_precheck, final_check)
+    prefixes = (
+        "| 交付检查 evidence 首次预检（fixpoint iteration 0）",
+        "| 交付检查 evidence 最终收敛检查",
+    )
+    lines = summary_text.splitlines()
+    for prefix, row in zip(prefixes, rows):
+        matches = [index for index, line in enumerate(lines) if line.startswith(prefix)]
+        if len(matches) != 1:
+            raise ValueError(f"摘要中 {prefix} 行必须恰有一条，实际 {len(matches)}")
+        lines[matches[0]] = row
+    return "\n".join(lines) + ("\n" if summary_text.endswith("\n") else "")
+
+
 def interface_reason(version: str) -> str:
     """interfaces 为空时的适用性说明（版本随行为表动态取，避免声明与契约版本漂移）。"""
     return (
@@ -296,7 +345,8 @@ def main(argv: list[str] | None = None) -> int:
         f"| 冻结预期 | `{freeze_run['command_text']}` | {freeze_run['exit_code']} |",
         f"| 运行用例 | `{run_result['command_text']}` | {run_result['exit_code']} |",
         f"| 判别力探针 | `{probe_result['command_text']}` | {probe_result['exit_code']} |",
-        "| 交付检查 inputs / evidence | 见 `delivery_manifest.json.checks` | 实测（下方回填） |",
+        f"| 交付检查 inputs | `{inputs_run['command_text']}` | 实测 {inputs_run['exit_code']} |",
+        *format_evidence_summary_rows(None, None),
         "",
         "## 覆盖（11 类）",
         "",
@@ -456,22 +506,15 @@ def main(argv: list[str] | None = None) -> int:
 
     # ---- FIXPOINT（与 S6-A 同构）：driver → selfcheck/证据产物 → hashes/manifest → run-dir 之外的验证自检 ----
     previous = None
+    first_evidence_precheck = None
     for iteration in range(6):
         evidence_run = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
                                     "--manifest", str(manifest_path), "--project-root", str(root)], root)
         print(f"[evidence-mode:iter{iteration}] exit={evidence_run['exit_code']}")
+        if iteration == 0:
+            first_evidence_precheck = evidence_run
         # 预检可能因**上一轮**清单已过期而失败：不据此中止，先重写清单再用"清单之后"的验证自检判定
         evidence_out.write_text(evidence_run["stdout"], encoding="utf-8")
-        # 声明状态必须取自"清单之后"的验证自检（预检可能因上一轮清单过期而失败，不可作为声明）
-        _summary_path = run_dir / "s6b_run_summary.md"
-        if _summary_path.is_file():
-            _text = _summary_path.read_text(encoding="utf-8")
-            if "实测（下方回填）" in _text:
-                _text = _text.replace(
-                    "| 交付检查 inputs / evidence | 见 `delivery_manifest.json.checks` | 实测（下方回填） |",
-                    f"| 交付检查 inputs | `{inputs_run['command_text']}` | 实测 {inputs_run['exit_code']} |\n"
-                    f"| 交付检查 evidence | `{evidence_run['command_text']}` | 实测 {evidence_run['exit_code']} |")
-                _summary_path.write_text(_text, encoding="utf-8")
         write_hashes()
         write_manifest()
         # 新鲜证据对必须在**清单刚写好、仍然当前**的时刻跑，产物直接入库；否则记录到的是
@@ -490,13 +533,21 @@ def main(argv: list[str] | None = None) -> int:
         _verify_out = root / "tmp/6" / f"fixpoint_area_{run_dir.name}.txt"
         _verify = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
                                "--manifest", str(manifest_path), "--project-root", str(root)], root)
-        checks[-1] = {"name": "check_stage_delivery.py --mode evidence",
-                      "status": "PASS" if _verify["exit_code"] == 0 else "FAIL",
-                      "command": _verify["command_text"], "exit_code": _verify["exit_code"]}
+        checks[-1] = evidence_check_manifest_entry(_verify)
         if _verify["exit_code"] != 0:
             print("[FIXPOINT-B] 验证自检失败"); print(_verify["stdout"]); return 1
         _verify_out.parent.mkdir(parents=True, exist_ok=True)
         _verify_out.write_text(_verify["stdout"], encoding="utf-8")
+        _summary_path = run_dir / "s6b_run_summary.md"
+        _summary = _summary_path.read_text(encoding="utf-8")
+        _summary_path.write_text(
+            update_evidence_summary_rows(_summary, first_evidence_precheck, checks[-1]),
+            encoding="utf-8")
+        # 固定输出保存本轮清单检查结果；后续先重绑，再由 closing 检查最终清单。
+        evidence_out.write_text(_verify["stdout"], encoding="utf-8")
+        # 摘要与最终检查状态一并进入下一轮哈希/清单；FIXPOINT 收敛后不再修改 run-dir。
+        write_hashes()
+        write_manifest()
         # 收敛判据必须覆盖**全部已声明文件**（只比清单+哈希会在其它产物后写时假收敛）
         state = {q.relative_to(run_dir).as_posix(): sha256_file(q)
                  for q in sorted(run_dir.rglob("*")) if q.is_file()}

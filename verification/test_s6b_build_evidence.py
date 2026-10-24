@@ -246,8 +246,10 @@ def run_main_fixture(inputs_exit=0, final_evidence_exit=0, closing_evidence_exit
             "summary": read_text("s6b_run_summary.md"),
             "inputs_output": read_text("check_inputs_mode_output.txt"),
             "evidence_output": read_text("check_evidence_mode_output.txt"),
+            "closing_output": read_text("check_closing_evidence_mode_output.txt"),
             "inputs_output_bytes": read_bytes("check_inputs_mode_output.txt"),
             "evidence_output_bytes": read_bytes("check_evidence_mode_output.txt"),
+            "closing_output_bytes": read_bytes("check_closing_evidence_mode_output.txt"),
             "hashes": read_text("hashes_sha256.txt"),
         }
 
@@ -265,13 +267,16 @@ class S6BBuilderFlowRegression(unittest.TestCase):
         checks = {row["name"]: row for row in result["manifest"]["checks"]}
         inputs_check = checks["check_stage_delivery.py --mode inputs"]
         evidence_check = checks["check_stage_delivery.py --mode evidence"]
+        closing_check = checks["check_stage_delivery.py --mode evidence (closing)"]
         self.assertEqual((inputs_check["status"], inputs_check["exit_code"]), ("PASS", 0))
         self.assertEqual((evidence_check["status"], evidence_check["exit_code"]), ("PASS", 0))
+        self.assertEqual((closing_check["status"], closing_check["exit_code"]), ("PASS", 0))
 
         inputs_row = next(line for line in result["summary"].splitlines()
                           if line.startswith("| 交付检查 inputs |"))
         evidence_rows = [line for line in result["summary"].splitlines()
                          if line.startswith("| 交付检查 evidence ")]
+        self.assertEqual(len(evidence_rows), 3)
         self.assertIn(inputs_check["command"], inputs_row)
         self.assertIn("实测 0 (PASS)", inputs_row)
         self.assertIn("首次预检（fixpoint iteration 0）", evidence_rows[0])
@@ -279,8 +284,12 @@ class S6BBuilderFlowRegression(unittest.TestCase):
         self.assertIn("最终收敛检查", evidence_rows[1])
         self.assertIn(evidence_check["command"], evidence_rows[1])
         self.assertIn("实测 0 (PASS)", evidence_rows[1])
+        self.assertIn("closing", evidence_rows[2])
+        self.assertIn(closing_check["command"], evidence_rows[2])
+        self.assertIn("实测 0 (PASS)", evidence_rows[2])
         self.assertIn('{"status":"CHECKS_OK","mode":"inputs"}', result["inputs_output"])
         self.assertIn('{"status":"CHECKS_OK","mode":"evidence"}', result["evidence_output"])
+        self.assertIn('{"status":"CHECKS_OK","mode":"evidence"}', result["closing_output"])
 
     def test_nonzero_inputs_check_is_persisted_and_stops_builder(self):
         result = run_main_fixture(inputs_exit=2)
@@ -288,9 +297,12 @@ class S6BBuilderFlowRegression(unittest.TestCase):
         checks = {row["name"]: row for row in result["manifest"]["checks"]}
         inputs_check = checks["check_stage_delivery.py --mode inputs"]
         evidence_check = checks["check_stage_delivery.py --mode evidence"]
+        closing_check = checks["check_stage_delivery.py --mode evidence (closing)"]
         self.assertEqual((inputs_check["status"], inputs_check["exit_code"]), ("FAIL", 2))
+        self.assertIn("实测退出码 2", inputs_check["reason"])
         self.assertIn("--mode inputs", inputs_check["command"])
         self.assertEqual(evidence_check["status"], "NOT_RUN")
+        self.assertEqual(closing_check["status"], "NOT_RUN")
         self.assertIn("NOT_RUN", result["evidence_output"])
         inputs_row = next(line for line in result["summary"].splitlines()
                           if line.startswith("| 交付检查 inputs |"))
@@ -312,7 +324,10 @@ class S6BBuilderFlowRegression(unittest.TestCase):
         self.assertEqual(result["exit_code"], 1, result["stdout"])
         checks = {row["name"]: row for row in result["manifest"]["checks"]}
         evidence_check = checks["check_stage_delivery.py --mode evidence"]
+        closing_check = checks["check_stage_delivery.py --mode evidence (closing)"]
         self.assertEqual((evidence_check["status"], evidence_check["exit_code"]), ("FAIL", 3))
+        self.assertIn("实测退出码 3", evidence_check["reason"])
+        self.assertEqual(closing_check["status"], "NOT_RUN")
         self.assertIn("--mode evidence", evidence_check["command"])
         evidence_rows = [line for line in result["summary"].splitlines()
                          if line.startswith("| 交付检查 evidence ")]
@@ -328,31 +343,38 @@ class S6BBuilderFlowRegression(unittest.TestCase):
         self.assertEqual(entry["sha256"], normalized_digest)
         self.assertIn(f"{raw_digest}  check_evidence_mode_output.txt", result["hashes"])
 
-    def test_nonzero_closing_check_replaces_previous_pass_and_is_persisted(self):
+    def test_nonzero_closing_check_is_separately_persisted(self):
         result = run_main_fixture(closing_evidence_exit=4)
         self.assertEqual(result["exit_code"], 1, result["stdout"])
         self.assertEqual(len(result["evidence_calls"]), 5)
 
         checks = {row["name"]: row for row in result["manifest"]["checks"]}
         evidence_check = checks["check_stage_delivery.py --mode evidence"]
-        self.assertEqual((evidence_check["status"], evidence_check["exit_code"]), ("FAIL", 4))
-        self.assertIn("--mode evidence", evidence_check["command"])
+        closing_check = checks["check_stage_delivery.py --mode evidence (closing)"]
+        self.assertEqual((evidence_check["status"], evidence_check["exit_code"]), ("PASS", 0))
+        self.assertEqual((closing_check["status"], closing_check["exit_code"]), ("FAIL", 4))
+        self.assertIn("实测退出码 4", closing_check["reason"])
+        self.assertIn("check_closing_evidence_mode_output.txt", closing_check["reason"])
+        self.assertIn("--mode evidence", closing_check["command"])
 
         evidence_rows = [line for line in result["summary"].splitlines()
                          if line.startswith("| 交付检查 evidence ")]
+        self.assertEqual(len(evidence_rows), 3)
         self.assertIn(evidence_check["command"], evidence_rows[1])
-        self.assertIn("实测 4 (FAIL)", evidence_rows[1])
-        self.assertNotIn("实测 0 (PASS)", evidence_rows[1])
+        self.assertIn("实测 0 (PASS)", evidence_rows[1])
+        self.assertIn(closing_check["command"], evidence_rows[2])
+        self.assertIn("实测 4 (FAIL)", evidence_rows[2])
+        self.assertNotIn("实测 0 (PASS)", evidence_rows[2])
         self.assertIn("构建状态：FAIL", result["summary"])
-        self.assertIn('"phase":"closing"', result["evidence_output"])
+        self.assertIn('"phase":"closing"', result["closing_output"])
 
         entry = next(row for row in result["manifest"]["files"]
-                     if row["path"].endswith("check_evidence_mode_output.txt"))
-        raw = result["evidence_output_bytes"]
+                     if row["path"].endswith("check_closing_evidence_mode_output.txt"))
+        raw = result["closing_output_bytes"]
         normalized_digest = hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
         raw_digest = hashlib.sha256(raw).hexdigest()
         self.assertEqual(entry["sha256"], normalized_digest)
-        self.assertIn(f"{raw_digest}  check_evidence_mode_output.txt", result["hashes"])
+        self.assertIn(f"{raw_digest}  check_closing_evidence_mode_output.txt", result["hashes"])
 
 
 if __name__ == "__main__":

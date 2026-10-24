@@ -72,18 +72,28 @@ def sha256_file(path: Path) -> str:
 
 
 
-def evidence_check_manifest_entry(check_result: dict) -> dict:
+def evidence_check_manifest_entry(
+    check_result: dict,
+    *,
+    name: str = "check_stage_delivery.py --mode evidence",
+    output_file: str = "check_evidence_mode_output.txt",
+) -> dict:
     """把收敛后的 evidence 检查结果转换为清单记录。"""
     exit_code = check_result.get("exit_code")
     command = check_result.get("command_text")
     if type(exit_code) is not int or not isinstance(command, str) or not command:
         raise ValueError("最终 evidence 检查必须包含整数退出码和命令")
-    return {
-        "name": "check_stage_delivery.py --mode evidence",
+    check = {
+        "name": name,
         "status": "PASS" if exit_code == 0 else "FAIL",
         "command": command,
         "exit_code": exit_code,
     }
+    if exit_code != 0:
+        check["reason"] = (
+            f"evidence-mode 检查实测退出码 {exit_code}；标准输出已保存到 {output_file}"
+        )
+    return check
 
 
 def inputs_check_manifest_entry(check_result: dict) -> dict:
@@ -92,12 +102,17 @@ def inputs_check_manifest_entry(check_result: dict) -> dict:
     command = check_result.get("command_text")
     if type(exit_code) is not int or not isinstance(command, str) or not command:
         raise ValueError("inputs-mode 检查必须包含整数退出码和命令")
-    return {
+    check = {
         "name": "check_stage_delivery.py --mode inputs",
         "status": "PASS" if exit_code == 0 else "FAIL",
         "command": command,
         "exit_code": exit_code,
     }
+    if exit_code != 0:
+        check["reason"] = (
+            f"inputs-mode 检查实测退出码 {exit_code}；标准输出已保存到 check_inputs_mode_output.txt"
+        )
+    return check
 
 
 def format_inputs_summary_row(inputs_check: dict | None) -> str:
@@ -165,6 +180,29 @@ def update_evidence_summary_rows(summary_text: str, first_precheck: dict,
         if len(matches) != 1:
             raise ValueError(f"摘要中 {prefix} 行必须恰有一条，实际 {len(matches)}")
         lines[matches[0]] = row
+    return "\n".join(lines) + ("\n" if summary_text.endswith("\n") else "")
+
+
+def format_closing_evidence_summary_row(closing_check: dict | None) -> str:
+    """格式化 fixpoint 之后单独执行的 closing evidence 检查。"""
+    if closing_check is None:
+        return "| 交付检查 evidence closing | 未运行 | — |"
+    command = closing_check.get("command_text") or closing_check.get("command")
+    exit_code = closing_check.get("exit_code")
+    if not isinstance(command, str) or not command or type(exit_code) is not int:
+        raise ValueError("closing evidence 检查必须包含命令和整数退出码")
+    status = closing_check.get("status") or ("PASS" if exit_code == 0 else "FAIL")
+    return f"| 交付检查 evidence closing | `{command}` | 实测 {exit_code} ({status}) |"
+
+
+def update_closing_evidence_summary_row(summary_text: str, closing_check: dict) -> str:
+    """用 closing 调用实测结果替换摘要中的未运行占位行。"""
+    prefix = "| 交付检查 evidence closing |"
+    lines = summary_text.splitlines()
+    matches = [index for index, line in enumerate(lines) if line.startswith(prefix)]
+    if len(matches) != 1:
+        raise ValueError(f"摘要中 {prefix} 行必须恰有一条，实际 {len(matches)}")
+    lines[matches[0]] = format_closing_evidence_summary_row(closing_check)
     return "\n".join(lines) + ("\n" if summary_text.endswith("\n") else "")
 
 
@@ -394,6 +432,7 @@ def main(argv: list[str] | None = None) -> int:
         f"| 判别力探针 | `{probe_result['command_text']}` | {probe_result['exit_code']} |",
         format_inputs_summary_row(None),
         *format_evidence_summary_rows(None, None),
+        format_closing_evidence_summary_row(None),
         "",
         "## 覆盖（11 类）",
         "",
@@ -424,8 +463,11 @@ def main(argv: list[str] | None = None) -> int:
     hashes_path = run_dir / "hashes_sha256.txt"
     inputs_out = run_dir / "check_inputs_mode_output.txt"
     evidence_out = run_dir / "check_evidence_mode_output.txt"
+    closing_out = run_dir / "check_closing_evidence_mode_output.txt"
     for placeholder in (inputs_out, evidence_out):
         placeholder.write_text("", encoding="utf-8")
+    closing_out.write_text(
+        "NOT_RUN：closing evidence 检查尚未运行。\n", encoding="utf-8")
 
     def file_entries(include_sources: bool):
         rows = []
@@ -504,6 +546,9 @@ def main(argv: list[str] | None = None) -> int:
             {"name": "check_stage_delivery.py --mode evidence", "status": "NOT_RUN",
              "command": None, "exit_code": None,
              "reason": "inputs-mode 检查失败；未运行 evidence-mode 检查"},
+            {"name": "check_stage_delivery.py --mode evidence (closing)", "status": "NOT_RUN",
+             "command": None, "exit_code": None,
+             "reason": "inputs-mode 检查失败；未运行 closing evidence 检查"},
         ]
         write_hashes()
         write_json(manifest_path, {
@@ -629,6 +674,11 @@ def main(argv: list[str] | None = None) -> int:
                 update_evidence_summary_rows(_summary, first_evidence_precheck, checks[-1])
                 + f"\n构建状态：FAIL（最终 evidence 检查退出码 {_verify['exit_code']}）。\n",
                 encoding="utf-8")
+            checks.append({
+                "name": "check_stage_delivery.py --mode evidence (closing)",
+                "status": "NOT_RUN", "command": None, "exit_code": None,
+                "reason": "fixpoint evidence 检查失败；未运行 closing evidence 检查",
+            })
             write_hashes()
             write_manifest()
             print("[FIXPOINT-B] 验证自检失败"); print(_verify["stdout"]); return 1
@@ -659,19 +709,29 @@ def main(argv: list[str] | None = None) -> int:
     # ---- [CLOSING] 收尾断言：FIXPOINT 之后不得再改 run-dir ----
     _closing = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
                             "--manifest", str(manifest_path), "--project-root", str(root)], root)
+    closing_check = evidence_check_manifest_entry(
+        _closing,
+        name="check_stage_delivery.py --mode evidence (closing)",
+        output_file="check_closing_evidence_mode_output.txt",
+    )
+    checks.append(closing_check)
+    write_check_output(closing_out, _closing)
+    _summary_path = run_dir / "s6b_run_summary.md"
+    _summary = _summary_path.read_text(encoding="utf-8")
+    _summary = update_closing_evidence_summary_row(_summary, closing_check)
     if _closing["exit_code"] != 0:
-        checks[-1] = evidence_check_manifest_entry(_closing)
-        write_check_output(evidence_out, _closing)
-        _summary_path = run_dir / "s6b_run_summary.md"
-        _summary = _summary_path.read_text(encoding="utf-8")
         _summary_path.write_text(
-            update_evidence_summary_rows(_summary, first_evidence_precheck, checks[-1])
+            _summary
             + f"\n构建状态：FAIL（closing evidence 检查退出码 {_closing['exit_code']}）。\n",
             encoding="utf-8")
-        write_hashes()
-        write_manifest()
         print("[CLOSING] run-dir 出现未声明文件或哈希不符，构建中止")
-        print(_closing["stdout"]); return 1
+        print(_closing["stdout"])
+    else:
+        _summary_path.write_text(_summary, encoding="utf-8")
+    write_hashes()
+    write_manifest()
+    if _closing["exit_code"] != 0:
+        return 1
     print("[CLOSING] run-dir 无未声明文件、清单一致")
 
     print(json.dumps({"status": "S6B_EVIDENCE_BUILT", "cases": report["case_count"],

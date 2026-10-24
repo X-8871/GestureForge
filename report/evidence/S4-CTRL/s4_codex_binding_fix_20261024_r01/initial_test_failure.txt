@@ -1,0 +1,8 @@
+2026-10-24（UTC+8）首次轻量测试尝试：
+默认沙箱启动 Python312\python.exe 被拒绝访问，未执行测试；随后已按授权升级执行。
+命令：C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w4\scripts\stage4_s4ctrl\test_binding_byte_consumption.py
+退出码：1；Ran 8 tests in 1.158s；FAILED (errors=8)。
+共同错误：test_binding_byte_consumption.py:40 的测试夹具把 result_contract.display_linkage 对象误当字段数组，抛 TypeError: string indices must be integers, not 'str'。
+修复：明确读取 result_contract.display_linkage.fields；未更改契约原件。
+本文件为实际失败摘要，完整异常已显示于工具调用输出，不冒充逐字原始日志。
+后续第一次修复运行：8 tests OK，退出码0，日志 directed_tests.log；之后补充单轮读取缓存对照和逐例JSON证据，另存新日志。

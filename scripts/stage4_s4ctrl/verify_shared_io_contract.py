@@ -112,8 +112,8 @@ def find_git_root(path: Path) -> Path | None:
     return None
 
 
-def blob_content_sha256(path: Path, revision: str = "HEAD") -> tuple[str | None, str | None]:
-    """按 git blob 内容口径计算 SHA-256（可指定修订）；返回 (sha256, error)。"""
+def blob_content_bytes(path: Path, revision: str = "HEAD") -> tuple[bytes | None, str | None]:
+    """读取指定修订的原始 blob 字节；失败时禁止回退磁盘。"""
     root = find_git_root(path)
     if root is None:
         return None, f"未找到 git 根：{path}"
@@ -121,11 +121,17 @@ def blob_content_sha256(path: Path, revision: str = "HEAD") -> tuple[str | None,
     proc = subprocess.run(["git", "-C", str(root), "cat-file", "blob", f"{revision}:{rel}"], capture_output=True)
     if proc.returncode != 0:
         return None, f"cat-file blob {revision}:{rel} 退出 {proc.returncode}（修订或路径不存在）"
-    return hashlib.sha256(proc.stdout).hexdigest(), None
+    return proc.stdout, None
 
 
-def verify_binding_entry(binding: dict) -> tuple[str, str | None, str | None]:
-    """按条目声明口径校验单个绑定；返回 (status, actual, error)。
+def blob_content_sha256(path: Path, revision: str = "HEAD") -> tuple[str | None, str | None]:
+    """按指定修订的原始 blob 字节计算 SHA-256。"""
+    raw, error = blob_content_bytes(path, revision)
+    return (hashlib.sha256(raw).hexdigest() if raw is not None else None), error
+
+
+def read_binding_bytes(binding: dict) -> tuple[str, bytes | None, str | None]:
+    """按声明口径只读取一次原始字节；供哈希与语义解析共同使用。
 
     status: MATCH / MISMATCH / MISSING / BLOB_UNAVAILABLE / BAD_BYTE_BASIS
     byte_basis：
@@ -135,24 +141,34 @@ def verify_binding_entry(binding: dict) -> tuple[str, str | None, str | None]:
     """
     path = resolve(binding["path"])
     basis = binding.get("byte_basis", "worktree_disk_bytes")
-    if not path.is_file():
-        return "MISSING", None, f"文件不存在：{path}"
     if basis == "worktree_disk_bytes":
-        actual = sha256_of(path)
+        if not path.is_file():
+            return "MISSING", None, f"文件不存在：{path}"
+        try:
+            raw = path.read_bytes()
+        except OSError as exc:
+            return "MISSING", None, f"文件不可读：{path}：{exc}"
     elif basis == "git_blob_content":
-        actual, error = blob_content_sha256(path)
-        if actual is None:
+        raw, error = blob_content_bytes(path)
+        if raw is None:
             return "BLOB_UNAVAILABLE", None, error
     elif basis == "git_blob_fixed_revision":
         revision = binding.get("fixed_revision")
         if not revision:
             return "BAD_BYTE_BASIS", None, "git_blob_fixed_revision 必须给出 fixed_revision"
-        actual, error = blob_content_sha256(path, revision)
-        if actual is None:
+        raw, error = blob_content_bytes(path, revision)
+        if raw is None:
             return "BLOB_UNAVAILABLE", None, error
     else:
         return "BAD_BYTE_BASIS", None, f"未知 byte_basis：{basis}"
-    return ("MATCH" if actual == binding.get("sha256") else "MISMATCH"), actual, None
+    actual = hashlib.sha256(raw).hexdigest()
+    return ("MATCH" if actual == binding.get("sha256") else "MISMATCH"), raw, None
+
+
+def verify_binding_entry(binding: dict) -> tuple[str, str | None, str | None]:
+    """兼容现有调用，按统一读取口径返回状态、实际 SHA 与错误。"""
+    status, raw, error = read_binding_bytes(binding)
+    return status, (hashlib.sha256(raw).hexdigest() if raw is not None else None), error
 
 
 def find_key(obj: object, key: str):
@@ -422,6 +438,7 @@ def main() -> int:
 
     # 2. 权威绑定现场复算（T1）
     bindings = {b["id"]: b for b in contract.get("upstream_bindings", [])}
+    bound_bytes: dict[str, bytes] = {}
     if not bindings:
         failures.append("缺少 upstream_bindings（权威无版本绑定）")
     else:
@@ -433,7 +450,8 @@ def main() -> int:
                 "id": bid, "path": str(path), "expected": b.get("sha256"),
                 "byte_basis": b.get("byte_basis", "worktree_disk_bytes"),
             }
-            status, actual, error = verify_binding_entry(b)
+            status, raw, error = read_binding_bytes(b)
+            actual = hashlib.sha256(raw).hexdigest() if raw is not None else None
             entry["status"] = status
             if error:
                 entry["error"] = error
@@ -443,6 +461,7 @@ def main() -> int:
                 bad.append(entry)
             else:
                 checked += 1
+                bound_bytes[bid] = raw
         details["upstream_binding_checks"] = {"checked": checked, "total": len(bindings), "bad": bad}
         if bad:
             failures.append(f"权威绑定漂移（必须显式更新绑定并重新审查）：{bad}")
@@ -513,10 +532,20 @@ def main() -> int:
         else:
             passes.append(f"绑定字节口径声明齐全（默认磁盘字节；blob 口径 {len(blob_ids)} 项）+ 2/2 负向对照被拒绝")
 
-    s4a_path = resolve(bindings["s4a_g0_contract"]["path"]) if "s4a_g0_contract" in bindings else None
-    w5_path = resolve(bindings["stage5_display_g0_fields"]["path"]) if "stage5_display_g0_fields" in bindings else None
-    s4a = json.loads(s4a_path.read_text(encoding="utf-8")) if s4a_path and s4a_path.is_file() else None
-    w5 = json.loads(w5_path.read_text(encoding="utf-8")) if w5_path and w5_path.is_file() else None
+    # 只解析本轮哈希已通过的同一份字节，禁止再次读取磁盘或移动后的 HEAD。
+    authority_json = {}
+    for bid in ("s4a_g0_contract", "stage5_display_g0_fields"):
+        authority_json[bid] = None
+        if bid in bound_bytes:
+            try:
+                parsed = json.loads(bound_bytes[bid].decode("utf-8"))
+                if not isinstance(parsed, dict):
+                    raise ValueError("权威 JSON 顶层必须为对象")
+                authority_json[bid] = parsed
+            except (UnicodeDecodeError, ValueError) as exc:
+                failures.append(f"已绑定权威 JSON 无法解析：{bid}：{exc}")
+    s4a = authority_json["s4a_g0_contract"]
+    w5 = authority_json["stage5_display_g0_fields"]
     if s4a is None:
         failures.append("无法读取 S4-A 权威以检查 r03 接口语义")
     else:
@@ -765,7 +794,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4B-contract",
         "checker": "verify_shared_io_contract",
-        "checker_version": "r06",
+        "checker_version": "r07",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),

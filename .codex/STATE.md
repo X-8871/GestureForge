@@ -1,7 +1,15 @@
-# 阶段4 状态（写权：DSH 阶段4 总控 CLAIMED / IN_PROGRESS）
+# 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS）
 
-更新：2026-10-24 01:00（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
-**写权：DSH 阶段4 总控（stage4-lead，由 DSH 项目总控按 Wong 2026-10-24「由DSH接手」派出）持有并 IN_PROGRESS，执行共享任务 `task-21`（全离线）。**
+更新：2026-10-24 10:48（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续；本轮 Developer 仅修 B-r03-1，停写后交独立审查，尚未提交。**
+
+## 当前接续增量（2026-10-24）
+
+- 基线 `ced5bdef5c6f2d623237908ddb74baa4d6fa2bdb`，无 `index.lock`；原有 13 项未跟踪（12 ELF/map + 未完成 `replay_forward_bridge.py`）均保留原位、未修改、不入本轮提交。以下 task-21 内容为历史事实，当前接续以本节为准。
+- B-r03-1：`verify_shared_io_contract.py` r07 按 `byte_basis` 单次取得 raw bytes，同一字节同时用于 SHA 与 S4-A/阶段5 JSON 语义解析；固定 blob 不可读、缺修订、未知口径或 SHA 不符均不得回退磁盘。
+- 新证据 `report/evidence/S4-CTRL/s4_codex_binding_fix_20261024_r01/`：定向回归 9/9、真实契约自检 26 PASS/0 FAIL（15/15 绑定）、消费方回归 10/10，exit 均0；初始测试夹具错误保留摘要。固定100/磁盘200/契约200现被拒绝，固定200/磁盘100按固定200通过。
+- 旧 `bound_trees.json` 的审查有效窗口已失效：w4/main 的 MOVING 与 dbdf/w5 的 STABLE 均已出现 HEAD 漂移。本轮只证明工具字节绑定修复与当前声明文件哈希；未重发跨树有效窗口、未把当前哈希复核升级为系统 G0。旧完整 T 标签报告未找到，不补造映射。
+- 接口、地址与109/109覆盖不变；`ENABLE=0`、未 FROZEN、RAW系统G0未闭合；硬件、P实测、4-D/G5仍未完成。task-26 后续由总控另派，本轮不改未完成回放桥。
 
 ## 接管核对（task-21 目标 1）
 
@@ -56,6 +64,10 @@
 - 2B/阶段3/阶段5/阶段6 工作树与厂商原件只读；本树一次只跑一个重型任务；不 push。
 - **换行/字节口径前提（2026-10-24 更正）**：本树**存在 `.gitattributes`**（根 + 嵌套 `docs/stage4/`、`report/evidence/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`），其 `-text` **覆盖** w4 的 `docs/stage4/**` 与 `report/evidence/**`（`check-attr text: unset`），故这些文件 disk==blob；**未覆盖**跨树引用（dbdf `report/evidence/S3-T05/**` 为 `text: unspecified` ⇒ 我此前“本树无 .gitattributes”的陈述**有误，以本条为准**）。**不再新增覆盖**（lead 决定，与阶段3 同口径）；契约将新增顶层**绑定字节口径声明**（记录工作树磁盘字节 SHA；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并按 N-1 把 dbdf 两项改绑为 blob 内容口径。
 
-## 交接行（11 字段）
+## 当前交接行（11 字段）
+
+任务=`B-r03-1 固定绑定字节消费修复` | 负责人=`Codex 项目总控（Developer 已完成实现、待独立复审）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`ced5bdef5c6f2d623237908ddb74baa4d6fa2bdb` | 允许修改范围=`verify_shared_io_contract.py、定向测试、新RunId、STATE` | 未提交改动归属=`13项既有未跟踪不动；本轮差异归Codex待审` | 让出声明=`DSH-20261024-006已OFFER；Codex接续，本轮停写待审` | 心跳(UTC+8)=`2026-10-24 10:48` | 证据入口=`report/evidence/S4-CTRL/s4_codex_binding_fix_20261024_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex项目总控派独立Reviewer`
+
+## 历史交接行（已被上行取代，不再代表写权）
 
 任务=`task-21 阶段4 接续（DSH 认领 w4）：契约改绑真实彩色 + 应用已批准项 + RAW 系统 G0 收口 + 帧周期 P 方案（全离线）` | 负责人=`DSH 阶段4 总控（stage4-lead）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`f6fa9f0d84274f1a0d03e6f87263fb550ebc6656` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md`（主目录与其他树、硬件均无授权） | 未提交改动归属=`12 项未跟踪 6 ELF/6 map 属 Codex 本机恢复产物，留原位不入 Git；本轮新文件随本次提交` | 让出声明=`w4 由 DSH 阶段4 总控持有至本轮收尾；硬件使用权未随交接，阶段4 板级依 CDX-20261023-019 暂缓，恢复须另行申请窗口` | 心跳(UTC+8)=`2026-10-24 01:00` | 证据入口=`report/evidence/S4-CTRL/t21_takeover_20261024_r02/、t21_contract_colour_rebind_20261024_r02/、t21_raw_g0_gap_registry_20261024_r03/、t21_frame_period_p_plan_20261024_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 status --short; python -B D:/codex-worktrees/w4/scripts/stage4_s4ctrl/verify_shared_io_contract.py` | 状态/下一接手方=`IN_PROGRESS / 本轮收尾后由 DSH 项目总控指派独立复审与后续（含硬件窗口申请）`

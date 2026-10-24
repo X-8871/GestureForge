@@ -1,0 +1,142 @@
+{
+  "case": "test_display_semantics_uses_fixed_bytes",
+  "binding": {
+    "id": "stage5_display_g0_fields",
+    "role": "阶段5 G0 显示语义/过期常量的权威（只读引用，不写 w5）",
+    "path": "D:\\tmp\\s4_binding_i_hmhtmn\\repository\\stage5.json",
+    "sha256": "0435a8733b2dc71a9c76b2044bf6f5ba460e7ed5b7101dbebbd1116fbeccd996",
+    "byte_basis": "git_blob_fixed_revision",
+    "fixed_revision": "2826570566e80b74f671f97b56df447a34fabd55",
+    "fixed_revision_note": "**消费固定修订**：绑定 w5 修订 `b6d11d4` 的 blob `10d24a39…`（该修订内容与 w5 后续 HEAD 下同值）。阶段5 后续轮若改动该文件，必须由阶段4 重绑并登记 `replaces`，**不得**静默沿用。",
+    "binding_status_note": "事实口径：阶段5 **r02 复审已 PASS**；`task-24` 仍在办 ⇒ 采用**固定修订**语义。**未冻结**（`FROZEN` 仍须硬件实测 + G0 批准）。",
+    "byte_basis_note": "B-1 复核：w5 于 2026-10-24 01:48:18 提交 `b6d11d4`（该文件 blob 即本值）；本树 r05 首版误绑 `8eac7007…`（旧 HEAD `22a8dcbe` 的 blob）并误称『w5 有未提交改动』——该判断在其提交后已过期，属已修缺陷。",
+    "worktree_disk_sha256_annotation": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+    "replaces": {
+      "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
+      "basis": "git_blob_content",
+      "reason": "修 r02 前修订（w5 旧 HEAD `22a8dcbe` 的 blob）"
+    },
+    "active_tree_note": "w5 为活动工作树：本绑定只声明『阶段4 消费的固定修订』；其未提交或后续提交都不改变本绑定，须由阶段4 显式重绑并登记取代关系。"
+  },
+  "binding_bytes_after_run": "{\"stale_age_limit_ns\": 200000000, \"display_semantics\": {\"value\": \"incorrect_semantics\"}}\n",
+  "binding_read_error_after_run": null,
+  "disk_bytes_after_run": "{\"stale_age_limit_ns\": 200000000, \"display_semantics\": {\"value\": \"B_latest_result_overlay\"}}\n",
+  "checker_exit_code": 1,
+  "checker_result": {
+    "task_id": "S4-CTRL/S4B-contract",
+    "checker": "verify_shared_io_contract",
+    "checker_version": "r07",
+    "status": "FAIL",
+    "generated_at_utc8": "2026-10-24T10:46:59+08:00",
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe D:\\codex-worktrees\\w4\\scripts\\stage4_s4ctrl\\verify_shared_io_contract.py --evidence-dir D:\\tmp\\s4_binding_i_hmhtmn\\result",
+    "exit_code": 1,
+    "cwd": "D:\\FPGA_Competition",
+    "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "artifact_sha256": {
+      "contract_json": "3e9f02ee0b7ec83696fda8ab7e3544fdeb855a25f196d7476f0a179fd47575e1",
+      "contract_md": "66e19ccfdc39d585a214679e63ac67d4ce3768f7e394da361fcbb69bb82cdc88",
+      "address_map": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e",
+      "s4a_md_mirror": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+      "injection_runbook": "8280e1efbc3b5f8a823adb23783212d9464101f8528e70765b926a11dfab94aa",
+      "checker_script": "35bdf9c3c4cf2cc795e758bea2b1933a93d0fe4c035b76bb41370dd6552384fe"
+    },
+    "passes": [
+      "运行书摘要/缓存说明/板上模板的输入与 heads 输出维护顺序一致",
+      "运行书 PL done/输出 invalidate 反序变异 1/1 被拒绝",
+      "契约 JSON 可解析且必需顶层键齐全",
+      "upstream_bindings 现场复算一致（15/15 项）",
+      "cdx_015 r02→r03 绑定取代关系已登记",
+      "绑定字节口径声明齐全（默认磁盘字节；blob 口径 3 项）+ 2/2 负向对照被拒绝",
+      "r03 session/source/time/key/cache 语义与 S4-A、地址图一致",
+      "S4-A 人读镜像 SHA 与当前 r06 文件一致",
+      "r03 检查器变异反例 5/5 均被拒绝",
+      "输入帧契约字段齐全（17 项）",
+      "capture_time 语义与 S4-A 一致（0 哨兵 + 注解；注入起点不得冒充）",
+      "measurement_scope 键集合与 S4-A 一致（8 个）",
+      "pl_timing/uart_transport/board_pl 取值域与 S4-A 一致（无自造枚举）",
+      "source_kind 取值域声明与 S4-A 一致（含跨命名映射）",
+      "事件顺序 8 步齐全且次序正确",
+      "帧序列规则含重复/回退/乱序处理（N5）",
+      "人读契约覆盖全部输入字段名",
+      "结果字段 16 项与检测字段 6 项与 S4-A 逐一相同",
+      "显示关联五元组齐全（5 项）",
+      "hud_field_sources 键集合恰等于 13 个 HUD 字段",
+      "PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)",
+      "stale 已批准态：批准记录绑定 + 200000000 ns 与阶段5 同源 + 4/4 负向对照被拒绝",
+      "真实彩色改绑齐全（标签/部署绑定/三层语义/几何/采集时钟/源帧哈希）+ 4/4 负向对照被拒绝",
+      "三种范围均有 allowed 与 forbidden",
+      "消费边界声明阶段5 只读 + 版本化 + 变更流程"
+    ],
+    "failures": [
+      "display_semantics 取值与阶段5 G0 不一致：契约 ['B_latest_result_overlay'] vs w5 incorrect_semantics"
+    ],
+    "details": {
+      "runbook_cache_order_errors": [],
+      "runbook_negative_controls": {
+        "output_invalidate_before_pl_done": {
+          "mutated": true,
+          "detected": true,
+          "errors": [
+            "运行书板上模板的 done/invalidate/读 heads/停止确认/释放顺序错误"
+          ]
+        }
+      },
+      "upstream_binding_checks": {
+        "checked": 15,
+        "total": 15,
+        "bad": []
+      },
+      "binding_byte_basis_fixed_revision": {
+        "entries": [
+          "stage5_display_g0_fields"
+        ],
+        "fixed_revision": "2826570566e80b74f671f97b56df447a34fabd55",
+        "head_content_differs_from_pinned": true
+      },
+      "binding_byte_basis": {
+        "blob_entries": [
+          "stage3_colour_reverify_hashes",
+          "stage3_colour_reverify_readme",
+          "stage3_window_address_facts"
+        ],
+        "negative_controls": {
+          "wrong_sha_under_blob_basis": true,
+          "unknown_byte_basis": true,
+          "fixed_revision_binds_pinned": true,
+          "fixed_revision_missing_revision": true,
+          "fixed_revision_rejects_head_content": true
+        }
+      },
+      "r03_negative_controls": {
+        "session_id_type": true,
+        "extra_source_mapping": true,
+        "synthetic_capture_truth": true,
+        "invalidate_after_read": true,
+        "address_map_frozen": true
+      },
+      "input_field_count": 17,
+      "source_kind_map_entries": [
+        "camera",
+        "file_injection",
+        "synthetic"
+      ],
+      "md_uncovered_input_fields": [],
+      "stage5_display_semantics_value": "incorrect_semantics",
+      "stage5_stale_age_limit_ns": 200000000,
+      "stale_negative_controls": {
+        "reverted_to_draft_status": true,
+        "wrong_limit_value": true,
+        "forged_receipt_sha256": true,
+        "missing_approval_reference": true
+      },
+      "colour_profile_negative_controls": {
+        "replay_claimed_as_live": true,
+        "wrong_ddr_byte_order": true,
+        "fabricated_capture_clock": true,
+        "forged_elf_binding": true
+      }
+    }
+  },
+  "scope": "系统临时目录独立两提交仓；未执行系统HEAD门禁；保留其他真实契约检查"
+}

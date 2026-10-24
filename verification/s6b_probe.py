@@ -22,6 +22,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 
 def run_driver(driver: Path, root: Path, run_dir: Path, cases: Path,
@@ -34,6 +35,56 @@ def run_driver(driver: Path, root: Path, run_dir: Path, cases: Path,
     ] + (extra or [])
     return subprocess.run(command, cwd=str(root), capture_output=True, text=True,
                           encoding="utf-8", errors="replace", check=False)
+
+
+def validate_baseline(case_matrix: Any, run_report: Any, driver_exit: int) -> dict[str, Any]:
+    """依据用例矩阵和实际运行报告核验基线数量及通过状态。"""
+    matrix_cases = case_matrix.get("cases") if isinstance(case_matrix, dict) else None
+    report_cases = run_report.get("cases") if isinstance(run_report, dict) else None
+    if not isinstance(matrix_cases, list) or not isinstance(report_cases, list):
+        return {
+            "passed": False,
+            "expected_case_count": len(matrix_cases) if isinstance(matrix_cases, list) else None,
+            "actual_case_count": len(report_cases) if isinstance(report_cases, list) else None,
+            "reason": "用例矩阵或运行报告缺少 cases 列表",
+        }
+
+    expected_ids = [item.get("case_id") for item in matrix_cases if isinstance(item, dict)]
+    actual_ids = [item.get("case_id") for item in report_cases if isinstance(item, dict)]
+    failed_case_ids = []
+    for index, item in enumerate(report_cases):
+        if not isinstance(item, dict) or item.get("status") != "PASS":
+            failed_case_ids.append(
+                item.get("case_id", f"index-{index}") if isinstance(item, dict) else f"index-{index}"
+            )
+    expected_count = len(matrix_cases)
+    actual_count = len(report_cases)
+    reported_count = run_report.get("case_count")
+    reasons: list[str] = []
+    if any(not isinstance(case_id, str) or not case_id for case_id in expected_ids):
+        reasons.append("用例矩阵包含无效 case_id")
+    if len(expected_ids) != expected_count:
+        reasons.append("用例矩阵包含无效用例项")
+    if actual_count != expected_count:
+        reasons.append(f"实际用例数 {actual_count} 与矩阵数 {expected_count} 不一致")
+    if type(reported_count) is not int or reported_count != actual_count:
+        reasons.append(f"报告 case_count={reported_count!r} 与实际报告行数 {actual_count} 不一致")
+    if actual_ids != expected_ids:
+        reasons.append("运行报告 case_id 与矩阵不一致")
+    if run_report.get("status") != "PASS":
+        reasons.append(f"运行报告状态为 {run_report.get('status')!r}")
+    if failed_case_ids:
+        reasons.append(f"未通过用例：{failed_case_ids}")
+    if driver_exit != 0:
+        reasons.append(f"驱动退出码为 {driver_exit}")
+    return {
+        "passed": not reasons,
+        "expected_case_count": expected_count,
+        "actual_case_count": actual_count,
+        "reported_case_count": reported_count,
+        "failed_case_ids": failed_case_ids,
+        "reason": "基线用例数量与状态均符合预期" if not reasons else "; ".join(reasons),
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -57,24 +108,46 @@ def main(argv: list[str] | None = None) -> int:
     work.mkdir(parents=True, exist_ok=True)
     results: list[dict] = []
 
-    def record(probe_id: str, expect_exit: int, note: str, completed: subprocess.CompletedProcess) -> bool:
-        ok = completed.returncode == expect_exit
+    def record(probe_id: str, expect_exit: int, note: str, completed: subprocess.CompletedProcess,
+               validation: dict[str, Any] | None = None) -> bool:
+        ok = completed.returncode == expect_exit and (validation is None or validation["passed"])
         (run_dir / f"probe_{probe_id}_stdout.txt").write_text(completed.stdout, encoding="utf-8")
-        results.append({
+        result = {
             "probe_id": probe_id,
             "note": note,
             "expected_exit": expect_exit,
             "actual_exit": completed.returncode,
             "stdout_tail": completed.stdout.strip().splitlines()[-1] if completed.stdout.strip() else "",
             "verdict": "AS_EXPECTED" if ok else "UNEXPECTED",
-        })
+        }
+        if validation is not None:
+            result["validation"] = validation
+        results.append(result)
         return ok
 
     ok_all = True
 
     # P1 基线：在 evidence 目录内直接跑（不改动任何东西）
     completed = run_driver(driver, root, run_dir, cases_src)
-    ok_all &= record("baseline", 0, "未改动：23 例全部通过", completed)
+    try:
+        baseline_report = json.loads((run_dir / "run_report.json").read_text(encoding="utf-8"))
+        baseline_matrix = json.loads(cases_src.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        baseline_report = None
+        baseline_matrix = None
+        baseline_report_error = f"无法读取基线用例矩阵或运行报告：{exc}"
+    else:
+        baseline_report_error = ""
+    baseline_check = validate_baseline(
+        baseline_matrix, baseline_report, completed.returncode
+    )
+    if baseline_report_error:
+        baseline_check["passed"] = False
+        baseline_check["reason"] = baseline_report_error
+    expected_count = baseline_check["expected_case_count"]
+    actual_count = baseline_check["actual_case_count"]
+    baseline_note = f"基线：矩阵 {expected_count} 例，报告 {actual_count} 例；{baseline_check['reason']}"
+    ok_all &= record("baseline", 0, baseline_note, completed, baseline_check)
 
     # P2 冻结后篡改 expected → 拒绝运行
     probe2 = work / "expected_tampered"

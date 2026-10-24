@@ -109,7 +109,8 @@ def format_inputs_summary_row(inputs_check: dict | None) -> str:
     exit_code = inputs_check.get("exit_code")
     if not isinstance(command, str) or not command or type(exit_code) is not int:
         raise ValueError("inputs-mode 摘要必须包含命令和整数退出码")
-    return f"| 交付检查 inputs | `{command}` | 实测 {exit_code} |"
+    status = inputs_check.get("status") or ("PASS" if exit_code == 0 else "FAIL")
+    return f"| 交付检查 inputs | `{command}` | 实测 {exit_code} ({status}) |"
 
 
 def update_inputs_summary_row(summary_text: str, inputs_check: dict) -> str:
@@ -141,7 +142,8 @@ def format_evidence_summary_rows(first_precheck: dict | None,
         exit_code = result.get("exit_code")
         if not isinstance(command, str) or not command or type(exit_code) is not int:
             raise ValueError(f"{label} 必须包含命令和整数退出码")
-        return f"| 交付检查 evidence {label} | `{command}` | 实测 {exit_code} |"
+        status = "PASS" if exit_code == 0 else "FAIL"
+        return f"| 交付检查 evidence {label} | `{command}` | 实测 {exit_code} ({status}) |"
 
     return (
         format_row("首次预检（fixpoint iteration 0）", first_precheck),
@@ -482,6 +484,43 @@ def main(argv: list[str] | None = None) -> int:
     _guard_check("inputs-mode")
     print(f"[inputs-mode] exit={inputs_run['exit_code']}")
     if inputs_run["exit_code"] != 0:
+        evidence_out.write_text(
+            "NOT_RUN：inputs-mode 检查失败，未运行 evidence-mode 检查。\n",
+            encoding="utf-8",
+        )
+        summary = _summary_path.read_text(encoding="utf-8")
+        _summary_path.write_text(
+            summary + f"\n构建状态：FAIL（inputs-mode 退出码 {inputs_run['exit_code']}）。\n",
+            encoding="utf-8",
+        )
+        failure_checks = [
+            {"name": "S6-B 冻结预期", "status": "PASS" if freeze_run["exit_code"] == 0 else "FAIL",
+             "command": freeze_run["command_text"], "exit_code": freeze_run["exit_code"]},
+            {"name": "S6-B 确定性用例", "status": "PASS" if run_result["exit_code"] == 0 else "FAIL",
+             "command": run_result["command_text"], "exit_code": run_result["exit_code"]},
+            {"name": "S6-B 判别力探针", "status": "PASS" if probe_result["exit_code"] == 0 else "FAIL",
+             "command": probe_result["command_text"], "exit_code": probe_result["exit_code"]},
+            inputs_check,
+            {"name": "check_stage_delivery.py --mode evidence", "status": "NOT_RUN",
+             "command": None, "exit_code": None,
+             "reason": "inputs-mode 检查失败；未运行 evidence-mode 检查"},
+        ]
+        write_hashes()
+        write_json(manifest_path, {
+            "schema_version": 1, "stage": "6", "task_id": "S6-B", "run_id": run_dir.name,
+            "source_commit": source_commit, "evidence_dir": f"report/evidence/S6-B/{run_dir.name}",
+            "interfaces": [],
+            "interfaces_not_applicable_reason": interface_reason(pack.data.get("artifact_version")),
+            "files": file_entries(include_sources=False) + [
+                {"path": source, "sha256": hash_normalized(root / source), "role": "source",
+                 "keep_reason": "S6-B 实现/契约/状态绑定"} for source in SOURCES if (root / source).is_file()
+            ],
+            "checks": failure_checks, "tool_versions": tool_versions,
+            "limitations": [
+                "inputs-mode 检查失败；构建器保留了实际命令、退出码与标准输出，未运行 evidence-mode。",
+                "本失败记录不代表 S6-B 或阶段6验收通过。",
+            ],
+        })
         print(inputs_run["stdout"]); print(inputs_run["stderr"]); return 1
 
     selfproof_path = run_dir.parent / f"{run_dir.name}_selfproof" / "export_selfproof.json"  # N-r07-2：自证报告在兄弟目录，可在提交后补入交付提交主体
@@ -583,6 +622,15 @@ def main(argv: list[str] | None = None) -> int:
                                "--manifest", str(manifest_path), "--project-root", str(root)], root)
         checks[-1] = evidence_check_manifest_entry(_verify)
         if _verify["exit_code"] != 0:
+            write_check_output(evidence_out, _verify)
+            _summary_path = run_dir / "s6b_run_summary.md"
+            _summary = _summary_path.read_text(encoding="utf-8")
+            _summary_path.write_text(
+                update_evidence_summary_rows(_summary, first_evidence_precheck, checks[-1])
+                + f"\n构建状态：FAIL（最终 evidence 检查退出码 {_verify['exit_code']}）。\n",
+                encoding="utf-8")
+            write_hashes()
+            write_manifest()
             print("[FIXPOINT-B] 验证自检失败"); print(_verify["stdout"]); return 1
         _verify_out.parent.mkdir(parents=True, exist_ok=True)
         _verify_out.write_text(_verify["stdout"], encoding="utf-8")
@@ -612,6 +660,16 @@ def main(argv: list[str] | None = None) -> int:
     _closing = run_command([sys.executable, "-B", str(checker), "--mode", "evidence",
                             "--manifest", str(manifest_path), "--project-root", str(root)], root)
     if _closing["exit_code"] != 0:
+        checks[-1] = evidence_check_manifest_entry(_closing)
+        write_check_output(evidence_out, _closing)
+        _summary_path = run_dir / "s6b_run_summary.md"
+        _summary = _summary_path.read_text(encoding="utf-8")
+        _summary_path.write_text(
+            update_evidence_summary_rows(_summary, first_evidence_precheck, checks[-1])
+            + f"\n构建状态：FAIL（closing evidence 检查退出码 {_closing['exit_code']}）。\n",
+            encoding="utf-8")
+        write_hashes()
+        write_manifest()
         print("[CLOSING] run-dir 出现未声明文件或哈希不符，构建中止")
         print(_closing["stdout"]); return 1
     print("[CLOSING] run-dir 无未声明文件、清单一致")

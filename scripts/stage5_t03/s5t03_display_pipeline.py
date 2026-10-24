@@ -373,7 +373,11 @@ class DisplayPipeline:
         self.accepted_keys.add(key)
         self.last_result_seq[session] = max(seq, self.last_result_seq.get(session, seq))
         self.last_frame_id[session] = max(frame_id, self.last_frame_id.get(session, frame_id))
-        self.accepted_frame_repeats[frame_key] = int(record.get("repeat_index", 1) or 1)
+        # 显式声明可接受较小编号，但不能降低该帧的历史最大值。
+        repeat_index = int(record.get("repeat_index", 1) or 1)
+        self.accepted_frame_repeats[frame_key] = max(
+            repeat_index, accepted_repeat if accepted_repeat is not None else repeat_index
+        )
         self.latest = dict(record)
         self.log.append(event)
         return {"outcome": "accepted", "verdict": VERDICT_PASS, "key": key, "problems": []}

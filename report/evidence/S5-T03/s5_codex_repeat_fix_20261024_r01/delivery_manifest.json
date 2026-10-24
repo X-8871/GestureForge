@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-T03",
+  "run_id": "s5_codex_repeat_fix_20261024_r01",
+  "source_commit": "93493f814a8198971ad96d910388409b5461806d",
+  "evidence_dir": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本轮为已绑定r04快照下重复帧历史最大值的局部算法修复与单元回归，不新增或冻结跨阶段接口；不认证r05集成。",
+  "files": [
+    {
+      "path": "scripts/stage5_t03/s5t03_display_pipeline.py",
+      "role": "source",
+      "sha256": "d0a1a6be4f41cef409fbf6c5860fcfd4e04350c5d9d8840c6947d07147dc203a"
+    },
+    {
+      "path": "scripts/stage5_t03/test_s5t03_skeleton.py",
+      "role": "source",
+      "sha256": "88c7e40e747d821774ac20d4efb3f50696e7425209e8d3974a72c407cc990e48"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "role": "source",
+      "sha256": "f05ee53a8a66fec5c4333ef3203b09b14f81733a7a5d30e462f008a0250bef21"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/baseline_counterexample.json",
+      "role": "result",
+      "sha256": "19460345729e6974a14901b59be2fcc58dade5192e458c0943805831c7c71ec4"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/baseline_counterexample.txt",
+      "role": "log",
+      "sha256": "55c9de0f1dfd048bc551195c15f167dda5b8b04c1e715dc4703a481254c997f5"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/test_result.json",
+      "role": "result",
+      "sha256": "01f476e83721a0005c2946c32c9fb0be129446b956bdf25b0fbec0aaf70e1ea1"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/unittest.log",
+      "role": "log",
+      "sha256": "5479302d959cd76d17dfa3029dad73f5aa645b2ff17809a9a28894b2addac21d"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/delivery_manifest_failed_r01.json",
+      "role": "artifact",
+      "sha256": "066609ba57bd64f06cb7cf1e6d834582871832ef260a2955942b518d50ee489c"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/packaging_failure_r01.json",
+      "role": "artifact",
+      "sha256": "3b7546dc5afbacbc1f5b07517a7c85fa77e042057205882c3ebdd14df634cf85"
+    }
+  ],
+  "checks": [
+    {
+      "name": "完整离线骨架35项",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B scripts/stage5_t03/test_s5t03_skeleton.py -v",
+      "exit_code": 0,
+      "reason": "35项通过，含新增最大值回退序列；原始日志保留。"
+    },
+    {
+      "name": "原固定blob反例判别力",
+      "status": "PASS",
+      "command": "python -B: git show 93493f8:scripts/stage5_t03/s5t03_display_pipeline.py → 内存加载 → 新增多步回归",
+      "exit_code": 0,
+      "reason": "编排exit0，内部原版测试真实exit1且1failure/0error；失败原文单独保留。"
+    },
+    {
+      "name": "硬件与camera/replay集成",
+      "status": "NOT_RUN",
+      "command": "未执行",
+      "exit_code": null,
+      "reason": "局部离线修复；task27尚未实现，B1-B10未执行。"
+    }
+  ],
+  "limitations": [
+    "修复待独立复审，不能提升G0/G3/G4/G5。",
+    "原r03清单对当前源码已失效，原证据不改写。",
+    "长跑使用虚拟时间，非板级30分钟耐久。",
+    "首轮驱动打印GBK失败exit1发生在真实回归exit0和报告写完之后；未覆盖或重跑原日志。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "git": "git version 2.56.0.windows.2"
+  }
+}

@@ -476,6 +476,30 @@ class T03_FrameAssociation(unittest.TestCase):
         self.assertEqual(outcome2["outcome"], "accepted")
         self.assertEqual(pipeline.log.submit_events()[-1]["declared_repeat_basis"], "repeat_index_incremented")
 
+    def test_declared_lower_repeat_preserves_historical_maximum(self):
+        """较小显式重放不得使后续未声明编号绕过历史最大值。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        for seq, index, declared in ((1, 1, False), (2, 5, False), (3, 1, True)):
+            record = self._record(8, 30, seq, repeat_index=index, declared=declared)
+            self.assertEqual(R.validate_result_record(record), [])
+            self.assertEqual(pipeline.submit_result(record)["outcome"], "accepted")
+        before = pipeline.commit_frame(30, 1_010_000_000)["event"]
+        accepted_before = set(pipeline.accepted_keys)
+        latest_before = dict(pipeline.latest)
+        outcome = pipeline.submit_result(self._record(8, 30, 4, repeat_index=2))
+        self.assertEqual(outcome["outcome"], "duplicate_frame_id")
+        self.assertEqual(outcome["verdict"], "FAIL")
+        self.assertIn("equivalent_frame_id_not_declared", outcome["reject_reason"])
+        self.assertEqual(pipeline.accepted_frame_repeats[(8, 30)], 5)
+        self.assertEqual(pipeline.accepted_keys, accepted_before)
+        self.assertEqual(pipeline.latest, latest_before)
+        after = pipeline.commit_frame(31, 1_020_000_000)["event"]
+        self.assertEqual(before["box_px"], after["box_px"])
+        self.assertEqual(pipeline.counters["duplicate_frame_id_results"], 1)
+        self.assertEqual(pipeline.submit_result(
+            self._record(8, 30, 5, repeat_index=6))["outcome"], "accepted")
+        self.assertEqual(pipeline.accepted_frame_repeats[(8, 30)], 6)
+
     def test_nb1_discriminating_power_legacy_accept_would_fail(self):
         """判别力对照：复刻 r02 语义（无等价 frame_id 记忆）时该判据会变红。"""
         class _NoRepeatMemory(dict):

@@ -5,16 +5,16 @@
 
 检查项：
 * L1 身份/状态齐全，`status` 必须为 `TEMPLATE_ONLY_NOT_RUN`
-* L2 `rule.t6_a03_value` 必须为 `NOT_RUN`
-* L3 `placeholders` 内凡以 `_ns` 结尾的字段必须为 `null`；`value_status` 必须为 `NOT_RUN`
+* L2 `rule.t6_a03_value` 与批准副本必须为 `NOT_RUN`，副本状态须与行为表一致
+* L3 递归检查所有测量 `_ns` 字段必须为 `null`；仅放行已批准的固定 T6-A01 上限
 * L4 `acceptance_gate.t6_a03_limit_ms` 必须为 `null`（数值未获批）
 * L5 行为表 `T6-A03` 的 `draft_value` 必须为 `null` 且其 `value_status` 含 `NOT_RUN`（与批准记录一致）
 * L6 方法学文档存在，且含关键定义与「回放不构成实时证据」与「board_monotonic」等必备声明
 * L7 行为表 `T6-STALE_LIMIT.draft_value` 必须为 200（跨阶段同源常量）
 
-`--inject-self-test`：在临时副本内注入 5 类必失败缺陷（填 `latency_interaction_p95_ns`、把
-`t6_a03_value` 写成数值、填 `t6_a03_limit_ms`、把 `value_status` 改成已测量、从文档删除「回放不构成实时证据」），
-要求**每条都必须被判失败**；基线必须 PASS。
+`--inject-self-test`：在临时副本内注入 7 类必失败缺陷（填 `latency_interaction_p95_ns`、把
+`t6_a03_value` 写成数值、填 `t6_a03_limit_ms`、把 `value_status` 改成已测量、从文档删除「回放不构成实时证据」，
+另含批准副本已填写、嵌套试验已填写）；要求**每条都必须被判失败**；基线必须 PASS。
 退出码：0 = 全部 PASS（且注入全被捕获）；1 = 存在失败。
 """
 
@@ -40,6 +40,26 @@ DOC_NEEDLES = (
 )
 
 
+def filled_ns_fields(value, path: tuple = ()) -> dict:
+    """遍历字典和列表，固定批准参数仅按精确路径和值放行。"""
+    filled = {}
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = path + (key,)
+            if key.endswith("_ns") and child is not None:
+                if not (child_path == ("acceptance_gate", "t6_a01_limit_ns")
+                        and type(child) is int and child == 1000000000):
+                    label = "".join(f"[{part}]" if isinstance(part, int)
+                                    else ("." if index else "") + part
+                                    for index, part in enumerate(child_path))
+                    filled[label] = child
+            filled.update(filled_ns_fields(child, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            filled.update(filled_ns_fields(child, path + (index,)))
+    return filled
+
+
 def evaluate(root: Path) -> list[str]:
     errors: list[str] = []
     tpath = root / TEMPLATE
@@ -61,11 +81,18 @@ def evaluate(root: Path) -> list[str]:
         errors.append(f"L2: rule.t6_a03_value 必须为 NOT_RUN（实际 {rule.get('t6_a03_value')!r}）")
     if rule.get("replay_is_not_realtime_evidence") is not True:
         errors.append("L2: 必须声明 replay_is_not_realtime_evidence=true")
+    a03_binding = data.get("approval_binding", {}).get("t6_a03")
+    if not isinstance(a03_binding, dict):
+        errors.append("L2: approval_binding.t6_a03 必须为批准副本对象")
+    else:
+        if a03_binding.get("value") != "NOT_RUN":
+            errors.append("L2: approval_binding.t6_a03.value 必须为 NOT_RUN")
+        if a03_binding.get("value_status") != behavior.get("T6-A03", {}).get("value_status"):
+            errors.append("L2: approval_binding.t6_a03.value_status 必须与行为表一致")
 
     # L3
     placeholders = data.get("placeholders", {})
-    filled = {k: v for k, v in placeholders.items()
-              if k.endswith("_ns") and v is not None}
+    filled = filled_ns_fields(data)
     if filled:
         errors.append(f"L3: 存在已填写的 *_ns 占位（禁止填造）：{filled}")
     if placeholders.get("value_status") != "NOT_RUN":
@@ -113,6 +140,8 @@ INJECTIONS = (
     ("J3-filled-a03-limit", lambda d: d["acceptance_gate"].__setitem__("t6_a03_limit_ms", 500)),
     ("J4-value-status-measured", lambda d: d["placeholders"].__setitem__("value_status", "MEASURED")),
     ("J5-doc-missing-replay-limit", lambda d: None),  # 文档类注入在下方单独处理
+    ("J6-approval-copy-measured", lambda d: d["approval_binding"]["t6_a03"].update(value=250, value_status="MEASURED")),
+    ("J7-nested-trial-measured", lambda d: d["placeholders"].__setitem__("trials", [{"t_effective_ns": 999, "latency_interaction_ns": 123}])),
 )
 
 

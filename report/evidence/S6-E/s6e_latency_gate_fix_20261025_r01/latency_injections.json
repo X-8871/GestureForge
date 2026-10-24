@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "artifact": "s6e_latency_template_check",
+  "run_id": "s6e_boardfree_20261024_r01",
+  "checks": "L1..L7（状态/禁填造占位/上限未获批/行为表 T6-A03 与 stale 一致/方法学文档必备声明）",
+  "baseline": {
+    "verdict": "ALL_PASS",
+    "errors": []
+  },
+  "verdict": "AS_EXPECTED",
+  "injections": [
+    {
+      "id": "J1-filled-latency-ns",
+      "caught": true,
+      "errors": [
+        "L3: 存在已填写的 *_ns 占位（禁止填造）：{'placeholders.latency_interaction_p95_ns': 180000000}"
+      ]
+    },
+    {
+      "id": "J2-t6-a03-numeric-value",
+      "caught": true,
+      "errors": [
+        "L2: rule.t6_a03_value 必须为 NOT_RUN（实际 '200ms'）"
+      ]
+    },
+    {
+      "id": "J3-filled-a03-limit",
+      "caught": true,
+      "errors": [
+        "L4: acceptance_gate.t6_a03_limit_ms 必须为 null（实际 500）"
+      ]
+    },
+    {
+      "id": "J4-value-status-measured",
+      "caught": true,
+      "errors": [
+        "L3: placeholders.value_status 必须为 NOT_RUN（实际 'MEASURED'）"
+      ]
+    },
+    {
+      "id": "J5-doc-missing-replay-limit",
+      "caught": true,
+      "errors": [
+        "L6: 方法学文档缺少必备声明 ['回放不构成实时证据']"
+      ]
+    },
+    {
+      "id": "J6-approval-copy-measured",
+      "caught": true,
+      "errors": [
+        "L2: approval_binding.t6_a03.value 必须为 NOT_RUN",
+        "L2: approval_binding.t6_a03.value_status 必须与行为表一致"
+      ]
+    },
+    {
+      "id": "J7-nested-trial-measured",
+      "caught": true,
+      "errors": [
+        "L3: 存在已填写的 *_ns 占位（禁止填造）：{'placeholders.trials[0].t_effective_ns': 999, 'placeholders.trials[0].latency_interaction_ns': 123}"
+      ]
+    }
+  ],
+  "self_test": {
+    "verdict": "AS_EXPECTED",
+    "all_injections_caught": true
+  }
+}

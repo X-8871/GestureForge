@@ -12,6 +12,7 @@ from unittest import mock
 
 from s6e_acceptance_check import BEHAVIOR, CASES, DOC, REAL_CASE_CLASSES, evaluate
 import tool_self_tests
+import s6e_latency_template_check as latency_check
 from tool_self_tests import (
     _normalize_run_rel,
     _normalize_s6a_run_rel,
@@ -174,6 +175,77 @@ class GateRegression(unittest.TestCase):
             data = copy.deepcopy(good)
             mutate(data)
             self.assertFalse(claim_normal_ok(0, data))
+
+
+class LatencyTemplateRegression(unittest.TestCase):
+    """延迟模板必须保留未测状态，并递归拦截测量数据。"""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        source = Path(__file__).resolve().parents[1]
+        for relative in (latency_check.TEMPLATE, latency_check.METHOD, latency_check.BEHAVIOR):
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source / relative, target)
+        self.baseline = json.loads((self.root / latency_check.TEMPLATE).read_text(encoding="utf-8"))
+
+    def save(self, data):
+        (self.root / latency_check.TEMPLATE).write_text(
+            json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+    def test_baseline_preserves_approved_constant(self):
+        self.assertEqual(self.baseline["acceptance_gate"]["t6_a01_limit_ns"], 1000000000)
+        self.assertEqual(latency_check.evaluate(self.root), [])
+
+    def test_approval_copy_rejects_review_counterexample_and_independent_edits(self):
+        for edits in ({"value": 250, "value_status": "MEASURED"},
+                      {"value": 250}, {"value_status": "MEASURED"},
+                      {"value_status": "NOT_RUN but MEASURED"}):
+            with self.subTest(edits=edits):
+                data = copy.deepcopy(self.baseline)
+                data["approval_binding"]["t6_a03"].update(edits)
+                self.save(data)
+                self.assertTrue(any(e.startswith("L2:") for e in latency_check.evaluate(self.root)))
+        for replacement in (None, {}, "NOT_RUN"):
+            with self.subTest(replacement=replacement):
+                data = copy.deepcopy(self.baseline)
+                data["approval_binding"]["t6_a03"] = replacement
+                self.save(data)
+                self.assertTrue(any(e.startswith("L2:") for e in latency_check.evaluate(self.root)))
+
+    def test_nested_trial_rejects_review_counterexample(self):
+        data = copy.deepcopy(self.baseline)
+        data["placeholders"]["trials"] = [{"t_effective_ns": 999, "latency_interaction_ns": 123}]
+        self.save(data)
+        errors = latency_check.evaluate(self.root)
+        self.assertTrue(any("placeholders.trials[0].t_effective_ns" in e for e in errors))
+        self.assertTrue(any("placeholders.trials[0].latency_interaction_ns" in e for e in errors))
+
+    def test_nested_results_reject_all_non_null_values(self):
+        for section in ("placeholders", "evidence_results"):
+            for value in (0, 999, False, "999", {}, [], {"t_effective_ns": None}):
+                with self.subTest(section=section, value=value):
+                    data = copy.deepcopy(self.baseline)
+                    data.setdefault(section, {})["trials"] = [[{"result": {"t_effective_ns": value}}]]
+                    self.save(data)
+                    self.assertTrue(any(e.startswith("L3:") for e in latency_check.evaluate(self.root)))
+        data = copy.deepcopy(self.baseline)
+        data["placeholders"]["trials"] = [[{"result": {"t_effective_ns": None}}]]
+        self.save(data)
+        self.assertEqual(latency_check.evaluate(self.root), [])
+
+    def test_constant_exception_does_not_allow_other_paths_or_values(self):
+        for mutate in (
+            lambda d: d["acceptance_gate"].__setitem__("t6_a01_limit_ns", 999),
+            lambda d: d["placeholders"].__setitem__("t6_a01_limit_ns", 1000000000),
+            lambda d: d.__setitem__("acceptance_gate.t6_a01_limit_ns", 1000000000),
+        ):
+            data = copy.deepcopy(self.baseline)
+            mutate(data)
+            self.save(data)
+            self.assertTrue(any(e.startswith("L3:") for e in latency_check.evaluate(self.root)))
 
 
 class SnapshotFixturePathRegression(unittest.TestCase):

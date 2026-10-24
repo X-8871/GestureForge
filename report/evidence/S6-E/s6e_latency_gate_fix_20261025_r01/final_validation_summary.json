@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "run_id": "s6e_latency_gate_fix_20261025_r01",
+  "task_id": "R6-02",
+  "base_commit": "c80fe7e714c83f1c73e08fcb8c23072e9225c4d7",
+  "run_time_utc8": "2026-10-25T05:29:04.721436+08:00",
+  "tool_version": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "source_sha256": {
+    "verification/s6e_latency_template_check.py": "5a400a77dd2f756745ff4ec039b2a7f2d1f5bc3969529b8989f4a5d9c0f10350",
+    "verification/test_s6_gate_regression.py": "83fe3b598a6355f03a73950e4eb28345345a5ee375cacd0b596a2c8e20f0b898"
+  },
+  "inputs_sha256": {
+    "docs/stage6/s6e_latency_measurement_template_v1.json": "6a33d501dd5d318cef8724a935df6bedf432620677475b40e40ae1e5d7c0304d",
+    "docs/stage6/S6E_latency_methodology_v1.md": "c3376d637f0acc3f52a7885b70691e261a92a7e3e5a74e461cf46d578848805b",
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json": "334504e207333b4adba08f9b05deb8170c44e25b428137cb972141da8e6de015"
+  },
+  "inputs_unchanged": true,
+  "interface_versions": [
+    "S6E-LAT-v1",
+    "S6A-G0-v1.8"
+  ],
+  "commands": [
+    {
+      "id": "latency_focused",
+      "argv": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "test_s6_gate_regression.LatencyTemplateRegression",
+        "-v"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6\\verification",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.328,
+      "log": "final_latency_focused.log"
+    },
+    {
+      "id": "s6_gate_regression",
+      "argv": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "test_s6_gate_regression",
+        "-v"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6\\verification",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 4.328,
+      "log": "final_s6_gate_regression.log"
+    },
+    {
+      "id": "latency_baseline",
+      "argv": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "verification/s6e_latency_template_check.py",
+        "--project-root",
+        "D:\\codex-worktrees\\w6",
+        "--out",
+        "D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_latency_gate_fix_20261025_r01\\final_latency_baseline.json"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.078,
+      "log": "final_latency_baseline.log"
+    },
+    {
+      "id": "latency_injections",
+      "argv": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "verification/s6e_latency_template_check.py",
+        "--project-root",
+        "D:\\codex-worktrees\\w6",
+        "--out",
+        "D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_latency_gate_fix_20261025_r01\\final_latency_injections.json",
+        "--inject-self-test"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.125,
+      "log": "final_latency_injections.log"
+    },
+    {
+      "id": "approval_copy",
+      "argv": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\w6\\verification\\s6e_latency_template_check.py",
+        "--project-root",
+        "D:\\tmp\\tmp30cn8efn",
+        "--out",
+        "D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_latency_gate_fix_20261025_r01\\final_approval_copy_result.json"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.078,
+      "log": "final_approval_copy.log"
+    },
+    {
+      "id": "nested_trials",
+      "argv": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\w6\\verification\\s6e_latency_template_check.py",
+        "--project-root",
+        "D:\\tmp\\tmpk4g7u_qu",
+        "--out",
+        "D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_latency_gate_fix_20261025_r01\\final_nested_trials_result.json"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.078,
+      "log": "final_nested_trials.log"
+    },
+    {
+      "id": "diff_check",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.031,
+      "log": "final_diff_check.log"
+    }
+  ],
+  "result": "DEVELOPER_TARGETED_PASS_PENDING_INDEPENDENT_REVIEW",
+  "review_blocker": "P2 remains open until independent re-review passes",
+  "not_claimed": [
+    "G0",
+    "G3",
+    "G4",
+    "G5"
+  ],
+  "limitations": [
+    "No Vivado or hardware operation",
+    "No stage acceptance or measurement result",
+    "Full tool_self_tests suite not rerun; focused and complete s6_gate_regression only",
+    "Peak memory and tool-call count not measured"
+  ],
+  "run_counts": {
+    "focused_unittest": 3,
+    "s6_gate_regression": 2,
+    "baseline_cli": 2,
+    "injection_cli": 2,
+    "review_counterexample_cli": 4
+  },
+  "environment_notes": [
+    "Git Bash failed with E_ACCESSDENIED; PowerShell used",
+    "Initial evidence mkdir denied by sandbox; retried only authorized RunId with escalation"
+  ],
+  "artifacts_sha256": {
+    "approval_copy.log": "081cb6ff1c46f95f394d0dcf1242eb8ac3fc7b17b9e6455af0a41e3461c59589",
+    "approval_copy_input.json": "1a1134b51b397c9c4dd1e7fc1f37fa23cf2874b260d1bf2eca7a95ad371be306",
+    "approval_copy_result.json": "8cea2af8973a035591c73b926426cc21bdf0130f1d43ee2f3aef3ca6f7520854",
+    "diff_check.log": "c13e924e1cfde6d4b4a2e33f0a804709062b03a9e9ebf4d6b685767b111e0c14",
+    "final_approval_copy.log": "081cb6ff1c46f95f394d0dcf1242eb8ac3fc7b17b9e6455af0a41e3461c59589",
+    "final_approval_copy_result.json": "8cea2af8973a035591c73b926426cc21bdf0130f1d43ee2f3aef3ca6f7520854",
+    "final_diff_check.log": "c13e924e1cfde6d4b4a2e33f0a804709062b03a9e9ebf4d6b685767b111e0c14",
+    "final_latency_baseline.json": "30b0c8757cb0301fa687355a37c9ea1e7356c1f7a5eeabd3222a49e9ebd0a8f6",
+    "final_latency_baseline.log": "767406b23817b81dd2cd994f415dce39f0f1a53d9a73b17ffd238f72074e1cfe",
+    "final_latency_focused.log": "9547bd31f81da6e7069a0eeec8d2ede2a6873fa58cd82aa267d46b67e69f7013",
+    "final_latency_injections.json": "ef9da1651bcdf20174ce5e313c136c104a8cd2616da712e975f307c0452e43b1",
+    "final_latency_injections.log": "b0e4c8c1c57571a7d6a52cf899e1f67dc70e0d7deef63bfe9aaf0fc3d82c4e4e",
+    "final_nested_trials.log": "401784c363a248fcfa9857704f80f835b4c250e5592c75a16f099cb7a3d9e8a5",
+    "final_nested_trials_result.json": "ae8971fcc3d8d25f35c0a9b8b184bf2889be019b77f21e6177df746e9bdf050c",
+    "final_s6_gate_regression.log": "9f926b9ea322fd34ea467cf669c51efc533d300ad9eec0ff9cc1d4d8c34e0aa0",
+    "latency_baseline.json": "30b0c8757cb0301fa687355a37c9ea1e7356c1f7a5eeabd3222a49e9ebd0a8f6",
+    "latency_baseline.log": "767406b23817b81dd2cd994f415dce39f0f1a53d9a73b17ffd238f72074e1cfe",
+    "latency_focused.log": "f4b7c9ead188048266379117aef2deb290b4d8884b7f4807642297269059159c",
+    "latency_injections.json": "ef9da1651bcdf20174ce5e313c136c104a8cd2616da712e975f307c0452e43b1",
+    "latency_injections.log": "b0e4c8c1c57571a7d6a52cf899e1f67dc70e0d7deef63bfe9aaf0fc3d82c4e4e",
+    "nested_trials.log": "401784c363a248fcfa9857704f80f835b4c250e5592c75a16f099cb7a3d9e8a5",
+    "nested_trials_input.json": "e30cbebf49cb9d6f64145554c84edae83d957c37706544d06e21b259a82dc096",
+    "nested_trials_result.json": "ae8971fcc3d8d25f35c0a9b8b184bf2889be019b77f21e6177df746e9bdf050c",
+    "s6_gate_regression.log": "73fc204e153a363d0550420f1416e79f7f9dc915d7a44c0949d224a7d8b8a2e1",
+    "validation_summary.json": "e48119cd2f885d0aae72caf43d2970a785f840f121a9c7f1f2f9e3cf0aa796e7"
+  },
+  "previous_pass": "validation_summary.json records pre-final string-path version; retained without overwrite",
+  "test_counts": {
+    "focused": 5,
+    "s6_gate_regression": 24,
+    "injections": 7,
+    "skipped": 0
+  },
+  "boundary_note": "Final constant exception uses a structural tuple path; dotted-key aliases are rejected."
+}

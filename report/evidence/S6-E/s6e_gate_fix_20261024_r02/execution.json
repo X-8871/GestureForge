@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "source_hashes_before": {
+    "verification/tool_self_tests.py": "7ead45d79907d7caf6877fe7190c9e379b9cf0518de771d0fbe8d81d95e2c60a",
+    "verification/s6e_acceptance_check.py": "2269dff358a24602dc314cad2d01fe3b7231ab475dca9fc3bf6267c4905db297",
+    "verification/test_s6_gate_regression.py": "3fb5a89b99e293a11a5a972d1c9741b06f57021bd2bcf58f48f8395177664684",
+    "verification/claim_verify.py": "f5042979b307a32c0bed1914a3431615df25afee4ed2a2df99e255744267f3da",
+    "verification/s6_g0_selfcheck.py": "e71116b442db06061ed9b94ccca9450c87b16d6bcf88d535864fb14c93b232f4",
+    "verification/s6a_fresh_selfcheck_twice.py": "f0b23ef381ab3680ef86ad0c2dab2e9ef9a48840def6c79b6a4befbae02917bb",
+    "verification/approval_regression.py": "3ed29e479097e014bbdfe081cbf60f77317f3bdc4ab6f524addfa3e886d01ad0",
+    "verification/export_selfproof.py": "dafb499797ef69037c2c708dcd5aa48f8f0e92da7820bc480477f839e89eac3c",
+    "verification/check_stage_delivery.py": "d043812712b1faf56f64351f55bac92c4781178fb0f5626c059fcd3948e57bae",
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json": "334504e207333b4adba08f9b05deb8170c44e25b428137cb972141da8e6de015",
+    "docs/stage6/s6e_stage6_acceptance_cases_v1.json": "7fc733c94104526ebe5ca9628a9db9ffec804f46e819ed2c12e653fdcf216123",
+    "docs/stage6/S6E_stage6_acceptance_cases_v1.md": "942b9d3d7c641c383f625ab6bea437827d109a5b48043f96e843febb2c9dd514"
+  },
+  "source_hashes_after": {
+    "verification/tool_self_tests.py": "7ead45d79907d7caf6877fe7190c9e379b9cf0518de771d0fbe8d81d95e2c60a",
+    "verification/s6e_acceptance_check.py": "2269dff358a24602dc314cad2d01fe3b7231ab475dca9fc3bf6267c4905db297",
+    "verification/test_s6_gate_regression.py": "3fb5a89b99e293a11a5a972d1c9741b06f57021bd2bcf58f48f8395177664684",
+    "verification/claim_verify.py": "f5042979b307a32c0bed1914a3431615df25afee4ed2a2df99e255744267f3da",
+    "verification/s6_g0_selfcheck.py": "e71116b442db06061ed9b94ccca9450c87b16d6bcf88d535864fb14c93b232f4",
+    "verification/s6a_fresh_selfcheck_twice.py": "f0b23ef381ab3680ef86ad0c2dab2e9ef9a48840def6c79b6a4befbae02917bb",
+    "verification/approval_regression.py": "3ed29e479097e014bbdfe081cbf60f77317f3bdc4ab6f524addfa3e886d01ad0",
+    "verification/export_selfproof.py": "dafb499797ef69037c2c708dcd5aa48f8f0e92da7820bc480477f839e89eac3c",
+    "verification/check_stage_delivery.py": "d043812712b1faf56f64351f55bac92c4781178fb0f5626c059fcd3948e57bae",
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json": "334504e207333b4adba08f9b05deb8170c44e25b428137cb972141da8e6de015",
+    "docs/stage6/s6e_stage6_acceptance_cases_v1.json": "7fc733c94104526ebe5ca9628a9db9ffec804f46e819ed2c12e653fdcf216123",
+    "docs/stage6/S6E_stage6_acceptance_cases_v1.md": "942b9d3d7c641c383f625ab6bea437827d109a5b48043f96e843febb2c9dd514"
+  },
+  "source_stable": true,
+  "checks": [
+    {
+      "name": "directed_regression",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/test_s6_gate_regression.py",
+      "exit_code": 0
+    },
+    {
+      "name": "acceptance_injections",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/s6e_acceptance_check.py --project-root D:\\codex-worktrees\\w6 --inject-self-test --out report/evidence/S6-E/s6e_gate_fix_20261024_r02/acceptance_injections.json",
+      "exit_code": 0
+    },
+    {
+      "name": "tool_suite_s6a",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B verification/tool_self_tests.py --project-root D:\\codex-worktrees\\w6 --package s6a --run-dir report/evidence/S6-A/s6a_g0_20261024_r13 --s6a-run report/evidence/S6-A/s6a_g0_20261024_r13 --out report/evidence/S6-E/s6e_gate_fix_20261024_r02/tool_suite_s6a.json",
+      "exit_code": 1
+    }
+  ],
+  "elapsed_seconds": {
+    "directed_regression": 2.384,
+    "acceptance_injections": 0.59,
+    "tool_suite_s6a": 141.27
+  },
+  "generated_at_utc8": "2026-10-24T10:54:48.759367+08:00",
+  "peak_memory": "未测",
+  "repeated_final_runs": 1,
+  "scope": "两脚本定向修复；旧 r13 只读复算，不认证旧包；S6-B 未重跑"
+}

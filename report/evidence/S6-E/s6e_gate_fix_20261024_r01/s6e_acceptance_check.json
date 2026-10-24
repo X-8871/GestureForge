@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "artifact": "s6e_acceptance_check",
+  "run_id": "s6e_acceptance_20261024_r01",
+  "checks": "E1..E11（身份/用例/参数绑定/24 项集合/stale 常量/T6-A03 禁填造/证据类别/统计口径/八类门禁/文档一致/11 类覆盖）",
+  "baseline": {
+    "verdict": "ALL_PASS",
+    "errors": []
+  },
+  "verdict": "AS_EXPECTED",
+  "injections": [
+    {
+      "id": "I1-stale-constant-drift",
+      "caught": true,
+      "errors": [
+        "E5: stale_age_limit_ms=150 与行为表 T6-STALE_LIMIT=200 不一致",
+        "E5: stale 常量必须为 200 ms（实际 150）"
+      ]
+    },
+    {
+      "id": "I2-t6-a03-fabricated-value",
+      "caught": true,
+      "errors": [
+        "E6: T6-A03 value 必须为 NOT_RUN（实际 250）",
+        "E6: T6-A03 块出现数值字段 ['value']（禁止填造）"
+      ]
+    },
+    {
+      "id": "I3-approved-param-missing",
+      "caught": true,
+      "errors": [
+        "E4: 参数集合不一致（用例集多 []；行为表多 ['T6-03']）"
+      ]
+    },
+    {
+      "id": "I4-unknown-downgraded-offline",
+      "caught": true,
+      "errors": [
+        "E7: UNK-01 必须使用逐 ID 真实证据类别 'REAL_INFERENCE_REQUIRED'（实际 OFFLINE_SELFCHECK）；回放仅作另列预演",
+        "E7: UNK-01 必须为 REAL_INFERENCE_REQUIRED"
+      ]
+    },
+    {
+      "id": "I5-cases-cleared",
+      "caught": true,
+      "errors": [
+        "E2: 用例数 0 < 26",
+        "E7: 缺少真实验收用例 ACT-01",
+        "E7: 缺少真实验收用例 ACT-02"
+      ]
+    },
+    {
+      "id": "I6-illegal-parameter-name",
+      "caught": true,
+      "errors": [
+        "E3: ACT-01 绑定了非已批准参数 ['T6-NOT_A_PARAM']"
+      ]
+    },
+    {
+      "id": "I7-action-replay-substitution",
+      "caught": true,
+      "errors": [
+        "E7: ACT-01 必须使用逐 ID 真实证据类别 'REAL_INFERENCE_REQUIRED'（实际 REPLAY_ONLY）；回放仅作另列预演"
+      ]
+    },
+    {
+      "id": "I8-capture-synthetic-substitution",
+      "caught": true,
+      "errors": [
+        "E7: REC-07 必须声明 synthetic_substitution_allowed=false"
+      ]
+    },
+    {
+      "id": "I9-approval-binding-missing",
+      "caught": true,
+      "errors": [
+        "E4: 用例集批准索引与已批准记录不一致或缺失"
+      ]
+    },
+    {
+      "id": "I10-all-approval-status-missing",
+      "caught": true,
+      "errors": [
+        "E3: ACT-01 绑定了非已批准参数 ['T6-C01', 'T6-S01', 'T6-S02', 'T6-S03', 'T6-P01', 'T6-P02', 'T6-01']",
+        "E3: ACT-02 绑定了非已批准参数 ['T6-C01', 'T6-S01', 'T6-S02', 'T6-S03', 'T6-P01', 'T6-P02', 'T6-01']",
+        "E3: ACT-03 绑定了非已批准参数 ['T6-C01', 'T6-S01', 'T6-S02', 'T6-S03', 'T6-P01', 'T6-P02', 'T6-01']"
+      ]
+    },
+    {
+      "id": "I11-approval-rejected",
+      "caught": true,
+      "errors": [
+        "E3: ACT-11 绑定了非已批准参数 ['T6-A01']",
+        "E3: REC-08 绑定了非已批准参数 ['T6-A01']",
+        "E3: OFS-02 绑定了非已批准参数 ['T6-A01']"
+      ]
+    },
+    {
+      "id": "I12-approval-unknown",
+      "caught": true,
+      "errors": [
+        "E3: ACT-11 绑定了非已批准参数 ['T6-A01']",
+        "E3: REC-08 绑定了非已批准参数 ['T6-A01']",
+        "E3: OFS-02 绑定了非已批准参数 ['T6-A01']"
+      ]
+    },
+    {
+      "id": "I13-parameter-approval-ref-missing",
+      "caught": true,
+      "errors": [
+        "E3: ACT-11 绑定了非已批准参数 ['T6-A01']",
+        "E3: REC-08 绑定了非已批准参数 ['T6-A01']",
+        "E3: OFS-02 绑定了非已批准参数 ['T6-A01']"
+      ]
+    },
+    {
+      "id": "I14-approval-record-missing",
+      "caught": true,
+      "errors": [
+        "E4: 行为表批准索引与已批准记录不一致或缺失"
+      ]
+    }
+  ],
+  "self_test": {
+    "verdict": "AS_EXPECTED",
+    "all_injections_caught": true
+  }
+}

@@ -64,12 +64,18 @@
 - 复用工具：通用证据包构建器 `verification/s6e_pack_build.py`（清单/哈希/两检查器真实退出码；不动点 + 收尾断言）。
 
 ## 阻碍 / 开放
+- **2026-10-24 Codex 门禁修复轮（优先于上文历史自证结论）**：正常 claim 保留真实退出码并核验全部声明；ACT/UNK/REC 逐 ID 固定真实证据类别并全禁合成替代；24 项状态、回执引用、原始参数/批准 ID 数量、类型与唯一性均精确校验。
+- E4 修复首轮复核发现重复参数/批准 ID 可被字典/集合掩盖；r03 已修正。独立复核 PASS：定向 unittest 9 项 exit 0、验收基线 `ALL_PASS`、14/14 注入捕获 exit 0、重复 ID 探针 exit 0。
+- 新增证据 `report/evidence/S6-E/s6e_gate_fix_20261024_r03/`；源码与测试哈希见该目录 `validation_summary.json`。`.gitattributes` 对 r01/r02/r03 限定为逐字节保存，避免全局 autocrlf 破坏原始哈希。
+- r02 完整工具套件为 **exit 1 / UNEXPECTED**：其正常 claim 和快照自证针对旧 r13 运行包；C11 确认旧 r13 清单仍绑定旧版 `verification/tool_self_tests.py`，因此 C6 真实失败。旧 r13 与 r01/r02 失败证据均保留，不重写、不引用为通过。
+- **开放**：E4 修复后尚未用新源码重建 S6-A/S6-B 包，也未重跑完整工具套件；完整 S6-A/S6-B 增量独立复审仍待完成。当前 PASS 仅覆盖本轮门禁源码与定向判别力验证，不表示完整 Stage 6 或 G5 通过。
+- `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）；G3 板测未做；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 验收未执行；阶段7 暂不开工作树。
 - `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）。
 - G3 板测未做；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 验收未执行；阶段7 暂不开工作树。
 - 独立复评未做：本轮 r13/r08/S6-E 为**未冻结修订内容**，等待项目总控派增量复核。
 
 ## 下一步
-项目总控派增量复核（只审 F6d → 本轮差异）；阶段4 产出真实推理结果并冻结结果契约后，按 `board_window_request.md` 申请 6-E 板级窗口。
+先提交已独立复核通过的门禁修复，再以提交后的源码重建 S6-A/S6-B 新 RunId 包并重跑完整工具套件；之后完成覆盖 F6d → task-23/task-28/本轮差异的增量复审。阶段4 产出真实推理结果并冻结结果契约后，按 `board_window_request.md` 申请 6-E 板级窗口。
 
 ## 证据入口
 （C11 口径：凡带扩展名的反引号 token 按**项目根**解析；此处只用全路径，避免被当作本证据目录内文件。）
@@ -86,10 +92,11 @@
 - 本轮自证记录（提交前快照）：`report/evidence/S6-A/s6a_g0_20261024_r13_selfproof/`、`report/evidence/S6-B/s6b_core_20261024_r08_selfproof/`
 - 无板卡轮（task-28）：`report/evidence/S6-E/s6e_boardfree_20261024_r01/`、`report/evidence/S6-E/s6e_boardfree_20261024_r01/S6E_boardfree_run_summary.md`、
   `report/evidence/S6-E/s6e_boardfree_20261024_r01/board_window_readiness.md`、`report/evidence/S6-E/s6e_boardfree_20261024_r01/delivery_manifest.json`
+- 门禁修复（保留所有失败与修复轮）：`report/evidence/S6-E/s6e_gate_fix_20261024_r01/`、`report/evidence/S6-E/s6e_gate_fix_20261024_r02/`、`report/evidence/S6-E/s6e_gate_fix_20261024_r03/`
 
 ## 11 字段交接行
-任务：阶段6 无板卡轮（task-28：延迟方法学 + 窗口申请包就绪化；回放预演待 task-26/27） | 负责人：阶段6 总控 stage6-lead4 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |
-起始提交：d8bc70e | 允许修改范围：w6 内 docs/stage6、src/stage6、verification、report/evidence/**、.codex/STATE.md |
-未提交改动归属：task-28 本轮产物归本轮（提交后冻结） | 让出声明：未让出 | 心跳(UTC+8)：2026-10-24 02:4x |
-证据入口：见上 | 恢复命令：`python -B verification/s6e_latency_template_check.py --project-root D:/codex-worktrees/w6 --inject-self-test`；`python -B verification/s6e_pack_build.py --project-root D:/codex-worktrees/w6 --run-dir report/evidence/S6-E/s6e_boardfree_20261024_r01 ...` |
-状态/下一接手方：DELIVERED_PENDING_REVIEW（task-23 增量复评进行中；task-28 项 1 待 task-26/27 解阻）
+任务：阶段6 门禁修复（真实 claim、真实证据类别、E4 精确批准集合）及新包重建待办 | 负责人：Codex 项目总控 | 工作树/分支：D:\codex-worktrees\w6 / stage6-interact-prep |
+起始提交：8d232abb581ee0e548c52e23a795ffd92cc131df | 允许修改范围：verification/s6e_acceptance_check.py、verification/tool_self_tests.py、定向测试、.gitattributes、S6-E 本轮 RunId、.codex/STATE.md |
+未提交改动归属：本轮 Codex 修复与 r01/r02/r03 证据，Developer 已停写，由项目总控统一提交；旧证据失败内容不改 | 让出声明：DSH-20261024-006 明确 main 与四阶段树交回 Codex；当前 E4 差异独立 Reviewer PASS，Codex 项目总控继续单写；未向外方让出 | 心跳(UTC+8)：2026-10-24 19:22 |
+证据入口：`report/evidence/S6-E/s6e_gate_fix_20261024_r01/`、`r02/`、`r03/` | 恢复命令：`python -B verification/test_s6_gate_regression.py`；提交后重建 S6-A/S6-B 新包并重跑完整工具套件 |
+状态/下一接手方：E4 门禁修复 REVIEWED_PASS / Codex 项目总控；新包构建、完整工具套件、阶段增量复审仍开放，非阶段验收通过。

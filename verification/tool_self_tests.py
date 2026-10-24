@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -33,6 +34,23 @@ import tempfile
 from pathlib import Path
 
 PY = sys.executable
+
+
+def claim_normal_ok(exit_code: int, payload: dict) -> bool:
+    """正常声明必须真实成功；结构完整不能替代声明验证通过。"""
+    claims = payload.get("claims", [])
+    declared = payload.get("claims_declared")
+    return (exit_code == 0 and payload.get("verdict") == "ALL_CLAIMS_VERIFIED"
+            and payload.get("count_ok") is True and isinstance(declared, int)
+            and declared > 0 and payload.get("claims_recorded") == declared + 1
+            and len(claims) == declared + 1
+            and len({c.get("claim_id") for c in claims}) == len(claims)
+            and all(c.get("verdict") == "VERIFIED" and not c.get("readonly_violation")
+                    and type(c.get("exit_code")) is int
+                    and (c.get("exit_code") != 0 if c.get("claim_id") == "self_test_false_claim"
+                         else c.get("exit_code") == c.get("expected_exit") == 0)
+                    for c in claims)
+            and sum(c.get("claim_id") == "self_test_false_claim" for c in claims) == 1)
 
 # 冻结 tag 的**父提交** = 该轮交付内容（F 段）；从新到旧依次尝试
 DELIVERY_CANDIDATES = (
@@ -59,6 +77,16 @@ def make_temp_copy(root: Path, run_rel: str, tmp: Path) -> Path:
     (copy_root / ".codex").mkdir(parents=True, exist_ok=True)
     shutil.copyfile(root / ".codex/STATE.md", copy_root / ".codex/STATE.md")
     shutil.copytree(root / run_rel, copy_root / run_rel, dirs_exist_ok=True)
+    # C11 还核对 STATE 中明确引用的兄弟证据；隔离副本必须保留这些输入，不能删去其核对。
+    state_text = (root / ".codex/STATE.md").read_text(encoding="utf-8")
+    for token in re.findall(r"`(report/evidence/[^`]+)`", state_text):
+        source = root / token.rstrip("/")
+        target = copy_root / token.rstrip("/")
+        if source.is_dir():
+            shutil.copytree(source, target, dirs_exist_ok=True)
+        elif source.is_file():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
     return copy_root
 
 
@@ -180,12 +208,27 @@ def main(argv: list[str] | None = None) -> int:
         _apx = copy_root / run_rel / "claim_verification.json"
         if _apx.is_file():
             _apx_snapshot = json.loads(_apx.read_text(encoding="utf-8"))
-        _struct_ok = bool(_apx_snapshot) and (
-            _apx_snapshot.get("count_ok") is True
-            and _apx_snapshot.get("claims_recorded") == (_apx_snapshot.get("claims_declared", 0) + 1)
-            and _apx_snapshot.get("verdict") in ("ALL_CLAIMS_VERIFIED", "NOT_ALL_VERIFIED"))
-        record("claim_verify_normal_must_pass", 0, 0 if _struct_ok else 1,
+        record("claim_verify_normal_must_pass", 0, claim_exit,
                f"全部声明经真实执行 VERIFIED 时 exit 0（package={args.package}）", claim_out)
+        results[-1]["claims_verified"] = claim_normal_ok(claim_exit, _apx_snapshot)
+        results[-1]["claim_verification"] = _apx_snapshot
+        pair = copy_root / run_rel / "fresh_selfcheck_pair.json"
+        if pair.is_file():
+            results[-1]["fresh_selfcheck_pair"] = json.loads(pair.read_text(encoding="utf-8"))
+        if not results[-1]["claims_verified"]:
+            results[-1]["verdict"] = "UNEXPECTED"
+        # 与真实命令分开记录：这个反例专门证明结构正确的失败声明不能被正常例接受。
+        failed_claim = {"count_ok": True, "claims_declared": 1, "claims_recorded": 2,
+                        "verdict": "NOT_ALL_VERIFIED", "claims": [
+                            {"claim_id": "probe", "verdict": "NOT_VERIFIED", "exit_code": 1,
+                             "expected_exit": 0},
+                            {"claim_id": "self_test_false_claim", "verdict": "VERIFIED", "exit_code": 1}]}
+        rejected = not claim_normal_ok(1, failed_claim) and not claim_normal_ok(0, failed_claim)
+        results.append({"case_id": "claim_structurally_valid_failure_must_reject",
+                        "expected": "REJECT", "exit_code": None, "kind": "predicate_counterexample",
+                        "input": failed_claim, "rejected": rejected,
+                        "note": "真实退出码 1 与不一致的退出码 0 两种输入均必须拒绝；非 subprocess 用例",
+                        "verdict": "AS_EXPECTED" if rejected else "UNEXPECTED"})
 
         with tempfile.TemporaryDirectory() as tmp_sim:
             sim_root = make_temp_copy(root, run_rel, Path(tmp_sim))

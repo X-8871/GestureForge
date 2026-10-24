@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "run_id": "s6e_gate_fix_20261024_r03",
+  "base_commit": "8d232abb581ee0e548c52e23a795ffd92cc131df",
+  "source_sha256": {
+    "verification/s6e_acceptance_check.py": "6788d6f12b8e630baf5f5f2b8adb222111bf11b93e4e5387d480b8ad6b379540",
+    "verification/test_s6_gate_regression.py": "9677aaa8cd84644437d8f48edb3485200b7be704040380fad838d227990d60b3"
+  },
+  "commands": [
+    {
+      "command": "python -B verification/test_s6_gate_regression.py",
+      "exit_code": 0,
+      "tests_run": 9
+    },
+    {
+      "command": "python -B verification/s6e_acceptance_check.py --project-root <worktree-root> --inject-self-test --out report/evidence/S6-E/s6e_gate_fix_20261024_r03/acceptance_injections.json",
+      "exit_code": 0,
+      "baseline_verdict": "ALL_PASS",
+      "self_test_verdict": "AS_EXPECTED",
+      "injection_count": 14,
+      "all_injections_caught": true,
+      "output_sha256": "0e814bf33006c55d28282c0ad0ef28705acf152714116d80251a7ad382195cd7"
+    }
+  ],
+  "full_tool_suite": "NOT_RUN; previous r02 suite failure is not claimed as passed",
+  "result": "TARGETED_PASS"
+}

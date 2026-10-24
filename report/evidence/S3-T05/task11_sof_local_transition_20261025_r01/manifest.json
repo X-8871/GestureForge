@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "task11_sof_local_transition_20261025_r01",
+  "source_commit": "708aafe9a1c6fbd8fbf6606678e81e05fb4284cf",
+  "evidence_dir": "report/evidence/S3-T05/task11_sof_local_transition_20261025_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只对固定 RTL 和 OOC 网表的两态 PCLK 局部 SOF 转移做补充证明，不变更或冻结业务接口。边界和状态映射见 README。",
+  "files": [
+    {
+      "path": "scripts/stage3_t05/verify_sof_local_transition.py",
+      "sha256": "4c5305802119d07eb2fe30d17a7b63e54cbfa39098715e34f12df44352594f54",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sof_fix_20261020_r01/patch_verification/expected_patched_alinx_ov5640.v",
+      "sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_sof_local_transition_20261025_r01/result.json",
+      "sha256": "bdf38aa704df31dd610580602f14182ad7e8704d93b7ccfc76ebf93d549b5a9d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_sof_local_transition_20261025_r01/README.md",
+      "sha256": "273b9ed9603b0480239eba9e86371eb61d95c994179f519a08d318e068058543",
+      "role": "diagnostic",
+      "keep_reason": "限定转移证明、匹配初态、归纳边界、命令及未执行范围。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "sof_local_two_state_transition_exhaustive",
+      "status": "PASS",
+      "command": "C:/Users/22061/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe -B scripts/stage3_t05/verify_sof_local_transition.py",
+      "exit_code": 0,
+      "reason": "仅 PASS_SOF_LOCAL_TRANSITION：16777216 组完整局部状态/输入，335544320 位比较、0 差异；5 个解析负例被拒；30 拍边界轨迹逐拍匹配。网表与实际 RTL 位于缓存，其精确路径/哈希绑定于 result.json.inputs，脚本重放先核对；未复制缓存。"
+    },
+    {
+      "name": "evidence_package_validation",
+      "status": "PASS",
+      "command": "C:/Users/22061/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/dbdf --manifest report/evidence/S3-T05/task11_sof_local_transition_20261025_r01/manifest.json",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；只核验当前包的目录/文件绑定，不扩大局部转移结论。"
+    },
+    {
+      "name": "full_task11_rtl_netlist_sequential_equivalence",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "仅局部归纳边界，不验证边界输入生成、FIFO/CDC、四态/GSR/异步复位或完整 IP/部署等价。"
+    }
+  ],
+  "limitations": [
+    "只有 PASS_SOF_LOCAL_TRANSITION，不表示 task-11 全项完成或 G0/G2/G3/G4/G5 通过。",
+    "19 位匹配初态与每拍 5 位边界输入相等为归纳假设；不证明这些假设在实际完整 IP 上成立。",
+    "未运行 Vivado/xsim、硬件/摄像头，未修改 RTL/IP。",
+    "缓存输入需保留；峰值内存未测，重复运行次数为结果文件记载的单次有效生成。"
+  ],
+  "tool_versions": {"python": "3.12.14", "git": "2.56.0.windows.2"}
+}

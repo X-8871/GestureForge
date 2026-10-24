@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_vdma_root_cause_offline_20261025_r01",
+  "source_commit": "25629e507acb5b59486589481b4713a77a60e5d1",
+  "evidence_dir": "report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 只读核对既有 VDMA 证据，不修改设计、软件接口或接口契约。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/README.md",
+      "sha256": "6cc8f63e86fc1086c295a0adb1e775d9087ca3aa9151141b21de744f929fb199",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/vdma_offline_root_cause_supplement.md",
+      "sha256": "12b6e384944a3ef8a0c5ccb19b1d0a1f49f542ac2eea3928c49ead521ebd534a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/SHA256SUMS",
+      "sha256": "96984d5987c70f271a14cba0464fffd53eb0f3bc202e381cb319ba3ac98fcede",
+      "role": "artifact",
+      "keep_reason": "固定本 RunId 文档摘要；manifest 自身不纳入 SHA256SUMS 以避免自引用。"
+    },
+    {
+      "path": "board/stage3/software/sensor/s3_t04_app_diag_v10.patch",
+      "sha256": "82e2efe093ef968f6aeb37dc2484a39d519ff32622fd288fd24c680fe606369c",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/vdma_sticky_result.md",
+      "sha256": "1b88969ad26baa215b02c30a73cd41bea34dbfc1cf40c22c063df453f198cada",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/uart_window_20261024_003501-011001.log",
+      "sha256": "ffd52e6b189eee9b05c288548f08b22cece42ab7e7bd78d1a2c24fa179647c20",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sw_20261020_r01/sr_bit_sources/ip_component_xml_s2mm_vdmasr.txt",
+      "sha256": "1a9cefba316d62558d1d5cf4acc0abd091ac86cf8e27b0ec928ca7adbc0c7e64",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sw_20261020_r01/sr_bit_sources/hdl_s2mm_dmasr_assembly.txt",
+      "sha256": "ed27704e41eb098694fd6f478c1a70d31de6150b96651fc4be3c8122ddd2a9e1",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sw_20261020_r01/sr_bit_sources/hdl_s2mm_err_for_irq_and_dmainterr.txt",
+      "sha256": "c92ec8c3ce8250ab03e3fb0ef30482a5dfad884cf19f46e97d6756cc84b3b2a0",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sw_20261020_r01/sr_bit_sources/hdl_dmasr_bit_constants.txt",
+      "sha256": "cd3865e587605d385b6dc3dc137ad42ef7c2fd2dde57f122a675032249e19639",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sw_20261020_r01/sr_bit_sources/design_axi_vdma_1_config.txt",
+      "sha256": "f153b9b6f76d17ca43dd6e27bc62ec39271b30ade4b7e1f265c5aff95e323c67",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_sw_v10_20261021_r01/build_report.json",
+      "sha256": "59f0924a4f273afe2a41cc269546a2f54aef61c87b955861ab7dc4388be65956",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_offline_closeout_20261024_r01/vdma_fsz_more_analysis.md",
+      "sha256": "2bd40ea139f5d65d8855af755ed8a065a305e4ae5f056cff9ca6117193768f8c",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "stage_delivery_evidence_manifest",
+      "status": "PASS",
+      "command": "python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/dbdf --manifest report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/manifest.json",
+      "exit_code": 0,
+      "reason": "检查器返回 CHECKS_OK；仅说明清单结构、声明哈希与目录枚举匹配。"
+    },
+    {
+      "name": "vdma_trigger_root_cause",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "现有状态快照没有区分 S2MM 初始化步骤和 SOF/TLAST 触发时刻；硬件根因采样未执行。"
+    },
+    {
+      "name": "pg020_official_crosscheck",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本 RunId 只使用已提交的 IP 元数据和 HDL 摘录，未核对对应版本 PG020 官方手册原文。"
+    }
+  ],
+  "limitations": [
+    "check_stage_delivery 的 PASS 只核验清单结构、声明哈希与目录文件枚举，不评价状态位推理、硬件正确性或阶段验收。",
+    "IP 元数据与 HDL 摘录支持状态位语义和组合来源，但不是对应版本 PG020 的独立官方手册核验。",
+    "UART 只采集离散寄存器快照；未记录初始化各步或 AXI-Stream SOF/TLAST 时序，不能定位置位瞬间。",
+    "本 RunId 未操作硬件、未运行 Vivado/仿真、未使用 ILA；VDMA 粘滞状态仍 PARTIAL，阶段3 G5 未通过、未冻结。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "2.56.0.windows.2",
+    "powershell": "7.6.5"
+  }
+}

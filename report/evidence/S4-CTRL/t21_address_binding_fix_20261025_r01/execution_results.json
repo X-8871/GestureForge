@@ -1,0 +1,39 @@
+{
+  "checks": [
+    {
+      "name": "regression",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s4_raw_g0_registry -v",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.649745,
+      "execution_count": 1
+    },
+    {
+      "name": "registry_audit",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/audit",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.166754,
+      "execution_count": 1
+    },
+    {
+      "name": "bound_heads",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B scripts/stage4_s4ctrl/check_bound_tree_heads.py --manifest report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02/bound_trees.json --evidence-dir report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/bound_heads",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "elapsed_seconds": 0.268451,
+      "execution_count": 1
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "elapsed_seconds": 0.037507,
+      "execution_count": 1
+    }
+  ],
+  "peak_memory": "未测",
+  "initial_test_execution_count": 1,
+  "scope": "8 项主入口回归及真实登记表复算；无硬件/Vivado；跨树漂移为真实 FAIL，未刷新旧绑定。"
+}

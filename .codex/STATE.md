@@ -1,7 +1,13 @@
 # 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS）
 
-更新：2026-10-24 19:58（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
-**写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续。task-26 Developer 已停写；桥接脚本 SHA-256 `ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac` 与 r07 证据一致，独立只读复审 PASS（仅代码/证据一致性）。r07 真实推理运行 BLOCKED，尚未提交。**
+更新：2026-10-25 05:31（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续。task-26 桥接脚本及 r07 包已提交于当前基线 `06c9ab8`；其独立只读复审 PASS（仅代码/证据一致性），真实推理仍 BLOCKED/exit 2。task-21 registry 修复经 R4-03 独立复审 PASS，现已完成总控复核并提交；无硬件/Vivado操作。**
+
+## 当前离线修复（task-21，2026-10-25）
+
+- 新 RunId `report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/` 修复阶段3重复来源哈希及阶段5两个帧缓冲区的十进制/十六进制矛盾；权威值分别为 `d5ba4b6b…`、`0x00114C00=1133568`、`0x00F95400=16339968`。
+- 主入口回归 8/8、registry 12/12 + 11/11依据、delivery evidence `CHECKS_OK`；独立审查 R4-03 `PASS` 仅关闭这两项重复事实缺陷。
+- 旧 `bound_trees.json` 当前仍 `FAIL_STABLE_DRIFT`、1/5 匹配；未重绑。RAW系统G0、区域冻结、P实测、板级4-D与G5仍未完成；`ENABLE=0`、未 FROZEN。
 
 ## 当前接续增量（task-26，2026-10-24）
 
@@ -74,7 +80,7 @@
 
 ## 当前交接行（11 字段）
 
-任务=`task-26 阶段4离线回放桥：代码/证据静态复审 PASS；真实推理 BLOCKED` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`1046cdc9eedefd903e6b96e0190f4897c6a371db` | 允许修改范围=`scripts/stage4_s4ctrl/replay_forward_bridge.py、report/evidence/S4-CTRL/s4t26_forward_bridge_20261024_r01..r07/**、.codex/STATE.md` | 未提交改动归属=`本轮task-26脚本/证据与STATE归Codex；既有12项 ELF/MAP 保留不动且不入提交` | 让出声明=`开发者已停写，r07 独立审查 PASS；当前由 Codex 总控核对、提交` | 心跳(UTC+8)=`2026-10-24 19:58` | 证据入口=`report/evidence/S4-CTRL/s4t26_forward_bridge_20261024_r07/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 rev-parse HEAD` | 状态/下一接手方=`IN_PROGRESS（真实推理/解码/heads/PNG仍NOT_RUN；等待既有cv2解释器及冻结样本raw-head黄金；ENABLE=0、未FROZEN、无硬件窗口）/ 下一接手方=Codex项目总控继续处理可执行离线项`
+任务=`task-21 RAW registry 重复事实修复（R4-03 PASS；跨树窗口仍失效）` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`06c9ab83e4215b6ea5ec9fd827b59549e425a285` | 允许修改范围=`docs/stage4/S4B_raw_system_g0_gap_registry.json、scripts/stage4_s4b/audit_raw_system_g0_gaps.py、verification/test_s4_raw_g0_registry.py、report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/**、.codex/STATE.md` | 未提交改动归属=`本轮 registry/checker/test、修复 RunId 与 STATE 已提交；原有12项 ELF/MAP 保留不动、不入提交` | 让出声明=`Developer 已停写；Reviewer R4-03 PASS；无硬件/Vivado操作` | 心跳(UTC+8)=`2026-10-25 05:31` | 证据入口=`report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/delivery_manifest.json` | 恢复命令=`git -C D:/codex-worktrees/w4 log -1 --oneline; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（两项P2已关闭；旧跨树窗口FAIL_STABLE_DRIFT 1/5，RAW系统G0/P/4-D/G5仍未过）/ 下一步=等待输入版本稳定后重新建审查窗口；继续task-26离线前置，推理依赖仍BLOCKED`
 
 ## 历史交接行（已被上行取代，不再代表写权）
 

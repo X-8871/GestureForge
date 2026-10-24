@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "t21_address_binding_fix_20261025_r01",
+  "source_commit": "06c9ab83e4215b6ea5ec9fd827b59549e425a285",
+  "evidence_dir": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01",
+  "interfaces": [
+    {
+      "name": "阶段4地址映射",
+      "version": "r03",
+      "frozen": false,
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+      "sha256": "46c323381427f6acca90a8faa83c6b45df89f29b285ba3a99e00dc04c34c474a",
+      "role": "source"
+    },
+    {
+      "path": "scripts/stage4_s4b/audit_raw_system_g0_gaps.py",
+      "sha256": "9014ff85f663109206987850a548eb48d9e1cd48bfc7fba715525513a0019a6b",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s4_raw_g0_registry.py",
+      "sha256": "eeed6919e225b51ade456461c42fe60dbab25bbf8c4c07fa81138c8e98a4113f",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/audit/raw_system_g0_gap_audit_result.json",
+      "sha256": "fe939acba9d4b2aa5993120dfb39c863a640a56f2cd28718402e7375b9a22794",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/bound_heads/bound_tree_heads_result.json",
+      "sha256": "0817e4a0302368a9ec455732c93e3130070de6bdcd808dc485e5f020b796c42b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/bound_heads.log",
+      "sha256": "8753160f49efa861d83f6030af7de6507a33b5e15858812a5c10e6203f70cfaa",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/diff_check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/execution_results.json",
+      "sha256": "1cb3295603b1b2141925247b1372f3f978309d8fcae92ec152a379eac493b1db",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/registry_audit.log",
+      "sha256": "6b7f5197c40a11e1626380fc6e5cfdb35f6ed5b7c993bcf15c0177f3a78a64f3",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/regression.log",
+      "sha256": "24e9ac1e4b600130de9ce2b5f02168b69f70368579d00866bcd8d3eeafee9a76",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/run_evidence.py",
+      "sha256": "525892580ec632c26f82976b1d9238836d4e308dad5d4bf1b649cba32f8ec59f",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/source_binding.json",
+      "sha256": "b2ef9ac98e2aeb3c7476a0f712d112856afaf050b149ab490e45c8a17ab850a1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/raw_capture_preservation.json",
+      "sha256": "13202791563fcb404c6a54f21c74758f72c912602fd853fae95fba554b74dba7",
+      "role": "diagnostic"
+    }
+  ],
+  "checks": [
+    {
+      "name": "regression",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s4_raw_g0_registry -v",
+      "exit_code": 0,
+      "status": "PASS",
+      "reason": "轻量定向检查通过。"
+    },
+    {
+      "name": "registry_audit",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/audit",
+      "exit_code": 0,
+      "status": "PASS",
+      "reason": "轻量定向检查通过。"
+    },
+    {
+      "name": "bound_heads",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B scripts/stage4_s4ctrl/check_bound_tree_heads.py --manifest report/evidence/S4-CTRL/t21_optionA_landing_20261024_r02/bound_trees.json --evidence-dir report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/bound_heads",
+      "exit_code": 1,
+      "status": "FAIL",
+      "reason": "旧跨树窗口失效；如实保留 FAIL_STABLE_DRIFT，未重绑。"
+    },
+    {
+      "name": "diff_check",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "status": "PASS",
+      "reason": "轻量定向检查通过。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "git": "git version 2.56.0.windows.2",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "limitations": [
+    "跨树有效窗口失效，当前复算不代表系统 G0。",
+    "等待独立复审，region 未 FROZEN，ENABLE=0。",
+    "硬件窗口未授权，板级验证、帧周期 P、阶段4 G5 尚未完成。",
+    "峰值内存未测；未执行推理或 Vivado。"
+  ]
+}

@@ -75,6 +75,35 @@ def overlaps(a0: int, a1: int, b0: int, b1: int) -> bool:
     return max(a0, b0) < min(a1, b1)
 
 
+def redundant_fact_errors(registry: dict) -> list[str]:
+    """拒绝登记表内重复地址及依据哈希互相矛盾或缺失绑定。"""
+    errors: list[str] = []
+    bindings = {entry["id"]: entry for entry in registry["basis_bindings"]}
+    owners = registry.get("documented_historical_owners", [])
+    intervals = list(registry["candidate_intervals"].items()) + [
+        (owner["name"], owner) for owner in owners
+    ]
+    for name, interval in intervals:
+        if not isinstance(interval, dict):
+            continue
+        for decimal, hexadecimal in (("start", "start_hex"), ("end_exclusive", "end_hex")):
+            if hexadecimal not in interval:
+                continue
+            try:
+                matches = type(interval.get(decimal)) is int and interval[decimal] == int(interval[hexadecimal], 16)
+            except (TypeError, ValueError):
+                matches = False
+            if not matches:
+                errors.append(f"{name}.{decimal}/{hexadecimal} 地址表示不一致")
+    for owner in owners:
+        if "basis_sha256" not in owner and "basis_binding_id" not in owner:
+            continue
+        binding = bindings.get(owner.get("basis_binding_id"))
+        if binding is None or owner.get("basis_sha256") != binding.get("sha256"):
+            errors.append(f"{owner['name']}.basis_sha256 与依据绑定不一致或绑定缺失")
+    return errors
+
+
 def main() -> int:
     """执行全部离线复算与纪律检查。"""
     parser = argparse.ArgumentParser(description="RAW 系统 G0 缺口登记表只读复算")
@@ -135,6 +164,9 @@ def main() -> int:
         results[check_id] = {"status": "PASS" if ok else "FAIL", "actual": actual, "note": note}
         if not ok:
             failures.append(f"offline_check {check_id} 不一致：{actual} {note}")
+
+    redundant_errors = redundant_fact_errors(registry)
+    record("redundant_facts_consistent", not redundant_errors, {"errors": redundant_errors})
 
     cand = registry["candidate_intervals"]
     raw = cand["raw"]
@@ -319,7 +351,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4-T21",
         "checker": "audit_raw_system_g0_gaps",
-        "checker_version": "r01",
+        "checker_version": "r02",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),

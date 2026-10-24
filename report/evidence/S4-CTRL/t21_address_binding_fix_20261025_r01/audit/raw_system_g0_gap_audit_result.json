@@ -1,0 +1,163 @@
+{
+  "task_id": "S4-CTRL/S4-T21",
+  "checker": "audit_raw_system_g0_gaps",
+  "checker_version": "r02",
+  "status": "PASS",
+  "generated_at_utc8": "2026-10-25T05:28:46+08:00",
+  "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/audit",
+  "exit_code": 0,
+  "cwd": "D:\\codex-worktrees\\w4",
+  "python_version": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "artifact_sha256": {
+    "registry": "46c323381427f6acca90a8faa83c6b45df89f29b285ba3a99e00dc04c34c474a",
+    "checker_script": "9014ff85f663109206987850a548eb48d9e1cd48bfc7fba715525513a0019a6b"
+  },
+  "checks": {
+    "redundant_facts_consistent": {
+      "status": "PASS",
+      "actual": {
+        "errors": []
+      },
+      "note": ""
+    },
+    "raw_region_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "raw_bytes": 12582912,
+        "expected_raw_bytes": 12582912,
+        "max_frame_bytes": 11059200,
+        "storage_bytes": 11059200,
+        "storage_equals_logical": true,
+        "margin_bytes": 1523712,
+        "end_minus_start": 12582912
+      },
+      "note": ""
+    },
+    "tensor_geometry_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "tensor_bytes": 519168,
+        "word8_count": 64896
+      },
+      "note": ""
+    },
+    "geometry_table_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "geometry_bytes": 19968,
+        "x_start": 320,
+        "x_end": 10304,
+        "y_start": 10304,
+        "y_end": 20288
+      },
+      "note": ""
+    },
+    "mailbox_layout_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "meta_bytes": 32768,
+        "result_start": 20288,
+        "result_end": 32768,
+        "result_region_bytes": 12480,
+        "max_result_block_bytes": 760
+      },
+      "note": ""
+    },
+    "input_scope_consistency": {
+      "status": "PASS",
+      "actual": {
+        "sample_count": 109,
+        "min_bytes": 519168,
+        "max_bytes": 11059200,
+        "over_4mib_count": 97,
+        "over_4mib_consistent": 97,
+        "over_8mib_count": 2,
+        "over_8mib_consistent": 2
+      },
+      "note": "每项 bytes 必须等于 width×height×3"
+    },
+    "candidate_outside_shrunk_forbidden_gap": {
+      "status": "PASS",
+      "actual": {
+        "forbidden_range": [
+          314605568,
+          536870912
+        ],
+        "forbidden_bytes": 222265344,
+        "candidate": [
+          301989888,
+          314605568
+        ],
+        "candidate_fully_inside": false
+      },
+      "note": ""
+    },
+    "approved_regions_registered": {
+      "status": "PASS",
+      "actual": {
+        "raw_frame": [
+          301989888,
+          314572800,
+          "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+        ],
+        "raw_meta": [
+          314572800,
+          314605568,
+          "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+        ]
+      },
+      "note": ""
+    },
+    "stage3_owner_fact_bound": {
+      "status": "PASS",
+      "actual": {
+        "stage3_observed_max_hex": "0x114c00",
+        "candidate_start_hex": "0x12000000",
+        "fact_file_present": true
+      },
+      "note": ""
+    },
+    "no_overlap_with_known_owners": {
+      "status": "PASS",
+      "actual": {
+        "overlaps_with_r13": [],
+        "overlaps_with_historical": [],
+        "adjacent_to_tensor_arena": true
+      },
+      "note": ""
+    },
+    "draft_4mib_insufficient": {
+      "status": "PASS",
+      "actual": {
+        "draft_bytes": 4194304,
+        "max_frame_bytes": 11059200,
+        "insufficient": true
+      },
+      "note": ""
+    },
+    "basis_hash_match": {
+      "status": "PASS",
+      "actual": {
+        "mismatches": 0
+      },
+      "note": ""
+    }
+  },
+  "passes": [
+    "缺口状态纪律通过：无被禁状态、需要硬件的缺口保持 NOT_RUN/BLOCKED、CLOSED_OFFLINE 有本轮 PASS 检查支持",
+    "依据件现场复算一致（11/11 项）",
+    "离线算术复算一致（12/12 项）"
+  ],
+  "failures": [],
+  "details": {
+    "basis_checks": {
+      "checked": 11,
+      "total": 11,
+      "bad": []
+    },
+    "status_discipline_errors": []
+  },
+  "hardware_execution": "NOT_RUN",
+  "boundary": "只读离线复算与状态纪律检查；不代表 G0/G4/G5、独立审查或实物验收。"
+}

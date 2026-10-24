@@ -68,13 +68,14 @@
   },
 
   "documented_historical_owners": [
-    {"name": "w5_framebuffer_0", "start": 708608, "end_exclusive": 3898368, "start_hex": "0x00114C00", "end_hex": "0x003B7C00", "verification": "unverified_historical", "basis": "readiness §8.2（W5 P1 run manifest 与只读回读日志交叉绑定；匹配的最终 P1 ELF/map 未保留）"},
-    {"id": "stage3_shared_capture_display_buffer", "name": "stage3_video_capture_display_shared", "start": 1117184, "end_exclusive": 3881984, "start_hex": "0x00110C00", "end_hex": "0x003B3C00", "verification": "stage3_deployment_fact_runtime_readback", "basis": "阶段3 板级窗口只读回读 `address_facts.md`（S2MM=MM2S=0x00110C00、单缓冲、stride 0x0F00、720×3840=0x2A3000）；**运行期分配、无链接期静态保证**，消费方须运行期回读", "basis_sha256": "19f754d828ca00ca83da1ac23499cb9dc0e1a91788ca8e253ccbe33d32ee9ec3"},
+    {"name": "w5_framebuffer_0", "start": 1133568, "end_exclusive": 3898368, "start_hex": "0x00114C00", "end_hex": "0x003B7C00", "verification": "unverified_historical", "basis": "readiness §8.2（W5 P1 run manifest 与只读回读日志交叉绑定；匹配的最终 P1 ELF/map 未保留）"},
+    {"id": "stage3_shared_capture_display_buffer", "name": "stage3_video_capture_display_shared", "start": 1117184, "end_exclusive": 3881984, "start_hex": "0x00110C00", "end_hex": "0x003B3C00", "verification": "stage3_deployment_fact_runtime_readback", "basis": "阶段3 板级窗口只读回读 `address_facts.md`（S2MM=MM2S=0x00110C00、单缓冲、stride 0x0F00、720×3840=0x2A3000）；**运行期分配、无链接期静态保证**，消费方须运行期回读", "basis_binding_id": "stage3_window_address_facts", "basis_sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a"},
     {"name": "w5_framebuffer_1", "start": 7354368, "end_exclusive": 10119168, "start_hex": "0x00703800", "end_hex": "0x009A6800", "verification": "unverified_historical", "basis": "readiness §8.2"},
-    {"name": "w5_framebuffer_2", "start": 13575168, "end_exclusive": 16348160, "start_hex": "0x00CF2400", "end_hex": "0x00F95400", "verification": "unverified_historical", "basis": "readiness §8.2"}
+    {"name": "w5_framebuffer_2", "start": 13575168, "end_exclusive": 16339968, "start_hex": "0x00CF2400", "end_hex": "0x00F95400", "verification": "unverified_historical", "basis": "readiness §8.2"}
   ],
 
   "offline_checks": [
+    {"id": "redundant_facts_consistent", "description": "重复地址的十进制/十六进制与历史 owner 依据哈希必须一致", "expected": {"errors": []}},
     {"id": "raw_region_arithmetic", "description": "RAW 候选 12 MiB 长度、8 B 对齐与最大帧余量", "expected": {"raw_bytes": 12582912, "max_frame_bytes": 11059200, "storage_bytes": 11059200, "margin_bytes": 1523712}},
     {"id": "tensor_geometry_arithmetic", "description": "CHW INT8 416×416 张量字节数与 8 B word 数", "expected": {"tensor_bytes": 519168, "word8_count": 64896}},
     {"id": "geometry_table_arithmetic", "description": "X||Y 几何表 24 B entry × 416 × 2 与 mailbox 偏移", "expected": {"geometry_bytes": 19968, "x_start": 320, "x_end": 10304, "y_start": 10304, "y_end": 20288}},

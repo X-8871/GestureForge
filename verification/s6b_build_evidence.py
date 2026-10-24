@@ -86,6 +86,51 @@ def evidence_check_manifest_entry(check_result: dict) -> dict:
     }
 
 
+def inputs_check_manifest_entry(check_result: dict) -> dict:
+    """把 inputs-mode 结果转换为摘要与清单共用的记录。"""
+    exit_code = check_result.get("exit_code")
+    command = check_result.get("command_text")
+    if type(exit_code) is not int or not isinstance(command, str) or not command:
+        raise ValueError("inputs-mode 检查必须包含整数退出码和命令")
+    return {
+        "name": "check_stage_delivery.py --mode inputs",
+        "status": "PASS" if exit_code == 0 else "FAIL",
+        "command": command,
+        "exit_code": exit_code,
+    }
+
+
+def format_inputs_summary_row(inputs_check: dict | None) -> str:
+    """格式化 inputs 检查行；草稿阶段使用唯一占位符。"""
+    if inputs_check is None:
+        return ("| 交付检查 inputs | __S6B_INPUTS_COMMAND_PENDING__ | "
+                "__S6B_INPUTS_EXIT_PENDING__ |")
+    command = inputs_check.get("command_text") or inputs_check.get("command")
+    exit_code = inputs_check.get("exit_code")
+    if not isinstance(command, str) or not command or type(exit_code) is not int:
+        raise ValueError("inputs-mode 摘要必须包含命令和整数退出码")
+    return f"| 交付检查 inputs | `{command}` | 实测 {exit_code} |"
+
+
+def update_inputs_summary_row(summary_text: str, inputs_check: dict) -> str:
+    """用实际 inputs-mode 结果替换摘要中唯一的待运行行。"""
+    prefix = "| 交付检查 inputs |"
+    lines = summary_text.splitlines()
+    matches = [index for index, line in enumerate(lines) if line.startswith(prefix)]
+    if len(matches) != 1:
+        raise ValueError(f"摘要中 {prefix} 行必须恰有一条，实际 {len(matches)}")
+    lines[matches[0]] = format_inputs_summary_row(inputs_check)
+    return "\n".join(lines) + ("\n" if summary_text.endswith("\n") else "")
+
+
+def write_check_output(path: Path, check_result: dict) -> None:
+    """把对应检查调用的 stdout 写入包内输出文件。"""
+    stdout = check_result.get("stdout")
+    if not isinstance(stdout, str):
+        raise ValueError("检查结果必须包含 stdout 文本")
+    path.write_text(stdout, encoding="utf-8")
+
+
 def format_evidence_summary_rows(first_precheck: dict | None,
                                  final_check: dict | None) -> tuple[str, str]:
     """格式化首次预检与最终收敛检查，命令和退出码对应各自的真实结果。"""
@@ -345,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
         f"| 冻结预期 | `{freeze_run['command_text']}` | {freeze_run['exit_code']} |",
         f"| 运行用例 | `{run_result['command_text']}` | {run_result['exit_code']} |",
         f"| 判别力探针 | `{probe_result['command_text']}` | {probe_result['exit_code']} |",
-        f"| 交付检查 inputs | `{inputs_run['command_text']}` | 实测 {inputs_run['exit_code']} |",
+        format_inputs_summary_row(None),
         *format_evidence_summary_rows(None, None),
         "",
         "## 覆盖（11 类）",
@@ -429,11 +474,15 @@ def main(argv: list[str] | None = None) -> int:
     })
     inputs_run = run_command([sys.executable, "-B", str(checker), "--mode", "inputs",
                               "--manifest", str(inputs_manifest_path), "--project-root", str(root)], root)
+    inputs_check = inputs_check_manifest_entry(inputs_run)
+    write_check_output(inputs_out, inputs_run)
+    _summary_path = run_dir / "s6b_run_summary.md"
+    _summary = _summary_path.read_text(encoding="utf-8")
+    _summary_path.write_text(update_inputs_summary_row(_summary, inputs_check), encoding="utf-8")
     _guard_check("inputs-mode")
     print(f"[inputs-mode] exit={inputs_run['exit_code']}")
     if inputs_run["exit_code"] != 0:
         print(inputs_run["stdout"]); print(inputs_run["stderr"]); return 1
-    inputs_out.write_text(inputs_run["stdout"], encoding="utf-8")
 
     selfproof_path = run_dir.parent / f"{run_dir.name}_selfproof" / "export_selfproof.json"  # N-r07-2：自证报告在兄弟目录，可在提交后补入交付提交主体
     selfproof_check = None
@@ -473,8 +522,7 @@ def main(argv: list[str] | None = None) -> int:
          "command": run_result["command_text"], "exit_code": run_result["exit_code"]},
         {"name": "S6-B 判别力探针（4 项）", "status": "PASS" if probe_result["exit_code"] == 0 else "FAIL",
          "command": probe_result["command_text"], "exit_code": probe_result["exit_code"]},
-        {"name": "check_stage_delivery.py --mode inputs", "status": "PASS" if inputs_run["exit_code"] == 0 else "FAIL",
-         "command": inputs_run["command_text"], "exit_code": inputs_run["exit_code"]},
+        inputs_check,
         {"name": "check_stage_delivery.py --mode evidence", "status": "NOT_RUN", "command": None,
          "exit_code": None, "reason": "首版清单生成后立即实跑（本轮结束前回填真实退出码）"},
     ]
@@ -514,7 +562,7 @@ def main(argv: list[str] | None = None) -> int:
         if iteration == 0:
             first_evidence_precheck = evidence_run
         # 预检可能因**上一轮**清单已过期而失败：不据此中止，先重写清单再用"清单之后"的验证自检判定
-        evidence_out.write_text(evidence_run["stdout"], encoding="utf-8")
+        write_check_output(evidence_out, evidence_run)
         write_hashes()
         write_manifest()
         # 新鲜证据对必须在**清单刚写好、仍然当前**的时刻跑，产物直接入库；否则记录到的是
@@ -544,7 +592,7 @@ def main(argv: list[str] | None = None) -> int:
             update_evidence_summary_rows(_summary, first_evidence_precheck, checks[-1]),
             encoding="utf-8")
         # 固定输出保存本轮清单检查结果；后续先重绑，再由 closing 检查最终清单。
-        evidence_out.write_text(_verify["stdout"], encoding="utf-8")
+        write_check_output(evidence_out, _verify)
         # 摘要与最终检查状态一并进入下一轮哈希/清单；FIXPOINT 收敛后不再修改 run-dir。
         write_hashes()
         write_manifest()

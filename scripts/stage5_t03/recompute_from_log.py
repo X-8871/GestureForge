@@ -44,7 +44,7 @@ COUNTER_KEYS = (
     "zero_area_dropped",
 )
 
-COMPACT_SUBMIT_FIELDS = ("t", "fid", "sid", "seq", "oc", "vf")
+COMPACT_SUBMIT_FIELDS = ("t", "fid", "sid", "seq", "oc", "vf", "rr", "ri", "rd", "rb", "pri")
 COMPACT_COMMIT_FIELDS = ("t", "dfid", "ts", "rfid", "sid", "seq", "st", "dr", "bx", "za", "se", "w")
 
 
@@ -71,6 +71,11 @@ def recompute(events) -> dict:
     displayed_ids: list[int] = []
     timestamps: list[int] = []
     fail_submits = 0
+    missing_reject_reason_events = 0
+    missing_repeat_context_events = 0
+    rejection_reason_counts: dict[str, int] = {}
+    repeat_basis_counts: dict[str, int] = {}
+    repeated_frame_events = 0
     for event in events:
         kind = event.get("t")
         if kind == "sub":
@@ -86,6 +91,18 @@ def recompute(events) -> dict:
                 counters["invalid_records"] += 1
             if event.get("vf") == "FAIL":
                 fail_submits += 1
+                reason = event.get("rr")
+                if isinstance(reason, str) and reason:
+                    rejection_reason_counts[reason] = rejection_reason_counts.get(reason, 0) + 1
+                else:
+                    missing_reject_reason_events += 1
+            if any(field not in event for field in ("ri", "rd", "rb", "pri")):
+                missing_repeat_context_events += 1
+            if outcome in ("duplicate", "duplicate_frame_id", "out_of_order"):
+                repeated_frame_events += 1
+            basis = event.get("rb")
+            if isinstance(basis, str) and basis:
+                repeat_basis_counts[basis] = repeat_basis_counts.get(basis, 0) + 1
         elif kind == "commit":
             commit_count += 1
             counters["frames_committed"] += 1
@@ -125,6 +142,13 @@ def recompute(events) -> dict:
         "virtual_elapsed_ns": elapsed,
         "fail_submits": fail_submits,
         "stale_result_keys": len(stale_keys),
+        "rejection_audit": {
+            "missing_reject_reason_events": missing_reject_reason_events,
+            "missing_repeat_context_events": missing_repeat_context_events,
+            "repeated_frame_events": repeated_frame_events,
+            "reject_reason_counts": dict(sorted(rejection_reason_counts.items())),
+            "declared_repeat_basis_counts": dict(sorted(repeat_basis_counts.items())),
+        },
     }
 
 

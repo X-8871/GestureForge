@@ -363,11 +363,14 @@ def main(argv: list[str] | None = None) -> int:
     # ── 3d. 本轮修订文件实测 mtime（NB-4 取值来源）────────────────────────
     mtime_lines = []
     for relative in ("docs/stage5/s5t03_input_contract_binding_v1.json",
+                     "docs/stage5/S5T03_input_contract_binding_colour_v1.md",
                      "docs/stage5/s5t03_offline_skeleton_params_v1.json",
                      "docs/stage5/s5a_stage5_display_g0_fields.json",
                      "scripts/stage5_t03/s5t03_display_pipeline.py",
+                     "scripts/stage5_t03/recompute_from_log.py",
                      "scripts/stage5_t03/test_s5t03_skeleton.py",
-                     "scripts/stage5_t03/run_s5t03_evidence.py"):
+                     "scripts/stage5_t03/run_s5t03_evidence.py",
+                     "verification/s5_display_geometry_reference.py"):
         info = (REPO_ROOT / relative).stat()
         stamp = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(info.st_mtime))
         mtime_lines.append(f"{stamp}+08:00  {relative}")
@@ -419,9 +422,9 @@ def main(argv: list[str] | None = None) -> int:
         "不是真实采集时刻。",
         "真实集成 NOT_RUN：阶段4 结果契约（r04）committed-not-frozen、未注入真实彩色帧，"
         "本包不得作为真实采集/真实推理集成证据。",
-        "实现层 NOT_RUN（NB-5）：camera/回放输入路径尚未实现 —— replay_source_*/frame_integrity 未接线；"
+        "实现层 UNIMPLEMENTED（NB-5）：camera/回放输入路径尚未实现 —— replay_source_*/frame_integrity 未接线；"
         "本轮的关闭只在**绑定层**，不得读成实现已完成。",
-        "板上实测 NOT_RUN：板卡已由 Wong 于 2026-10-24 拔下，一切板级工作暂停；板上动态映射/过期边界/长跑"
+        "板上验证 SUSPENDED_BOARD_DETACHED：板卡已由 Wong 于 2026-10-24 拔下，一切板级工作暂停；板上动态映射/过期边界/长跑"
         "按 board pending 清单在重连后另行申请窗口。",
         "长跑语义：30 分钟为离线虚拟时钟加速 —— 判据用区间数 106572（帧数 106573 − 1）× 16.89 ms "
         "= 1 800 001 080 000 ns，余量 +1.08 ms；不是板上耐久（板上 31.06 min 结论仍属既有合成源显示侧证据）。",
@@ -489,9 +492,10 @@ def main(argv: list[str] | None = None) -> int:
         "- 等价 frame_id（NB-1，fail-closed）：同 session 等价 frame_id 且未显式声明重复/重放 ⇒ 拒绝并记 FAIL；"
         "`repeat_declared=true` 或 `repeat_index` 递增才放行（含判别力对照与 `equiv` 流 40 帧覆盖）",
         "- 落盘日志（N-4）：`logs/events_mixed_240.jsonl`、`logs/events_long_run.jsonl.gz`；"
-        "独立复算器 `scripts/stage5_t03/recompute_from_log.py` 两次 exit 0",
+        "独立复算器 `scripts/stage5_t03/recompute_from_log.py` 两次 exit 0；拒绝原因与 repeat/declaration 上下文落盘并复核",
+        "- task-24 修复：`session_id`/`frame_id`/`result_seq`/`repeat_index` 严格 uint32 校验先于键查找和状态变更；紧凑 JSONL 保存原始键、拒绝原因、重复声明与前序最大编号",
         "- 漂移登记（NB-2）：`scripts/stage5_t03/scan_hash_drift.py` 扫描旧哈希绑定清单 == 登记集合；"
-        f"安静窗口：{'QUIET' if quiet_ok else 'BUSY'}；实现层回放/彩色路径仍 **NOT_RUN**（NB-5）",
+        f"安静窗口：{'QUIET' if quiet_ok else 'BUSY'}；实现层状态 **UNIMPLEMENTED**，板上状态 **SUSPENDED_BOARD_DETACHED**（NB-5）",
         "",
         "## 关键计数（合成流，仅供骨架核对；不得当作板上结论）",
         f"- 240 帧 mixed：{json.dumps(mixed, ensure_ascii=False)}",
@@ -505,7 +509,7 @@ def main(argv: list[str] | None = None) -> int:
         "- 真实集成的 30 分钟联调与 T5-10 板上回归",
         "",
         "## 范围声明",
-        "本包只是**离线骨架**结论；`check_stage_delivery` 的 `CHECKS_OK` 仅代表清单/文件绑定通过，",
+        "本包只是**离线骨架**结论；G3/G4/G5 未通过；`check_stage_delivery` 的 `CHECKS_OK` 仅代表清单/文件绑定通过，",
         "不代表测试语义正确、独立审查通过或 G0/G4/G5；亦不得把合成流结论升级为真实集成通过。",
         "",
         "## 本轮更正（B-1/B-2/N-1..N-7，v1→v2）",

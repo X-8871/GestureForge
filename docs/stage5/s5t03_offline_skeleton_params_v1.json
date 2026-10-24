@@ -5,16 +5,16 @@
   "run_id": "s5t03_offline_skeleton_20261024_r02",
   "status": "FROZEN_BEFORE_RUN_REVISED_20261024",
   "frozen_utc8": "2026-10-24T00:43:33+08:00",
-  "revised_utc8": "2026-10-24T02:34:00+08:00",
-  "revised_utc8_source": "NB-4：取本文件最后一次写入的本地时间（**分钟级**，UTC+8；容差 ≤60 s）；秒级实测 mtime 见 report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/console/file_mtimes.txt；重建工作区后 mtime 会变，字节权威为 Git blob。",
-  "timestamps_note": "frozen_utc8 取本文件首次落盘的 mtime（2026-10-24T00:43:33+08:00）；revised_utc8 为本轮（B-1/B-2/N-1..N-7）修订时刻。首次证据 RunId r01 已被 r02 取代（见 revision_note 与 results_skeleton.json）。",
-  "revision_note": "2026-10-24 修订：① 长跑口径改为「区间数 = 帧数−1」（N-2：原写 106573×period=1800.01797 s 混同了帧数与区间数）；② 新增 counter_units 声明计数单位与时机（N-3）；③ 新增 log_artifacts 帧级事件日志格式并要求随证据落盘（N-4）；④ 时间戳改为实际落盘时刻（N-5）；⑤ contract_json_sha256 随 S5A-G0-v2 同轮 N-1 措辞修订更新（阈值/几何/语义未变）。冻结阈值本身未改。",
+  "revised_utc8": "2026-10-24T20:25:00+08:00",
+  "revised_utc8_source": "task-24 r05：取本文件最后一次写入的本地时间（分钟级，UTC+8；容差 ≤60 s）；秒级实测 mtime 见 report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r05/console/file_mtimes.txt；重建工作区后 mtime 会变，字节权威为 Git 源哈希。",
+  "timestamps_note": "frozen_utc8 取本文件首次落盘的 mtime（2026-10-24T00:43:33+08:00）；revised_utc8 由 task-24 r05 修改时刻与 file_mtimes 证据绑定。历史 RunId r01-r04 均保留且不因本修订改写。",
+  "revision_note": "2026-10-24 修订：① 长跑口径改为「区间数 = 帧数−1」（N-2：原写 106573×period=1800.01797 s 混同了帧数与区间数）；② 新增 counter_units 声明计数单位与时机（N-3）；③ 新增 log_artifacts 帧级事件日志格式并要求随证据落盘（N-4）；④ 时间戳改为实际落盘时刻（N-5）；⑤ contract_json_sha256 随 S5A-G0-v2 同轮 N-1 措辞修订更新；⑥ task-24 r04 加入拒绝原因/重复声明上下文落盘；⑦ task-24 r05 对 session_id/frame_id/result_seq/repeat_index 增加精确 uint32 域校验。冻结阈值本身未改。",
   "scope_note": "本文件只冻结「离线用例骨架」的样本数与种子。它不构成阶段5 验收指标、不改 S5A-G0-v2、也不得替代板上实测；任何骨架 PASS 都不能写成真实集成通过。",
   "inherited_from_s5a_g0_v2": {
     "contract_id": "S5A-G0-v2",
     "contract_json_sha256": "af51a4bf47e72df6b0ffef9d39536782a5ee31ca6c6314d2d4838d0ca21aaa7b",
     "geometry_reference_path": "verification/s5_display_geometry_reference.py",
-    "geometry_reference_sha256": "4d9fe369edadb12394e65a0c5c90fda0fbbd61cdff597ecf5793700c43473553",
+    "geometry_reference_sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645",
     "items": {
       "inverse_mapping_vs_float64_reference_px": 1.0,
       "draw_fidelity_px": 1.0,
@@ -93,7 +93,7 @@
     "log_artifacts": {
       "purpose": "N-4：帧级事件日志随证据入库，使任何统计量可由日志复算，复核者不必自己写循环",
       "format": "JSONL（每行一个事件对象），gzip 压缩文件为 *.jsonl.gz；事件类型 result_submit / overlay_commit",
-      "compact_fields_result_submit": {"t": "\"sub\"", "fid": "frame_id", "sid": "session_id", "seq": "result_seq", "oc": "outcome: accepted|duplicate|duplicate_frame_id|out_of_order|invalid", "vf": "verdict: PASS|FAIL"},
+      "compact_fields_result_submit": {"t": "\"sub\"", "fid": "frame_id（原始输入）", "sid": "session_id（原始输入）", "seq": "result_seq（原始输入）", "oc": "outcome: accepted|duplicate|duplicate_frame_id|out_of_order|invalid", "vf": "verdict: PASS|FAIL", "rr": "reject_reason（无拒绝原因时为 null）", "ri": "输入 repeat_index（正常记录为 1..4294967295；非法值保留以供审计）", "rd": "repeat_declared 原始布尔值（缺省为 null）", "rb": "declared_repeat_basis（无声明依据时为 null）", "pri": "同 session/frame 已接受的前序最大 repeat_index（无前序记录时为 null）"},
       "compact_fields_overlay_commit": {"t": "\"commit\"", "dfid": "displayed_frame_id", "ts": "overlay_commit_ns", "rfid": "result_frame_id", "sid": "session_id", "seq": "result_seq", "st": "state", "dr": "drawn 0/1", "bx": "boxes", "za": "zero_area_dropped", "se": "stale_effective 0/1", "w": "warmup 0/1"},
       "dumped_in_evidence": ["logs/events_mixed_240.jsonl", "logs/events_long_run.jsonl.gz"],
       "recompute_tool": "scripts/stage5_t03/recompute_from_log.py（独立解析器，不导入流水线在内存中的计数）"

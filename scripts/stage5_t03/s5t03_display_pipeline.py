@@ -121,10 +121,17 @@ def load_json(path: str | pathlib.Path) -> Any:
 
 
 def result_key(record: Mapping[str, Any]) -> tuple:
-    """共享契约结果键 `(session_id, frame_id, result_seq)`；缺字段即输入错误。"""
+    """共享契约结果键 `(session_id, frame_id, result_seq)`；字段必须通过 uint32 域校验。"""
     missing = [key for key in RESULT_KEY_FIELDS if record.get(key) is None]
     if missing:
         raise SkeletonInputError(f"结果记录缺少关联键字段：{missing}")
+    for key in RESULT_KEY_FIELDS:
+        minimum, maximum = R.JOIN_KEY_FIELD_RANGES[key]
+        value = record[key]
+        if type(value) is not int or not minimum <= value <= maximum:
+            raise SkeletonInputError(
+                f"结果记录关联键 {key} 必须是 uint32 整数且位于 {minimum}..{maximum}"
+            )
     return tuple(record[key] for key in RESULT_KEY_FIELDS)
 
 
@@ -196,7 +203,7 @@ class FrameEventLog:
         return {"counters": counters, "five_tuples": self.five_tuples(), "stale_result_keys": len(stale_keys)}
 
     # ── 落盘（N-4）：紧凑 JSONL，供独立复算器在不导入本模块内存状态的情况下复算 ──
-    COMPACT_SUBMIT_FIELDS = ("t", "fid", "sid", "seq", "oc", "vf")
+    COMPACT_SUBMIT_FIELDS = ("t", "fid", "sid", "seq", "oc", "vf", "rr", "ri", "rd", "rb", "pri")
     COMPACT_COMMIT_FIELDS = ("t", "dfid", "ts", "rfid", "sid", "seq", "st", "dr", "bx", "za", "se", "w")
 
     def compact_event(self, event: Mapping[str, Any]) -> dict[str, Any]:
@@ -204,7 +211,10 @@ class FrameEventLog:
         if event.get("event_type") == EVENT_RESULT_SUBMIT:
             return {"t": "sub", "fid": event.get("frame_id"), "sid": event.get("session_id"),
                     "seq": event.get("result_seq"), "oc": event.get("outcome"),
-                    "vf": event.get("verdict")}
+                    "vf": event.get("verdict"), "rr": event.get("reject_reason"),
+                    "ri": event.get("repeat_index"), "rd": event.get("repeat_declared"),
+                    "rb": event.get("declared_repeat_basis"),
+                    "pri": event.get("previous_repeat_index")}
         return {"t": "commit", "dfid": event.get("displayed_frame_id"), "ts": event.get("overlay_commit_ns"),
                 "rfid": event.get("result_frame_id"), "sid": event.get("session_id"),
                 "seq": event.get("result_seq"), "st": event.get("state"),
@@ -281,11 +291,9 @@ class DisplayPipeline:
         """
         if record.get(DECLARED_REPEAT_FIELD) is True:
             return True, DECLARED_REPEAT_FIELD
-        raw = record.get("repeat_index", 1)
-        try:
-            repeat_index = int(raw)
-        except (TypeError, ValueError):
-            return False, "repeat_index_unparsable"
+        repeat_index = record.get("repeat_index")
+        if type(repeat_index) is not int or repeat_index < 1:
+            return False, "repeat_index_invalid"
         if accepted_repeat is not None and repeat_index > int(accepted_repeat):
             return True, "repeat_index_incremented"
         return False, "no_declaration"
@@ -295,10 +303,11 @@ class DisplayPipeline:
         """校验并登记一条结果；返回本次提交的判定（含 outcome）。"""
         problems = R.validate_result_record(record)
         key: tuple | None = None
-        try:
-            key = result_key(record)
-        except SkeletonInputError as error:
-            problems = list(problems) + [str(error)]
+        if not problems:
+            try:
+                key = result_key(record)
+            except SkeletonInputError as error:
+                problems = list(problems) + [str(error)]
 
         event: dict[str, Any] = {
             "event_type": EVENT_RESULT_SUBMIT,
@@ -307,6 +316,8 @@ class DisplayPipeline:
             "result_seq": record.get("result_seq"),
             "source_kind": record.get("source_kind"),
             "input_scope_label": self.input_scope_label,
+            "repeat_index": record.get("repeat_index"),
+            "repeat_declared": record.get(DECLARED_REPEAT_FIELD),
             "problems": list(problems),
         }
 
@@ -319,8 +330,11 @@ class DisplayPipeline:
             return {"outcome": "invalid", "verdict": VERDICT_FAIL, "problems": list(problems), "key": key}
 
         session = record["session_id"]
-        seq = int(record["result_seq"])
-        frame_id = int(record["frame_id"])
+        seq = record["result_seq"]
+        frame_id = record["frame_id"]
+        frame_key = (session, frame_id)
+        accepted_repeat = self.accepted_frame_repeats.get(frame_key)
+        event["previous_repeat_index"] = accepted_repeat
         if key in self.accepted_keys:
             self.counters["duplicate_results"] += 1
             event["outcome"] = "duplicate"
@@ -350,8 +364,6 @@ class DisplayPipeline:
 
         # NB-1（fail-closed）：同 session 等价 frame_id 且**未显式声明**重复/重放 ⇒ 拒绝并记 FAIL
         # 依据阶段4 r04 frame_sequence_rules.duplicate_frame_id「未声明为重放必须拒绝并记 FAIL」。
-        frame_key = (session, frame_id)
-        accepted_repeat = self.accepted_frame_repeats.get(frame_key)
         if accepted_repeat is not None:
             declared, basis = self._declared_repeat(record, accepted_repeat)
             if not declared:
@@ -359,7 +371,6 @@ class DisplayPipeline:
                 event["outcome"] = "duplicate_frame_id"
                 event["verdict"] = VERDICT_FAIL
                 event["reject_reason"] = f"equivalent_frame_id_not_declared({basis})"
-                event["previous_repeat_index"] = int(accepted_repeat)
                 event["declared_repeat_basis"] = basis
                 event["rejected"] = True
                 self.log.append(event)
@@ -374,7 +385,7 @@ class DisplayPipeline:
         self.last_result_seq[session] = max(seq, self.last_result_seq.get(session, seq))
         self.last_frame_id[session] = max(frame_id, self.last_frame_id.get(session, frame_id))
         # 显式声明可接受较小编号，但不能降低该帧的历史最大值。
-        repeat_index = int(record.get("repeat_index", 1) or 1)
+        repeat_index = record["repeat_index"]
         self.accepted_frame_repeats[frame_key] = max(
             repeat_index, accepted_repeat if accepted_repeat is not None else repeat_index
         )

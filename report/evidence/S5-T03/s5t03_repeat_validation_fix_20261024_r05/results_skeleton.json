@@ -1,0 +1,396 @@
+{
+  "task_id": "S5-T03",
+  "run_id": "s5t03_repeat_validation_fix_20261024_r05",
+  "source_commit": "30147ab1f958c0dad2795da8e4b1c073ac39adaa",
+  "base_commit": "654c72eb8e883b1a43fe8b6c3f073a9cb6f023b9",
+  "input_scope_label": "synthetic_dynamic_reference",
+  "contract_revision": {
+    "display_contract": "S5A-G0-v2（N-1 措辞修订 + NB-4 来源说明，哈希 af51a4bf…）",
+    "input_binding": "S5T03-INPUT-BINDING-v2（对齐阶段4 r04 7a9507a）",
+    "order_rule": "阶段4 r04 frame_sequence_rules：重复/乱序/回退一律拒绝并记 FAIL"
+  },
+  "supersedes_runs": [
+    "report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r01",
+    "report/evidence/S5-T03/s5t03_takeover_20261024_r01",
+    "report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r02",
+    "report/evidence/S5-T03/s5t03_takeover_20261024_r02"
+  ],
+  "suite": {
+    "ran": 40,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "was_successful": false,
+    "elapsed_seconds": 217.227,
+    "outcomes": [
+      {
+        "test": "test_s5t03_skeleton.T01_ContractIntegrity.test_binding_json_declares_scope_labels",
+        "status": "FAIL",
+        "detail": "AssertionError: 'result_key_validation' not found in {'authority': '阶段4 r04（7a9507a）mapping_key_roles + frame_sequence_rules；显示侧消费 PS 侧记录（方案 B）', 'contract_result_key': ['session_id', 'frame_id', 'result_seq'], 'stage4a_join_key': ['session_id', 'frame_id', 'repeat_index'], 'ps_log_primary_key': ['session_id', 'result_seq'], 'uart_observable_key': ['frame_id', 'repeat_index', 'sequence'], 'display_side_pair': {'displayed_frame_id': '显示帧自己的 frame_id', 'result_frame_id': '被叠加结果所属 frame_id', 'rule': '两者必须成对记录；语义 B 下不要求相等，禁止改写 frame_id 掩盖错配'}, 'five_tuple': ['displayed_frame_id', 'result_frame_id', 'age_result_ns', 'age_frame_ns', 'display_semantics'], 'time_keys': {'capture_time_ns': 'camera 范围标签下必须非零；file_injection/synthetic 下为 0 哨兵并在 unavailable_fields 列出', 'result_time_ns': '结果记录发布时刻', 'overlay_commit_ns': '显示提交时刻（PS 单调时基）'}, 'ordering_keys': {'result_seq': 'PS 旁路结果日志主键组成，从 1 单调递增、拒绝回绕', 'sequence': 'UART 可观测配对键，不是唯一主键'}, 'uniqueness_rule': '(session_id, frame_id, result_seq) 唯一标识一条结果；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据', 'rejection_policy': {'authority': '阶段4 r04 frame_sequence_rules（duplicate_frame_id / regressed_frame_id / out_of_order_result / rule）', 'duplicate_frame_id': '同一会话内重复的 frame_id（未声明为重放）必须**拒绝**并记 FAIL，不得幂等静默接受', 'duplicate_frame_id_display_rule': 'NB-1（fail-closed，2026-10-24 复审后修）：显示侧对**同 session 等价 frame_id** 的提交，除**显式声明**外一律判 duplicate_frame_id 并记 FAIL（拒绝：不写已接受集合、不更新最新结果、不绘制），计入 `duplicate_frame_id_results`；唯一放行依据＝`repeat_declared=true` 或 `repeat_index` 严格大于该 (session_id, frame_id) 已接受的最大值（对齐 r04 `stage4a_join_key=(session_id, frame_id, repeat_index)`）。', 'result_key_validation': 'stage5 result key `(session_id, frame_id, result_seq)` 的三个字段必须先于键查找逐一校验：session_id 是本显示绑定的 uint32 会话键（0..4294967295）；frame_id 按阶段4字段声明为 uint32（0..4294967295）；result_seq 按阶段4字段声明为 uint32 且从 1 起（1..4294967295）。仅接受严格整数，不接受布尔值、浮点数、字符串或越界值。', 'repeat_index_validation': 'repeat_index 是阶段4 `<Q8I>` response_meta 中的 uint32 字段，显示骨架采用正整数编号（1..4294967295）；必须严格整数，不接受布尔值、浮点数、字符串或越界值；repeat_declared 若存在必须为布尔值。校验失败按 invalid/schema_violation 记录，且不得改变已接受状态。', 'precedence': 'invalid（schema）→ duplicate（同结果键）→ out_of_order（frame_id/result_seq 回退）→ duplicate_frame_id（等价但未声明）→ accepted', 'regressed_frame_id': 'frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位', 'out_of_order_result': '同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝', 'logging_rule': '以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因；紧凑 JSONL 必须逐条持久化 reject_reason，并携带原始 session_id、frame_id、result_seq、repeat_index、repeat_declared、declared_repeat_basis 与 previous_repeat_index（无值时显式为 null），以审计键字段拒绝和重复帧拒绝/放行。', 'display_side_consequence': '显示侧骨架对重复与乱序**同构处理**：只计数、记 FAIL 与拒绝原因，不写入已接受集合、不更新最新结果、不绘制；乱序帧的框必须与前一帧逐值相同'}, 'timebase': '同一 PS 单调时钟；所有事件写帧级事件日志（frame_id、事件类型、时间戳），统计量必须可由日志复算；骨架把该日志随证据落盘（logs/events_*.jsonl[.gz]）'}"
+      },
+      {
+        "test": "test_s5t03_skeleton.T01_ContractIntegrity.test_drift_registration_covers_old_hash_bindings",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T01_ContractIntegrity.test_existing_synthetic_evidence_untouched",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T01_ContractIntegrity.test_g0_contract_matches_registered_hash",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T01_ContractIntegrity.test_geometry_reference_not_forked",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T01_ContractIntegrity.test_inherited_thresholds_match_contract",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T02_CoordinateMapping.test_border_line_width_semantics",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T02_CoordinateMapping.test_edge_and_degenerate_cases",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T02_CoordinateMapping.test_geometry_resolutions_and_odd_padding",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T02_CoordinateMapping.test_hand_computed_cases_match_reference",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T02_CoordinateMapping.test_pipeline_uses_reference_mapping",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T02_CoordinateMapping.test_zero_area_box_not_drawn_but_counted",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_compact_log_persists_rejection_reasons_and_repeat_context",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_declared_lower_repeat_preserves_historical_maximum",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_duplicate_and_out_of_order_counted",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_duplicate_does_not_update_latest_result",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_equiv_stream_mode_covers_rule",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_equivalent_frame_id_with_declared_repeat_accepted",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_equivalent_frame_id_without_declaration_rejected",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_frame_id_regression_rejected_with_fail",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_late_results_recorded_truthfully",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_malformed_join_keys_leave_state_untouched_and_are_logged",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_malformed_repeat_is_rejected_before_accepted_state_mutation",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_nb1_discriminating_power_legacy_accept_would_fail",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_out_of_order_rejected_and_does_not_update_latest",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_repeat_fields_require_strict_domain",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_result_key_fields_require_uint32_before_lookup",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_result_seq_regression_rejected_with_fail",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_sequential_120_frames",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T03_FrameAssociation.test_skip_mode_ages_grow_and_stale_occurs",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T04_StaleAndExceptions.test_age_equals_limit_not_stale",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T04_StaleAndExceptions.test_age_limit_plus_one_stale_and_counted_once",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T04_StaleAndExceptions.test_explicit_stale_flag_with_small_age",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T04_StaleAndExceptions.test_hud_thirteen_fields_and_unavailable_marked",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T04_StaleAndExceptions.test_mixed_stream_exception_counters",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T05_LongRunVirtual.test_counter_units_declared",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T05_LongRunVirtual.test_disk_event_log_recomputable_independently",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T05_LongRunVirtual.test_long_run_virtual_30min_no_deadlock",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T06_StreamSchema.test_all_modes_conform_except_injected_invalid",
+        "status": "PASS",
+        "detail": ""
+      },
+      {
+        "test": "test_s5t03_skeleton.T06_StreamSchema.test_stream_is_deterministic_for_seed",
+        "status": "PASS",
+        "detail": ""
+      }
+    ]
+  },
+  "seed": 20261024,
+  "samples": {
+    "frame_association_sample_frames": 120,
+    "mixed_frames": 240,
+    "long_run_min_frames": 106573,
+    "long_run_period_count": 106572
+  },
+  "counter_units": {
+    "definition": "计数单位与时机（N-3 / NB-3）：本对象共 14 个计数器条目 + 本 definition 说明键；14 条文本与 scripts/stage5_t03/s5t03_display_pipeline.py::COUNTER_UNITS **逐字相等**（由测试断言强制），清单 limitations 亦由本对象生成完整 14 条",
+    "frames_committed": "每显示帧 1（含 warmup）",
+    "overlay_drawn_frames": "每显示帧 1（仅当真的绘制了边框）",
+    "boxes_drawn": "每个被绘制的框 1（逐帧累加）",
+    "warmup_frames": "每预热显示帧 1",
+    "dropped_frames": "每个状态为 DROPPED 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "timeouts": "每个状态为 TIMEOUT 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "error_results": "每个状态为 ERROR 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "invalid_records": "每次提交被判 schema 违规 1（不采用、不绘制）",
+    "stale_cleared": "按结果键 (session_id, frame_id, result_seq) 去重后 1（同一过期结果跨帧复用只计一次）",
+    "duplicate_results": "每次提交命中已接受结果键 1（拒绝、不更新最新结果）",
+    "duplicate_frame_id_results": "每次提交出现同 session 等价 frame_id 且未显式声明重复/重放 1（拒绝并记 FAIL，不更新最新结果）",
+    "out_of_order_results": "每次提交发生 frame_id/result_seq 回退 1（拒绝、记 FAIL、不更新最新结果）",
+    "zero_hand_frames": "每个 NO_HAND 且非过期的提交帧 1（合法零框，不绘制但不计过期）",
+    "zero_area_dropped": "每个被丢弃的零面积框 1（逐帧、逐框累加）"
+  },
+  "log_dumps": {
+    "events_mixed_240.jsonl": {
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r05\\logs\\events_mixed_240.jsonl",
+      "events": 371,
+      "compact": true,
+      "bytes": 50986,
+      "uncompressed_bytes": 50986
+    },
+    "events_long_run.jsonl.gz": {
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r05\\logs\\events_long_run.jsonl.gz",
+      "events": 163195,
+      "compact": true,
+      "bytes": 1593551,
+      "uncompressed_bytes": 23772023
+    }
+  },
+  "recompute_runs": [
+    {
+      "log": "events_mixed_240.jsonl",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w5\\scripts\\stage5_t03\\recompute_from_log.py --log D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r05\\logs\\events_mixed_240.jsonl --expect D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r05\\logs\\events_mixed_240_expected.json",
+      "exit_code": 0
+    },
+    {
+      "log": "events_long_run.jsonl.gz",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w5\\scripts\\stage5_t03\\recompute_from_log.py --log D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r05\\logs\\events_long_run.jsonl.gz --expect D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r05\\logs\\events_long_run_expected.json",
+      "exit_code": 0
+    }
+  ],
+  "measured_mixed_240": {
+    "mode": "mixed",
+    "frames": 240,
+    "seed": 20261024,
+    "commit_events": 240,
+    "events": 371,
+    "counters": {
+      "frames_committed": 240,
+      "overlay_drawn_frames": 177,
+      "boxes_drawn": 467,
+      "warmup_frames": 0,
+      "dropped_frames": 7,
+      "timeouts": 14,
+      "error_results": 7,
+      "invalid_records": 7,
+      "stale_cleared": 7,
+      "duplicate_results": 8,
+      "duplicate_frame_id_results": 0,
+      "out_of_order_results": 8,
+      "zero_hand_frames": 7,
+      "zero_area_dropped": 89
+    },
+    "virtual_elapsed_ns": 4036710000
+  },
+  "measured_long_run": {
+    "mode": "mixed",
+    "frames": 106573,
+    "seed": 20261024,
+    "commit_events": 106573,
+    "events": 163195,
+    "counters": {
+      "frames_committed": 106573,
+      "overlay_drawn_frames": 76603,
+      "boxes_drawn": 196510,
+      "warmup_frames": 0,
+      "dropped_frames": 3330,
+      "timeouts": 6660,
+      "error_results": 3330,
+      "invalid_records": 3330,
+      "stale_cleared": 3330,
+      "duplicate_results": 3331,
+      "duplicate_frame_id_results": 0,
+      "out_of_order_results": 3331,
+      "zero_hand_frames": 3330,
+      "zero_area_dropped": 39962
+    },
+    "virtual_elapsed_ns": 1800001080000
+  },
+  "checks": [
+    {
+      "name": "S5-T03 离线用例骨架（unittest，含长跑虚拟时间与落盘日志复算）",
+      "status": "FAIL",
+      "command": "python -B scripts/stage5_t03/test_s5t03_skeleton.py -v",
+      "exit_code": 1,
+      "reason": "ran=40 failures=1 errors=0；范围＝合成动态流离线骨架"
+    },
+    {
+      "name": "既有合成源证据未被改写（S5-A/S5-B/S5-C/S5-T01）",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w5 diff --name-only 654c72eb8e883b1a43fe8b6c3f073a9cb6f023b9 -- report/evidence/S5-A report/evidence/S5-B report/evidence/S5-C report/evidence/S5-T01",
+      "exit_code": 0,
+      "reason": "git diff --name-only 654c72eb8e883b1a43fe8b6c3f073a9cb6f023b9 对四个目录为空 ⇒ 不重做、不改写既有结论"
+    },
+    {
+      "name": "独立复算器对落盘帧级日志复算（N-4）",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_t03/recompute_from_log.py --log <logs/*.jsonl[.gz]> --expect <logs/*_expected.json>",
+      "exit_code": 0,
+      "reason": "两次复算（240 帧 mixed 与长跑）exit_code 均为 0 且与在线计数逐项一致；复算器不导入流水线内存计数"
+    },
+    {
+      "name": "漂移登记扫描（NB-2：旧哈希绑定清单集合 == 已登记集合）",
+      "status": "PASS",
+      "command": "python -B scripts/stage5_t03/scan_hash_drift.py",
+      "exit_code": 0,
+      "reason": "扫描 report/evidence/**/*manifest*.json 中绑定旧哈希的清单，与绑定 JSON 的登记逐项相等；只登记、不改写旧包"
+    },
+    {
+      "name": "安静窗口核验（无 Vivado/xsim/hw_server、3121 未监听）",
+      "status": "FAIL",
+      "command": "python: tasklist 过滤 vivado|xsdb|hw_server|vitis|xsim + netstat :3121",
+      "exit_code": 1,
+      "reason": "命中进程=['vivado-mcp-server-windows    24196 Console                    1     23,532 K']；3121=not listening；在本安静窗口内完成本包的全部核验（task-24 纪律）"
+    },
+    {
+      "name": "check_stage_delivery --mode inputs",
+      "status": "NOT_APPLICABLE",
+      "command": "python -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --project-root <w5> --manifest <本清单>",
+      "exit_code": null,
+      "reason": "无 role=input 文件（本任务无本地输入文件，--mode inputs 要求至少一个 role=input）；次因：上游接口本轮均未冻结（S5A-G0-v2 frozen=false、阶段4 r04 结果契约 committed-not-frozen），frozen 核验无法成立。按 report/README.md 的规定声明 inputs 不适用，不伪造冻结字段。"
+    }
+  ],
+  "limitations": [
+    "输入范围：全部为合成动态流（synthetic_dynamic_reference）；capture_time_ns 为合成单调时钟，不是真实采集时刻。",
+    "真实集成 NOT_RUN：阶段4 结果契约（r04）committed-not-frozen、未注入真实彩色帧，本包不得作为真实采集/真实推理集成证据。",
+    "实现层 UNIMPLEMENTED（NB-5）：camera/回放输入路径尚未实现 —— replay_source_*/frame_integrity 未接线；本轮的关闭只在**绑定层**，不得读成实现已完成。",
+    "板上验证 SUSPENDED_BOARD_DETACHED：板卡已由 Wong 于 2026-10-24 拔下，一切板级工作暂停；板上动态映射/过期边界/长跑按 board pending 清单在重连后另行申请窗口。",
+    "长跑语义：30 分钟为离线虚拟时钟加速 —— 判据用区间数 106572（帧数 106573 − 1）× 16.89 ms = 1 800 001 080 000 ns，余量 +1.08 ms；不是板上耐久（板上 31.06 min 结论仍属既有合成源显示侧证据）。",
+    "计数单位（frames_committed）：每显示帧 1（含 warmup）",
+    "计数单位（overlay_drawn_frames）：每显示帧 1（仅当真的绘制了边框）",
+    "计数单位（boxes_drawn）：每个被绘制的框 1（逐帧累加）",
+    "计数单位（warmup_frames）：每预热显示帧 1",
+    "计数单位（dropped_frames）：每个状态为 DROPPED 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "计数单位（timeouts）：每个状态为 TIMEOUT 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "计数单位（error_results）：每个状态为 ERROR 的提交帧 1（结果会被后续无新结果的帧继续复用，故计数可高于注入结果数）",
+    "计数单位（invalid_records）：每次提交被判 schema 违规 1（不采用、不绘制）",
+    "计数单位（stale_cleared）：按结果键 (session_id, frame_id, result_seq) 去重后 1（同一过期结果跨帧复用只计一次）",
+    "计数单位（duplicate_results）：每次提交命中已接受结果键 1（拒绝、不更新最新结果）",
+    "计数单位（duplicate_frame_id_results）：每次提交出现同 session 等价 frame_id 且未显式声明重复/重放 1（拒绝并记 FAIL，不更新最新结果）",
+    "计数单位（out_of_order_results）：每次提交发生 frame_id/result_seq 回退 1（拒绝、记 FAIL、不更新最新结果）",
+    "计数单位（zero_hand_frames）：每个 NO_HAND 且非过期的提交帧 1（合法零框，不绘制但不计过期）",
+    "计数单位（zero_area_dropped）：每个被丢弃的零面积框 1（逐帧、逐框累加）",
+    "N-1：S5A-G0-v2 JSON 本轮只修 stale 判定域的**措辞**（阈值/几何/语义未变），哈希由 8eac7007… 变为 10d24a39…；本轮 NB-4 又补 `revised_utc8_source` 说明键 ⇒ 现值 af51a4bf…（阈值/几何/语义自 N-1 后未再变）；report/evidence/S5-A/s5a_g0_20261021_r03 等旧包绑定的仍是 8eac7007…，已按扫描判据登记（如实登记，未删除其证据）。",
+    "取代关系：本包取代 r01 两个包（s5t03_offline_skeleton_20261024_r01、s5t03_takeover_20261024_r01）——r01 清单绑定的源文件在本轮 B-1/B-2/N-1..N-7 更正后字节已变，故 r01 清单对当前字节不再匹配；r01 证据保留、不删除、不就地改写。",
+    "既有结论：四 FPS、120 帧五元组、31.06 min 长跑结论原样保留，未重跑、未升级；check_stage_delivery --mode inputs 本轮不适用（见 checks 说明），不采用其结论。"
+  ]
+}

@@ -1,13 +1,13 @@
 # 阶段5 状态（HDMI 结果显示：离线准备 + S5-T01 合成源 bring-up + S5-T03 真彩契约改绑与用例骨架）
 
-更新：2026-10-24 10:49（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
-当前：Codex 按主仓 `DSH-20261024-006` 正式让出接管；独立复审 `93493f8` 为 **CHANGES_REQUIRED**：较小的显式重复记录会降低历史最大 repeat_index，错误接受后续未声明记录。本轮保留最大值，新增多步反例；35 项离线回归通过，原 blob 在新用例下真实失败；**修复待独立复审**。
-证据：`report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/`。以下 r03 数据仅保留其历史范围，不认证本轮源码；固定 r04 契约不等于当前 r05 集成通过。
-任务：`task-22`（r02 复审 PASS）→ `task-24`（NB 复审与修复）。阶段5 **未验收**：G0/G1/G3/G4/G5 未通过；
+更新：2026-10-24 20:39（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
+当前：Codex 依据主仓 `DSH-20261024-006` 接管。task-24 r06 的独立复审 **PASS**，关闭拒绝原因日志、repeat 上下文、u32 join-key 和状态不变性问题；完整离线测试 40/40。证据构建器最终退出 1，仅因 quiet-window 检出 PID 24196；未触碰进程。阶段5仍未验收，G0/G1/G3/G4/G5 均未通过。
+当前证据：`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（manifest SHA256 `2131101579d295da22dd934a8880e313f6ac934dcce5030c7bf07543c6366249`）；r04/r05 失败包和此前 r01-r03 全部保留。相机/回放运行时仍 `UNIMPLEMENTED`，板级验证 `SUSPENDED_BOARD_DETACHED`。
+任务：`task-22`（r02 复审 PASS）→ `task-24`（r06 修复复审 PASS；quiet-window 仍 FAIL）。阶段5 **未验收**：G0/G1/G3/G4/G5 未通过；
 合成源/离线骨架结论一律不得升级为真实集成结论；**实现层 camera/回放路径尚未实现**（NB-5）。
 **全局事实（2026-10-24 10:29）**：Wong 已重连板卡与摄像头；须重新核验部署身份、运行期地址及真彩目视后才能按授权窗口执行。本轮只做离线修复，未操作硬件。
 
-当前交接（优先于末尾历史交接）：任务=`阶段5 R5-NB1-01 修复待审` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5 / stage5-display-prep` | 起始提交=`93493f814a8198971ad96d910388409b5461806d` | 允许修改范围=`本轮两脚本、STATE、新RunId` | 未提交改动归属=`本轮修复全部归Codex；接管时干净` | 让出声明=`DSH-20261024-006 正式 OFFERED；Codex CLAIMED→IN_PROGRESS；交审后停写` | 心跳(UTC+8)=`2026-10-24 10:49` | 证据入口=`report/evidence/S5-T03/s5_codex_repeat_fix_20261024_r01/` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS / 独立Reviewer`
+当前交接（优先于末尾历史交接）：任务=`task-24 join-key fail-closed 与拒绝日志修复；代码/证据复审 PASS，证据构建被 quiet-window 阻断` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5 / stage5-display-prep` | 起始提交=`30147ab1f958c0dad2795da8e4b1c073ac39adaa` | 允许修改范围=`本轮 docs/stage5、scripts/stage5_t03、verification/s5_display_geometry_reference.py、report/evidence/S5-T03/r04-r06、STATE` | 未提交改动归属=`r04-r06 修复差异及 STATE 归当前 Codex 阶段5任务；此前提交与旧 RunId 不改写` | 让出声明=`DSH-20261024-006 正式 OFFERED；阶段5 Developer 已停写，独立 Reviewer PASS；总控复核/提交中；板级验证仍暂停` | 心跳(UTC+8)=`2026-10-24 20:39` | 证据入口=`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（r04/r05 为失败记录） | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD` | 状态/下一接手方=`IN_PROGRESS（task-24 修复复审 PASS；quiet-window FAIL 因 PID 24196；G0/G1/G3/G4/G5 未通过；摄像头/回放运行时 UNIMPLEMENTED；板级 SUSPENDED_BOARD_DETACHED）/ 下一接手方=Codex 总控做精确差异核验与提交`
 
 ## 目标与范围
 - 已完成：S5-A 契约/G0、S5-B 离线渲染叠框自测、S5-C 与阶段4 数值链回归、S5-D 阶段6 建议；S5-T01 合成源（PS 合成图）板上 bring-up。

@@ -6,8 +6,8 @@
   "title": "阶段5 显示/关联输入契约改绑：真实彩色范围标签 + 阶段3 部署身份 + 坐标与帧关联键",
   "status": "BINDING_ALIGNED_WITH_STAGE4_R04_NOT_FROZEN",
   "status_note": "本文件是**外围绑定与标签**，不是新的显示契约，也不冻结任何指标。S5A-G0-v2 的阈值、几何、取整规则与显示语义一律不变（本轮仅按 N-1 修一处措辞，见 stale_domain 登记）；阶段4 结果契约已由 r04 改绑（`7a9507a`，仍未冻结），标签到 source_kind 的实际枚举值以该接口 G0 为准。既有合成源证据与其结论一律保留原身份，不得因本绑定被升级为真实集成结论。",
-  "generated_utc8": "2026-10-24T02:34:00+08:00",
-  "generated_utc8_note": "NB-4：取本文件最后一次写入的本地时间（**分钟级**，UTC+8；容差 ≤60 s）；秒级实测 mtime 见 report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/console/file_mtimes.txt；重建工作区后 mtime 会变，字节权威为 Git blob。s5t03_offline_skeleton_params_v1.json 另记首次冻结时刻（frozen_utc8）。",
+  "generated_utc8": "2026-10-24T20:25:00+08:00",
+  "generated_utc8_note": "task-24 r05：取本文件最后一次写入的本地时间（分钟级，UTC+8；容差 ≤60 s）；秒级实测 mtime 见 report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r05/console/file_mtimes.txt。r01-r04 证据保留且不改写；重建工作区后 mtime 会变，字节权威为 Git 源哈希。",
   "supersedes": {
     "superseded_binding": "S5T03-INPUT-BINDING-v1（同一路径文件的上一版，内容提交 ba31126，2026-10-24T01:04:02+08:00）",
     "reason": "上一版引用的是阶段4 **已被取代**的 `f6fa9f0` 快照，并据此把 `camera_capture_replay_colour` 归入 `file_injection|synthetic` + `capture_time_ns=0` 哨兵；而阶段4 r04（`7a9507a`，2026-10-24T00:52:29+08:00）已改为**两个彩色标签都映射 `camera`、`capture_time_available=true`、回放 `timing_claim_scope=replay_only`**。时间线表明本文件上一版定稿时上游已是 r04。",
@@ -169,10 +169,12 @@
       "authority": "阶段4 r04 frame_sequence_rules（duplicate_frame_id / regressed_frame_id / out_of_order_result / rule）",
       "duplicate_frame_id": "同一会话内重复的 frame_id（未声明为重放）必须**拒绝**并记 FAIL，不得幂等静默接受",
       "duplicate_frame_id_display_rule": "NB-1（fail-closed，2026-10-24 复审后修）：显示侧对**同 session 等价 frame_id** 的提交，除**显式声明**外一律判 duplicate_frame_id 并记 FAIL（拒绝：不写已接受集合、不更新最新结果、不绘制），计入 `duplicate_frame_id_results`；唯一放行依据＝`repeat_declared=true` 或 `repeat_index` 严格大于该 (session_id, frame_id) 已接受的最大值（对齐 r04 `stage4a_join_key=(session_id, frame_id, repeat_index)`）。",
+      "result_key_validation": "stage5 result key `(session_id, frame_id, result_seq)` 的三个字段必须先于键查找逐一校验：session_id 是本显示绑定的 uint32 会话键（0..4294967295）；frame_id 按阶段4字段声明为 uint32（0..4294967295）；result_seq 按阶段4字段声明为 uint32 且从 1 起（1..4294967295）。仅接受严格整数，不接受布尔值、浮点数、字符串或越界值。",
+      "repeat_index_validation": "repeat_index 是阶段4 `<Q8I>` response_meta 中的 uint32 字段，显示骨架采用正整数编号（1..4294967295）；必须严格整数，不接受布尔值、浮点数、字符串或越界值；repeat_declared 若存在必须为布尔值。校验失败按 invalid/schema_violation 记录，且不得改变已接受状态。",
       "precedence": "invalid（schema）→ duplicate（同结果键）→ out_of_order（frame_id/result_seq 回退）→ duplicate_frame_id（等价但未声明）→ accepted",
       "regressed_frame_id": "frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位",
       "out_of_order_result": "同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝",
-      "logging_rule": "以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因",
+      "logging_rule": "以上拒绝都必须落在 PS 侧日志与证据中，不得只记计数不记原因；紧凑 JSONL 必须逐条持久化 reject_reason，并携带原始 session_id、frame_id、result_seq、repeat_index、repeat_declared、declared_repeat_basis 与 previous_repeat_index（无值时显式为 null），以审计键字段拒绝和重复帧拒绝/放行。",
       "display_side_consequence": "显示侧骨架对重复与乱序**同构处理**：只计数、记 FAIL 与拒绝原因，不写入已接受集合、不更新最新结果、不绘制；乱序帧的框必须与前一帧逐值相同"
     },
     "timebase": "同一 PS 单调时钟；所有事件写帧级事件日志（frame_id、事件类型、时间戳），统计量必须可由日志复算；骨架把该日志随证据落盘（logs/events_*.jsonl[.gz]）"

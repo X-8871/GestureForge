@@ -88,7 +88,9 @@
     该 `(session_id, frame_id)` 已接受的最大值（对齐 r04 `stage4a_join_key=(session_id, frame_id, repeat_index)`）；
   - **分类优先级**：invalid（schema）→ duplicate（同结果键）→ out_of_order（回退）→ duplicate_frame_id（等价未声明）→ accepted；
   - 乱序接纳/回绕 ⇒ 拒绝；无法唯一关联或顺序矛盾的结果不得用于跨阶段证据；
-  - 拒绝必须**落在日志与证据中并记原因**，不得只记计数；
+  - 键字段必须先校验再查键：`session_id` 为本绑定的 uint32（0..4294967295），`frame_id` 为阶段4 声明的 uint32（0..4294967295），`result_seq` 为阶段4 声明的 uint32 且从 1 起（1..4294967295）；三者均拒绝布尔值、浮点数、字符串与越界值；
+  - `repeat_index` 对应阶段4 `<Q8I>` 元数据中的 uint32，显示骨架按正整数编号（1..4294967295）；`repeat_declared` 若存在必须是布尔值。无效值按 schema 违规拒绝，不能改变已接受状态；
+  - 拒绝必须**落在日志与证据中并记原因**，不得只记计数。紧凑 JSONL 每条提交都保存原始关联键、`reject_reason`、输入 `repeat_index`/`repeat_declared`、声明依据和前序最大 `repeat_index`（无值显式为 `null`），便于审计拒绝与放行；
   - 三类拒绝（duplicate / out_of_order / duplicate_frame_id）**同构**：不写已接受集合、不更新 latest、不绘制；
     并断言被拒帧的框与前一帧逐值相同。**NB-1 不得削弱 B-2**（回退仍在更早分支判 out_of_order）。
 

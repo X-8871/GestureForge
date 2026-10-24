@@ -1,0 +1,58 @@
+test_binding_json_declares_scope_labels (test_s5t03_skeleton.T01_ContractIntegrity.test_binding_json_declares_scope_labels) ... ok
+test_drift_registration_covers_old_hash_bindings (test_s5t03_skeleton.T01_ContractIntegrity.test_drift_registration_covers_old_hash_bindings)
+NB-2：凡在清单里以旧哈希绑定 S5A-G0-v2 JSON 的包都必须被登记（扫描即判据）。 ... ok
+test_existing_synthetic_evidence_untouched (test_s5t03_skeleton.T01_ContractIntegrity.test_existing_synthetic_evidence_untouched) ... ok
+test_g0_contract_matches_registered_hash (test_s5t03_skeleton.T01_ContractIntegrity.test_g0_contract_matches_registered_hash) ... ok
+test_geometry_reference_not_forked (test_s5t03_skeleton.T01_ContractIntegrity.test_geometry_reference_not_forked) ... ok
+test_inherited_thresholds_match_contract (test_s5t03_skeleton.T01_ContractIntegrity.test_inherited_thresholds_match_contract) ... ok
+test_border_line_width_semantics (test_s5t03_skeleton.T02_CoordinateMapping.test_border_line_width_semantics) ... ok
+test_edge_and_degenerate_cases (test_s5t03_skeleton.T02_CoordinateMapping.test_edge_and_degenerate_cases) ... ok
+test_geometry_resolutions_and_odd_padding (test_s5t03_skeleton.T02_CoordinateMapping.test_geometry_resolutions_and_odd_padding) ... ok
+test_hand_computed_cases_match_reference (test_s5t03_skeleton.T02_CoordinateMapping.test_hand_computed_cases_match_reference) ... ok
+test_pipeline_uses_reference_mapping (test_s5t03_skeleton.T02_CoordinateMapping.test_pipeline_uses_reference_mapping) ... ok
+test_zero_area_box_not_drawn_but_counted (test_s5t03_skeleton.T02_CoordinateMapping.test_zero_area_box_not_drawn_but_counted) ... ok
+test_compact_log_persists_rejection_reasons_and_repeat_context (test_s5t03_skeleton.T03_FrameAssociation.test_compact_log_persists_rejection_reasons_and_repeat_context)
+N-4：落盘拒绝原因与重复声明上下文必须可审计、可由独立复算器读取。 ... ok
+test_declared_lower_repeat_preserves_historical_maximum (test_s5t03_skeleton.T03_FrameAssociation.test_declared_lower_repeat_preserves_historical_maximum)
+较小显式重放不得使后续未声明编号绕过历史最大值。 ... ok
+test_duplicate_and_out_of_order_counted (test_s5t03_skeleton.T03_FrameAssociation.test_duplicate_and_out_of_order_counted) ... ok
+test_duplicate_does_not_update_latest_result (test_s5t03_skeleton.T03_FrameAssociation.test_duplicate_does_not_update_latest_result)
+重复结果不更新最新结果：重复帧的绘制内容必须与前一帧完全相同。 ... ok
+test_equiv_stream_mode_covers_rule (test_s5t03_skeleton.T03_FrameAssociation.test_equiv_stream_mode_covers_rule)
+NB-1 覆盖：`equiv` 流既有未声明必拒，也有声明放行。 ... ok
+test_equivalent_frame_id_with_declared_repeat_accepted (test_s5t03_skeleton.T03_FrameAssociation.test_equivalent_frame_id_with_declared_repeat_accepted)
+NB-1 二阶：显式声明（repeat_index 递增 / repeat_declared）才放行。 ... ok
+test_equivalent_frame_id_without_declaration_rejected (test_s5t03_skeleton.T03_FrameAssociation.test_equivalent_frame_id_without_declaration_rejected)
+NB-1：同 session 等价 frame_id + 新 result_seq 且未声明 ⇒ 拒绝并记 FAIL。 ... ok
+test_frame_id_regression_rejected_with_fail (test_s5t03_skeleton.T03_FrameAssociation.test_frame_id_regression_rejected_with_fail)
+B-2：frame_id 回退必须拒绝并记 FAIL（阶段4 r04 frame_sequence_rules）。 ... ok
+test_late_results_recorded_truthfully (test_s5t03_skeleton.T03_FrameAssociation.test_late_results_recorded_truthfully) ... ok
+test_malformed_repeat_is_rejected_before_accepted_state_mutation (test_s5t03_skeleton.T03_FrameAssociation.test_malformed_repeat_is_rejected_before_accepted_state_mutation)
+浮点/非数值重复编号按 schema 拒绝，不触碰已接受状态或抛出转换异常。 ... ok
+test_nb1_discriminating_power_legacy_accept_would_fail (test_s5t03_skeleton.T03_FrameAssociation.test_nb1_discriminating_power_legacy_accept_would_fail)
+判别力对照：复刻 r02 语义（无等价 frame_id 记忆）时该判据会变红。 ... ok
+test_out_of_order_rejected_and_does_not_update_latest (test_s5t03_skeleton.T03_FrameAssociation.test_out_of_order_rejected_and_does_not_update_latest)
+B-2：乱序帧不得改变叠加内容（其框必须与前一帧逐值相同），且不进入已接受集合。 ... ok
+test_repeat_fields_require_strict_domain (test_s5t03_skeleton.T03_FrameAssociation.test_repeat_fields_require_strict_domain)
+repeat_index 必须是严格正整数；声明字段如存在必须是布尔值。 ... ok
+test_result_seq_regression_rejected_with_fail (test_s5t03_skeleton.T03_FrameAssociation.test_result_seq_regression_rejected_with_fail)
+B-2：同一 session 的 result_seq 回退同样必须拒绝并记 FAIL。 ... ok
+test_sequential_120_frames (test_s5t03_skeleton.T03_FrameAssociation.test_sequential_120_frames) ... ok
+test_skip_mode_ages_grow_and_stale_occurs (test_s5t03_skeleton.T03_FrameAssociation.test_skip_mode_ages_grow_and_stale_occurs) ... ok
+test_age_equals_limit_not_stale (test_s5t03_skeleton.T04_StaleAndExceptions.test_age_equals_limit_not_stale) ... ok
+test_age_limit_plus_one_stale_and_counted_once (test_s5t03_skeleton.T04_StaleAndExceptions.test_age_limit_plus_one_stale_and_counted_once) ... ok
+test_explicit_stale_flag_with_small_age (test_s5t03_skeleton.T04_StaleAndExceptions.test_explicit_stale_flag_with_small_age) ... ok
+test_hud_thirteen_fields_and_unavailable_marked (test_s5t03_skeleton.T04_StaleAndExceptions.test_hud_thirteen_fields_and_unavailable_marked) ... ok
+test_mixed_stream_exception_counters (test_s5t03_skeleton.T04_StaleAndExceptions.test_mixed_stream_exception_counters) ... ok
+test_counter_units_declared (test_s5t03_skeleton.T05_LongRunVirtual.test_counter_units_declared)
+N-3 / NB-3：JSON 14 键（14 计数 + definition）与流水线 14 条**逐字相等**。 ... ok
+test_disk_event_log_recomputable_independently (test_s5t03_skeleton.T05_LongRunVirtual.test_disk_event_log_recomputable_independently)
+N-4：落盘日志必须能被**独立**复算器复算出与在线计数逐项相同的计数。 ... ok
+test_long_run_virtual_30min_no_deadlock (test_s5t03_skeleton.T05_LongRunVirtual.test_long_run_virtual_30min_no_deadlock) ... ok
+test_all_modes_conform_except_injected_invalid (test_s5t03_skeleton.T06_StreamSchema.test_all_modes_conform_except_injected_invalid) ... ok
+test_stream_is_deterministic_for_seed (test_s5t03_skeleton.T06_StreamSchema.test_stream_is_deterministic_for_seed) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 217.866s
+
+OK

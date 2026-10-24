@@ -117,7 +117,7 @@ def run(mode: str, frames: int, *, seed: int | None = None, warmup: int = 0):
 
 
 class T01_ContractIntegrity(unittest.TestCase):
-    """契约与参考实现：阈值/几何未改，仅按 N-1 修过一处措辞（哈希已随之登记）。"""
+    """契约与参考实现：显示阈值/几何未改；记录校验已登记 repeat_index 正整数规则。"""
 
     def test_g0_contract_matches_registered_hash(self):
         expected = PARAMS["inherited_from_s5a_g0_v2"]["contract_json_sha256"]
@@ -197,6 +197,11 @@ class T01_ContractIntegrity(unittest.TestCase):
         # NB-1：等价 frame_id 规则必须登记在绑定里
         self.assertIn("duplicate_frame_id_display_rule",
                       binding["frame_association_keys"]["rejection_policy"])
+        self.assertIn("repeat_index_validation",
+                      binding["frame_association_keys"]["rejection_policy"])
+        self.assertIn("result_key_validation",
+                      binding["frame_association_keys"]["rejection_policy"])
+        self.assertIn("reject_reason", binding["frame_association_keys"]["rejection_policy"]["logging_rule"])
         # NB-2：漂移登记结构
         impact = binding["impacted_by_this_revision"]
         self.assertIn("registration_rule", impact)
@@ -500,6 +505,169 @@ class T03_FrameAssociation(unittest.TestCase):
             self._record(8, 30, 5, repeat_index=6))["outcome"], "accepted")
         self.assertEqual(pipeline.accepted_frame_repeats[(8, 30)], 6)
 
+    def test_repeat_fields_require_strict_domain(self):
+        """repeat_index 必须是严格正整数；声明字段如存在必须是布尔值。"""
+        valid = self._record(10, 40, 1)
+        self.assertEqual(R.validate_result_record(valid), [])
+        for value in (1.5, 5.5, "2", "bad", 0, -1, True, None, 1 << 32):
+            with self.subTest(repeat_index=value):
+                malformed = dict(valid)
+                malformed["repeat_index"] = value
+                self.assertTrue(any("repeat_index 必须是 uint32" in item
+                                    for item in R.validate_result_record(malformed)))
+        missing = dict(valid)
+        del missing["repeat_index"]
+        self.assertTrue(any("缺少必需字段 repeat_index" in item
+                            for item in R.validate_result_record(missing)))
+        malformed_declaration = dict(valid, repeat_declared=1)
+        self.assertTrue(any("repeat_declared 必须是布尔值" in item
+                            for item in R.validate_result_record(malformed_declaration)))
+
+    def test_malformed_repeat_is_rejected_before_accepted_state_mutation(self):
+        """浮点/非数值重复编号按 schema 拒绝，不触碰已接受状态或抛出转换异常。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        accepted = self._record(11, 50, 1)
+        self.assertEqual(pipeline.submit_result(accepted)["outcome"], "accepted")
+        accepted_keys = set(pipeline.accepted_keys)
+        latest = dict(pipeline.latest)
+        last_result_seq = dict(pipeline.last_result_seq)
+        last_frame_id = dict(pipeline.last_frame_id)
+        accepted_repeats = dict(pipeline.accepted_frame_repeats)
+
+        malformed_values = (1.5, 5.5, "bad", 0, -1, True, 1 << 32)
+        for seq, malformed_value in enumerate(malformed_values, start=2):
+            with self.subTest(repeat_index=malformed_value):
+                record = self._record(11, 50 + seq, seq)
+                record["repeat_index"] = malformed_value
+                record["repeat_declared"] = True
+                outcome = pipeline.submit_result(record)
+                self.assertEqual(outcome["outcome"], "invalid")
+                self.assertEqual(outcome["verdict"], "FAIL")
+                event = pipeline.log.submit_events()[-1]
+                self.assertEqual(event["reject_reason"], "schema_violation")
+                self.assertIn("repeat_index 必须是 uint32", " ".join(event["problems"]))
+                self.assertEqual(pipeline.accepted_keys, accepted_keys)
+                self.assertEqual(pipeline.latest, latest)
+                self.assertEqual(pipeline.last_result_seq, last_result_seq)
+                self.assertEqual(pipeline.last_frame_id, last_frame_id)
+                self.assertEqual(pipeline.accepted_frame_repeats, accepted_repeats)
+        self.assertEqual(pipeline.counters["invalid_records"], len(malformed_values))
+
+    def test_result_key_fields_require_uint32_before_lookup(self):
+        """会话键与阶段4关联键必须是精确整数并落在声明的 uint32 域内。"""
+        valid = self._record(13, 60, 1)
+        for field, value in (
+            ("session_id", "17"),
+            ("session_id", True),
+            ("session_id", -1),
+            ("session_id", 1 << 32),
+            ("frame_id", 1.0),
+            ("frame_id", -1),
+            ("frame_id", 1 << 32),
+            ("result_seq", "2"),
+            ("result_seq", True),
+            ("result_seq", 0),
+            ("result_seq", 1 << 32),
+        ):
+            with self.subTest(field=field, value=value):
+                malformed = dict(valid)
+                malformed[field] = value
+                self.assertTrue(R.validate_result_record(malformed))
+                with self.assertRaises(P.SkeletonInputError):
+                    P.result_key(malformed)
+        # 边界值可通过结构校验；session/frame 为 uint32，result_seq 从 1 起。
+        boundary = dict(valid, session_id=(1 << 32) - 1, frame_id=(1 << 32) - 1,
+                        result_seq=(1 << 32) - 1)
+        self.assertEqual(R.validate_result_record(boundary), [])
+
+    def test_malformed_join_keys_leave_state_untouched_and_are_logged(self):
+        """超范围 repeat_index 与字符串 session_id 都按 schema 拒绝并持久化原因。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        self.assertEqual(pipeline.submit_result(self._record(17, 70, 1))["outcome"], "accepted")
+        accepted_keys = set(pipeline.accepted_keys)
+        latest = dict(pipeline.latest)
+        last_result_seq = dict(pipeline.last_result_seq)
+        last_frame_id = dict(pipeline.last_frame_id)
+        accepted_repeats = dict(pipeline.accepted_frame_repeats)
+
+        overrange_repeat = self._record(17, 71, 2)
+        overrange_repeat["repeat_index"] = 1 << 32
+        overrange_repeat["repeat_declared"] = True
+        malformed_session = self._record(17, 72, 3)
+        malformed_session["session_id"] = "17"
+        for record in (overrange_repeat, malformed_session):
+            outcome = pipeline.submit_result(record)
+            self.assertEqual(outcome["outcome"], "invalid")
+            self.assertEqual(outcome["verdict"], "FAIL")
+            self.assertEqual(pipeline.accepted_keys, accepted_keys)
+            self.assertEqual(pipeline.latest, latest)
+            self.assertEqual(pipeline.last_result_seq, last_result_seq)
+            self.assertEqual(pipeline.last_frame_id, last_frame_id)
+            self.assertEqual(pipeline.accepted_frame_repeats, accepted_repeats)
+
+        with tempfile.TemporaryDirectory(prefix="s5t03_invalid_keys_") as temp_dir:
+            path = pathlib.Path(temp_dir) / "events.jsonl"
+            pipeline.log.dump_jsonl(path, compact=True)
+            submits = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()
+                       if json.loads(line).get("t") == "sub"]
+        invalids = [event for event in submits if event["oc"] == "invalid"]
+        self.assertEqual(len(invalids), 2)
+        self.assertTrue(all(event["vf"] == "FAIL" and event["rr"] == "schema_violation"
+                            for event in invalids))
+        self.assertEqual(invalids[0]["ri"], 1 << 32)
+        self.assertTrue(invalids[0]["rd"])
+        self.assertEqual(invalids[1]["sid"], "17")
+        audit = RC.recompute(submits)["rejection_audit"]
+        self.assertEqual(audit["missing_reject_reason_events"], 0)
+        self.assertEqual(audit["missing_repeat_context_events"], 0)
+
+    def test_compact_log_persists_rejection_reasons_and_repeat_context(self):
+        """N-4：落盘拒绝原因与重复声明上下文必须可审计、可由独立复算器读取。"""
+        pipeline = P.DisplayPipeline(input_scope_label="synthetic_dynamic_reference")
+        self.assertEqual(pipeline.submit_result(self._record(12, 30, 1))["outcome"], "accepted")
+        self.assertEqual(pipeline.submit_result(self._record(12, 30, 1))["outcome"], "duplicate")
+        self.assertEqual(pipeline.submit_result(self._record(12, 29, 2))["outcome"], "out_of_order")
+        self.assertEqual(pipeline.submit_result(self._record(12, 30, 3))["outcome"], "duplicate_frame_id")
+        declared = self._record(12, 30, 4, repeat_index=2, declared=True)
+        self.assertEqual(pipeline.submit_result(declared)["outcome"], "accepted")
+        overrange_repeat = self._record(12, 31, 5)
+        overrange_repeat["repeat_index"] = 1 << 32
+        overrange_repeat["repeat_declared"] = True
+        self.assertEqual(pipeline.submit_result(overrange_repeat)["outcome"], "invalid")
+        malformed_session = self._record(12, 32, 6)
+        malformed_session["session_id"] = "17"
+        self.assertEqual(pipeline.submit_result(malformed_session)["outcome"], "invalid")
+
+        with tempfile.TemporaryDirectory(prefix="s5t03_repeat_log_") as temp_dir:
+            path = pathlib.Path(temp_dir) / "events.jsonl"
+            pipeline.log.dump_jsonl(path, compact=True)
+            events = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+        submits = [event for event in events if event.get("t") == "sub"]
+        self.assertTrue(submits)
+        for event in submits:
+            for field in ("rr", "ri", "rd", "rb", "pri"):
+                self.assertIn(field, event, f"紧凑提交日志缺少 {field}")
+        rejected = [event for event in submits if event["vf"] == "FAIL"]
+        self.assertEqual(len(rejected), 5)
+        self.assertTrue(all(event["rr"] for event in rejected))
+        by_outcome = {event["oc"]: event for event in rejected if event["oc"] != "invalid"}
+        self.assertEqual(by_outcome["duplicate"]["rr"], "duplicate_result_key")
+        self.assertEqual(by_outcome["out_of_order"]["rr"], "regressed_frame_id")
+        repeat_rejection = by_outcome["duplicate_frame_id"]
+        self.assertEqual(repeat_rejection["ri"], 1)
+        self.assertIsNone(repeat_rejection["rd"])
+        self.assertEqual(repeat_rejection["rb"], "no_declaration")
+        self.assertEqual(repeat_rejection["pri"], 1)
+        invalids = [event for event in rejected if event["oc"] == "invalid"]
+        self.assertEqual(invalids[0]["ri"], 1 << 32)
+        self.assertEqual(invalids[1]["sid"], "17")
+        declared_accept = [event for event in submits if event["oc"] == "accepted"][-1]
+        self.assertEqual((declared_accept["ri"], declared_accept["rd"], declared_accept["rb"],
+                          declared_accept["pri"]), (2, True, "repeat_declared", 1))
+        audit = RC.recompute(events)["rejection_audit"]
+        self.assertEqual(audit["missing_reject_reason_events"], 0)
+        self.assertEqual(audit["missing_repeat_context_events"], 0)
+
     def test_nb1_discriminating_power_legacy_accept_would_fail(self):
         """判别力对照：复刻 r02 语义（无等价 frame_id 记忆）时该判据会变红。"""
         class _NoRepeatMemory(dict):
@@ -672,6 +840,12 @@ class T05_LongRunVirtual(unittest.TestCase):
         self.assertEqual(recomputed["unique_displayed_frames"], summary["commit_events"],
                          "每显示帧恰一次提交（无重复/缺失）")
         self.assertTrue(recomputed["timestamps_monotonic"])
+        self.assertEqual(recomputed["rejection_audit"]["missing_reject_reason_events"], 0,
+                         "落盘混合日志中每个 FAIL 提交都必须保留拒绝原因")
+        self.assertEqual(recomputed["rejection_audit"]["missing_repeat_context_events"], 0,
+                         "落盘混合日志必须保留 repeat/declaration 上下文键")
+        self.assertGreater(recomputed["rejection_audit"]["repeated_frame_events"], 0,
+                           "混合日志必须覆盖并保留重复/乱序提交上下文")
         # 格式自检：紧凑日志的字段集必须与冻结声明一致
         first_lines = path.read_text(encoding="utf-8").strip().splitlines()[:2]
         for line in first_lines:

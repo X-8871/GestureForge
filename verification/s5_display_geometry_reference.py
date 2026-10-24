@@ -72,6 +72,15 @@ STALE_REASON_FLAG = "stale_flag"
 STALE_REASON_AGE = "age_frame_exceeds_limit"
 STALE_REASON_BOTH = "both"
 
+# 阶段4 结果记录的 uint32 关联域；session_id 是本显示绑定采用的会话键。
+UINT32_MAX = (1 << 32) - 1
+JOIN_KEY_FIELD_RANGES: dict[str, tuple[int, int]] = {
+    "session_id": (0, UINT32_MAX),
+    "frame_id": (0, UINT32_MAX),
+    "result_seq": (1, UINT32_MAX),
+    "repeat_index": (1, UINT32_MAX),
+}
+
 
 class DegenerateGeometryError(ValueError):
     """`new_w<=1` 或 `new_h<=1`：端点对齐逆式不适用，必须改用阶段4 原图坐标字段。"""
@@ -314,6 +323,16 @@ def validate_result_record(record: Mapping[str, object]) -> list[str]:
     problems: list[str] = []
     if not isinstance(record, Mapping):
         return ["record 必须是对象"]
+    for key, (minimum, maximum) in JOIN_KEY_FIELD_RANGES.items():
+        if key not in record:
+            if key not in CONSUMED_STAGE4_FIELDS:
+                problems.append(f"缺少必需字段 {key}")
+            continue
+        value = record.get(key)
+        if type(value) is not int or not minimum <= value <= maximum:
+            problems.append(f"{key} 必须是 uint32 整数且位于 {minimum}..{maximum}")
+    if "repeat_declared" in record and type(record.get("repeat_declared")) is not bool:
+        problems.append("repeat_declared 必须是布尔值")
     for key in CONSUMED_STAGE4_FIELDS:
         if key not in record:
             problems.append(f"缺少必需字段 {key}")

@@ -105,9 +105,9 @@
 证据入口：`report/evidence/S6-E/s6e_gate_fix_20261024_r03/`、`report/evidence/S6-B/s6b_core_20261025_r02/`、`report/evidence/S6-B/s6b_core_20261025_r03/`、`report/evidence/S6-A/s6a_g0_20261024_r17/` | 恢复命令：`python -B -m unittest test_s6b_build_evidence -v`（verification/）；后续复审 F6d → task-23/task-28/E4 增量 |
 状态/下一接手方：S6-B builder/探针修复 REVIEWED_PASS / `72c10e5`；r02 证据 CHANGES_REQUIRED 并保留，r03 包审查 PASS；S6-A r17 增量包审查 PASS；F6d → task-23/task-28/E4 整体增量复审未完成；6-D、实物验收及阶段 G5 仍 BLOCKED/NOT_RUN。
 
-## 当前交接行（2026-10-25 05:33）
+## 当前交接行（2026-10-25 05:39）
 任务：R6-02 延迟门禁修复及 R6-04 清单补全（R6-03/R6-05 独立审查 PASS） | 负责人：Codex 项目总控 | 工作树/分支：`D:\codex-worktrees\w6` / `stage6-interact-prep`
 起始提交：`c80fe7e714c83f1c73e08fcb8c23072e9225c4d7` | 允许修改范围：`verification/s6e_latency_template_check.py`、`verification/test_s6_gate_regression.py`、`report/evidence/S6-E/s6e_latency_gate_fix_20261025_r01/`、`.codex/STATE.md`
-未提交改动归属：上述两个源码文件、本轮 RunId 与本 STATE 更新归当前 Codex lead；原有 S6-A r14-r16、S6-B r10-r13 与7个旧失败包保留、不入提交 | 让出声明：Developer 已停写；R6-03 代码与 R6-05 包装审查 PASS；未运行硬件/Vivado | 心跳(UTC+8)：2026-10-25 05:33
+未提交改动归属：本轮源码、RunId 与 STATE 已提交于 `6324b93`；原有 S6-A r14-r16、S6-B r10-r13 与7个旧失败包保留、不入提交 | 让出声明：Developer 已停写；R6-03 代码与 R6-05 包装审查 PASS；未运行硬件/Vivado | 心跳(UTC+8)：2026-10-25 05:39
 证据入口：`report/evidence/S6-E/s6e_latency_gate_fix_20261025_r01/delivery_manifest.json`；恢复命令：`C:/Users/22061/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/w6 --manifest report/evidence/S6-E/s6e_latency_gate_fix_20261025_r01/delivery_manifest.json`
-状态/下一接手方：R6 修复与包装限定范围 PASS，待总控复核后精确提交；T6-A03/T6-D/G3/G4/G5 仍 NOT_RUN 或 BLOCKED；下一步继续独立可执行离线增量，不越阶段/不操作硬件。
+状态/下一接手方：R6 修复与包装限定范围 PASS，已提交 `6324b93`；T6-A03/T6-D/G3/G4/G5 仍 NOT_RUN 或 BLOCKED；下一步继续独立可执行离线增量，不越阶段/不操作硬件。

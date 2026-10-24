@@ -1,0 +1,310 @@
+#!/usr/bin/env python3
+"""离线真实彩色链 · 输入张量驱动前向桥（task-26 / (A)，只读复用，离线等价）。
+
+## 边界（2026-10-24 lead 裁决，逐条实现）
+1. **优先复用而非重写**：`import` 既有 `verification/s1_t02_d2_int8_forward.py`，调用其
+   `load_image_chw`（冻结预处理本体：BGR→RGB、自带确定性双线性、letterbox 0.5、/255、CHW）
+   与 `forward_one`（**内部完成量化**：`Tensor(saturate(round_away(chw/INPUT_SCALE)), INPUT_SCALE)`）。
+   本文件**不复制**任何预处理或网络数学，也不修改任何冻结件。
+2. **量化与顺序沿冻结口径**：量化全部发生在既有 `forward_one` 内部；证据记录 `INPUT_SCALE`、
+   各层 `activation_scale` 与张量/输出摘要哈希。
+3. **可复现与判别力**：同一输入跑两次须得同一摘要哈希；负向对照：错 scale、篡改输入 1 字节、
+   有损 JPEG 容器——都必须改变摘要或失败（证明不是恒真）。
+4. **与既有参考对拍**：先在**冻结校准样本**上与既有 CPU 参考运行逐值比对；不一致即 `FAIL`，
+   并**不得**把桥接结果用于回放帧。
+5. **缺失输入不得编造**：所有冻结件按 SHA 校验，缺失或不符即 fail-closed。
+6. **标注边界**：全部产物 `offline_equivalent` / `replay_only` / `scope=offline_host`。
+7. **tmp PNG 往返字节可证无损**：双路（内存 BGR→RGB 编码 vs 原始 BGR 直接编码）经
+   `load_image_chw` 后 CHW **逐值相等**；并用 `imdecode(IMREAD_UNCHANGED)` 逐像素比对原始字节；
+   全程不使用 cv2 的任何转换/缩放；PNG 参数写死；记录 PNG 哈希（过程产物，**不取代**源真值）。
+
+用法（只写 --run-dir）：
+  python -B scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir <evidence_dir>
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import platform
+import sys
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import numpy as np
+
+CN = timezone(timedelta(hours=8))
+WORKTREE = Path(__file__).resolve().parents[2]
+FORWARD_MODULE = WORKTREE / "verification" / "s1_t02_d2_int8_forward.py"
+S4A_CONTRACT = WORKTREE / "docs" / "stage4" / "s4a_stage4_g0_fields.json"
+# 本轮新定位的冻结件（S4-A 未绑；待 r03 复审后按 blob+固定修订落进契约）
+ACTIVATION_REPORT = WORKTREE / "report" / "evidence" / "S1-T02" / "20260922_s1_t02_d2_tiny416_activation_calibration_r1.json"
+REFERENCE_RUN = WORKTREE / "report" / "evidence" / "S1-T02" / "20260922_s1_t02_d2_tiny416_int8_forward_r2.json"
+REPLAY_DIR = Path(r"D:\codex-worktrees\dbdf\report\evidence\S3-T05\t05_stage3_window_20261024_r01")
+REPLAY_FRAME = REPLAY_DIR / "frame_full.bin"
+REPLAY_FRAME_SHA256 = "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0"
+FORWARD_MODULE_SHA256 = "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+PNG_COMPRESSION = 0  # 写死：无损、无额外滤波
+
+
+def now_cn() -> str:
+    """当前 UTC+8 时间戳。"""
+    return datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds")
+
+
+def sha256_bytes(data: bytes) -> str:
+    """字节 SHA-256。"""
+    return hashlib.sha256(data).hexdigest()
+
+
+def sha256_file(path: Path) -> str:
+    """文件 SHA-256。"""
+    return sha256_bytes(path.read_bytes())
+
+
+def canonical_digest(obj: object) -> str:
+    """对 JSON 可序列化对象求确定性摘要。"""
+    return sha256_bytes(json.dumps(obj, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+
+
+def load_forward_module():
+    """导入既有前向模块（dataclass 需要先注册 sys.modules）。"""
+    spec = importlib.util.spec_from_file_location("d2fwd_bridge", FORWARD_MODULE)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["d2fwd_bridge"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def resolve_contract_bindings() -> dict[str, dict[str, str]]:
+    """从 S4-A 契约读取 cfg/weights/gf8/校准清单 的路径与 SHA（不硬编码）。"""
+    contract = json.loads(S4A_CONTRACT.read_text(encoding="utf-8"))
+    wanted = {
+        "cfg": "gesture_yolov4_tiny_416_d8_formal.cfg",
+        "weights": "gesture_yolov4_tiny_416_d8_formal_6000.weights",
+        "gf8_package": "gesture_yolov4_tiny_416_int8_weights.gf8",
+        "calibration_list": "calibration.list",
+    }
+    found: dict[str, dict[str, str]] = {}
+    for entry in contract.get("upstream_bindings", []):
+        path = str(entry.get("path", ""))
+        for key, suffix in wanted.items():
+            if path.endswith(suffix):
+                found[key] = {"path": path, "sha256": str(entry.get("sha256", "")).lower()}
+    missing = [k for k in wanted if k not in found]
+    if missing:
+        raise SystemExit(f"[FAIL] S4-A 契约缺少绑定：{missing}")
+    return found
+
+
+def verify(path: Path, expected: str, label: str) -> str:
+    """校验文件存在的 SHA；不符即 fail-closed。"""
+    if not path.is_file():
+        raise SystemExit(f"[FAIL] {label} 不存在：{path}")
+    actual = sha256_file(path)
+    if actual != expected.lower():
+        raise SystemExit(f"[FAIL] {label} SHA 不符：expected={expected} actual={actual}")
+    return actual
+
+
+def decode_png_exact(encoded: bytes) -> np.ndarray:
+    """按原始字节解码 PNG（不做任何转换/缩放）。"""
+    import cv2
+    array = cv2.imdecode(np.frombuffer(encoded, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    if array is None:
+        raise SystemExit("[FAIL] PNG 解码失败")
+    return array
+
+
+def main() -> int:
+    """执行双路无损比对 → 冻结样本对拍 → 回放帧前向。"""
+    parser = argparse.ArgumentParser(description="离线真实彩色链输入张量驱动前向桥（离线等价）")
+    parser.add_argument("--run-dir", required=True, type=Path)
+    parser.add_argument("--sample-index", type=int, default=0, help="校准清单中的样本序号（对拍用）")
+    args = parser.parse_args()
+
+    out_dir: Path = args.run_dir
+    if out_dir.exists() and any(out_dir.iterdir()):
+        print(f"[FAIL] 证据目录非空：{out_dir}")
+        return 2
+    out_dir.mkdir(parents=True, exist_ok=True)
+    tmp_dir = out_dir / "tmp_png"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    import cv2
+    module = load_forward_module()
+    checks: dict[str, dict[str, object]] = {}
+    failures: list[str] = []
+
+    def record(name: str, ok: bool, detail: dict[str, object], note: str = "") -> None:
+        checks[name] = {"status": "PASS" if ok else "FAIL", "detail": detail, "note": note}
+        if not ok:
+            failures.append(name)
+
+    # 0. 冻结件身份（fail-closed）
+    bindings = resolve_contract_bindings()
+    versions = {
+        "python": sys.version, "numpy": np.__version__, "cv2": cv2.__version__,
+        "platform": platform.platform(),
+    }
+    identity = {
+        "forward_module": {"path": str(FORWARD_MODULE), "sha256": verify(FORWARD_MODULE, FORWARD_MODULE_SHA256, "前向模块")},
+    }
+    for key, entry in bindings.items():
+        identity[key] = {"path": entry["path"], "sha256": verify(Path(entry["path"]), entry["sha256"], key)}
+    identity["activation_report"] = {"path": str(ACTIVATION_REPORT), "sha256": sha256_file(ACTIVATION_REPORT)}
+    identity["reference_run"] = {"path": str(REFERENCE_RUN), "sha256": sha256_file(REFERENCE_RUN)}
+    identity["replay_frame"] = {"path": str(REPLAY_FRAME), "sha256": verify(REPLAY_FRAME, REPLAY_FRAME_SHA256, "回放帧")}
+    record("frozen_identity", True, identity)
+
+    # 1. 装载冻结参数（全部走既有函数）
+    cfg = Path(bindings["cfg"]["path"])
+    weights = Path(bindings["weights"]["path"])
+    gf8 = Path(bindings["gf8_package"]["path"])
+    calib = Path(bindings["calibration_list"]["path"])
+    sections = module.parse_cfg_sections(cfg)
+    float_layers = module.read_fused_float_layers(cfg, weights)
+    header, package_layers = module.parse_package(gf8)
+    activation_scales = module.load_activation_scales(ACTIVATION_REPORT, cfg, weights, calib)
+    record("load_frozen_parameters",
+           header.get("width") == 416 and header.get("height") == 416 and header.get("channels") == 3
+           and set(package_layers) == set(float_layers) == set(activation_scales),
+           {"package_header": header, "layers": len(package_layers),
+            "input_scale": getattr(module, "INPUT_SCALE"), "activation_layer_count": len(activation_scales)})
+
+    # 2. tmp PNG 双路无损比对（边界 7）
+    frame_bytes = REPLAY_FRAME.read_bytes()
+    side = int(round((len(frame_bytes) / 3 / 720) ** 0.5 * 720))  # 1280x720 => 显式校验
+    frame_bgr = np.frombuffer(frame_bytes, dtype=np.uint8).reshape(720, 1280, 3)
+    ok_encode_a, enc_a = cv2.imencode(".png", frame_bgr, [cv2.IMWRITE_PNG_COMPRESSION, PNG_COMPRESSION])
+    frame_rgb_inmem = frame_bgr[:, :, ::-1].copy()
+    ok_encode_b, enc_b = cv2.imencode(".png", frame_rgb_inmem[:, :, ::-1], [cv2.IMWRITE_PNG_COMPRESSION, PNG_COMPRESSION])
+    if not (ok_encode_a and ok_encode_b):
+        print("[FAIL] PNG 编码失败")
+        return 2
+    png_a, png_b = tmp_dir / "replay_path_a.png", tmp_dir / "replay_path_b.png"
+    png_a.write_bytes(enc_a.tobytes())
+    png_b.write_bytes(enc_b.tobytes())
+    decoded_a = decode_png_exact(enc_a.tobytes())
+    bytewise_equal = bool(decoded_a.shape == frame_bgr.shape and np.array_equal(decoded_a, frame_bgr))
+    chw_a = module.load_image_chw(png_a, 416, 416)
+    chw_b = module.load_image_chw(png_b, 416, 416)
+    record("tmp_png_roundtrip_lossless", bytewise_equal and np.array_equal(chw_a, chw_b),
+           {"png_path_a_sha256": sha256_bytes(enc_a.tobytes()), "png_path_b_sha256": sha256_bytes(enc_b.tobytes()),
+            "png_compression": PNG_COMPRESSION, "bytewise_pixel_equal": bytewise_equal,
+            "chw_equal": bool(np.array_equal(chw_a, chw_b)),
+            "png_is_process_artifact": "PNG 为过程产物，源真值仍是 frame_full.bin"},
+           "两条路径都只经既有 load_image_chw；全程无 cv2 转换/缩放")
+
+    # 3. 负向对照：有损 JPEG ⇒ CHW 必须不同（证明容器检查有判别力）
+    ok_jpeg, enc_jpeg = cv2.imencode(".jpg", frame_bgr, [cv2.IMWRITE_JPEG_QUALITY, 60])
+    jpg = tmp_dir / "replay_lossy.jpg"
+    jpg.write_bytes(enc_jpeg.tobytes())
+    chw_jpeg = module.load_image_chw(jpg, 416, 416)
+    record("negative_control_lossy_container", ok_jpeg and not np.array_equal(chw_a, chw_jpeg),
+           {"jpeg_sha256": sha256_bytes(enc_jpeg.tobytes()), "chw_differs": bool(not np.array_equal(chw_a, chw_jpeg))})
+
+    # 4. 对拍：冻结校准样本上与既有 CPU 参考逐值一致（边界 3/4，先于回放帧）
+    sample_paths = module.read_calibration_list(calib, 512)
+    sample = sample_paths[args.sample_index]
+    reference = json.loads(REFERENCE_RUN.read_text(encoding="utf-8"))
+    sample_entries = {str(item.get("path")): item for item in reference.get("samples", [])}
+    sample_sha = sha256_file(sample)
+    ref_entry = next((v for k, v in sample_entries.items() if k.endswith(sample.name)), None)
+    chw_sample = module.load_image_chw(sample, 416, 416)
+    metrics, stats = module.forward_one(chw_sample, sections, float_layers, package_layers, activation_scales)
+    digest = canonical_digest({"metrics": metrics, "stats": stats})
+    metrics2, stats2 = module.forward_one(chw_sample, sections, float_layers, package_layers, activation_scales)
+    record("reproducible_same_input_same_digest", digest == canonical_digest({"metrics": metrics2, "stats": stats2}),
+           {"digest": digest, "scope_note": "既有 API 不返回原始 heads，故摘要取模块暴露的 metrics+stats"})
+
+    if ref_entry is None:
+        record("reconcile_vs_reference", False,
+               {"sample": sample.name, "sample_sha256": sample_sha, "reason": "参考运行中找不到该样本条目"})
+    else:
+        ref_metrics = ref_entry.get("metrics") or ref_entry.get("layer_metrics") or {}
+        diffs = []
+        for layer, values in ref_metrics.items():
+            mine = metrics.get(int(layer)) if str(layer).isdigit() else None
+            if mine is None:
+                diffs.append({"layer": layer, "reason": "参考有而桥接无"})
+                continue
+            for key, expected in (values or {}).items():
+                got = mine.get(key)
+                if isinstance(expected, float) and isinstance(got, (int, float)):
+                    if abs(float(expected) - float(got)) > 0.0:
+                        diffs.append({"layer": layer, "field": key, "expected": expected, "got": got})
+                elif expected != got:
+                    diffs.append({"layer": layer, "field": key, "expected": expected, "got": got})
+        record("reconcile_vs_reference", not diffs,
+               {"sample": sample.name, "sample_sha256": sample_sha, "reference_sha256": sha256_file(REFERENCE_RUN),
+                "reference_status": reference.get("status"), "compared_layers": len(ref_metrics),
+                "diffs": diffs[:10], "diff_count": len(diffs)},
+               "不一致则不得把桥接结果用于回放帧")
+
+    # 5. 负向对照：错 scale（按既有口径放大 1%）⇒ 摘要必须变
+    wrong_scales = {k: v * 1.01 for k, v in activation_scales.items()}
+    try:
+        m_wrong, s_wrong = module.forward_one(chw_sample, sections, float_layers, package_layers, wrong_scales)
+        record("negative_control_wrong_scale", canonical_digest({"metrics": m_wrong, "stats": s_wrong}) != digest,
+               {"note": "故意把全部 activation_scale 放大 1% ⇒ 输出必须变"})
+    except Exception as exc:  # 既有实现可能直接拒绝
+        record("negative_control_wrong_scale", True, {"rejected": f"{type(exc).__name__}: {exc}"})
+
+    # 6. 负向对照：篡改输入 1 字节 ⇒ 摘要必须变
+    tampered = chw_sample.copy()
+    tampered.reshape(-1)[0] = float(tampered.reshape(-1)[0]) + 1.0 / 255.0
+    m_tamper, s_tamper = module.forward_one(tampered, sections, float_layers, package_layers, activation_scales)
+    record("negative_control_tampered_input",
+           canonical_digest({"metrics": m_tamper, "stats": s_tamper}) != digest,
+           {"note": "输入张量首个元素 +1/255 ⇒ 输出必须变"})
+
+    # 7. 回放帧前向（仅在对拍通过且无损比对通过时产出结果）
+    gate_ok = checks["tmp_png_roundtrip_lossless"]["status"] == "PASS" and checks["reconcile_vs_reference"]["status"] == "PASS"
+    if not gate_ok:
+        record("replay_frame_forward", False, {"reason": "前置（无损比对或对拍）未通过，按边界 3 不得产出回放结论"})
+    else:
+        m_rep, s_rep = module.forward_one(chw_a, sections, float_layers, package_layers, activation_scales)
+        m_rep2, s_rep2 = module.forward_one(chw_a, sections, float_layers, package_layers, activation_scales)
+        rep_digest = canonical_digest({"metrics": m_rep, "stats": s_rep})
+        record("replay_frame_forward", rep_digest == canonical_digest({"metrics": m_rep2, "stats": s_rep2}),
+               {"digest": rep_digest, "frame_sha256": REPLAY_FRAME_SHA256, "chw_channel_checksum":
+                [sha256_bytes(chw_a[c].tobytes()) for c in range(chw_a.shape[0])],
+                "evidence_kind": "offline_replay", "range_label": "camera_capture_replay_colour",
+                "timing_claim_scope": "replay_only", "buffer_scope": "offline_host"})
+        (out_dir / "replay_frame_forward_digest.json").write_text(
+            json.dumps({"digest": rep_digest, "metrics": m_rep, "integer_stats": s_rep,
+                        "marking": {"evidence_kind": "offline_equivalent", "range_label": "camera_capture_replay_colour",
+                                    "timing_claim_scope": "replay_only", "buffer_scope": "offline_host",
+                                    "statement": "离线等价，不声明与板上一致"}},
+                       ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    status = "PASS" if not failures else "FAIL"
+    report = {
+        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": "r01",
+        "status": status, "generated_utc8": now_cn(),
+        "command": " ".join([sys.executable, *sys.argv]),
+        "worktree": str(WORKTREE), "hardware_execution": "NOT_RUN",
+        "marking": {"evidence_kind": "offline_equivalent", "timing_claim_scope": "replay_only",
+                    "buffer_scope": "offline_host", "statement": "离线等价，不声明与板上一致"},
+        "reuse_declaration": "预处理与网络数学全部来自既有 verification/s1_t02_d2_int8_forward.py（load_image_chw / forward_one），本脚本不复制第二份数学",
+        "versions": versions, "identity": identity, "checks": checks, "failures": failures,
+        "limitations": [
+            "离线等价：不声明与板上/PL 一致；计时结论一律 replay_only。",
+            "tmp PNG 为过程产物，源真值仍是 dbdf 的 frame_full.bin（blob 939fce22…）。",
+            "既有 API 不返回原始 heads，摘要取模块暴露的 (metrics, integer_stats)。",
+            "activation_report 与 reference_run 本轮新定位，S4-A 未绑；待 r03 复审后按 blob+固定修订落进契约。",
+        ],
+    }
+    (out_dir / "replay_forward_bridge_result.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    for name, item in checks.items():
+        print(f"[{item['status']}] {name}")
+    print(f"[{status}] 桥接：{len(checks) - len(failures)}/{len(checks)} 通过；失败={failures}")
+    return 0 if status == "PASS" else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

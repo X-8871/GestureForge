@@ -1,7 +1,15 @@
 # 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS）
 
-更新：2026-10-24 10:48（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
-**写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续；本轮 Developer 仅修 B-r03-1，停写后交独立审查，尚未提交。**
+更新：2026-10-24 19:58（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
+**写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续。task-26 Developer 已停写；桥接脚本 SHA-256 `ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac` 与 r07 证据一致，独立只读复审 PASS（仅代码/证据一致性）。r07 真实推理运行 BLOCKED，尚未提交。**
+
+## 当前接续增量（task-26，2026-10-24）
+
+- 基线提交 `1046cdc9eedefd903e6b96e0190f4897c6a371db`，分支 `stage4-infer-prep`；主输入契约、地址图和 RAW G0 状态不变，仍 `ENABLE=0`、未 FROZEN，未访问板卡。
+- 回放桥 `scripts/stage4_s4ctrl/replay_forward_bridge.py` 增加 heads 捕获、D9 解码入口、量化输入字节扰动检查及两 PNG `IMREAD_UNCHANGED` 像素比较；代码和 r07 证据经独立复审 PASS。该结论不代表真实推理验证通过。
+- 当前证据 `report/evidence/S4-CTRL/s4t26_forward_bridge_20261024_r07/`：清单/源码快照哈希一致；状态 `BLOCKED`、退出码 2；冻结校准样本推理、raw heads 对拍、D9/NMS、负向对照及 PNG 像素检查均 `NOT_RUN`。
+- 阻塞输入：可导入 `cv2` 的既有解释器；绑定到指定冻结校准样本路径与 SHA 的独立 raw head13/head26 黄金及对应冻结参数来源 SHA。不得安装依赖或以合成烟测冒充网络推理。r01–r06 历史 RunId 全部保留。
+- 阶段4仍未冻结：RAW 系统 G0、P 实测、硬件集成及 G5 均未完成；板级窗口按 `CDX-20261023-019` 暂缓，需另行正式 OFFER。
 
 ## 当前接续增量（2026-10-24）
 
@@ -9,7 +17,7 @@
 - B-r03-1：`verify_shared_io_contract.py` r07 按 `byte_basis` 单次取得 raw bytes，同一字节同时用于 SHA 与 S4-A/阶段5 JSON 语义解析；固定 blob 不可读、缺修订、未知口径或 SHA 不符均不得回退磁盘。
 - 新证据 `report/evidence/S4-CTRL/s4_codex_binding_fix_20261024_r01/`：定向回归 9/9、真实契约自检 26 PASS/0 FAIL（15/15 绑定）、消费方回归 10/10，exit 均0；初始测试夹具错误保留摘要。固定100/磁盘200/契约200现被拒绝，固定200/磁盘100按固定200通过。
 - 旧 `bound_trees.json` 的审查有效窗口已失效：w4/main 的 MOVING 与 dbdf/w5 的 STABLE 均已出现 HEAD 漂移。本轮只证明工具字节绑定修复与当前声明文件哈希；未重发跨树有效窗口、未把当前哈希复核升级为系统 G0。旧完整 T 标签报告未找到，不补造映射。
-- 接口、地址与109/109覆盖不变；`ENABLE=0`、未 FROZEN、RAW系统G0未闭合；硬件、P实测、4-D/G5仍未完成。task-26 后续由总控另派，本轮不改未完成回放桥。
+- 接口、地址与109/109覆盖不变；`ENABLE=0`、未 FROZEN、RAW系统G0未闭合；硬件、P实测、4-D/G5仍未完成。以上为 task-21 收尾时的计划快照；task-26 当前状态见本文件上方。
 
 ## 接管核对（task-21 目标 1）
 
@@ -66,7 +74,7 @@
 
 ## 当前交接行（11 字段）
 
-任务=`B-r03-1 固定绑定字节消费修复` | 负责人=`Codex 项目总控（Developer 已完成实现、待独立复审）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`ced5bdef5c6f2d623237908ddb74baa4d6fa2bdb` | 允许修改范围=`verify_shared_io_contract.py、定向测试、新RunId、STATE` | 未提交改动归属=`13项既有未跟踪不动；本轮差异归Codex待审` | 让出声明=`DSH-20261024-006已OFFER；Codex接续，本轮停写待审` | 心跳(UTC+8)=`2026-10-24 10:48` | 证据入口=`report/evidence/S4-CTRL/s4_codex_binding_fix_20261024_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex项目总控派独立Reviewer`
+任务=`task-26 阶段4离线回放桥：代码/证据静态复审 PASS；真实推理 BLOCKED` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`1046cdc9eedefd903e6b96e0190f4897c6a371db` | 允许修改范围=`scripts/stage4_s4ctrl/replay_forward_bridge.py、report/evidence/S4-CTRL/s4t26_forward_bridge_20261024_r01..r07/**、.codex/STATE.md` | 未提交改动归属=`本轮task-26脚本/证据与STATE归Codex；既有12项 ELF/MAP 保留不动且不入提交` | 让出声明=`开发者已停写，r07 独立审查 PASS；当前由 Codex 总控核对、提交` | 心跳(UTC+8)=`2026-10-24 19:58` | 证据入口=`report/evidence/S4-CTRL/s4t26_forward_bridge_20261024_r07/` | 恢复命令=`git -C D:/codex-worktrees/w4 status --short; git -C D:/codex-worktrees/w4 rev-parse HEAD` | 状态/下一接手方=`IN_PROGRESS（真实推理/解码/heads/PNG仍NOT_RUN；等待既有cv2解释器及冻结样本raw-head黄金；ENABLE=0、未FROZEN、无硬件窗口）/ 下一接手方=Codex项目总控继续处理可执行离线项`
 
 ## 历史交接行（已被上行取代，不再代表写权）
 

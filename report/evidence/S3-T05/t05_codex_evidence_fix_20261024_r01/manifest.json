@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T05",
+  "run_id": "t05_codex_evidence_fix_20261024_r01",
+  "created_utc8": "2026-10-24T10:48:45.825019+08:00",
+  "source_baseline": "2487eb8f65ba7f9a8e8e11e90ab14a8afb2344d6",
+  "source_files": [
+    {
+      "path": "scripts/stage3_t17/verify_t17_blob_identity.py",
+      "sha256": "fa88a8b9e558f1f3141b0cea4dff0c54315fd696ae00195048337ecfcfbaaa40"
+    },
+    {
+      "path": "scripts/stage3_t17/test_verify_t17_blob_identity.py",
+      "sha256": "c9cd16b8a58081fe4e00fff8a3e7f1f67152c4e73e01e1ad092d3f1dc01acfb7"
+    }
+  ],
+  "interface_version": "verify_t17_blob_identity CLI，固定树文本集合双向比较；无总线或硬件接口变更",
+  "tools": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "git": "git version 2.56.0.windows.2"
+  },
+  "commands": [
+    {
+      "name": "targeted_regression",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\dbdf\\scripts\\stage3_t17\\test_verify_t17_blob_identity.py"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matched": true
+    },
+    {
+      "name": "legacy_selftest",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\dbdf\\scripts\\stage3_t17\\verify_t17_blob_identity.py",
+        "--selftest",
+        "--fixture-dir",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\fixtures",
+        "--json-out",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\selftest.json"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matched": true
+    },
+    {
+      "name": "historical_fixed_scope",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\dbdf\\scripts\\stage3_t17\\verify_t17_blob_identity.py",
+        "--repo-root",
+        "D:\\codex-worktrees\\dbdf",
+        "--commit",
+        "2487eb8f65ba7f9a8e8e11e90ab14a8afb2344d6",
+        "--scope",
+        "report/evidence/S3-T05/t05_stage3_window_20261024_r01",
+        "--certify",
+        "report/evidence/S3-T05/t05_stage3_window_20261024_r01",
+        "--json-out",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\historical.json"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matched": true
+    },
+    {
+      "name": "original_bug_readme_view",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\old_verifier.py",
+        "--repo-root",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\view",
+        "--commit",
+        "a34b11706c44d193a828ef96eb3763b4e5edf3e4",
+        "--scope",
+        "report/evidence/S3-T05/run",
+        "--certify",
+        "report/evidence/S3-T05/run"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matched": true
+    },
+    {
+      "name": "fixed_readme_view",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\dbdf\\scripts\\stage3_t17\\verify_t17_blob_identity.py",
+        "--repo-root",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\view",
+        "--commit",
+        "a34b11706c44d193a828ef96eb3763b4e5edf3e4",
+        "--scope",
+        "report/evidence/S3-T05/run",
+        "--certify",
+        "report/evidence/S3-T05/run"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "matched": true
+    },
+    {
+      "name": "original_bug_absent_scope",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\old_verifier.py",
+        "--repo-root",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\view",
+        "--commit",
+        "a34b11706c44d193a828ef96eb3763b4e5edf3e4",
+        "--scope",
+        "absent/run",
+        "--certify",
+        "absent/run"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "matched": true
+    },
+    {
+      "name": "fixed_absent_scope",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "D:\\codex-worktrees\\dbdf\\scripts\\stage3_t17\\verify_t17_blob_identity.py",
+        "--repo-root",
+        "D:\\tmp\\t17_fix_validation_ezryzguh\\view",
+        "--commit",
+        "a34b11706c44d193a828ef96eb3763b4e5edf3e4",
+        "--scope",
+        "absent/run",
+        "--certify",
+        "absent/run"
+      ],
+      "cwd": "D:\\codex-worktrees\\dbdf",
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "matched": true
+    }
+  ],
+  "outputs": [
+    {
+      "path": "errata.md",
+      "size_bytes": 1854,
+      "sha256": "581a6c2e2d39bf3521b3369b36c99e67a4caa6942e4782f5954478c57634163a"
+    },
+    {
+      "path": "fixed_absent_scope.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fixed_absent_scope.stdout.txt",
+      "size_bytes": 270,
+      "sha256": "845bdacfe1769e510b892bfefed5171c57193813cef4ba78babea87c1e115aa2"
+    },
+    {
+      "path": "fixed_readme_view.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fixed_readme_view.stdout.txt",
+      "size_bytes": 372,
+      "sha256": "68ba4df2cf40767b1126ab976833c6e66637bc216353e6c57601d2b866e45030"
+    },
+    {
+      "path": "frame_binding_check.json",
+      "size_bytes": 257,
+      "sha256": "2ac0c1676b4b419a17a9f044b87427ea528affead5c315157de4a848556e544f"
+    },
+    {
+      "path": "historical_fixed_scope.json",
+      "size_bytes": 5233,
+      "sha256": "7144cc99c73eadfffd783362c8ec7bc76caac8952c0fd8d74bd7a565a4b51d20"
+    },
+    {
+      "path": "historical_fixed_scope.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "historical_fixed_scope.stdout.txt",
+      "size_bytes": 456,
+      "sha256": "b8d3bea3496276e47ec020ab09757b4adbc528cedd2696f0459e4c789b28cb80"
+    },
+    {
+      "path": "legacy_selftest.json",
+      "size_bytes": 2315,
+      "sha256": "250613722b290cd69d03cfd5e892dac2562838d68692eb161d7a0e094d18d640"
+    },
+    {
+      "path": "legacy_selftest.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "legacy_selftest.stdout.txt",
+      "size_bytes": 698,
+      "sha256": "61ea1fa7982aa1c9776620d0ec07502178848d9ed779010d990786adbb105dfe"
+    },
+    {
+      "path": "original_bug_absent_scope.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "original_bug_absent_scope.stdout.txt",
+      "size_bytes": 210,
+      "sha256": "097f6a94c948604313f6bd26a68e6c80608291473f968c663130b26687ac39a3"
+    },
+    {
+      "path": "original_bug_readme_view.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "original_bug_readme_view.stdout.txt",
+      "size_bytes": 242,
+      "sha256": "6218a7d093259b3cd5434555548c74e06c006ebd4ee120077a4bc6d20527e158"
+    },
+    {
+      "path": "replay_input.json",
+      "size_bytes": 1495,
+      "sha256": "f91fb6dc34606df7f53abb620215d555a3fa61dea35088126af6c43cc53993b8"
+    },
+    {
+      "path": "run_validation.py",
+      "size_bytes": 6931,
+      "sha256": "1be86266572ccc7bb2a80acbdf5d1273031feb583ef47f1130d098d4b43d248b"
+    },
+    {
+      "path": "source_provenance_record.json",
+      "size_bytes": 1451,
+      "sha256": "fd89186d60b1605f00348f76735ddb3378e05d78811b961a812c7684b6400cd2"
+    },
+    {
+      "path": "targeted_regression.stderr.txt",
+      "size_bytes": 1452,
+      "sha256": "552290b129cee415d90a6aa7e4b510287e291ff70f29775657df12bd0657c64d"
+    },
+    {
+      "path": "targeted_regression.stdout.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "result": "PASS",
+  "environment_failures": [
+    {
+      "command": "首次沙箱内 python -B test_verify_t17_blob_identity.py",
+      "exit_code": 1,
+      "reason": "ResourceUnavailable：python.exe 启动拒绝访问；随后经 require_escalated 执行。"
+    }
+  ],
+  "limitations": [
+    "不递归绑定本清单自身",
+    "源码修改未包含在 source_baseline，以实际文件哈希绑定",
+    "仅离线回归，无硬件操作；不是 G2/G3/G4/G5",
+    "二进制不由文本验证器认证；参考帧另以哈希绑定",
+    "原始漏洞命令退出0是预期失败对照，原输出保留",
+    "进程身份 CIM 查询拒绝访问；仅 Get-Process 可读核验，未结束任何进程",
+    "耗时以测试输出为准；峰值内存及工具调用总量未测"
+  ]
+}

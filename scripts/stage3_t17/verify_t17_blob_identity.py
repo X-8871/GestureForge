@@ -9,6 +9,8 @@
         [--scope <dir>]... [--certify <被认证的 run 目录>]...
 默认范围：`report/evidence/S3-T17/**`、`report/evidence/S3-CTRL/S3-T17/**`、`scripts/stage3_t17/**`
 的文本文件（.json/.md/.txt/.py/.sh/.tcl）。
+期望集合来自解析后的固定提交树，与工作区集合双向比较；缺文件、额外文件、每个空范围或空认证目录均失败。
+二进制文件不在本工具认证范围内；--exclude 显式排除的路径也不在证书范围内。
 
 范围断言（评审 B-2，**fail-closed**）：每个 `--certify <dir>` 必须被 `--scope` 覆盖（同路径或其后代）；
 否则**拒绝给出结论**并以退出码 4 结束，明确打印 `SCOPE_ASSERTION_FAILED` 与未被覆盖的目录。
@@ -62,6 +64,7 @@ def _run_verify_cli(script: str, repo: str, json_out: str):
     if os.path.exists(json_out):
         os.remove(json_out)
     cp = subprocess.run([sys.executable, "-B", script, "--repo-root", repo, "--commit", "HEAD",
+                         "--scope", "scripts/stage3_t17",
                          "--json-out", json_out], capture_output=True, env=env)
     return cp, os.path.isfile(json_out)
 
@@ -210,7 +213,7 @@ def git_show(repo: str, rev: str, path: str) -> bytes | None:
 
 
 def resolve_rev(repo: str, rev: str) -> str | None:
-    cp = subprocess.run(["git", "--no-optional-locks", "-C", repo, "rev-parse", rev],
+    cp = subprocess.run(["git", "--no-optional-locks", "-C", repo, "rev-parse", "--verify", f"{rev}^{{commit}}"],
                         capture_output=True, text=True)
     return (cp.stdout or "").strip() if cp.returncode == 0 else None
 
@@ -258,6 +261,13 @@ def main(argv):
         print(f"提交不可解析：{args.commit}")
         return 2
     scopes = tuple(args.scope) or DEFAULT_SCOPES
+    # 范围必须精确位于仓库内，禁止通过绝对路径或上级目录改变认证边界。
+    for path in (*scopes, *args.certify, *args.exclude):
+        normalized = path.replace("\\", "/")
+        if (not normalized or normalized.startswith("/") or ":" in normalized
+                or any(part in ("", ".", "..") for part in normalized.split("/"))):
+            print(f"非法仓库相对路径：{path}")
+            return 2
     excluded = {item.replace("\\", "/") for item in args.exclude}
 
     # 评审 B-2：fail-closed 范围断言——声明的范围必须覆盖每一个被认证目录，否则拒绝给结论。
@@ -298,7 +308,24 @@ def main(argv):
           + ("（true => 若本仓库是 CRLF 检出的克隆，请用 git -c core.autocrlf=false clone 复核）"
              if autocrlf_value.lower() == "true" else ""))
 
-    files = []
+    # 固定提交而非工作区遍历定义期望集合，防止删文件后出现空集或残缺集合假通过。
+    tree = subprocess.run(["git", "--no-optional-locks", "-C", repo,
+                           "ls-tree", "-r", "--full-tree", "-z", rev], capture_output=True)
+    if tree.returncode != 0:
+        print("固定提交树读取失败")
+        return 2
+    tree_files = set()
+    for entry in tree.stdout.split(b"\0"):
+        if not entry:
+            continue
+        metadata, raw_path = entry.split(b"\t", 1)
+        rel = raw_path.decode("utf-8")
+        if metadata.split()[1] == b"blob" and rel.lower().endswith(TEXT_EXT):
+            if _scope_covers(scopes, rel) is not None and rel not in excluded:
+                tree_files.add(rel)
+    empty_scopes = [s for s in scopes if not any(_scope_covers([s], p) for p in tree_files)]
+    empty_certified = [s for s in certified if not any(_scope_covers([s], p) for p in tree_files)]
+    files = set()
     for scope in scopes:
         root = os.path.join(repo, scope.replace("/", os.sep))
         for dirpath, _dirs, names in os.walk(root):
@@ -306,8 +333,10 @@ def main(argv):
                 if name.lower().endswith(TEXT_EXT):
                     rel = os.path.relpath(os.path.join(dirpath, name), repo).replace("\\", "/")
                     if rel not in excluded:
-                        files.append(rel)
-    files.sort()
+                        files.add(rel)
+    missing_worktree = sorted(tree_files - files)
+    unexpected_worktree = sorted(files - tree_files)
+    files = sorted(tree_files & files)
 
     mismatches, missing, crlf = [], [], []
     for rel in files:
@@ -335,11 +364,19 @@ def main(argv):
         "certified_dirs": certified,
         "excluded_selfproof_artifacts": sorted(excluded),
         "files_checked": len(files),
+        "expected_text_files": sorted(tree_files),
+        "expected_file_count": len(tree_files),
+        "missing_from_worktree": missing_worktree,
+        "unexpected_in_worktree": unexpected_worktree,
+        "empty_scopes": empty_scopes,
+        "empty_certified_dirs": empty_certified,
         "mismatch_count": len(mismatches),
         "mismatches": mismatches,
         "not_in_commit": missing,
         "crlf_files_in_worktree": crlf,
-        "verdict": "BLOB_BYTE_IDENTITY_OK" if not mismatches and not missing else "BLOB_BYTE_IDENTITY_MISMATCH",
+        "verdict": "BLOB_BYTE_IDENTITY_OK" if (tree_files and not mismatches and not missing
+                    and not missing_worktree and not unexpected_worktree
+                    and not empty_scopes and not empty_certified) else "BLOB_BYTE_IDENTITY_MISMATCH",
         "note": "逐文件比较 git blob 字节与工作区字节。本仓库 core.autocrlf=true：**未被 `-text` 覆盖**的范围里"
                 "git 会把 CRLF 归一为 LF，故只有 `-text` 覆盖（如 report/evidence/S3-T05/**）的文件才保证"
                 "「提交字节 == 原始字节」；对未覆盖范围，本工具的不一致是口径差而非证据损坏。",
@@ -349,6 +386,11 @@ def main(argv):
         print("  MISMATCH %s" % item["path"])
     for rel in missing:
         print("  NOT_IN_COMMIT %s" % rel)
+    for label, paths in (("MISSING_FROM_WORKTREE", missing_worktree),
+                         ("UNEXPECTED_IN_WORKTREE", unexpected_worktree),
+                         ("EMPTY_SCOPE", empty_scopes), ("EMPTY_CERTIFIED", empty_certified)):
+        for rel in paths:
+            print(f"  {label} {rel}")
     print(f"结论={result['verdict']}")
     if args.json_out:
         os.makedirs(os.path.dirname(os.path.abspath(args.json_out)), exist_ok=True)

@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_g2_reconciliation_20261024_r01",
+  "source_commit": "1d54894be4d547955034eeff8bce853dd4286fac",
+  "evidence_dir": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 只修订 G2 证据目录与阶段 STATE，不修改设计/接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/README.md",
+      "sha256": "fb8dcd62480f56d96186d45f5a4ca19439a913ad0f525b78c08cde7e451d465e",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/g2_material_list_r02.json",
+      "sha256": "2284153eb49db274cfa8a7d1fa3dca468186c24a1bd201624b6ea672cd0848cf",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/source_bindings.json",
+      "sha256": "7630a83371371e3d43cc18153893124794ebaf0f8daded87b556b904c9671903",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/review_errata.md",
+      "sha256": "94a4d8196ca0b9fc4cf07ba2321814347ee83bbf529fcdaf70b4b284ebd29a78",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/review_summary.md",
+      "sha256": "e1706f7b0d8842e570b3be9d0f8f2c2861259f032c75e9d68a0a22bd43bad886",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/SHA256SUMS",
+      "sha256": "093cb10f5d33325737b8087babb2c36afcf3cf96871cd964f0457a4f4add70a4",
+      "role": "artifact",
+      "keep_reason": "固定本 RunId 负载文件摘要；manifest 自身不纳入 SHA256SUMS，防止自引用。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_closeout_prep_20261024_r01/README.md",
+      "sha256": "d6046dfccc051adaa3dbc9e2ee20394e1aca9ab4d41ff9eb01a82c3bb16385b7",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_closeout_prep_20261024_r01/g2_material_list.json",
+      "sha256": "d777a976da1a9c34cddc6d58e989b5cb8c8e8d55b2c79c4fbf5c9bd33f6aa1a9",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_threshold_decode_20261024_r01/decode_threshold.py",
+      "sha256": "25e7dcaa29fc8317c151610bab7c3e50b9e110174d5b0f8721d45f996171ed95",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_threshold_decode_20261024_r01/manifest.json",
+      "sha256": "34b211db7e9aea9176bac417c3f221a4194bcac5a6fd839a41df2b63bb482a8b",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_threshold_decode_20261024_r01/README.md",
+      "sha256": "33ed47b191a0cd0428b6676283d379b5cd615a1d654228b5f73c6aed08c66773",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_threshold_decode_20261024_r01/result.json",
+      "sha256": "0f55637492ccd118713b60ac2197b8c215a32d9ba0f464f9bd5ae8c1d1db46a5",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "task11_static_threshold_truth_table",
+      "status": "PASS",
+      "command": "python -B report/evidence/S3-T05/task11_threshold_decode_20261024_r01/decode_threshold.py",
+      "exit_code": 0,
+      "reason": "固定 OOC 网表 LUT4 穷举 262144 组输入，真值表差异 0；仅静态组合译码。"
+    },
+    {
+      "name": "task11_rtl_netlist_sequential_equivalence",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "未执行 RTL 与网表顺序等价验证；状态更新、复位、饱和与跨周期关系未验证。"
+    },
+    {
+      "name": "complete_independent_g2_review_r02",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "上轮审查为 CHANGES_REQUIRED；修订已准备，尚待独立 Reviewer 对 r02 复审。"
+    },
+    {
+      "name": "stage3_g5_acceptance",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "阶段3存在多个未关闭项，整体 G5 未通过、未冻结。"
+    }
+  ],
+  "limitations": [
+    "manifest 检查只验证清单格式、声明文件哈希与当前证据目录枚举，不评价设计正确性、独立审查结论或实物验收。",
+    "人工目视只对被记录的部署、端口、接线、显示链路及时刻有效；后续变更须重新目视。",
+    "当前被审部署是 2026-10-24 窗口证据对象，不代表重新插接后的板卡此刻仍加载该部署。",
+    "VDMA 0x00015810 保持 PARTIAL，状态位解释不构成触发源或根因证明。",
+    "task11 静态阈值 PASS 不证明 RTL↔网表顺序等价；顺序等价 NOT_RUN。",
+    "阶段3 G5 未通过、未冻结。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "2.56.0.windows.2"
+  }
+}

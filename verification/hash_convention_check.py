@@ -21,13 +21,10 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(r"D:\codex-worktrees\w6")
-CHECKER = ROOT / "verification/check_stage_delivery.py"
-OUT = ROOT / "tmp/6/hash_convention_check.json"
-
-
-def load_checker():
-    spec = importlib.util.spec_from_file_location("check_stage_delivery_mod", CHECKER)
+def load_checker(root: Path):
+    """从脚本所属项目根目录载入真实交付检查器。"""
+    checker_path = root / "verification/check_stage_delivery.py"
+    spec = importlib.util.spec_from_file_location("check_stage_delivery_mod", checker_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -38,7 +35,8 @@ def sha(data: bytes) -> str:
 
 
 def main() -> int:
-    checker = load_checker()
+    root = Path(__file__).resolve().parents[1]
+    checker = load_checker(root)
     assert hasattr(checker, "verify_hash"), "交付检查器未暴露 verify_hash"
     assert hasattr(checker, "hash_variants"), "交付检查器未提供 hash_variants（双向接受器）"
 
@@ -87,8 +85,9 @@ def main() -> int:
         "verdict": ("ALL_AS_EXPECTED" if all(r["verdict"] == "AS_EXPECTED" for r in results)
                     else "UNEXPECTED_RESULT"),
     }
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    out = root / "tmp/6/hash_convention_check.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"verdict": payload["verdict"],
                       "cases": [(r["case_id"], r["observed"], r["verdict"]) for r in results]},
                      ensure_ascii=False))

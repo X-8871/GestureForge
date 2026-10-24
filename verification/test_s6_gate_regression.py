@@ -2,13 +2,26 @@
 
 import copy
 import json
+import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from s6e_acceptance_check import BEHAVIOR, CASES, DOC, REAL_CASE_CLASSES, evaluate
-from tool_self_tests import claim_normal_ok
+import tool_self_tests
+from tool_self_tests import (
+    _normalize_run_rel,
+    _normalize_s6a_run_rel,
+    _resolve_confined_path,
+    _resolve_run_dir,
+    claim_normal_ok,
+    main as tool_self_tests_main,
+    make_temp_copy,
+    prepare_clean_snapshot_fixture,
+)
 
 
 class GateRegression(unittest.TestCase):
@@ -161,6 +174,360 @@ class GateRegression(unittest.TestCase):
             data = copy.deepcopy(good)
             mutate(data)
             self.assertFalse(claim_normal_ok(0, data))
+
+
+class SnapshotFixturePathRegression(unittest.TestCase):
+    """快照正例的源路径和复制目标必须保持在各自根目录内。"""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name)
+
+    def _snapshot_repo(self, state_text: str = "") -> tuple[Path, Path]:
+        root = self.base / "source_project"
+        run_dir = root / "report/evidence/S6-A/valid_run"
+        run_dir.mkdir(parents=True)
+        (run_dir / "run_marker.txt").write_text("fixture source\n", encoding="utf-8")
+        state = root / ".codex/STATE.md"
+        state.parent.mkdir(parents=True)
+        state.write_text(state_text, encoding="utf-8")
+        verification = root / "verification"
+        verification.mkdir()
+        (verification / "tool_self_tests.py").write_text("# fixture\n", encoding="utf-8")
+        (verification / "hash_convention_check.py").write_text("# fixture\n", encoding="utf-8")
+        subprocess.run(["git", "init", "--quiet", str(root)], check=True)
+        subprocess.run(["git", "-C", str(root), "config", "user.email", "snapshot-test@local"], check=True)
+        subprocess.run(["git", "-C", str(root), "config", "user.name", "snapshot-test"], check=True)
+        subprocess.run(["git", "-C", str(root), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(root), "commit", "--quiet", "-m", "snapshot fixture"], check=True)
+        return root, run_dir
+
+    @staticmethod
+    def _snapshot(path: Path):
+        stat = path.stat()
+        return path.read_bytes(), stat.st_mtime_ns
+
+    def test_traversal_and_absolute_run_ids_reject_before_clone_or_outside_write(self):
+        root, _ = self._snapshot_repo()
+        fixture_parent = self.base / "fixture_parent"
+        fixture_parent.mkdir()
+        source_escape = self.base / "run_escape"
+        source_escape.mkdir()
+        (source_escape / "source_marker.txt").write_text("source sentinel", encoding="utf-8")
+        outside_target = fixture_parent / "run_escape"
+        outside_target.mkdir()
+        outside_marker = outside_target / "outside_marker.txt"
+        outside_marker.write_text("must remain unchanged", encoding="utf-8")
+        before = self._snapshot(outside_marker)
+
+        invalid_paths = (
+            "report/evidence/S6-A/../../../../run_escape",
+            "../../run_escape",
+            "C:/outside/run_escape",
+            "//server/share/run_escape",
+        )
+        for invalid_path in invalid_paths:
+            with self.subTest(invalid_path=invalid_path):
+                with self.assertRaises(ValueError):
+                    prepare_clean_snapshot_fixture(root, invalid_path, fixture_parent)
+                self.assertFalse((fixture_parent / "project").exists())
+                self.assertEqual(self._snapshot(outside_marker), before)
+
+    def test_traversal_state_reference_rejects_before_clone_or_outside_write(self):
+        bad_reference = "report/evidence/S6-A/../../../../state_escape"
+        root, _ = self._snapshot_repo(f"`{bad_reference}`\n")
+        fixture_parent = self.base / "fixture_parent"
+        fixture_parent.mkdir()
+        source_escape = self.base / "state_escape"
+        source_escape.mkdir()
+        (source_escape / "source_marker.txt").write_text("source sentinel", encoding="utf-8")
+        outside_target = fixture_parent / "state_escape"
+        outside_target.mkdir()
+        outside_marker = outside_target / "outside_marker.txt"
+        outside_marker.write_text("must remain unchanged", encoding="utf-8")
+        before = self._snapshot(outside_marker)
+
+        with self.assertRaisesRegex(ValueError, "STATE 证据引用"):
+            prepare_clean_snapshot_fixture(root, "valid_run", fixture_parent)
+        self.assertFalse((fixture_parent / "project").exists())
+        self.assertEqual(self._snapshot(outside_marker), before)
+
+    def test_relative_run_path_positive_and_destination_symlink_rejection(self):
+        root, run_dir = self._snapshot_repo()
+        run_rel = _normalize_s6a_run_rel("report/evidence/S6-A/valid_run")
+        resolved = _resolve_confined_path(root, run_rel, "正例 S6-A RunId", must_exist=True)
+        self.assertEqual(run_rel, "report/evidence/S6-A/valid_run")
+        self.assertEqual(resolved, run_dir.resolve())
+
+        fixture_root = self.base / "fixture_project"
+        fixture_root.mkdir()
+        outside = self.base / "outside_destination"
+        outside.mkdir()
+        link = fixture_root / "report"
+        try:
+            link.symlink_to(outside, target_is_directory=True)
+        except OSError as exc:
+            if os.name != "nt":
+                self.skipTest(f"当前环境不允许创建目录符号链接：{exc}")
+            junction = subprocess.run(
+                ["cmd.exe", "/c", "mklink", "/J", str(link), str(outside)],
+                capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
+            if junction.returncode != 0:
+                self.skipTest(f"当前环境不允许创建目录符号链接或联接点：{junction.stdout}{junction.stderr}")
+        self.addCleanup(self._remove_link, link)
+        with self.assertRaises(ValueError):
+            _resolve_confined_path(fixture_root, "report/evidence/copied.json",
+                                   "符号链接目标", must_exist=False)
+        self.assertEqual(list(outside.iterdir()), [])
+
+    def test_make_temp_copy_and_main_reject_run_dir_traversal_drive_and_unc(self):
+        root, _ = self._snapshot_repo()
+        fixture_parent = self.base / "copy_parent"
+        fixture_parent.mkdir()
+        source_escape = self.base / "run_escape"
+        source_escape.mkdir()
+        (source_escape / "source_marker.txt").write_text("source sentinel", encoding="utf-8")
+        outside_target = fixture_parent / "run_escape"
+        outside_target.mkdir()
+        outside_marker = outside_target / "outside_marker.txt"
+        outside_marker.write_text("must remain unchanged", encoding="utf-8")
+        outside_before = self._snapshot(outside_marker)
+        invalid_paths = (
+            "report/evidence/S6-A/../../../../run_escape",
+            "../../run_escape",
+            "C:/outside/run_escape",
+            "//server/share/run_escape",
+        )
+
+        for invalid_path in invalid_paths:
+            with self.subTest(api="make_temp_copy", invalid_path=invalid_path):
+                with self.assertRaises(ValueError):
+                    make_temp_copy(root, invalid_path, fixture_parent)
+                self.assertFalse((fixture_parent / "copy").exists())
+                self.assertEqual(self._snapshot(outside_marker), outside_before)
+            with self.subTest(api="main", invalid_path=invalid_path):
+                exit_code = tool_self_tests_main([
+                    "--project-root", str(root), "--run-dir", invalid_path,
+                    "--package", "s6a", "--out", "tmp/6/unsafe-output.json",
+                ])
+                self.assertEqual(exit_code, 2)
+                self.assertFalse((root / "tmp").exists())
+                self.assertEqual(self._snapshot(outside_marker), outside_before)
+
+    def test_make_temp_copy_and_main_reject_state_reference_traversal(self):
+        bad_reference = "report/evidence/S6-A/../../../../state_escape"
+        root, _ = self._snapshot_repo(f"`{bad_reference}`\n")
+        fixture_parent = self.base / "copy_parent"
+        fixture_parent.mkdir()
+        source_escape = self.base / "state_escape"
+        source_escape.mkdir()
+        (source_escape / "source_marker.txt").write_text("source sentinel", encoding="utf-8")
+        outside_target = fixture_parent / "state_escape"
+        outside_target.mkdir()
+        outside_marker = outside_target / "outside_marker.txt"
+        outside_marker.write_text("must remain unchanged", encoding="utf-8")
+        outside_before = self._snapshot(outside_marker)
+
+        with self.assertRaisesRegex(ValueError, "STATE 证据引用"):
+            make_temp_copy(root, "report/evidence/S6-A/valid_run", fixture_parent)
+        self.assertFalse((fixture_parent / "copy").exists())
+        self.assertEqual(self._snapshot(outside_marker), outside_before)
+
+        exit_code = tool_self_tests_main([
+            "--project-root", str(root), "--run-dir", "report/evidence/S6-A/valid_run",
+            "--package", "s6a", "--out", "tmp/6/unsafe-output.json",
+        ])
+        self.assertEqual(exit_code, 2)
+        self.assertFalse((root / "tmp").exists())
+        self.assertEqual(self._snapshot(outside_marker), outside_before)
+
+    def test_make_temp_copy_valid_relative_run_and_state_reference(self):
+        state_reference = "report/evidence/S6-A/valid_run/run_marker.txt"
+        root, run_dir = self._snapshot_repo(f"`{state_reference}`\n")
+        fixture_parent = self.base / "copy_parent"
+        fixture_parent.mkdir()
+        copy_root = make_temp_copy(root, "report/evidence/S6-A/valid_run", fixture_parent)
+        copied_run = copy_root / "report/evidence/S6-A/valid_run"
+        self.assertEqual((copied_run / "run_marker.txt").read_text(encoding="utf-8"), "fixture source\n")
+        self.assertEqual((copy_root / state_reference).read_text(encoding="utf-8"), "fixture source\n")
+        self.assertTrue((copy_root / ".codex/STATE.md").is_file())
+        self.assertEqual(copy_root.parent, fixture_parent.resolve())
+
+    def test_main_rejects_absolute_drive_unc_and_traversal_s6a_s6b_and_out(self):
+        root, _ = self._snapshot_repo()
+        outside_s6a = self.base / "outside_s6a"
+        outside_s6b = self.base / "outside_s6b"
+        outside_s6a.mkdir()
+        outside_s6b.mkdir()
+        outside_output = self.base / "outside_output.json"
+        for path in (outside_s6a / "marker.txt", outside_s6b / "marker.txt"):
+            path.write_text("must remain unchanged", encoding="utf-8")
+        outside_output.write_text("must remain unchanged", encoding="utf-8")
+        sentinels = (outside_s6a / "marker.txt", outside_s6b / "marker.txt", outside_output)
+        before = {path: self._snapshot(path) for path in sentinels}
+        invalid_values = {
+            "--s6a-run": ("../outside_s6a", "/absolute/outside_s6a",
+                           "C:/outside/s6a", "//server/share/s6a"),
+            "--s6b-run": ("../outside_s6b", "/absolute/outside_s6b",
+                           "C:/outside/s6b", "//server/share/s6b"),
+            "--out": ("../outside_output.json", "/absolute/output.json",
+                      "C:/outside/output.json", "//server/share/output.json"),
+        }
+
+        for option, paths in invalid_values.items():
+            for invalid_value in paths:
+                with self.subTest(option=option, invalid_value=invalid_value):
+                    argv = ["--project-root", str(root), "--run-dir",
+                            "report/evidence/S6-A/valid_run", "--package", "s6a",
+                            "--out", "tmp/6/positive.json", option, invalid_value]
+                    self.assertEqual(tool_self_tests_main(argv), 2)
+                    self.assertFalse((root / "tmp").exists())
+                    self.assertEqual({path: self._snapshot(path) for path in sentinels}, before)
+
+        s6a_rel, s6a_dir = _resolve_run_dir(root, "report/evidence/S6-A/valid_run", "正例 --s6a-run")
+        s6b_dir = root / "report/evidence/S6-B/valid_run"
+        s6b_dir.mkdir(parents=True)
+        s6b_rel, s6b_resolved = _resolve_run_dir(root, "report/evidence/S6-B/valid_run", "正例 --s6b-run")
+        out_rel = _normalize_run_rel("tmp/6/positive.json", "正例 --out")
+        out_path = _resolve_confined_path(root, out_rel, "正例 --out", must_exist=False)
+        self.assertEqual(s6a_rel, "report/evidence/S6-A/valid_run")
+        self.assertEqual(s6b_rel, "report/evidence/S6-B/valid_run")
+        self.assertEqual(s6a_dir, (root / s6a_rel).resolve())
+        self.assertEqual(s6b_resolved, s6b_dir.resolve())
+        self.assertEqual(out_path, (root / out_rel).resolve())
+
+    def test_main_rejects_verification_junction_before_any_child_or_output(self):
+        root, _ = self._snapshot_repo()
+        verification = root / "verification"
+        shutil.move(str(verification), str(root / "verification_saved"))
+        outside = self.base / "outside_verification"
+        outside.mkdir()
+        marker = outside / "export_selfproof.py"
+        marker.write_text("must remain unchanged", encoding="utf-8")
+        before = self._snapshot(marker)
+        self._make_directory_link(verification, outside)
+        calls = []
+        original_run = tool_self_tests.run
+
+        def run_spy(argv, cwd):
+            calls.append(list(argv))
+            return original_run(argv, cwd)
+
+        with mock.patch.object(tool_self_tests, "run", side_effect=run_spy):
+            exit_code = tool_self_tests_main([
+                "--project-root", str(root), "--run-dir", "report/evidence/S6-A/valid_run",
+                "--package", "s6a", "--out", "tmp/6/verification_link.json",
+            ])
+        self.assertEqual(exit_code, 2)
+        self.assertEqual(calls, [])
+        self.assertFalse((root / "tmp").exists())
+        self.assertEqual(self._snapshot(marker), before)
+
+    def test_main_rejects_out_and_fixed_child_output_parent_junctions(self):
+        root, _ = self._snapshot_repo()
+        temp_dir = root / "tmp"
+        temp_dir.mkdir()
+        outside = self.base / "outside_output_parent"
+        outside.mkdir()
+        marker = outside / "sentinel.txt"
+        marker.write_text("must remain unchanged", encoding="utf-8")
+        before = self._snapshot(marker)
+        self._make_directory_link(temp_dir / "6", outside)
+        cases = (
+            ("--out parent", "tmp/6/unsafe_output.json"),
+            ("fixed child output parent", "tmp/7/final_output.json"),
+        )
+        for label, out_value in cases:
+            with self.subTest(label=label):
+                calls = []
+                original_run = tool_self_tests.run
+
+                def run_spy(argv, cwd):
+                    calls.append(list(argv))
+                    return original_run(argv, cwd)
+
+                with mock.patch.object(tool_self_tests, "run", side_effect=run_spy):
+                    exit_code = tool_self_tests_main([
+                        "--project-root", str(root), "--run-dir", "report/evidence/S6-A/valid_run",
+                        "--package", "s6a", "--out", out_value,
+                    ])
+                self.assertEqual(exit_code, 2)
+                self.assertEqual(calls, [])
+                self.assertEqual(self._snapshot(marker), before)
+                self.assertEqual(list(outside.iterdir()), [marker])
+                self.assertFalse((root / "tmp/6/self_test_delivery.json").exists())
+                self.assertFalse((root / "tmp/6/self_test_snapshot.json").exists())
+
+    def test_main_rejects_nested_delivery_s6a_and_s6b_links_before_verification_child(self):
+        root, _ = self._snapshot_repo()
+        s6a_delivery = root / "report/evidence/S6-A/delivery_run"
+        s6b_delivery = root / "report/evidence/S6-B/delivery_run"
+        s6a_delivery.mkdir(parents=True)
+        s6b_delivery.mkdir(parents=True)
+        (s6a_delivery / "run_marker.txt").write_text("fixture source", encoding="utf-8")
+        (s6b_delivery / "run_marker.txt").write_text("fixture source", encoding="utf-8")
+        outside_a = self.base / "outside_delivery_a"
+        outside_b = self.base / "outside_delivery_b"
+        outside_a.mkdir()
+        outside_b.mkdir()
+        marker_a = outside_a / "marker.txt"
+        marker_b = outside_b / "marker.txt"
+        marker_a.write_text("must remain unchanged", encoding="utf-8")
+        marker_b.write_text("must remain unchanged", encoding="utf-8")
+        before = {marker_a: self._snapshot(marker_a), marker_b: self._snapshot(marker_b)}
+        self._make_directory_link(s6a_delivery / "linked_tree", outside_a)
+        self._make_directory_link(s6b_delivery / "linked_tree", outside_b)
+        head = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], check=True,
+                              capture_output=True, text=True, encoding="utf-8").stdout.strip()
+
+        common = ["--project-root", str(root), "--run-dir", "report/evidence/S6-A/valid_run",
+                  "--package", "s6a", "--s6a-run", "report/evidence/S6-A/valid_run",
+                  "--delivery-commit", head, "--out", "tmp/6/delivery_link.json"]
+        selected_pairs = (
+            ("report/evidence/S6-A/delivery_run", "report/evidence/S6-B/delivery_run"),
+            ("report/evidence/S6-A/valid_run", "report/evidence/S6-B/delivery_run"),
+        )
+        for delivery_s6a, delivery_s6b in selected_pairs:
+            calls = []
+            original_run = tool_self_tests.run
+
+            def run_spy(argv, cwd):
+                calls.append(list(argv))
+                return original_run(argv, cwd)
+
+            with self.subTest(delivery_s6a=delivery_s6a, delivery_s6b=delivery_s6b):
+                with mock.patch.object(tool_self_tests, "run", side_effect=run_spy):
+                    exit_code = tool_self_tests_main(common + [
+                        "--delivery-s6a-run", delivery_s6a,
+                        "--delivery-s6b-run", delivery_s6b,
+                    ])
+                self.assertEqual(exit_code, 2)
+                self.assertTrue(calls)
+                # 候选提交解析只运行只读的 git rev-parse，可在最终交付 RunId 子树检查前发生。
+                self.assertTrue(all(argv and argv[0] == "git" for argv in calls))
+                self.assertFalse((root / "tmp").exists())
+                self.assertEqual({marker: self._snapshot(marker) for marker in before}, before)
+
+    def _make_directory_link(self, link: Path, target: Path):
+        try:
+            link.symlink_to(target, target_is_directory=True)
+        except OSError as exc:
+            if os.name != "nt":
+                self.skipTest(f"当前环境不允许创建目录符号链接：{exc}")
+            junction = subprocess.run(
+                ["cmd.exe", "/c", "mklink", "/J", str(link), str(target)],
+                capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
+            if junction.returncode != 0:
+                self.skipTest(f"当前环境不允许创建目录符号链接或联接点：{junction.stdout}{junction.stderr}")
+        self.addCleanup(self._remove_link, link)
+
+    @staticmethod
+    def _remove_link(path: Path):
+        if path.is_symlink():
+            path.unlink(missing_ok=True)
+        elif path.exists():
+            path.rmdir()
 
 
 if __name__ == "__main__":

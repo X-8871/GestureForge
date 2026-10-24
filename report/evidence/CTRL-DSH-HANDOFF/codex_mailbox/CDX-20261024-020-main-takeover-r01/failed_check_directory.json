@@ -1,0 +1,92 @@
+{
+  "first_attempt": {
+    "exit_code": 1,
+    "pass": 8,
+    "fail": 1,
+    "failed_check": "g",
+    "reason": "证据入口为存在文件，检查器只接受目录；保留失败，不作为无证据或无让出结论"
+  },
+  "second_attempt": {
+    "status": "HANDOFF_FAILED",
+    "worktree_arg": "D:\\FPGA_Competition",
+    "worktree_root": "D:\\FPGA_Competition",
+    "branch": "main",
+    "head": "d3095b8997df04248d3234de2e81bd2a0783ff7d",
+    "record_provided": true,
+    "checks": [
+      {
+        "id": "a",
+        "name": "工作树存在与分支/HEAD 一致性",
+        "status": "PASS",
+        "evidence": "工作树根=D:\\FPGA_Competition；实际分支=main；实际HEAD=d3095b8997df04248d3234de2e81bd2a0783ff7d；声明工作树=D:\\FPGA_Competition；声明分支=main；声明起始提交=d3095b8997df04248d3234de2e81bd2a0783ff7d"
+      },
+      {
+        "id": "b",
+        "name": "index.lock 解析与占用",
+        "status": "PASS",
+        "evidence": "git --no-optional-locks rev-parse --git-path index.lock（cwd=D:\\FPGA_Competition） → .git/index.lock；存在=False"
+      },
+      {
+        "id": "c",
+        "name": "未提交改动计数与归属声明",
+        "status": "PASS",
+        "evidence": "git --no-optional-locks -c core.quotepath=false status --short（cwd=D:\\FPGA_Competition）→ 未提交改动 406 项；样例： M docs/S2A-T68_local_run_guide.md； M docs/obsidian-project/02-方案设计/B方案实施与阶段验收计划.md； M docs/obsidian-project/总控.md； M docs/obsidian-project/项目接手提示词.md； M report/evidence/S2A-T57/run_project_sim.tcl；…（共 406 项）；声明归属=main406项为Codex/用户历史，精确status及tracked SHA见本次快照；不覆盖不回退不混入提交。"
+      },
+      {
+        "id": "d",
+        "name": "重型进程占用",
+        "status": "PASS",
+        "evidence": "待匹配进程名=vivado、xsim、xelab、xvlog、hw_server、cs_server、xsdb；未发现占用"
+      },
+      {
+        "id": "e",
+        "name": "交接心跳时效",
+        "status": "PASS",
+        "evidence": "heartbeat_utc8=2026-10-24 10:35（归一化 2026-10-24 10:35:00 UTC+8）；阈值=120 分钟；当前时间(UTC+8)=2026-10-24 10:34:41；距今=-0.3 分钟"
+      },
+      {
+        "id": "f",
+        "name": "交接状态机与接管条件",
+        "status": "PASS",
+        "evidence": "status=OFFERED；状态机：IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE；只有 OFFERED 允许接管；--claim 接管条件满足"
+      },
+      {
+        "id": "g",
+        "name": "证据入口",
+        "status": "FAIL",
+        "evidence": "evidence_dir=report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox；解析路径=D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\dsh_mailbox；缺失 D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\dsh_mailbox\\manifest.json",
+        "reason": "证据目录缺少 manifest.json"
+      },
+      {
+        "id": "h",
+        "name": "允许修改范围与越界核验",
+        "status": "PASS",
+        "evidence": "允许修改范围=**；声明要改动的路径=.codex/STATE.md、report/evidence/CTRL-DSH-HANDOFF"
+      },
+      {
+        "id": "i",
+        "name": "接管让出契约",
+        "status": "PASS",
+        "evidence": "yield_statement=DSH在d3095b8明确OFFERED，main与四树停写，子代理inactive；Wong本轮要求Codex完成阶段3/4/5/6。；next_owner=Codex 项目总控；规则：--claim 时 yield_statement 与 next_owner 必须非空且非占位；heartbeat_utc8 的可解析性由检查项 e 核验"
+      }
+    ],
+    "counts": {
+      "PASS": 8,
+      "FAIL": 1,
+      "SKIP": 0
+    },
+    "lost_contact": {
+      "lost_contact": false,
+      "heartbeat_expired": false,
+      "heavy_processes": false,
+      "index_lock_present": false,
+      "note": "只有「心跳超时+无重型进程+无 index.lock」同时成立才可判失联；否则只能报告，不能自行接管。"
+    },
+    "warnings": [],
+    "scope_statement": "只读核验：不代表 G0/G4/G5、测试通过或实物验收；不执行恢复命令，不写仓库文件。"
+  },
+  "record_adaptations": [
+    "DSH明确交接提交前base=f773256，按交接文档仅在内存绑定实际HEAD=d3095b8",
+    "检查器g要求目录；原STATE给文件，校验record改为其真实父目录，权威文件另绑定SHA，不改写原OFFER"
+  ]
+}

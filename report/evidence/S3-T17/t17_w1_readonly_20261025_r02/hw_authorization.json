@@ -1,0 +1,36 @@
+{
+  "schema_version": "gestureforge_hw_authorization_v1",
+  "task": "阶段3 W1 只读窗口",
+  "run_id": "t17_w1_readonly_20261025_r02",
+  "authorization_record_ref": "../t17_w1_readonly_20261025_r01/hw_authorization.json",
+  "authorization_basis": "Wong 于 2026-10-25 批准的 30 分钟只读 W1；r01 在设备未枚举时未开窗、耗时 0；本 r02 复用同一授权与范围，不扩大操作权限。",
+  "wong_go": true,
+  "wong_go_date_utc8": "2026-10-25",
+  "scope": {
+    "duration_limit_minutes": 30,
+    "allowed": [
+      "核对部署身份",
+      "Wong 现场确认真彩",
+      "只读采集 VDMA S2MM_SR 0x00015810",
+      "只读回读运行期 ADDR_S2MM 和 ADDR_MM2S"
+    ],
+    "prohibited": [
+      "重启应用",
+      "写寄存器",
+      "烧录位流或 QSPI",
+      "改接线",
+      "未经新授权扩展到阶段4/5/6"
+    ],
+    "stop_if": [
+      "无法只读枚举目标 JTAG",
+      "只读流无法复现待查状态或触发"
+    ]
+  },
+  "window_state_at_authorization": "APPROVED_PRECHECK_IN_PROGRESS",
+  "hardware_execution": "NOT_RUN_AT_AUTH_FILE_CREATION",
+  "authorization_does_not_claim": [
+    "当前板上 bit/XSA/ELF 身份已验证",
+    "VDMA 根因已定位或排除",
+    "阶段3 G3/G4/G5 已通过"
+  ]
+}

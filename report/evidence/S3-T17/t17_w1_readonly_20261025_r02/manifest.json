@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17-W1-READONLY-PREFLIGHT",
+  "run_id": "t17_w1_readonly_20261025_r02",
+  "status": "BLOCKED_BEFORE_WINDOW_NO_JTAG_ENUMERATION",
+  "created_utc8": "2026-10-25T20:11:20+08:00",
+  "source": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "head": "78f2bde6aabed1159b8c47b006a59313bb233cac"
+  },
+  "authorization": {
+    "user_authorized": true,
+    "reference": "../t17_w1_readonly_20261025_r01/hw_authorization.json",
+    "window_started": false,
+    "window_limit_minutes": 30,
+    "window_used_minutes": 0
+  },
+  "user_resume_choice_utc8": "2026-10-25T20:17:42+08:00",
+  "user_resume_choice": "先让 JTAG 在 Windows 枚举；枚举前不重试 Vivado 探测。",
+  "preflight": {
+    "index_locks_present": 0,
+    "hardware_engine_processes": 0,
+    "tcp_3121_listeners": 0,
+    "vivado_sessions": 0,
+    "serial_port_names": ["COM4"],
+    "jtag_devices_detected": 0,
+    "available_memory_mib": 3542
+  },
+  "attempt": {
+    "action": "Vivado Tcl session start for read-only JTAG enumeration",
+    "automatic_approval": "REJECTED",
+    "workaround_attempted": false,
+    "hardware_actions": 0
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "b3ec92d13ce751cb5279c658f0b13b04440bedb5b5b7d9f5257979f54b7c6b03"
+    },
+    {
+      "path": "hw_authorization.json",
+      "sha256": "75130834954edf61bb864b7083abc509ad3a9e33d8f98bff03ba19d020dba95c"
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "29988b6e6ee4567872a82c77748bfdaddc480065a653ef504cc67071b042cd20"
+    },
+    {
+      "path": "window_attempt.json",
+      "sha256": "2544e084aec7b8ea7b8d0cf38d0c000b1af4e7e84b26a2e3cc9459c41b48b315"
+    }
+  ],
+  "limitations": [
+    "未建立 Vivado/hw_server/XSDB 会话或连接硬件。",
+    "未核对当前板上部署身份、未读 VDMA 状态或运行期地址、未作真彩目视确认。",
+    "自动审批拒绝不等同于硬件失败；该项仍待 JTAG 枚举与允许的只读窗口。",
+    "本包不表示阶段3 G3/G4/G5 通过。"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T05-G2-VDMA-TIMING-ERRATUM",
+  "run_id": "t05_g2_vdma_timing_erratum_20261025_r01",
+  "status": "CORRECTION_READY_FOR_RE_REVIEW",
+  "created_utc8": "2026-10-25T20:21:00+08:00",
+  "review": {
+    "reviewed_base_commit": "584b07664e88a18bf786ba9565a138861e136d76",
+    "result": "CHANGES_REQUIRED",
+    "finding": "G2 r02 conflated phase=0 and t=5s S2MM_SR samples as a single startup value"
+  },
+  "source": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "source_commit_at_correction": "78f2bde6aabed1159b8c47b006a59313bb233cac"
+  },
+  "correction": {
+    "phase_0_s2mm_sr": "0x00014810",
+    "t_5s_s2mm_sr": "0x00015810",
+    "xor_delta": "0x00001000",
+    "bit11_root_cause": "OPEN",
+    "vdma_status": "PARTIAL",
+    "stage3_g5": "NOT_PASSED"
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "734b193e1276805cb37e85593491c25b8091f7da0ecc92c7bc200b1c6645a823"
+    },
+    {
+      "path": "correction.json",
+      "sha256": "77aee873efd13d9f4164bd69708d30f1928b2759d44ba8cff024e4795a2370d0"
+    }
+  ],
+  "limitations": [
+    "本勘误只修正 G2 r02 的时间点归属，不重新解释根因。",
+    "原 G2 r02 字节与 CHANGES_REQUIRED 审查记录保留；本勘误尚未复审。",
+    "不表示 VDMA 根因、完整 G2、G3/G4/G5 已通过。"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "run_id": "t05_g2_vdma_timing_erratum_20261025_r01",
+  "reviewed_base_commit": "584b07664e88a18bf786ba9565a138861e136d76",
+  "correction_scope": "Only supersede the ambiguous G2 r02 VDMA startup timestamp claim; preserve all other r02 bytes and evidence.",
+  "original_g2_claim": {
+    "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/g2_material_list_r02.json",
+    "field": "vdma_sticky.startup_value",
+    "value": "0x00015810",
+    "status": "SUPERSEDED_FOR_TIMESTAMP_INTERPRETATION"
+  },
+  "observations": {
+    "application_phase_0_first_read": "0x00014810",
+    "application_t_5s_first_read": "0x00015810",
+    "xor_phase0_to_t5": "0x00001000",
+    "new_bit_at_t5": "bit12",
+    "bits_already_present_at_phase0": ["bit4", "bit11", "bit14"],
+    "separate_probe_00_startup_read": "0x00015810",
+    "w1c_before_after": ["0x00015810", "0x00011000"],
+    "after_clear_endurance": {
+      "duration": "31 min",
+      "reads": 7,
+      "value": "0x00011000",
+      "interpretation": "error bits were not observed again after the single clear; does not identify startup trigger"
+    }
+  },
+  "source_bindings": [
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/README.md",
+      "sha256": "FB8DCD62480F56D96186D45F5A4CA19439A913AD0F525B78C08CDE7E451D465E"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/g2_material_list_r02.json",
+      "sha256": "2284153EB49DB274CFA8A7D1FA3DCA468186C24A1BD201624B6EA672CD0848CF"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/README.md",
+      "sha256": "D9C6190E76ACE6878AE264D1A43A185D3B8A257E34AAA97A7B8A167FF3595D61"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/vdma_sticky_result.md",
+      "sha256": "1B88969AD26BAA215B02C30A73CD41BEA34DBFC1CF40C22C063DF453F198CADA"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/uart_v11.stdout",
+      "sha256": "D18AB2B3AAAD6F5B9F1AEF2DE6526504DC1118FA2B9031AA2F556615495DB51C"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/uart_restore.stdout",
+      "sha256": "72FA0E45F3BDD131F75223583A582784FABDFE8CC52A28171A18900196B7B846"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/vdma_offline_root_cause_supplement.md",
+      "sha256": "12B6E384944A3EF8A0C5CCB19B1D0A1F49F542AC2EEA3928C49EAD521EBD534A"
+    }
+  ],
+  "verdict_boundary": {
+    "vdma_status": "PARTIAL",
+    "root_cause": "OPEN",
+    "full_g2": "PENDING_RE_REVIEW",
+    "stage3_g5": "NOT_PASSED"
+  }
+}

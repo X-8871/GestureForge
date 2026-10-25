@@ -8,6 +8,8 @@
 **2026-10-24 Wong 三问三答：「1.可开工」「2.现在用的是 J11，J10 不需要管了」「3.由 DSH 接手」(w4)** ⇒ 阶段3 板级**单次窗口**已据此执行完毕（授权文件 `report/evidence/S3-T17/hw_authorization.json`，引用决策记录 `decisions/stage_3_4_direction_20261024_r01.md`、`DSH-20261024-004`、Codex `CDX-20261023-018` §3.1 不争用）；**J10 已移出未闭合项、记为「范围排除」**。
 **当前口径（顶部）**：颜色子项 = **`PASS_VERIFIED_NEW_MODULE`**（新模块实测解除受阻）；**当前部署 = 无补偿实时彩色**；**阶段3 整体 G5 未通过**（阶段A 小任务 G5 ≠ 阶段3 G5）；`DEFERRED_PENDING_MODULE` 仅为旧模块期历史标签。
 **2026-10-25 20:08 W1 更新**：Wong 已授权 30 分钟只读窗口（不重启应用、不写寄存器、不烧录、不改线）；RunId `report/evidence/S3-T17/t17_w1_readonly_20261025_r01/`。窗口前置重查四树均无 `index.lock`，无 `hw_server/xsdb/vivado/vitis`、无 3121 监听；主机未枚举 COM/USB/JTAG 设备，且内存查询被拒绝，故窗口 `BLOCKED_BEFORE_WINDOW`、实际时长 0、未创建硬件会话或操作板卡。待主机枚举设备后重新执行窗口前置核对；本项不关闭 VDMA 根因或阶段3 G5。
+**2026-10-25 20:17 W1 复查**：Wong 补充 `COM4`；.NET 与注册表确认串口名存在，但 PnP/CIM 无端口结果且未发现 JTAG 设备。Vivado MCP 无活动会话，自动审批拒绝仅为探测 JTAG 而启动 Vivado；未绕过、未开窗、未操作板卡。Wong 选择先让 JTAG 在 Windows 枚举；复查记录 `report/evidence/S3-T17/t17_w1_readonly_20261025_r02/`，该条件满足前不重试。
+**2026-10-25 20:24 G2 状态**：阶段3完整 G2（原 r02 + 新 VDMA 时序勘误）经独立 Reviewer `PASS`，复核基线 `78f2bde`。已分开绑定应用 UART `phase=0=0x00014810`、`t=5s=0x00015810`、独立只读探测与 W1C 值；旧 r02 字节保留。该 PASS 仅关闭完整 G2 证据审查，不关闭 VDMA 根因、G3/G4/G5；VDMA 仍 `PARTIAL`、根因 `OPEN`，阶段3 G5 未通过。
 
 ## 当前彩色部署（唯一口径；每次硬件使用前重新核对现场与产物）
 - 位流 **无补偿 SOF `7cb33068…`**（1,668,969 B）；XSA **`1f5b138e…`**（633,089 B）；应用 **`an5642_j11cmos2_v10_read.elf` `1457cda4…`**（015 §2.2 身份；本轮已实算复核一致）。
@@ -20,7 +22,7 @@
 ## 真实未关闭项（015 r03 §2.4；颜色项通过不替其余项关闭）
 *已完成（不再列为未关闭）*：**颜色项**（`PASS_VERIFIED_NEW_MODULE`）、**≥30 分钟实时耐久**、**参考帧集**、**阶段3 地址事实**、**真彩目视（人工观察，2026-10-24 01:41）**。
 *未关闭（本清单为准）*：① **VDMA 粘滞 `0x00015810`（PARTIAL，根因未定）**；② **TIMING-17/36 与 I/O delay**（C2/I1/I2/I3 未闭合/未验证）；③ **无 ILA（BASIC 许可）**；④ **task-11 完整顺序等价 `NOT_RUN`**（静态阈值译码及下述局部转移检查已 PASS）。
-- **完整独立 G2**：`report/evidence/S3-T05/t05_g2_reconciliation_20261024_r01/g2_material_list_r02.json` 的上一轮四项整改经独立 Reviewer `PASS`，结论限于本次 G2 修订复核；早期 stdluma/gray 补丁仅人工审阅、未独立 PASS（若重新启用须复审）。阶段3 G5 仍未通过。
+- **完整独立 G2**：原 r02 加 `report/evidence/S3-T05/t05_g2_vdma_timing_erratum_20261025_r01/` 经独立 Reviewer `PASS`（基线 `78f2bde`）；修正 r02 对 phase=0 与 t=5s VDMA 值的合并误标。早期 stdluma/gray 补丁仅人工审阅、未独立 PASS（若重新启用须复审）。G2 PASS 不代表实物 G3 或阶段 G5 通过。
 - **≥30 分钟实时耐久**：**已达成（2026-10-24 窗口，RunId `t05_stage3_window_20261024_r01`）** —— `00:49:16 → 01:20:31`（**31 min 15 s**），7 轮活写标记全部 **5/5**、`CR=0x00010003`、`MM2S_SR=0x00011000`、无停止/复位/死锁；UART 连续 35 min（三路 CHIPID `0x5640`、`0x503D=0x00`、5 次采样 × 3 站点指纹全异）。**限机读连续性；目视确认已由 Wong 于 01:41 给出（见上）。**
 - **VDMA 粘滞 `0x00015810`**：**PARTIAL（不关闭）** —— 既有窗口中一次性 W1C 清除后 `0x00015810 → 0x00011000`，31 min 15 s / 7 轮稳态回读未复现、无功能影响；新离线补充发现首次 `phase=0` 已为 `0x00014810`，bit11 已置位，到 `t=5` 的 `0x00015810` 仅新增 bit12。已提交元数据将 bit11 命名为 `SOFLateErr`，HDL 摘录为 `s2mm_fsize_more_or_sof_late_bit`；AMD PG020 将 bit11 定义为 `SOFLateErr`（S2MM 帧长超过 VSIZE），但现有采样仍未定位具体置位时刻/触发分支，根因保持未定，不得称“零错误”。参考：[PG020 S2MM VDMASR](https://docs.amd.com/r/en-US/pg020_axi_vdma/S2MM_VDMASR-S2MM-VDMA-Status-Register-Offset-34h)。材料：`report/evidence/S3-T05/t05_stage3_window_20261024_r01/vdma_sticky_result.md`、`report/evidence/S3-T05/t05_offline_closeout_20261024_r01/vdma_fsz_more_analysis.md`、`report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/`。
 - **参考帧集（供阶段4 回放）**：**已采集** —— v11 冻结后按**其自报 FB `0x00114C00`** 转储：整帧 2,764,800 B（sha256 `939fce22…`）+ 3 行样本（各 3,840 B），0 全零行、B/G/R 均值 94.1/86.2/93.5、max 248/252/248；格式/字节序/stride/坐标口径见 `…/reference_frame_set.md`。

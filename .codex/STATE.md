@@ -73,11 +73,11 @@
 - **S6-A G0 交付状态**：`DELIVERED_PENDING_G0_CONFIRMATION`；r14/r15/r16 失败与过期包均保留。r17 已构建：17 项自检 `ALL_PASS`，inputs/evidence 检查均 PASS，source commit=`bc9b2b7`；独立增量包审查 PASS，整体 G0/G5 仍未通过。
 - **S6-B 重建**：r10-r13 全部保留；r11 是缺输入失败包，r12 虽清单检查 PASS 但摘要仍记录修复前 evidence exit 2，r13 只有部分初始产物且无 manifest。代码修复 `ef2f74d` 与 closing 独立封存修复 `c539828` 均经 Reviewer PASS；探针基线计数修复 `72c10e5` 经独立复审 PASS、定向测试 4/4。r01 保留为前版证据：closing 退出码未有独立 sidecar/清单绑定。r02 保留并标记 `CHANGES_REQUIRED`：probe 摘要把基线写成 23 例，矩阵及运行报告为 26 例，尽管结构/哈希检查通过。新包 `s6b_core_20261025_r03` 基于 `72c10e5470c6e1d4deecee3fec538605e16499d4` 与用例矩阵 SHA-256 `3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552`：26/26 用例、4 项探针、inputs、最终 evidence 与独立 closing evidence 均 PASS/exit 0；fixpoint 第 3 轮收敛，首轮 evidence 预检 exit 2 保留。r03 增量包审查 PASS；离线检查不代表 G0/G4/G5 通过。
 - **工具自测路径隔离修复**：`verification/tool_self_tests.py`、`verification/hash_convention_check.py`、`verification/test_s6_gate_regression.py` 已独立审查 PASS 并提交 `bc9b2b7`。最终路径回归 10/10 PASS；最新源码的完整工具套件在隔离克隆仅运行一次，16/16 `ALL_AS_EXPECTED`、无跳过，JSON SHA-256 `caf5af32c0002543d55d17efae7445d92ec8934828b646b058d2f35170cafecb`。旧 RunId、STATE 和共享输出指纹前后未变。复制前路径复验缩小了本机非对抗并发 TOCTOU 窗口，但不能消除最终检查与系统调用之间的竞态。
-- `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）；G3 板测未做且板卡已拔下；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 实物验收未执行；阶段7 暂不开工作树。
-- 阶段6 增量独立复审待办：仍需覆盖 F6d → task-23/task-28/E4 修复；S6-A r17 与 S6-B 20261025_r03 包已独立审查 PASS，r02 摘要计数矛盾已确认并保留。不得把代码审查 PASS 或离线自测 PASS 写成 G3/G4/G5。
+- `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）；G3 板测未做，Wong 报告板卡已接上但主机当前只识别 COM4、未枚举 JTAG（阶段3 W1 依用户选择等待 JTAG）；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 实物验收未执行；阶段7 暂不开工作树。
+- 阶段6 完整增量独立复审 **PASS**（覆盖 F6d → task-23/task-28/E4 r03，并对照 S6-A r17、S6-B r03 的绑定）；STATE 摘要 P2 已在 `e55a326` 修正。不得把代码审查 PASS 或离线自测 PASS 写成 G3/G4/G5。
 
 ## 下一步
-完成覆盖 F6d → task-23/task-28/E4 修复的增量独立复审。6-D 仍依赖阶段4/5 契约冻结；板级/6-E 工作须等用户授权窗口并重做受连接判据。
+增量复审已完成；6-D/6-E 仍依赖阶段4/5 契约冻结及相应回放/显示结果包。板级工作须等 Windows 枚举 JTAG、取得适用窗口授权并重做受连接判据。
 
 ## 证据入口
 （C11 口径：凡带扩展名的反引号 token 按**项目根**解析；此处只用全路径，避免被当作本证据目录内文件。）

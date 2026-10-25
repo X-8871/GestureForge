@@ -1,0 +1,35 @@
+{
+  "schema_version": "gestureforge_hw_authorization_v1",
+  "task": "阶段3只读 W1 预检：部署身份、真彩人工确认、VDMA 状态及运行期地址回读",
+  "run_id": "t17_w1_readonly_20261025_r01",
+  "wong_go": true,
+  "wong_go_date_utc8": "2026-10-25",
+  "wong_go_quote": "授权只读 W1（推荐）",
+  "authorization_scope": {
+    "duration_limit_minutes": 30,
+    "allowed": [
+      "核对部署身份",
+      "Wong 现场确认真彩",
+      "只读采集 VDMA S2MM_SR 0x00015810",
+      "只读回读运行期 ADDR_S2MM 和 ADDR_MM2S"
+    ],
+    "prohibited": [
+      "重启应用",
+      "写寄存器",
+      "烧录位流或 QSPI",
+      "改接线",
+      "未经新授权扩展到阶段4/5/6"
+    ],
+    "stop_if": [
+      "主机未枚举目标 JTAG/串口设备",
+      "只读流无法复现待查状态或触发"
+    ]
+  },
+  "window_state": "AUTHORIZED_BUT_NOT_STARTED_DEVICE_ENUMERATION_BLOCKED",
+  "hardware_execution": "NOT_RUN",
+  "authorization_does_not_claim": [
+    "VDMA 根因已定位或排除",
+    "当前板上 bit/XSA/ELF 身份已验证",
+    "阶段3 G3/G4/G5 已通过"
+  ]
+}

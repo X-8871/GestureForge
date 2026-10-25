@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""生成 task-21 各 RunId 的通用交付清单（check_stage_delivery schema）。
+"""为 task-21 仅生成缺失的通用交付清单（check_stage_delivery schema）。
 
 生成器在运行时枚举 RunId 目录内的全部文件并逐项绑定 SHA-256（保证“运行目录文件全部列入”），
 再按显式声明补充目录外的源码/文档/接口绑定。
@@ -7,8 +7,11 @@
 落点遵循 `report/evidence/<task_id>/<run_id>/`（单层）：task_id = `S4-CTRL`，run_id = `t21_*`。
 接口与文件绑定一律使用工作树内路径，避免越出 project-root。
 
+已存在的清单视为不可变证据：重复运行只核验/跳过，不覆盖；两个 r02 历史清单还绑定
+固定 SHA-256，缺失或漂移时失败关闭。新证据必须使用新 RunId。
+
 用法：python -B scripts/stage4_s4ctrl/build_t21_manifests.py
-退出码：0 = 全部清单已生成；1 = 有 RunId 目录缺失；2 = 环境错误。
+退出码：0 = 缺失清单已生成且既有清单保留；1 = 有 RunId 目录缺失；2 = 历史证据缺失或漂移。
 """
 
 from __future__ import annotations
@@ -39,6 +42,10 @@ TAKEOVER_SCRIPT = "scripts/stage4_s4ctrl/audit_w4_takeover.py"
 S4A_JSON = "docs/stage4/s4a_stage4_g0_fields.json"
 ADDRESS_MAP = "docs/stage4/S4B_stage4_address_map.json"
 CDX_010 = "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261022-010-stage4-inference-runbook.md"
+HISTORICAL_MANIFEST_SHA256 = {
+    "t21_takeover_20261024_r02": "887f280089521dd42e2126f31d57b7e09fb175eb437fec62f7fbd24b44e49c71",
+    "t21_contract_colour_rebind_20261024_r02": "5f4687c96c0ce9c37adeeb9426858a230a5c7097309849a58f1a9b92c4a06820",
+}
 
 
 def sha256_of(path: Path) -> str:
@@ -221,10 +228,26 @@ SPECS = [
 def main() -> int:
     """生成全部清单。"""
     missing = []
+    blocked = []
     for spec in SPECS:
         target = WORKTREE / run_dir(spec["run_id"])
         if not target.is_dir():
             missing.append(str(target))
+            continue
+        manifest_path = target / "manifest.json"
+        if manifest_path.is_file():
+            expected_hash = HISTORICAL_MANIFEST_SHA256.get(spec["run_id"])
+            if expected_hash is not None:
+                actual_hash = sha256_of(manifest_path)
+                if actual_hash != expected_hash:
+                    blocked.append(f"{manifest_path}: 历史清单 SHA-256 漂移，expected={expected_hash} actual={actual_hash}")
+                    continue
+                print(f"[SKIP_IMMUTABLE] {spec['run_id']}：历史清单 SHA-256 已核对，保留原字节")
+            else:
+                print(f"[SKIP_IMMUTABLE] {spec['run_id']}：清单已存在，保留原字节")
+            continue
+        if spec["run_id"] in HISTORICAL_MANIFEST_SHA256:
+            blocked.append(f"{manifest_path}: 固定历史 RunId 的清单缺失，拒绝从当前源文件重建")
             continue
         files = [entry(f"{run_dir(spec['run_id'])}/{item.name}", role_for(item.name),
                        f"{spec['run_id']} 运行产物（{item.name}）")
@@ -249,7 +272,7 @@ def main() -> int:
             },
             "limitations": spec["limitations"],
         }
-        (target / "manifest.json").write_text(
+        manifest_path.write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
         print(f"[OK] {spec['run_id']}：files={len(files)} interfaces={len(spec['interfaces'])} checks={len(spec['checks'])}")
@@ -257,6 +280,10 @@ def main() -> int:
         for path in missing:
             print(f"[FAIL] RunId 目录缺失：{path}")
         return 1
+    if blocked:
+        for item in blocked:
+            print(f"[FAIL] {item}")
+        return 2
     return 0
 
 

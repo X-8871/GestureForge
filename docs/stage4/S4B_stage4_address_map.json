@@ -6,7 +6,7 @@
   "generated_utc8": "2026-10-24T01:45:00+08:00",
   "status": "DRAFT_PENDING_REVIEW",
   "authority": "本图是共享契约 `docs/stage4/s4b_shared_input_result_contract.json` 中 `buffer.region_name` / region 方向语义的权威来源；契约只引用 region 名称，不重复数字。",
-  "revision_note": "r03（2026-10-24，全离线）：按 Wong D1=A 决定（`decisions/stage4_raw_address_optionA_20261024_r01.md`，承接 `stage4_raw_address_d1_d4_20261024_r01.md`）新增 `raw_frame=[0x12000000,0x12C00000)`（12 MiB）与 `raw_meta=[0x12C00000,0x12C08000)`（32 KiB），并把本阶段**自设**禁区条目从 `[0x12000000,0x20000000)` 精确缩减为 `[0x12C08000,0x20000000)`（其余禁区不动）。两个新 region 的 `status` 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**）、`enable_required=true`；条件①交叉核对已绑定阶段3 部署实测事实（采集=显示=`0x00110C00`、单缓冲；**运行期分配、无链接期静态保证**，消费方须运行期回读、禁止硬编码）与阶段5 送显缓冲事实。**`ENABLE=0`、不访问候选区、不装载位流**，硬件实测完成前不得启用。",
+  "revision_note": "r04（2026-10-25，全离线）：按 Wong 明确决定，当前 RAW `raw_frame` 使用 BGR888、像素通道顺序 B/G/R；平台 `byte_order=little` 仍保留并明确只表示多字节标量端序。RAW injection_point 改绑 `raw_frame`，新增 D2 BGR→RGB 前处理要求与 `runtime_support_status=NOT_IMPLEMENTED` 说明。地址区间、owner、ENABLE 与冻结状态不变；`injection_frame_rgb` 仅保留为已取代的旧草案。",
   "decision_basis": [
     "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md",
     "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_optionA_20261024_r01.md",
@@ -103,9 +103,19 @@
     }
   ],
   "injection_point": {
-    "region_name": "injection_frame_rgb",
-    "pixel_format": "RGB888",
+    "region_name": "raw_frame",
+    "pixel_format": "BGR888",
+    "channel_order": ["B", "G", "R"],
+    "byte_order": "little",
+    "byte_order_semantics": "平台多字节标量端序，与像素通道顺序独立",
     "position": "被验收的 D2 预处理（letterbox/颜色/量化）之前",
+    "d2_channel_reorder": {
+      "required": true,
+      "operation": "逐像素 [B,G,R] → [R,G,B]",
+      "must_precede": ["resize", "normalization", "quantization"]
+    },
+    "runtime_support_status": "NOT_IMPLEMENTED",
+    "acceptance_gate": "C 注入描述符与 PL RAW 前处理尚无 BGR888 支持；当前无 mailbox PS 驱动，s4b_preproc_frame 也未实例化到 RTL 顶层。G0 候选 mailbox_pixel_format_code=1 与 C enum 值 1（RGB565）属于不同编码域，当前无显式映射，禁止直接 cast。实现 PS 驱动/映射、实际顶层接入与 D2 逐像素验证完成前不得宣称该注入点已覆盖真实运行链路。",
     "covered_stages": [
       "D2 被验收预处理（letterbox + 颜色 + INT8 量化 + CHW 布局）",
       "网络输入张量装载（network_input_tensor）",
@@ -302,6 +312,10 @@
       "name": "raw_frame",
       "kind": "ddr",
       "category": "input_frame",
+      "pixel_format": "BGR888",
+      "channel_order": ["B", "G", "R"],
+      "byte_order": "little",
+      "byte_order_semantics": "平台多字节标量端序；不改变像素内 B/G/R 次序",
       "base_addr": 301989888,
       "base_addr_hex": "0x12000000",
       "end_addr_exclusive": 314572800,
@@ -342,7 +356,7 @@
         "硬件窗口实测：CPU1 保持停止、无其他 DDR consumer、候选区板上实际未被占用、cache 维护与可见性",
         "物理基址 enable=1 之前保持 ENABLE=0，且不产生任何 AXI 事务"
       ],
-      "notes": "按 Wong 2026-10-24 D1=A 批准新增（12 MiB、109/109、余量 +1,523,712 B）。**状态仍 DRAFT_PENDING_REVIEW、未 FROZEN**；`ENABLE=0` 前不得访问。**保留条款**：阶段3 部署实测的采集/显示帧基址为运行期分配（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须**运行期回读**，**禁止硬编码**该地址。条件①三方交叉核对（2B/阶段5/阶段3）均不相交。",
+      "notes": "按 Wong 2026-10-24 D1=A 批准新增（12 MiB、109/109、余量 +1,523,712 B）；RAW 字节语义为 BGR888/B-G-R，平台 byte_order=little 与通道顺序独立。D2 必须先重排 B/G/R→R/G/B，再 resize/归一化/量化；当前 C/PL 运行期支持为 NOT_IMPLEMENTED。**状态仍 DRAFT_PENDING_REVIEW、未 FROZEN**；`ENABLE=0` 前不得访问。**保留条款**：阶段3 部署实测的采集/显示帧基址为运行期分配（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须**运行期回读**，**禁止硬编码**该地址。条件①三方交叉核对（2B/阶段5/阶段3）均不相交。",
       "sources": [
         "STAGE3-WINDOW-FACTS",
         "W5-S5T01-OVERLAY-FACTS",
@@ -628,9 +642,9 @@
   "global_ordering": {
     "note": "PL/DMA 完成顺序的离线建模；板上实测（真实 AWLEN/背压/reset/DDR 可见性）属 G3，本轮 NOT_RUN。",
     "steps": [
-      "1 producer 写 injection_frame_rgb（write_start→write_complete，逐帧记录 CRC32/SHA-256 与 length_bytes）",
+      "1 producer 写 raw_frame（BGR888，write_start→write_complete，逐帧记录 CRC32/SHA-256 与 length_bytes）",
       "2 producer flush（对外 64 B 取整）→ DSB → ownership_publish_to_consumer",
-      "3 consumer 对 input_frame 区间 invalidate（64 B maintenance_alignment_bytes 向外取整）→ DSB → consumer_start；consumer 只消费有效行字节，行尾 padding 内容未定义、帧尾之外不读",
+      "3 consumer 对 BGR888 raw_frame 区间 invalidate（64 B maintenance_alignment_bytes 向外取整）→ DSB → consumer_start；D2 消费者须先逐像素 B/G/R→R/G/B 重排，再进行 resize/归一化/量化；consumer 只消费有效行字节，行尾 padding 内容未定义、帧尾之外不读",
       "4 PS 侧写入前置对象：network_input_tensor 与 gf8_weight_package flush；feature_envelope flush+invalidate；均 DSB",
       "5 PS 写 pl_control_csr 参数 → DSB → 写 START → DSB",
       "6 PL 取得 buffer 所有权，读输入/权重、写 feature_envelope（HP0）",

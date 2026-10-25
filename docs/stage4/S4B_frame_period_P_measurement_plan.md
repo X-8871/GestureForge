@@ -27,7 +27,7 @@
 
 - 证据落点：`report/evidence/<task_id>/<new_run_id>/`（新 RunId，未存在）。
 - 部署绑定：无补偿 SOF SHA-256 `7cb33068…ce48710`、XSA 身份、运行 ELF `an5642_j11cmos2_v10_read.elf` SHA-256 `1457cda4…2306073`；三者与现场核对结果。
-- 采集绑定：1280×720、stride 3840 B/行、传感器 RGB565、DDR 转储 B/G/R 口径、`timer_freq_hz`、`clock_domain`。
+- 采集绑定：契约 `s4-shared-io/1.2.0`；1280×720、stride 3840 B/行、传感器 RGB565、RAW `pixel_format=BGR888` / `channel_order=B/G/R`、平台 `byte_order=little`、`timer_freq_hz`、`clock_domain`。`byte_order` 不表示像素通道顺序。
 - 逐帧序列：`frame_id`、`capture_time_ns`、`frame_integrity`（CRC32/SHA-256 + 字节数）、丢弃/重复原因。
 - 源帧哈希：至少绑定用于交叉核验的若干帧（建议 ≥100 帧）的逐帧摘要。
 - 机器模板：`docs/stage4/s4b_frame_period_p_evidence_template.json`。

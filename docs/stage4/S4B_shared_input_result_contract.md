@@ -1,6 +1,6 @@
-# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.1.0` | `DRAFT_PENDING_REVIEW`（r05）
+# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.2.0` | `DRAFT_PENDING_REVIEW`（r06）
 
-- 日期：2026-10-24（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`，DSH 阶段4 总控）；消费方：阶段5（**只读**消费冻结交付）。
+- 日期：2026-10-25（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`，DSH 阶段4 总控）；消费方：阶段5（**只读**消费冻结交付）。
 - 机器可读：[`s4b_shared_input_result_contract.json`](s4b_shared_input_result_contract.json)。
 - 修订 r03：仅修正未冻结草案与 S4-A r06 权威的冲突；保留 r02 及其证据。session_id 统一为 u32，补充键角色、source_kind 一一映射和完整采集时间真值表，并纠正读前 invalidate 顺序；阶段5显示/HUD语义及 s2bu/1.1 不变。
 - 修订 r04（本树）：
@@ -13,6 +13,13 @@
   2. 新增顶层 `binding_byte_basis` **绑定字节口径声明**：默认**工作树磁盘字节**；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径；dbdf 两项彩色证据**改绑为 `git_blob_content`**，磁盘 SHA 降为注记（**dbdf 确有 `report/evidence/S3-T05/** -text` 覆盖，规则由 `4aada6d`（2026-10-24 01:59 +0800）加入**；详见 §0.2 的事实与成因）。
   3. 新增条件①事实绑定：阶段3 部署地址事实（采集=显示 `0x00110C00`、单缓冲、**运行期分配无静态保证**）与两份 Wong/DSH 决定记录。
   4. **r05 尚未复审**；冻结前必须另行独立复审并引用**固定提交 + 被审 SHA**。
+- 修订 r06（本树，2026-10-25）：
+  1. `raw_frame` 明确采用 `pixel_format=BGR888`、`channel_order=B/G/R`；平台 `byte_order=little` 仅表示多字节标量端序，与通道排列分离。
+  2. 冻结 D2 要求在 resize、归一化与量化之前逐像素执行 B/G/R→R/G/B。例：`[0x11,0x22,0x33]` → `[0x33,0x22,0x11]`。
+  3. 当前转换只在离线 Python D2 图像参考路径可见；C 注入描述符无 BGR888 枚举，PL RAW 读取无通道重排且未接 RTL 顶层；`runtime_support_status=NOT_IMPLEMENTED`，不得外推为真实链路支持。
+  4. G0 readiness 的 `mailbox_pixel_format_code=1` 是独立、未实现的候选 wire 编码；共享契约仍用字符串 `pixel_format=BGR888`。现有 C enum 值 `1` 是 `RGB565`；没有 mailbox PS driver 或显式映射，禁止将候选值直接 cast 为 C enum，G0/G1 继续保持未通过。
+  5. 明确 Stage5 UR-1 的回放证据侧元数据字段，不新增运行时帧字段；地址图改至 r04，地址与状态保持未冻结。
+  6. **r06 尚未复审**；冻结前必须另行独立复审并引用**固定提交 + 被审 SHA**。
 - 来源标注：`[CDX-010 §3]`=4-B 共享契约与注入要求；`[CDX-014 §4]`=阶段5 五元组；`[CDX-014 §5.4]`=HUD 13 字段；`[CDX-015 §3/§5]`=执行与判定口径；`[S4-A]`=`docs/stage4/s4a_stage4_g0_fields.json`；`[w5-G0]`=`D:\codex-worktrees\w5\docs\stage5\s5a_stage5_display_g0_fields.json`。
 
 ## 0. 权威绑定与规则（T1）
@@ -21,7 +28,9 @@
 |---|---|---|---|
 | S4-A G0 契约（机器权威） | `docs/stage4/s4a_stage4_g0_fields.json` | `657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5` | `G0_ROUND_FROZEN_R06`（r06） |
 | S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
-| 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r03**，取代 r02 `80104b80…d2046a`） | `DRAFT_PENDING_REVIEW`，未冻结 |
+| 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r04**，BGR888 RAW 字节语义） | `DRAFT_PENDING_REVIEW`，未冻结 |
+| 冻结 D2 离线图像参考 | `verification/s1_t02_d2_int8_forward.py` | `0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a` | 仅离线参考；不证明 C/PL 运行期支持 |
+| RAW 回放适配器 | `scripts/stage4_s4ctrl/replay_forward_bridge.py` | `ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac` | `frame_full.bin` BGR 字节离线适配；只调用 Python D2，不证明 C/PL 支持 |
 | 阶段3 部署地址事实（条件①） | `dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md` | **blob 口径** `d5ba4b6b…9de4f7a`（dbdf 新 HEAD `6fa77a64`；原磁盘值 `19f754d8…` 已失效） | 只读（不写 dbdf） |
 | Wong D1=A 批准记录 | `decisions/stage4_raw_address_optionA_20261024_r01.md` | `d18359aa…854f8` | 只读 |
 | DSH D1–D4 初裁记录 | `decisions/stage4_raw_address_d1_d4_20261024_r01.md` | `3d5b2abd…e2bf34` | 只读 |
@@ -49,7 +58,9 @@
 | 运行应用 | `an5642_j11cmos2_v10_read.elf`，SHA-256 `1457cda4…2306073` | `[CDX-015 §2.2]` |
 | 采集几何 | 1280×720，stride 3840 B/行，整帧 2,764,800 B | `[S3-T05]` 整帧与行样本 |
 | 传感器格式 | RGB565 | `[CDX-015 §2.2]` |
-| DDR 转储字节序 | B/G/R 三字节 | `[S3-T05]` 只读复算顺序 |
+| RAW 像素格式 | `BGR888`；每像素字节顺序 B/G/R | `[S3-T05]` 只读复算顺序；阶段4 契约语义 |
+| 平台 `byte_order` | `little`，只描述多字节标量端序 | 平台字段约定；与像素通道排列独立 |
+| 阶段3 旧字段映射 | 旧证据中的 `source_byte_order=BGR` 表示像素通道顺序 B/G/R；映射为 `pixel_format=BGR888` + `channel_order=[B,G,R]`，**不映射**为平台 `byte_order` | 保留旧证据原字节，不改写 |
 | 模型语义 | RGB888（逐像素 R/G/B） | 2A/2B 冻结 D2 |
 | 采集时钟 | `PENDING_MEASUREMENT`（不得填造频率） | 本轮未实测 |
 
@@ -60,9 +71,11 @@
 | `camera_live_colour` | `real_live` | 实时采集链路（RGB565 展开/通道顺序/缩放/补边/量化）与独立参考一致；真实场景交互与长跑 | 灰度诊断帧作为真彩质量依据；未联调时以注入/合成替代 |
 | `camera_capture_replay_colour` | `replay_only` | 用已抓取的真实彩色帧回放，先验颜色/预处理一致性 | 把回放计时当实时端到端证据；把回放结论升级为实物集成结论 |
 
-- **不得混同**：传感器 RGB565、DDR 转储 B/G/R 与模型 RGB888 是三层不同语义；展开/通道重排/量化/补边必须与冻结 D2 对齐，并保留独立反例。
+- **不得混同**：传感器 RGB565、RAW BGR888（像素通道 B/G/R）、平台 `byte_order=little` 与模型 RGB888（R/G/B）是四个不同概念。旧 Stage3 `source_byte_order=BGR` 按上表映射为像素通道顺序，不代表标量端序；旧证据保持不变。
+- **D2 通道重排要求**：`raw_frame` 每像素 `[B,G,R]` 必须先转换为 `[R,G,B]`，再执行 resize/letterbox、归一化和量化。例如 `[0x11,0x22,0x33]` → `[0x33,0x22,0x11]`。当前该转换只在离线 Python D2 图像参考中存在。
+- **运行期支持 fail-closed**：`runtime_support_status=NOT_IMPLEMENTED`、mailbox PS driver `NOT_IMPLEMENTED`、PL integration `NOT_INSTANTIATED`。现有 C 注入格式枚举不含 BGR888，且其数值 `1` 为 RGB565；G0 候选 `mailbox_pixel_format_code=1` 是独立 wire 编码，未实现显式映射且不得直接 cast。PL RAW 通道读取未实现重排。因此不得将离线 Python 参考、RAW 帧格式契约或容量证据表述为真实 C/PL/摄像头链路已支持。
 - **原图坐标口径**：检测框 `xyxy` 以原图（1280×720 采集帧）像素坐标为准；416 张量坐标不得直接充当原图坐标。
-- **逐帧源帧哈希**：每帧必须逐帧记录 `frame_integrity`（CRC32/SHA-256 + 实际字节数）并绑定 session/frame 与采集/回放时刻；回放另绑源文件路径、文件 SHA-256、解析出的宽高/stride/字节序及对应的阶段3 采集证据入口。
+- **逐帧源帧哈希与 Stage5 UR-1 回放元数据**：每帧必须逐帧记录 `frame_integrity`（CRC32/SHA-256 + 实际字节数）并绑定 session/frame 与采集/回放时刻。回放证据侧还需绑定源文件路径与 SHA-256、宽高、stride、`pixel_format=BGR888`、`channel_order=[B,G,R]`、平台 `byte_order=little`、阶段3 采集证据入口、`frame_identity`（session/frame/source frame ID）及 `capture_time_utc8`/`timestamp_source`/`clock_domain`。这些是证据侧回放元数据，不增加运行时帧字段。
 - **时效边界**：以上仅为契约改绑；不表示真实彩色采集、回放或板级联调已执行（本轮 `NOT_RUN`）。
 
 ## 0.2 绑定字节口径（r05 新增，N-1）
@@ -79,13 +92,13 @@
 
 | 字段 | 类型 | 必填 | 语义 |
 |---|---|---|---|
-| `contract_version` | string | 是 | 固定 `s4-shared-io/1.1.0`；不匹配即拒绝消费 |
+| `contract_version` | string | 是 | 固定 `s4-shared-io/1.2.0`；不匹配即拒绝消费 |
 | `source_kind` | enum | 是 | `file_injection` / `camera` / `synthetic`（与 C 实现/CLI 同名）；映射到 S4-A `source_kind`（`BOARD_INJECTION`↔`file_injection`、`CAMERA`↔`camera`、`OFFLINE_REGRESSION`↔`synthetic`），证据中必须可互相换算 |
 | `session_id` | uint32 | 是 | 沿用 S4-A u32。PS 每次启动、复位 `frame_id` 计数或同一请求重开 RUN 时重新分配；会话内不变且 `frame_id` 不复用，按 S4-A 规则拒绝回绕 |
 | `frame_id` | u32 | 是 | PS 侧 +1 单调分配（沿用 S4-A `frame_id_allocation`），与送入 PL 的 `FRAME_ID` 同值 |
 | `width` / `height` | u32 | 是 | 原图像素尺寸；补边逆映射唯一基准 |
-| `pixel_format` | enum | 是 | `RGB888`/`RGB565`/`GRAY8`/`INT8_CHW_416`；**覆盖范围由注入点决定** |
-| `byte_order` | string | 是 | 当前平台 `little` |
+| `pixel_format` | enum | 是 | `BGR888`/`RGB888`/`RGB565`/`GRAY8`/`INT8_CHW_416`；当前 `raw_frame` 必须是 BGR888，像素字节顺序 B/G/R；**覆盖范围由注入点决定** |
+| `byte_order` | string | 是 | 当前平台 `little`，只描述多字节标量端序，不描述 RGB/BGR 像素通道顺序 |
 | `stride_bytes` | u32 | 是 | 行跨距；行尾填充未定义、不得被消费 |
 | `buffer` | object | 是 | `region_name`/`base_addr`/`offset_bytes`/`length_bytes`/`alignment`；半开区间；`region_name` 必须在地址图中 |
 | `frame_integrity` | object | 是 | `algorithm`(crc32_ieee/sha256)+`value`+`length_bytes`；**逐帧记录** |
@@ -96,7 +109,9 @@
 | `clock_domain` | string | 是 | 时间戳所属时钟域；`file_injection` 下必填 |
 | `measurement_scope` | object | 是 | 键与取值域**与 S4-A 完全一致**；`source_kind` 与顶层严格映射。`file_injection` / `synthetic` 下时间不可用且 `unavailable_fields` 含 `capture_time_ns`；`camera` 下时间为非零真值且不得标记 unavailable |
 
-**注入点覆盖范围**：`RGB888`/`RGB565` 在被验收的预处理**之前**才覆盖预处理链；`INT8_CHW_416` 只覆盖网络+后处理；直接写显示缓冲只覆盖显示。任何“全链路通过”的说法必须以其注入点覆盖为前提。
+**D2 输入顺序及运行期状态**：RAW `pixel_format=BGR888`、`channel_order=[B,G,R]`；冻结 D2 处理时必须逐像素重排到 RGB `[R,G,B]`，且发生在 resize、归一化、量化之前。字节样例 `[0x11,0x22,0x33]` → `[0x33,0x22,0x11]`。当前转换仅由离线 Python D2 图像参考执行，`runtime_support_status=NOT_IMPLEMENTED`；现有 C 注入 API/PL RAW 路径尚不支持 BGR888，运行期验收必须 fail-closed。
+
+**注入点覆盖范围**：`BGR888`/`RGB888`/`RGB565` 只有在被验收的预处理**之前**注入才覆盖预处理链；`INT8_CHW_416` 只覆盖网络+后处理；直接写显示缓冲只覆盖显示。任何“全链路通过”的说法必须以其注入点覆盖为前提，且满足当前格式的真实运行期实现验收。
 
 **事件顺序 `[CDX-010 §3.4]`**：`producer_write_start` → `producer_write_complete` → `cache_flush_by_producer` → `ownership_publish_to_consumer` → `consumer_invalidate` → `consumer_start` → `consumer_done` → `buffer_release_to_producer`。输入帧在消费者读取前完成 invalidate + DSB。任一事件缺失即该帧不可消费；**不得用超时推断完成**。
 
@@ -160,16 +175,16 @@
 
 - 阶段5 只读；任何字段增删/语义变化必须**新版本号** + 阶段4 所有者批准 + 适用回归；阶段5 只能消费已冻结版本。
 - 本契约和地址图当前均为 `DRAFT_PENDING_REVIEW`：经独立审查与 Lead 确认后再冻结；冻结前不得作为验收依据。
-- **r05 消费方重绑清单（只读请求，不改 w5/w6）**：
-  - **阶段5（w5）**：重绑 ① 地址图版本 r02 → **r03**（新增 `raw_frame`/`raw_meta`、自设禁区缩减）② 共享契约版本 r04 → **r05**；显示五元组/HUD/`display_semantics=B_latest_result_overlay` 语义**不变**；仍不得写阶段4 缓冲。
-  - **阶段6（w6）**：重绑 ① 共享契约版本 r04 → **r05**；跨阶段 `stale_age_limit` 常量值**不变**（仍 200000000 ns、同源）② `T6-A03` 数值仍待阶段4 实测帧周期 P（`NOT_RUN`）。
+- **r06 消费方重绑清单（只读请求，不改 w5/w6）**：
+  - **阶段5（w5）**：冻结前重绑地址图至 **r04**、共享契约至 **1.2.0/r06**；RAW 回放元数据新增 evidence-side `pixel_format=BGR888`、`channel_order=[B,G,R]`，并保留平台 `byte_order=little` 的独立含义。该元数据用于 UR-1 回放证据，不扩展运行时帧字段；阶段5 的显示五元组/HUD/`display_semantics=B_latest_result_overlay` 语义不变，仍不得写阶段4 缓冲。
+  - **阶段6（w6）**：如消费本契约，冻结前重绑至 **1.2.0/r06**；跨阶段 `stale_age_limit` 常量值不变（200000000 ns、同源），`T6-A03` 数值仍待阶段4 实测帧周期 P（`NOT_RUN`）。
   - 两个消费方均须以跨方请求（本树 `report/evidence/S4-CTRL/**` 唯一编号）确认重绑并做适用回归；本契约**不代改** w5/w6 行为表。
 
 ## 5. 限制
 
 - 不含真实板测结果；本轮无任何硬件执行（未装载位流、未打开 COM4/JTAG、未起 hw_server）。
-- **r05 尚未经独立复审**（r04 已在被审提交 `7a9507a` 通过 `PASS`）；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。冻结前必须对**固定提交 + 被审 SHA** 另行独立复审。
-- 地址图 r03 的 `raw_frame`/`raw_meta` 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、`enable_required=true`）：**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到硬件窗口实测（CPU1 保持停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成。
+- **r06 尚未经独立复审**（r04 既有 PASS 不覆盖 r06）；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。冻结前必须对**固定提交 + 被审 SHA** 另行独立复审。
+- 地址图 r04 的 `raw_frame`/`raw_meta` 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、`enable_required=true`）：**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到独立审查和硬件窗口实测（CPU1 保持停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成。
 - 阶段3 部署实测的采集/显示帧基址为**运行期分配**（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须运行期回读，**禁止硬编码**。
 - 绑定字节口径：默认工作树磁盘字节；dbdf 两项按 `git_blob_content` 显式声明；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径。
 - 不定义阶段5 布局/像素门槛/显示 FPS 语义（属阶段5 G0）。

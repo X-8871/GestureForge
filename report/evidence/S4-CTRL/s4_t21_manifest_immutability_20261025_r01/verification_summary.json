@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "s4_t21_manifest_immutability_20261025_r01",
+  "purpose": "修复 task-21 历史 manifest 误标风险，保证既有 RunId 清单不可被当前接口版本覆盖。",
+  "status": "PASS",
+  "baseline_commit": "2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de",
+  "builder_rerun": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w4\\scripts\\stage4_s4ctrl\\build_t21_manifests.py",
+    "exit_code": 0,
+    "outcome": "四个既有 task-21 清单均输出 SKIP_IMMUTABLE；两份受保护 r02 清单固定哈希一致，两个其他既有清单也未覆盖。"
+  },
+  "protected_historical_manifests": [
+    {
+      "run_id": "t21_takeover_20261024_r02",
+      "path": "report/evidence/S4-CTRL/t21_takeover_20261024_r02/manifest.json",
+      "sha256": "887f280089521dd42e2126f31d57b7e09fb175eb437fec62f7fbd24b44e49c71",
+      "interface_version": "s4-shared-io/1.1.0 r04"
+    },
+    {
+      "run_id": "t21_contract_colour_rebind_20261024_r02",
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02/manifest.json",
+      "sha256": "5f4687c96c0ce9c37adeeb9426858a230a5c7097309849a58f1a9b92c4a06820",
+      "interface_version": "s4-shared-io/1.1.0 r04"
+    }
+  ],
+  "independent_review": {
+    "reviewer": "独立 Reviewer（阶段4/5/6 离线缺口复审代理）",
+    "status": "PASS",
+    "scope": "检查当前修复差异、历史 SPECS 版本、两份 manifest 固定 SHA 与异常路径；确认缺失/漂移失败关闭，既有清单不覆盖。",
+    "limitations": "Reviewer 未运行构建器或测试；构建器 exit 0 与历史哈希实测由项目总控记录。"
+  },
+  "not_claimed": [
+    "本包只关闭历史清单不可变与版本误标问题，不代表阶段4 G0/G4/G5 通过。",
+    "共享契约 r06 仍 DRAFT_PENDING_REVIEW/未冻结；C/PL BGR888 运行期仍 NOT_IMPLEMENTED，RAW G0 未闭合，ENABLE=0。",
+    "没有操作板卡、JTAG、COM4、摄像头或 Vivado。"
+  ]
+}

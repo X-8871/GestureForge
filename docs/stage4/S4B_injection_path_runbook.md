@@ -13,7 +13,7 @@
 
 | 对象 | 权威 |
 |---|---|
-| 输入帧/结果契约 | `docs/stage4/s4b_shared_input_result_contract.json`（`s4-shared-io/1.1.0`） |
+| 输入帧/结果契约 | `docs/stage4/s4b_shared_input_result_contract.json`（`s4-shared-io/1.2.0`，r06，`DRAFT_PENDING_REVIEW`） |
 | 缓冲地址/长度/所有者/缓存方向 | `docs/stage4/S4B_stage4_address_map.json` |
 | 结果记录字段 | `docs/stage4/s4a_stage4_g0_fields.json`（r06） |
 | 板级接口 | `s2b-physical/1.0.0`（2B 冻结）；UART `s2bu/1.1`（方案 B，扩展关闭） |
@@ -58,7 +58,10 @@ python -B verification/check_stage_delivery.py --mode evidence \
 - `source_kind=file_injection` / `synthetic`：`capture_time_available=false`，`capture_time_ns=0` 哨兵且 `measurement_scope.unavailable_fields` 必须包含该字段；注入起点只记录在 `injection_start_ns`，**不是采集时间**。
 - 提供了 `capture_time_ns` 的注入帧会被拒绝（`ERR_CAPTURE_TIME_FORGED` → `19`）。
 - `camera` 模式必须提供非零真实 `capture_time_ns`，`capture_time_available=true` 且 `unavailable_fields` 不得包含它；否则拒绝。
-- 注入点必须在被验收的预处理之前（`RGB888`/`RGB565`）；`INT8_CHW_416` 严格限定为 416x416 三平面 CHW INT8（519,168 B），只覆盖网络+后处理；直接写显示缓冲只覆盖显示。
+- 当前 RAW 注入契约要求 `BGR888`（每像素 B/G/R）；平台 `byte_order=little` 与像素通道顺序分离。冻结 D2 必须先逐像素 B/G/R→R/G/B，再 resize/归一化/量化。
+- Stage3 旧证据中的 `source_byte_order=BGR` 仅表示像素通道顺序，映射为 `pixel_format=BGR888`、`channel_order=[B,G,R]`；不映射成平台 `byte_order`，旧证据不改写。
+- **运行期状态 `NOT_IMPLEMENTED`**：现有 C 注入描述符仅接受 RGB888/RGB565/GRAY8/INT8_CHW_416，C enum 值 `1=RGB565`；G0 readiness 的独立候选 `mailbox_pixel_format_code=1` 映射到 BGR888，但没有 mailbox PS driver 执行该映射，禁止直接 cast。PL RAW 读取无通道重排，且当前 RTL 源码未发现 `s4b_preproc_frame` 的顶层实例。本文的构建及板上模板在 mailbox 映射实现、BGR888 实现、PL 顶层接入、独立审查与适用验证完成前不可用于声称或执行 BGR888 RAW 验收。
+- legacy `RGB888`/`RGB565` 描述符路径仅按其自身实现范围使用；`INT8_CHW_416` 严格限定为 416x416 三平面 CHW INT8（519,168 B），只覆盖网络+后处理；直接写显示缓冲只覆盖显示。
 
 ## 6. 4-D 板上注入命令模板（**NOT_RUN**，须按现场产物填写并核对）
 

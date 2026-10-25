@@ -3,6 +3,13 @@
 更新：2026-10-25 05:31（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
 **写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续。task-26 桥接脚本及 r07 包已提交于当前基线 `06c9ab8`；其独立只读复审 PASS（仅代码/证据一致性），真实推理仍 BLOCKED/exit 2。task-21 registry 修复经 R4-03 独立复审 PASS，现已完成总控复核并提交；无硬件/Vivado操作。**
 
+## 当前增量（BGR888 契约 r06，2026-10-25 22:55 UTC+8）
+
+- 当前基线 `2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de`；契约升为 `s4-shared-io/1.2.0 r06`，**`DRAFT_PENDING_REVIEW`**。共享 `pixel_format` 为名称字符串，支持规格值 `BGR888`；像素通道序 `[B,G,R]` 与平台 `byte_order=little` 分开。D2 离线 Python 参考只做一次逐像素 BGR→RGB，再 resize/归一化/量化。
+- **真实 C/PL 运行期仍 `NOT_IMPLEMENTED`**：缺 mailbox PS driver；`s4b_preproc_frame` 未接入实际 RTL top，且当前独立模块未实现 BGR 通道重排。C enum 的 `1=RGB565` 与候选 wire `mailbox_pixel_format_code=1` 仅属不同命名空间，候选映射未冻结，禁止直接 cast。RAW 系统 G0 保持 `CHANGES_REQUIRED_NOT_CLOSED`，地址区非冻结、`ENABLE=0`。
+- 唯一证据包 `report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/` 绑定 16 个源码路径。定向结果：契约 27/27、upstream 17/17、r06 负例 10/10、G0 依据 17/17 + 离线复算 13/13 + gap 状态 3/3、registry 10/10、地址/词汇 11/11、BGR 映射 2/2；整组注入 11/12，唯一 integration case 因沙箱拒绝创建固定工作树临时目录而未执行成功，不算通过。JSON/占位扫描/CRLF-aware diff check 均通过。
+- 当前增量已完成独立复审 PASS：首轮发现历史清单版本误标后，生成器已改为既有清单不可覆盖；r02 清单固定 SHA 核验通过，构建器重跑 exit 0 并保留四份旧清单字节。复审结果及重跑摘要见 `report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/`。本轮源码/STATE 及两个新证据 RunId 待精确核对后提交；旧 12 项 ELF/MAP 未跟踪产物未动。仍未闭合：校准样本独立 heads 与 `cv2` 运行环境、RAW G0、真实 PS/PL 集成、帧周期 P、板级窗口和 G5。
+
 ## 当前离线修复（task-21，2026-10-25）
 
 - 新 RunId `report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/` 修复阶段3重复来源哈希及阶段5两个帧缓冲区的十进制/十六进制矛盾；权威值分别为 `d5ba4b6b…`、`0x00114C00=1133568`、`0x00F95400=16339968`。
@@ -78,7 +85,11 @@
 - 2B/阶段3/阶段5/阶段6 工作树与厂商原件只读；本树一次只跑一个重型任务；不 push。
 - **换行/字节口径前提（2026-10-24 更正）**：本树**存在 `.gitattributes`**（根 + 嵌套 `docs/stage4/`、`report/evidence/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`），其 `-text` **覆盖** w4 的 `docs/stage4/**` 与 `report/evidence/**`（`check-attr text: unset`），故这些文件 disk==blob；**未覆盖**跨树引用（dbdf `report/evidence/S3-T05/**` 为 `text: unspecified` ⇒ 我此前“本树无 .gitattributes”的陈述**有误，以本条为准**）。**不再新增覆盖**（lead 决定，与阶段3 同口径）；契约将新增顶层**绑定字节口径声明**（记录工作树磁盘字节 SHA；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并按 N-1 把 dbdf 两项改绑为 blob 内容口径。
 
-## 当前交接行（11 字段）
+## 当前交接行（11 字段，2026-10-25 22:55 UTC+8）
+
+任务=`BGR888 输入契约 r06 修订与 fail-closed 证据` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de` | 允许修改范围=`docs/stage4/ 契约/registry/readiness/地址/计划、scripts/stage4_s4b/、scripts/stage4_s4ctrl/、verification/ 两项定向测试、report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/**、report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/**、.codex/STATE.md` | 未提交改动归属=`本轮 17 个 tracked 文件（含 .codex/STATE.md）与两个新 RunId evidence 归当前 Codex，尚未提交；旧 12 项 ELF/MAP 未跟踪文件未动` | 让出声明=`Developer 已停写；runtime 路径只读审计结束；独立 Reviewer PASS（S4-20261025 历史清单不可变修复）；未操作硬件` | 心跳(UTC+8)=`2026-10-25 22:55` | 证据入口=`report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/delivery_manifest.json；report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/verification_summary.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（r06 独立复审 PASS，runtime NOT_IMPLEMENTED，RAW G0 CHANGES_REQUIRED_NOT_CLOSED；注入集成用例 11/12 且剩余用例为 sandbox BLOCKED）/ 下一步=证据与差异最终核验并精确提交；随后阶段5消费侧改绑`
+
+## 历史交接行（task-21，2026-10-25 05:31 UTC+8）
 
 任务=`task-21 RAW registry 重复事实修复（R4-03 PASS；跨树窗口仍失效）` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`06c9ab83e4215b6ea5ec9fd827b59549e425a285` | 允许修改范围=`docs/stage4/S4B_raw_system_g0_gap_registry.json、scripts/stage4_s4b/audit_raw_system_g0_gaps.py、verification/test_s4_raw_g0_registry.py、report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/**、.codex/STATE.md` | 未提交改动归属=`本轮 registry/checker/test、修复 RunId 与 STATE 已提交；原有12项 ELF/MAP 保留不动、不入提交` | 让出声明=`Developer 已停写；Reviewer R4-03 PASS；无硬件/Vivado操作` | 心跳(UTC+8)=`2026-10-25 05:31` | 证据入口=`report/evidence/S4-CTRL/t21_address_binding_fix_20261025_r01/delivery_manifest.json` | 恢复命令=`git -C D:/codex-worktrees/w4 log -1 --oneline; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（两项P2已关闭；旧跨树窗口FAIL_STABLE_DRIFT 1/5，RAW系统G0/P/4-D/G5仍未过）/ 下一步=等待输入版本稳定后重新建审查窗口；继续task-26离线前置，推理依赖仍BLOCKED`
 

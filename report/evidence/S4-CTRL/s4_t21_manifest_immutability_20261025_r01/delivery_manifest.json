@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "s4_t21_manifest_immutability_20261025_r01",
+  "source_commit": "2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de",
+  "evidence_dir": "report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01",
+  "interfaces": [
+    {
+      "name": "阶段4↔阶段5 共享输入/结果契约（BGR888 r06，状态仍为草案）",
+      "version": "s4-shared-io/1.2.0 r06",
+      "frozen": false,
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "28a56dab329981dd8576bf92093a65c6adb846076f23e8d4b40ab0d16e16eed2"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/verification_summary.json",
+      "sha256": "caf97ff087a2a3dc78f988acabff8292a18527604c6ba5ddfe7a930eecc2fecc",
+      "role": "result",
+      "keep_reason": "构建器不可变防护运行结果与独立 Reviewer PASS 结论摘要"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/build_t21_manifests.py",
+      "sha256": "8877e737a96d04e252a72b9f6da30753872935a22d81e0c59c20a4dae2f5a723",
+      "role": "source",
+      "keep_reason": "修复后的历史清单防覆盖生成器"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "sha256": "a3710424493f1381894dc66e0059c7dd0c42a1b3525819ed641da8475596f0fe",
+      "role": "source",
+      "keep_reason": "阶段4 当前状态、复审结论与新证据入口"
+    },
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "28a56dab329981dd8576bf92093a65c6adb846076f23e8d4b40ab0d16e16eed2",
+      "role": "source",
+      "keep_reason": "BGR888 r06 草案接口绑定；并未因本修复而冻结"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_takeover_20261024_r02/manifest.json",
+      "sha256": "887f280089521dd42e2126f31d57b7e09fb175eb437fec62f7fbd24b44e49c71",
+      "role": "input",
+      "keep_reason": "被保护的历史 task-21 r02 清单，维持 r04 绑定"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/t21_contract_colour_rebind_20261024_r02/manifest.json",
+      "sha256": "5f4687c96c0ce9c37adeeb9426858a230a5c7097309849a58f1a9b92c4a06820",
+      "role": "input",
+      "keep_reason": "被保护的历史 task-21 r02 清单，维持 r04 绑定"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/delivery_manifest.json",
+      "sha256": "268f9fe2cacb747dd82318894c0a9b37feb3deab726800b9ded2afec711208e9",
+      "role": "input",
+      "keep_reason": "本轮 BGR888 r06 契约包原始交付清单"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/verification_summary.json",
+      "sha256": "8b9e267c1be600493691e8b9d28d42d5b73e22c5080f748e8e62e0ed893e4e9a",
+      "role": "input",
+      "keep_reason": "本轮 BGR888 契约包原始自检摘要"
+    }
+  ],
+  "checks": [
+    {
+      "name": "历史清单不可变构建器重跑",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w4\\scripts\\stage4_s4ctrl\\build_t21_manifests.py",
+      "exit_code": 0,
+      "reason": "四份既有清单均跳过；两份受保护 r02 清单 SHA-256 与固定值相同，版本仍是 s4-shared-io/1.1.0 r04。"
+    },
+    {
+      "name": "check_stage_delivery.py --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w4\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4_t21_manifest_immutability_20261025_r01\\delivery_manifest.json --project-root D:\\codex-worktrees\\w4",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；本包声明的运行文件与外部哈希绑定一致。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14"
+  },
+  "limitations": [
+    "source_commit 是本轮起始 HEAD；本次运行与审查核对的是该提交上的未提交差异。",
+    "独立审查 PASS 只覆盖 BGR888 契约交付中被发现的历史 manifest 误标缺陷及其防复发逻辑，不代表阶段4 G0/G4/G5 通过。",
+    "阶段4 共享契约 r06 仍 DRAFT_PENDING_REVIEW；C/PL 运行期 BGR888 尚未实现，RAW G0 与实测帧周期 P 未闭合。",
+    "未运行硬件或 Vivado 操作。"
+  ]
+}

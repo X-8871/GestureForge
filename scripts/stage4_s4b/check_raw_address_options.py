@@ -50,7 +50,7 @@ def align_up(value: int, alignment: int) -> int:
 
 
 def frame_sizes(audit: dict) -> list[tuple[str, int]]:
-    """按直方图展开每类尺寸的 packed RGB888 字节数（width×height×3）。"""
+    """按直方图展开每类尺寸的 packed 24-bit 三字节 RAW 容量（width×height×3）。"""
     sizes: list[tuple[str, int]] = []
     for dims, count in audit["width_height_histogram"].items():
         width, height = (int(part) for part in dims.split("x"))

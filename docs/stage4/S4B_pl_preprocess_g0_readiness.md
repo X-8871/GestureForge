@@ -3,6 +3,8 @@
 状态：`ARCHITECTURE_APPROVED / G0_NOT_READY`。日期：2026-10-23（UTC+8）。
 Wong已在本会话批准§7路线进入受控开发及OOC资源/时序核验。本页不冻结新接口、地址、尺寸、指标或IP；位流构建和硬件执行仍须各自前置条件。
 
+2026-10-25 格式决议：当前 RAW `raw_frame` 契约为 `pixel_format=BGR888`、像素通道顺序 B/G/R，平台 `byte_order=little` 独立表示多字节标量端序。冻结 D2 要求先逐像素 B/G/R→R/G/B，再 resize、归一化和量化。现有 C 注入描述符及 PL RAW 通道读取没有 BGR888 支持；源码也未找到 mailbox PS driver 或 `s4b_preproc_frame` 的 RTL 顶层实例。当前 C enum 数值 `1` 是 `RGB565`；下文 `mailbox_pixel_format_code=1` 是独立的 G0 候选 CSR 编码，候选映射为 `BGR888`，不是共享契约的字符串 `pixel_format`，不得直接 cast 到 C enum。该映射尚未由 PS driver 实现。契约运行期状态为 `NOT_IMPLEMENTED`、mailbox driver 为 `NOT_IMPLEMENTED`、PL 集成状态为 `NOT_INSTANTIATED`，在显式映射、顶层接入和验收完成前不得声称真实链路支持。
+
 ## 1. 当前可复用范围
 
 - 2B 代码基线为 `16ce2cdf8c00c6214435629d75a5e4b63acb66a9`，含冻结证据的提交为 `07c3d3958578b9cc9d3b8eae3758711fe08724c2`。冻结 PS 应用将 519,168 B 的 CHW INT8 张量写入 `network_input_tensor`，通过自定义 HP0 word adapter 启动网络，输出 head13 5,070 B、head26 20,280 B，再在 PS 解码/NMS。
@@ -18,7 +20,7 @@ Wong已在本会话批准§7路线进入受控开发及OOC资源/时序核验。
 2. 保持宽高比，整数截断新尺寸，左上 padding 为 floor；端点对齐双线性，目标末行/末列及目标尺寸为1的取样按 D2 实现处理。
 3. 当前 D2 先在 0..255 单位插值，再除255，补边归一化值为0.5，转CHW，以 scale=1/127、半数远离零和饱和规则量化。
 4. 定点系数位宽、舍入位置和除法实现尚未选定。必须证明其最终 INT8 与冻结参考一致，特别检查恰好半量化边界；不能自行以“误差很小”替代逐值一致。
-5. RGB565 展开、字节序和通道位置需绑定实际前端。灰度只作诊断，不能用于冻结彩色 golden 的颜色/精度结论。
+5. RAW 输入格式为 BGR888（像素通道 B/G/R），平台 `byte_order=little` 与通道顺序互相独立。必须逐像素 B/G/R→R/G/B 后才进入冻结 D2 resize/letterbox、归一化与量化；灰度只作诊断，不能用于冻结彩色 golden 的颜色/精度结论。当前仅离线 Python D2 图像参考路径执行该转换，C/PL 运行期支持缺失。
 6. 输入长度、stride、末行/帧尾、地址加法和输出长度在启动前受检；无效参数不得启动总线事务。
 
 ### 已复现的量化边界反例
@@ -45,11 +47,11 @@ flowchart LR
 - 候选首个闭环为单帧串行：预处理完成并排空全部写事务后，才启动网络。有限序列、多缓冲和显示读者在其接口就绪后另验所有权，不假定现有单帧容量能容纳双缓冲。
 - 冻结 2B 没有 AMD AXI DMA IP。新增访问方接入 HP0 必须有明确仲裁与 AXI outstanding/排空证明，不能仅连接数据线就沿用原安全结论。
 - 保留冻结网络核作为被消费的上游；新增预处理控制、版本与配置空间须单独审查，不能单方改写 2B 物理接口正文。
-- 地址图的 `injection_frame_rgb` 仍为 `PROPOSED_STAGE4_OWNED_PENDING_G0`，显示区与部分 PS 工作区仍有未解析项。此页不将其变成可写地址。
+- 地址图 r04 当前候选为 `raw_frame`（BGR888、B/G/R）；`injection_frame_rgb` 是已由其取代的旧草案。`raw_frame` 仍未 FROZEN、`ENABLE=0`，显示区与部分 PS 工作区仍有未解析项。此页不将其变成可写地址。
 
 ### 单帧文件注入候选的具体改动
 
-1. 首轮评估格式为RAW RGB888。通过独立PS/JTAG任务描述符或邮箱提交帧ID、宽高、stride、格式、字节长度与CRC；尺寸/stride边界在G0依据输入清单选择，不在本页冻结产品范围。候选原帧区 `0x10700000..0x10B00000` 仅为草案4 MiB范围，未获准写入。邮箱/控制区地址也待PS链接图、DDR所有权和重叠检查。
+1. 当前 RAW 合约格式为 BGR888（字节 B/G/R），平台 `byte_order=little` 仅描述多字节标量端序。描述符/邮箱需携带帧ID、宽高、stride、格式、字节长度与 CRC；其实现目前不支持该格式，G-20 阻断运行期使用。尺寸/stride边界在G0依据输入清单选择，不在本页冻结产品范围。旧候选原帧区 `0x10700000..0x10B00000` 仅为草案4 MiB范围，未获准写入；当前 12 MiB `raw_frame` 仍 `ENABLE=0`。邮箱/控制区地址也待PS链接图、DDR所有权和重叠检查。
 2. 保留 `s2bu/1.1` 字节协议正文及旧张量诊断路径。新增PS应用版本和独立原帧任务入口：冻结2B `RUN` 的CPU `memcpy(arena, staging+8, INPUT_BYTES)` 会覆盖PL预处理张量，因此原帧任务不能再调用该拷贝步骤。RAW任务由独立JTAG mailbox发起，不生成或伪造UART `RUN` 请求、UART sequence/frame或UART响应；它用mailbox的`session_id/frame_id/result_seq`和host `request_seq`关联。原CPU INT8 `RUN` 的真实UART请求/响应流程保持不变。
 3. 候选在既有HP0单master之前增加单帧串行owner mux/任务相位；冻结 `s2b_request_guard.sv` 将对象0输入区设为只读，预处理写入必须受新增owner/范围资格约束。网络相位继续只读输入，预处理与网络不得同时发事务；各读写响应和ledger排空后才交接。`s2b_hp0_word_adapter` 的 `run_enable`、错误锁存与排空状态需同步版本化。此方案改变物理契约、XSA及PS应用，不能描述为零改动复用冻结2B。
 4. 原 `prepare_cache()` 会在推理前flush输入区；原帧路径须证明PL写入前该区没有dirty cache，并避免PL写后将旧cache内容回写覆盖。PS写raw→flush+DSB→交出raw，PL写tensor→排空→交出tensor，网络读tensor→完成→PS invalidate heads的顺序须分别测试。
@@ -86,7 +88,7 @@ RAMB18=0/280，不能与 RAMB36 Tile 重复相加。R04 setup WNS=+0.156 ns、ho
 
 ### 尚未完成的增量预算
 
-1280×720 RGB888 仅作为现有草案的容量预算场景：原始帧 2,764,800 B，输出张量 519,168 B。若选两条原始 RGB 行缓存，纯数据容量为 `2×1280×3=7,680 B`（61,440 bit）。这只是存储量计算，不是实际 BRAM 个数；端口、分银行、插值中间位宽和控制还需计入。
+1280×720 BGR888 仅作为现有草案的 24-bit 容量预算场景：原始帧 2,764,800 B，输出张量 519,168 B。若选两条原始 BGR 行缓存，纯数据容量为 `2×1280×3=7,680 B`（61,440 bit）。这只是存储量计算，不是实际 BRAM 个数；端口、分银行、插值中间位宽和控制还需计入。
 
 新增 LUT/FF/DSP/BRAM、DDR事务量、最坏背压、时钟/复位/CDC、布线后的时序和吞吐均未验证。原始帧区容量不等于可用带宽。完整增量预算和接口审查完成前，G0 仍未就绪。
 
@@ -99,8 +101,8 @@ RAMB18=0/280，不能与 RAMB36 Tile 重复相加。R04 setup WNS=+0.156 ns、ho
 | 项目 | 结果 |
 |---|---:|
 | 样本数 | 109 |
-| 最小单帧RGB888 | 519,168 B |
-| 最大单帧RGB888（1920×1920） | 11,059,200 B |
+| 最小单帧24-bit RAW（BGR888 目标格式） | 519,168 B |
+| 最大单帧24-bit RAW（1920×1920，BGR888 目标格式） | 11,059,200 B |
 | 超过4 MiB | 97帧 |
 | 超过8 MiB | 2帧 |
 | 不超过4 MiB | 12帧 |
@@ -143,7 +145,7 @@ CDX-20261022-010 §5要求至少100帧实际网络预处理张量对独立PC参�
 
 - 数值语义：建议保持冻结D2逐值结果；另一选项是正式开启数值规范变更，后者须重建受影响的验收依据。
 - 已批准架构范围：上述“独立PS/JTAG原帧任务入口、单帧串行HP0所有权、PL预处理写网络输入、新PS入口跳过CPU tensor拷贝”的新版本路线进入受控开发及OOC资源/时序核验；不合并阶段3视频设计。
-- 首轮输入范围：建议以RAW RGB888文件为输入，具体尺寸/stride边界由现有样本与容量核对后形成G0范围；地址和邮箱布局、增量资源/时序结果、所有权接口与适用性能标准仍须工程核验和独立审查。
+- 首轮输入范围：RAW 文件按 BGR888 输入（每像素 B/G/R），D2 前执行通道重排；具体尺寸/stride边界由现有样本与容量核对后形成G0范围；地址和邮箱布局、增量资源/时序结果、所有权接口与适用性能标准仍须工程核验和独立审查。
 
 批准评估范围不表示G0/G1/G2或4-D通过。未完成实际命令实现和审查、硬件会话接管、版本与授权绑定前，不加载位流或执行板上任务。
 
@@ -182,11 +184,11 @@ BD 从现有 `s2b_inference_platform.tcl` 派生受控 S4B 脚本：PS7 `M_AXI_G
 
 ### 8.2 DDR 区域、样本范围和打包
 
-109 帧冻结样本清单为 `D:\codex-worktrees\w4\report\evidence\S2A-T01\fixed_test_samples.json`，SHA-256 `ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed`。首轮 4-D 只允许该清单内已绑定的样本 ID/宽高；拒绝清单外的新尺寸，直至输入范围另行评审。原始格式为 RGB888、逐像素字节顺序 R/G/B；首轮 stride 固定为 `width*3`，`logical_bytes=stride*height`。该文件由 109 RAW/direct-D2 结果绑定，未复制到 raw result 目录。每帧独占一个 RAW 缓冲，不做双缓冲；这只限定复现语料，不冻结后续产品尺寸。
+109 帧冻结样本清单为 `D:\codex-worktrees\w4\report\evidence\S2A-T01\fixed_test_samples.json`，SHA-256 `ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed`。首轮 4-D 只允许该清单内已绑定的样本 ID/宽高；拒绝清单外的新尺寸，直至输入范围另行评审。raw_frame 目标格式为 BGR888、逐像素字节顺序 B/G/R；首轮 stride 固定为 `width*3`，`logical_bytes=stride*height`。既有 109 RAW/direct-D2 容量证据只绑定三字节长度，不能证明 BGR 通道支持。每帧独占一个 RAW 缓冲，不做双缓冲；这只限定复现语料，不冻结后续产品尺寸。
 
 | 区域 | 建议半开区间 / 长度 | 含义及约束 |
 |---|---|---|
-| RAW | `[0x12000000,0x12C00000)`，12 MiB（BLOCKED） | 单帧紧密 RGB888；`storage_bytes=align_up(logical_bytes,8)`；host 将逻辑末尾至 storage 末尾写成零，PS 在 COMMIT 校验，PL 不把尾部当像素。最大语料帧 11,059,200 B，区内算术余量 1,523,712 B。 |
+| RAW | `[0x12000000,0x12C00000)`，12 MiB（BLOCKED） | 单帧紧密 BGR888（B/G/R）；`byte_order=little` 独立描述平台标量端序；`storage_bytes=align_up(logical_bytes,8)`；host 将逻辑末尾至 storage 末尾写成零，PS 在 COMMIT 校验，PL 不把尾部当像素。最大语料帧 11,059,200 B，区内算术余量 1,523,712 B。 |
 | mailbox / geometry | `[0x12C00000,0x12C08000)`，32 KiB | CPU/JTAG descriptor、ACK、几何表及固定 JTAG_RAW_TASK 结果区；PS/host 管理缓存，PL 对有效几何表只读。 |
 | frozen input tensor | `[0x10000000,0x1007EC00)`，519,168 B | PL 只写；网络 master 只读；PS 在 PL 完成前不读写。边界与本次地址图一致。 |
 
@@ -208,7 +210,7 @@ JTAG RAW 结果数据块复用 S4-B 现有 40 B `s4_uart_meta_pack()` 字段布�
 
 `session_id` 在线路与 S4-A/shared contract 中始终是 u32；不与 `boot_seed` 拼接或扩成 u64。若 PS 实现为跨启动生成新非零 session 而使用内部 u64 boot seed，须把它单独留在 PS 本地启动元数据/旁路日志中，不能改变 mailbox 字段或 session_id 的位宽/语义。
 
-所有 record 字段为小端固定宽度。协议版本均为 `1`；HOST_REQ `record_bytes=128`，其余三种 record `record_bytes=64`。ASCII magic 按内存字节逐字节写入，若作 little-endian u32 解释，数值分别是：`S4BR=0x52423453`、`S4BA=0x41423453`、`S4BG=0x47423453`、`S4BS=0x53423453`。像素格式 `1=RGB888`；geometry schema version=`1`。CRC 固定为 CRC-32/ISO-HDLC（反射多项式 `0xEDB88320`，初值/最终异或 `0xffffffff`，与 Python `zlib.crc32` 相同）。HOST_REQ、PS_ACK、PS_GEOM、PS_RESULT 的 CRC 字段各自只校验本 record；几何表 CRC 只校验 19,968 B 表体，顺序为完整 X 表后完整 Y 表。所有 reserved 均必须写零并由接收方检查。
+所有 record 字段为小端固定宽度。协议版本均为 `1`；HOST_REQ `record_bytes=128`，其余三种 record `record_bytes=64`。ASCII magic 按内存字节逐字节写入，若作 little-endian u32 解释，数值分别是：`S4BR=0x52423453`、`S4BA=0x41423453`、`S4BG=0x47423453`、`S4BS=0x53423453`。G0 候选 RAW 编码字段名为 `mailbox_pixel_format_code`，候选值 `1` 单独映射至共享契约字符串 `pixel_format=BGR888`（像素字节 B/G/R）；descriptor 其他字段仍使用小端标量端序。此候选字段不是 C `s4_inject_pixel_format` enum：现有 C enum 值 `1` 是 `S4_FMT_RGB565`，禁止直接 cast；目前无 PS mailbox driver 实现映射，也无 `s4b_preproc_frame` RTL 顶层实例。该编码仅待独立审查，不代表 C/PL 已支持。geometry schema version=`1`。CRC 固定为 CRC-32/ISO-HDLC（反射多项式 `0xEDB88320`，初值/最终异或 `0xffffffff`，与 Python `zlib.crc32` 相同）。HOST_REQ、PS_ACK、PS_GEOM、PS_RESULT 的 CRC 字段各自只校验本 record；几何表 CRC 只校验 19,968 B 表体，顺序为完整 X 表后完整 Y 表。所有 reserved 均必须写零并由接收方检查。
 
 opcode 3 的 `result_record_crc32@0x54` 必须等于上一条 PS_RESULT 的 `record_crc32@0x38`；它不替代 HOST_REQ 自身的 `descriptor_crc32@0x70`。所有未分配字段均写零并由接收方检查。
 
@@ -223,7 +225,7 @@ opcode 3 的 `result_record_crc32@0x54` 必须等于上一条 PS_RESULT 的 `rec
 | `0x10` | u32 | `session_id`；RAW_BEGIN 为 0 表示开启新会话（首次启动且无未完成终态可直接初始化；后续须前帧结果已确认消费或错误已安全确认，且 owner/ledger 无 pending）；非 0 必须回显当前活动会话。COMMIT/RESULT_CONSUMED 必须回显 PS 分配的 u32。PS 不分配 0，u32 耗尽即拒绝新会话，禁止回绕或复用。 |
 | `0x14` | u32 | `frame_id`；RAW_BEGIN 必须为 0，表示请求 PS 在该 session 内分配下一个 u32；COMMIT 与 RESULT_CONSUMED 回显 RAW_GRANTED/PS_RESULT 中的 PS u32。 |
 | `0x18/1c/20` | 3×u32 | 原图 `width/height/stride_bytes`；RAW_BEGIN/COMMIT 有效且 stride=`width*3`，RESULT_CONSUMED 全为 0。 |
-| `0x24` | u32 | `pixel_format=1`（RGB888，逐像素 R/G/B）；RESULT_CONSUMED 为 0。 |
+| `0x24` | u32 | `mailbox_pixel_format_code=1`（G0 候选值，显式映射到共享契约字符串 `pixel_format=BGR888`，逐像素 B/G/R）；与 C enum 编码域分离，C enum 值 `1` 是 RGB565；无 PS driver 映射实现、禁止直接 cast；当前 RTL 无顶层实例。RESULT_CONSUMED 为 0。 |
 | `0x28/2c` | 2×u32 | `logical_bytes/storage_bytes`；RAW_BEGIN/COMMIT 有效且后者严格为 `align_up(logical_bytes,8)`，RESULT_CONSUMED 为 0。 |
 | `0x30` | u32 | RAW_BEGIN/COMMIT 为 `raw_crc32`（logical bytes CRC，不含末尾零 pad）；RESULT_CONSUMED 为 0。 |
 | `0x34/38/3c/40/44` | 5×u32 | `geometry_version/new_width/new_height/pad_left/pad_top`；RAW_BEGIN/RESULT_CONSUMED 全为 0，COMMIT 为 host 生成的 D2 geometry。 |
@@ -312,7 +314,7 @@ PS CPU0 当前 bare-metal D-cache line 为 32 B，外层维护保守按 64 B 向
 | `0x210` | `SESSION_ID` | RW shadow，u32，由 PS 按 S4-A 分配。 |
 | `0x214` | `FRAME_ID` | RW shadow，u32，由 PS 单调分配；同 session 不复用。 |
 | `0x218/21c/220` | `WIDTH/HEIGHT/STRIDE_BYTES` | 3×RW u32 shadows；首轮 stride 必须 width×3，宽高必须属于 109 manifest。 |
-| `0x224` | `PIXEL_FORMAT` | RW u32 shadow，固定 `1=RGB888`。 |
+| `0x224` | `MAILBOX_PIXEL_FORMAT_CODE` | RW u32 shadow，RAW 候选编码 `1` 映射为共享契约字符串 `pixel_format=BGR888`（B/G/R）；该编码不等于 C enum，C enum `1=RGB565`；当前无 PS driver 映射，且 `s4b_preproc_frame` 未实例化到 RTL 顶层。 |
 | `0x228/22c` | `LOGICAL_BYTES/STORAGE_BYTES` | 2×RW u32 shadows；分别等于 width×height×3 与 align_up(logical_bytes,8)。 |
 | `0x230` | `RAW_CRC32` | RW u32 shadow，CRC 覆盖 logical bytes，不含零 pad。 |
 | `0x234/238` | `GEOMETRY_VERSION/GEOMETRY_BYTES` | 2×RW u32 shadows；geometry version 1，geometry bytes 19,968。 |
@@ -367,7 +369,7 @@ OOC 原始产物目录为 `tmp/4/S4B-PL-NUMERIC-OOC/numeric_ooc_20261023_r01/`�
 
 当前交付状态与后续关口：
 
-- [x] 方向范围：RAW RGB888 → PL D2 preprocessing → HP0 串行 owner → 冻结网络；不合并阶段3视频 XSA。
+- [x] 方向范围（2026-10-25 格式决议）：RAW BGR888 → D2 前 BGR→RGB → PL preprocessing → HP0 串行 owner → 冻结网络；不合并阶段3视频 XSA。当前运行期支持仍 NOT_IMPLEMENTED。
 - [x] 数值核 5 源 r02 G2 与 geometry generator r03 两源 G2 已分别绑定版本；geometry PASS 对象是 generator/test，不代表本节 mailbox packed ABI、frame engine 或 wrapper 已通过 G2。
 - [x] 12 个缺失 2B 依赖已从固定 Git 在新 tmp source snapshot 隔离恢复并逐哈希校验；尚未复制进活动源、构建 wrapper 或综合。
 - [ ] 接口 G0：Reviewer 审查本节的 magic/format/version/offset、CRC/commit 原子性、JTAG_RAW_TASK metadata+box 数据块及 PS_RESULT 四类数据 CRC、RESULT_CONSUMED 门控、session/frame分配/匹配、host/PS/PL角色、PS shadows、owner/reset/cache/error semantics；之后可启动无物理地址绑定的离线模块开发。
@@ -379,7 +381,7 @@ OOC 原始产物目录为 `tmp/4/S4B-PL-NUMERIC-OOC/numeric_ooc_20261023_r01/`�
 
 ### 8.8 已解决事实与仍待工程证据
 
-Wong 已批准 RAW RGB888、PL preprocessing、HP0 串行 owner、冻结 tensor/网络及独立 PS/JTAG mailbox 路线；4-D 两个最低运行条件来自正式 runbook §5：“运行≥30分钟且≥1000次有效推理，两条件都满足”，没有 1000 次必须在 1800 s 内完成的上限。geometry r03 的两源算法快照已 G2 PASS 并提交 `e1e79fcfcedd653681336e45c323de6ba3ed5558`；geometry mailbox packed-entry layout仍待本接口G0审查，不能混为同一审查对象。
+Wong 已批准 RAW 帧、PL preprocessing、HP0 串行 owner、冻结 tensor/网络及独立 PS/JTAG mailbox 路线；本轮格式决议将 RAW 定义为 BGR888，D2 前需转换为 RGB。该决议不表示 C/PL 已支持，当前 G-20 未关闭。4-D 两个最低运行条件来自正式 runbook §5：“运行≥30分钟且≥1000次有效推理，两条件都满足”，没有 1000 次必须在 1800 s 内完成的上限。geometry r03 的两源算法快照已 G2 PASS 并提交 `e1e79fcfcedd653681336e45c323de6ba3ed5558`；geometry mailbox packed-entry layout仍待本接口G0审查，不能混为同一审查对象。
 
 待处理为工程证据而非当前需 Wong 重复批准的架构选择：
 

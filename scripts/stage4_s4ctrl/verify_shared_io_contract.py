@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r05）。
+"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r06）。
 
 退出码：0 = 全部 PASS，1 = 存在 FAIL，2 = 输入/环境错误。
 
@@ -31,6 +31,7 @@ import copy
 import hashlib
 import json
 import platform
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -42,6 +43,10 @@ HUMAN_DOC = WORKTREE / "docs" / "stage4" / "S4B_shared_input_result_contract.md"
 ADDRESS_MAP = WORKTREE / "docs" / "stage4" / "S4B_stage4_address_map.json"
 S4A_MD = WORKTREE / "docs" / "stage4" / "S4A_stage4_g0_tracking_and_timing_draft.md"
 RUNBOOK = WORKTREE / "docs" / "stage4" / "S4B_injection_path_runbook.md"
+D2_REFERENCE = WORKTREE / "verification" / "s1_t02_d2_int8_forward.py"
+C_INJECT_HEADER = WORKTREE / "vitis" / "stage4" / "s4_inject_frame.h"
+C_INJECT_IMPL = WORKTREE / "vitis" / "stage4" / "s4_inject_frame.c"
+PL_PREPROCESSOR = WORKTREE / "src" / "s4b_preproc_frame.sv"
 CN = timezone(timedelta(hours=8))
 
 REQUIRED_TOP_KEYS = (
@@ -357,11 +362,11 @@ def validate_colour_profiles(contract: dict) -> list[str]:
         errors.append("必须声明回放必须标注为回放的规则")
 
     fmt = prof.get("sensor_and_ddr_format", {})
-    for token, field in (("RGB565", "sensor_output"), ("B/G/R", "ddr_dump_byte_order"), ("RGB888", "model_semantics")):
+    for token, field in (("RGB565", "sensor_output"), ("B/G/R", "ddr_dump_channel_order"), ("RGB888", "model_semantics")):
         if token not in str(fmt.get(field, "")):
             errors.append(f"sensor_and_ddr_format.{field} 必须写明 {token}")
     if "不得直接混同" not in str(fmt.get("rule", "")):
-        errors.append("必须声明传感器 RGB565 / DDR B-G-R / 模型 RGB888 三层语义不得直接混同")
+        errors.append("必须声明传感器 RGB565 / RAW BGR888 / 模型 RGB888 三层语义不得直接混同")
 
     dep = prof.get("stage3_deployment_bindings", {})
     if dep.get("uncompensated_sof_bit_sha256") != STAGE3_SOF_SHA256:
@@ -378,6 +383,193 @@ def validate_colour_profiles(contract: dict) -> list[str]:
         errors.append("采集时钟必须保持 PENDING_MEASUREMENT（未实测不得填造频率）")
     if not prof.get("source_frame_hash_rule", {}).get("rule"):
         errors.append("必须给出逐帧源帧哈希绑定规则")
+    return errors
+
+
+def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -> list[str]:
+    """检查 r06 的 BGR888 字节语义、离线参考顺序与运行期 fail-closed 证据。"""
+    errors: list[str] = []
+    if contract.get("contract_version") != "1.2.0" or contract.get("revision") != "r06":
+        errors.append("契约必须为 s4-shared-io/1.2.0 r06")
+    if contract.get("status") != "DRAFT_PENDING_REVIEW":
+        errors.append("契约必须保持 DRAFT_PENDING_REVIEW，待独立复审")
+    if "s4-shared-io/1.2.0" not in doc or "（r06）" not in doc:
+        errors.append("人读契约版本必须与机器契约 r06 一致")
+
+    profiles = contract.get("input_source_profiles", {})
+    raw_format = profiles.get("raw_frame_format", {})
+    if (raw_format.get("pixel_format"), raw_format.get("channel_order"), raw_format.get("byte_order")) != (
+        "BGR888", ["B", "G", "R"], "little"
+    ):
+        errors.append("RAW 格式必须是 BGR888 / channel_order=B,G,R / 平台 byte_order=little")
+    if "平台多字节标量端序" not in raw_format.get("byte_order_semantics", ""):
+        errors.append("RAW byte_order 必须明确为平台多字节标量端序")
+    reorder = raw_format.get("d2_channel_reorder", {})
+    if (reorder.get("required") is not True
+            or reorder.get("must_precede") != ["resize", "normalization", "quantization"]
+            or "[B,G,R]" not in reorder.get("operation", "")
+            or "[R,G,B]" not in reorder.get("operation", "")):
+        errors.append("D2 必须在 resize/normalization/quantization 前逐像素将 BGR888 重排成 RGB")
+
+    legacy = profiles.get("sensor_and_ddr_format", {}).get("legacy_stage3_metadata_mapping", {})
+    if (legacy.get("legacy_field"), legacy.get("legacy_value"), legacy.get("maps_to"),
+            legacy.get("does_not_map_to")) != (
+        "source_byte_order", "BGR", {"pixel_format": "BGR888", "channel_order": ["B", "G", "R"]},
+        "platform byte_order",
+    ):
+        errors.append("Stage3 旧 source_byte_order=BGR 必须映射为像素通道顺序，不能映射成平台 byte_order")
+
+    metadata = profiles.get("source_frame_hash_rule", {}).get("evidence_side_replay_metadata", {})
+    required_metadata = {
+        "source_path", "source_sha256", "width", "height", "stride_bytes", "byte_order",
+        "stage3_evidence_entry", "frame_identity", "capture_time_utc8", "timestamp_source", "clock_domain",
+    }
+    if metadata.get("scope") != "evidence_side_only_not_runtime_input_fields":
+        errors.append("Stage5 UR-1 回放元数据必须限定为 evidence-side，不扩展运行时帧字段")
+    if not required_metadata.issubset(set(metadata.get("required_fields", []))):
+        errors.append("Stage5 UR-1 回放元数据缺少必需源文件/几何/来源/身份/时间字段")
+    if (metadata.get("pixel_format"), metadata.get("channel_order"), metadata.get("byte_order")) != (
+        "BGR888", ["B", "G", "R"], "little"
+    ):
+        errors.append("Stage5 UR-1 回放元数据须分列 BGR888、B/G/R 与平台 byte_order=little")
+    if metadata.get("runtime_contract_fields_added") is not False:
+        errors.append("回放元数据不得增加运行时帧字段")
+
+    input_contract = contract.get("input_frame_contract", {})
+    runtime = input_contract.get("runtime_support", {})
+    if input_contract.get("runtime_support_status") != "NOT_IMPLEMENTED":
+        errors.append("BGR888 运行期必须保持 runtime_support_status=NOT_IMPLEMENTED")
+    if runtime.get("c_injection_api", {}).get("status") != "UNSUPPORTED":
+        errors.append("C 注入 API 当前状态必须为 UNSUPPORTED")
+    if runtime.get("pl_preprocessor", {}).get("status") != "UNSUPPORTED":
+        errors.append("PL RAW 前处理当前状态必须为 UNSUPPORTED")
+    if runtime.get("pl_preprocessor", {}).get("integration_status") != "NOT_INSTANTIATED":
+        errors.append("PL RAW 前处理模块当前未接入 RTL 顶层，集成状态必须为 NOT_INSTANTIATED")
+    if runtime.get("mailbox_ps_driver", {}).get("status") != "NOT_IMPLEMENTED":
+        errors.append("mailbox PS driver 当前状态必须为 NOT_IMPLEMENTED")
+    mailbox_code = runtime.get("mailbox_numeric_encoding", {})
+    if (mailbox_code.get("field_name"), mailbox_code.get("candidate_value"),
+            mailbox_code.get("candidate_maps_to_pixel_format"), mailbox_code.get("current_c_enum_value_1"),
+            mailbox_code.get("direct_cast_allowed"), mailbox_code.get("mapping_implementation_status")) != (
+        "mailbox_pixel_format_code", 1, "BGR888", "S4_FMT_RGB565", False, "NOT_IMPLEMENTED"
+    ):
+        errors.append("mailbox_pixel_format_code=1 必须是独立未实现候选编码，不能直接 cast 为 C enum")
+    if not all(token in runtime.get("acceptance_gate", "") for token in ("不得宣称", "逐像素", "端到端")):
+        errors.append("运行期支持验收门必须 fail-closed 并要求逐像素/端到端验证")
+
+    # 静态绑定当前实际 D2 / C / PL 源码，避免把未来代码漂移误当成本轮证据。
+    upstream = {item.get("id"): item for item in contract.get("upstream_bindings", [])}
+    d2_binding = upstream.get("frozen_d2_offline_reference", {})
+    if d2_binding.get("path") != "verification/s1_t02_d2_int8_forward.py":
+        errors.append("离线 D2 参考路径绑定错误")
+    elif not D2_REFERENCE.is_file() or sha256_of(D2_REFERENCE) != d2_binding.get("sha256"):
+        errors.append("离线 D2 参考 SHA 与契约绑定不一致")
+    elif not (d2_binding.get("declared_status") == "FROZEN_REFERENCE_OFFLINE_ONLY"
+              and d2_binding.get("conversion_entry") == "load_image_chw"):
+        errors.append("离线 D2 参考必须明确标成 offline-only")
+    else:
+        source = D2_REFERENCE.read_text(encoding="utf-8")
+        start = source.find("def load_image_chw(")
+        end = source.find("\ndef forward_one(", start)
+        body = source[start:end] if start >= 0 and end > start else ""
+        conversion_steps = (
+            "image = cv2.imdecode", "rgb = image[:, :, ::-1]", "src_height, src_width = rgb.shape[:2]",
+            "resized / 255.0", "transpose(2, 0, 1)",
+        )
+        positions = [body.find(token) for token in conversion_steps]
+        forward_start = source.find("def forward_one(")
+        forward_end = source.find("\ndef ", forward_start + 1)
+        forward_body = source[forward_start:forward_end] if forward_start >= 0 else ""
+        if not body or any(position < 0 for position in positions) or positions != sorted(positions):
+            errors.append("离线 D2 load_image_chw 未证明 imdecode 后先 BGR→RGB，再 resize/归一化并输出 CHW")
+        if "float_current = image_chw.astype(np.float64)" not in forward_body or "float_current / INPUT_SCALE" not in forward_body:
+            errors.append("离线 D2 forward_one 未证明 CHW 预处理输入后续进入量化路径")
+
+    bridge_binding = upstream.get("s4_offline_raw_replay_bridge", {})
+    if (bridge_binding.get("path") != "scripts/stage4_s4ctrl/replay_forward_bridge.py"
+            or bridge_binding.get("declared_status") != "OFFLINE_REPLAY_ONLY"):
+        errors.append("原始 BGR 帧回放适配器必须固定绑定并标记为 offline-only")
+    elif not Path(resolve(bridge_binding["path"])).is_file() or sha256_of(resolve(bridge_binding["path"])) != bridge_binding.get("sha256"):
+        errors.append("原始 BGR 帧回放适配器 SHA 与契约绑定不一致")
+    else:
+        bridge = resolve(bridge_binding["path"]).read_text(encoding="utf-8")
+        bridge_steps = (
+            "frame_bgr = np.frombuffer(frame_bytes, dtype=np.uint8).reshape(720, 1280, 3)",
+            "cv2.imencode(\".png\", frame_bgr",
+            "module.load_image_chw(png_a, 416, 416)",
+        )
+        bridge_positions = [bridge.find(token) for token in bridge_steps]
+        if any(position < 0 for position in bridge_positions) or bridge_positions != sorted(bridge_positions):
+            errors.append("离线回放适配器未证明 BGR frame bytes 经 PNG 解码后进入 D2 load_image_chw")
+
+    for section_name, expected_paths in (
+        ("c_injection_api", {"vitis/stage4/s4_inject_frame.h", "vitis/stage4/s4_inject_frame.c"}),
+        ("pl_preprocessor", {"src/s4b_preproc_frame.sv"}),
+    ):
+        section = runtime.get(section_name, {})
+        source_bindings = section.get("source_bindings", [])
+        actual_paths = {entry.get("path") for entry in source_bindings}
+        if actual_paths != expected_paths:
+            errors.append(f"{section_name} 缺少当前 C/PL 源码 SHA 绑定")
+        for entry in source_bindings:
+            source_path = resolve(str(entry.get("path", "")))
+            if not source_path.is_file() or sha256_of(source_path) != entry.get("sha256"):
+                errors.append(f"{section_name} 源码 SHA 漂移：{entry.get('path')}")
+
+    try:
+        header = C_INJECT_HEADER.read_text(encoding="utf-8")
+        implementation = C_INJECT_IMPL.read_text(encoding="utf-8")
+        pl = PL_PREPROCESSOR.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"读取当前 C/PL 源码失败：{exc}")
+    else:
+        enum_start = header.find("S4_FMT_RGB888")
+        enum_end = header.find("} s4_inject_pixel_format;", enum_start)
+        enum_body = header[enum_start:enum_end] if enum_start >= 0 and enum_end > enum_start else ""
+        if not enum_body or "S4_FMT_BGR888" in enum_body:
+            errors.append("C 注入格式枚举当前不再符合未实现 BGR888 的证据状态")
+        if "S4_FMT_BGR888" in implementation or "BGR888" in implementation:
+            errors.append("C 注入实现出现 BGR888 代码；须更新运行期状态与独立验证")
+        if "#define S4_INJECT_CONTRACT_VERSION \"s4-shared-io/1.1.0\"" not in header:
+            errors.append("当前 C 注入头版本已变化；须核查 1.2.0 是否已有运行期实现")
+        if "S4_FMT_RGB565 = 1" not in enum_body:
+            errors.append("当前 C enum 数值 1 不再是 RGB565；须重核 wire-code 映射证据")
+        direct_read = "({32'd0, sample_x_comb} * 64'd3) + {62'd0, channel_q}"
+        if "BGR888" in pl or "channel_order" in pl or direct_read not in pl:
+            errors.append("当前 PL RAW 读取不再符合未实现 BGR 通道重排的证据状态")
+
+        mailbox_sources = [* (WORKTREE / "vitis" / "stage4").rglob("*.c"),
+                           * (WORKTREE / "vitis" / "stage4").rglob("*.h")]
+        mailbox_markers = ("HOST_REQ", "S4BR", "MAILBOX_PIXEL_FORMAT_CODE", "mailbox_pixel_format_code")
+        if any(marker in path.read_text(encoding="utf-8", errors="replace")
+               for path in mailbox_sources for marker in mailbox_markers):
+            errors.append("阶段4 C 源码已出现 mailbox driver 标识；须更新 NOT_IMPLEMENTED 状态并独立验证")
+        rtl_sources = list((WORKTREE / "src").glob("*.sv"))
+        rtl_instance = re.compile(r"\bs4b_preproc_frame\s*(?:#\s*\(.*?\)\s*)?[A-Za-z_]\w*\s*\(", re.DOTALL)
+        if any(rtl_instance.search(path.read_text(encoding="utf-8", errors="replace"))
+               for path in rtl_sources):
+            errors.append("src RTL 已实例化 s4b_preproc_frame；须更新未集成状态并独立验证")
+
+    point = address_map.get("injection_point", {})
+    raw_region = next((region for region in address_map.get("regions", []) if region.get("name") == "raw_frame"), {})
+    meta_region = next((region for region in address_map.get("regions", []) if region.get("name") == "raw_meta"), {})
+    if address_map.get("status") != "DRAFT_PENDING_REVIEW":
+        errors.append("地址图必须保持 DRAFT_PENDING_REVIEW")
+    if (point.get("region_name"), point.get("pixel_format"), point.get("channel_order"), point.get("byte_order")) != (
+        "raw_frame", "BGR888", ["B", "G", "R"], "little"
+    ):
+        errors.append("地址图 injection_point 必须绑定 raw_frame BGR888/B-G-R/byte_order=little")
+    for name, region in (("raw_frame", raw_region), ("raw_meta", meta_region)):
+        if region.get("status") != "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW" or region.get("enable_required") is not True:
+            errors.append(f"{name} 必须保持未冻结候选且 enable_required=true")
+    if raw_region.get("pixel_format") != "BGR888" or raw_region.get("channel_order") != ["B", "G", "R"] or raw_region.get("byte_order") != "little":
+        errors.append("地址图 raw_frame 像素/通道/平台端序字段不一致")
+    if "ENABLE=0" not in raw_region.get("notes", "") or point.get("runtime_support_status") != "NOT_IMPLEMENTED":
+        errors.append("地址图必须保留 ENABLE=0 与 BGR888 运行期未实现状态")
+    for token in ("BGR888", "B/G/R", "byte_order=little", "NOT_IMPLEMENTED", "source_byte_order=BGR",
+                  "mailbox_pixel_format_code=1", "C enum 值 `1` 是 `RGB565`", "不得直接 cast"):
+        if token not in doc:
+            errors.append(f"人读契约缺少 r06 语义：{token}")
     return errors
 
 
@@ -752,7 +944,7 @@ def main() -> int:
         mutated["input_source_profiles"]["descriptive_labels"][1]["timing_claim_scope"] = "real_live"
         colour_controls["replay_claimed_as_live"] = bool(validate_colour_profiles(mutated))
         mutated = copy.deepcopy(contract)
-        mutated["input_source_profiles"]["sensor_and_ddr_format"]["ddr_dump_byte_order"] = "R/G/B"
+        mutated["input_source_profiles"]["sensor_and_ddr_format"]["ddr_dump_channel_order"] = "R/G/B"
         colour_controls["wrong_ddr_byte_order"] = bool(validate_colour_profiles(mutated))
         mutated = copy.deepcopy(contract)
         mutated["input_source_profiles"]["capture_clock"]["status"] = "MEASURED"
@@ -767,6 +959,60 @@ def main() -> int:
         failures.append(f"彩色改绑负向对照未全部检出：{colour_controls}")
     else:
         passes.append("真实彩色改绑齐全（标签/部署绑定/三层语义/几何/采集时钟/源帧哈希）+ 4/4 负向对照被拒绝")
+
+    # 16. r06 BGR888 语义、Stage5 UR-1 证据元数据与运行期支持缺口
+    bgr_errors = validate_r06_bgr888_semantics(contract, doc, address_map)
+    bgr_controls: dict[str, bool] = {}
+    if not bgr_errors:
+        cases: list[tuple[str, dict, dict]] = []
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["raw_frame_format"]["pixel_format"] = "RGB888"
+        cases.append(("wrong_raw_pixel_format", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["raw_frame_format"]["byte_order"] = "BGR"
+        cases.append(("channel_order_used_as_byte_order", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["raw_frame_format"]["channel_order"] = ["R", "G", "B"]
+        cases.append(("wrong_channel_order", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_frame_contract"]["runtime_support_status"] = "IMPLEMENTED"
+        cases.append(("runtime_claimed_implemented", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["raw_frame_format"]["d2_channel_reorder"]["must_precede"] = [
+            "normalization", "quantization"
+        ]
+        mutated["input_source_profiles"]["raw_frame_format"]["d2_channel_reorder"]["operation"] = \
+            "resize 后才从 [B,G,R] 重排为 [R,G,B]"
+        cases.append(("reorder_after_resize", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["source_frame_hash_rule"]["evidence_side_replay_metadata"]["required_fields"].remove(
+            "source_sha256"
+        )
+        cases.append(("missing_ur1_source_hash", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_source_profiles"]["sensor_and_ddr_format"]["legacy_stage3_metadata_mapping"]["does_not_map_to"] = \
+            "platform byte_order=little"
+        cases.append(("legacy_bgr_mapped_to_endian", mutated, address_map))
+        mutated_map = copy.deepcopy(address_map)
+        mutated_map["status"] = "FROZEN"
+        cases.append(("address_map_frozen", copy.deepcopy(contract), mutated_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_frame_contract"]["runtime_support"]["mailbox_numeric_encoding"]["direct_cast_allowed"] = True
+        cases.append(("mailbox_code_direct_cast", mutated, address_map))
+        mutated = copy.deepcopy(contract)
+        mutated["input_frame_contract"]["runtime_support"]["mailbox_ps_driver"]["status"] = "IMPLEMENTED"
+        cases.append(("mailbox_driver_falsely_implemented", mutated, address_map))
+        bgr_controls = {
+            name: bool(validate_r06_bgr888_semantics(candidate, doc, candidate_map))
+            for name, candidate, candidate_map in cases
+        }
+    details["bgr888_negative_controls"] = bgr_controls
+    if bgr_errors:
+        failures.extend(bgr_errors)
+    elif len(bgr_controls) != 10 or not all(bgr_controls.values()):
+        failures.append(f"BGR888 契约变异反例未全部检出：{bgr_controls}")
+    else:
+        passes.append("r06 BGR888/byte_order 分层、D2 顺序、UR-1 元数据、wire/C enum 分域与运行期 fail-closed 通过；10/10 负向对照被拒绝")
 
     # 12. 三范围
     sf = contract["scope_freeze"]
@@ -794,7 +1040,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4B-contract",
         "checker": "verify_shared_io_contract",
-        "checker_version": "r07",
+        "checker_version": "r08",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),

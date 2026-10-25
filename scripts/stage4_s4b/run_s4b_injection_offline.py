@@ -31,7 +31,7 @@ INC = WORKTREE / "vitis/stage4"
 CN = timezone(timedelta(hours=8))
 
 FLAGS = ["-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic", "-Wconversion", "-Wshadow"]
-CONTRACT_VERSION = "s4-shared-io/1.1.0"
+LEGACY_C_API_CONTRACT_VERSION = "s4-shared-io/1.1.0"
 
 # 期望退出码（= s4_inject_status 数值）
 E_OK = 0
@@ -299,7 +299,7 @@ BASE_FRAME = {
     "fmt": "RGB888", "w": 4, "h": 4, "stride": 12, "region": "injection_frame_rgb", "session": 1,
     "source": "file_injection", "capture": "unavailable", "capture_avail": 0,
     "inject_ns": 12345, "clock": "XTime", "freq": 100000000, "wrap": "64bit",
-    "domain": "PS", "contract": CONTRACT_VERSION,
+    "domain": "PS", "contract": LEGACY_C_API_CONTRACT_VERSION,
     "scope_pl": "NOT_EXECUTED_OFFLINE", "scope_uart": "NOT_EXECUTED_OFFLINE",
     "scope_board": "NOT_EXECUTED_OFFLINE", "payload": "pattern:1",
 }
@@ -584,7 +584,8 @@ def main() -> int:
         "driver": "run_s4b_injection_offline",
         "generated_at_utc8": now_utc8(),
         "command": " ".join([sys.executable, *sys.argv]),
-        "contract_version": CONTRACT_VERSION,
+        "contract_version": LEGACY_C_API_CONTRACT_VERSION,
+        "contract_scope": "仅验证当前旧版 C 注入 API s4-shared-io/1.1.0；不验证新契约 1.2.0 的 BGR888 运行期支持。",
         "address_map": {"path": str(MAP_PATH), "sha256": sha256_of(MAP_PATH), "check": map_check},
         "build": build_info,
         "direct_c_api_test": api_info,
@@ -602,6 +603,7 @@ def main() -> int:
         "status": status,
         "limits": [
             "仅主机 mock DDR/cache 与 gcc；未接板卡、未接真实串口、未跑 PL。",
+            "本驱动固定验证 C API 旧版 s4-shared-io/1.1.0；不覆盖 BGR888/1.2.0，运行期支持状态仍 NOT_IMPLEMENTED。",
             "NOT_RUN：板上注入（4-D）、真实 UART、摄像头、PL 推理时间/期限/吞吐、109 全量（S4-C）。",
             "注入模式下 capture_time_ns 不可用；本驱动不接受任何伪造采集时间。",
             api_32_info["limitation"] or "32-bit size_t 反例已完成严格编译及行为执行。",

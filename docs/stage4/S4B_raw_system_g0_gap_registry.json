@@ -4,10 +4,20 @@
   "stage": "4",
   "created_utc8": "2026-10-24T00:40:00+08:00",
   "owner": "DSH 阶段4 总控（stage4-lead）",
-  "updated_utc8": "2026-10-24T02:20:00+08:00",
-  "revision_note": "r03（2026-10-24，复审 CHANGES_REQUIRED 修复）：B-2 为 `stage3_window_address_facts` 补 `byte_basis=git_blob_content` 并重绑到 dbdf 新 HEAD（`6fa77a64`）的 blob `d5ba4b6b…`；地址图依据重绑到复审后版本；离线复算脚本同步支持按声明口径复算（blob/磁盘）。r02 的 D1=A 落盘内容保留。",
+  "updated_utc8": "2026-10-25T22:15:00+08:00",
+  "revision_note": "r04（2026-10-25，全离线）：RAW 格式明确为 BGR888/B-G-R，平台 byte_order=little 单独表示多字节字段端序；D2 要求 resize 前先逐像素 BGR→RGB。绑定地址图 r04 与 readiness 更新；新增 G-20 登记当前 C/PL BGR888 支持缺口，状态不得因离线参考通过而关闭。共享契约为 s4-shared-io/1.2.0 r06、DRAFT_PENDING_REVIEW、runtime_support_status=NOT_IMPLEMENTED。",
   "hardware_execution": "NOT_RUN",
-  "purpose": "承接 d4f30e3 的未完成 RAW 系统 G0 检查点，把 RAW RGB888 → PL 预处理(D2) → HP0 串行 owner → 冻结网络 → PS 解码/NMS 结果 链路的缺口逐项登记；本轮只关闭可离线判定部分。",
+  "purpose": "承接 d4f30e3 的未完成 RAW 系统 G0 检查点，把 RAW BGR888（B/G/R）→ D2 前置 BGR→RGB → PL 预处理 → HP0 串行 owner → 冻结网络 → PS 解码/NMS 结果链路的缺口逐项登记；本轮只关闭可离线判定部分。",
+  "shared_input_contract": {
+    "contract_id": "s4-shared-io/1.2.0",
+    "revision": "r06",
+    "status": "DRAFT_PENDING_REVIEW",
+    "runtime_support_status": "NOT_IMPLEMENTED",
+    "raw_frame": {"pixel_format": "BGR888", "channel_order": ["B", "G", "R"], "byte_order": "little"},
+    "mailbox_ps_driver_status": "NOT_IMPLEMENTED",
+    "pl_integration_status": "NOT_INSTANTIATED",
+    "d2_reorder_required_before": ["resize", "normalization", "quantization"]
+  },
   "status_vocabulary": {
     "allowed": [
       "CLOSED_OFFLINE",
@@ -39,8 +49,8 @@
   },
 
   "chain": [
-    "RAW RGB888（host 写 DDR）",
-    "PL 预处理（冻结 D2：缩放/补边/归一化/量化 → CHW INT8 416×416）",
+    "RAW BGR888（host 写 DDR；像素内存字节 B/G/R；平台 byte_order=little）",
+    "逐像素 B/G/R→R/G/B 重排后执行冻结 D2（缩放/补边/归一化/量化 → CHW INT8 416×416）",
     "HP0 串行 owner mux（预处理 master ↔ 冻结网络 master）",
     "冻结网络（s2b_inference_top + GF8 权重）",
     "PS 解码/NMS 与结果区（JTAG_RAW_TASK metadata + boxes）"
@@ -48,10 +58,16 @@
 
   "basis_bindings": [
     {"id": "stop_checkpoint", "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json", "sha256": "1b615cfe2e0ffddf79f972b6a8cb0b905e70289d8453d88bdb61e9ad4b55a87c", "role": "d4f30e3 未完成 RAW G0 的停止检查点与未闭合发现"},
-    {"id": "input_scope_audit", "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json", "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968", "role": "109 帧冻结样本的 packed RGB888 容量事实"},
-    {"id": "address_map", "path": "docs/stage4/S4B_stage4_address_map.json", "sha256": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e", "role": "区域/空洞/准入禁区与缓存维护方向（r03 + 复审判据 N-b/N-c/N-d 文字修正；仍 DRAFT_PENDING_REVIEW）", "byte_basis": "worktree_disk_bytes"},
+    {"id": "input_scope_audit", "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json", "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968", "role": "109 帧冻结样本的 packed 24-bit 三字节容量事实；该旧审计不证明当前 BGR888 通道语义"},
+    {"id": "address_map", "path": "docs/stage4/S4B_stage4_address_map.json", "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998", "role": "区域/空洞/准入禁区与缓存维护方向（r04 BGR888 格式与 fail-closed 状态；仍 DRAFT_PENDING_REVIEW）", "byte_basis": "worktree_disk_bytes"},
     {"id": "r13_memory_ranges", "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json", "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80", "role": "PS 诊断 ELF 的实际分配事实（arena/staging/tensor arena）"},
-    {"id": "readiness_doc", "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md", "sha256": "760537c8ae00f2409543e4adedddf059eb409151552a4c24a73872162d1c2275", "role": "已批准路线的系统接口 G0 候选（§8.2 候选区间与 mailbox 布局）", "sha_note": "N-4 更正：旧哈希 `e6ae30a5…` 是 **S4-B 冻结快照证据** 里保存的 readiness 文档快照（`report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json` 绑定的 `snapshot_path`），该快照可从提交 `f6fa9f0` 复原；它**不是**本工作树磁盘版本在 r01/r02 审计时点之外的第二个文件。本行绑定的是当前工作树磁盘字节。"},
+    {"id": "readiness_doc", "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md", "sha256": "0e6d5d921558991df0096fa827fcf47d78a02c783f4d6ecf374eabef113f84df", "role": "已批准路线的系统接口 G0 候选（§8.2 地址/mailbox 布局及 BGR888 运行期缺口）", "sha_note": "SHA 绑定当前工作树磁盘字节；r04 新增 BGR888/byte_order 分层、D2 前置通道重排、mailbox code/C enum 分域与 C/PS/PL 未实现门禁。旧哈希 `e6ae30a5…` 属 S4-B 冻结快照文件，不是当前磁盘版本。"},
+    {"id": "shared_input_contract", "path": "docs/stage4/s4b_shared_input_result_contract.json", "sha256": "28a56dab329981dd8576bf92093a65c6adb846076f23e8d4b40ab0d16e16eed2", "role": "共享输入/结果契约 s4-shared-io/1.2.0 r06 的机器权威", "byte_basis": "worktree_disk_bytes"},
+    {"id": "d2_offline_reference", "path": "verification/s1_t02_d2_int8_forward.py", "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a", "role": "离线 D2 BGR 解码到 RGB 及 resize/归一化/量化前向参考；仅 offline-only", "byte_basis": "worktree_disk_bytes"},
+    {"id": "raw_replay_bridge", "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py", "sha256": "ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac", "role": "frame_full.bin BGR bytes 经 Python 离线解码回放适配器", "byte_basis": "worktree_disk_bytes"},
+    {"id": "c_inject_header", "path": "vitis/stage4/s4_inject_frame.h", "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34", "role": "当前 C 注入格式枚举（未含 BGR888）", "byte_basis": "worktree_disk_bytes"},
+    {"id": "c_inject_impl", "path": "vitis/stage4/s4_inject_frame.c", "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9", "role": "当前 C 注入 API 实现（只验证描述符/长度，不做 BGR 通道变换）", "byte_basis": "worktree_disk_bytes"},
+    {"id": "pl_preprocessor", "path": "src/s4b_preproc_frame.sv", "sha256": "cec22f92bee4a05724e81ff47bd164d05bcb09b184c722eeb5317b48fa2218f2", "role": "当前 PL RAW 地址直接按 pixel*3+channel_q 读取；未实现 BGR888 重排", "byte_basis": "worktree_disk_bytes"},
     {"id": "stage3_window_address_facts", "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md", "sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a", "byte_basis": "git_blob_content", "byte_basis_note": "B-2/N-a：dbdf 该路径**确有** `-text` 覆盖，规则由 **`4aada6d`（2026-10-24 01:59 +0800）** 加入，原文 `report/evidence/S3-T05/** -text`（同提交注释：阶段3 板级窗口证据（S3-T05）保留原始字节）；更早的 `-text` 约定属 `report/evidence/S2A-*` 路径（2026-09-25…2026-10-01，如 `cdb2fbd`），**不覆盖 S3-T05**。故按已提交 blob 口径绑定（绑定记录时 dbdf HEAD=`6fa77a64`，disk==blob）；原 `19f754d8…` 磁盘值已随阶段3 更新失效。", "role": "阶段3 视频通路部署地址事实（条件①第三方的书面事实；只读引用，不写 dbdf）"},
     {"id": "stage4_raw_address_optionA_decision", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_optionA_20261024_r01.md", "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8", "role": "Wong D1=A 批准记录（G-01 的批准依据）"},
     {"id": "stage4_raw_address_d1_d4_decision", "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_d1_d4_20261024_r01.md", "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34", "role": "DSH D1–D4 初裁记录"},
@@ -86,7 +102,8 @@
     {"id": "stage3_owner_fact_bound", "description": "阶段3 部署地址事实已绑定且其观测上界低于候选起点", "expected": {"stage3_observed_hex": "0x00114C00", "candidate_start_hex": "0x12000000", "disjoint": true}},
     {"id": "no_overlap_with_known_owners", "description": "候选与 r13 实际分配及历史 framebuffer 不相交", "expected": {"overlaps_with_r13": 0, "overlaps_with_historical": 0, "adjacent_to_tensor_arena": true}},
     {"id": "draft_4mib_insufficient", "description": "地址图现有 4 MiB 草案区间不足以容纳最大冻结帧", "expected": {"draft_bytes": 4194304, "max_frame_bytes": 11059200, "insufficient": true}},
-    {"id": "basis_hash_match", "description": "basis_bindings 逐项现场复算 SHA-256", "expected": {"mismatches": 0}}
+    {"id": "basis_hash_match", "description": "basis_bindings 逐项现场复算 SHA-256", "expected": {"mismatches": 0}},
+    {"id": "bgr888_runtime_support_fail_closed", "description": "RAW BGR888/little/通道语义、D2 离线重排及当前 C/PL 未实现状态一致；mailbox PS driver 缺失、候选 code 1 不得 cast 到 C enum；PL preprocessing 无 RTL top 实例；G0 继续 CHANGES_REQUIRED，ENABLE=0", "expected": {"contract_version": "1.2.0", "runtime_support_status": "NOT_IMPLEMENTED", "pixel_format": "BGR888", "channel_order": ["B", "G", "R"], "byte_order": "little", "d2_reorder_before": ["resize", "normalization", "quantization"], "c_api_support": "UNSUPPORTED", "c_enum_value_1": "S4_FMT_RGB565", "mailbox_ps_driver_status": "NOT_IMPLEMENTED", "mailbox_pixel_format_code_field": "mailbox_pixel_format_code", "mailbox_pixel_format_code_candidate": 1, "mailbox_code_maps_to": "BGR888", "mailbox_code_direct_cast_allowed": false, "pl_support": "UNSUPPORTED", "pl_integration_status": "NOT_INSTANTIATED", "pl_top_instantiated": false, "enable_required": true, "region_status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"}}
   ],
 
   "gaps": [
@@ -122,7 +139,7 @@
       "status": "CLOSED_OFFLINE", "requires_hardware": false,
       "basis": ["input_scope_audit", "readiness_doc"],
       "closed_by": ["raw_region_arithmetic", "input_scope_consistency", "draft_4mib_insufficient"],
-      "offline_action_this_round": "重算 109 帧 packed RGB888 容量事实（109 帧、最小 519,168 B、最大 11,059,200 B、97 帧 >4 MiB、2 帧 >8 MiB）与 12 MiB 候选的 8 B 对齐余量 1,523,712 B，确认 4 MiB 草案不可用。",
+      "offline_action_this_round": "重算 109 帧 packed 24-bit 三字节容量事实（109 帧、最小 519,168 B、最大 11,059,200 B、97 帧 >4 MiB、2 帧 >8 MiB）与 12 MiB 候选的 8 B 对齐余量 1,523,712 B，确认 4 MiB 草案不可用；该容量审计不证明像素通道顺序。",
       "remaining": "容量结论已离线关闭；采用哪一区间属 G-01 的批准问题。",
       "next_owner": "阶段4"
     },
@@ -131,7 +148,7 @@
       "status": "PARTIALLY_CLOSED_OFFLINE", "requires_hardware": false,
       "basis": ["readiness_doc"],
       "offline_action_this_round": "未新增数值证明；沿用既有证据：单通道 PL 数值核 G2 PASS、20 ns 约束下 OOC WNS +9.411 ns / WHS −0.276 ns（288 保持违例端点、无布局布线），以及 202×329→416 合法半边界反例（精确有理数 101 vs 冻结 D2 100）。",
-      "remaining": "整帧 416×416 全通道、padding/几何组合与最终 INT8 逐值一致仍未证；定点系数位宽/舍入位置/除法实现尚未选定；不得以‘误差很小’替代逐值一致。",
+      "remaining": "整帧 416×416 全通道、BGR→RGB 通道重排、padding/几何组合与最终 INT8 逐值一致仍未证；定点系数位宽/舍入位置/除法实现尚未选定；不得以‘误差很小’替代逐值一致。",
       "next_owner": "阶段4 开发 + 独立 Reviewer"
     },
     {
@@ -242,8 +259,8 @@
       "id": "G-18", "title": "真实彩色回归未执行（依赖阶段3 完整交付 + 阶段4 硬件窗口）", "layer": "camera",
       "status": "NOT_RUN_HARDWARE_REQUIRED", "requires_hardware": true,
       "basis": ["stage3_colour_reverify", "stage_3_4_direction_decision"],
-      "offline_action_this_round": "已完成输入契约改绑（r04 input_source_profiles）：无补偿 SOF `7cb33068…`、ELF `1457cda4…`、1280×720/stride 3840、RGB565 传感器、DDR 转储 B/G/R、采集时钟 PENDING_MEASUREMENT、逐帧源帧哈希与回放标注规则。",
-      "remaining": "真实采集回归（≥100 帧真实网络输入逐值比对、颜色/预处理独立参考、≥30 分钟且 ≥1000 次有效推理）仍未执行。",
+      "offline_action_this_round": "共享契约 r06（s4-shared-io/1.2.0）明确 BGR888/B-G-R、byte_order=little 分层、D2 转 RGB 的顺序要求及阶段3 证据侧 UR-1 回放元数据；只核对离线参考与现有实现差异，不表示运行期支持已完成。",
+      "remaining": "C 注入描述符与 PL RAW 前处理仍不支持 BGR888；真实采集回归（≥100 帧真实网络输入逐值比对、颜色/预处理独立参考、≥30 分钟且 ≥1000 次有效推理）仍未执行。",
       "next_owner": "阶段4（硬件窗口）"
     },
     {
@@ -253,6 +270,14 @@
       "offline_action_this_round": "已交付实测方案与证据模板/校验器（docs/stage4/S4B_frame_period_P_measurement_plan.md、s4b_frame_period_p_evidence_template.json、scripts/stage4_s4b/validate_frame_period_p_evidence.py）；数值保持 NOT_RUN，禁止填造。",
       "remaining": "硬件窗口内按方案实测 P，填入证据后 T6-A03 才能计算。",
       "next_owner": "阶段4（硬件窗口）→ 阶段6"
+    },
+    {
+      "id": "G-20", "title": "RAW BGR888→RGB D2 前处理未实现（C/PL 运行期缺口）", "layer": "format",
+      "status": "OPEN_REQUIRES_DESIGN_OR_REVIEW", "requires_hardware": false,
+      "basis": ["readiness_doc", "address_map"],
+      "offline_action_this_round": "静态核对确认冻结 D2 Python 图像参考会在 resize 前执行 BGR→RGB；现有 C enum 值 1 是 RGB565，而 G0 readiness 中 mailbox_pixel_format_code=1 是独立候选编码映射到 BGR888，当前不得直接 cast。阶段4 现有 C 源无 mailbox PS driver；PL 按 pixel*3+channel_q 直取通道字节且无 BGR 反转控制，当前源码也未发现 s4b_preproc_frame 的 RTL 顶层实例。契约 r06 将 runtime_support_status 保持为 NOT_IMPLEMENTED、mailbox driver 保持为 NOT_IMPLEMENTED、pl_integration_status 保持为 NOT_INSTANTIATED。",
+      "remaining": "需单独实现并审查 mailbox PS driver 与独立 mailbox_pixel_format_code→共享格式字符串/C enum 的显式映射；禁止 code 1 直接 cast（现有 C enum 1=RGB565）。实现 BGR888 输入识别及逐像素 B/G/R→R/G/B 重排，确保发生在 resize/归一化/量化之前；将前处理实际接入 PL 顶层；添加字节级通道反例、整帧 D2 逐值对拍并绑定实现版本后，方可更新运行期支持状态。",
+      "next_owner": "阶段4 Developer + 独立 Reviewer"
     }
   ],
 

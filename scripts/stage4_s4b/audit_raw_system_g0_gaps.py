@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""RAW 系统 G0 缺口登记表的只读算术复算与状态纪律检查（S4-T21）。
+"""RAW 系统 G0 缺口登记表的只读复算与状态纪律检查（S4-T21）。
 
-只做两件事：
+检查三类内容：
   1. 对 `docs/stage4/S4B_raw_system_g0_gap_registry.json` 声明的离线算术/容量事实**现场重算**
      （依据件逐项复算 SHA-256），任何不一致即 FAIL；
-  2. 检查缺口状态纪律：需要硬件或独立审查的缺口不得被标成已通过；`CLOSED_OFFLINE` 必须由
+  2. 检查 BGR888 / 平台 byte_order 分层、D2 离线转换顺序及 C/PL 当前未实现状态；
+  3. 检查缺口状态纪律：需要硬件或独立审查的缺口不得被标成已通过；`CLOSED_OFFLINE` 必须由
      本轮真正 PASS 的离线检查支持。
 
 本脚本不访问硬件、不修改任何输入，也不给出 G0/G4/G5 结论。
@@ -18,6 +19,7 @@ import argparse
 import hashlib
 import json
 import platform
+import re
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -25,6 +27,7 @@ from pathlib import Path
 
 WORKTREE = Path(__file__).resolve().parents[2]
 REGISTRY = WORKTREE / "docs" / "stage4" / "S4B_raw_system_g0_gap_registry.json"
+CONTRACT = WORKTREE / "docs" / "stage4" / "s4b_shared_input_result_contract.json"
 CN = timezone(timedelta(hours=8))
 
 HARDWARE_STATUSES = {
@@ -156,6 +159,7 @@ def main() -> int:
 
     scope = json.loads(resolve("report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json").read_text(encoding="utf-8"))
     addr_map = json.loads(resolve("docs/stage4/S4B_stage4_address_map.json").read_text(encoding="utf-8"))
+    contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
     ranges = json.loads(resolve("report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json").read_text(encoding="utf-8"))
 
     results: dict[str, dict[str, object]] = {}
@@ -164,6 +168,123 @@ def main() -> int:
         results[check_id] = {"status": "PASS" if ok else "FAIL", "actual": actual, "note": note}
         if not ok:
             failures.append(f"offline_check {check_id} 不一致：{actual} {note}")
+
+    # 0b. BGR888 契约、离线 D2 实际路径与当前 C/PL 缺口 fail-closed
+    input_contract = contract.get("input_frame_contract", {})
+    runtime = input_contract.get("runtime_support", {})
+    profiles = contract.get("input_source_profiles", {})
+    raw_format = profiles.get("raw_frame_format", {})
+    legacy = profiles.get("sensor_and_ddr_format", {}).get("legacy_stage3_metadata_mapping", {})
+    metadata = profiles.get("source_frame_hash_rule", {}).get("evidence_side_replay_metadata", {})
+    point = addr_map.get("injection_point", {})
+    regions_by_name = {entry.get("name"): entry for entry in addr_map.get("regions", [])}
+    raw_region = regions_by_name.get("raw_frame", {})
+    meta_region = regions_by_name.get("raw_meta", {})
+    d2_source = resolve("verification/s1_t02_d2_int8_forward.py").read_text(encoding="utf-8")
+    bridge_source = resolve("scripts/stage4_s4ctrl/replay_forward_bridge.py").read_text(encoding="utf-8")
+    c_header = resolve("vitis/stage4/s4_inject_frame.h").read_text(encoding="utf-8")
+    c_impl = resolve("vitis/stage4/s4_inject_frame.c").read_text(encoding="utf-8")
+    pl_source = resolve("src/s4b_preproc_frame.sv").read_text(encoding="utf-8")
+    d2_start = d2_source.find("def load_image_chw(")
+    d2_end = d2_source.find("\ndef forward_one(", d2_start)
+    d2_body = d2_source[d2_start:d2_end] if d2_start >= 0 and d2_end > d2_start else ""
+    d2_steps = (
+        "image = cv2.imdecode", "rgb = image[:, :, ::-1]", "src_height, src_width = rgb.shape[:2]",
+        "resized / 255.0", "transpose(2, 0, 1)",
+    )
+    d2_positions = [d2_body.find(token) for token in d2_steps]
+    bridge_steps = (
+        "frame_bgr = np.frombuffer(frame_bytes, dtype=np.uint8).reshape(720, 1280, 3)",
+        "cv2.imencode(\".png\", frame_bgr",
+        "module.load_image_chw(png_a, 416, 416)",
+    )
+    bridge_positions = [bridge_source.find(token) for token in bridge_steps]
+    enum_start = c_header.find("S4_FMT_RGB888")
+    enum_end = c_header.find("} s4_inject_pixel_format;", enum_start)
+    enum_body = c_header[enum_start:enum_end] if enum_start >= 0 and enum_end > enum_start else ""
+    direct_read = "({32'd0, sample_x_comb} * 64'd3) + {62'd0, channel_q}"
+    mailbox_code = runtime.get("mailbox_numeric_encoding", {})
+    mailbox_sources = [*(WORKTREE / "vitis" / "stage4").rglob("*.c"),
+                       *(WORKTREE / "vitis" / "stage4").rglob("*.h")]
+    mailbox_markers = ("HOST_REQ", "S4BR", "MAILBOX_PIXEL_FORMAT_CODE", "mailbox_pixel_format_code")
+    mailbox_driver_present = any(marker in path.read_text(encoding="utf-8", errors="replace")
+                                 for path in mailbox_sources for marker in mailbox_markers)
+    rtl_sources = list((WORKTREE / "src").glob("*.sv"))
+    rtl_instance = re.compile(r"\bs4b_preproc_frame\s*(?:#\s*\(.*?\)\s*)?[A-Za-z_]\w*\s*\(", re.DOTALL)
+    pl_top_instantiated = any(rtl_instance.search(path.read_text(encoding="utf-8", errors="replace"))
+                              for path in rtl_sources)
+    bgr_actual = {
+        "contract_version": contract.get("contract_version"),
+        "contract_status": contract.get("status"),
+        "runtime_support_status": input_contract.get("runtime_support_status"),
+        "pixel_format": raw_format.get("pixel_format"),
+        "channel_order": raw_format.get("channel_order"),
+        "byte_order": raw_format.get("byte_order"),
+        "d2_reorder_before": raw_format.get("d2_channel_reorder", {}).get("must_precede"),
+        "legacy_stage3_mapping_ok": legacy.get("legacy_field") == "source_byte_order"
+        and legacy.get("legacy_value") == "BGR"
+        and legacy.get("maps_to") == {"pixel_format": "BGR888", "channel_order": ["B", "G", "R"]}
+        and legacy.get("does_not_map_to") == "platform byte_order",
+        "ur1_evidence_side_only": metadata.get("scope") == "evidence_side_only_not_runtime_input_fields"
+        and metadata.get("runtime_contract_fields_added") is False,
+        "d2_reorder_source_order_ok": bool(d2_body) and all(pos >= 0 for pos in d2_positions)
+        and d2_positions == sorted(d2_positions),
+        "offline_raw_bridge_order_ok": all(pos >= 0 for pos in bridge_positions)
+        and bridge_positions == sorted(bridge_positions),
+        "c_api_support": runtime.get("c_injection_api", {}).get("status"),
+        "c_enum_has_bgr888": "S4_FMT_BGR888" in enum_body or "BGR888" in c_impl,
+        "c_enum_value_1": "RGB565" if "S4_FMT_RGB565 = 1" in enum_body else "UNVERIFIED",
+        "mailbox_ps_driver_status": runtime.get("mailbox_ps_driver", {}).get("status"),
+        "mailbox_driver_present": mailbox_driver_present,
+        "mailbox_pixel_format_code_field": mailbox_code.get("field_name"),
+        "mailbox_pixel_format_code_candidate": mailbox_code.get("candidate_value"),
+        "mailbox_code_maps_to": mailbox_code.get("candidate_maps_to_pixel_format"),
+        "mailbox_code_direct_cast_allowed": mailbox_code.get("direct_cast_allowed"),
+        "mailbox_mapping_status": mailbox_code.get("mapping_implementation_status"),
+        "pl_support": runtime.get("pl_preprocessor", {}).get("status"),
+        "pl_integration_status": runtime.get("pl_preprocessor", {}).get("integration_status"),
+        "pl_has_bgr888_remap": "BGR888" in pl_source or "channel_order" in pl_source,
+        "pl_direct_channel_byte_read": direct_read in pl_source,
+        "pl_top_instantiated": pl_top_instantiated,
+        "enable_required": raw_region.get("enable_required") is True and meta_region.get("enable_required") is True,
+        "region_status": raw_region.get("status"),
+        "address_map_status": addr_map.get("status"),
+        "enable_zero": "ENABLE=0" in raw_region.get("notes", ""),
+    }
+    bgr_ok = (
+        bgr_actual["contract_version"] == "1.2.0"
+        and bgr_actual["contract_status"] == "DRAFT_PENDING_REVIEW"
+        and bgr_actual["runtime_support_status"] == "NOT_IMPLEMENTED"
+        and bgr_actual["pixel_format"] == "BGR888"
+        and bgr_actual["channel_order"] == ["B", "G", "R"]
+        and bgr_actual["byte_order"] == "little"
+        and bgr_actual["d2_reorder_before"] == ["resize", "normalization", "quantization"]
+        and bgr_actual["legacy_stage3_mapping_ok"] is True
+        and bgr_actual["ur1_evidence_side_only"] is True
+        and bgr_actual["d2_reorder_source_order_ok"] is True
+        and bgr_actual["offline_raw_bridge_order_ok"] is True
+        and bgr_actual["c_api_support"] == "UNSUPPORTED"
+        and bgr_actual["c_enum_has_bgr888"] is False
+        and bgr_actual["c_enum_value_1"] == "RGB565"
+        and bgr_actual["mailbox_ps_driver_status"] == "NOT_IMPLEMENTED"
+        and bgr_actual["mailbox_driver_present"] is False
+        and bgr_actual["mailbox_pixel_format_code_field"] == "mailbox_pixel_format_code"
+        and bgr_actual["mailbox_pixel_format_code_candidate"] == 1
+        and bgr_actual["mailbox_code_maps_to"] == "BGR888"
+        and bgr_actual["mailbox_code_direct_cast_allowed"] is False
+        and bgr_actual["mailbox_mapping_status"] == "NOT_IMPLEMENTED"
+        and bgr_actual["pl_support"] == "UNSUPPORTED"
+        and bgr_actual["pl_integration_status"] == "NOT_INSTANTIATED"
+        and bgr_actual["pl_has_bgr888_remap"] is False
+        and bgr_actual["pl_direct_channel_byte_read"] is True
+        and bgr_actual["pl_top_instantiated"] is False
+        and bgr_actual["enable_required"] is True
+        and bgr_actual["region_status"] == "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+        and bgr_actual["address_map_status"] == "DRAFT_PENDING_REVIEW"
+        and bgr_actual["enable_zero"] is True
+    )
+    record("bgr888_runtime_support_fail_closed", bgr_ok, bgr_actual,
+           "离线 Python 转换路径不代表真实 C/PL 运行期支持")
 
     redundant_errors = redundant_fact_errors(registry)
     record("redundant_facts_consistent", not redundant_errors, {"errors": redundant_errors})
@@ -351,7 +472,7 @@ def main() -> int:
     report = {
         "task_id": "S4-CTRL/S4-T21",
         "checker": "audit_raw_system_g0_gaps",
-        "checker_version": "r02",
+        "checker_version": "r03",
         "status": status,
         "generated_at_utc8": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec="seconds"),
         "command": " ".join([sys.executable, *sys.argv]),

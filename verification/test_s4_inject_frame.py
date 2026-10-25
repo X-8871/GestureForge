@@ -85,11 +85,51 @@ class AddressMapTests(unittest.TestCase):
 class VocabularyTests(unittest.TestCase):
     """契约与实现词表一致性。"""
 
-    def test_contract_version_matches_header(self) -> None:
+    def test_contract_bump_fails_closed_against_legacy_c_api(self) -> None:
         contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
         header = HEADER.read_text(encoding="utf-8")
-        expected = f'{contract["contract_id"]}/{contract["contract_version"]}'
-        self.assertIn(f'#define S4_INJECT_CONTRACT_VERSION "{expected}"', header)
+        self.assertEqual(contract["contract_version"], "1.2.0")
+        self.assertEqual(contract["revision"], "r06")
+        self.assertEqual(contract["status"], "DRAFT_PENDING_REVIEW")
+        self.assertEqual(contract["input_frame_contract"]["runtime_support_status"], "NOT_IMPLEMENTED")
+        self.assertEqual(contract["input_frame_contract"]["runtime_support"]["mailbox_ps_driver"]["status"], "NOT_IMPLEMENTED")
+        self.assertEqual(contract["input_frame_contract"]["runtime_support"]["pl_preprocessor"]["integration_status"], "NOT_INSTANTIATED")
+        self.assertIn('#define S4_INJECT_CONTRACT_VERSION "s4-shared-io/1.1.0"', header)
+        self.assertNotIn("S4_FMT_BGR888", header)
+
+    def test_bgr888_and_platform_byte_order_are_separate(self) -> None:
+        contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
+        address_map = json.loads(MAP.read_text(encoding="utf-8"))
+        raw_format = contract["input_source_profiles"]["raw_frame_format"]
+        self.assertEqual(raw_format["pixel_format"], "BGR888")
+        self.assertEqual(raw_format["channel_order"], ["B", "G", "R"])
+        self.assertEqual(raw_format["byte_order"], "little")
+        self.assertEqual(address_map["injection_point"]["region_name"], "raw_frame")
+        self.assertEqual(address_map["injection_point"]["pixel_format"], "BGR888")
+        self.assertEqual(address_map["injection_point"]["channel_order"], ["B", "G", "R"])
+        self.assertEqual(address_map["injection_point"]["byte_order"], "little")
+        self.assertEqual(address_map["status"], "DRAFT_PENDING_REVIEW")
+        self.assertEqual(address_map["injection_point"]["runtime_support_status"], "NOT_IMPLEMENTED")
+
+        runtime = contract["input_frame_contract"]["runtime_support"]
+        mailbox_code = runtime["mailbox_numeric_encoding"]
+        self.assertEqual(mailbox_code["field_name"], "mailbox_pixel_format_code")
+        self.assertEqual(mailbox_code["candidate_value"], 1)
+        self.assertEqual(mailbox_code["candidate_maps_to_pixel_format"], "BGR888")
+        self.assertEqual(mailbox_code["current_c_enum_value_1"], "S4_FMT_RGB565")
+        self.assertFalse(mailbox_code["direct_cast_allowed"])
+        self.assertEqual(mailbox_code["mapping_implementation_status"], "NOT_IMPLEMENTED")
+
+    def test_stage3_legacy_byte_order_maps_to_channel_order(self) -> None:
+        """确认旧 Stage3 BGR 字段映射为像素通道语义。"""
+        contract = json.loads(CONTRACT.read_text(encoding="utf-8"))
+        mapping = contract["input_source_profiles"]["sensor_and_ddr_format"]["legacy_stage3_metadata_mapping"]
+        self.assertEqual(mapping["legacy_field"], "source_byte_order")
+        self.assertEqual(mapping["legacy_value"], "BGR")
+        self.assertEqual(mapping["maps_to"], {
+            "pixel_format": "BGR888", "channel_order": ["B", "G", "R"]
+        })
+        self.assertEqual(mapping["does_not_map_to"], "platform byte_order")
 
     def test_contract_source_capture_truth_table_is_exact(self) -> None:
         contract = json.loads(CONTRACT.read_text(encoding="utf-8"))

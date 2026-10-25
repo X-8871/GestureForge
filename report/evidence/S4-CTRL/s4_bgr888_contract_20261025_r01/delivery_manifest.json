@@ -1,0 +1,161 @@
+{
+  "schema_version": "s4_bgr888_contract_run_manifest_v1",
+  "run_id": "s4_bgr888_contract_20261025_r01",
+  "worktree": "D:\\codex-worktrees\\w4",
+  "branch": "stage4-infer-prep",
+  "baseline_head": "2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de",
+  "observed_head": "2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de",
+  "commit_created": false,
+  "contract": {
+    "name": "s4-shared-io",
+    "version": "1.2.0",
+    "revision": "r06",
+    "status": "DRAFT_PENDING_REVIEW",
+    "runtime_support_status": "NOT_IMPLEMENTED",
+    "address_map_status": "DRAFT_PENDING_REVIEW",
+    "raw_frame_enable_required": true,
+    "raw_frame_status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+    "registry_g0_status": "CHANGES_REQUIRED_NOT_CLOSED",
+    "raw_frame_enable": 0
+  },
+  "changed_files": [
+    {
+      "path": "docs/stage4/S4B_frame_period_P_measurement_plan.md",
+      "sha256": "6f2023ef365bbd706f7d703d1d923c2348e20d8a02e62622f6abbfe0961606e2"
+    },
+    {
+      "path": "docs/stage4/S4B_injection_path_runbook.md",
+      "sha256": "f272cec095f84ffeb625a2cccd66f7b9c7ba5252efa71fdc17a61343bc43b5bb"
+    },
+    {
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "0e6d5d921558991df0096fa827fcf47d78a02c783f4d6ecf374eabef113f84df"
+    },
+    {
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+      "sha256": "377f595ea166813647a3be6a765313086393fda6225bcc1f9b06eb754ffb52fd"
+    },
+    {
+      "path": "docs/stage4/S4B_replay_offline_chain_plan_20261024_r01.md",
+      "sha256": "64af96b3e54811a8f22062d24bc6fa5ede4637b039cc230abaf17294c7e2730e"
+    },
+    {
+      "path": "docs/stage4/S4B_shared_input_result_contract.md",
+      "sha256": "7dc2d10c40965dbbe0b6dce20e49b2a4e675be7fd29eefec2c5df0e307ccbd16"
+    },
+    {
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998"
+    },
+    {
+      "path": "docs/stage4/s4b_frame_period_p_evidence_template.json",
+      "sha256": "c35f05242aa2345591d2cd7ae11fbda492b15edbdfb1c1c46339be3c829fa9d4"
+    },
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "28a56dab329981dd8576bf92093a65c6adb846076f23e8d4b40ab0d16e16eed2"
+    },
+    {
+      "path": "scripts/stage4_s4b/audit_raw_system_g0_gaps.py",
+      "sha256": "4271be3e98feec2846fabd0fe5c3c56b3e2ea480db1e5e9bf8eaf7a9db9a8678"
+    },
+    {
+      "path": "scripts/stage4_s4b/check_raw_address_options.py",
+      "sha256": "4191a03343555f47a61a0bf932ad514112c7e300922486eb43142ed8142564d7"
+    },
+    {
+      "path": "scripts/stage4_s4b/run_s4b_injection_offline.py",
+      "sha256": "26e2975cc436049604134ac07e3635f22d3c4304b33662fdc4fb556b29f2d304"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/build_t21_manifests.py",
+      "sha256": "8011bbe0fcbe36bf6bc8245ee9d47fbe3a1ae164557a004edf2196902d3c40a9"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/verify_shared_io_contract.py",
+      "sha256": "c5f640cc5210df5154f866d69c7d5331e7020df8a665b2be1bdbc158f5278490"
+    },
+    {
+      "path": "verification/test_s4_inject_frame.py",
+      "sha256": "4b4d87e69454a7d1295d7f512bb5b45b80ee2c18effb8b71078eeeb7117630f0"
+    },
+    {
+      "path": "verification/test_s4_raw_g0_registry.py",
+      "sha256": "9b18d5be938f45d6ff6575584e98717e1bf49526a4c041c22cd8ad591f5d582b"
+    }
+  ],
+  "verification": [
+    {
+      "name": "shared_io_contract_checker",
+      "command": "& 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe' -B scripts/stage4_s4ctrl/verify_shared_io_contract.py",
+      "exit_code": 0,
+      "result": "27/27 checks; upstream bindings 17/17; r06 mutation controls 10/10 rejected"
+    },
+    {
+      "name": "raw_system_g0_gap_audit",
+      "command": "& 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe' -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir D:\\tmp\\s4_bgr888_contract_audit_20261025_r03",
+      "exit_code": 0,
+      "result": "basis bindings 17/17; offline arithmetic checks 13/13; gap-state checks 3/3"
+    },
+    {
+      "name": "raw_g0_registry_unit_tests",
+      "command": "& 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe' -B -m unittest verification.test_s4_raw_g0_registry -v",
+      "exit_code": 0,
+      "result": "10/10 passed"
+    },
+    {
+      "name": "focused_address_map_and_vocabulary_tests",
+      "command": "& 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe' -B -m unittest verification.test_s4_inject_frame.AddressMapTests verification.test_s4_inject_frame.VocabularyTests -v",
+      "exit_code": 0,
+      "result": "11/11 passed"
+    },
+    {
+      "name": "focused_bgr888_and_legacy_stage3_tests",
+      "command": "& 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe' -B -m unittest verification.test_s4_inject_frame.VocabularyTests.test_bgr888_and_platform_byte_order_are_separate verification.test_s4_inject_frame.VocabularyTests.test_stage3_legacy_byte_order_maps_to_channel_order -v",
+      "exit_code": 0,
+      "result": "2/2 passed"
+    },
+    {
+      "name": "full_offline_injection_suite",
+      "command": "& 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe' -B -m unittest verification.test_s4_inject_frame -v",
+      "exit_code": 1,
+      "result": "11/12 passed; integration case test_offline_driver_passes blocked when sandbox denied creation of D:\\codex-worktrees\\w4\\tmp\\4\\S4-FIX-01\\<run_id>\\cases (PermissionError WinError 5); no RTL/hardware inference",
+      "blocked_by_sandbox": true
+    },
+    {
+      "name": "json_parse",
+      "command": "Bundled Python -B here-string parser over the four changed Stage4 JSON documents: registry, address map, frame-period evidence template, shared input/result contract",
+      "exit_code": 0,
+      "result": "4/4 parsed as UTF-8 JSON"
+    },
+    {
+      "name": "diff_whitespace_check",
+      "command": "git -c core.whitespace=cr-at-eol diff --check",
+      "exit_code": 0,
+      "result": "no whitespace errors; repository reports CRLF conversion warnings for six files"
+    },
+    {
+      "name": "replacement_placeholder_scan",
+      "command": "rg -n 'REPLACE_ADDRESS_MAP_SHA256|REPLACE_[A-Z0-9_]+' docs/stage4 scripts/stage4_s4b scripts/stage4_s4ctrl verification/test_s4_inject_frame.py verification/test_s4_raw_g0_registry.py",
+      "exit_code": 0,
+      "result": "no replacement placeholder tokens found in scoped sources"
+    }
+  ],
+  "scope_limits": {
+    "hardware_access": "NOT_RUN",
+    "c_pl_implementation": "NOT_MODIFIED",
+    "stage3_source_evidence": "NOT_MODIFIED",
+    "stage5_worktree": "NOT_MODIFIED",
+    "inherited_untracked_elf_map_files": "PRESERVED_UNMODIFIED",
+    "g0_independent_review": "REQUIRED"
+  },
+  "runtime_gap": {
+    "status": "NOT_IMPLEMENTED",
+    "offline_d2_only": "D2 Python image reference reverses each BGR pixel to RGB before resize, normalization, and quantization; this is offline reference behavior only.",
+    "c_api": "Current C API contract remains s4-shared-io/1.1.0 and enum lacks BGR888; numeric value 1 means S4_FMT_RGB565.",
+    "mailbox_driver": "No Stage4 mailbox PS driver is present; mailbox_pixel_format_code=1 is an unimplemented candidate wire code in a separate namespace, mapped by contract to the string BGR888; direct cast to the C enum is forbidden.",
+    "pl_integration": "PL frame preprocessor has no BGR channel reorder and no RTL top-level instance of s4b_preproc_frame was found.",
+    "minimum_followup": "Implement and review the PS mailbox driver with an explicit wire-code-to-format/C-enum mapping; implement BGR888 byte-channel reorder before resize/normalization/quantization; instantiate the preprocessor in the RTL top; add byte-level channel counterexamples and full-frame D2 value comparison before changing runtime support status.",
+    "acceptance": "G0/G1 remain CHANGES_REQUIRED; address regions remain draft/non-frozen and ENABLE=0."
+  }
+}

@@ -1,12 +1,12 @@
 {
   "schema_version": "gestureforge_s4_shared_io_contract_v2",
   "contract_id": "s4-shared-io",
-  "contract_version": "1.1.0",
+  "contract_version": "1.2.0",
   "status": "DRAFT_PENDING_REVIEW",
-  "revision": "r05",
+  "revision": "r06",
   "created_utc8": "2026-10-22T19:20:00+08:00",
-  "revision_note": "r05（2026-10-24，全离线）：按 Wong D1=A 决定（`decisions/stage4_raw_address_optionA_20261024_r01.md`）与 DSH 初裁（`stage4_raw_address_d1_d4_20261024_r01.md`）落盘 ① 地址图重绑到 r03（新增 raw_frame/raw_meta、自设禁区精确缩减至 `[0x12C08000,0x20000000)`，`status` 仍 DRAFT_PENDING_REVIEW、region 未 FROZEN、ENABLE=0）；② 新增顶层 `binding_byte_basis` 绑定字节口径声明（默认工作树磁盘字节；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并把 dbdf 两项彩色证据改绑为 **git blob 内容口径**（保留磁盘 SHA 为注记）；③ 消费方重绑清单（阶段5/6）；④ 复审非阻断 N-1..N-4 同批处理。r04（含真实彩色改绑与已批准 stale=200ms）保留。",
-  "reviewed_baseline_note": "r04 已通过独立复审 PASS（被审提交 `7a9507a`，阻断 0／非阻断 4）；本 r05 为其后继，**尚未复审**，冻结前必须另行独立复审并引用固定提交 + 被审 SHA。",
+  "revision_note": "r06（2026-10-25，全离线）：按 Wong 明确决定将 RAW 源帧格式定义为 BGR888（每像素内存字节 B/G/R），并明确平台 byte_order=little 只表示多字节字段端序、不得与通道顺序混同；冻结 D2 预处理要求逐像素 BGR→RGB，且必须发生在 resize/归一化/量化之前。仅离线 Python D2 图像参考路径有该反转；当前 C 注入描述符未实现 BGR888，mailbox PS driver 缺失，PL RAW 读取未做通道重排且前处理模块未接入 RTL 顶层，`runtime_support_status=NOT_IMPLEMENTED`。G0 候选 mailbox_pixel_format_code=1 与 C enum 值 1（RGB565）为不同编码域，尚无显式映射实现，禁止直接 cast。真实链路不得据契约声称支持。新增 Stage5 UR-1 证据侧回放元数据字段；地址图更新至 r04，RAW 与 META 仍 DRAFT_PENDING_REVIEW、非 FROZEN、ENABLE=0。r05 的地址、绑定字节口径与消费方重绑内容保留。",
+  "reviewed_baseline_note": "r04 地址图及契约旧版本的既有独立复审 PASS 不覆盖 r05/r06；r05、r06 均未复审。本 r06 冻结前必须另行独立复审并引用固定提交 + 被审 SHA。",
   "task_id": "S4-CTRL/S4B-contract",
   "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
   "consumers": [
@@ -28,14 +28,36 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e",
-      "declared_revision": "r03（复审修复版：N-b/N-c/N-d 文字修正）",
+      "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998",
+      "declared_revision": "r04（BGR888 RAW 格式与通道顺序、byte_order 分层）",
       "status_note": "地址图仍 `DRAFT_PENDING_REVIEW`；raw_frame/raw_meta 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、enable_required=true）",
       "replaces": {
-        "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
-        "declared_revision": "r03（D1=A 落盘首版）",
-        "reason": "复审非阻断 N-b/N-c/N-d 修改了地址图文字/计数（overlap_proof 方法、ps_app_arena 视图注、frame_coverage 口径），故同版本重绑；上一级取代值 `80104b80…`（r02）保留于同条目历史"
+        "sha256": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e",
+        "declared_revision": "r03（复审修复版：N-b/N-c/N-d 文字修正）",
+        "reason": "r04 明确 raw_frame 的 BGR888/channel_order=BGR 与 byte_order=little 分层，并将当前 RAW injection_point 改绑 raw_frame；地址区间与 ENABLE/FROZEN 状态不变。",
+        "history": {
+          "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
+          "declared_revision": "r03（D1=A 落盘首版）",
+          "reason": "复审非阻断 N-b/N-c/N-d 修改了地址图文字/计数；上一级取代值 `80104b80…`（r02）保留于旧版本历史"
+        }
       }
+    },
+    {
+      "id": "frozen_d2_offline_reference",
+      "role": "冻结 D2 CPU 图像参考；只证明离线解码路径的 BGR→RGB 顺序，不证明 RAW C/PL 运行期支持",
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+      "declared_status": "FROZEN_REFERENCE_OFFLINE_ONLY",
+      "conversion_entry": "load_image_chw",
+      "conversion_rule": "cv2 BGR 解码 → 逐像素通道反转为 RGB → resize/letterbox → /255 与 CHW → forward_one 的 INT8 量化"
+    },
+    {
+      "id": "s4_offline_raw_replay_bridge",
+      "role": "离线 RAW 帧适配器；只证明 frame_full.bin 的 BGR bytes 被按 BGR 解码并传入 D2 Python 参考",
+      "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
+      "sha256": "ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac",
+      "declared_status": "OFFLINE_REPLAY_ONLY",
+      "conversion_entry": "frame_full.bin reshape to frame_bgr → PNG encode → load_image_chw"
     },
     {
       "id": "cdx_010_stage4_runbook",
@@ -212,10 +234,30 @@
     "replay_labeling_rule": "任何以抓取文件回放产生的结论，证据与报告中必须显式标注 `camera_capture_replay_colour`（回放）；其计时字段只能用于回放内部一致性，不得写为端到端延迟，也不得与实时采集的 FPS/延迟混表。",
     "sensor_and_ddr_format": {
       "sensor_output": "RGB565（传感器输出格式）",
-      "ddr_dump_byte_order": "DDR 转储按 B/G/R 三字节顺序解释（阶段3 只读复算已按该顺序核验彩条与行样本）",
+      "ddr_dump_channel_order": "RAW pixel_format=BGR888：每像素内存字节按 B/G/R 排列；平台 byte_order=little 独立表示多字节标量端序",
       "model_semantics": "模型侧为 RGB888（逐像素 R/G/B）",
-      "rule": "传感器 RGB565、DDR 转储 B/G/R 三字节序与模型 RGB888 语义**不得直接混同**；展开、通道重排、量化与补边必须与冻结 D2 对齐，并保留独立反例。",
-      "status": "PARTIALLY_BOUND：B/G/R 顺序与 RGB565 已有阶段3 证据与只读复算支持；正式采集链的逐帧格式绑定仍须在阶段4 真实彩色回归时逐帧记录（本轮 NOT_RUN）"
+      "rule": "传感器 RGB565、RAW BGR888（像素通道 B/G/R）、平台 byte_order=little 与模型 RGB888（R/G/B）是不同语义，**不得直接混同**。冻结 D2 处理 RAW 时必须先逐像素将 B/G/R 重排为 R/G/B，然后才 resize、归一化、padding 与量化；示例 `[0x11,0x22,0x33]` → `[0x33,0x22,0x11]。",
+      "legacy_stage3_metadata_mapping": {
+        "legacy_field": "source_byte_order",
+        "legacy_value": "BGR",
+        "maps_to": {"pixel_format": "BGR888", "channel_order": ["B", "G", "R"]},
+        "does_not_map_to": "platform byte_order",
+        "evidence_policy": "保留旧 Stage3 证据原字节；仅在本契约回放元数据解释层映射"
+      },
+      "status": "PARTIALLY_BOUND：阶段3 字节证据与旧 source_byte_order=BGR 元数据映射支持 RAW 像素通道解释；这不证明 C/PL 运行期支持。真实采集链逐帧绑定仍待回归（本轮 NOT_RUN）"
+    },
+    "raw_frame_format": {
+      "pixel_format": "BGR888",
+      "channel_order": ["B", "G", "R"],
+      "bytes_per_pixel": 3,
+      "byte_order": "little",
+      "byte_order_semantics": "平台多字节标量端序；不改变逐像素 B/G/R 通道顺序",
+      "d2_channel_reorder": {
+        "required": true,
+        "operation": "BGR888 每像素 [B,G,R] → 模型 RGB888 [R,G,B]",
+        "must_precede": ["resize", "normalization", "quantization"],
+        "reference_status": "OFFLINE_PYTHON_REFERENCE_ONLY"
+      }
     },
     "stage3_deployment_bindings": {
       "status": "BOUND_BY_SHA（复测后报告的部署身份；每次硬件使用前仍须重新核对现场与产物，不能假定板卡从未断电或换程序）",
@@ -248,19 +290,83 @@
     },
     "source_frame_hash_rule": {
       "rule": "每一帧作为阶段4 输入的源帧都必须逐帧记录 frame_integrity（algorithm ∈ {crc32_ieee, sha256} + value + 实际 length_bytes），并与采集/回放时刻及 session_id/frame_id 绑定；禁止只记一次或只记总量。",
-      "replay_binding": "回放输入必须额外绑定：源文件路径、文件 SHA-256、解析出的 width/height/stride 与字节序，以及该文件对应的阶段3 采集证据入口。",
+      "replay_binding": "回放输入必须额外提供 Stage5 UR-1 所需证据侧元数据：源文件路径、文件 SHA-256、width/height/stride、pixel_format、平台 byte_order、channel_order、阶段3 采集证据入口、frame_identity 与来源时间；此元数据仅标识回放证据，不增加运行时帧字段。",
+      "evidence_side_replay_metadata": {
+        "request_reference": "阶段5 UR-1",
+        "scope": "evidence_side_only_not_runtime_input_fields",
+        "required_fields": ["source_path", "source_sha256", "width", "height", "stride_bytes", "byte_order", "stage3_evidence_entry", "frame_identity", "capture_time_utc8", "timestamp_source", "clock_domain"],
+        "pixel_format": "BGR888",
+        "channel_order": ["B", "G", "R"],
+        "byte_order": "little",
+        "frame_identity_fields": ["session_id", "frame_id", "source_frame_id"],
+        "time_semantics": "记录阶段3 证据给出的源采集时间与原始时钟说明；回放时钟不得冒充实时 PS 单调时基或端到端延迟。",
+        "runtime_contract_fields_added": false
+      },
       "current": "本轮未产生新的回放输入文件（NOT_RUN）。阶段3 彩条整帧与 3 个行样本的 SHA-256 已由 `stage3_colour_reverify_*` 绑定，并于本轮独立复算 6/6 一致。"
     },
     "evidence_status_this_round": "全部离线：未运行任何硬件、未装载位流、未打开 COM4/JTAG、未起 hw_server。以上绑定来自阶段3 已提交证据与本阶段离线文件；它们不表示阶段4 真实彩色回归已执行，也不表示阶段4 G5 通过。"
   },
   "input_frame_contract": {
+    "runtime_support_status": "NOT_IMPLEMENTED",
+    "runtime_support": {
+      "contract_requirement": "raw_frame 必须按 BGR888 (B/G/R) 解释，并在冻结 D2 resize、归一化与量化前逐像素重排为 RGB (R/G/B)。",
+      "offline_reference": {
+        "path": "verification/s1_t02_d2_int8_forward.py",
+        "function": "load_image_chw",
+        "status": "OFFLINE_PYTHON_REFERENCE_ONLY",
+        "behavior": "cv2 返回 BGR；image[:, :, ::-1] 在 resize 前生成 RGB。纯数组字节样例 [0x11,0x22,0x33] → [0x33,0x22,0x11]。",
+        "raw_frame_adapter": {
+          "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
+          "behavior": "frame_full.bin 按 (720,1280,3) reshape 为 frame_bgr 并以 OpenCV PNG 编码；D2 load_image_chw 再解码为 BGR 并只执行一次通道反转。",
+          "status": "OFFLINE_REPLAY_ONLY"
+        }
+      },
+      "c_injection_api": {
+        "status": "UNSUPPORTED",
+        "evidence": "vitis/stage4/s4_inject_frame.h 的格式枚举仅含 RGB888/RGB565/GRAY8/INT8_CHW_416；C API 校验长度与描述符，不执行像素通道转换。",
+        "current_enum_by_value": [
+          {"value": 0, "symbol": "S4_FMT_RGB888", "pixel_format": "RGB888"},
+          {"value": 1, "symbol": "S4_FMT_RGB565", "pixel_format": "RGB565"},
+          {"value": 2, "symbol": "S4_FMT_GRAY8", "pixel_format": "GRAY8"},
+          {"value": 3, "symbol": "S4_FMT_INT8_CHW_416", "pixel_format": "INT8_CHW_416"}
+        ],
+        "source_bindings": [
+          {"path": "vitis/stage4/s4_inject_frame.h", "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34"},
+          {"path": "vitis/stage4/s4_inject_frame.c", "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9"}
+        ],
+        "declared_contract_version": "s4-shared-io/1.1.0"
+      },
+      "pl_preprocessor": {
+        "status": "UNSUPPORTED",
+        "integration_status": "NOT_INSTANTIATED",
+        "evidence": "src/s4b_preproc_frame.sv 以 pixel*3+channel_q 直接读取通道字节；无 BGR888 格式输入或 B/G/R→R/G/B 重排控制，且当前 RTL 源码未找到任何顶层对 s4b_preproc_frame 的实例化。",
+        "source_bindings": [
+          {"path": "src/s4b_preproc_frame.sv", "sha256": "cec22f92bee4a05724e81ff47bd164d05bcb09b184c722eeb5317b48fa2218f2"}
+        ]
+      },
+      "mailbox_ps_driver": {
+        "status": "NOT_IMPLEMENTED",
+        "evidence": "当前阶段4 PS 源文件无 HOST_REQ/mailbox 驱动；无代码把共享契约格式字符串映射到 CSR 数值字段。"
+      },
+      "mailbox_numeric_encoding": {
+        "field_name": "mailbox_pixel_format_code",
+        "candidate_value": 1,
+        "candidate_maps_to_pixel_format": "BGR888",
+        "namespace": "G0 候选 mailbox/CSR 字段；不是共享契约 pixel_format 字符串值，也不是 s4_inject_pixel_format enum",
+        "current_c_enum_value_1": "S4_FMT_RGB565",
+        "direct_cast_allowed": false,
+        "mapping_implementation_status": "NOT_IMPLEMENTED",
+        "acceptance_gate": "实现前必须加显式映射表；不得把 mailbox_pixel_format_code 直接 cast 为 s4_inject_pixel_format，否则候选值 1 会被解释为 RGB565。"
+      },
+      "acceptance_gate": "当前不得宣称真实摄像头、C RAW 注入或 PL 预处理路径支持 BGR888；实现须加入显式 mailbox PS 驱动/格式映射、实际 PL 顶层实例化、通道顺序控制/重排和逐像素及 D2 前后端到端验证，且先于任何运行期启用。"
+    },
     "description": "一帧送入阶段4 链路的输入。producer = 注入器或采集侧；consumer = 预处理/网络链路所有者。所有字段必须随该帧一起被记录（证据侧至少记为元数据 JSON）。",
     "fields": [
       {
         "name": "contract_version",
         "type": "string",
         "required": true,
-        "semantics": "固定 's4-shared-io/1.1.0'；不匹配即拒绝消费"
+        "semantics": "固定 's4-shared-io/1.2.0'；不匹配即拒绝消费"
       },
       {
         "name": "source_kind",
@@ -302,12 +408,13 @@
         "type": "enum",
         "required": true,
         "values": [
+          "BGR888",
           "RGB888",
           "RGB565",
           "GRAY8",
           "INT8_CHW_416"
         ],
-        "semantics": "缓冲格式；**覆盖范围由注入点决定**：RGB888/RGB565 在被验收预处理之前才覆盖预处理链；INT8_CHW_416 仅覆盖网络+后处理；GRAY8 仅诊断，不得与彩色 golden 比对"
+        "semantics": "缓冲像素格式；raw_frame 必须为 BGR888（每像素 B/G/R）；RGB888 表示每像素 R/G/B；byte_order=little 是平台标量端序，不代表通道顺序。BGR888/RGB888/RGB565 只有在被验收 D2 预处理之前注入才覆盖预处理链；INT8_CHW_416 仅覆盖网络+后处理；GRAY8 仅诊断。当前 C/PL RAW 路径尚不支持 BGR888，见 runtime_support_status。"
       },
       {
         "name": "byte_order",
@@ -316,7 +423,7 @@
         "values": [
           "little"
         ],
-        "semantics": "当前平台 little-endian；其他取值需显式声明并重新评审"
+        "semantics": "当前平台多字节标量采用 little-endian；该端序与 BGR888 的逐像素 B/G/R 通道顺序相互独立，其他端序需显式声明并重新评审"
       },
       {
         "name": "stride_bytes",
@@ -661,8 +768,9 @@
     "change_process": "阶段5 需求变化以跨方请求提出（本树 report/evidence/S4-CTRL/** 唯一编号），由阶段4 决定是否纳入并出新版本"
   },
   "limits": [
-    "本契约是草案（DRAFT_PENDING_REVIEW）：经独立审查与 Lead 提交后才冻结；冻结前不得作为验收依据。r04 已经独立复审 **PASS**（被审提交 `7a9507a`，阻断 0／非阻断 4）；**r05 尚未复审**，冻结前必须另行独立复审并引用固定提交 + 被审 SHA",
-    "地址图 r03 的 `raw_frame`/`raw_meta` 状态为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN）；**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到硬件窗口实测（CPU1 停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成",
+    "本契约 r06（1.2.0）与地址图 r04 均为 DRAFT_PENDING_REVIEW；独立复审通过并完成 Lead 提交前不得冻结或作为验收依据。",
+    "地址图 r04 的 `raw_frame`/`raw_meta` 状态为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN）；**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到独立审查与硬件窗口实测（CPU1 停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成。",
+    "RAW 输入契约要求 BGR888/B-G-R 并在冻结 D2 预处理前重排为 RGB/R-G-B；当前 C 注入 API 与 mailbox PS driver 均未实现该格式映射，PL RAW 读取无通道重排且前处理模块未实例化到 RTL 顶层，`runtime_support_status=NOT_IMPLEMENTED`。G0 候选 mailbox_pixel_format_code=1 不得直接 cast 为 C enum（其值 1 是 RGB565）。离线 Python D2 参考不代表真实运行期支持；补齐 driver/映射/PL 接入及逐像素、整帧 D2 验收前必须 fail-closed。",
     "绑定字节口径：默认工作树磁盘字节；dbdf 两项彩色证据按 `git_blob_content` 显式声明；跨换行环境复算须 `-c core.autocrlf=false` 或 blob 口径（见 `binding_byte_basis`）",
     "不定义阶段5 的布局/像素门槛/显示 FPS 语义（属阶段5 G0）",
     "不含真实板测结果；本轮无任何硬件执行（未装载位流、未打开 COM4/JTAG、未起 hw_server）",

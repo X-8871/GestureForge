@@ -1,7 +1,7 @@
 # 阶段5 状态（HDMI 结果显示：离线准备 + S5-T01 合成源 bring-up + S5-T03 真彩契约改绑与用例骨架）
 
-更新：2026-10-24 20:39（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
-当前：Codex 依据主仓 `DSH-20261024-006` 接管。task-24 r06 的独立复审 **PASS**，关闭拒绝原因日志、repeat 上下文、u32 join-key 和状态不变性问题；完整离线测试 40/40。证据构建器最终退出 1，仅因 quiet-window 检出 PID 24196；未触碰进程。阶段5仍未验收，G0/G1/G3/G4/G5 均未通过。
+更新：2026-10-25 20:01（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
+当前：Codex 依据主仓 `DSH-20261024-006` 接管。task-24 r06 的独立复审 **PASS**，关闭拒绝原因日志、repeat 上下文、u32 join-key 和状态不变性问题；完整离线测试 40/40。证据构建器最终退出 1，仅因 quiet-window 检出 PID 24196；未触碰进程。Wong 于 2026-10-25 委托 Codex 项目总控确定 UR-3；阶段5显示侧决策已落盘，**不冻结阶段4生产 stale_age_limit_ns**；阶段4 G0 尚须独立同步。决策只关闭 UR-3，不代表阶段 G0/G1/G3/G4/G5 通过。
 当前证据：`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（manifest SHA256 `2131101579d295da22dd934a8880e313f6ac934dcce5030c7bf07543c6366249`）；r04/r05 失败包和此前 r01-r03 全部保留。相机/回放运行时仍 `UNIMPLEMENTED`，板级验证 `SUSPENDED_BOARD_DETACHED`。
 任务：`task-22`（r02 复审 PASS）→ `task-24`（r06 修复复审 PASS；quiet-window 仍 FAIL）。阶段5 **未验收**：G0/G1/G3/G4/G5 未通过；
 合成源/离线骨架结论一律不得升级为真实集成结论；**实现层 camera/回放路径尚未实现**（NB-5）。
@@ -48,8 +48,8 @@
 
 ## 未决与风险
 - `UR-1`（对 r04 重发）：阶段4 确认显示侧回放扩展字段命名（`replay_source_*`/`stage3_capture_evidence_entry` 等）并入契约。
-- `UR-3`：Wong/正式 G0 —— 成品延迟上限、颜色表与字号、阶段4 `stale_age_limit` 正式冻结；并请裁定 N-1 登记的 stale 判定域口径。
-- `UR-4`：阶段5 板级窗口 —— **已随板卡拔下暂停**；重连后先重做真彩目视/部署身份核对，再按 `CDX-20261023-018` §3 发 OFFER。
+- `UR-3`：**已由 Wong 委托 Codex 项目总控于 2026-10-25 作出阶段5显示侧决定**，见 `docs/stage5/s5a_g0_ur3_decision_20261025_r01.md`。成品 `age_frame` 上限 200 ms、类别 RGB 色表、字号缩放、stale 域均已定义；阶段4生产 `stale_age_limit_ns` 仍为 `DRAFT_PROPOSED`，须阶段4 G0 独立冻结并同步；阶段6 `T6-A03` 仍是另一指标且 `NOT_RUN`。camera/replay 实现、真实渲染和硬件验收仍未完成。
+- `UR-4`：Wong 于 2026-10-25 报告板卡已接上；本机只读检查未枚举 COM/USB 设备且 3121 无监听，故目前只能记为**用户报告重连、主机连接未确认**。尚未获本轮阶段级板测授权或窗口 OFFER；不操作硬件。获授权后先重做真彩目视/部署身份核对，再按 `CDX-20261023-018` §3 走窗口流程。
 - 哈希轨迹（S5A-G0-v2 JSON，仅措辞/来源说明类修订）：`8eac7007…` → `10d24a39…`（N-1）→ `e3347c4e…` → **`af51a4bf…`**（NB-4）；阈值/几何/语义自 N-1 后未再变。
 - 限制：实现层 camera/回放路径、板上动态映射/过期边界/HUD 视觉、真实注入长跑、T5-10 板上回归、`capture_fps` 实测、显示延迟物理测量 —— 一律 **NOT_RUN**；
   P1 现行「宿主预计算框」不得当作板上动态映射；无 ILA 不免除适用标准。

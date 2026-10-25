@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "decision_id": "S5A-G0-UR3-20261025-R01",
+  "stage": 5,
+  "status": "DECIDED_BY_CODEX_LEAD_UNDER_WONG_DELEGATION",
+  "decided_utc8_date": "2026-10-25",
+  "delegation_basis": "Wong 2026-10-25：你来决定",
+  "resolves": ["UR-3", "U5-02", "U5-03", "U5-04"],
+  "latency": {
+    "metric": "age_frame",
+    "display_semantics": "B_latest_result_overlay",
+    "hard_limit_ns": 200000000,
+    "decision_scope": "stage5_display_consumer_only",
+    "timebase": "shared PS monotonic clock",
+    "comparison": "greater_than",
+    "equal_limit_is_allowed": true,
+    "action_above_limit": "clear retained overlay",
+    "reports": ["sample_count", "p50", "p95", "p99", "maximum"],
+    "status": "G0_DECIDED_MEASUREMENT_NOT_RUN"
+  },
+  "stale": {
+    "stage5_age_limit_ns": 200000000,
+    "comparison": "greater_than",
+    "stage4_producer_stale_field_domain": ["OK", "NO_HAND"],
+    "stage4_producer_stale_age_limit": {
+      "value_ns": 200000000,
+      "status": "DRAFT_PROPOSED_NOT_FROZEN",
+      "sync_required_before_stage5_g0": true
+    },
+    "stage5_age_clear_has_state_guard": false,
+    "stage5_rule": "stale_flag OR age_frame_ns > 200000000",
+    "non_result_states": {
+      "values": ["TIMEOUT", "ERROR", "DROPPED"],
+      "handling": "separate status/counters; do not convert to NO_HAND or emit a new overlay"
+    }
+  },
+  "class_colors_rgb_hex": {
+    "fist": "#0072B2",
+    "palm": "#E69F00",
+    "one": "#009E73",
+    "two_up": "#CC79A7",
+    "three": "#D55E00"
+  },
+  "font_size": {
+    "base_canvas": [1280, 720],
+    "base_px": 16,
+    "scale_rule": "round_half_up(16 * output_height / 720)",
+    "equivalent_1920x1080_px": 24
+  },
+  "unchanged": [
+    "类别顺序 fist, palm, one, two_up, three",
+    "2 px 居中边框、安全区与既有坐标/几何误差规则",
+    "阶段4生产字段 stale_age_limit_ns 仍为 DRAFT_PROPOSED，本决定不批准或冻结该字段",
+    "阶段6 T6-A03 口径及 NOT_RUN 状态；它不是 age_frame 指标"
+  ],
+  "not_claimed": [
+    "没有产生任何实时延迟测量值",
+    "camera/replay 实现与真实 HUD 渲染仍未完成",
+    "阶段5 G0/G1/G3/G4/G5 与实物验收仍未通过"
+  ]
+}

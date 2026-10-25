@@ -28,6 +28,7 @@
 - **无 ILA**（BASIC 许可禁 `create_debug_core`）：以计数器/状态寄存器、cache 一致性取帧、受控转储、离线仿真补足；**不因此免除**功能/时序/耐久标准；本轮不改许可、不植入调试核。
 - **真彩目视：已完成（2026-10-24 01:41，人工观察）** —— Wong 原话「**画面可以接受，正常颜色**」；记录 `report/evidence/CTRL-DSH-HANDOFF/decisions/stage3_human_visual_20261024_r01.md`（sha256 `3bed7f85…`）。**效力**：仅对**当前部署**（无补偿 SOF `7cb33068…` + `v10_read` `1457cda4…` + J11/CMOS2 + 现接线/显示链路）与**该时刻**有效；**位流、ELF、视频端口、接线或显示链路任一变更 ⇒ 本判定失效，须重新目视**。**性质**：人工观察证据，**不得**写成仪器测量或像素级对拍。
 - task-11：**静态阈值译码已独立核验 PASS**（`task11_threshold_decode_20261024_r01/`；262,144 组 LUT4 输入、0 差异，`PASS_STATIC_THRESHOLD_DECODE`）；新增 `task11_sof_local_transition_20261025_r01/` 经 R3-03 独立审查 `PASS`，对固定 19-bit 初态及相同 5-bit 边界输入穷举 16,777,216 组、335,544,320 位比较为 0 差异，并核对 30 拍边界轨迹。此项只证明限定两态局部组合/单步转移；FIFO/CDC、边界生成、异步复位、四态/GSR、完整 IP/部署等价未覆盖，**完整 RTL↔网表顺序等价及 task-11 仍 `NOT_RUN`**。
+- task-25 单帧回放输入绑定：`report/evidence/S3-T05/t05_replay_binding_20261025_r01/` 为标准清单包，检查器 `CHECKS_OK`。新增 sidecar 将参考帧说明中的秒级 UTC+8 墙钟记录转换成 Unix 纳秒表示，标记 `replay_documented_wallclock`/`replay_only`，不声称增加精度或实时性能。它只补齐可消费元数据，不代表阶段4/5契约 G0、推理/回放或阶段3 G5 通过；阶段4契约仍 `DRAFT_PENDING_REVIEW`，阶段5 UR-1 未决。
 - **VDMA 粘滞离线补充**：`report/evidence/S3-T05/t05_vdma_root_cause_offline_20261025_r01/` 绑定首次/后续状态差分、bit11 的本地元数据与 HDL 组合来源，并收窄应用启动顺序观察范围；本轮核对官方 PG020 的 bit11 定义，但没有区分真实首帧触发分支，**仍 PARTIAL/开放**。
 - **本轮独立复审**：`PASS`，范围仅为该离线补充证据、13 个绑定文件哈希及 STATE 表述；不表示 VDMA 根因、G3、G5 通过。
 - 未做电气测量、未烧 QSPI、未改接线；传感器寄存器改动均为易失。

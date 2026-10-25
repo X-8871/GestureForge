@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_replay_binding_20261025_r01",
+  "source_commit": "9dcb0229cdd5fdd968f91dfd200f1df92acaa9cd",
+  "evidence_dir": "report/evidence/S3-T05/t05_replay_binding_20261025_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 只为已采集单帧增加回放元数据适配，不改变或冻结阶段4/5正式接口；消费方契约仍须在各自工作树完成 G0。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_replay_binding_20261025_r01/README.md",
+      "role": "artifact",
+      "sha256": "431c3ed8933b16b72cf00024d62bd727a1685ecfc9833971f5fca64677e27516"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_replay_binding_20261025_r01/replay_input_binding.json",
+      "role": "result",
+      "sha256": "2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41"
+    },
+    {
+      "path": "scripts/stage3_t17/verify_t17_blob_identity.py",
+      "role": "source",
+      "sha256": "fa88a8b9e558f1f3141b0cea4dff0c54315fd696ae00195048337ecfcfbaaa40"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/frame_full.bin",
+      "role": "input",
+      "sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/reference_frame_set.md",
+      "role": "input",
+      "sha256": "995395f8b6bc61cf772fe0c60dbd13d25dda85b3594a5ad28966d1eb77ddcad1"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_codex_evidence_fix_20261024_r01/frame_binding_check.json",
+      "role": "input",
+      "sha256": "2ac0c1676b4b419a17a9f044b87427ea528affead5c315157de4a848556e544f"
+    }
+  ],
+  "checks": [
+    {
+      "name": "源帧字节哈希",
+      "status": "PASS",
+      "command": "sha256sum report/evidence/S3-T05/t05_stage3_window_20261024_r01/frame_full.bin",
+      "exit_code": 0
+    },
+    {
+      "name": "记录墙钟时间转换为 Unix 纳秒表示",
+      "status": "PASS",
+      "command": "Date.parse('2026-10-24T01:24:13+08:00') * 1e6",
+      "exit_code": 0
+    },
+    {
+      "name": "模型推理、阶段4回放链及板级复测",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本 RunId 仅绑定已有帧与文档时间；下游推理/回放未运行，板卡当前未接入。"
+    }
+  ],
+  "limitations": [
+    "capture_time_ns 是秒级文档墙钟的单位转换值，clock_domain 为 replay_documented_wallclock，不增加时间精度，不是 PS 单调时间。",
+    "单帧冻结输入不提供连续帧、实测帧周期或实时延迟证据。",
+    "阶段4共享契约仍为 DRAFT_PENDING_REVIEW，阶段5 UR-1 字段确认未完成；本清单不表示跨阶段 G0 或 G5 通过。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.10",
+    "Git": "git version 2.56.0.windows.2"
+  }
+}

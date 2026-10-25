@@ -58,7 +58,7 @@
 - 全局事实：**Wong 已拔下板卡** ⇒ 板级工作暂停且不设期限（`decisions/board_detached_boardfree_plan_20261024_r01.md`）；6-E 实物验收暂停，恢复须先重做受连接判据。
 - **项 2 已交付（延迟方法学 + 占位模板）**：`docs/stage6/S6E_latency_methodology_v1.md` + `docs/stage6/s6e_latency_measurement_template_v1.json`（`S6E-LAT-v1`）
   + 校验器 `verification/s6e_latency_template_check.py`（L1..L7 + 5 类必 FAIL 注入，基线 ALL_PASS、5/5 捕获，exit 0）。
-  结构禁填造：全部 `*_ns` 为 `null`、`acceptance_gate.t6_a03_limit_ms=null`、**`T6-A03` 数值仍 `NOT_RUN`**；**回放不构成实时证据**。
+  结构禁填造：实测 `*_ns` 占位字段为 `null`；`acceptance_gate.t6_a01_limit_ns=1000000000` 是已批准门限，不是实测延迟；`acceptance_gate.t6_a03_limit_ms=null`、**`T6-A03` 数值仍 `NOT_RUN`**；**回放不构成实时证据**。
 - **项 3 已交付（窗口申请包就绪化）**：`report/evidence/S6-E/s6e_boardfree_20261024_r01/board_window_readiness.md`，
   八类门禁与 P1–P7 **如实**核对，结论 **`NOT_READY`**（仅 `g0_approval` 部分满足：用例集冻结 + 24 参数批准）；未申请、不排期。
 - **项 1（回放驱动的 6-E 预演）`BLOCKED`**：依赖阶段4 回放结果包（`task-26`，前置 `task-25`）与阶段5 离线显示回归（`task-27`），两者均未产出；

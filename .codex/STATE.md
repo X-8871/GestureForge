@@ -55,7 +55,7 @@
 
 - 契约 r04、RAW 缺口登记表与 P 方案已经在**被审提交 `7a9507a`** 上通过独立复审 **`PASS`**（阻断 0／非阻断 4）：契约 r04 可作为阶段4 **当前基线**（冻结时必须显式引用 `r04` + 被审 SHA）；G-01 被独立确认为**设计级阻断**（窗口内最大连续可用区 9,825,540 B < 最大帧 11,059,200 B，缺口 **1,233,660 B** ⇒ 批准不足以解决，须 Wong 决定）。
 - **流程纠正（下一轮起严格执行）**：① 交审前先声明**固定基线**并**停写被审对象**；审查期间只允许改**审查范围之外**的文件且必须**先报 lead**；② 冻结/引用基线必须写明**提交号 + 被审 SHA**，不得写“最新”；③ 若须在审查期间改动同范围 ⇒ **对新基线另行复审**，不得沿用旧结论。（本次成因是排程重叠，已在 lead 侧记录。）
-- RAW 系统 G0 缺口：地址/所有权批准（G-01/G-02 `BLOCKED_PENDING_APPROVAL`）、D2 整帧/padding 数值（G-04）、HP0 串行 owner 与排空（G-05）、平台 BD/XSA（G-07）、PS RAW task 与旧 memcpy 冲突（G-08）、协议项（G-09/G-10/G-11/G-13）、资源与布线后时序（G-14）、mailbox ABI 审查（G-15）。
+- RAW 系统 G0 当前缺口：G-01/G-02 均为 `PARTIALLY_CLOSED_OFFLINE`（D1=A 已批准并登记；仍待固定版本独立 G0 复审，region 非 FROZEN、`ENABLE=0` 且不得访问候选区）；D2 整帧/padding 数值（G-04）、HP0 串行 owner 与排空（G-05）、平台 BD/XSA（G-07）、PS RAW task 与旧 memcpy 冲突（G-08）、协议项（G-09/G-10/G-11/G-13）、资源与布线后时序（G-14）、mailbox ABI 审查（G-15）。
 - 硬件相关**全部 `NOT_RUN`**：八类门禁与正式 OFFER/CLAIM（G-16）、4-D 验收（G-17）、真实彩色回归（G-18）、帧周期 P（G-19）。
 - 4-D 与阶段4 G5 未完成；不得把离线/回放结论升级为实物集成结论。
 - **G-01/G-02 已按 Wong D1=A 一次性落盘（全离线）**：Wong 2026-10-24 批准选项 A、**不接受降覆盖**（D2 作废），记录 `decisions/stage4_raw_address_optionA_20261024_r01.md`（承接 DSH 初裁 `stage4_raw_address_d1_d4_20261024_r01.md`）。落盘内容：地址图 **r03** 新增 `raw_frame=[0x12000000,0x12C00000)`（12 MiB）+ `raw_meta=[0x12C00000,0x12C08000)`（32 KiB），把**本阶段自设**禁区条目精确缩减为 `[0x12C08000,0x20000000)`（其余禁区不动）；两 region 状态 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**、`enable_required=true`），登记 owner/access/cache 维护方向/完成序/容量；契约 **r05** 同版本重绑 + 消费方（阶段5/6）重绑清单。地址图与契约 `status` 仍 **`DRAFT_PENDING_REVIEW`**。

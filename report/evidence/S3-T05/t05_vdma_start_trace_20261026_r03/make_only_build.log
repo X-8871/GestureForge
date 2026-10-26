@@ -1,0 +1,14 @@
+D:\Xilinx\2026.1\Vitis\gnuwin\bin\make.exe
+XSA_SHA256=1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3
+PRISTINE_DISPLAY_DEMO_SHA256=1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985
+LIBXIL_SHA256=8185dcb110944ab1cd687ae6b7a40aafc070725e1d1e1076c27ef1196779dd0a
+LSCRIPT_SHA256=7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c vdma.c -o vdma.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c ov5640.c -o ov5640.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_demo.c -o display_demo.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c display_ctrl/display_ctrl.c -o display_ctrl/display_ctrl.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c dynclk/dynclk.c -o dynclk/dynclk.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+arm-none-eabi-gcc -O2 -c -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -c i2c/PS_i2c.c -o i2c/PS_i2c.o -Iempty_application_bsp/ps7_cortexa9_0/include -I. -Idisplay_ctrl -Idynclk -Ii2c
+"APP_SOURCES=./vdma.c ./ov5640.c ./display_demo.c display_ctrl/display_ctrl.c dynclk/dynclk.c i2c/PS_i2c.c"
+arm-none-eabi-gcc -o an5642_j11cmos2_v13_vdma_start_trace.elf ./vdma.o ./ov5640.o ./display_demo.o display_ctrl/display_ctrl.o dynclk/dynclk.o i2c/PS_i2c.o -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec -Wl,--start-group,-lxil,-lgcc,-lc,--end-group -Wl,--gc-sections -Lempty_application_bsp/ps7_cortexa9_0/lib -Tlscript.ld
+BUILD_RC=0

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_vdma_start_trace_20261026_r02",
+  "source_commit": "d0697672ddd106e948be3670f59e91a28f4d8860",
+  "evidence_dir": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅记录启动脚本自检误判证据目录的失败，不定义或修改阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r02/setup_failure.md",
+      "sha256": "a53a1be48758d5d0b306981b8aca47fb6212e800432709ea6e403dedda8b540a",
+      "role": "result",
+      "keep_reason": "保留 r02 脚本启动失败原因及未开始拷贝/编译的事实。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r02/build_make_only.ps1",
+      "sha256": "ce8109240f9580c3790a0f730bb56bb978b93b1390a577047f0c5221582837c3",
+      "role": "source",
+      "keep_reason": "绑定产生该设置失败的启动脚本，确保失败步骤可复核。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "RunId 输出路径前置检查",
+      "status": "FAIL",
+      "command": "PowerShell build_make_only.ps1 using pre-created evidence directory",
+      "exit_code": 1,
+      "reason": "脚本将已预建的自身 evidence 目录判为目标冲突；未复制应用/BSP或运行编译。"
+    }
+  ],
+  "tool_versions": {
+    "Git": "2.56.0.windows.2",
+    "PowerShell": "7.6.5"
+  },
+  "limitations": [
+    "没有编译、运行、操作硬件或生成 bitstream。",
+    "本包是失败设置记录，不代表阶段验收。"
+  ]
+}

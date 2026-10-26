@@ -1,0 +1,244 @@
+--- a/vdma.c
++++ b/vdma.c
+@@ -1,5 +1,6 @@
+ #include "xil_printf.h"
+ #include "vdma.h"
++#include "xil_io.h"
+ 
+ u32 vdma_version(XAxiVdma *Vdma) {
+ 	return XAxiVdma_GetVersion(Vdma);
+@@ -110,64 +111,177 @@
+ }
+ 
+ 
++#define S3_VDMA_TRACE_MAX_SAMPLES 7
++
++typedef struct {
++	const char *Stage;
++	u32 Cr;
++	u32 Sr;
++	u32 Vsize;
++	u32 Hsize;
++	u32 Stride;
++	u32 FrameAddr;
++} S3VdmaSnapshot;
++
++typedef struct {
++	UINTPTR BaseAddress;
++	int Count;
++	int LookupOk;
++	int CfgInitializeCalled;
++	int CfgInitializeStatus;
++	int DmaConfigCalled;
++	int DmaConfigStatus;
++	int SetBufferAddrCalled;
++	int SetBufferAddrStatus;
++	int DmaStartCalled;
++	int DmaStartStatus;
++	int Result;
++	S3VdmaSnapshot Samples[S3_VDMA_TRACE_MAX_SAMPLES];
++} S3VdmaTrace;
++
++/* 僅讀取 S2MM 控制、狀態、視頻尺寸與幀地址寄存器，不寫寄存器或清除粘滯位。 */
++static void s3_vdma_trace_sample(S3VdmaTrace *Trace, const char *Stage)
++{
++	S3VdmaSnapshot *Sample;
++
++	if (Trace->Count >= S3_VDMA_TRACE_MAX_SAMPLES) {
++		return;
++	}
++
++	Sample = &Trace->Samples[Trace->Count];
++	Sample->Stage = Stage;
++	Sample->Cr = Xil_In32(Trace->BaseAddress + XAXIVDMA_RX_OFFSET + XAXIVDMA_CR_OFFSET);
++	Sample->Sr = Xil_In32(Trace->BaseAddress + XAXIVDMA_RX_OFFSET + XAXIVDMA_SR_OFFSET);
++	Sample->Vsize = Xil_In32(Trace->BaseAddress + XAXIVDMA_S2MM_ADDR_OFFSET + XAXIVDMA_VSIZE_OFFSET);
++	Sample->Hsize = Xil_In32(Trace->BaseAddress + XAXIVDMA_S2MM_ADDR_OFFSET + XAXIVDMA_HSIZE_OFFSET);
++	Sample->Stride = Xil_In32(Trace->BaseAddress + XAXIVDMA_S2MM_ADDR_OFFSET + XAXIVDMA_STRD_FRMDLY_OFFSET);
++	Sample->FrameAddr = Xil_In32(Trace->BaseAddress + XAXIVDMA_S2MM_ADDR_OFFSET + XAXIVDMA_START_ADDR_OFFSET);
++	Trace->Count++;
++}
++
++/* 僅於所有快照採集完成後輸出，避免串口打印改變 API 間隔。 */
++static void s3_vdma_trace_print(const S3VdmaTrace *Trace)
++{
++	int i;
++
++	xil_printf("S3_VDMA_TRACE_SUMMARY base=0x%08x lookup_ok=%d samples=%d result=%d\r\n",
++		   (u32)Trace->BaseAddress, Trace->LookupOk, Trace->Count, Trace->Result);
++	xil_printf("S3_VDMA_TRACE_RC cfg_init_called=%d cfg_init_rc=%d dma_config_called=%d dma_config_rc=%d set_addr_called=%d set_addr_rc=%d dma_start_called=%d dma_start_rc=%d\r\n",
++		   Trace->CfgInitializeCalled, Trace->CfgInitializeStatus,
++		   Trace->DmaConfigCalled, Trace->DmaConfigStatus,
++		   Trace->SetBufferAddrCalled, Trace->SetBufferAddrStatus,
++		   Trace->DmaStartCalled, Trace->DmaStartStatus);
++	for (i = 0; i < Trace->Count; i++) {
++		const S3VdmaSnapshot *Sample = &Trace->Samples[i];
++		xil_printf("S3_VDMA_TRACE_SNAP stage=%s cr=0x%08x sr=0x%08x vsize=0x%08x hsize=0x%08x stride=0x%08x frame_addr=0x%08x\r\n",
++			   Sample->Stage, Sample->Cr, Sample->Sr, Sample->Vsize,
++			   Sample->Hsize, Sample->Stride, Sample->FrameAddr);
++	}
++}
++
+ int vdma_write_init(short DeviceID,short HoriSizeInput,short VertSizeInput,short Stride,unsigned int FrameStoreStartAddr)
+ {
+ 	XAxiVdma Vdma;
+ 	XAxiVdma_Config *Config;
+ 	XAxiVdma_DmaSetup WriteCfg;
+-	int Status;
+-
++	S3VdmaTrace Trace;
++	int Status;
++	int InitResult;
++	int ErrorStage;
++
++	Trace.BaseAddress = 0;
++	Trace.Count = 0;
++	Trace.LookupOk = 0;
++	Trace.CfgInitializeCalled = 0;
++	Trace.CfgInitializeStatus = -1;
++	Trace.DmaConfigCalled = 0;
++	Trace.DmaConfigStatus = -1;
++	Trace.SetBufferAddrCalled = 0;
++	Trace.SetBufferAddrStatus = -1;
++	Trace.DmaStartCalled = 0;
++	Trace.DmaStartStatus = -1;
++	Trace.Result = XST_FAILURE;
++	ErrorStage = 0;
+ 
+ 	Config = XAxiVdma_LookupConfig(DeviceID);
+ 	if (NULL == Config) {
+-		xil_printf("XAxiVdma_LookupConfig failure\r\n");
+-		return XST_FAILURE;
+-	}
++		InitResult = XST_FAILURE;
++		ErrorStage = 1;
++		goto trace_done;
++	}
++	Trace.LookupOk = 1;
++	Trace.BaseAddress = Config->BaseAddress;
++	s3_vdma_trace_sample(&Trace, "lookup_post");
++	s3_vdma_trace_sample(&Trace, "cfg_init_pre");
+ 
+ 	Status = XAxiVdma_CfgInitialize(&Vdma, Config, Config->BaseAddress);
+-	if (Status != XST_SUCCESS) {
+-		xil_printf("XAxiVdma_CfgInitialize failure\r\n");
+-		return XST_FAILURE;
+-	}
+-
+-	
++	Trace.CfgInitializeCalled = 1;
++	Trace.CfgInitializeStatus = Status;
++	s3_vdma_trace_sample(&Trace, "cfg_init_post");
++	if (Status != XST_SUCCESS) {
++		InitResult = XST_FAILURE;
++		ErrorStage = 2;
++		goto trace_done;
++	}
+ 
+ 	WriteCfg.EnableCircularBuf = 1;
+ 	WriteCfg.EnableFrameCounter = 0;
+ 	WriteCfg.FixedFrameStoreAddr = 0;
+-
+ 	WriteCfg.EnableSync = 1;
+ 	WriteCfg.PointNum = 1;
+-
+ 	WriteCfg.FrameDelay = 0;
+-
+ 	WriteCfg.VertSizeInput = VertSizeInput;
+ 	WriteCfg.HoriSizeInput = HoriSizeInput;
+ 	WriteCfg.Stride = Stride;
+ 
+ 	Status = XAxiVdma_DmaConfig(&Vdma, XAXIVDMA_WRITE, &WriteCfg);
+-	if (Status != XST_SUCCESS) {
+-			xdbg_printf(XDBG_DEBUG_ERROR,
+-				"Read channel config failed %d\r\n", Status);
+-
+-			return XST_FAILURE;
+-	}
+-
++	Trace.DmaConfigCalled = 1;
++	Trace.DmaConfigStatus = Status;
++	s3_vdma_trace_sample(&Trace, "dma_config_post");
++	if (Status != XST_SUCCESS) {
++		InitResult = XST_FAILURE;
++		ErrorStage = 3;
++		goto trace_done;
++	}
+ 
+ 	WriteCfg.FrameStoreStartAddr[0] = FrameStoreStartAddr;
+-
+ 	Status = XAxiVdma_DmaSetBufferAddr(&Vdma, XAXIVDMA_WRITE, WriteCfg.FrameStoreStartAddr);
+-	if (Status != XST_SUCCESS) {
+-			xdbg_printf(XDBG_DEBUG_ERROR,"Write channel set buffer address failed %d\r\n", Status);
+-			return XST_FAILURE;
+-	}
+-
+-
+-	Status = vdma_write_start(&Vdma);
+-	if (Status != XST_SUCCESS) {
+-		   xil_printf("error starting VDMA..!");
+-		   return Status;
+-	}
+-	return XST_SUCCESS;
+-
+-}
++	Trace.SetBufferAddrCalled = 1;
++	Trace.SetBufferAddrStatus = Status;
++	s3_vdma_trace_sample(&Trace, "set_buffer_addr_post");
++	if (Status != XST_SUCCESS) {
++		InitResult = XST_FAILURE;
++		ErrorStage = 4;
++		goto trace_done;
++	}
++
++	s3_vdma_trace_sample(&Trace, "dma_start_pre");
++	Status = XAxiVdma_DmaStart(&Vdma, XAXIVDMA_WRITE);
++	Trace.DmaStartCalled = 1;
++	Trace.DmaStartStatus = Status;
++	s3_vdma_trace_sample(&Trace, "dma_start_post");
++	if (Status != XST_SUCCESS) {
++		InitResult = XST_FAILURE;
++		ErrorStage = 5;
++		goto trace_done;
++	}
++
++	InitResult = XST_SUCCESS;
++
++trace_done:
++	Trace.Result = InitResult;
++	s3_vdma_trace_print(&Trace);
++	if (ErrorStage == 1) {
++		xil_printf("XAxiVdma_LookupConfig failure\r\n");
++	} else if (ErrorStage == 2) {
++		xil_printf("XAxiVdma_CfgInitialize failure\r\n");
++	} else if (ErrorStage == 3) {
++		xdbg_printf(XDBG_DEBUG_ERROR, "Read channel config failed %d\r\n", Status);
++	} else if (ErrorStage == 4) {
++		xdbg_printf(XDBG_DEBUG_ERROR, "Write channel set buffer address failed %d\r\n", Status);
++	} else if (ErrorStage == 5) {
++		xil_printf("Start write transfer failed %d\n\r", Status);
++		xil_printf("error starting VDMA..!");
++	}
++	return InitResult;
++}
+--- a/display_demo.c
++++ b/display_demo.c
+@@ -259,6 +259,7 @@
+ {
+ 
+ 	int Status;
++	int vdma_write_status;
+ 	xil_printf("S3_DIAG_APP_ENTER\r\n");
+ 	XAxiVdma_Config *vdmaConfig;
+ 	int i;
+@@ -686,8 +687,8 @@
+ 		for (s3_w = 0; s3_w < 15; s3_w++) { sleep(1); }
+ 	}
+ 	xil_printf("S3_DIAG4_WAIT_DONE\r\n");
+-	vdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);
+-	xil_printf("S3_DIAG_VDMA_WRITE_STARTED\r\n");
++	vdma_write_status = vdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);
++	xil_printf("S3_DIAG_VDMA_WRITE_STARTED rc=%d\r\n", vdma_write_status);
+ 	/* S3-DIAG11 取帧应用：先做 3 次 64 KB×3 区指纹（t≈5/10/15 s）确认帧在动，
+ 	 * 然后 t≈20 s 停 S2MM 让帧缓冲静止，之后保持 240 s 供整帧导出。*/
+ 	xil_printf("S3_DIAG6_ALGO=sum32+crc32(0xEDB88320) bytes=65536 sites=0x000000,0x080000,0x100000\r\n");

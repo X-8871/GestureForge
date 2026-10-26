@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_vdma_start_trace_20261026_r01",
+  "source_commit": "d0697672ddd106e948be3670f59e91a28f4d8860",
+  "evidence_dir": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅记录增量补丁在错误基线上应用失败，不定义或修改阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r01/setup_failure.md",
+      "sha256": "abd650ee262f25d328e30874a407ab6b1dee48dd4d120c180a5288de72b48811",
+      "role": "result",
+      "keep_reason": "保留首次隔离设置失败的原因与未运行编译的事实。"
+    },
+    {
+      "path": "board/stage3/software/sensor/s3_t04_app_diag_v13_vdma_start_trace.patch",
+      "sha256": "019ea44bf299f27d8a6bdefb91d2bf978c7e952fa2aceb440dcd18e93a060884",
+      "role": "source",
+      "keep_reason": "绑定失败应用所用的 v13 增量补丁。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "v13 增量补丁基线应用",
+      "status": "FAIL",
+      "command": "git apply -p1 <v13 patch> against pristine vendor application",
+      "exit_code": 1,
+      "reason": "v13 依赖先应用 v12；直接作用于厂商原始源时 display_demo.c 上下文不匹配，未运行编译。"
+    }
+  ],
+  "tool_versions": {
+    "Git": "2.56.0.windows.2",
+    "PowerShell": "7.6.5"
+  },
+  "limitations": [
+    "没有编译、运行、操作硬件或生成 bitstream。",
+    "本包是失败设置记录，不代表阶段验收。"
+  ]
+}

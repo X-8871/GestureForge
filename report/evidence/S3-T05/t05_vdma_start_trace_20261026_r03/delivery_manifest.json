@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_vdma_start_trace_20261026_r03",
+  "source_commit": "d0697672ddd106e948be3670f59e91a28f4d8860",
+  "evidence_dir": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r03",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次为阶段3现有软件诊断应用增加只读观测点，不定义或冻结新接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r03/README.md",
+      "sha256": "f5f444dce868e8044770eb211e6dda7ed64dd59d83bdc76bb0f21a76d7838a0b",
+      "role": "artifact",
+      "keep_reason": "总结构建结果、输出位置和未完成的板上验证边界。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r03/build_record.json",
+      "sha256": "34235c42a59fff840fb35aa9a8ce391c6765ac8ddcd3b983d66f79d20a8b1fb7",
+      "role": "artifact",
+      "keep_reason": "机器可读绑定源码、输入、工具、构建命令与 ELF 哈希。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r03/build_make_only.ps1",
+      "sha256": "f037f05d7d8cd388a7907a587b1fd61ace38f755dac0a6327ea5476477156867",
+      "role": "source",
+      "keep_reason": "准确重现全新副本、哈希门禁、补丁顺序和 make-only 构建步骤。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r03/make_only_build.log",
+      "sha256": "ff8fd82ff58aaf75131a8efca697d92835acefcb3c438fd039678cd495bdffa9",
+      "role": "log",
+      "keep_reason": "包含实际编译、链接命令、输入身份摘要和退出码。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_start_trace_20261026_r03/readelf_header.txt",
+      "sha256": "2d444fa64533223070fae438254ee384e171347e0dafa0bccfe4674d46106e70",
+      "role": "result",
+      "keep_reason": "保存 ELF32 ARM EABI5 hard-float 类型核验的完整工具输出与退出码。"
+    },
+    {
+      "path": "board/stage3/software/sensor/s3_t04_app_diag_v13_vdma_start_trace.patch",
+      "sha256": "019ea44bf299f27d8a6bdefb91d2bf978c7e952fa2aceb440dcd18e93a060884",
+      "role": "source",
+      "keep_reason": "绑定本次新加 API 边界观测代码。"
+    },
+    {
+      "path": "board/stage3/software/sensor/s3_t04_app_diag_v12.patch",
+      "sha256": "2517c98a3b9b328c51b194c8ff4bd3ac54fefa384700a55c44487314666556d8",
+      "role": "input",
+      "keep_reason": "绑定 v13 增量补丁所依赖的既有 v12 基线。"
+    },
+    {
+      "path": "tmp/stage3_reference/AX7020_2023.1/course_s2_vitis/22_ov5640_single/Vitis/auto_create_vitis/src/an5642_single/display_demo.c",
+      "sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985",
+      "role": "input",
+      "keep_reason": "绑定从厂商示例开始搭建 v12 应用的原始 display_demo.c。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/_input/design_1_wrapper.xsa",
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+      "role": "input",
+      "keep_reason": "绑定复用的目标硬件平台 XSA。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/empty_application_bsp/ps7_cortexa9_0/lib/libxil.a",
+      "sha256": "8185dcb110944ab1cd687ae6b7a40aafc070725e1d1e1076c27ef1196779dd0a",
+      "role": "input",
+      "keep_reason": "绑定与目标 XSA 配套复用的静态 BSP 库。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/lscript.ld",
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a",
+      "role": "input",
+      "keep_reason": "绑定 ELF 链接地址脚本。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/empty_application_bsp/ps7_cortexa9_0/include/xparameters.h",
+      "sha256": "f1c41ec07b4db77a2ea032bf63ef20d0779a429410e48908edf8423d5396179d",
+      "role": "input",
+      "keep_reason": "绑定 VDMA 设备参数及视频参数寄存器可读配置。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/empty_application_bsp/ps7_cortexa9_0/include/xaxivdma_hw.h",
+      "sha256": "7d5836d42d31746124442d039dcb8b5c33186b9709f9c4c602fa7d3b59b8f0e5",
+      "role": "input",
+      "keep_reason": "绑定 S2MM 控制、状态、尺寸和帧地址寄存器偏移定义。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/vdma.c",
+      "sha256": "3357387b1cd4664ed5e1c6ffb309fcb93c39d1b8644b4bbcc74d50eb3a09470f",
+      "role": "source",
+      "keep_reason": "绑定实际编译的 VDMA 初始化与快照源码。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/display_demo.c",
+      "sha256": "26d19c01ec555946fff0b1d167a6666565b8d5c6268bdeb393aecd2c949114e3",
+      "role": "source",
+      "keep_reason": "绑定实际编译并打印 VDMA 初始化返回码的主应用源码。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/ov5640.c",
+      "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec",
+      "role": "source",
+      "keep_reason": "绑定实际编译的传感器驱动源码。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/display_ctrl/display_ctrl.c",
+      "sha256": "fb6a377b7ed0766c485158d4994e8cc6837fb504ae7e56e41412ee3f23a695d2",
+      "role": "source",
+      "keep_reason": "绑定实际编译的显示控制源码。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/dynclk/dynclk.c",
+      "sha256": "be827313363baad59d1693c8e7b1894ab6c0aacc569934ea85919abe73846e14",
+      "role": "source",
+      "keep_reason": "绑定实际编译的动态时钟源码。"
+    },
+    {
+      "path": "tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/i2c/PS_i2c.c",
+      "sha256": "273aefe9716df3c6f00d31eb63711babb509861c70351687b3dfc553afd3b675",
+      "role": "source",
+      "keep_reason": "绑定实际编译的 PS I2C 源码。"
+    },
+    {
+      "path": "scripts/stage3_t04_vitis/Makefile.app",
+      "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503",
+      "role": "source",
+      "keep_reason": "绑定 make 编译与链接规则。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "make-only 应用 ELF 构建",
+      "status": "PASS",
+      "command": "make -f Makefile.app EXEC=an5642_j11cmos2_v13_vdma_start_trace.elf OPT_FLAGS=-O2 -c",
+      "exit_code": 0,
+      "reason": "记录的 XSA、BSP 库、链接脚本和原始应用哈希均匹配；v12、v13 补丁依次成功应用，编译与链接结束。"
+    },
+    {
+      "name": "ELF 架构头核验",
+      "status": "PASS",
+      "command": "arm-none-eabi-readelf -h tmp/s3r06/t05_vdma_start_trace_20261026_r03/app/an5642_j11cmos2_v13_vdma_start_trace.elf",
+      "exit_code": 0,
+      "reason": "输出确认 ELF32、little-endian、ARM、EABI5 hard-float。"
+    }
+  ],
+  "tool_versions": {
+    "compiler": "arm-xilinx-eabi-gcc (GCC) 13.4.0",
+    "make": "GNU Make 4.2.1",
+    "readelf": "GNU Binutils 2.32.0.20190204",
+    "Git": "2.56.0.windows.2",
+    "PowerShell": "7.6.5"
+  },
+  "limitations": [
+    "ELF 未在板上运行；没有生成运行期寄存器采集。",
+    "软件 API 边界快照不能定位 XAxiVdma_DmaStart 内部的精确 bit11 置位周期。",
+    "没有观测 AXI-Stream TVALID/TUSER/TLAST/TREADY；app-only 证据不足以关闭 VDMA 根因。",
+    "没有运行 Vivado、下载、烧录或操作硬件；本次不关闭 TIMING-17/36、task-11、完整 G2 或阶段 G5。"
+  ]
+}

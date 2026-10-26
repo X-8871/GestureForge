@@ -1,0 +1,163 @@
+{
+  "schema": "stage3_t05_vdma_start_trace_make_only_v1",
+  "task_id": "S3-T05-SW-VDMA-START-TRACE",
+  "run_id": "t05_vdma_start_trace_20261026_r03",
+  "date_local": "2026-10-26",
+  "timezone": "Asia/Shanghai",
+  "purpose": "在 v12 应用诊断版本上增加只读 S2MM API 边界快照并构建 ELF；定位范围仅为软件采样区间，不等同于硬件精确沿或根因关闭。",
+  "baseline": {
+    "worktree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "commit": "d0697672ddd106e948be3670f59e91a28f4d8860"
+  },
+  "inputs": {
+    "vendor_app_source": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\stage3_reference\\AX7020_2023.1\\course_s2_vitis\\22_ov5640_single\\Vitis\\auto_create_vitis\\src\\an5642_single",
+      "display_demo_c_sha256": "1e2c74f100a77aef06fe3973c5ca40c964db403ca4621336110a6d15223da985"
+    },
+    "v12_patch": {
+      "path": "D:\\codex-worktrees\\dbdf\\board\\stage3\\software\\sensor\\s3_t04_app_diag_v12.patch",
+      "bytes": 34950,
+      "sha256": "2517c98a3b9b328c51b194c8ff4bd3ac54fefa384700a55c44487314666556d8"
+    },
+    "v13_patch": {
+      "path": "D:\\codex-worktrees\\dbdf\\board\\stage3\\software\\sensor\\s3_t04_app_diag_v13_vdma_start_trace.patch",
+      "bytes": 7625,
+      "sha256": "019ea44bf299f27d8a6bdefb91d2bf978c7e952fa2aceb440dcd18e93a060884"
+    },
+    "xsa": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\_input\\design_1_wrapper.xsa",
+      "bytes": 633089,
+      "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"
+    },
+    "libxil_a": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\empty_application_bsp\\ps7_cortexa9_0\\lib\\libxil.a",
+      "bytes": 1658648,
+      "sha256": "8185dcb110944ab1cd687ae6b7a40aafc070725e1d1e1076c27ef1196779dd0a"
+    },
+    "lscript_ld": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\lscript.ld",
+      "bytes": 6324,
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a"
+    },
+    "vdma_parameter_readback_config": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\empty_application_bsp\\ps7_cortexa9_0\\include\\xparameters.h",
+      "bytes": 25535,
+      "sha256": "f1c41ec07b4db77a2ea032bf63ef20d0779a429410e48908edf8423d5396179d",
+      "fact": "XPAR_AXI_VDMA_1_ENABLE_VIDPRMTR_READS=1"
+    },
+    "vdma_register_offsets": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\empty_application_bsp\\ps7_cortexa9_0\\include\\xaxivdma_hw.h",
+      "bytes": 13460,
+      "sha256": "7d5836d42d31746124442d039dcb8b5c33186b9709f9c4c602fa7d3b59b8f0e5"
+    },
+    "compiled_sources": {
+      "vdma_c": {
+        "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\vdma.c",
+        "bytes": 8210,
+        "sha256": "3357387b1cd4664ed5e1c6ffb309fcb93c39d1b8644b4bbcc74d50eb3a09470f"
+      },
+      "display_demo_c": {
+        "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\display_demo.c",
+        "bytes": 37773,
+        "sha256": "26d19c01ec555946fff0b1d167a6666565b8d5c6268bdeb393aecd2c949114e3"
+      },
+      "ov5640_c": {
+        "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\ov5640.c",
+        "bytes": 9673,
+        "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec"
+      },
+      "display_ctrl_c": {
+        "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\display_ctrl\\display_ctrl.c",
+        "bytes": 15402,
+        "sha256": "fb6a377b7ed0766c485158d4994e8cc6837fb504ae7e56e41412ee3f23a695d2"
+      },
+      "dynclk_c": {
+        "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\dynclk\\dynclk.c",
+        "bytes": 8037,
+        "sha256": "be827313363baad59d1693c8e7b1894ab6c0aacc569934ea85919abe73846e14"
+      },
+      "ps_i2c_c": {
+        "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\i2c\\PS_i2c.c",
+        "bytes": 1897,
+        "sha256": "273aefe9716df3c6f00d31eb63711babb509861c70351687b3dfc553afd3b675"
+      },
+      "makefile_app": {
+        "path": "D:\\codex-worktrees\\dbdf\\scripts\\stage3_t04_vitis\\Makefile.app",
+        "bytes": 1729,
+        "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503"
+      }
+    }
+  },
+  "commands": [
+    {
+      "id": "apply_v12_then_v13",
+      "command_text": "git apply -p1 --directory=tmp/s3r06/t05_vdma_start_trace_20261026_r03/app <v12.patch>; then same command with v13.patch",
+      "exit_code": 0,
+      "result": "脚本在两次补丁应用后继续执行；任一次非零即终止。"
+    },
+    {
+      "id": "make_only_elf",
+      "command_text": "make -f Makefile.app EXEC=an5642_j11cmos2_v13_vdma_start_trace.elf OPT_FLAGS=-O2 -c",
+      "exit_code": 0,
+      "log": "make_only_build.log",
+      "result": "编译并链接 ELF；未运行 HSI/sdtgen、Vivado、下载或烧录。"
+    },
+    {
+      "id": "readelf_header",
+      "command_text": "arm-none-eabi-readelf -h <ELF>",
+      "exit_code": 0,
+      "result": "ELF32、little-endian、ARM、EABI5 hard-float。"
+    }
+  ],
+  "prior_attempts": [
+    {
+      "run_id": "t05_vdma_start_trace_20261026_r01",
+      "status": "BLOCKED_SETUP",
+      "record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_vdma_start_trace_20261026_r01\\setup_failure.md",
+      "reason": "首次尝试将 v13 增量补丁直接应用于原始厂商源，缺少 v12 前置补丁；未运行编译。"
+    },
+    {
+      "run_id": "t05_vdma_start_trace_20261026_r02",
+      "status": "BLOCKED_SETUP",
+      "record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_vdma_start_trace_20261026_r02\\setup_failure.md",
+      "reason": "启动脚本把预建的自身证据目录误判为冲突；未复制应用/BSP或运行编译。"
+    }
+  ],
+  "tools": {
+    "compiler": "arm-xilinx-eabi-gcc (GCC) 13.4.0",
+    "make": "GNU Make 4.2.1",
+    "readelf": "GNU Binutils 2.32.0.20190204"
+  },
+  "outputs": {
+    "elf": {
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t05_vdma_start_trace_20261026_r03\\app\\an5642_j11cmos2_v13_vdma_start_trace.elf",
+      "bytes": 310404,
+      "sha256": "84bddf04f482baee08aaf6a2df84cdec9d514b508e2a0fb08b351b5266cadedb",
+      "validation": "readelf header identifies ARM 32-bit little-endian executable, EABI5 hard-float"
+    },
+    "build_log": {
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_vdma_start_trace_20261026_r03\\make_only_build.log",
+      "bytes": 2013,
+      "sha256": "ff8fd82ff58aaf75131a8efca697d92835acefcb3c438fd039678cd495bdffa9"
+    },
+    "build_script": {
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_vdma_start_trace_20261026_r03\\build_make_only.ps1",
+      "bytes": 3914,
+      "sha256": "f037f05d7d8cd388a7907a587b1fd61ace38f755dac0a6327ea5476477156867"
+    },
+    "readelf_header": {
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_vdma_start_trace_20261026_r03\\readelf_header.txt",
+      "bytes": 984,
+      "sha256": "2d444fa64533223070fae438254ee384e171347e0dafa0bccfe4674d46106e70"
+    }
+  },
+  "limits": [
+    "ELF 未在板上运行；没有产生运行期寄存器采集。",
+    "每个边界样本执行 6 次 MMIO 读，可能轻微改变相邻启动 API 的调用间隔；未测量采样耗时，不应将诊断 ELF 当作无扰动基线。",
+    "软件 API 边界快照不能定位 XAxiVdma_DmaStart 内部的精确 bit11 置位周期。",
+    "未观测 AXI-Stream TVALID/TUSER/TLAST/TREADY；app-only 证据不足以关闭 VDMA 根因。",
+    "本任务不关闭 TIMING-17/36、task-11、完整 G2 或阶段 G5。"
+  ],
+  "status": "BUILD_PASS_NOT_BOARD_VALIDATED"
+}

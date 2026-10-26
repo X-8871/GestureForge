@@ -148,3 +148,9 @@ AMD UG908 说明 7-series 的 debug hub 在 `opt_design` 阶段由 Vivado 插入
 显示器标称 1920×1080。固定官方 AX7020 源 `course_s2_vitis/14_vdma_hdmi_out/Vitis/auto_create_vitis/src/vdma_hdmi/display_ctrl/vga_modes.h` 定义 `VMODE_1920x1080`（`1920x1080@60Hz`），可作为首次 HDMI 测试模式候选，而非 260Hz；这不证明当前工程已有对应时序/bitstream，也不证明显示器实物接受该模式。正式采集/显示分辨率、帧率与缩放/丢帧语义仍须在视频 G0 冻结。
 
 AXI4-Stream 背压适配 S3-VAXIS-01：WinPS 5.1 策略自测 5/5 通过；真实厂商顶层 host 仿真 `xvlog/xelab/xsim` 均退出 0，12 beats、6 个停顿周期、12 次 FIFO 弹出。launcher 退出码缺失或读取失败时，即使 sentinel 为 0 也会 fail-closed。结果及源码哈希见 `report/stage3_vaxis01_host_20261003.json`；原始日志留在本地 `tmp`。该回归使用同钟 FWFT mock，不证明异步 CDC 或板级行为。
+
+## 2026-10-26 TIMING-36 隔离工程实现复核
+
+阶段3 新 RunId `report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/` 的 XDC 对象查询返回 0，脚本在 reset/synth 前安全退出；不代表设计实现失败。后续 R02 在 `tmp/s3r06/t04_sof_fix_20261020_r01/` 的新副本中，仅从本地 `rgb2dvi_clocks.xdc` 及生成副本删除错误的 `PixelClk → SerialClk ×5` 声明，重新生成 BD targets、完整综合和 route，再生成 bitstream。独立复审确认 TIMING-36/30=0、`SerialClk` 保留自动时钟 `I=2.000 ns`；证据及归档输入/输出位于 `report/evidence/S3-T05/t05_timing36_project_impl_20261026_r02/`，bitstream SHA-256 `6b23e209effd55a440447c59608f76bbb03cd4f06b3832f0777843cc54a67b01`。
+
+该结果只验证隔离副本，未修改正式工程/IP 源、未应用或合并 `board/stage3/hardware/hdmi_clock_relation_candidate.patch`、未烧录/板测，不能称为正式修复或阶段冻结。路由后仍有 TIMING-17=240、TIMING-18=1、TIMING-9=1、DRC 8 warnings；STA 有 `no_clock=240`、520 个未约束端点、9 个缺失输入延迟和 5 个缺失输出延迟。因此完整时序签核、I/O delay 和 G5 仍未通过。

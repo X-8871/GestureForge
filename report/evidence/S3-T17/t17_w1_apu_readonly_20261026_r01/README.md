@@ -1,7 +1,7 @@
 # 阶段3 W1 APU 只读回读候选方案
 
 - 候选 RunId：`t17_w1_apu_readonly_20261026_r01`
-- 状态：`PREPARED_NOT_AUTHORIZED_NOT_EXECUTED`
+- 状态：`EXECUTED_BLOCKED_DAP_APB_ERROR`
 - 拟申请窗口：最多 15 分钟，包含前置核验、一次主读回、必要时一次条件式恢复及收窗核验。
 - 适用工作树：`D:\codex-worktrees\dbdf`，分支 `codex/stage3-video`
 - 目的：尝试用 APU/AXI-AP 读取 VDMA 状态和运行期地址，替代已超时的 Cortex-A9 处理器指令式读取。
@@ -36,3 +36,11 @@ AMD UG1725 说明：活动目标选为处理器时，`mrd` 由处理器执行调
 保存主读回与必要时恢复脚本各自的原始 stdout/stderr、准确退出码、执行前后资源检查和现场目视确认。不得将启动脚本的包装退出码覆盖 Tcl 脚本退出码。恢复脚本只有在 Wong 的新批准明确包含该条件式恢复、主脚本起始为非运行状态或发生进程异常、且无旧硬件会话时才运行，最多一次。
 
 即便本路径读回通过，也只补充阶段3 W1/G3 证据，不会单独冻结阶段3：VDMA 根因、TIMING-17/36 与 C2/I/O delay、完整 task-11 RTL↔网表顺序等价仍是独立未关闭项。
+
+## 本次运行结果（2026-10-26）
+
+- Wong 批准了本 RunId 最多 15 分钟的窗口与一次条件式恢复；用户报告当前 HDMI 为冻结或黑屏。
+- 主脚本开始于 `2026-10-26 11:05:49 UTC+8`。JTAG 链识别 Digilent JTAG-HS1、`arm_dap`、`xc7z020`（IDCODE `0x23727093`）；XSDB target tree 只有 `DAP (APB AP transaction error, DAP status 0x30000021)` 与 `xc7z020`，未发现 Cortex-A9 或 APU target。主脚本在 target 选择处退出，Tcl exit 2、XSDB wrapper exit 0；没有执行 stop、mrd、con、寄存器写入、复位或烧录。
+- 条件恢复脚本开始于 `2026-10-26 11:06:57 UTC+8`，同样因 A9 target 不存在而退出；恢复脚本 exit 2、XSDB wrapper exit 0，没有执行 `con`。
+- 收窗复核于 `11:08:05 UTC+8`：无 `xsdb/hw_server/vivado/vitis` 进程、无 3121 监听、无 Vivado MCP 会话。两个 `hw_server` 均由本次 XSDB 启动，并在收窗核验前自行退出；未终止其他进程。
+- 本 RunId 未读到 VDMA 状态或运行期地址，未核实部署身份、A9 最终状态或 HDMI 画面；Wong 报告冻结/黑屏，任务端未直接观察。状态为 `BLOCKED_TARGET_ENUMERATION`，禁止复用本 RunId 重试。

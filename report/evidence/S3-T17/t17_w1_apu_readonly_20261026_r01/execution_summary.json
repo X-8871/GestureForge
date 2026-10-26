@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_apu_readonly_20261026_r01",
+  "source_commit": "48da2fbe65b13fc07af45e3c535af9e0c58f42b7",
+  "overall_status": "BLOCKED_TARGET_ENUMERATION",
+  "authorization": {
+    "wong_approved": true,
+    "duration_limit_minutes": 15,
+    "conditional_recovery_included": true
+  },
+  "primary_attempt": {
+    "started_utc8": "2026-10-26T11:05:49+08:00",
+    "completed_utc8": "NOT_CAPTURED",
+    "observed_wrapper_wall_seconds": 15.0,
+    "xsdb_wrapper_exit_code": 0,
+    "tcl_exit_code": 2,
+    "jtag_chain": [
+      "Digilent JTAG-HS1 210512180081",
+      "arm_dap idcode 4ba00477",
+      "xc7z020 idcode 23727093"
+    ],
+    "xsdb_targets": [
+      "DAP (APB AP transaction error, DAP status 0x30000021)",
+      "xc7z020"
+    ],
+    "a9_target_found": false,
+    "apu_target_found": false,
+    "register_read_attempts": 0,
+    "cpu_stop_command_issued": false,
+    "cpu_resume_command_issued": false,
+    "register_writes": 0,
+    "reset_or_program_operations": 0
+  },
+  "conditional_recovery": {
+    "started_utc8": "2026-10-26T11:06:57+08:00",
+    "completed_utc8": "NOT_CAPTURED",
+    "observed_wrapper_wall_seconds": 11.3,
+    "xsdb_wrapper_exit_code": 0,
+    "tcl_exit_code": 2,
+    "a9_target_found": false,
+    "state_query_completed": false,
+    "con_command_issued": false,
+    "reset_command_issued": false
+  },
+  "board_observation": {
+    "source": "Wong user report",
+    "reported_state": "HDMI 冻结或黑屏",
+    "agent_visual_observation": false
+  },
+  "post_run": {
+    "checked_utc8": "2026-10-26T11:08:05+08:00",
+    "xsdb_processes": 0,
+    "hw_server_processes": 0,
+    "vivado_processes": 0,
+    "vitis_processes": 0,
+    "tcp_3121_listeners": 0,
+    "vivado_mcp_sessions": 0,
+    "a9_final_state": "NOT_CONFIRMED"
+  },
+  "not_verified": [
+    "A9 execution state",
+    "APU/processor memory map target access",
+    "S2MM_SR value and sticky VDMA root cause",
+    "ADDR_S2MM and ADDR_MM2S runtime values",
+    "current bitstream/XSA/ELF deployment identity",
+    "direct agent visual confirmation of HDMI",
+    "stage 3 G3/G4/G5"
+  ],
+  "limitations": [
+    "DAP target enumeration failed before CPU or APU selection.",
+    "No stop, mrd, con, register write, reset, FPGA or QSPI programming command was issued by either script.",
+    "Both XSDB wrappers returned 0 while their Tcl scripts returned 2; Tcl results govern the attempt status.",
+    "The transient hw_server processes were started by the two XSDB invocations and were absent at the 11:08:05 post-run check.",
+    "This run does not resolve the reported frozen/black HDMI state or close any independent G5 blocker."
+  ]
+}

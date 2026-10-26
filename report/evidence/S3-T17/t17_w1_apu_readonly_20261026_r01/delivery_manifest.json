@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_apu_readonly_20261026_r01",
+  "source_commit": "48da2fbe65b13fc07af45e3c535af9e0c58f42b7",
+  "evidence_dir": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 是经批准的只读诊断尝试；没有更改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/README.md",
+      "sha256": "f3d24224858c23650b450f48e5dcbb23127479484be9a2515f895c3910fbd98b",
+      "role": "artifact",
+      "keep_reason": "候选方法、授权范围、失败结果与限制说明"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/apu_target_readback.tcl",
+      "sha256": "16c189efd0082cba78c80643e81657927b4493963a98b921de32fc455de1f862",
+      "role": "source",
+      "keep_reason": "经独立审查的 APU 只读回读脚本；实际执行在 target 选择失败处停止"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/recover_a9_if_confirmed_halted.tcl",
+      "sha256": "86f336aae232ab20cb9ae3b6617a844bf78670594a0c4fcef86e8060b482a318",
+      "role": "source",
+      "keep_reason": "经批准的一次条件式恢复脚本；实际执行时未找到 A9 target，未运行 con"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/preflight.json",
+      "sha256": "7c1205d4957b98777aea20c91fc42e03d8aa521ad8aad4509bd36b041d0df9c0",
+      "role": "result",
+      "keep_reason": "授权、工作树锁、设备枚举、进程与会话前置核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/execution_summary.json",
+      "sha256": "101915f3a5113b2ae053568c435421a7ee617cf9b472b74d9e43c266f8e382a3",
+      "role": "result",
+      "keep_reason": "主读回、条件恢复、退出码、未执行操作和收窗状态摘要"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/apu_target_readback.stdout.txt",
+      "sha256": "0b238c18af0af6b354ff7534983082e7bb420550170441286a7c670f57e9a07a",
+      "role": "log",
+      "keep_reason": "XSDB 原始输出；含 JTAG 链、DAP APB 错误及 target 枚举失败"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/apu_target_readback.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "主读回 XSDB stderr；零字节，保留原始空输出"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/recover_a9_if_confirmed_halted.stdout.txt",
+      "sha256": "69eb5346707d4f641c732110b0bdec338d6166e6aa7ed48580cafaec92470b41",
+      "role": "log",
+      "keep_reason": "恢复 XSDB 原始输出；A9 target 不可用，未查询状态或执行 con"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/recover_a9_if_confirmed_halted.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "恢复 XSDB stderr；零字节，保留原始空输出"
+    }
+  ],
+  "checks": [
+    {
+      "name": "APU target VDMA readback",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_w1_apu_readonly_20261026_r01\\apu_target_readback.tcl",
+      "exit_code": 2,
+      "reason": "JTAG chain visible, but target tree returned DAP APB transaction error 0x30000021 and contained no A9/APU target; no register reads were attempted."
+    },
+    {
+      "name": "Conditional A9 recovery",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_w1_apu_readonly_20261026_r01\\recover_a9_if_confirmed_halted.tcl",
+      "exit_code": 2,
+      "reason": "A9 target was unavailable, so its state was not queried and con was not issued."
+    },
+    {
+      "name": "Post-run resource cleanup check",
+      "status": "PASS",
+      "command": "Get-Process xsdb/hw_server/vivado/vitis; Get-NetTCPConnection -LocalPort 3121 -State Listen; vivado_list_sessions",
+      "exit_code": 0,
+      "reason": "At 2026-10-26 11:08:05 UTC+8 no target processes, 3121 listeners or Vivado MCP sessions remained."
+    }
+  ],
+  "tool_versions": {
+    "XSDB": "2026.1",
+    "PowerShell": "7"
+  },
+  "limitations": [
+    "No A9 state, VDMA register value, runtime address, deployment identity or agent-side HDMI observation was obtained.",
+    "Wong reported frozen/black HDMI; this was not independently observed by the agent.",
+    "The package and hash checker result cannot establish G3/G4/G5 or freeze Stage 3."
+  ]
+}

@@ -108,22 +108,38 @@ def write_json_atomic(out_dir: Path, name: str, payload: dict[str, object]) -> N
     os.replace(tmp, out_dir / name)
 
 
-def g0_preflight_path(root: Path, explicit_run: str | None = None) -> Path:
-    """确定要采信的 G0 预检文件。
+def g0_preflight_path(root: Path, explicit_run: str | None = None) -> tuple[Path, str]:
+    """确定要采信的 G0 预检文件，并返回 (路径, 选择模式)。
 
-    优先 `--g0-run` 显式指定；否则取“最新一个已闭合（PASS / CLOSED_WITH_ACCEPTED_BREAK）”
-    的运行；都没有时退回最新一次运行（由调用方按未闭合处理）。
+    `--g0-run` 只接受位于证据根下的**已有 RunId 名**（不接受路径、不允许越界），
+    且该目录的 preflight 必须自洽：`run_id` 与目录名一致、`checker_version` 以 r 开头、
+    `checks` 非空。否则按输入错误处理，防止用一行伪造 JSON 把断点洗成 PASS。
+    未显式指定时取“最新一个已闭合运行”，都没有则取最新一次（调用方按未闭合处理）。
     """
     if explicit_run:
-        return root / explicit_run / "preflight_verification.json"
+        if "/" in explicit_run or "\\" in explicit_run or explicit_run in (".", ".."):
+            raise ValueError(f"--g0-run 必须是 RunId 名，不能是路径：{explicit_run}")
+        path = root / explicit_run / "preflight_verification.json"
+        if not path.is_file():
+            raise ValueError(f"--g0-run 指定的 RunId 在证据根下不存在：{explicit_run}")
+        _, payload = read_json(path)
+        if payload is None:
+            raise ValueError(f"--g0-run 指定的 preflight 无法解析：{explicit_run}")
+        if str(payload.get("run_id", "")) != explicit_run:
+            raise ValueError(f"--g0-run 的 preflight.run_id 与目录名不一致：{explicit_run}")
+        if not str(payload.get("checker_version", "")).startswith("r"):
+            raise ValueError(f"--g0-run 的 preflight 缺少 checker_version：{explicit_run}")
+        if not payload.get("checks"):
+            raise ValueError(f"--g0-run 的 preflight 没有 checks 明细：{explicit_run}")
+        return path, "explicit_run_id"
     candidates = sorted(root.glob(f"{G0_RUN_GLOB}/preflight_verification.json"))
     if not candidates:
-        return root / "s4t26_g0_inputs_20261026_r13/preflight_verification.json"
+        raise ValueError("证据根下找不到任何 G0 运行")
     for path in reversed(candidates):
         _, payload = read_json(path)
         if payload and payload.get("status") in G0_CLOSED_STATUSES and is_strict_zero(payload.get("exit_code")):
-            return path
-    return candidates[-1]
+            return path, "latest_closed"
+    return candidates[-1], "latest_any"
 
 
 def head_rows(root: Path) -> list[dict[str, object]]:
@@ -256,12 +272,18 @@ def main() -> int:
         print(f"[ERROR] 桥接器缺失，无法核对字节身份：{bridge_path}")
         return 2
 
+    try:
+        g0_path, g0_mode = g0_preflight_path(root, args.g0_run)
+        g0_run_id = g0_path.parent.name
+    except ValueError as exc:
+        print(f"[ERROR] G0 选择非法：{exc}")
+        return 2
     statuses = {}
     data = {}
     for key, path in (
         ("divergence_report", root / f"{DIVERGENCE_RUN}/layer_divergence_report.json"),
         ("authoritative_run", root / "s4t26_golden_rebind_20261026_r02/replay_forward_bridge_result.json"),
-        ("g0_preflight", g0_preflight_path(root, args.g0_run)),
+        ("g0_preflight", g0_path),
     ):
         statuses[key], data[key] = read_json(path)
     broken = [k for k, s in statuses.items() if s != "ok"]
@@ -270,7 +292,7 @@ def main() -> int:
         print(f"[ERROR] 关键证据不可用（{detail}）；按输入错误处理")
         return 2
 
-    divergence, authoritative, g0_r13 = data["divergence_report"], data["authoritative_run"], data["g0_preflight"]
+    divergence, authoritative, g0_payload = data["divergence_report"], data["authoritative_run"], data["g0_preflight"]
     bridge_now = sha256_file(bridge_path)
     sources = divergence.get("sources")
     bridge_in_divergence = None
@@ -279,7 +301,7 @@ def main() -> int:
         if isinstance(bridge_block, dict):
             bridge_in_divergence = bridge_block.get("sha256")
     bridge_in_authoritative = None
-    checks = g0_r13.get("checks")
+    checks = g0_payload.get("checks")
     if isinstance(checks, list):
         for item in checks:
             if isinstance(item, dict) and item.get("name") == "bridge_runner_moving_head_contract":
@@ -314,9 +336,9 @@ def main() -> int:
             "当前桥接器字节上存在非 PASS 运行：" + "、".join(failing_on_current)
             + "（这些运行的真实状态必须保留，不得以旧 PASS 覆盖）"
         )
-    if not g0_closed(g0_r13):
+    if not g0_closed(g0_payload):
         problems.append(
-            f"G0 r13 仍为 {g0_r13.get('status')}/exit {g0_r13.get('exit_code')}，"
+            f"G0({g0_run_id}, {g0_mode}) 仍为 {g0_payload.get('status')}/exit {g0_payload.get('exit_code')}，"
             "activation producer provenance 未闭合"
         )
 
@@ -332,7 +354,7 @@ def main() -> int:
         "bridge_sha256_now": bridge_now,
         "bridge_sha256_in_divergence_probe": bridge_in_divergence,
         "bridge_sha256_in_authoritative_run": bridge_in_authoritative,
-        "bridge_sha256_authoritative_source": "s4t26_g0_inputs_20261026_r13 检查项 bridge_runner_moving_head_contract.detail.bridge_source_sha256",
+        "bridge_sha256_authoritative_source": f"{g0_run_id} 检查项 bridge_runner_moving_head_contract.detail.bridge_source_sha256",
         "bridge_last_commit_time": bridge_committed,
         "required_gate_checks": list(REQUIRED_GATE_CHECKS),
         "head_comparisons": rows,
@@ -344,11 +366,13 @@ def main() -> int:
             "first_byte_mismatch_layer": divergence.get("first_byte_mismatch_layer"),
             "evidence_kind": "diagnostic_trace_not_authoritative_gate",
         },
-        "authoritative_run_cited": {
+        "historical_run_cited": {
             "run_id": "s4t26_golden_rebind_20261026_r02",
             "status": authoritative.get("status"),
             "exit_code": authoritative.get("exit_code"),
+            "note": "历史引用：该运行在 T25 预处理修复前，失败结论已被 e65ea51 与 gate_rerun 推翻，不作为合格门",
         },
+        "qualified_run_cited": [r["run_id"] for r in qualified_runs],
         "authoritative_bridge_runs": runs,
         "qualified_gate_pass_runs": [r["run_id"] for r in qualified_runs],
         "rerun_after_bridge_fix": bool(qualified_runs),
@@ -357,9 +381,14 @@ def main() -> int:
             "其失败归因已被 e65ea51 与诊断探针推翻；该结论对当前代码不再适用，但同样不能当作 PASS。",
             "PASS 只表示证据文件内部自洽且满足判定条件，不表示门在实机执行过；伪造自洽证据根也能得到 PASS。",
         ],
-        "g0_r13": {"status": g0_r13.get("status"),
-                   "exit_code": g0_r13.get("exit_code"),
-                   "blocking_reasons": g0_r13.get("blocking_reasons")},
+        "g0": {"run_id": g0_run_id,
+               "selection_mode": g0_mode,
+               "preflight_sha256": sha256_file(g0_path),
+               "status": g0_payload.get("status"),
+               "exit_code": g0_payload.get("exit_code"),
+               "checker_version": g0_payload.get("checker_version"),
+               "accepted_breaks": g0_payload.get("accepted_breaks"),
+               "blocking_reasons": g0_payload.get("blocking_reasons")},
         "unclosed": problems,
         "verdict": "PASS" if not problems else "BLOCKED",
         "exit_code": exit_code,

@@ -1,11 +1,11 @@
 {
   "schema_version": "gestureforge_s4_shared_io_contract_v2",
   "contract_id": "s4-shared-io",
-  "contract_version": "1.2.0",
+  "contract_version": "1.3.0",
   "status": "DRAFT_PENDING_REVIEW",
-  "revision": "r06",
+  "revision": "r07",
   "created_utc8": "2026-10-22T19:20:00+08:00",
-  "revision_note": "r06（2026-10-25，全离线）：按 Wong 明确决定将 RAW 源帧格式定义为 BGR888（每像素内存字节 B/G/R），并明确平台 byte_order=little 只表示多字节字段端序、不得与通道顺序混同；冻结 D2 预处理要求逐像素 BGR→RGB，且必须发生在 resize/归一化/量化之前。仅离线 Python D2 图像参考路径有该反转；当前 C 注入描述符未实现 BGR888，mailbox PS driver 缺失，PL RAW 读取未做通道重排且前处理模块未接入 RTL 顶层，`runtime_support_status=NOT_IMPLEMENTED`。G0 候选 mailbox_pixel_format_code=1 与 C enum 值 1（RGB565）为不同编码域，尚无显式映射实现，禁止直接 cast。真实链路不得据契约声称支持。新增 Stage5 UR-1 证据侧回放元数据字段；地址图更新至 r04，RAW 与 META 仍 DRAFT_PENDING_REVIEW、非 FROZEN、ENABLE=0。r05 的地址、绑定字节口径与消费方重绑内容保留。",
+  "revision_note": "r07：按契约自身重绑规则处理两处过期绑定（不改语义）。① `s4_offline_raw_replay_bridge` 由 `06c9ab8` 的 blob `ad71cae0…` 重绑到桥接器 r12 现行字节 `2f4445e7…`（byte_basis=raw），并登记 `replaces`；② `stage5_display_g0_fields` 原固定修订 `b6d11d4` 之后 w5 已两次改动该文件，按规则重绑到 w5 现行 blob `af51a4bf…`（byte_basis=git_blob_content，修订 a54f09f），`replaces` 记录 `b6d11d4/10d24a39…`。其余绑定与语义未变。",
   "reviewed_baseline_note": "r04 地址图及契约旧版本的既有独立复审 PASS 不覆盖 r05/r06；r05、r06 均未复审。本 r06 冻结前必须另行独立复审并引用固定提交 + 被审 SHA。",
   "task_id": "S4-CTRL/S4B-contract",
   "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
@@ -55,9 +55,17 @@
       "id": "s4_offline_raw_replay_bridge",
       "role": "离线 RAW 帧适配器；只证明 frame_full.bin 的 BGR bytes 被按 BGR 解码并传入 D2 Python 参考",
       "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
-      "sha256": "ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac",
+      "sha256": "2f4445e72cde4d3693f31f2741bec1214a7cc3ec299f93505f59dc19bcb896dd",
       "declared_status": "OFFLINE_REPLAY_ONLY",
-      "conversion_entry": "frame_full.bin reshape to frame_bgr → PNG encode → load_image_chw"
+      "conversion_entry": "frame_full.bin reshape to frame_bgr → PNG encode → load_image_chw",
+      "replaces": {
+        "sha256": "ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac",
+        "basis": "raw",
+        "revision": "06c9ab8",
+        "reason": "桥接器其后经 f731323/138d096/e65ea51/c9ed296 多次修改，原绑定已过期"
+      },
+      "byte_basis": "raw",
+      "bound_revision_note": "绑定 r12 现行工作树字节；桥接器再改必须重绑并登记 replaces"
     },
     {
       "id": "cdx_010_stage4_runbook",
@@ -169,19 +177,20 @@
       "id": "stage5_display_g0_fields",
       "role": "阶段5 G0 显示语义/过期常量的权威（只读引用，不写 w5）",
       "path": "D:\\codex-worktrees\\w5\\docs\\stage5\\s5a_stage5_display_g0_fields.json",
-      "sha256": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
-      "byte_basis": "git_blob_fixed_revision",
-      "fixed_revision": "b6d11d4",
-      "fixed_revision_note": "**消费固定修订**：绑定 w5 修订 `b6d11d4` 的 blob `10d24a39…`（该修订内容与 w5 后续 HEAD 下同值）。阶段5 后续轮若改动该文件，必须由阶段4 重绑并登记 `replaces`，**不得**静默沿用。",
+      "sha256": "af51a4bf47e72df6b0ffef9d39536782a5ee31ca6c6314d2d4838d0ca21aaa7b",
+      "byte_basis": "git_blob_content",
+      "fixed_revision_note": "**消费固定修订**：绑定 w5 修订 `a54f09f` 的 blob（w5 工作树当前值同值）。阶段5 后续若再改动该文件，必须由阶段4 重绑并登记 `replaces`，不得静默沿用。",
       "binding_status_note": "事实口径：阶段5 **r02 复审已 PASS**；`task-24` 仍在办 ⇒ 采用**固定修订**语义。**未冻结**（`FROZEN` 仍须硬件实测 + G0 批准）。",
       "byte_basis_note": "B-1 复核：w5 于 2026-10-24 01:48:18 提交 `b6d11d4`（该文件 blob 即本值）；本树 r05 首版误绑 `8eac7007…`（旧 HEAD `22a8dcbe` 的 blob）并误称『w5 有未提交改动』——该判断在其提交后已过期，属已修缺陷。",
-      "worktree_disk_sha256_annotation": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+      "worktree_disk_sha256_annotation": "af51a4bf47e72df6b0ffef9d39536782a5ee31ca6c6314d2d4838d0ca21aaa7b",
       "replaces": {
-        "sha256": "8eac70076c3ba39de0c615bcc08b66bcc45f3fe87f0449a9eb3e32a318709911",
-        "basis": "git_blob_content",
-        "reason": "修 r02 前修订（w5 旧 HEAD `22a8dcbe` 的 blob）"
+        "sha256": "10d24a3989d8924f8785ee17817ec318eea5c64aac89118b520518c8c11b89fb",
+        "basis": "git_blob_fixed_revision",
+        "revision": "b6d11d4",
+        "reason": "w5 于 b6d11d4 之后经 a465b48/5fd3336 改动该文件，固定修订语义失效"
       },
-      "active_tree_note": "w5 为活动工作树：本绑定只声明『阶段4 消费的固定修订』；其未提交或后续提交都不改变本绑定，须由阶段4 显式重绑并登记取代关系。"
+      "active_tree_note": "w5 为活动工作树：本绑定只声明『阶段4 消费的固定修订』；其未提交或后续提交都不改变本绑定，须由阶段4 显式重绑并登记取代关系。",
+      "fixed_revision": "a54f09f"
     }
   ],
   "authority_rules": {
@@ -240,7 +249,14 @@
       "legacy_stage3_metadata_mapping": {
         "legacy_field": "source_byte_order",
         "legacy_value": "BGR",
-        "maps_to": {"pixel_format": "BGR888", "channel_order": ["B", "G", "R"]},
+        "maps_to": {
+          "pixel_format": "BGR888",
+          "channel_order": [
+            "B",
+            "G",
+            "R"
+          ]
+        },
         "does_not_map_to": "platform byte_order",
         "evidence_policy": "保留旧 Stage3 证据原字节；仅在本契约回放元数据解释层映射"
       },
@@ -248,14 +264,22 @@
     },
     "raw_frame_format": {
       "pixel_format": "BGR888",
-      "channel_order": ["B", "G", "R"],
+      "channel_order": [
+        "B",
+        "G",
+        "R"
+      ],
       "bytes_per_pixel": 3,
       "byte_order": "little",
       "byte_order_semantics": "平台多字节标量端序；不改变逐像素 B/G/R 通道顺序",
       "d2_channel_reorder": {
         "required": true,
         "operation": "BGR888 每像素 [B,G,R] → 模型 RGB888 [R,G,B]",
-        "must_precede": ["resize", "normalization", "quantization"],
+        "must_precede": [
+          "resize",
+          "normalization",
+          "quantization"
+        ],
         "reference_status": "OFFLINE_PYTHON_REFERENCE_ONLY"
       }
     },
@@ -294,11 +318,31 @@
       "evidence_side_replay_metadata": {
         "request_reference": "阶段5 UR-1",
         "scope": "evidence_side_only_not_runtime_input_fields",
-        "required_fields": ["source_path", "source_sha256", "width", "height", "stride_bytes", "byte_order", "stage3_evidence_entry", "frame_identity", "capture_time_utc8", "timestamp_source", "clock_domain"],
+        "required_fields": [
+          "source_path",
+          "source_sha256",
+          "width",
+          "height",
+          "stride_bytes",
+          "byte_order",
+          "stage3_evidence_entry",
+          "frame_identity",
+          "capture_time_utc8",
+          "timestamp_source",
+          "clock_domain"
+        ],
         "pixel_format": "BGR888",
-        "channel_order": ["B", "G", "R"],
+        "channel_order": [
+          "B",
+          "G",
+          "R"
+        ],
         "byte_order": "little",
-        "frame_identity_fields": ["session_id", "frame_id", "source_frame_id"],
+        "frame_identity_fields": [
+          "session_id",
+          "frame_id",
+          "source_frame_id"
+        ],
         "time_semantics": "记录阶段3 证据给出的源采集时间与原始时钟说明；回放时钟不得冒充实时 PS 单调时基或端到端延迟。",
         "runtime_contract_fields_added": false
       },
@@ -325,14 +369,36 @@
         "status": "UNSUPPORTED",
         "evidence": "vitis/stage4/s4_inject_frame.h 的格式枚举仅含 RGB888/RGB565/GRAY8/INT8_CHW_416；C API 校验长度与描述符，不执行像素通道转换。",
         "current_enum_by_value": [
-          {"value": 0, "symbol": "S4_FMT_RGB888", "pixel_format": "RGB888"},
-          {"value": 1, "symbol": "S4_FMT_RGB565", "pixel_format": "RGB565"},
-          {"value": 2, "symbol": "S4_FMT_GRAY8", "pixel_format": "GRAY8"},
-          {"value": 3, "symbol": "S4_FMT_INT8_CHW_416", "pixel_format": "INT8_CHW_416"}
+          {
+            "value": 0,
+            "symbol": "S4_FMT_RGB888",
+            "pixel_format": "RGB888"
+          },
+          {
+            "value": 1,
+            "symbol": "S4_FMT_RGB565",
+            "pixel_format": "RGB565"
+          },
+          {
+            "value": 2,
+            "symbol": "S4_FMT_GRAY8",
+            "pixel_format": "GRAY8"
+          },
+          {
+            "value": 3,
+            "symbol": "S4_FMT_INT8_CHW_416",
+            "pixel_format": "INT8_CHW_416"
+          }
         ],
         "source_bindings": [
-          {"path": "vitis/stage4/s4_inject_frame.h", "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34"},
-          {"path": "vitis/stage4/s4_inject_frame.c", "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9"}
+          {
+            "path": "vitis/stage4/s4_inject_frame.h",
+            "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34"
+          },
+          {
+            "path": "vitis/stage4/s4_inject_frame.c",
+            "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9"
+          }
         ],
         "declared_contract_version": "s4-shared-io/1.1.0"
       },
@@ -341,7 +407,10 @@
         "integration_status": "NOT_INSTANTIATED",
         "evidence": "src/s4b_preproc_frame.sv 以 pixel*3+channel_q 直接读取通道字节；无 BGR888 格式输入或 B/G/R→R/G/B 重排控制，且当前 RTL 源码未找到任何顶层对 s4b_preproc_frame 的实例化。",
         "source_bindings": [
-          {"path": "src/s4b_preproc_frame.sv", "sha256": "cec22f92bee4a05724e81ff47bd164d05bcb09b184c722eeb5317b48fa2218f2"}
+          {
+            "path": "src/s4b_preproc_frame.sv",
+            "sha256": "cec22f92bee4a05724e81ff47bd164d05bcb09b184c722eeb5317b48fa2218f2"
+          }
         ]
       },
       "mailbox_ps_driver": {
@@ -546,9 +615,21 @@
       ],
       "source_kind_mapping_rule": "映射严格为 file_injection→BOARD_INJECTION、synthetic→OFFLINE_REGRESSION、camera→CAMERA；不得存在额外映射或一对多映射。顶层 source_kind 和 measurement_scope.source_kind 必须映射到同一个 S4-A 值。",
       "capture_time_truth_table": {
-        "file_injection": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
-        "synthetic": {"capture_time_available": false, "capture_time_ns": 0, "unavailable_fields_contains_capture_time_ns": true},
-        "camera": {"capture_time_available": true, "capture_time_ns": "nonzero", "unavailable_fields_contains_capture_time_ns": false}
+        "file_injection": {
+          "capture_time_available": false,
+          "capture_time_ns": 0,
+          "unavailable_fields_contains_capture_time_ns": true
+        },
+        "synthetic": {
+          "capture_time_available": false,
+          "capture_time_ns": 0,
+          "unavailable_fields_contains_capture_time_ns": true
+        },
+        "camera": {
+          "capture_time_available": true,
+          "capture_time_ns": "nonzero",
+          "unavailable_fields_contains_capture_time_ns": false
+        }
       },
       "rule": "file_injection/BOARD_INJECTION 与 synthetic/OFFLINE_REGRESSION ⇒ capture_time_available=false、capture_time_ns=0 哨兵且 unavailable_fields 必须列出 capture_time_ns；file_injection 还必须给出 injection_start_ns 与 clock_domain。camera/CAMERA ⇒ capture_time_available=true、capture_time_ns 非零且不得标记 unavailable。"
     },
@@ -701,11 +782,47 @@
         "result_seq"
       ],
       "mapping_key_roles": {
-        "stage4a_join_key": {"fields": ["session_id", "frame_id", "repeat_index"], "role": "S4-A 结果记录与同一请求重复项的连接键。"},
-        "ps_log_primary_key": {"fields": ["session_id", "result_seq"], "role": "PS 旁路结果日志主键；result_seq 从 1 单调递增且按 S4-A 拒绝回绕。"},
-        "uart_observable_key": {"fields": ["frame_id", "repeat_index", "sequence"], "role": "UART 可观测的请求/响应配对键；sequence 只作配对与一致性核对，不是唯一键。"},
-        "bridge_log_fields": ["session_id", "frame_id", "repeat_index", "result_seq", "sequence", "source_kind", "frame_integrity", "ownership_events"],
-        "contract_result_key": {"fields": ["session_id", "frame_id", "result_seq"], "role": "阶段4/5 共享契约中唯一标识一条结果记录；不得替代上述各键在其各自日志/协议中的用途。"}
+        "stage4a_join_key": {
+          "fields": [
+            "session_id",
+            "frame_id",
+            "repeat_index"
+          ],
+          "role": "S4-A 结果记录与同一请求重复项的连接键。"
+        },
+        "ps_log_primary_key": {
+          "fields": [
+            "session_id",
+            "result_seq"
+          ],
+          "role": "PS 旁路结果日志主键；result_seq 从 1 单调递增且按 S4-A 拒绝回绕。"
+        },
+        "uart_observable_key": {
+          "fields": [
+            "frame_id",
+            "repeat_index",
+            "sequence"
+          ],
+          "role": "UART 可观测的请求/响应配对键；sequence 只作配对与一致性核对，不是唯一键。"
+        },
+        "bridge_log_fields": [
+          "session_id",
+          "frame_id",
+          "repeat_index",
+          "result_seq",
+          "sequence",
+          "source_kind",
+          "frame_integrity",
+          "ownership_events"
+        ],
+        "contract_result_key": {
+          "fields": [
+            "session_id",
+            "frame_id",
+            "result_seq"
+          ],
+          "role": "阶段4/5 共享契约中唯一标识一条结果记录；不得替代上述各键在其各自日志/协议中的用途。"
+        }
       },
       "fields": [
         "session_id",
@@ -777,5 +894,6 @@
     "候选上限、时间口径、异常行为取值以 S4-A 阶段4 G0 契约为准",
     "`camera_live_colour`/`camera_capture_replay_colour` 只是范围标签：写入本契约不代表真实彩色采集、回放或板级联调已执行；`capture_clock` 仍 `PENDING_MEASUREMENT`",
     "upstream_bindings 记的是本次修订时点的实际 SHA；权威变更时绑定必须显式更新并登记取代关系（自检会 FAIL 直到更新）"
-  ]
+  ],
+  "updated_utc8": "2026-10-27T07:40:00+08:00"
 }

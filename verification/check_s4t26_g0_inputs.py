@@ -50,7 +50,7 @@ REFERENCE_RUN = WORKTREE / "report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_in
 REFERENCE_RUN_SHA256 = "3d5ccedc9dc25f62353711c75f509706187047dbd70321cefb98e0bc0ade3973"
 BRIDGE_SOURCE = WORKTREE / "scripts/stage4_s4ctrl/replay_forward_bridge.py"
 EXPECTED_BRIDGE_VERSION = "r12"
-EXPECTED_BRIDGE_SHA256 = "0ab164e1da1677d121c27b5d3203c5ef997de772d3a0415f4b252e2ac947357b"
+EXPECTED_BRIDGE_SHA256 = "2f4445e72cde4d3693f31f2741bec1214a7cc3ec299f93505f59dc19bcb896dd"
 S4B_CONTRACT = WORKTREE / "docs/stage4/s4b_shared_input_result_contract.json"
 PREEXISTING_PATHS = {
     *[f"report/evidence/S4-B/s4b_ps_tensor_20261023_{run}/s4b_ps_tensor_diagnostic.{ext}"
@@ -861,7 +861,8 @@ def main() -> int:
         "checker_version": CHECKER_VERSION,
         "run_id": args.run_id, "status": status, "exit_code": exit_code,
         "generated_utc8": datetime.now(CN).isoformat(timespec="seconds"),
-        "command": [sys.executable, str(Path(__file__).resolve()), "--run-id", args.run_id],
+        "command": [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]],
+        "accept_producer_break": bool(args.accept_producer_break),
         "worktree": str(WORKTREE), "branch": w4_branch, "head_observed_only": w4_head,
         "environment": {"python": sys.version, "executable": sys.executable,
                         "platform": platform.platform(), "numpy_probe_not_needed": True,

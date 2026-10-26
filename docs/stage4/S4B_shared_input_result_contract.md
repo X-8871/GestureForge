@@ -30,14 +30,14 @@
 | S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
 | 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r04**，BGR888 RAW 字节语义） | `DRAFT_PENDING_REVIEW`，未冻结 |
 | 冻结 D2 离线图像参考 | `verification/s1_t02_d2_int8_forward.py` | `0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a` | 仅离线参考；不证明 C/PL 运行期支持 |
-| RAW 回放适配器 | `scripts/stage4_s4ctrl/replay_forward_bridge.py` | `ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac` | `frame_full.bin` BGR 字节离线适配；只调用 Python D2，不证明 C/PL 支持 |
+| RAW 回放适配器 | `scripts/stage4_s4ctrl/replay_forward_bridge.py` | `2f4445e72cde4d3693f31f2741bec1214a7cc3ec299f93505f59dc19bcb896dd`（r12 现行字节；原 `ad71cae0…` 经 `replaces` 记于契约 JSON） | `frame_full.bin` BGR 字节离线适配；只调用 Python D2，不证明 C/PL 支持 |
 | 阶段3 部署地址事实（条件①） | `dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md` | **blob 口径** `d5ba4b6b…9de4f7a`（dbdf 新 HEAD `6fa77a64`；原磁盘值 `19f754d8…` 已失效） | 只读（不写 dbdf） |
 | Wong D1=A 批准记录 | `decisions/stage4_raw_address_optionA_20261024_r01.md` | `d18359aa…854f8` | 只读 |
 | DSH D1–D4 初裁记录 | `decisions/stage4_raw_address_d1_d4_20261024_r01.md` | `3d5b2abd…e2bf34` | 只读 |
 | CDX-010 阶段4 运行书 | 邮箱 `CDX-20261022-010-…md` | `4cd61ee0…1cf89` | 只读 |
 | CDX-014 阶段5 运行书 r02 | 邮箱 `CDX-20261022-014-…md` | `f25e5ebb…5a141` | 只读 |
 | CDX-015 执行总入口（内容 r03） | 邮箱 `CDX-20261022-015-…md` | `be7b6520…9508cde`（取代 r02 `a3ce50d2…170a7`） | 只读 |
-| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `10d24a39…b89fb`，**固定修订 `b6d11d4`**（消费固定修订；`8eac7007…` 经 `replaces` 记为修 r02 前修订）| 只读引用（不写 w5）；阶段5 **r02 复审已 PASS**、`task-24` 在办，**未冻结** |
+| 阶段5 显示 G0 字段 | `w5/docs/stage5/s5a_stage5_display_g0_fields.json` | **blob 口径** `af51a4bf47e72df6b0ffef9d39536782a5ee31ca6c6314d2d4838d0ca21aaa7b`，**固定修订 `a54f09f`**（消费固定修订；`b6d11d4/10d24a39…` 与 `8eac7007…` 经 `replaces` 记录）| 只读引用（不写 w5）；阶段5 **r02 复审已 PASS**、`task-24` 在办，**未冻结** |
 | CDX-018 硬件协调 | 邮箱 `CDX-20261023-018-…md` | `9360ae1b…e6f6bd6` | 只读 |
 | CDX-019 阶段4 硬件暂缓 | 邮箱 `CDX-20261023-019-…md` | `57e14a15…cb970f` | 只读 |
 | 阶段6 批准记录（Wong 2026-10-23） | `decisions/stage6_approval_receipt_20261023_r01.md` | `d8edb848…e874fb` | 只读 |

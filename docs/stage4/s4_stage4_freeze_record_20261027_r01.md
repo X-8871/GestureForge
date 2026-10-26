@@ -15,12 +15,12 @@
 
 | 关口/项 | 判定 | 依据 |
 |---|---|---|
-| 离线推理门（task-26） | **PASS（离线）** | `s4t26_gate_rerun_20261027_r02`：status PASS / exit 0，6/6 检查 PASS，两样本四个 head 与材料化黄金逐字节一致，单字节负控与 PNG 检查 PASS，task-25 回放帧 PASS |
+| 离线推理门（task-26） | **PASS（离线）** | `s4t26_gate_rerun_20261027_r03`：status PASS / exit 0，6/6 检查 PASS，两样本四个 head 与材料化黄金逐字节一致，单字节负控与 PNG 检查 PASS，task-25 回放帧 PASS。r02 为上一版桥接器字节的同类通过，保留；r01 为失败留档 |
 | task-27 回放结果包 | **已生成（replay_only）** | 同 RunId `task27_replay_result_package.json`；只能按回放口径消费，不得当实时结果 |
-| task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r22`（exit 0）；activation producer provenance 为已登记断点，不表示可复现 |
-| 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r10`（exit 0，0 项未闭合） |
+| task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r24`（exit 0，`accept_producer_break=true` 已写入 command/字段）；同一字节无开关的 `r23` 仍 `BLOCKED/2`，证明默认 fail-closed |
+| 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r12`（exit 0，0 项未闭合；记录 `g0.run_id=r24` 与 `selection_mode`） |
 | 绑定字节口径 | **已登记** | `docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`（4/4 声明值复算一致）；契约内已有 `binding_byte_basis` 声明 |
-| 共享 IO 契约 r06 | **待独立复审**（仍 `DRAFT_PENDING_REVIEW`） | 契约自述“r05/r06 均未复审，冻结前必须另行独立复审并引用固定提交 + 被审 SHA” |
+| 共享 IO 契约 | **r07 已按规则重绑两处过期绑定，仍 `DRAFT_PENDING_REVIEW`** | 重绑：桥接器 `ad71cae0…`(06c9ab8) → `2f4445e7…`(r12 现行)；w5 显示字段 `10d24a39…`(b6d11d4) → `af51a4bf…`(a54f09f)。冻结前仍需独立复审并引用被审 SHA |
 | RAW 系统 G0 | **未闭合** | `docs/stage4/S4B_raw_system_g0_gap_registry.json`：OPEN_REQUIRES_DESIGN_OR_REVIEW 10、PARTIALLY_CLOSED_OFFLINE 4、NOT_RUN_HARDWARE_REQUIRED 4、BLOCKED_PENDING_HARDWARE 1、CLOSED_OFFLINE 1 |
 | 帧周期 P | `NOT_RUN` | 需板上真实采集；方案与校验器已在 `docs/stage4/S4B_frame_period_P_measurement_plan.md` |
 | 4-D 端到端延迟 | `NOT_RUN` | 需板上注入帧 + 真实链路 |
@@ -54,9 +54,21 @@
 
 ## 6. 证据索引
 
-- 门：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r02/`
-- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r22/`
-- 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r10/`
+- 门：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r03/`（含 `task27_replay_result_package.json`）
+- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r24/`（含 r23 无开关对照）
+- 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r12/`
 - 断点决策：`docs/stage4/s4t26_producer_break_decision_20261027_r01.json`
 - 口径登记：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`
 - 身份审计（保留断点事实）：`report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/`（仍 `BLOCKED/1`，属设计如此：它记录“不可复现”这一事实）
+
+## 7. 本轮复审后的修补（2026-10-27 07:50）
+
+独立 Reviewer 首轮判 `CHANGES_REQUIRED`，已修：
+
+| 编号 | 问题 | 修法 |
+|---|---|---|
+| P1 | G0 的 `command` 字段丢开关，证据无法自证“用了开关” | 记录 `sys.argv[1:]` 并新增 `accept_producer_break` 字段；r23/r24 同字节双留证 |
+| P2 | 对齐器 `--g0-run` 接受任意路径，可把已登记断点洗成 PASS | 限定为证据根下的 RunId 名、校验 `run_id/checker_version/checks` 自洽；产物记录 `g0.run_id`、`selection_mode`、`preflight_sha256` |
+| P3 | 产物键名 `g0_r13` 与实际选用的 G0 不符 | 重命名为 `g0` 并记录真实 RunId；历史运行改标 `historical_run_cited` |
+| P4 | 桥接器未禁止写入黄金目录内部；目录异常退 1 | 增加“不得位于黄金目录之内”判定；目录读取异常统一 `exit 2` |
+| P5 | 契约两处绑定过期 | r07 重绑并登记 `replaces`（见上表） |

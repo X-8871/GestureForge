@@ -1658,15 +1658,24 @@ def main() -> int:
     if evidence_root not in out_dir.parents:
         print(f"[BLOCKED] 输出目录必须位于 {evidence_root} 下：{out_dir}", flush=True)
         return 2
-    if out_dir == golden_run_dir:
-        print("[BLOCKED] 输出目录不得等于黄金来源目录（禁止覆盖黄金与旧证据）", flush=True)
+    if out_dir == golden_run_dir or golden_run_dir in out_dir.parents:
+        print("[BLOCKED] 输出目录不得等于或位于黄金来源目录之内（禁止写入黄金与旧证据）", flush=True)
         return 2
     if not golden_run_dir.is_dir():
         print(f"[BLOCKED] 黄金来源 RunId 不存在：{golden_run_dir}", flush=True)
         return 2
-    if out_dir.exists() and any(out_dir.iterdir()):
-        print(f"[BLOCKED] 输出 RunId 已存在且非空，拒绝复用：{out_dir}", flush=True)
-        return 2
+    if out_dir.exists():
+        if not out_dir.is_dir():
+            print(f"[BLOCKED] 输出路径已存在且不是目录：{out_dir}", flush=True)
+            return 2
+        try:
+            non_empty = any(out_dir.iterdir())
+        except OSError as exc:
+            print(f"[BLOCKED] 无法读取输出目录：{type(exc).__name__}: {exc}", flush=True)
+            return 2
+        if non_empty:
+            print(f"[BLOCKED] 输出 RunId 已存在且非空，拒绝复用：{out_dir}", flush=True)
+            return 2
     expected_golden_names = {"approved_no_hand_001_head13.bin", "approved_no_hand_001_head26.bin",
                              "test_fist_000_head13.bin", "test_fist_000_head26.bin"}
     golden_dir = golden_run_dir / "golden"

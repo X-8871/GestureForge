@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_readonly_20261026_r01",
+  "source_commit": "358034df5f3f75c2d851ebe76b4558b57fd7f39a",
+  "evidence_dir": "report/evidence/S3-T17/t17_w1_readonly_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 是一次受批准范围约束的只读硬件回读尝试，不改写或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261026_r01/README.md",
+      "sha256": "c5df5900063cdee530585ed006bd1f7ec5b63bed00c1f9e211ba2a2a9ad17171",
+      "role": "artifact",
+      "keep_reason": "W1 操作范围、结果、失败与收窗说明"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261026_r01/guarded_readback.tcl",
+      "sha256": "4f0aa3acbf2f1abd675643cdb3c27b1d2da158e9540ff52153c8feda6f319eae",
+      "role": "source",
+      "keep_reason": "含运行态确认门禁的 XSDB 只读采集脚本；不包含 mwr、rst 或 fpga 编程命令"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261026_r01/preflight.json",
+      "sha256": "8f828eb5e91dbde401066ec24e905a5e3b5f7134882d4de62aa5f32a1eeb747d",
+      "role": "result",
+      "keep_reason": "运行前锁、进程、PnP、连接与授权范围核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261026_r01/verification_summary.json",
+      "sha256": "76a2480cfe27dd7c2d290f0ade411e5c1919649791fa42b1e72a8141dd613015",
+      "role": "result",
+      "keep_reason": "JTAG 链识别、寄存器超时、脚本/包装退出码和未闭合项的结构化摘要"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261026_r01/xsdb.stdout.txt",
+      "sha256": "d24ce94c2213454430c5c83c366ca2fc371118adeae7a181f9a30d01b92090c9",
+      "role": "log",
+      "keep_reason": "XSDB 原始控制台输出，保留状态变化与首个 S2MM_SR 访问失败"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261025_r01/hw_authorization.json",
+      "sha256": "43086a390462dcbe2348c6f68cbb1c87bd3cecaee1f0f384d46f9e6c0e24404c",
+      "role": "input",
+      "keep_reason": "Wong 于 2026-10-25 批准的 30 分钟只读 W1 范围"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_readonly_20261025_r03/probe.stdout.txt",
+      "sha256": "d319c6f960133a2dbbb659399c41445f380b32a83e930d216f1d72902b04e815",
+      "role": "input",
+      "keep_reason": "此前 JTAG 链识别成功、首个 CR 访问超时的原始失败记录"
+    },
+    {
+      "path": "scripts/stage3_t17/jtag_t17_w1_probe.tcl",
+      "sha256": "7bebb4a3adad3689e20c616698c98281e47e1394ae1460cb3568b210b3686b96",
+      "role": "input",
+      "keep_reason": "此前 r03 尝试绑定的采集脚本，供核对失败复现路径"
+    }
+  ],
+  "checks": [
+    {
+      "name": "W1 受保护 XSDB 只读回读",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_w1_readonly_20261026_r01\\guarded_readback.tcl",
+      "exit_code": 2,
+      "reason": "JTAG 链可见且 A9 state 门禁生效；首个 S2MM_SR 读取超时，未继续读地址，未写寄存器/复位/烧录。"
+    },
+    {
+      "name": "W1 收窗后主机资源检查",
+      "status": "PASS",
+      "command": "Get-Process hw_server/xsdb/vivado/vitis; Get-NetTCPConnection -LocalPort 3121 -State Listen",
+      "exit_code": 0,
+      "reason": "未发现硬件引擎进程或 3121 监听器。"
+    }
+  ],
+  "tool_versions": {
+    "XSDB": "2026.1",
+    "PowerShell": "7"
+  },
+  "limitations": [
+    "XSDB wrapper exit 0 不覆盖 Tcl 探测 exit 2。",
+    "首个 S2MM_SR 读取失败，ADDR_S2MM/MM2S、当前板上部署身份和现场真彩确认均未核验。",
+    "读取超时后脚本没有输出最终 A9 state 字符串；本 RunId 未执行 con，最终处理器状态仍未确认。",
+    "此包仅记录一次失败的只读回读尝试，不证明 VDMA 根因、G3/G4/G5 或阶段3 G5 通过。"
+  ]
+}

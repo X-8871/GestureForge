@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_readonly_20261026_r01",
+  "source_commit": "358034df5f3f75c2d851ebe76b4558b57fd7f39a",
+  "status": "BLOCKED_READBACK_TIMEOUT",
+  "started_utc8": "NOT_CAPTURED",
+  "completed_utc8": "2026-10-26T10:19:24+08:00",
+  "authorization_ref": "report/evidence/S3-T17/t17_w1_readonly_20261025_r01/hw_authorization.json",
+  "preflight": {
+    "index_locks": 0,
+    "other_hardware_sessions": 0,
+    "tcp_3121_listeners": 0,
+    "windows_pnp": [
+      "USB\\VID_0403&PID_6014\\210512180081 (USB Serial Converter, OK)",
+      "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348 (COM4, OK)"
+    ]
+  },
+  "jtag_chain": [
+    "Digilent JTAG-HS1 210512180081",
+    "arm_dap idcode 4ba00477",
+    "xc7z020 idcode 23727093"
+  ],
+  "a9_state": {
+    "before_stop": "Running",
+    "after_stop": "Stopped: (Suspended)",
+    "after_read_error": "The script did not emit the state string; its guard reported TARGET_NO_LONGER_HALTED.",
+    "resume_command_issued": false,
+    "final_execution_state": "NOT_CONFIRMED"
+  },
+  "register_attempt": {
+    "address": "0x43010034",
+    "name": "S2MM_SR",
+    "result": "FAIL",
+    "error": "Memory read error at 0x43010034. Timeout waiting for the Instruction Complete bit"
+  },
+  "probe_exit_code": 2,
+  "xsdb_wrapper_exit_code": 0,
+  "post_run": {
+    "hardware_processes": [],
+    "tcp_3121_listeners": []
+  },
+  "hardware_writes": 0,
+  "reset_or_program_operations": 0,
+  "not_verified": [
+    "当前板上位流/XSA/ELF 部署身份",
+    "当前现场真彩目视",
+    "S2MM_SR 返回值",
+    "ADDR_S2MM 与 ADDR_MM2S 运行期地址",
+    "VDMA 粘滞根因",
+    "阶段3 G3/G4/G5"
+  ],
+  "limitations": [
+    "JTAG 链识别通过不代表处理器内存访问或 VDMA 读回通过。",
+    "XSDB wrapper exit 0 不覆盖 Tcl 探测的 exit 2。",
+    "状态读取超时后脚本未执行 con；最终 A9 状态未由本 RunId 确认。",
+    "本轮不改变阶段3 G5 未通过与 VDMA 根因 OPEN 的判定。"
+  ]
+}

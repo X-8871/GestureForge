@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""离线真实彩色链 · 输入张量驱动前向桥（task-26 / (A)，只读复用，离线等价）。
+"""离线真实彩色链 · task-26 双样本门与回放结果桥（r10，离线等价）。
 
 ## 边界（2026-10-24 lead 裁决，逐条实现）
 1. **优先复用而非重写**：`import` 既有 `verification/s1_t02_d2_int8_forward.py`，调用其
@@ -9,13 +9,11 @@
 2. **量化与顺序沿冻结口径**：量化全部发生在既有 `forward_one` 内部；证据记录 `INPUT_SCALE`、
    各层 `activation_scale` 与张量/输出摘要哈希。
 3. **可复现与判别力**：同一输入跑两次须得同一层级摘要哈希；负向对照覆盖错 scale、跨过 INT8 量化档的输入改动、有损 JPEG 容器。
-4. **真实检测头**：只通过既有前向模块的 `metric` 调用捕获 YOLO 输出；按 cfg 的 layer index、前一卷积层、
-   D9 head grid 和冻结 T25/T29 元数据 fail-closed 校验映射及形状，不复制网络数学。
-5. **独立逐值对拍**：冻结校准样本必须有独立 raw head13/head26 参考并逐字节比较；摘要 metrics 不能代替检测头。
-   缺少该参考或 OpenCV 时只生成 `BLOCKED/NOT_RUN` 证据，不执行推理。
-6. **可复现与判别力**：同一输入比较两次 raw heads 哈希；错一个量化 scale、改输入 tensor 一个字节都必须改变 heads 哈希。
-7. **PNG 双路像素核验**：A/B 都以 `IMREAD_UNCHANGED` 解码并分别逐像素对照源 BGR；CHW 相等不作为替代。
-8. **缺失输入不得编造**：冻结件按 SHA 校验；所有产物标注 `offline_equivalent` / `replay_only` / `scope=offline_host`。
+4. **双样本门**：`approved_no_hand_001` 只作 raw-head 逐字节门，`test_fist_000` 作阳性检测/D9/NMS 门；旧校准样本只保留历史身份。
+5. **真实检测头**：只通过既有前向模块的 `metric` 调用捕获 YOLO 输出；按 cfg layer index、D9 head grid 与 T25/T29 元数据校验，不复制网络数学。
+6. **冻结黄金**：只从经固定 SHA 验证的 T25/T29 材料化字节加载 raw head；当前 Darknet/hook 控制未复现 T29，不作黄金来源。
+7. **执行门禁**：材料化、决策、上游提交绑定和运行参数检查全 PASS 后才执行真实前向。任一真实前向失败时保持 BLOCKED，禁止生成 task-27 包。
+8. **输入完整性**：单字节输入扰动与 PNG `IMREAD_UNCHANGED` 像素检查独立记录；所有结果标记 `replay_only` / `scope=offline_host`。
 
 用法（只写 --run-dir）：
   python -B scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir <evidence_dir>
@@ -33,13 +31,14 @@ import subprocess
 import sys
 import time
 import types
+import zlib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import numpy as np
 
 CN = timezone(timedelta(hours=8))
-BRIDGE_VERSION = "r09"
+BRIDGE_VERSION = "r10"
 WORKTREE = Path(__file__).resolve().parents[2]
 FORWARD_MODULE = WORKTREE / "verification" / "s1_t02_d2_int8_forward.py"
 D9_MODULE = WORKTREE / "verification" / "s1_t02_d9_yolo_decode.py"
@@ -58,6 +57,8 @@ REFERENCE_RUN = WORKTREE / "report" / "evidence" / "S1-T02" / "20260922_s1_t02_d
 REPLAY_DIR = Path(r"D:\codex-worktrees\dbdf\report\evidence\S3-T05\t05_stage3_window_20261024_r01")
 REPLAY_FRAME = REPLAY_DIR / "frame_full.bin"
 REPLAY_FRAME_SHA256 = "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0"
+TASK25_REPLAY_BINDING = Path(r"D:\codex-worktrees\dbdf\report\evidence\S3-T05\t05_replay_binding_20261025_r01\replay_input_binding.json")
+TASK25_REPLAY_BINDING_SHA256 = "2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41"
 S4A_CONTRACT_SHA256 = "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5"
 ACTIVATION_REPORT_SHA256 = "6d73283c698a94dd30cf00634de59fb76a8e889916eb4d00e50b76c245687216"
 ACTIVATION_REPORT_CONTENT_SHA256 = "1156ef813db4e08504c6bb8935b02720a6dd9b792e8a48d255725571d27063e5"
@@ -74,6 +75,29 @@ D6_MODULE_LF_SHA256 = "5ff91ffbbaa82935811f2ddc335434a3c70afa58eaa980e353e64b057
 T29_GENERATOR_LF_SHA256 = "219a09720d9de0723730b51ed9c007aeec5e1b9abf6bc49c5e0268c2173bc49c"
 T25_INDEX_RAW_SHA256 = "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72"
 T29_REFERENCE_RAW_SHA256 = "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33"
+EXPECTED_W4_BASELINE_COMMIT = "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e"
+GOLDEN_RUN_ID = "s4t26_golden_rebind_20261026_r02"
+GOLDEN_MANIFEST = WORKTREE / "report" / "evidence" / "S4-CTRL" / GOLDEN_RUN_ID / "golden_materialization_manifest.json"
+GOLDEN_MANIFEST_SHA256 = "47e4cc362d174f1c8eb451197554e5978cd818032c3461af655f959f9fa108c6"
+REBIND_DECISION = WORKTREE / "docs" / "stage4" / "s4t26_golden_rebind_decision_20261026_r01.md"
+REBIND_DECISION_SHA256 = "819c9054be9bc3232d51666bc9e52e112fc3932b1d3a165d36040f26744356e1"
+T25_SHARDS = Path(r"D:\FPGA_Competition\report\evidence\S2A-T25\tensors")
+RAW_HEAD_GATE = {
+    "gate": "raw_head_gate", "sample_id": "approved_no_hand_001", "sample_index": 102,
+    "image_path": Path(r"D:\FPGA_Data\HaGRIDv2\user_no_hand\20260915_friend_001.png"),
+    "image_sha256": "10f1f104343cae97abf817316de3a75bacb646da6c686a2204eedcc2611f34f4",
+}
+POSITIVE_DETECTION_GATE = {
+    "gate": "positive_detection_gate", "sample_id": "test_fist_000", "sample_index": 0,
+    "image_path": Path(r"D:\FPGA_Data\HaGRIDv2\dataset\fist\fist\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg"),
+    "image_sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+}
+OLD_CALIBRATION_SAMPLE = {
+    "sample_id": "98529267-1eda-43a6-8e38-245947ecb312",
+    "image_sha256": "c116ba1d...35ee70b", "status": "NOT_USED_HISTORICAL",
+}
+STALE_LIMIT_NS = 200_000_000
+STALE_APPROVAL_SHA256 = "d8edb84849cd1f93fded902dd913e841564bb1abedbfacd7c7ecde3112e874fb"
 T29_SCORE_THRESHOLD = 0.25
 REFERENCE_STATUS = "INT8_INTEGER_FORWARD_COMPLETE_FLOAT_REFERENCE_COMPARISON_PENDING_REVIEW"
 SOURCE_SNAPSHOT = WORKTREE / "report" / "evidence" / "S4-CTRL" / "s4t26_forward_bridge_20261024_r01" / "replay_forward_bridge.py.original"
@@ -816,7 +840,7 @@ def write_runtime_blocked(out_dir: Path, started: float, preflight: dict[str, ob
     return 2
 
 
-def main() -> int:
+def _legacy_main_r09() -> int:
     """执行双路无损比对 → 冻结样本对拍 → 回放帧前向。"""
     parser = argparse.ArgumentParser(description="离线真实彩色链输入张量驱动前向桥（离线等价）")
     parser.add_argument("--run-dir", required=True, type=Path)
@@ -1256,6 +1280,699 @@ def main() -> int:
     (out_dir / "delivery_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return exit_code
+
+
+def load_rebound_goldens(run_dir: Path) -> dict[str, dict[str, object]]:
+    """按决策、T25/T29 索引与原始文件字节验证双样本材料化黄金。"""
+    manifest_path = run_dir / "golden_materialization_manifest.json"
+    verify(manifest_path, GOLDEN_MANIFEST_SHA256, "材料化黄金清单")
+    verify(REBIND_DECISION, REBIND_DECISION_SHA256, "Wong 批准的黄金改绑决策")
+    verify(T25_INDEX, T25_INDEX_RAW_SHA256, "T25 黄金索引")
+    verify(T29_REFERENCE, T29_REFERENCE_RAW_SHA256, "T29 检测参考")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("status") != "MATERIALIZED_AND_SHA_VERIFIED":
+        raise RuntimeError("材料化 manifest 状态不是 SHA 已核验")
+    decision_ref = manifest.get("decision_record", {})
+    if decision_ref.get("sha256") != REBIND_DECISION_SHA256:
+        raise RuntimeError("材料化 manifest 未绑定批准的 decision SHA")
+
+    t25 = json.loads(T25_INDEX.read_text(encoding="utf-8"))
+    t29 = json.loads(T29_REFERENCE.read_text(encoding="utf-8"))
+    manifest_goldens = manifest.get("goldens")
+    if not isinstance(manifest_goldens, list) or len(manifest_goldens) != 4:
+        raise RuntimeError("材料化 manifest 必须恰有两样本、四个 raw head 文件")
+
+    expected_gates = (RAW_HEAD_GATE, POSITIVE_DETECTION_GATE)
+    result: dict[str, dict[str, object]] = {}
+    expected_hashes = {
+        "approved_no_hand_001": {
+            "head13": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+            "head26": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+        },
+        "test_fist_000": {
+            "head13": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+            "head26": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+        },
+    }
+
+    for gate in expected_gates:
+        sample_id = str(gate["sample_id"])
+        index = int(gate["sample_index"])
+        t25_sample = next((item for item in t25.get("samples", [])
+                           if item.get("sample_index") == index and item.get("sample_id") == sample_id), None)
+        t29_sample = next((item for item in t29.get("samples", [])
+                           if item.get("sample_id") == sample_id), None)
+        if not isinstance(t25_sample, dict) or not isinstance(t29_sample, dict):
+            raise RuntimeError(f"T25/T29 缺少固定样本：{sample_id}")
+        image_path = Path(str(gate["image_path"]))
+        image_sha = verify(image_path, str(gate["image_sha256"]), f"批准样本图像 {sample_id}")
+        if str(t25_sample.get("original_input", {}).get("sha256", "")).lower() != image_sha:
+            raise RuntimeError(f"T25 样本图像 SHA 未绑定批准文件：{sample_id}")
+
+        shard = t25_sample.get("network", {}).get("compressed_shard", {})
+        shard_path = T25_SHARDS / Path(str(shard.get("path", ""))).name
+        if not shard_path.is_file():
+            raise RuntimeError(f"T25 冻结分片缺失：{shard_path}")
+        compressed = shard_path.read_bytes()
+        compressed_sha = sha256_bytes(compressed)
+        if compressed_sha != str(shard.get("sha256", "")).lower():
+            raise RuntimeError(f"T25 冻结分片 SHA 不符：{sample_id}")
+        raw_stream = zlib.decompress(compressed)
+        raw_stream_sha = sha256_bytes(raw_stream)
+        if (len(raw_stream) != int(shard.get("decompressed_bytes", -1))
+                or raw_stream_sha != str(shard.get("decompressed_sha256", "")).lower()
+                or raw_stream_sha != str(t25_sample.get("network", {}).get("raw_stream_sha256", "")).lower()):
+            raise RuntimeError(f"T25 解压整包长度或 SHA 不符：{sample_id}")
+
+        sample_heads: dict[str, dict[str, object]] = {}
+        for name, layer_index, scale, shape in (
+            ("head13", 29, 0.24267549589862975, [1, 30, 13, 13]),
+            ("head26", 36, 0.30223452951025775, [1, 30, 26, 26]),
+        ):
+            material_rows = [item for item in manifest_goldens
+                             if item.get("sample_id") == sample_id and item.get("gate") == gate["gate"]
+                             and Path(str(item.get("file", ""))).name == f"{sample_id}_{name}.bin"]
+            if len(material_rows) != 1:
+                raise RuntimeError(f"材料化清单缺失或重复 {sample_id}/{name}")
+            material = material_rows[0]
+            if material.get("name") != name:
+                raise RuntimeError(f"材料化清单 head 名称不符：{sample_id}/{name}")
+            t25_tensor = next((item for item in t25_sample.get("network", {}).get("tensors", [])
+                               if item.get("layer_index") == layer_index), None)
+            t29_tensor = t29_sample.get("head_tensors", {}).get(name)
+            if not isinstance(t25_tensor, dict) or not isinstance(t29_tensor, dict):
+                raise RuntimeError(f"T25/T29 缺少 {sample_id}/{name} 元数据")
+            if (t25_tensor.get("shape_nchw") != shape or t29_tensor.get("shape_nchw") != shape
+                    or float(t25_tensor.get("scale", -1.0)) != scale
+                    or float(t29_tensor.get("int8_scale", -1.0)) != scale):
+                raise RuntimeError(f"冻结 {sample_id}/{name} shape 或 scale 不一致")
+            offset = int(t25_tensor.get("byte_offset", -1))
+            length = int(t25_tensor.get("byte_length", -1))
+            if (offset < 0 or length <= 0 or int(t29_tensor.get("byte_offset", -2)) != offset
+                    or int(t29_tensor.get("byte_length", -2)) != length):
+                raise RuntimeError(f"冻结 {sample_id}/{name} byte offset/length 不一致")
+            expected_sha = expected_hashes[sample_id][name]
+            t25_tensor_sha = str(t25_tensor.get("tensor_sha256", "")).lower()
+            t29_tensor_sha = str(t29_tensor.get("tensor_sha256", "")).lower()
+            if t25_tensor_sha != expected_sha or t29_tensor_sha != expected_sha:
+                raise RuntimeError(f"冻结 {sample_id}/{name} T25/T29 SHA 不一致")
+            golden_rel = Path(str(material.get("file", "")))
+            golden_path = (run_dir / golden_rel).resolve()
+            if not golden_path.is_relative_to(run_dir.resolve()):
+                raise RuntimeError(f"黄金文件路径越出本 RunId：{golden_rel}")
+            raw_bytes = golden_path.read_bytes()
+            exact_slice = raw_stream[offset:offset + length]
+            actual_sha = sha256_bytes(raw_bytes)
+            if (len(exact_slice) != length or raw_bytes != exact_slice
+                    or actual_sha != expected_sha or actual_sha != str(material.get("sha256", "")).lower()
+                    or actual_sha != str(material.get("t25_tensor_sha256", "")).lower()
+                    or actual_sha != str(material.get("t29_tensor_sha256", "")).lower()
+                    or len(raw_bytes) != int(material.get("byte_length", -1))
+                    or material.get("shape_nchw") != shape or float(material.get("scale", -1.0)) != scale
+                    or str(material.get("t25_shard_sha256", "")).lower() != compressed_sha
+                    or str(material.get("t25_decompressed_stream_sha256", "")).lower() != raw_stream_sha):
+                raise RuntimeError(f"材料化文件不等于冻结 T25 byte slice：{sample_id}/{name}")
+            tensor = np.frombuffer(raw_bytes, dtype=np.int8).reshape((3, 10, shape[2], shape[3]))
+            sample_heads[name] = {"raw_int8": tensor, "scale": scale, "path": str(golden_path),
+                                  "sha256": actual_sha, "shape": list(tensor.shape)}
+
+        result[sample_id] = {
+            "gate": gate, "image_path": image_path, "image_sha256": image_sha,
+            "t25_sample": t25_sample, "t29_sample": t29_sample,
+            "expected_heads": sample_heads, "t25_shard_sha256": compressed_sha,
+            "t25_decompressed_stream_sha256": raw_stream_sha,
+        }
+    return result
+
+
+def r10_preflight(run_dir: Path) -> dict[str, object]:
+    """先验证批准、固定文件、材料化黄金、树提交与回放时间元数据。"""
+    checks: dict[str, dict[str, object]] = {}
+
+    def add(name: str, passed: bool, detail: dict[str, object]) -> None:
+        checks[name] = {"status": "PASS" if passed else "BLOCKED", "detail": detail}
+
+    w4_head = git_head(WORKTREE)
+    w4_branch = subprocess.run(["git", "branch", "--show-current"], cwd=WORKTREE, capture_output=True,
+                                check=True, text=True, encoding="utf-8").stdout.strip()
+    baseline_ok = git_is_ancestor(WORKTREE, EXPECTED_W4_BASELINE_COMMIT, w4_head)
+    dbdf_head = git_head(BOUND_T25_T29_TREE)
+    package_ancestor = git_is_ancestor(BOUND_T25_T29_TREE, TASK25_PACKAGE_COMMIT, dbdf_head)
+    frame_ancestor = git_is_ancestor(BOUND_T25_T29_TREE, TASK25_FRAME_COMMIT, dbdf_head)
+    add("fixed_baseline_and_moving_dbdf_heads", w4_branch == "stage4-infer-prep" and baseline_ok
+        and package_ancestor and frame_ancestor,
+        {"w4_head_observed_only": w4_head, "required_branch": "stage4-infer-prep",
+         "reviewed_baseline_commit": EXPECTED_W4_BASELINE_COMMIT,
+         "reviewed_baseline_is_ancestor": baseline_ok, "dbdf_head_observed_only": dbdf_head,
+         "task25_package_commit": TASK25_PACKAGE_COMMIT, "task25_package_is_ancestor": package_ancestor,
+         "task25_frame_commit": TASK25_FRAME_COMMIT, "task25_frame_is_ancestor": frame_ancestor})
+
+    hashes: dict[str, object] = {}
+    source_ok = True
+    for label, path, expected in (
+        ("S4-A contract", S4A_CONTRACT, S4A_CONTRACT_SHA256),
+        ("forward module", FORWARD_MODULE, FORWARD_MODULE_SHA256),
+        ("weight report", WEIGHT_REPORT, WEIGHT_REPORT_SHA256),
+        ("activation report", ACTIVATION_REPORT, ACTIVATION_REPORT_SHA256),
+        ("T25 index", T25_INDEX, T25_INDEX_RAW_SHA256),
+        ("T29 reference", T29_REFERENCE, T29_REFERENCE_RAW_SHA256),
+        ("D9 decoder", D9_MODULE, None), ("D6 metrics", D6_MODULE, None),
+    ):
+        actual = sha256_file(path) if path.is_file() else None
+        passed = path.is_file() and (expected is None or actual == expected)
+        hashes[label] = {"path": str(path), "expected_sha256": expected or "observed_and_recorded",
+                         "actual_sha256": actual, "status": "PASS" if passed else "BLOCKED"}
+        source_ok = source_ok and passed
+    add("frozen_source_hashes", source_ok, hashes)
+
+    try:
+        goldens = load_rebound_goldens(run_dir)
+        add("approved_decision_and_materialized_t25_t29_goldens", True,
+            {"decision_path": str(REBIND_DECISION), "decision_sha256": REBIND_DECISION_SHA256,
+             "manifest_path": str(GOLDEN_MANIFEST), "manifest_sha256": GOLDEN_MANIFEST_SHA256,
+             "gates": {sample_id: {"gate": item["gate"]["gate"],
+                                   "image_sha256": item["image_sha256"],
+                                   "heads": head_hashes(item["expected_heads"])}
+                       for sample_id, item in goldens.items()},
+             "old_calibration_sample": OLD_CALIBRATION_SAMPLE,
+             "raw_head_negative_is_not_positive_gate": True,
+             "current_darknet_control_is_not_golden_source": True})
+    except Exception as exc:
+        goldens = None
+        add("approved_decision_and_materialized_t25_t29_goldens", False,
+            {"error": f"{type(exc).__name__}: {exc}", "real_forward_allowed": False})
+
+    try:
+        binding_sha = verify(TASK25_REPLAY_BINDING, TASK25_REPLAY_BINDING_SHA256,
+                             "task-25 replay input binding")
+        replay_binding = json.loads(TASK25_REPLAY_BINDING.read_text(encoding="utf-8"))
+        frame_sha = verify(REPLAY_FRAME, REPLAY_FRAME_SHA256, "task-25 replay frame")
+        binding_ok = (replay_binding.get("source_commit") == TASK25_FRAME_COMMIT
+                      and replay_binding.get("source_frame_sha256") == frame_sha
+                      and replay_binding.get("mode") == "offline_replay"
+                      and replay_binding.get("timing_claim_scope") == "replay_only"
+                      and replay_binding.get("clock_domain") == "replay_documented_wallclock"
+                      and replay_binding.get("capture_time_available") is True
+                      and isinstance(replay_binding.get("capture_time_ns"), int)
+                      and int(replay_binding.get("source_frame_id", 0)) > 0)
+        add("task25_frame_and_replay_time_binding", binding_ok,
+            {"binding_path": str(TASK25_REPLAY_BINDING), "binding_sha256": binding_sha,
+             "frame_path": str(REPLAY_FRAME), "frame_sha256": frame_sha,
+             "source_frame_id": replay_binding.get("source_frame_id"),
+             "capture_time_available": replay_binding.get("capture_time_available"),
+             "capture_time_ns": replay_binding.get("capture_time_ns"),
+             "clock_domain": replay_binding.get("clock_domain"),
+             "injection_start_ns_used_as_capture_time": False})
+    except Exception as exc:
+        replay_binding = None
+        add("task25_frame_and_replay_time_binding", False,
+            {"error": f"{type(exc).__name__}: {exc}"})
+
+    try:
+        contract = json.loads(S4A_CONTRACT.read_text(encoding="utf-8"))
+        bindings = resolve_contract_bindings()
+        for name, item in bindings.items():
+            verify(Path(item["path"]), item["sha256"], f"S4-A {name}")
+        s4b_path = WORKTREE / "docs" / "stage4" / "s4b_shared_input_result_contract.json"
+        s4b = json.loads(s4b_path.read_text(encoding="utf-8"))
+        stale = s4b.get("result_contract", {}).get("stale_rule", {})
+        receipt_path = Path(str(stale.get("approval_reference", {}).get("receipt_path", "")))
+        receipt_sha = (sha256_file(receipt_path) if receipt_path.is_file() else None)
+        stale_ok = (int(stale.get("stale_limit_ns", -1)) == STALE_LIMIT_NS
+                    and stale.get("stale_limit_status") == "APPROVED_BY_WONG"
+                    and stale.get("approval_reference", {}).get("receipt_sha256") == STALE_APPROVAL_SHA256
+                    and receipt_sha == STALE_APPROVAL_SHA256)
+        activation = json.loads(ACTIVATION_REPORT.read_text(encoding="utf-8"))
+        activation_sources = activation.get("inputs", {})
+        producer_status = {}
+        for key in ("darknet_executable", "activation_hook_source"):
+            path_value = activation_sources.get(key)
+            expected_value = str(activation_sources.get(key + "_sha256", "")).lower()
+            path = Path(str(path_value or ""))
+            actual = sha256_file(path) if path.is_file() else None
+            producer_status[key] = {"path": str(path), "historical_expected_sha256": expected_value,
+                                    "current_sha256": actual,
+                                    "status": "MATCH" if actual == expected_value else "HISTORICAL_MISMATCH_NOT_GOLDEN_SOURCE"}
+        add("frozen_parameters_and_approved_stale_semantics", stale_ok and bool(bindings),
+            {"s4a_contract_status": contract.get("status"), "s4a_contract_sha256": S4A_CONTRACT_SHA256,
+             "parameter_bindings": bindings, "activation_report_sha256": ACTIVATION_REPORT_SHA256,
+             "activation_producer_sources": producer_status,
+             "activation_report_is_golden_source": False,
+             "darknet_producer_mismatch_is_recorded_as_history": True,
+             "stale_limit_ns": stale.get("stale_limit_ns"),
+             "stale_limit_status": stale.get("stale_limit_status"),
+             "approval_receipt_sha256": receipt_sha,
+             "actual_stale_age_evaluation": "NOT_RUN_FOR_OFFLINE_REPLAY"})
+    except Exception as exc:
+        bindings = None
+        add("frozen_parameters_and_approved_stale_semantics", False,
+            {"error": f"{type(exc).__name__}: {exc}"})
+
+    blocked = [name for name, item in checks.items() if item["status"] != "PASS"]
+    return {"task_id": "S4-T26-GOLDEN-REBIND", "bridge_version": BRIDGE_VERSION,
+            "run_id": run_dir.name, "status": "PASS" if not blocked else "BLOCKED",
+            "checks": checks, "blocking_checks": blocked, "real_forward": "NOT_RUN",
+            "goldens": goldens, "task25_replay_binding": replay_binding,
+            "contract_bindings": bindings, "generated_utc8": now_cn()}
+
+
+def load_materialized_reference_heads(item: dict[str, object]) -> dict[str, dict[str, object]]:
+    """取已验证材料化字节作为 INT8 逐值参考。"""
+    heads = item.get("expected_heads")
+    if not isinstance(heads, dict) or set(heads) != {"head13", "head26"}:
+        raise RuntimeError("材料化参考必须恰有 head13/head26")
+    return heads
+
+
+def write_r10_outputs(out_dir: Path, preflight: dict[str, object], report: dict[str, object],
+                      started: float) -> None:
+    """写入本次执行报告与机器清单，不写入 task-27 包本身。"""
+    preflight_report = dict(preflight)
+    goldens = preflight_report.pop("goldens", None)
+    if isinstance(goldens, dict):
+        preflight_report["verified_golden_summary"] = {
+            sample_id: {"gate": item["gate"]["gate"], "image_sha256": item["image_sha256"],
+                        "expected_head_sha256": head_hashes(item["expected_heads"])}
+            for sample_id, item in goldens.items()}
+    preflight_path = out_dir / "preflight_verification.json"
+    preflight_path.write_text(json.dumps(preflight_report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    report["preflight_path"] = str(preflight_path)
+    report["preflight_sha256"] = sha256_file(preflight_path)
+    report["elapsed_seconds"] = time.perf_counter() - started
+    result_path = out_dir / "replay_forward_bridge_result.json"
+    result_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    outputs = {}
+    for path in sorted(out_dir.rglob("*")):
+        if path.is_file() and path.name != "delivery_manifest.json":
+            outputs[str(path.relative_to(out_dir)).replace("\\", "/")] = {
+                "size_bytes": path.stat().st_size, "sha256": sha256_file(path)}
+    manifest = {
+        "task_id": "S4-T26-GOLDEN-REBIND", "run_id": out_dir.name,
+        "status": report["status"], "exit_code": report["exit_code"],
+        "worktree": str(WORKTREE), "baseline": report.get("baseline"),
+        "command": report.get("command"), "elapsed_seconds": report["elapsed_seconds"],
+        "source": {"path": str(Path(__file__).resolve()), "version": BRIDGE_VERSION,
+                   "sha256": sha256_file(Path(__file__).resolve())},
+        "inputs": preflight.get("checks", {}), "outputs": outputs,
+        "task27_package_generated": report.get("task27_package_generated", False),
+        "blocking_checks": report.get("blocking_checks", []),
+        "limitations": report.get("limitations", []),
+    }
+    (out_dir / "delivery_manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def main() -> int:
+    """执行已批准的双样本门；所有必需验证通过后才生成 task-27 包。"""
+    parser = argparse.ArgumentParser(description="task-26 双样本离线推理与回放证据桥")
+    parser.add_argument("--run-dir", required=True, type=Path)
+    args = parser.parse_args()
+    started = time.perf_counter()
+    out_dir = args.run_dir.resolve()
+    if out_dir != (WORKTREE / "report" / "evidence" / "S4-CTRL" / GOLDEN_RUN_ID).resolve():
+        print("[BLOCKED] r10 只接受本轮已材料化黄金的固定 RunId", flush=True)
+        return 2
+    if not out_dir.is_dir():
+        print(f"[BLOCKED] 材料化黄金 RunId 不存在：{out_dir}", flush=True)
+        return 2
+    expected_existing = {"golden", "golden_materialization_manifest.json"}
+    existing = {path.name for path in out_dir.iterdir()}
+    if existing - expected_existing:
+        print(f"[BLOCKED] RunId 已含非本轮输出，拒绝覆盖：{sorted(existing - expected_existing)}", flush=True)
+        return 2
+    expected_golden_names = {"approved_no_hand_001_head13.bin", "approved_no_hand_001_head26.bin",
+                             "test_fist_000_head13.bin", "test_fist_000_head26.bin"}
+    golden_dir = out_dir / "golden"
+    actual_golden_names = {path.name for path in golden_dir.iterdir() if path.is_file()} if golden_dir.is_dir() else set()
+    if actual_golden_names != expected_golden_names:
+        print(f"[BLOCKED] golden/ 内容不符：{sorted(actual_golden_names)}", flush=True)
+        return 2
+
+    tmp_dir = WORKTREE / "tmp" / "4" / "S4-CTRL" / out_dir.name
+    if tmp_dir.exists() and any(tmp_dir.iterdir()):
+        print(f"[BLOCKED] 隔离临时目录非空，拒绝覆盖：{tmp_dir}", flush=True)
+        return 2
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    global LOG_PATH
+    LOG_PATH = out_dir / "console.log"
+
+    preflight = r10_preflight(out_dir)
+    interpreter_probes = probe_cv2_runtimes()
+    preflight["runtime_interpreter_probes"] = interpreter_probes
+    preflight["bridge_source"] = {"path": str(Path(__file__).resolve()), "version": BRIDGE_VERSION,
+                                  "sha256": sha256_file(Path(__file__).resolve())}
+    preflight["command"] = [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]]
+    try:
+        import cv2
+        preflight["opencv"] = {"status": "AVAILABLE", "version": cv2.__version__}
+    except Exception as exc:
+        cv2 = None
+        preflight["opencv"] = {"status": "BLOCKED", "error": f"{type(exc).__name__}: {exc}"}
+    if preflight["status"] != "PASS" or cv2 is None:
+        blockers = list(preflight.get("blocking_checks", []))
+        if cv2 is None:
+            blockers.append("当前解释器无法导入 cv2")
+        preflight["blocking_checks"] = blockers
+        preflight["status"] = "BLOCKED"
+        report = {
+            "task_id": "S4-T26-GOLDEN-REBIND", "checker": "replay_forward_bridge",
+            "checker_version": BRIDGE_VERSION, "status": "BLOCKED", "exit_code": 2,
+            "generated_utc8": now_cn(), "command": preflight["command"],
+            "worktree": str(WORKTREE), "baseline": {"head_observed_only": git_head(WORKTREE),
+                                                    "branch": "stage4-infer-prep"},
+            "hardware_execution": "NOT_RUN", "real_forward": "NOT_RUN",
+            "task27_package_generated": False, "blocking_checks": blockers,
+            "checks": {}, "limitations": ["尚未执行真实前向、D9/NMS、负向对照或 PNG 检查。",
+                                           "不会生成 task-27 包；ENABLE=0、RAW G0 OPEN、P/4-D/G3/G5 NOT_RUN。"],
+        }
+        write_r10_outputs(out_dir, preflight, report, started)
+        emit("[BLOCKED] 前置材料或环境未全部通过；真实前向 NOT_RUN；不生成 task-27 包")
+        return 2
+
+    goldens = preflight["goldens"]
+    bindings = preflight["contract_bindings"]
+    replay_binding = preflight["task25_replay_binding"]
+    module = None
+    d9 = None
+    try:
+        module = load_forward_module()
+        d9 = load_d9_module()
+        activation_sha = verify(ACTIVATION_REPORT, ACTIVATION_REPORT_SHA256, "activation report 参数来源")
+        contract_sha = verify(S4A_CONTRACT, S4A_CONTRACT_SHA256, "S4-A 参数契约")
+        sections = module.parse_cfg_sections(Path(bindings["cfg"]["path"]))
+        float_layers = module.read_fused_float_layers(Path(bindings["cfg"]["path"]),
+                                                      Path(bindings["weights"]["path"]))
+        header, package_layers = module.parse_package(Path(bindings["gf8_package"]["path"]))
+        activation_scales = module.load_activation_scales(
+            ACTIVATION_REPORT, Path(bindings["cfg"]["path"]),
+            Path(bindings["weights"]["path"]), Path(bindings["calibration_list"]["path"]))
+        model_ok = (header.get("width") == 416 and header.get("height") == 416
+                    and header.get("channels") == 3 and set(package_layers) == set(float_layers)
+                    == set(activation_scales))
+    except Exception as exc:
+        preflight["checks"]["load_frozen_parameters"] = {
+            "status": "BLOCKED", "detail": {"error": f"{type(exc).__name__}: {exc}"}}
+        blockers = list(preflight.get("blocking_checks", [])) + ["load_frozen_parameters"]
+        preflight["blocking_checks"] = blockers
+        report = {"task_id": "S4-T26-GOLDEN-REBIND", "checker": "replay_forward_bridge",
+                  "checker_version": BRIDGE_VERSION, "status": "BLOCKED", "exit_code": 2,
+                  "generated_utc8": now_cn(),
+                  "command": [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]],
+                  "worktree": str(WORKTREE), "baseline": {"head_observed_only": git_head(WORKTREE),
+                                                            "branch": "stage4-infer-prep"},
+                  "hardware_execution": "NOT_RUN", "real_forward": "NOT_RUN",
+                  "task27_package_generated": False, "blocking_checks": blockers,
+                  "checks": {}, "limitations": ["冻结参数装载失败；真实前向 NOT_RUN。",
+                                                 "不生成 task-27 包；ENABLE=0、RAW G0 OPEN、P/4-D/G3/G5 NOT_RUN。"]}
+        write_r10_outputs(out_dir, preflight, report, started)
+        emit(f"[BLOCKED] 冻结参数装载失败，真实前向 NOT_RUN：{type(exc).__name__}: {exc}")
+        return 2
+    checks: dict[str, dict[str, object]] = {}
+
+    def record(name: str, ok: bool, detail: dict[str, object]) -> None:
+        checks[name] = {"status": "PASS" if ok else "BLOCKED", "detail": detail}
+        emit(f"[{checks[name]['status']}] {name}")
+
+    record("load_frozen_parameters", model_ok,
+           {"package_header": header, "layer_count": len(package_layers),
+            "activation_scale_count": len(activation_scales), "activation_report_sha256": activation_sha,
+            "s4a_contract_sha256": contract_sha,
+            "activation_report_is_golden_source": False,
+            "current_darknet_used_to_generate_golden": False})
+    if not model_ok:
+        report = {"task_id": "S4-T26-GOLDEN-REBIND", "checker": "replay_forward_bridge",
+                  "checker_version": BRIDGE_VERSION, "status": "BLOCKED", "exit_code": 2,
+                  "generated_utc8": now_cn(),
+                  "command": [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]],
+                  "worktree": str(WORKTREE), "baseline": {"head_observed_only": git_head(WORKTREE),
+                                                            "branch": "stage4-infer-prep"},
+                  "hardware_execution": "NOT_RUN", "real_forward": "NOT_RUN",
+                  "task27_package_generated": False, "blocking_checks": ["load_frozen_parameters"],
+                  "checks": checks, "limitations": ["冻结参数形状或层集合不符；真实前向 NOT_RUN。",
+                                                    "不生成 task-27 包；ENABLE=0、RAW G0 OPEN、P/4-D/G3/G5 NOT_RUN。"]}
+        write_r10_outputs(out_dir, preflight, report, started)
+        return 2
+
+    gate_outputs: dict[str, dict[str, object]] = {}
+    real_forward_ok = model_ok
+    for sample_id in (RAW_HEAD_GATE["sample_id"], POSITIVE_DETECTION_GATE["sample_id"]):
+        item = goldens[sample_id]
+        gate = item["gate"]
+        path = Path(item["image_path"])
+        sample_t29 = item["t29_sample"]
+        reference_meta = sample_t29["head_tensors"]
+        try:
+            image_bgr = cv2.imread(str(path), cv2.IMREAD_COLOR)
+            if image_bgr is None:
+                raise RuntimeError(f"OpenCV 无法读取输入图像：{path}")
+            height, width = image_bgr.shape[:2]
+            image_chw = module.load_image_chw(path, 416, 416)
+            before = time.perf_counter()
+            metrics, stats, actual_heads = capture_forward_heads(
+                module, d9, image_chw, sections, float_layers, package_layers,
+                activation_scales, reference_meta)
+            elapsed_ms = (time.perf_counter() - before) * 1000.0
+            actual_hashes = head_hashes(actual_heads)
+            expected_heads = load_materialized_reference_heads(item)
+            raw_equal, raw_comparison = compare_raw_heads(actual_heads, expected_heads)
+            saved_heads = save_head_bytes(out_dir, f"{gate['gate']}", actual_heads)
+            output: dict[str, object] = {
+                "gate": gate["gate"], "sample_id": sample_id, "sample_index": gate["sample_index"],
+                "input_path": str(path), "input_sha256": item["image_sha256"],
+                "input_shape_bgr": list(image_bgr.shape), "input_chw_shape": list(image_chw.shape),
+                "input_chw_sha256": sha256_bytes(np.ascontiguousarray(image_chw).tobytes()),
+                "raw_head_match": raw_equal, "raw_head_comparison": raw_comparison,
+                "actual_heads": saved_heads, "actual_head_sha256": actual_hashes,
+                "offline_host_elapsed_ms": elapsed_ms,
+                "metrics_and_integer_stats_role": "diagnostic_only_not_golden",
+                "metrics": metrics, "integer_stats": stats.get("integer_stats", {}),
+                "marking": {"evidence_kind": "offline_equivalent", "timing_claim_scope": "replay_only",
+                            "buffer_scope": "offline_host"},
+            }
+            if sample_id == POSITIVE_DETECTION_GATE["sample_id"]:
+                predictions, candidate_count = decode_heads_with_d9(
+                    d9, actual_heads, sample_id, width, height)
+                prediction_rows = prediction_records(predictions)
+                reference_rows = sample_t29.get("detections", [])
+                expected_candidates = int(sample_t29.get("raw_candidate_count_before_stable_nms", -1))
+                expected_after_nms = int(sample_t29.get("nms_output_box_count", -1))
+                detection_equal = (candidate_count == expected_candidates
+                                   and len(prediction_rows) == expected_after_nms
+                                   and prediction_rows == reference_rows)
+                output["d9_nms"] = {
+                    "raw_candidate_count_before_stable_nms": candidate_count,
+                    "expected_raw_candidate_count": expected_candidates,
+                    "nms_output_count": len(prediction_rows),
+                    "expected_nms_output_count": expected_after_nms,
+                    "predictions": prediction_rows, "t29_reference_predictions": reference_rows,
+                    "exact_t29_detection_match": detection_equal,
+                }
+                output["positive_detection_match"] = bool(detection_equal and raw_equal)
+                record("positive_detection_gate_forward_d9_nms",
+                       bool(detection_equal and raw_equal), output)
+                real_forward_ok = real_forward_ok and bool(detection_equal and raw_equal)
+            else:
+                output["raw_head_gate_match"] = bool(raw_equal)
+                record("raw_head_gate_forward_byte_compare", bool(raw_equal), output)
+                real_forward_ok = real_forward_ok and bool(raw_equal)
+            gate_outputs[sample_id] = output
+        except Exception as exc:
+            record(f"{gate['gate']}_forward", False,
+                   {"sample_id": sample_id, "input_path": str(path),
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "outcome": "BLOCKED; no task-27 package"})
+            real_forward_ok = False
+
+    mutation_ok = False
+    if real_forward_ok and RAW_HEAD_GATE["sample_id"] in gate_outputs:
+        try:
+            base_item = goldens[RAW_HEAD_GATE["sample_id"]]
+            base_path = Path(base_item["image_path"])
+            base_chw = module.load_image_chw(base_path, 416, 416)
+            quantized = np.asarray(module.saturate_array(module.round_away_array(
+                base_chw.astype(np.float64) / module.INPUT_SCALE)), dtype=np.int8)
+            tampered, mutation = mutate_one_input_byte(quantized)
+            roundtrip = np.asarray(module.saturate_array(module.round_away_array(
+                tampered.astype(np.float64) * module.INPUT_SCALE / module.INPUT_SCALE)), dtype=np.int8)
+            tampered_chw = tampered.astype(np.float64) * module.INPUT_SCALE
+            _, _, changed_heads = capture_forward_heads(
+                module, d9, tampered_chw, sections, float_layers, package_layers,
+                activation_scales, goldens[RAW_HEAD_GATE["sample_id"]]["t29_sample"]["head_tensors"])
+            changed_hashes = head_hashes(changed_heads)
+            baseline_hashes = gate_outputs[RAW_HEAD_GATE["sample_id"]]["actual_head_sha256"]
+            one_byte_only = int(np.count_nonzero(quantized != tampered)) == 1
+            roundtrip_exact = bool(np.array_equal(roundtrip, tampered))
+            hash_changed = changed_hashes != baseline_hashes
+            mutation_ok = one_byte_only and roundtrip_exact and hash_changed
+            record("negative_control_one_int8_input_byte",
+                   mutation_ok,
+                   {**mutation, "changed_int8_elements": int(np.count_nonzero(quantized != tampered)),
+                    "roundtrip_exact": roundtrip_exact, "baseline_head_sha256": baseline_hashes,
+                    "perturbed_head_sha256": changed_hashes, "head_hash_changed": hash_changed,
+                    "input_gate": RAW_HEAD_GATE["sample_id"]})
+        except Exception as exc:
+            record("negative_control_one_int8_input_byte", False,
+                   {"error": f"{type(exc).__name__}: {exc}"})
+    else:
+        record("negative_control_one_int8_input_byte", False,
+               {"status": "NOT_RUN", "reason": "真实 raw-head gate 未通过"})
+
+    png_ok = False
+    png_item = goldens[RAW_HEAD_GATE["sample_id"]]
+    png_path = Path(png_item["image_path"])
+    try:
+        source_pixels = cv2.imread(str(png_path), cv2.IMREAD_UNCHANGED)
+        if (source_pixels is None or source_pixels.dtype != np.uint8
+                or source_pixels.ndim != 3 or source_pixels.shape[2] != 3):
+            raise RuntimeError("approved_no_hand_001 PNG 必须是 uint8 三通道原图")
+        ok_a, encoded_a = cv2.imencode(".png", source_pixels,
+                                       [cv2.IMWRITE_PNG_COMPRESSION, PNG_COMPRESSION])
+        bgr_from_rgb = source_pixels[:, :, ::-1][:, :, ::-1].copy()
+        ok_b, encoded_b = cv2.imencode(".png", bgr_from_rgb,
+                                       [cv2.IMWRITE_PNG_COMPRESSION, PNG_COMPRESSION])
+        decoded_a = cv2.imdecode(encoded_a, cv2.IMREAD_UNCHANGED) if ok_a else None
+        decoded_b = cv2.imdecode(encoded_b, cv2.IMREAD_UNCHANGED) if ok_b else None
+        equal_a = bool(decoded_a is not None and decoded_a.shape == source_pixels.shape
+                       and decoded_a.dtype == source_pixels.dtype and np.array_equal(decoded_a, source_pixels))
+        equal_b = bool(decoded_b is not None and decoded_b.shape == source_pixels.shape
+                       and decoded_b.dtype == source_pixels.dtype and np.array_equal(decoded_b, source_pixels))
+        png_ok = bool(ok_a and ok_b and equal_a and equal_b)
+        record("png_imread_unchanged_pixel_identity", png_ok,
+               {"source_path": str(png_path), "source_sha256": png_item["image_sha256"],
+                "imread_flag": "IMREAD_UNCHANGED", "source_shape": list(source_pixels.shape),
+                "dtype": str(source_pixels.dtype), "roundtrip_a_pixel_equal": equal_a,
+                "roundtrip_b_pixel_equal": equal_b,
+                "encoded_a_sha256": sha256_bytes(encoded_a.tobytes()) if ok_a else None,
+                "encoded_b_sha256": sha256_bytes(encoded_b.tobytes()) if ok_b else None,
+                "source_pixels_are_authoritative": True})
+    except Exception as exc:
+        record("png_imread_unchanged_pixel_identity", False,
+               {"source_path": str(png_path), "error": f"{type(exc).__name__}: {exc}"})
+
+    required_before_replay = (real_forward_ok and mutation_ok and png_ok
+                              and all(item["status"] == "PASS" for item in checks.values()))
+    replay_package: dict[str, object] | None = None
+    if required_before_replay:
+        try:
+            frame_bytes = REPLAY_FRAME.read_bytes()
+            frame_bgr = np.frombuffer(frame_bytes, dtype=np.uint8).reshape((720, 1280, 3))
+            png_ok, frame_png = cv2.imencode(".png", frame_bgr,
+                                             [cv2.IMWRITE_PNG_COMPRESSION, PNG_COMPRESSION])
+            if not png_ok:
+                raise RuntimeError("task-25 回放帧 PNG 编码失败")
+            replay_png = tmp_dir / "task25_replay_frame.png"
+            replay_png.write_bytes(frame_png.tobytes())
+            replay_chw = module.load_image_chw(replay_png, 416, 416)
+            replay_meta = goldens[POSITIVE_DETECTION_GATE["sample_id"]]["t29_sample"]["head_tensors"]
+            frame_started = time.perf_counter()
+            replay_metrics, replay_stats, replay_heads = capture_forward_heads(
+                module, d9, replay_chw, sections, float_layers, package_layers,
+                activation_scales, replay_meta)
+            replay_elapsed_ms = (time.perf_counter() - frame_started) * 1000.0
+            replay_hashes = head_hashes(replay_heads)
+            replay_predictions, replay_candidate_count = decode_heads_with_d9(
+                d9, replay_heads, "task25-frozen-frame-1", 1280, 720)
+            replay_prediction_rows = prediction_records(replay_predictions)
+            replay_head_files = save_head_bytes(out_dir, "task25_replay_frame", replay_heads)
+            binding = replay_binding
+            session_id = int(sha256_bytes(out_dir.name.encode("utf-8"))[:8], 16)
+            replay_package = {
+                "task_id": "S4-T26-GOLDEN-REBIND", "frame_id": int(binding["source_frame_id"]),
+                "result_seq": 1,
+                "contract_result_key": {"session_id": session_id,
+                                         "frame_id": int(binding["source_frame_id"]), "result_seq": 1},
+                "raw_head_gate": {"sample_id": RAW_HEAD_GATE["sample_id"], "sample_index": 102,
+                                   "status": "PASS", "image_sha256": goldens[RAW_HEAD_GATE["sample_id"]]["image_sha256"],
+                                   "actual_head_sha256": gate_outputs[RAW_HEAD_GATE["sample_id"]]["actual_head_sha256"]},
+                "positive_detection_gate": {"sample_id": POSITIVE_DETECTION_GATE["sample_id"],
+                                             "sample_index": 0, "status": "PASS",
+                                             "image_sha256": goldens[POSITIVE_DETECTION_GATE["sample_id"]]["image_sha256"],
+                                             "actual_head_sha256": gate_outputs[POSITIVE_DETECTION_GATE["sample_id"]]["actual_head_sha256"],
+                                             "d9_nms": gate_outputs[POSITIVE_DETECTION_GATE["sample_id"]]["d9_nms"]},
+                "historical_calibration_sample": OLD_CALIBRATION_SAMPLE,
+                "source_replay_input_binding": dict(binding),
+                "replay_frame": {
+                    "source_kind": binding["source_kind"], "mode": binding["mode"],
+                    "timing_claim_scope": "replay_only", "source_frame_id": int(binding["source_frame_id"]),
+                    "frame_id": int(binding["source_frame_id"]),
+                    "path": str(REPLAY_FRAME), "sha256": REPLAY_FRAME_SHA256,
+                    "length_bytes": len(frame_bytes), "width": 1280, "height": 720,
+                    "stride_bytes": 3840, "pixel_format": "BGR888", "byte_order": "BGR",
+                    "capture_time_available": bool(binding["capture_time_available"]),
+                    "source_capture_time_text": binding.get("source_capture_time_text"),
+                    "source_capture_time_precision": binding.get("source_capture_time_precision"),
+                    "capture_time_ns": int(binding["capture_time_ns"]),
+                    "clock_domain": binding["clock_domain"],
+                    "timestamp_source": binding.get("timestamp_source"),
+                    "injection_start_ns": None,
+                    "injection_start_ns_is_capture_time": False,
+                    "stale_limit_ns": STALE_LIMIT_NS,
+                    "stale_limit_approval_reference_sha256": STALE_APPROVAL_SHA256,
+                    "stale_evaluation": "NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK",
+                    "head_sha256": replay_hashes, "head_files": replay_head_files,
+                    "d9": {"module_path": str(D9_MODULE), "module_sha256": sha256_file(D9_MODULE),
+                           "raw_candidate_count_before_stable_nms": replay_candidate_count,
+                           "decoded_predictions": replay_prediction_rows},
+                    "offline_host_elapsed_ms": replay_elapsed_ms,
+                    "metrics_and_integer_stats_role": "diagnostic_only_not_golden",
+                    "metrics": replay_metrics, "integer_stats": replay_stats.get("integer_stats", {}),
+                },
+                "source_bindings": {
+                    "task25_package_commit": TASK25_PACKAGE_COMMIT,
+                    "task25_frame_commit": TASK25_FRAME_COMMIT,
+                    "task25_replay_binding_path": str(TASK25_REPLAY_BINDING),
+                    "task25_replay_binding_sha256": TASK25_REPLAY_BINDING_SHA256,
+                    "decision_path": str(REBIND_DECISION), "decision_sha256": REBIND_DECISION_SHA256,
+                    "golden_manifest_path": str(GOLDEN_MANIFEST),
+                    "golden_manifest_sha256": GOLDEN_MANIFEST_SHA256,
+                },
+                "marking": {"replay_only": True, "evidence_kind": "offline_replay",
+                            "buffer_scope": "offline_host",
+                            "statement": "离线主机回放；不代表 PL、实物或实时检测输出"},
+                "limitations": ["ENABLE=0；RAW 系统 G0 OPEN；P/4-D/G3/G5 NOT_RUN；",
+                                "原校准样本 NOT_USED_HISTORICAL；负样本未替代阳性检测/显示覆盖。"],
+            }
+            record("task25_replay_frame_forward", True,
+                   {"frame_sha256": REPLAY_FRAME_SHA256, "head_sha256": replay_hashes,
+                    "prediction_count": len(replay_prediction_rows),
+                    "raw_candidate_count_before_nms": replay_candidate_count,
+                    "offline_host_elapsed_ms": replay_elapsed_ms,
+                    "capture_time_ns_is_documented_wallclock": True,
+                    "injection_start_ns_used_as_capture_time": False})
+        except Exception as exc:
+            record("task25_replay_frame_forward", False,
+                   {"error": f"{type(exc).__name__}: {exc}", "task27_package_generated": False})
+    else:
+        record("task25_replay_frame_forward", False,
+               {"status": "NOT_RUN", "reason": "前置真实门、扰动或 PNG 检查未全部通过"})
+
+    final_ok = bool(replay_package is not None and all(item["status"] == "PASS" for item in checks.values()))
+    if final_ok:
+        package_path = out_dir / "task27_replay_result_package.json"
+        package_path.write_text(json.dumps(replay_package, ensure_ascii=False, indent=2) + "\n",
+                                encoding="utf-8")
+    blockers = [name for name, item in checks.items() if item["status"] != "PASS"]
+    final_status = "PASS" if final_ok else "BLOCKED"
+    report = {
+        "task_id": "S4-T26-GOLDEN-REBIND", "checker": "replay_forward_bridge",
+        "checker_version": BRIDGE_VERSION, "status": final_status,
+        "exit_code": 0 if final_ok else 2, "generated_utc8": now_cn(),
+        "command": [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]],
+        "worktree": str(WORKTREE), "baseline": {"head_observed_only": git_head(WORKTREE),
+                                                  "branch": "stage4-infer-prep"},
+        "hardware_execution": "NOT_RUN", "checks": checks,
+        "raw_head_gate": gate_outputs.get(RAW_HEAD_GATE["sample_id"], {"status": "NOT_RUN"}),
+        "positive_detection_gate": gate_outputs.get(POSITIVE_DETECTION_GATE["sample_id"], {"status": "NOT_RUN"}),
+        "task27_package_generated": final_ok,
+        "task27_package_path": str(out_dir / "task27_replay_result_package.json") if final_ok else None,
+        "blocking_checks": blockers,
+        "limitations": ["结果仅为 replay_only/offline_host，不声明板级、实时或阶段验收结论。",
+                        "当前 Darknet r03/r04 失败证据保留；未被用作黄金来源。",
+                        "原校准样本 NOT_USED_HISTORICAL；负样本 raw-head 门不替代阳性检测/显示覆盖。",
+                        "ENABLE=0、RAW G0 OPEN、P/4-D/G3/G5 NOT_RUN。"],
+    }
+    write_r10_outputs(out_dir, preflight, report, started)
+    return 0 if final_ok else 2
 
 
 if __name__ == "__main__":

@@ -7,17 +7,29 @@ import platform
 import re
 import subprocess
 import sys
+import zlib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
 
 CN = timezone(timedelta(hours=8))
-CHECKER_VERSION = "r12"
+CHECKER_VERSION = "r13"
 WORKTREE = Path(r"D:\codex-worktrees\w4")
 DBDF = Path(r"D:\codex-worktrees\dbdf")
 EXPECTED_W4_BASELINE_COMMIT = "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e"
 HISTORIC_R10_EXPECTED_W4_HEAD = "33988ed7e8a97a9d5395b8cfd136a327c37d7dc9"
+GOLDEN_RUN_ID = "s4t26_golden_rebind_20261026_r02"
+GOLDEN_RUN_DIR = WORKTREE / "report/evidence/S4-CTRL" / GOLDEN_RUN_ID
+GOLDEN_MANIFEST = GOLDEN_RUN_DIR / "golden_materialization_manifest.json"
+GOLDEN_MANIFEST_SHA256 = "47e4cc362d174f1c8eb451197554e5978cd818032c3461af655f959f9fa108c6"
+DECISION_RECORD = WORKTREE / "docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md"
+DECISION_RECORD_SHA256 = "819c9054be9bc3232d51666bc9e52e112fc3932b1d3a165d36040f26744356e1"
+T25_INDEX_SHA256 = "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72"
+T29_REFERENCE_SHA256 = "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33"
+T29_CONTROL_COMPARISON = WORKTREE / "report/evidence/S4-CTRL/s4t26_golden_control_20261026_r04/control_comparison.json"
+T29_CONTROL_COMPARISON_SHA256 = "b4200da6e8a0e71fa539639f4114273cbf6aaaa8fcd2447b70c1e4ceb61e2589"
+MAIN_T25_SHARDS = Path(r"D:\FPGA_Competition\report\evidence\S2A-T25\tensors")
 TASK25_PACKAGE = Path("report/evidence/S3-T05/t05_replay_binding_20261025_r01")
 TASK25_MANIFEST_SOURCE_COMMIT = "9dcb0229cdd5fdd968f91dfd200f1df92acaa9cd"
 TASK25_PACKAGE_COMMIT = "584b07664e88a18bf786ba9565a138861e136d76"
@@ -345,50 +357,238 @@ def verify_task25_package() -> dict[str, Any]:
     }
 
 
-def verify_frozen_sample() -> dict[str, Any]:
-    require_file(REFERENCE_RUN, "冻结参考前向记录")
-    run_data = load_json(REFERENCE_RUN)
-    require_file(S4A_CONTRACT, "S4-A 冻结契约")
-    contract = load_json(S4A_CONTRACT)
-    bindings = {item.get("id"): item for item in contract.get("upstream_bindings", [])}
-    calibration_binding = bindings.get("s2a_external_calibration_list")
-    if not calibration_binding or not calibration_binding.get("path"):
-        raise MissingInputError("S4-A 缺少 s2a_external_calibration_list 路径绑定")
-    calibration = Path(calibration_binding["path"])
-    require_file(calibration, "冻结校准清单")
-    lines = [line.strip().replace("\\", "/") for line in calibration.read_text(encoding="utf-8").splitlines() if line.strip()]
-    listed_path = Path(lines[0]) if lines else Path()
-    ref_rows = [row for row in run_data.get("samples", []) if row.get("sample_index") == 0]
-    ref = ref_rows[0] if len(ref_rows) == 1 else {}
-    sample_path = Path(str(ref.get("path", "")))
-    sample_sha = sha256_file(sample_path) if sample_path.is_file() else None
-    raw_heads = next((ref.get(key) for key in ("head_tensors", "heads", "raw_heads") if ref.get(key)), None)
+def verify_rebound_goldens() -> dict[str, Any]:
+    """核验批准的双样本决策与 T25/T29 原始张量材料化结果。"""
+    require_file(DECISION_RECORD, "批准的黄金来源与样本改绑决策")
+    decision_sha = sha256_file(DECISION_RECORD)
+    decision_text = DECISION_RECORD.read_text(encoding="utf-8")
+    if decision_sha != DECISION_RECORD_SHA256:
+        raise IntegrityError("decision 记录 SHA 与固定批准记录不符")
+    required_decision_text = (
+        "当前 Darknet/hook 未复现 T29，不作为 task-26 黄金来源",
+        "NOT_USED_HISTORICAL",
+        "负样本不得替代阳性检测/显示覆盖",
+        "raw_head_gate",
+        "positive_detection_gate",
+    )
+    missing_decision_text = [value for value in required_decision_text if value not in decision_text]
+    if missing_decision_text:
+        raise IntegrityError(f"decision 未明确记录所需裁决：{missing_decision_text}")
+
+    require_file(GOLDEN_MANIFEST, "冻结 head 材料化清单")
+    manifest_sha = sha256_file(GOLDEN_MANIFEST)
+    if manifest_sha != GOLDEN_MANIFEST_SHA256:
+        raise IntegrityError("黄金材料化清单 SHA 与固定 RunId 不符")
+    manifest = load_json(GOLDEN_MANIFEST)
+    if manifest.get("run_id") != GOLDEN_RUN_ID or manifest.get("status") != "MATERIALIZED_AND_SHA_VERIFIED":
+        raise IntegrityError("材料化清单 RunId/status 不匹配")
+    if manifest.get("decision_record") != {
+        "path": "docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md",
+        "sha256": decision_sha,
+    }:
+        raise IntegrityError("材料化清单未绑定当前 decision SHA")
+    if manifest.get("gates") != {
+        "raw_head_gate": "approved_no_hand_001",
+        "positive_detection_gate": "test_fist_000",
+        "negative_gate_cannot_replace_positive_detection_or_display_coverage": True,
+    }:
+        raise IntegrityError("材料化清单双样本门绑定不匹配")
+    if manifest.get("old_calibration", {}).get("status") != "NOT_USED_HISTORICAL":
+        raise IntegrityError("旧校准样本未明确标为 NOT_USED_HISTORICAL")
+    if (manifest.get("old_calibration", {}).get("sample_id")
+            != "98529267-1eda-43a6-8e38-245947ecb312"
+            or manifest.get("old_calibration", {}).get("sha256") != "c116ba1d...35ee70b"):
+        raise IntegrityError("旧校准样本历史身份/SHA 注记不匹配")
+
     t25_path = WORKTREE / "report/evidence/S2A-T25/cpu_layer_golden_index.json"
-    require_file(t25_path, "S2A-T25 黄金索引")
+    t29_path = WORKTREE / "report/evidence/S2A-T29/cpu_decode_nms_reference.json"
+    require_file(t25_path, "T25 冻结索引")
+    require_file(t29_path, "T29 冻结检测/NMS 参考")
+    if sha256_file(t25_path) != T25_INDEX_SHA256 or sha256_file(t29_path) != T29_REFERENCE_SHA256:
+        raise IntegrityError("T25/T29 冻结索引字节 SHA 不匹配")
+    declared_sources = manifest.get("frozen_sources", {})
+    if (declared_sources.get("t25_index") != {
+            "path": "report/evidence/S2A-T25/cpu_layer_golden_index.json",
+            "sha256": T25_INDEX_SHA256,
+        }
+            or declared_sources.get("t29_reference") != {
+                "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+                "sha256": T29_REFERENCE_SHA256,
+            }
+            or declared_sources.get("source_mutation") != "NONE"):
+        raise IntegrityError("材料化清单的 T25/T29 来源绑定不匹配")
     t25 = load_json(t25_path)
-    t25_shas = {str(row.get("original_input", {}).get("sha256", "")).lower()
-                for row in t25.get("samples", []) if isinstance(row, dict)}
-    return {
-        "reference_run": {"path": str(REFERENCE_RUN), "expected_sha256": REFERENCE_RUN_SHA256,
-                          "actual_sha256": sha256_file(REFERENCE_RUN),
-                          "status": run_data.get("status")},
-        "sample_index": 0, "sample_path": str(sample_path), "sample_sha256": sample_sha,
-        "reference_record_sha256": ref.get("sha256"),
-        "calibration_list_first_entry": lines[0] if lines else None,
-        "sample_path_matches_calibration_list": sample_path.as_posix().lower() == listed_path.as_posix().lower(),
-        "history_record_count": len(ref_rows), "history_fields": sorted(ref.keys()),
-        "independent_raw_head13_head26_available": (isinstance(raw_heads, dict)
-        and set(raw_heads) == {"head13", "head26"}
-        and str(ref.get("sha256", "")).lower() == sample_sha
-        and sample_path.as_posix().lower() == listed_path.as_posix().lower()),
-        "matching_t25_sample_sha_available": sample_sha in t25_shas,
-        "history_metrics_or_integer_stats_accepted_as_raw_heads": False,
-        "head_bindings_from_existing_t29_reference": {
-            "head13": {"shape_nchw": [1, 30, 13, 13], "scale": 0.24267549589862975,
-                       "length_bytes": 5070, "yolo_layer_index": 30, "source_convolution_layer_index": 29},
-            "head26": {"shape_nchw": [1, 30, 26, 26], "scale": 0.30223452951025775,
-                       "length_bytes": 20280, "yolo_layer_index": 37, "source_convolution_layer_index": 36},
+    t29 = load_json(t29_path)
+    expected_samples = {
+        "approved_no_hand_001": {
+            "gate": "raw_head_gate", "sample_index": 102,
+            "image_path": r"D:\FPGA_Data\HaGRIDv2\user_no_hand\20260915_friend_001.png",
+            "image_sha256": "10f1f104343cae97abf817316de3a75bacb646da6c686a2204eedcc2611f34f4",
+            "shard_sha256": "50910134351acd1d8ab70ffd7129a13a0553440316efee572f34fceb5e6f79d6",
+            "stream_sha256": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69",
+            "heads": {
+                "head13": {"sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+                           "shape": [1, 30, 13, 13], "scale": 0.24267549589862975,
+                           "offset": 10772736, "length": 5070},
+                "head26": {"sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+                           "shape": [1, 30, 26, 26], "scale": 0.30223452951025775,
+                           "offset": 11361870, "length": 20280},
+            },
         },
+        "test_fist_000": {
+            "gate": "positive_detection_gate", "sample_index": 0,
+            "image_path": r"D:\FPGA_Data\HaGRIDv2\dataset\fist\fist\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+            "image_sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+            "shard_sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+            "stream_sha256": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80",
+            "heads": {
+                "head13": {"sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+                           "shape": [1, 30, 13, 13], "scale": 0.24267549589862975,
+                           "offset": 10772736, "length": 5070},
+                "head26": {"sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+                           "shape": [1, 30, 26, 26], "scale": 0.30223452951025775,
+                           "offset": 11361870, "length": 20280},
+            },
+        },
+    }
+    if not isinstance(manifest.get("goldens"), list) or len(manifest["goldens"]) != 4:
+        raise IntegrityError("材料化清单未包含且仅包含四个 head 文件")
+    entries_by_key = {
+        (row.get("sample_id"), Path(str(row.get("file", ""))).stem.removeprefix(
+            f"{row.get('sample_id', '')}_")): row
+        for row in manifest["goldens"] if isinstance(row, dict)
+    }
+    if len(entries_by_key) != 4:
+        raise IntegrityError("材料化清单存在重复或非法 head 项")
+    t25_samples = {(row.get("sample_index"), row.get("sample_id")): row
+                   for row in t25.get("samples", []) if isinstance(row, dict)}
+    t29_samples = {row.get("sample_id"): row
+                   for row in t29.get("samples", []) if isinstance(row, dict)}
+    verified_samples: dict[str, Any] = {}
+    for sample_id, expected in expected_samples.items():
+        sample = t25_samples.get((expected["sample_index"], sample_id))
+        reference = t29_samples.get(sample_id)
+        if not isinstance(sample, dict) or not isinstance(reference, dict):
+            raise MissingInputError(f"T25/T29 缺少冻结样本记录：{sample_id}")
+        if str(sample.get("original_input", {}).get("sha256", "")).lower() != expected["image_sha256"]:
+            raise IntegrityError(f"T25 样本图像 SHA 绑定不匹配：{sample_id}")
+        image_path = Path(expected["image_path"])
+        require_file(image_path, f"冻结样本图像 {sample_id}")
+        image_sha = sha256_file(image_path)
+        if image_sha != expected["image_sha256"]:
+            raise IntegrityError(f"冻结样本图像 SHA 不匹配：{sample_id}")
+        shard_record = sample.get("network", {}).get("compressed_shard", {})
+        if shard_record.get("sha256") != expected["shard_sha256"]:
+            raise IntegrityError(f"T25 分片记录 SHA 不匹配：{sample_id}")
+        shard_path = MAIN_T25_SHARDS / Path(str(shard_record.get("path", ""))).name
+        require_file(shard_path, f"T25 冻结压缩分片 {sample_id}")
+        compressed = shard_path.read_bytes()
+        compressed_sha = sha256_bytes(compressed)
+        if compressed_sha != expected["shard_sha256"] or len(compressed) != shard_record.get("compressed_bytes"):
+            raise IntegrityError(f"T25 压缩分片字节 SHA/长度不匹配：{sample_id}")
+        try:
+            raw_stream = zlib.decompress(compressed)
+        except zlib.error as exc:
+            raise IntegrityError(f"T25 分片无法解压：{sample_id}: {exc}") from exc
+        raw_sha = sha256_bytes(raw_stream)
+        if (raw_sha != expected["stream_sha256"]
+                or raw_sha != shard_record.get("decompressed_sha256")
+                or raw_sha != sample.get("network", {}).get("raw_stream_sha256")
+                or len(raw_stream) != shard_record.get("decompressed_bytes")):
+            raise IntegrityError(f"T25 解压整流 SHA/长度不匹配：{sample_id}")
+        verified_heads = {}
+        for name, head_expected in expected["heads"].items():
+            t25_tensor = next((row for row in sample.get("network", {}).get("tensors", [])
+                               if row.get("layer_index") == (29 if name == "head13" else 36)), None)
+            t29_tensor = reference.get("head_tensors", {}).get(name)
+            if not isinstance(t25_tensor, dict) or not isinstance(t29_tensor, dict):
+                raise MissingInputError(f"T25/T29 缺少 {sample_id} {name} 定义")
+            if (t25_tensor.get("shape_nchw") != head_expected["shape"]
+                    or t25_tensor.get("scale") != head_expected["scale"]
+                    or t25_tensor.get("byte_offset") != head_expected["offset"]
+                    or t25_tensor.get("byte_length") != head_expected["length"]
+                    or t25_tensor.get("tensor_sha256") != head_expected["sha256"]
+                    or t29_tensor.get("shape_nchw") != head_expected["shape"]
+                    or t29_tensor.get("int8_scale") != head_expected["scale"]
+                    or t29_tensor.get("byte_offset") != head_expected["offset"]
+                    or t29_tensor.get("byte_length") != head_expected["length"]
+                    or t29_tensor.get("tensor_sha256") != head_expected["sha256"]):
+                raise IntegrityError(f"T25/T29 张量元数据不匹配：{sample_id} {name}")
+            entry = entries_by_key.get((sample_id, name))
+            expected_relpath = f"golden/{sample_id}_{name}.bin"
+            if (not isinstance(entry, dict) or entry.get("gate") != expected["gate"]
+                    or entry.get("sample_index") != expected["sample_index"]
+                    or entry.get("name") != name
+                    or entry.get("file") != expected_relpath
+                    or entry.get("source_image_path") != str(image_path)
+                    or entry.get("source_image_sha256") != expected["image_sha256"]
+                    or entry.get("sha256") != head_expected["sha256"]
+                    or entry.get("shape_nchw") != head_expected["shape"]
+                    or entry.get("scale") != head_expected["scale"]
+                    or entry.get("byte_offset") != head_expected["offset"]
+                    or entry.get("byte_length") != head_expected["length"]
+                    or entry.get("t25_shard_path") != shard_record.get("path")
+                    or entry.get("t25_shard_sha256") != expected["shard_sha256"]
+                    or entry.get("t25_decompressed_stream_sha256") != expected["stream_sha256"]
+                    or entry.get("t25_tensor_sha256") != head_expected["sha256"]
+                    or entry.get("t29_tensor_sha256") != head_expected["sha256"]):
+                raise IntegrityError(f"材料化清单绑定错误：{sample_id} {name}")
+            golden_path = GOLDEN_RUN_DIR / expected_relpath
+            require_file(golden_path, f"材料化 raw {name} {sample_id}")
+            golden_bytes = golden_path.read_bytes()
+            start = head_expected["offset"]
+            expected_bytes = raw_stream[start:start + head_expected["length"]]
+            if (len(golden_bytes) != head_expected["length"]
+                    or sha256_bytes(golden_bytes) != head_expected["sha256"]
+                    or golden_bytes != expected_bytes):
+                raise IntegrityError(f"材料化文件不是 T25 原始切片或 SHA 错误：{sample_id} {name}")
+            verified_heads[name] = {"path": str(golden_path), "sha256": sha256_bytes(golden_bytes),
+                                    "shape_nchw": head_expected["shape"], "scale": head_expected["scale"],
+                                    "byte_offset": start, "byte_length": len(golden_bytes),
+                                    "byte_identical_to_t25_slice": True,
+                                    "t25_tensor_sha256": t25_tensor["tensor_sha256"],
+                                    "t29_tensor_sha256": t29_tensor["tensor_sha256"]}
+        verified_samples[sample_id] = {
+            "gate": expected["gate"], "sample_index": expected["sample_index"],
+            "image_path": str(image_path), "image_sha256": image_sha,
+            "compressed_shard_sha256": compressed_sha, "decompressed_stream_sha256": raw_sha,
+            "heads": verified_heads,
+        }
+    return {
+        "status": "PASS", "decision_record": {"path": str(DECISION_RECORD), "sha256": decision_sha},
+        "materialization_manifest": {"path": str(GOLDEN_MANIFEST), "sha256": manifest_sha},
+        "source_indexes": {"t25_index_sha256": sha256_file(t25_path),
+                           "t29_reference_sha256": sha256_file(t29_path)},
+        "gates": verified_samples,
+        "old_calibration_sample": {"sample_id": "98529267-1eda-43a6-8e38-245947ecb312",
+                                    "sha256": "c116ba1d...35ee70b", "status": "NOT_USED_HISTORICAL"},
+        "source_policy": "当前 Darknet/hook 控制未复现 T29；只消费 T25/T29 冻结张量，不以当前 Darknet 生成黄金",
+    }
+
+
+def verify_darknet_control_not_golden() -> dict[str, Any]:
+    """确认历史 r04 Darknet 对拍失败并据此排除其黄金来源资格。"""
+    require_file(T29_CONTROL_COMPARISON, "r04 Darknet/T29 控制失败证据")
+    actual_sha = sha256_file(T29_CONTROL_COMPARISON)
+    if actual_sha != T29_CONTROL_COMPARISON_SHA256:
+        raise IntegrityError("r04 Darknet 控制对拍证据 SHA 变化")
+    comparison = load_json(T29_CONTROL_COMPARISON)
+    layers = comparison.get("layers", {})
+    expected = {"29": 2929, "36": 10358}
+    observed = {key: layers.get(key, {}).get("mismatch_count") for key in expected}
+    valid = (comparison.get("status") == "BLOCKED_MISMATCH"
+             and comparison.get("all_control_heads_byte_identical") is False
+             and comparison.get("next_step_allowed_only_if_pass") is False
+             and observed == expected
+             and all(layers.get(key, {}).get("byte_equal") is False for key in expected))
+    if not valid:
+        raise IntegrityError("r04 控制失败状态/差异数不再匹配")
+    return {
+        "status": "PASS", "run_id": comparison.get("run_id"),
+        "comparison_sha256": actual_sha, "producer_exe_sha256": comparison.get("producer_exe_sha256"),
+        "producer_hook_sha256": comparison.get("producer_hook_sha256"),
+        "layers": observed, "all_control_heads_byte_identical": False,
+        "conclusion": "Darknet 控制未复现 T29，当前 Darknet/hook 不作为黄金来源",
     }
 
 
@@ -460,27 +660,22 @@ def main() -> int:
                   {"reason": f"task-25 固定输入无法完整核验：{type(exc).__name__}: {exc}"})
 
     try:
-        frozen_sample = verify_frozen_sample()
-        if frozen_sample["sample_sha256"] is None:
-            sample_status = "BLOCKED"
-        else:
-            sample_status = ("PASS" if frozen_sample["reference_run"]["actual_sha256"] == REFERENCE_RUN_SHA256
-                             and frozen_sample["sample_sha256"] == frozen_sample["reference_record_sha256"]
-                             and frozen_sample["sample_path_matches_calibration_list"] else "FAIL")
-        add_check(checks, "frozen_calibration_sample_identity", sample_status, frozen_sample)
-        if not frozen_sample["independent_raw_head13_head26_available"]:
-            add_check(checks, "frozen_calibration_raw_head_oracle", "BLOCKED",
-                      {"reason": "样本索引 0 记录没有绑定同一 SHA 的独立 raw head13/head26 黄金",
-                       "sample_path": frozen_sample["sample_path"], "sample_sha256": frozen_sample["sample_sha256"],
-                       "history_fields": frozen_sample["history_fields"],
-                       "matching_t25_sample_sha_available": frozen_sample["matching_t25_sample_sha_available"]})
-        else:
-            add_check(checks, "frozen_calibration_raw_head_oracle", "PASS", frozen_sample)
-    except (MissingInputError, OSError, KeyError, json.JSONDecodeError, RuntimeError) as exc:
-        add_check(checks, "frozen_calibration_sample_identity", "BLOCKED",
-                  {"reason": f"冻结样本或黄金输入无法核验：{type(exc).__name__}: {exc}"})
-        add_check(checks, "frozen_calibration_raw_head_oracle", "BLOCKED",
-                  {"reason": "冻结样本或参考前向记录缺失，无法取得独立 raw head13/head26 黄金"})
+        rebound_goldens = verify_rebound_goldens()
+        add_check(checks, "approved_rebound_gate_goldens", "PASS", rebound_goldens)
+    except (MissingInputError, IntegrityError, OSError, KeyError, json.JSONDecodeError, RuntimeError) as exc:
+        add_check(checks, "approved_rebound_gate_goldens", "BLOCKED",
+                  {"reason": f"批准样本或 T25/T29 材料化黄金无法完整核验：{type(exc).__name__}: {exc}",
+                   "raw_head_gate": "approved_no_hand_001/sample_102",
+                   "positive_detection_gate": "test_fist_000/sample_000",
+                   "legacy_calibration_sample_status": "NOT_USED_HISTORICAL"})
+
+    try:
+        control = verify_darknet_control_not_golden()
+        add_check(checks, "darknet_control_not_golden_source", "PASS", control)
+    except (MissingInputError, IntegrityError, OSError, KeyError, json.JSONDecodeError, RuntimeError) as exc:
+        add_check(checks, "darknet_control_not_golden_source", "BLOCKED",
+                  {"reason": f"r04 控制失败证据无法确认：{type(exc).__name__}: {exc}",
+                   "required_interpretation": "Darknet 控制未复现 T29，不作为黄金来源"})
 
     try:
         probes = probe_cv2()
@@ -506,7 +701,7 @@ def main() -> int:
                                        source_text, re.MULTILINE))
         pin_detail = {"bridge_source_sha256": sha256_file(BRIDGE_SOURCE),
                       "bridge_version": bridge_version.group(1) if bridge_version else None,
-                      "expected_bridge_version": "r09",
+                      "expected_bridge_version": "r10",
                       "task_w4_head_observed_only": w4_head,
                       "dbdf_head_observed_only": dbdf_head,
                       "task25_package_commit": TASK25_PACKAGE_COMMIT,
@@ -517,7 +712,7 @@ def main() -> int:
                       "frame_commit_is_ancestor": frame_ancestor,
                       "legacy_head_pins_present": old_head_pins,
                       "interpretation": "w4 与 dbdf HEAD 只记录观察值；task-25 包提交和帧提交固定，并分别要求为当前 dbdf HEAD 的祖先"}
-        pin_ok = (pin_detail["bridge_version"] == "r09"
+        pin_ok = (pin_detail["bridge_version"] == "r10"
                   and pin_detail["bridge_package_commit"] == TASK25_PACKAGE_COMMIT
                   and pin_detail["bridge_frame_commit"] == TASK25_FRAME_COMMIT
                   and package_ancestor and frame_ancestor and not old_head_pins)
@@ -553,9 +748,14 @@ def main() -> int:
         raise RuntimeError(status_result.stderr.decode("utf-8", errors="replace"))
     status_lines = status_result.stdout.decode("utf-8", errors="replace").splitlines()
     observed_dirty = {line[3:].replace("\\", "/") for line in status_lines if len(line) >= 4}
-    own_prefix = "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r"
+    own_prefixes = (
+        "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r",
+        "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r",
+    )
+    own_paths = {"docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md"}
     observed_preexisting = {path for path in observed_dirty
-                            if path not in TASK_OWNED_UNCOMMITTED_PATHS and not path.startswith(own_prefix)}
+                            if path not in TASK_OWNED_UNCOMMITTED_PATHS and path not in own_paths
+                            and not path.startswith(own_prefixes)}
     artifact_hashes = {}
     for relpath, expected_sha in PREEXISTING_ARTIFACT_SHA256.items():
         path = WORKTREE / relpath
@@ -581,7 +781,7 @@ def main() -> int:
     status = "FAIL" if failures else ("BLOCKED" if blockers else "PASS")
     exit_code = 1 if failures else (2 if blockers else 0)
     out = {
-        "task_id": "S4-CODEX-T26-OFFLINE", "task_name": "阶段4 task-26 离线真实推理与回放结果包 G0",
+        "task_id": "S4-T26-GOLDEN-REBIND", "task_name": "阶段4 task-26 黄金来源改绑 G0",
         "checker_version": CHECKER_VERSION,
         "run_id": args.run_id, "status": status, "exit_code": exit_code,
         "generated_utc8": datetime.now(CN).isoformat(timespec="seconds"),
@@ -591,7 +791,8 @@ def main() -> int:
                         "platform": platform.platform(), "numpy_probe_not_needed": True,
                         "cv2_probe_count": len(probes)},
         "checks": checks, "blocking_reasons": blockers, "failures": failures,
-        "execution": {"real_frozen_sample_forward": "NOT_RUN", "replay_frame_forward": "NOT_RUN",
+        "execution": {"sample_102_raw_head_forward": "NOT_RUN", "sample_000_positive_detection_forward": "NOT_RUN",
+                      "replay_frame_forward": "NOT_RUN",
                       "raw_head13_head26_capture_or_compare": "NOT_RUN", "d9_decode_nms": "NOT_RUN",
                       "negative_controls": "NOT_RUN", "png_imread_unchanged_pixel_identity": "NOT_RUN",
                       "hardware_vivado_jtag_com4": "NOT_RUN"},
@@ -599,6 +800,9 @@ def main() -> int:
         "limitations": [
             "此 RunId 仅记录 G0 输入核验；未产生真实网络推理、检测或任务-27/28 可消费的冻结推理结果包。",
             "task-25 单帧只作离线回放输入；其秒级文档墙钟时间不是 PS 单调时钟，也不提供实时帧周期。",
+            "当前 Darknet/hook 控制未复现 T29；不作为黄金来源，r03/r04 失败证据保持原样。",
+            "approved_no_hand_001 仅关闭 raw-head 门；阳性检测/显示覆盖单独由 test_fist_000 承担。",
+            "原校准图 98529267-1eda-43a6-8e38-245947ecb312.jpg 标记 NOT_USED_HISTORICAL。",
             "s4-shared-io r06 仍为 DRAFT_PENDING_REVIEW；ENABLE=0，RAW 系统 G0 未闭合。",
             "阶段3、板卡、JTAG、COM4、下载、烧录及硬件会话均未访问。",
             "既有 12 个 ELF/MAP 未修改、未删除、未暂存；本轮开始时 .codex/STATE.md 的既有差异保持原样。",
@@ -615,6 +819,9 @@ def main() -> int:
         "inputs": {"s4a_contract_sha256": optional_sha256_file(S4A_CONTRACT),
                    "activation_report_sha256": optional_sha256_file(ACTIVATION_REPORT),
                    "reference_run_sha256": optional_sha256_file(REFERENCE_RUN),
+                   "golden_materialization_manifest_sha256": optional_sha256_file(GOLDEN_MANIFEST),
+                   "decision_record_sha256": optional_sha256_file(DECISION_RECORD),
+                   "darknet_control_comparison_sha256": optional_sha256_file(T29_CONTROL_COMPARISON),
                    "task25_package_manifest_sha256": task25.get("package_manifest_sha256") if task25 else None,
                    "task25_binding_sha256": task25.get("binding_sha256") if task25 else None,
                    "task25_frame_sha256": task25.get("frame", {}).get("disk_sha256") if task25 else None,

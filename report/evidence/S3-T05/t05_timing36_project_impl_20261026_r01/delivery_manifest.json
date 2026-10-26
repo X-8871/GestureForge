@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "source_commit": "5c6b2034862cc96f4f2f3b9929d874e034ba4af3",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只验证Vivado工程内时序约束和实现结果，不定义、修改或冻结阶段接口。",
+  "tool_versions": {
+    "Vivado": "2026.1 Build 6511674",
+    "device": "xc7z020clg400-2",
+    "license": "BASIC；未读取许可证文件内容"
+  },
+  "limitations": [
+    "R01在XDC对象查询前置失败；未综合、未实现、未生成bitstream。",
+    "本失败不代表实际设计或后续R02实现结果。"
+  ],
+  "run_id": "t05_timing36_project_impl_20261026_r01",
+  "evidence_dir": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/README.md",
+      "sha256": "80bf95424b68e7e4466a3bc174b7441a058eddfbd2e4447a2ea66a8a56bbbe28",
+      "role": "artifact",
+      "keep_reason": "说明安全失败路径及复现入口"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/run_project_impl.tcl",
+      "sha256": "3f1875e6643eecc5b4156b53cf92f8704de33088f65dcf9784d0d7196c7ce46f",
+      "role": "source",
+      "keep_reason": "记录隔离工程查询前置与失败门禁"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/stdout.txt",
+      "sha256": "30c35916d0e08535bf16200b964e69482546270bdc44d767b0b880093cb409ce",
+      "role": "result",
+      "keep_reason": "Vivado原始stdout"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "Vivado原始stderr"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/exit_code.txt",
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04",
+      "role": "result",
+      "keep_reason": "Vivado进程退出码"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/source_provenance.json",
+      "sha256": "d41767ed8619e8448a68d335af113f56cac5493823d6b55c896a72b203e39c79",
+      "role": "artifact",
+      "keep_reason": "绑定基线XPR/IP XDC与工具结果"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/validate_attempt.py",
+      "sha256": "7dc8d224e9da4b8f30b6bea27072611a70930f5527dd81c856c1c60d6ed38e0e",
+      "role": "source",
+      "keep_reason": "验证输入哈希及在综合前安全停止"
+    },
+    {
+      "path": "tmp/s3r06/t04_sof_fix_20261020_r01/project/ov5640_single.xpr",
+      "sha256": "f7606f5b3a53a852b88f3494c35e552aaa3861a7270b71354e8e9a73796c2087",
+      "role": "source",
+      "keep_reason": "隔离构建的原始XPR基线"
+    },
+    {
+      "path": "tmp/s3r06/t04_sof_fix_20261020_r01/vendor_src/my_ip/rgb2dvi_v1_3/src/rgb2dvi_clocks.xdc",
+      "sha256": "e6ceadc3fcfcf59fe1f5eaf13f8f94d862e9513ad6cd2e850a035c312c8d2002",
+      "role": "source",
+      "keep_reason": "本地IP仓库原始时钟XDC基线"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Vivado project XDC query attempt",
+      "status": "FAIL",
+      "command": "vivado.bat -mode batch -nojournal -source report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/run_project_impl.tcl",
+      "exit_code": 1,
+      "reason": "get_files 查询未注册的 IP XDC 返回 0，脚本在 reset_run/综合前停止。"
+    },
+    {
+      "name": "Failure branch and input binding assertions",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B report/evidence/S3-T05/t05_timing36_project_impl_20261026_r01/validate_attempt.py",
+      "exit_code": 0,
+      "reason": "确认原始输入哈希、查询失败标记、无综合/实现开始标记和数值退出码。"
+    },
+    {
+      "name": "Implementation and timing report",
+      "status": "BLOCKED",
+      "command": "修正查询策略后在新的 RunId 中完整生成 targets、重跑综合/路由",
+      "exit_code": null,
+      "reason": "R01 未启动综合或 implementation，后续由独立 R02 完成。"
+    }
+  ]
+}

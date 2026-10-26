@@ -5,8 +5,8 @@
   "status": "DRAFT_PENDING_REVIEW",
   "revision": "r07",
   "created_utc8": "2026-10-22T19:20:00+08:00",
-  "revision_note": "r07：按契约自身重绑规则处理两处过期绑定（不改语义）。① `s4_offline_raw_replay_bridge` 由 `06c9ab8` 的 blob `ad71cae0…` 重绑到桥接器 r12 现行字节 `2f4445e7…`（byte_basis=raw），并登记 `replaces`；② `stage5_display_g0_fields` 原固定修订 `b6d11d4` 之后 w5 已两次改动该文件，按规则重绑到 w5 现行 blob `af51a4bf…`（byte_basis=git_blob_content，修订 a54f09f），`replaces` 记录 `b6d11d4/10d24a39…`。其余绑定与语义未变。",
-  "reviewed_baseline_note": "r04 地址图及契约旧版本的既有独立复审 PASS 不覆盖 r05/r06；r05、r06 均未复审。本 r06 冻结前必须另行独立复审并引用固定提交 + 被审 SHA。",
+  "revision_note": "r07：按契约自身重绑规则处理两处过期绑定（语义未变）。① 桥接器 `s4_offline_raw_replay_bridge` 由 06c9ab8 的 blob `ad71cae0…` 重绑到 r12 现行**原始字节** `c6117bb4…`（旧值按 git_blob 口径登记在 replaces，并附 raw 值 `0c9e09d7…`）；② `stage5_display_g0_fields` 因 w5 在 b6d11d4 后两次改动，重绑到 `af51a4bf…`（a54f09f）。③ 补 `byte_basis_pointer`，说明 `raw` 与 `git_blob_content` 的等价关系见口径登记表。",
+  "reviewed_baseline_note": "r04 地址图及契约旧版本的既有独立复审 PASS 不覆盖 r05/r06/r07。r07 冻结前必须另行独立复审并引用固定提交 + 被审 SHA；复审通过后由阶段4 以仅改状态的提交登记。",
   "task_id": "S4-CTRL/S4B-contract",
   "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
   "consumers": [
@@ -55,17 +55,19 @@
       "id": "s4_offline_raw_replay_bridge",
       "role": "离线 RAW 帧适配器；只证明 frame_full.bin 的 BGR bytes 被按 BGR 解码并传入 D2 Python 参考",
       "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
-      "sha256": "2f4445e72cde4d3693f31f2741bec1214a7cc3ec299f93505f59dc19bcb896dd",
+      "sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229",
       "declared_status": "OFFLINE_REPLAY_ONLY",
       "conversion_entry": "frame_full.bin reshape to frame_bgr → PNG encode → load_image_chw",
       "replaces": {
         "sha256": "ad71cae06d5ac7c8ec3d2375e9f3aa42908733d89e6d55c976624901f77adfac",
-        "basis": "raw",
+        "basis": "git_blob",
+        "raw_sha256": "0c9e09d78aa03cd9818519eccdb9038b52846123cdfdbd87b10bad8cd007a08e",
         "revision": "06c9ab8",
-        "reason": "桥接器其后经 f731323/138d096/e65ea51/c9ed296 多次修改，原绑定已过期"
+        "reason": "原记录值为 blob/归一化口径；桥接器后经多次修改，现按 raw 绑定现行字节"
       },
       "byte_basis": "raw",
-      "bound_revision_note": "绑定 r12 现行工作树字节；桥接器再改必须重绑并登记 replaces"
+      "bound_revision_note": "绑定 r12 现行工作树字节；桥接器再改必须重绑并登记 replaces",
+      "byte_basis_pointer": "本契约 `binding_byte_basis` 定义 worktree_disk_bytes；`raw` 与 `git_blob_content` 的等价关系见 docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json"
     },
     {
       "id": "cdx_010_stage4_runbook",

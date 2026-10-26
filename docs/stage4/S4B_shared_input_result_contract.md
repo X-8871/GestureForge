@@ -1,4 +1,4 @@
-# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.2.0` | `DRAFT_PENDING_REVIEW`（r06）
+# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.3.0` | `DRAFT_PENDING_REVIEW`（r07）
 
 - 日期：2026-10-25（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`，DSH 阶段4 总控）；消费方：阶段5（**只读**消费冻结交付）。
 - 机器可读：[`s4b_shared_input_result_contract.json`](s4b_shared_input_result_contract.json)。
@@ -26,7 +26,7 @@
 
 | 权威 | 路径 | SHA-256 | 状态 |
 |---|---|---|---|
-| S4-A G0 契约（机器权威） | `docs/stage4/s4a_stage4_g0_fields.json` | `657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5` | `G0_ROUND_FROZEN_R06`（r06） |
+| S4-A G0 契约（机器权威） | `docs/stage4/s4a_stage4_g0_fields.json` | `657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5` | `G0_ROUND_FROZEN_R06`（r07） |
 | S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
 | 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r04**，BGR888 RAW 字节语义） | `DRAFT_PENDING_REVIEW`，未冻结 |
 | 冻结 D2 离线图像参考 | `verification/s1_t02_d2_int8_forward.py` | `0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a` | 仅离线参考；不证明 C/PL 运行期支持 |
@@ -92,7 +92,7 @@
 
 | 字段 | 类型 | 必填 | 语义 |
 |---|---|---|---|
-| `contract_version` | string | 是 | 固定 `s4-shared-io/1.2.0`；不匹配即拒绝消费 |
+| `contract_version` | string | 是 | 固定 `s4-shared-io/1.3.0`；不匹配即拒绝消费 |
 | `source_kind` | enum | 是 | `file_injection` / `camera` / `synthetic`（与 C 实现/CLI 同名）；映射到 S4-A `source_kind`（`BOARD_INJECTION`↔`file_injection`、`CAMERA`↔`camera`、`OFFLINE_REGRESSION`↔`synthetic`），证据中必须可互相换算 |
 | `session_id` | uint32 | 是 | 沿用 S4-A u32。PS 每次启动、复位 `frame_id` 计数或同一请求重开 RUN 时重新分配；会话内不变且 `frame_id` 不复用，按 S4-A 规则拒绝回绕 |
 | `frame_id` | u32 | 是 | PS 侧 +1 单调分配（沿用 S4-A `frame_id_allocation`），与送入 PL 的 `FRAME_ID` 同值 |
@@ -191,3 +191,12 @@
 - `camera_live_colour` / `camera_capture_replay_colour` 只是范围标签：写入本契约不代表真实彩色采集、回放或板级联调已执行；`capture_clock` 仍 `PENDING_MEASUREMENT`。
 - 候选上限、时间口径与异常行为取值以 S4-A 阶段4 G0 契约为准。
 - 绑定 SHA 为本次修订时点实际值；权威变更时必须显式更新绑定并登记取代关系（自检会 FAIL 直到更新）。
+
+## r07 修订（2026-10-27）
+
+1. `s4_offline_raw_replay_bridge`：由 `06c9ab8` 的 blob `ad71cae0…` 重绑到 r12 现行原始字节；
+   `replaces.basis=git_blob`，并附 `raw_sha256=0c9e09d7…`，避免口径误标。
+2. `stage5_display_g0_fields`：w5 在 `b6d11d4` 后经 `a465b48`/`5fd3336` 改动该文件，按规则重绑到
+   `af51a4bf…`（修订 `a54f09f`），`replaces` 记录 `b6d11d4/10d24a39…`。
+3. `contract_version` 升 `1.3.0`；补 `byte_basis_pointer` 指向口径登记表。
+4. 语义未变；状态仍 `DRAFT_PENDING_REVIEW`，待独立复审后由阶段4 以仅改状态的提交登记。

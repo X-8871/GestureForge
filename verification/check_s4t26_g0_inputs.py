@@ -50,7 +50,7 @@ REFERENCE_RUN = WORKTREE / "report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_in
 REFERENCE_RUN_SHA256 = "3d5ccedc9dc25f62353711c75f509706187047dbd70321cefb98e0bc0ade3973"
 BRIDGE_SOURCE = WORKTREE / "scripts/stage4_s4ctrl/replay_forward_bridge.py"
 EXPECTED_BRIDGE_VERSION = "r12"
-EXPECTED_BRIDGE_SHA256 = "2f4445e72cde4d3693f31f2741bec1214a7cc3ec299f93505f59dc19bcb896dd"
+EXPECTED_BRIDGE_SHA256 = "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229"
 S4B_CONTRACT = WORKTREE / "docs/stage4/s4b_shared_input_result_contract.json"
 PREEXISTING_PATHS = {
     *[f"report/evidence/S4-B/s4b_ps_tensor_20261023_{run}/s4b_ps_tensor_diagnostic.{ext}"

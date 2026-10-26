@@ -1658,9 +1658,13 @@ def main() -> int:
     if evidence_root not in out_dir.parents:
         print(f"[BLOCKED] 输出目录必须位于 {evidence_root} 下：{out_dir}", flush=True)
         return 2
-    if out_dir == golden_run_dir or golden_run_dir in out_dir.parents:
-        print("[BLOCKED] 输出目录不得等于或位于黄金来源目录之内（禁止写入黄金与旧证据）", flush=True)
-        return 2
+    # 无论 --golden-run-dir 指向哪里，都不得写入本轮固定黄金 RunId 目录之内
+    fixed_golden_dir = (WORKTREE / "report" / "evidence" / "S4-CTRL" / GOLDEN_RUN_ID).resolve()
+    forbidden_roots = {fixed_golden_dir, golden_run_dir}
+    for forbidden in forbidden_roots:
+        if out_dir == forbidden or forbidden in out_dir.parents:
+            print(f"[BLOCKED] 输出目录不得等于或位于黄金目录之内：{forbidden}", flush=True)
+            return 2
     if not golden_run_dir.is_dir():
         print(f"[BLOCKED] 黄金来源 RunId 不存在：{golden_run_dir}", flush=True)
         return 2

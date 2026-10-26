@@ -25,7 +25,7 @@
 
 - 报告：`report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_activation_calibration_r1.json`，`generated_at_utc8 = 2026-09-22T13:45:35+08:00`，原始字节 SHA `6d73283c…87216`。该值已由脚本 `--expect-report-sha256` 内置钉死：不一致即 `exit 2`；若要换钉必须显式 `--allow-repin`，且换钉后结论仍为 `BLOCKED/1`。
 - 报告的 producer SHA 由生产工具**运行期**计算（`verification/s1_t02_d2_activation_calibration.py` 第 248/250 行 `sha256_file(...)`）。
-- 工具 SHA 的字节口径（与 B3 同类，必须写明）：报告记录路径 `D:\FPGA_Competition\verification\s1_t02_d2_activation_calibration.py` 原始字节 = `288390f8bafe2c601604556e61f204a35305f1503802c3ca7bf96e7788f7dde4`（14,925 B，LF），与报告 `tool.sha256` 逐字符一致；**仓库内同名副本为 CRLF（15,267 B，raw `53a0d2af…`），归一化后同为 `288390f8…`**。
+- 工具 SHA 的字节口径（与 B3 同类，必须写明）：报告记录路径 `D:\FPGA_Competition\verification\s1_t02_d2_activation_calibration.py` 原始字节 = `288390f8bafe2c601604556e61f104a35305f1503802c3ca7bf96e7788f7dde4`（14,925 B，LF），与报告 `tool.sha256` 逐字符一致；**仓库内同名副本为 CRLF（15,267 B，raw `53a0d2af…`），归一化后同为 `288390f8…`**。
 - 复算结果：
 
 | producer | 记录值 | 固定路径当前值 | 候选副本 | mtime 差 |

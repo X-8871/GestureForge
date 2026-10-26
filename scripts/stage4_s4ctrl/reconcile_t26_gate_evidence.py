@@ -108,6 +108,52 @@ def write_json_atomic(out_dir: Path, name: str, payload: dict[str, object]) -> N
     os.replace(tmp, out_dir / name)
 
 
+# G0 预检必须具备的检查项（缺任一即视为不可采信）
+G0_REQUIRED_CHECKS = (
+    "task_baseline",
+    "frozen_parameter_sources",
+    "activation_producer_provenance",
+    "task25_replay_input_package",
+    "approved_rebound_gate_goldens",
+    "darknet_control_not_golden_source",
+    "existing_cv2_interpreter",
+    "bridge_runner_moving_head_contract",
+    "replay_semantics_and_stage_boundaries",
+    "preexisting_changes_preserved",
+)
+
+
+def validate_g0_preflight(path: Path, expected_run_id: str) -> dict[str, object]:
+    """校验一个 G0 预检是否可采信；不可信即抛 ValueError（由调用方转成 exit 2）。
+
+    判据与分支无关：显式指定与自动选择都必须过同一套校验，避免“默认分支不查”的绕过。
+    """
+    _, payload = read_json(path)
+    if payload is None:
+        raise ValueError(f"preflight 不存在或无法解析：{path.parent.name}")
+    if str(payload.get("run_id", "")) != expected_run_id:
+        raise ValueError(f"preflight.run_id 与目录名不一致：{expected_run_id}")
+    if not str(payload.get("checker_version", "")).startswith("r"):
+        raise ValueError(f"preflight 缺少 checker_version：{expected_run_id}")
+    checks = payload.get("checks")
+    if not isinstance(checks, list) or not checks:
+        raise ValueError(f"preflight 没有 checks 明细：{expected_run_id}")
+    names = {str(item.get("name")) for item in checks if isinstance(item, dict)}
+    missing = [name for name in G0_REQUIRED_CHECKS if name not in names]
+    if missing:
+        raise ValueError(f"preflight 缺少必需检查项 {missing}：{expected_run_id}")
+    # 若同目录有交付清单，交叉核对它登记的 preflight SHA
+    manifest = read_json(path.parent / "delivery_manifest.json")[1]
+    if isinstance(manifest, dict):
+        outputs = manifest.get("outputs")
+        if isinstance(outputs, dict):
+            entry = outputs.get("preflight_verification.json")
+            if isinstance(entry, dict) and entry.get("sha256"):
+                if entry["sha256"] != sha256_file(path):
+                    raise ValueError(f"delivery_manifest 登记的 preflight SHA 与实际不符：{expected_run_id}")
+    return payload
+
+
 def g0_preflight_path(root: Path, explicit_run: str | None = None) -> tuple[Path, str]:
     """确定要采信的 G0 预检文件，并返回 (路径, 选择模式)。
 
@@ -122,23 +168,26 @@ def g0_preflight_path(root: Path, explicit_run: str | None = None) -> tuple[Path
         path = root / explicit_run / "preflight_verification.json"
         if not path.is_file():
             raise ValueError(f"--g0-run 指定的 RunId 在证据根下不存在：{explicit_run}")
-        _, payload = read_json(path)
-        if payload is None:
-            raise ValueError(f"--g0-run 指定的 preflight 无法解析：{explicit_run}")
-        if str(payload.get("run_id", "")) != explicit_run:
-            raise ValueError(f"--g0-run 的 preflight.run_id 与目录名不一致：{explicit_run}")
-        if not str(payload.get("checker_version", "")).startswith("r"):
-            raise ValueError(f"--g0-run 的 preflight 缺少 checker_version：{explicit_run}")
-        if not payload.get("checks"):
-            raise ValueError(f"--g0-run 的 preflight 没有 checks 明细：{explicit_run}")
+        validate_g0_preflight(path, explicit_run)
         return path, "explicit_run_id"
     candidates = sorted(root.glob(f"{G0_RUN_GLOB}/preflight_verification.json"))
     if not candidates:
         raise ValueError("证据根下找不到任何 G0 运行")
+    latest_closed: Path | None = None
     for path in reversed(candidates):
+        run_id = path.parent.name
         _, payload = read_json(path)
-        if payload and payload.get("status") in G0_CLOSED_STATUSES and is_strict_zero(payload.get("exit_code")):
-            return path, "latest_closed"
+        closed = (payload and payload.get("status") in G0_CLOSED_STATUSES
+                  and is_strict_zero(payload.get("exit_code")))
+        if closed:
+            # 已闭合候选必须自洽，否则视为证据被篡改，直接报错而不是跳到更旧的运行
+            validate_g0_preflight(path, run_id)
+            if latest_closed is None:
+                latest_closed = path
+    if latest_closed is not None:
+        return latest_closed, "latest_closed"
+    # 没有任何闭合运行：返回最新一次，由调用方按未闭合处理（仍需自洽，否则报错）
+    validate_g0_preflight(candidates[-1], candidates[-1].parent.name)
     return candidates[-1], "latest_any"
 
 

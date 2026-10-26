@@ -180,7 +180,7 @@
   "results_checks_rule": "checks 必须是对象且含布尔 passed 与数组 failures；**passed 必须为 true**（失败运行不得作为交付证据），且 failures 为空时 passed 必须为 true",
   "event_log_fields": {
     "authoritative": true,
-    "legend_ref": "docs/stage5/s5t03_offline_skeleton_params_v1.json#/newly_frozen_for_skeleton_only/log_artifacts/compact_fields_result_submit 与 .../compact_fields_overlay_commit",
+    "legend_ref": "docs/stage5/s5t03_offline_skeleton_params_v1.json#/newly_frozen_for_skeleton_only/log_artifacts/compact_fields_result_submit（submit）与 docs/stage5/s5t03_offline_skeleton_params_v1.json#/newly_frozen_for_skeleton_only/log_artifacts/compact_fields_overlay_commit（commit）",
     "note": "帧级事件日志是计数复算的权威来源。**v1.0.2 更正**：早期版本曾把 frame_assertions 的字段名误当事件日志键位——键位一律以下方 compact 键为准（与实物逐字一致）。",
     "submit_record_keys": [
       "t",
@@ -355,5 +355,8 @@
   "frame_assertion_required_vs_stable": {
     "relation": "两个清单当前**逐字相同**（14 键）；保留分离是为了让未来版本能在不破坏必需语义的前提下扩展稳定子集",
     "validator_behaviour": "校验器对两者取并集逐帧检查；两清单不同时，stable-only 键缺失同样会报错（已用改造契约验证分支可触发）"
-  }
+  },
+  "errata": [
+    "2026-10-27 第 7 轮复审 O-1：legend_ref 两个指针改写为字面完整 JSON 指针；键集与语义未变，contract_version 保持 1.0.3"
+  ]
 }

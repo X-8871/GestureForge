@@ -2,6 +2,7 @@
 
 > 数字口径：本摘要逐项取自本包 `manifest.json` / `console/`（机器可读权威）；冲突以 JSON/日志为准。
 > 本包为**元/过程包**（校验器输出）：**不适用**该契约本身（无 `results.json` 与产物 schema）。
+> 标注：`input_scope_label = synthetic_replay`、`status = PRELIMINARY`；PNG/MP4 非验收依据（本包无 PNG/MP4）。
 
 - 被测代码提交（本包 `source_commit`）：`33a8f9423748…`
 - 契约版本：**1.0.3**（`.json` 与 `.md` 同步）

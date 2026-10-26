@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-CTRL",
+  "run_id": "w4_workbuddy_takeover_20261027_r01",
+  "source_commit": "e65ea51e8c0a5e4c735756ea1aad6bbd101dfb51",
+  "worktree": "D:/codex-worktrees/w4",
+  "branch": "stage4-infer-prep",
+  "files": [
+    {"path":"offer_record.json","sha256":"e9b7e4c67e81a8271496047f72065ac1afd87938e7ddb89eafd4a1f8344429af"},
+    {"path":"status_before.txt","sha256":"33e425690d46435692788a6ff53a357c1a53c380cc9ae8e9e81da90410e73e1c"},
+    {"path":"claim_record.json","sha256":"94fec17501a0a0ce9e1fbdfd62e447b0ad46f5d77b6a410f0203268a81fcf21e"},
+    {"path":"handoff_check.json","sha256":"27fa8a98cdba6f002c7172d2bbbce988e020778aa4e39ee4b30c00e3920b7001"},
+    {"path":"protected_files_verification.json","sha256":"4f1e15f14a2c252d01e52bf2d8cc6c046484d918404e7b4766b92bc42f7053e9"}
+  ],
+  "checks": [
+    {"name":"首次claim（证据入口选择失败）","exit_code":1,"status":"HANDOFF_FAILED"},
+    {"name":"第二次claim（含claimed-path越界核验）","exit_code":0,"status":"HANDOFF_OK","pass":9,"fail":0,"skip":0},
+    {"name":"Codex既有19个未跟踪文件SHA-256复核","exit_code":0,"status":"PASS","matched":"19/19"},
+    {"name":"接管JSON解析与git diff --check","exit_code":0,"status":"PASS"}
+  ],
+  "limitations": [
+    "仅为w4协作治理与新窗口交接证据，不推进task-26，不表示任何阶段门通过。",
+    "不包含main、其他工作树或硬件写权；新窗口仍须独立claim。"
+  ]
+}

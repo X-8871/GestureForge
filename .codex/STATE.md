@@ -1,3 +1,19 @@
+# 阶段4 状态（写权：Workbuddy 项目总控已 CLAIMED；现 OFFERED 给 Workbuddy 阶段4总控新窗口）
+
+## Workbuddy 协作治理交接（2026-10-27 00:29 UTC+8）
+
+- Wong 明确后续主力为 **DSH + Workbuddy**；Codex 退出默认主力写权，既有提交、未提交产物归属及历史证据继续保留。本窗口只完成协作治理，不开展阶段4技术工作。
+- Workbuddy 项目总控已按 Codex 2026-10-27 00:21 的正式 OFFER 执行真实 `--claim`：首次因证据入口缺通用 `manifest.json` 返回 `HANDOFF_FAILED / exit 1`；第二次使用 w4 STATE 已有的 r10 通用清单入口并补充 `--claimed-path` 越界核验，取得 **`HANDOFF_OK / exit 0 / 9 PASS / 0 FAIL / 0 SKIP`**。证据：`report/evidence/S4-CTRL/w4_workbuddy_takeover_20261027_r01/`。
+- 基线保持 `e65ea51e8c0a5e4c735756ea1aad6bbd101dfb51`。既有15项（含12个ELF/MAP及两个Codex证据目录）保持原位、原归属，不清理、不覆盖、不批量提交；本轮新增接管证据归 Workbuddy。
+- Wong 指定阶段4另开新窗口。本窗口取得写权后仅作治理登记，现将 w4 **正式 OFFERED 给 Workbuddy 阶段4总控新窗口**；新窗口仍须独立执行 `--claim` 并取得 `HANDOFF_OK`，不得把本窗口的 claim 当作新窗口认领。
+- 本交接不包含 main、其他工作树或硬件权限。板卡、JTAG、COM4、Vivado、下载和烧录仍按既有授权及独立窗口办理；`ENABLE=0`、task-26 `BLOCKED`、P/4-D/G3/G5 `NOT_RUN` 不变。
+- main 的三分工规则、信箱与全局 STATE 应由 main 的合法写权方另行更新；本记录不冒充 main 写权或全局交接完成。
+
+## 当前交接行（11字段，2026-10-27 00:29 UTC+8；Workbuddy 新窗口 OFFER）
+任务=`阶段4协作治理交接：Workbuddy项目总控已认领，转交Workbuddy阶段4总控新窗口；不做技术推进` | 负责人=`Workbuddy 项目总控（本窗口，让出方）` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`e65ea51e8c0a5e4c735756ea1aad6bbd101dfb51` | 允许修改范围=`新窗口CLAIMED后仅w4内阶段4相关docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、独立新RunId的report/evidence/S4-CTRL/与.codex/STATE.md；不包含main、其他树或硬件` | 未提交改动归属=`Codex原15项保持原位与原归属；本窗口仅新增w4_workbuddy_takeover_20261027_r01证据及本治理STATE块；新窗口不得清理、覆盖或批量提交既有项` | 让出声明=`Wong明确仅完成协作格局，阶段4另开窗口；本窗口真实claim HANDOFF_OK/exit0后停止w4写入并OFFERED；新窗口须重新claim；技术阻碍和ENABLE=0不变，无硬件操作` | 心跳(UTC+8)=`2026-10-27 00:29` | 证据入口=`report/evidence/S4-CTRL/w4_workbuddy_takeover_20261027_r01/claim_record.json；report/evidence/S4-CTRL/w4_workbuddy_takeover_20261027_r01/handoff_check.json` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; git --no-optional-locks -C D:/codex-worktrees/w4 status --short; 读取w4/.codex/STATE.md顶部当前交接行及w4_workbuddy_takeover_20261027_r01证据后，以本OFFER记录执行handoff_check --claim` | 状态/下一接手方=`OFFERED / Workbuddy 阶段4总控新窗口；next_owner=Workbuddy 阶段4总控；待新窗口正式CLAIMED`
+
+---
+
 # 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS；上次 OFFER 已撤回）
 
 ## 当前任务结果（S4-T26-GOLDEN-REBIND，2026-10-26）

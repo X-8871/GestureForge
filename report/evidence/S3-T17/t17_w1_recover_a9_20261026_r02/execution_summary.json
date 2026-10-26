@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_recover_a9_20261026_r02",
+  "source_commit": "f19b0c6a2b951082e8d0bdfe26e0e0f7b653e2ad",
+  "overall_status": "BLOCKED_TARGET_ENUMERATION",
+  "authorization": {
+    "wong_approved": true,
+    "authorization_text": "允许多次尝试，继续任务直到阶段三冻结",
+    "scope": "Only query A9 state; issue at most one con only if state is exactly Stopped. No stop, register access, reset, or programming.",
+    "attempt_index": 1,
+    "planned_max_attempts": 3
+  },
+  "script_review": {
+    "status": "PASS",
+    "sha256": "7f13b4a35e0f8ed2ed6d9f7cfcad5f0491ca7a6db5273334e94475ca8151e70b",
+    "predicate": "exact Stopped only",
+    "accepts_suspended": false
+  },
+  "attempt": {
+    "started_utc8": "2026-10-26T11:40:16+08:00",
+    "completed_utc8": "2026-10-26T11:40:23+08:00",
+    "elapsed_seconds": 7.033,
+    "wrapper_exit_code": 0,
+    "tcl_exit_code": 2,
+    "connect_succeeded": true,
+    "targets_reported": [
+      "DAP (APB AP transaction error, DAP status 0x30000021)",
+      "xc7z020"
+    ],
+    "a9_target_found": false,
+    "a9_state_query_completed": false,
+    "con_command_issued": false,
+    "register_reads": 0,
+    "register_writes": 0,
+    "cpu_stop_commands": 0,
+    "reset_or_program_operations": 0
+  },
+  "post_run": {
+    "first_check_utc8": "2026-10-26T11:40:30+08:00",
+    "observed_hw_server_pid": 12056,
+    "observed_hw_server_started_utc8": "2026-10-26T11:40:19+08:00",
+    "first_check_tcp_3121_listeners": 0,
+    "final_check_utc8": "2026-10-26T11:40:51+08:00",
+    "xsdb_processes": 0,
+    "hw_server_processes": 0,
+    "vivado_processes": 0,
+    "vitis_processes": 0,
+    "tcp_3121_listeners": 0,
+    "vivado_mcp_sessions": 0
+  },
+  "not_verified": [
+    "A9 final execution state or recovery",
+    "current HDMI display state",
+    "VDMA status and root cause",
+    "runtime ADDR_S2MM and ADDR_MM2S",
+    "current bitstream/XSA/ELF deployment identity",
+    "stage 3 G3/G4/G5"
+  ]
+}

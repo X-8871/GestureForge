@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_recover_a9_20261026_r04",
+  "source_commit": "f19b0c6a2b951082e8d0bdfe26e0e0f7b653e2ad",
+  "evidence_dir": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 是经批准的 A9 运行态恢复尝试，没有更改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/README.md",
+      "sha256": "76bea13b7269424b10a4e3dfd82826b37a1db400943d3f3381b252687feacaac",
+      "role": "artifact",
+      "keep_reason": "本次恢复尝试的授权范围、执行结果和限制"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/preflight.json",
+      "sha256": "9d1a87dacd948ac1cc376c4ba0a77e40292e165de9c843535bf3fff939c4494f",
+      "role": "result",
+      "keep_reason": "RunId、写锁、设备及硬件会话前置核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/recover_a9_exact_stopped.tcl",
+      "sha256": "7f13b4a35e0f8ed2ed6d9f7cfcad5f0491ca7a6db5273334e94475ca8151e70b",
+      "role": "source",
+      "keep_reason": "独立审查通过的精确 Stopped 条件恢复脚本"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/execution_summary.json",
+      "sha256": "425f67e80c8911c4a994f704be3f03127615d9daefe587f95bda4f0fea8bfdcb",
+      "role": "result",
+      "keep_reason": "实际target、Tcl/包装退出码、状态门禁与未验证项"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/postrun.json",
+      "sha256": "a00610846ddfd3dce2d37855e33d6ed4ac728956c3ff9fe0ce6af42e13cb8862",
+      "role": "result",
+      "keep_reason": "本次及序列结束后的硬件资源收窗核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/wrapper_result.json",
+      "sha256": "2883b045935f08af689c369375a9fb1ab15cea9e58e9b221873c739ead9095cd",
+      "role": "result",
+      "keep_reason": "XSDB包装退出码和执行耗时"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/xsdb.stdout.txt",
+      "sha256": "fce0e4bb16a87f5790c1bb83cfce676daf95b880a49de858109dc9b0adf1027e",
+      "role": "log",
+      "keep_reason": "XSDB/Tcl原始标准输出，保留原字节"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04/xsdb.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "XSDB/Tcl原始标准错误，保留原始空文件"
+    }
+  ],
+  "checks": [
+    {
+      "name": "A9 target enumeration and state gate",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04\\recover_a9_exact_stopped.tcl",
+      "exit_code": 2,
+      "reason": "连接成功，但 target tree 只有 DAP APB transaction error 0x30000021 与 xc7z020；无 A9 target。"
+    },
+    {
+      "name": "Conditional A9 resume",
+      "status": "BLOCKED",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report/evidence/S3-T17/t17_w1_recover_a9_20261026_r04\\recover_a9_exact_stopped.tcl",
+      "exit_code": null,
+      "reason": "A9 target 不可见，状态未查询，con 未执行。"
+    },
+    {
+      "name": "Recovery script authorization predicate",
+      "status": "PASS",
+      "command": "Independent review of recover_a9_exact_stopped.tcl against exact-Stopped authorization.",
+      "exit_code": 0,
+      "reason": "已审脚本仅在状态严格等于 Stopped 时最多执行一次 con；不接受 Suspended，且不含寄存器访问/复位/烧录。"
+    },
+    {
+      "name": "Post-run resource cleanup check",
+      "status": "PASS",
+      "command": "Get-Process xsdb/hw_server/vivado/vitis; Get-NetTCPConnection -LocalPort 3121 -State Listen; vivado_list_sessions",
+      "exit_code": 0,
+      "reason": "本次尝试后无硬件进程、3121监听或Vivado MCP会话；三次尝试序列末复查也为零。"
+    }
+  ],
+  "tool_versions": {
+    "XSDB": "2026.1",
+    "PowerShell": "7"
+  },
+  "limitations": [
+    "目标发现连续失败；没有 A9 状态/恢复结果。",
+    "未核验当前 HDMI、部署身份、VDMA 状态/根因或运行期地址。",
+    "包装/哈希检查不代表实物验证或阶段3 G3/G4/G5通过。"
+  ]
+}

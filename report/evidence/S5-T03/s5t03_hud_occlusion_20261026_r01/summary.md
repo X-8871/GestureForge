@@ -1,4 +1,7 @@
 # HUD 遮挡量化 RunId `s5t03_hud_occlusion_20261026_r01`
+> 本包为**元/过程包**（量化输出，schema 为 `gestureforge_s5t03_hud_occlusion_v1`）：
+> **不适用** `gestureforge_s5t03_json_contract` 的 `artifact_kinds`（该契约未包含本 schema）。
+> 标注：`input_scope_label = synthetic_replay`、`status = PRELIMINARY`。
 
 > 数字口径：本摘要逐项取自本包 `results.json` / `manifest.json` / `console/`（机器可读权威）；冲突以 JSON 为准。
 

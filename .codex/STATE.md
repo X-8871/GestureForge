@@ -1,5 +1,11 @@
 # 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS；上次 OFFER 已撤回）
 
+## 当前任务结果（S4-T26-GOLDEN-REBIND，2026-10-26）
+
+- 提交 `138d096358210d84f930eb8af616b1112aef543d`；checker r13 SHA `e0a454dbca52f38512075539170e2645a2bd79a490de63ad971b8360b1b8d801`、bridge r10 SHA `6780446fc4f0d774b5868896b455deec8fc3dcd9e1ffa12a6990577138e57f26` 经独立 Reviewer PASS。决策记录与黄金材料化清单位于 `docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md`、`report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r02/`。
+- T25 冻结切片材料化与 SHA 核验通过。sample_102 raw-head 真实前向逐字节匹配；sample_000 真实前向的 head13/head26 均与 T29 不同，D9/NMS、单字节扰动及 task-25 回放按门控停止；结果 BLOCKED，未生成 task-27 包。旧校准样本标为 `NOT_USED_HISTORICAL`；Darknet r03/r04 控制失败仍非黄金来源。
+- G0 r13 为 `BLOCKED / exit 2 / 0 FAIL`，阻断项为 activation producer 来源 SHA 与当前 EXE/hook 不一致。`ENABLE=0`、RAW G0 OPEN、P/4-D/G3/G5 NOT_RUN；未操作硬件。原有 STATE 差异和12个 ELF/MAP 均保留，不纳入本次代码提交。
+
 ## 当前任务（S4-T26-GOLDEN-CONTROL，2026-10-26 20:44 UTC+8）
 
 - Wong 明确撤回 `d2262bc` 的 w4 OFFER，由 Codex 继续 task-26；**DSH 不 claim**。仅修改 w4；不操作板卡、JTAG、COM4 或 Vivado，不改写 main/dbdf/w2b/w5/w6。

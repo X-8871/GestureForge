@@ -1,0 +1,144 @@
+{
+  "schema_version": "gestureforge_s5t03_hud_occlusion_v1",
+  "run_id": "s5t03_hud_occlusion_20261026_r01",
+  "task_id": "S5-T03",
+  "generated_utc8": "2026-10-27T00:24:52+08:00",
+  "source_commit": "74daae3b5f307889738cd04037c9f971a4934e90",
+  "status": "PRELIMINARY",
+  "input_scope_label": "synthetic_replay",
+  "goal_reached": "HUD_OCCLUSION_QUANTIFIED_DIFFERENTIAL_RASTERIZATION_OFFLINE",
+  "limit": {
+    "value": 0.1,
+    "semantics": "本仓库离线渲染**告警阈值**（非 Wong/阶段7 冻结的验收指标，也不代表板级指标）",
+    "verdict_rule": "ratio <= limit ⇒ WITHIN_LIMIT；否则 EXCEEDS_LIMIT"
+  },
+  "summary": {
+    "cases": 9,
+    "max_occlusion_ratio": 1.0,
+    "mean_occlusion_ratio": 0.378579,
+    "exceeds_limit": [
+      "landscape_1280x720",
+      "oddw_683x384",
+      "portrait_720x1280"
+    ],
+    "zero_occlusion_cases": [
+      "far_bottom_right"
+    ]
+  },
+  "checks": {
+    "failures": [],
+    "passed": true
+  },
+  "tools": {
+    "hud_occlusion": {
+      "path": "scripts/stage5_t03/s5t03_hud_occlusion.py",
+      "sha256": "f5ddb61059364e1bcd313ba62b737695ce3de74ec1285f545eb5bc2164d1617a"
+    },
+    "render": {
+      "path": "scripts/stage5_t03/s5t03_render.py",
+      "sha256": "f81cbc0c7dae676bca6d162933f7645efdb01cd274bc2f90d237df6e19c7f899"
+    },
+    "multi_geometry_render": {
+      "path": "scripts/stage5_t03/s5t03_multi_geometry_render.py",
+      "sha256": "5023ccb953ef3b770d24515cec8d05a1a0567222e74763673295cbb9c51ac57e"
+    },
+    "pipeline": {
+      "path": "scripts/stage5_t03/s5t03_display_pipeline.py",
+      "sha256": "764c7e9894004d700756281551cf3b61f608560d6938dfe7901fd26d58fad673"
+    },
+    "dynamic_stream": {
+      "path": "scripts/stage5_t03/s5t03_dynamic_stream.py",
+      "sha256": "cbcd3dd9835908a2334c3d3162fe4433000dc1db7d1f53b0890f68a29bf19065"
+    },
+    "geometry_reference": {
+      "path": "verification/s5_display_geometry_reference.py",
+      "contract_id": "S5A-G0-v2",
+      "sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645"
+    },
+    "params": {
+      "path": "docs/stage5/s5t03_offline_skeleton_params_v1.json",
+      "sha256": "184aa5bf6ae970807d91cd6420884b8bb60b9dbd0f685965cbd06d544438db9b"
+    }
+  },
+  "files": [
+    {
+      "path": "console/command.txt",
+      "sha256": "3cb0bb87eb74ebbfaeebd8a9bf698e567e6a2790ac6306b6f9adce0a1d4d71a2",
+      "bytes": 127
+    },
+    {
+      "path": "console/run.txt",
+      "sha256": "4598973d1289f8930e748a19bed620e62a930a20f7031a90fc5e74f2d30920dd",
+      "bytes": 44
+    },
+    {
+      "path": "console/stdout.txt",
+      "sha256": "2b1d2d1b4af56197e5beb4a826ae6cc277bd0e4dda7025c8ea58cbe4d536d31f",
+      "bytes": 96
+    },
+    {
+      "path": "console/suite_command.txt",
+      "sha256": "104cbbfc61b9b87a9d4ba57c26434fc7d7e84ad79d283d570c8835f754ab8456",
+      "bytes": 270
+    },
+    {
+      "path": "console/unittest_all.txt",
+      "sha256": "182cada9eecc9bc39750c5d06153c4163f7e1be70326acf6a1205ab1f002947c",
+      "bytes": 1393
+    },
+    {
+      "path": "keyframes/landscape_1280x720_top_left_under_hud_hud.png",
+      "sha256": "d53f1368f989f0bad7f4e2c570bc56a563006885b90c53c654793c53b0c52310",
+      "bytes": 27308
+    },
+    {
+      "path": "keyframes/landscape_1280x720_top_left_under_hud_nohud.png",
+      "sha256": "543e089969037d86d0b42de298247a765702a191b5831babd718f61d8132e53e",
+      "bytes": 4931
+    },
+    {
+      "path": "keyframes/oddw_683x384_top_left_under_hud_hud.png",
+      "sha256": "3e8d7bb9bd478b070baf5e11bc36de6ddcb84c47f090fadb3f596cb1621437d9",
+      "bytes": 8106
+    },
+    {
+      "path": "keyframes/oddw_683x384_top_left_under_hud_nohud.png",
+      "sha256": "1bc53d341b534161e3721356fbfe492c34b2487d0fc051b4b7c060e608968aab",
+      "bytes": 2015
+    },
+    {
+      "path": "keyframes/portrait_720x1280_top_left_under_hud_hud.png",
+      "sha256": "108e18b75c6856a72cf53c6de87305aa25ed161a7739d7f172e19c874cf37f38",
+      "bytes": 47471
+    },
+    {
+      "path": "keyframes/portrait_720x1280_top_left_under_hud_nohud.png",
+      "sha256": "7701a96256176de15e8ae506e8e3b0f3ee18cd6cbdb30f2291a86a3b29d4f083",
+      "bytes": 6736
+    },
+    {
+      "path": "results.json",
+      "sha256": "02b65ecd58493104405557bc9ad056d74489b0adfb981ec999b9de1d70a0c17e",
+      "bytes": 18633
+    },
+    {
+      "path": "summary.md",
+      "sha256": "b85ea7fb2899f0b44b392596202849402131de7feefffe54304e0c4d9572a9f8",
+      "bytes": 2872
+    }
+  ],
+  "limitations": [
+    "输入为合成归一化坐标；只量化**框线像素**被 HUD 覆盖的比例，不含标签文字覆盖口径。",
+    "阈值 0.1 为本仓库离线告警口径，**不是**验收指标；改阈值只改判定串不改语义。",
+    "板级真彩目视下的 HUD 遮挡须板上窗口验证（NOT_RUN）。",
+    "PNG 供人工抽检；JSON 为权威。G0/G1/G3/G4/G5 均未通过。"
+  ],
+  "not_run": [
+    "真实回放接入（无阶段4 冻结回放结果包）",
+    "板上动态映射与绘制（本轮不接板卡）",
+    "板级真彩目视下的 HUD 遮挡（须板上窗口）",
+    "摄像头真实采集路径",
+    "T5-10 板上回归"
+  ],
+  "scope_statement": "本清单只证明离线遮挡量化与像素级绑定；不代表接口语义正确、独立审查通过或 G0/G4/G5。"
+}

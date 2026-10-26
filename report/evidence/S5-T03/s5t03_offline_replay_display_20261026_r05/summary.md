@@ -11,7 +11,7 @@ python -B scripts/stage5_t03/s5t03_replay_display.py --out report/evidence/S5-T0
     --stage3-binding D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_replay_binding_20261025_r01/replay_input_binding.json \
     --demo-mp4                                                       # exit 0
 python -B -m unittest scripts.stage5_t03.test_s5t03_skeleton scripts.stage5_t03.test_s5t03_replay_display
-                                                                     # Ran 57 tests, OK, exit 0
+                                                                     # Ran 68 tests, OK, exit 0
 ```
 （`console/command.txt` 同时记录 Windows 与 Git Bash 两种路径形式 —— 关闭 N6。）
 

@@ -10,7 +10,7 @@
       --demo-mp4                                                     # exit 0
   python -B -m unittest scripts.stage5_t03.test_s5t03_long_run_replay \
       scripts.stage5_t03.test_s5t03_replay_display scripts.stage5_t03.test_s5t03_skeleton
-                                                                     # Ran 66 tests, OK, exit 0
+                                                                     # Ran 68 tests, OK, exit 0
   ```
 
 ## 1. 长跑口径（沿用已冻结参数，判据用**区间数**）
@@ -59,7 +59,7 @@ s5t03_offline_long_run_replay_20261026_r03/
 - PNG/MP4 **不是**验收依据；**G0/G1/G3/G4/G5 均未通过**。
 
 ## 5. 与短跑证据的关系
-- 短跑（240 帧 mixed）：`s5t03_offline_replay_display_20261026_r04`（含首轮复审修复闭环）。
+- 短跑（240 帧 mixed）：`s5t03_offline_replay_display_20261026_r05`（含首轮复审修复闭环）。
 - 长跑（本包）：`s5t03_offline_long_run_replay_20261026_r03`；两者共用同一管线/几何/色/字号单一来源，长跑另加"≥30 分钟 × 渲染检查点 + 全量日志"。
 - 本包为新增证据，**不改写** r01–r04 历史 RunId。
 ## 6. 与 r01/r02 的关系（保留不删）

@@ -15,10 +15,10 @@
 
 | 关口/项 | 判定 | 依据 |
 |---|---|---|
-| 离线推理门（task-26） | **PASS（离线）** | `s4t26_gate_rerun_20261027_r03`：status PASS / exit 0，6/6 检查 PASS，两样本四个 head 与材料化黄金逐字节一致，单字节负控与 PNG 检查 PASS，task-25 回放帧 PASS。r02 为上一版桥接器字节的同类通过，保留；r01 为失败留档 |
+| 离线推理门（task-26） | **PASS（离线）** | `s4t26_gate_rerun_20261027_r04`：status PASS / exit 0，6/6 检查 PASS，两样本四个 head 与材料化黄金逐字节一致，单字节负控与 PNG 检查 PASS，task-25 回放帧 PASS。r02 为上一版桥接器字节的同类通过，保留；r01 为失败留档 |
 | task-27 回放结果包 | **已生成（replay_only）** | 同 RunId `task27_replay_result_package.json`；只能按回放口径消费，不得当实时结果 |
-| task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r24`（exit 0，`accept_producer_break=true` 已写入 command/字段）；同一字节无开关的 `r23` 仍 `BLOCKED/2`，证明默认 fail-closed |
-| 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r12`（exit 0，0 项未闭合；记录 `g0.run_id=r24` 与 `selection_mode`） |
+| task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r26`（exit 0，`accept_producer_break=true` 已写入 command/字段）；同一字节无开关的 `r25` 仍 `BLOCKED/2`，证明默认 fail-closed |
+| 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r13`（exit 0，0 项未闭合；记录 `g0.run_id=r26` 与 `selection_mode`） |
 | 绑定字节口径 | **已登记** | `docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`（4/4 声明值复算一致）；契约内已有 `binding_byte_basis` 声明 |
 | 共享 IO 契约 | **r07 已按规则重绑两处过期绑定，仍 `DRAFT_PENDING_REVIEW`** | 重绑：桥接器 `ad71cae0…`(06c9ab8) → `2f4445e7…`(r12 现行)；w5 显示字段 `10d24a39…`(b6d11d4) → `af51a4bf…`(a54f09f)。冻结前仍需独立复审并引用被审 SHA |
 | RAW 系统 G0 | **未闭合** | `docs/stage4/S4B_raw_system_g0_gap_registry.json`：OPEN_REQUIRES_DESIGN_OR_REVIEW 10、PARTIALLY_CLOSED_OFFLINE 4、NOT_RUN_HARDWARE_REQUIRED 4、BLOCKED_PENDING_HARDWARE 1、CLOSED_OFFLINE 1 |
@@ -32,8 +32,8 @@
 
 冻结后阶段5 只可按下列口径消费：
 
-1. `s4t26_gate_rerun_20261027_r02/task27_replay_result_package.json` —— **`replay_only`**，不得标实时；
-2. `docs/stage4/s4b_shared_input_result_contract.json` r06 —— 仅在其独立复审通过并改状态后生效，此前按草案处理；
+1. `s4t26_gate_rerun_20261027_r04/task27_replay_result_package.json` —— **`replay_only`**，不得标实时；
+2. `docs/stage4/s4b_shared_input_result_contract.json` r07（1.3.0）—— 仅在其独立复审通过并改状态后生效，此前按草案处理；
 3. 冻结参考：T25/T29 张量、材料化黄金四个 `.bin`、`s4t26_golden_rebind_20261026_r02/golden_materialization_manifest.json`（SHA `47e4cc36…`）。
 
 ## 4. 不得声称的事
@@ -47,16 +47,16 @@
 
 | 编号 | 需完成 | 归属 |
 |---|---|---|
-| F-1 | 共享 IO 契约 r06 独立复审 PASS 并改状态 | 阶段4 总控 + 独立 Reviewer |
+| F-1 | 共享 IO 契约 r07 独立复审 PASS 并改状态 | 阶段4 总控 + 独立 Reviewer |
 | F-2 | RAW G0 10 项设计/复审缺口逐项关闭 | 阶段4 总控 |
 | F-3 | 板级 P 实测、4-D 端到端、G3 实物验证 | 需硬件窗口与正式 OFFER |
 | F-4 | `ENABLE=0` 解除与候选 region 冻结 | 依赖 F-2/F-3 |
 
 ## 6. 证据索引
 
-- 门：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r03/`（含 `task27_replay_result_package.json`）
-- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r24/`（含 r23 无开关对照）
-- 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r12/`
+- 门：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/`（含 `task27_replay_result_package.json`）
+- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r26/`（含 r25 无开关对照）
+- 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r13/`
 - 断点决策：`docs/stage4/s4t26_producer_break_decision_20261027_r01.json`
 - 口径登记：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`
 - 身份审计（保留断点事实）：`report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/`（仍 `BLOCKED/1`，属设计如此：它记录“不可复现”这一事实）

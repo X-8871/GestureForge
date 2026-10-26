@@ -2,8 +2,8 @@
 
 ## 本轮结果（S4-T26-GATE-RERUN + 离线范围冻结，2026-10-27 07:23 UTC+8）
 
-- **task-26 离线门已在当前桥接器字节上通过**：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r03/`
-  （status PASS / exit 0 / 6 项检查全 PASS）。r02 为上一版桥接器字节的同类通过，保留；r01 为 NameError 失败留档。两样本四个 head 与材料化黄金逐字节一致
+- **task-26 离线门已在当前桥接器字节上通过**：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/`
+  （status PASS / exit 0 / 6 项检查全 PASS，桥接器 `c6117bb4…`）。r01 为 NameError 失败留档、r02/r03 为更早字节的同类通过，均保留。两样本四个 head 与材料化黄金逐字节一致
   （sample_000 `07b59ca3…`/`7524ce5c…`、sample_102 `902bb209…`/`f96cca66…`），单字节负控、
   PNG `IMREAD_UNCHANGED`、task-25 回放帧均 PASS，**task-27 回放结果包已生成**（`replay_only`）。
   上一轮 2929/5070、10358/20280 的差异确认为 T25 预处理修复前产物，已不再适用。
@@ -15,15 +15,15 @@
   （SHA `95b70b9d…`）。理由：报告 SHA 由 `sha256_file` 运行期计算、工具 SHA 与记录一致，
   数值完整性由 SHA 链保证；重跑 512 样本标定会改变冻结 scale 并使 2A/2B/阶段4 三条线证据失效。
   G0 新增 `--accept-producer-break`（默认关闭），命中后该项记为 `ACCEPTED_WITH_DOCUMENTED_BREAK`
-  而非 PASS；G0 r24 结果为 **`CLOSED_WITH_ACCEPTED_BREAK` / exit 0**（`accept_producer_break=true` 已写入 command 与字段）；同字节无开关的 **r23 仍 `BLOCKED / exit 2`**，默认 fail-closed 有同字节留证。
+  而非 PASS；G0 r26 结果为 **`CLOSED_WITH_ACCEPTED_BREAK` / exit 0**（`accept_producer_break=true` 已写入 command 与字段）；同字节无开关的 **r25 仍 `BLOCKED / exit 2`**，默认 fail-closed 有同字节留证。
 - **B3 绑定字节口径**：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`，4 条绑定逐一复算一致
   （契约绑 CRLF 归一化、材料化清单绑原始字节、工具绑原始字节）；契约自身已有 `binding_byte_basis` 声明。
   另修正上一轮文档/STATE 中工具 SHA 的抄录错误（应为 `288390f8…f104a353…`）。
-- **门禁对齐器** `s4t26_gate_reconcile_20261027_r12`：**PASS / exit 0**（0 项未闭合，`g0.run_id=r24`）。
+- **门禁对齐器** `s4t26_gate_reconcile_20261027_r13`：**PASS / exit 0**（0 项未闭合，`g0.run_id=r26`）。
   修正三处：RunId 前缀白名单漏新 RunId（改全目录扫描）、G0 固定 r13（改最新已闭合/`--g0-run`）、
   `--g0-run` 曾可接任意路径把断点洗成 PASS（现限定证据根下 RunId 名并校验 preflight 自洽，产物记录 `g0.run_id`/`selection_mode`/`preflight_sha256`）。
 - **阶段4 判定：`OFFLINE_SCOPE_FROZEN`（离线范围冻结）**，记录见 `docs/stage4/s4_stage4_freeze_record_20261027_r01.md`。
-  未闭合：共享 IO 契约已升 r07 并按规则重绑两处过期绑定（桥接器→`2f4445e7…`、w5 显示字段→`af51a4bf…`，均登记 `replaces`），仍 `DRAFT_PENDING_REVIEW`；RAW 系统 G0 有 10 项设计/复审缺口 + 4 项硬件依赖；
+  未闭合：共享 IO 契约已升 r07 并按规则重绑两处过期绑定（桥接器→`c6117bb4…` 按 raw、w5 显示字段→`af51a4bf…` 按 git_blob，旧值均入 `replaces`；契约字节 `8626cb57…`），仍 `DRAFT_PENDING_REVIEW`；RAW 系统 G0 有 10 项设计/复审缺口 + 4 项硬件依赖；
   P / 4-D / G3 均 `NOT_RUN`；`ENABLE=0`；真实 C/PL BGR→RGB `NOT_IMPLEMENTED`。
   因此**不宣称 G3/G4/G5 整体通过**，板级项须另行硬件窗口与正式 OFFER。
 - 全程未操作板卡/JTAG/COM4/摄像头/HDMI/Vivado/hw_server，未下载、未烧录。
@@ -42,7 +42,7 @@
 
 ## 当前交接行（11字段，2026-10-27 02:16 UTC+8）
 
-任务=`S4-T26-GATE-RERUN + 阶段4离线范围冻结：门在当前桥接器字节上跑通、producer 断点按决策登记` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D://codex-worktrees//w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r24、gate_reconcile_r06..r12 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 07:34` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r03/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r24/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r12/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`OFFLINE_SCOPE_FROZEN / Workbuddy 阶段4总控；剩余 F-1 契约 r07 独立复审、F-2 RAW G0 10 项设计缺口、F-3 板级 P/4-D/G3（需硬件窗口与正式 OFFER）`
+任务=`S4-T26-GATE-RERUN + 阶段4离线范围冻结：门在当前桥接器字节上跑通、producer 断点按决策登记` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D://codex-worktrees//w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r24、gate_reconcile_r06..r12 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 07:34` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r24/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r12/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`OFFLINE_SCOPE_FROZEN / Workbuddy 阶段4总控；剩余 F-1 契约 r07 独立复审、F-2 RAW G0 10 项设计缺口、F-3 板级 P/4-D/G3（需硬件窗口与正式 OFFER）`
 
 ## 历史交接（2026-10-27 00:29；已由上方本轮接管取代）
 

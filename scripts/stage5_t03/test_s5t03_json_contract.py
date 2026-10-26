@@ -151,13 +151,87 @@ class T_Contract(unittest.TestCase):
         self.assertEqual(report["counts"]["frame_assertions"], 106573)
 
     def test_17_broken_contract_fails_closed(self) -> None:
-        """契约缺必需键 ⇒ 必须抛错（fail-closed，不得静默放过）。"""
+        """契约缺必需键/缺文件 ⇒ 必须 ContractError（退出码 2，fail-closed）。"""
         bad = self.tmpdir / "bad_contract.json"
         self._write_json(bad, {"contract_id": "x"})
-        with self.assertRaises(ValueError):
+        with self.assertRaises(V.ContractError):
             V.load_contract(bad)
-        with self.assertRaises(FileNotFoundError):
+        # 逐个删除必需键都必须被抓住（B5：不得静默放过）
+        for key in self.contract["contract_required_keys"]:
+            trimmed = {k: v for k, v in self.contract.items() if k != key}
+            path = self.tmpdir / f"contract_without_{key}.json"
+            self._write_json(path, trimmed)
+            with self.assertRaises(V.ContractError, msg=f"缺 {key} 未被抓住"):
+                V.load_contract(path)
+        with self.assertRaises(V.ContractError):
             V.load_contract(self.tmpdir / "nope.json")
+
+    def test_20_schema_version_value_is_guarded(self) -> None:
+        """B2：schema_version 值错（乱填/升版）必须违约。"""
+        run = self._copy("multi_geometry_render", "b2_schema")
+        obj = json.loads((run / "results.json").read_text(encoding="utf-8"))
+        obj["schema_version"] = "gestureforge_s5t03_multi_geometry_render_v2"
+        self._write_json(run / "results.json", obj)
+        entry = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+        for item in entry["files"]:
+            if item["path"] == "results.json":
+                item["sha256"] = V.sha256_file(run / "results.json")   # 隔离出"仅 schema 值"这一项
+        self._write_json(run / "manifest.json", entry)
+        report = V.validate_package(run, self.contract)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("schema_version" in item for item in report["errors"]), report["errors"])
+
+    def test_21_file_hash_drift_is_detected(self) -> None:
+        """B3：篡改包内文件内容（清单未同步）必须违约。"""
+        run = self._copy("multi_geometry_render", "b3_hash")
+        target = run / "results.json"
+        original = target.read_text(encoding="utf-8")
+        target.write_text(original + " ", encoding="utf-8", newline="\n")
+        report = V.validate_package(run, self.contract)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("哈希不符" in item for item in report["errors"]), report["errors"])
+
+    def test_22_checks_passed_false_is_rejected(self) -> None:
+        """B4：checks.passed=False（失败运行）不得作为交付证据。"""
+        run = self._copy("multi_geometry_render", "b4_passed")
+        obj = json.loads((run / "results.json").read_text(encoding="utf-8"))
+        obj["checks"] = {"passed": False, "failures": ["x"]}
+        self._write_json(run / "results.json", obj)
+        report = V.validate_package(run, self.contract)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("passed" in item for item in report["errors"]), report["errors"])
+
+    def test_23_frame_stable_subset_is_checked(self) -> None:
+        """B1：逐帧 stable 必需字段缺失必须违约（不能只查 frame_assertion_required）。"""
+        run = self._copy("replay_display", "b1_frames")
+        path = run / "frame_assertions.jsonl"
+        lines = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        lines[0].pop("result_seq", None)
+        body = chr(10).join(json.dumps(item, ensure_ascii=False) for item in lines)
+        path.write_text(body + chr(10), encoding="utf-8", newline="\n")
+        manifest = json.loads((run / "manifest.json").read_text(encoding="utf-8"))
+        for item in manifest["files"]:
+            if item["path"] == path.name:
+                item["sha256"] = V.sha256_file(path)
+        self._write_json(run / "manifest.json", manifest)
+        report = V.validate_package(run, self.contract)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("result_seq" in item for item in report["errors"]), report["errors"])
+
+    def test_24_exit_code_semantics(self) -> None:
+        """B6：2=输入/环境错误（契约缺键、包目录不存在、packages-from 文件不存在、无参数）。"""
+        self.assertEqual(V.main(["--package", str(self.tmpdir / "no_such_package")]), 2)
+        self.assertEqual(V.main(["--packages-from", str(self.tmpdir / "no_such_list.txt")]), 2)
+        self.assertEqual(V.main([]), 2)
+        bad = self.tmpdir / "incomplete_contract.json"
+        self._write_json(bad, {"contract_id": "x"})
+        self.assertEqual(V.main(["--contract", str(bad), "--package", str(REAL["multi_geometry_render"])]), 2)
+
+    def test_25_event_log_reject_reason_key_documented(self) -> None:
+        """契约必须如实登记事件日志的拒绝原因键为 `rr`（复审第 6 项：文档曾写不存在的 `reason`）。"""
+        self.assertEqual(self.contract["event_log_fields"]["reject_reason_key"].split("（")[0], "rr")
+        self.assertTrue(self.contract["known_inconsistencies"])
+        self.assertIn("rr", self.contract["known_inconsistencies"][0]["consumer_rule"])
 
     def test_18_cli_exit_codes(self) -> None:
         """CLI：全通过 0；违约 1；未指定包 2。"""

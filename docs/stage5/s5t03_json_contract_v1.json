@@ -1,7 +1,7 @@
 {
   "contract_id": "gestureforge_s5t03_json_contract",
-  "contract_version": "1.0.0",
-  "frozen_utc8": "2026-10-26T23:50:00+08:00",
+  "contract_version": "1.0.1",
+  "frozen_utc8": "2026-10-27T00:25:00+08:00",
   "purpose": "冻结阶段5 离线 replay/display 产物的 JSON 契约，供阶段6/7 消费；JSON/日志为权威，PNG/MP4 不作验收依据。",
   "authority": {
     "authoritative": ["results.json", "frame_assertions.jsonl(.gz)", "logs/events_*.jsonl(.gz)", "manifest.json"],
@@ -10,6 +10,11 @@
   },
   "input_scope_label_expected": "synthetic_replay",
   "status_label_expected": "PRELIMINARY",
+  "exit_code_semantics": {
+    "0": "全部包通过结构契约",
+    "1": "存在违约（含 checks.passed 非 true、哈希不符、schema_version 值不符）",
+    "2": "输入或环境错误（契约缺失/不完整、包目录不存在、--packages-from 文件不存在、未指定包）"
+  },
   "results_required_common": [
     "schema_version", "run_id", "task_id", "generated_utc8", "source_commit",
     "status", "input_scope_label", "checks"
@@ -19,7 +24,7 @@
       "schema_version": "gestureforge_s5t03_replay_display_v1",
       "requires_frame_assertions": true,
       "required_results": ["counters", "boundary_cases", "keyframes", "demo", "limitations", "not_run"],
-      "detect": "results.json 无 invariants 且无 geometries"
+      "detect": "results.json 含 counters 且不含 invariants/geometries"
     },
     "long_run_replay": {
       "schema_version": "gestureforge_s5t03_long_run_replay_v1",
@@ -48,43 +53,94 @@
     "stale_effective", "stale_reason", "skip_reason", "age_result_ns", "age_frame_ns",
     "display_semantics", "input_scope_label"
   ],
-  "frame_assertion_stable": [
+  "frame_assertion_stable_required": [
     "frame_index", "displayed_frame_id", "result_frame_id", "result_seq", "state", "drawn", "boxes",
-    "zero_area_dropped", "stale_effective", "stale_reason", "skip_reason", "age_result_ns",
-    "age_frame_ns", "display_semantics", "input_scope_label", "assertion_mode"
+    "stale_effective", "stale_reason", "skip_reason", "age_result_ns", "age_frame_ns",
+    "display_semantics", "input_scope_label"
+  ],
+  "frame_assertion_stable_optional": [
+    "zero_area_dropped", "assertion_mode", "input_frame_sha256", "seed", "canvas",
+    "overlay_commit_ns", "rejects_this_frame", "height", "coordinate_mapping", "hud", "checks", "render"
   ],
   "manifest_required": [
     "schema_version", "run_id", "task_id", "generated_utc8", "source_commit", "status",
     "files", "tools", "limitations", "not_run"
   ],
   "manifest_files_entry_required": ["path", "sha256"],
+  "manifest_tools_shape": {
+    "notation": "manifest.tools 是 role→对象 的映射（如 tools.render.path / tools.render.sha256），**不是数组**；消费者不得写 tools[0]",
+    "entry_required": ["path", "sha256"]
+  },
+  "manifest_cross_checks": [
+    "manifest.run_id == results.run_id",
+    "manifest.source_commit == results.source_commit",
+    "manifest.schema_version == results.schema_version"
+  ],
+  "results_checks_rule": "checks 必须是对象且含布尔 passed 与数组 failures；**passed 必须为 true**（失败运行不得作为交付证据），且 failures 为空时 passed 必须为 true",
+  "event_log_fields": {
+    "authoritative": true,
+    "note": "帧级事件日志为权威可复算来源；图例见 docs/stage5/s5t03_offline_skeleton_params_v1.json 的 counter_units 与下方键说明。",
+    "commit_record_keys": ["t", "dfid", "rfid", "rseq", "state", "drawn", "boxes", "se", "sr", "sk",
+                           "ar", "af", "ts", "zd"],
+    "submit_record_keys": ["t", "rfid", "rseq", "seq", "verdict", "outcome", "rr"],
+    "reject_reason_key": "rr（事件日志中的拒绝原因串）；submit_verdicts.reject_reason 为另一路描述，二者可能不同（已知不一致，见 known_inconsistencies）"
+  },
+  "known_inconsistencies": [
+    {
+      "id": "reject_reason_two_forms",
+      "description": "同一被拒提交：results.submit_verdicts[].reject_reason（如 derived:duplicate）与事件日志 rr（如 duplicate_result_key）可能不同；两者只在 submit_verdicts 侧带 reject_reason_source 标注。",
+      "consumer_rule": "阶段6 需要唯一原因时**以事件日志 rr 为准**；本契约不统一该差异（未在 v1 变更）。"
+    }
+  ],
   "stability": {
     "stable_for_consumers": [
-      "results.schema_version", "results.run_id", "results.task_id", "results.generated_utc8",
-      "results.source_commit", "results.status", "results.input_scope_label", "results.checks",
-      "results.counters（14 键语义）", "results.boundary_cases", "results.invariants（长跑）",
-      "results.geometries / numeric_checks（多几何）", "frame_assertion 稳定子集",
-      "manifest.files[].path/sha256", "manifest.tools[].path/sha256", "manifest.limitations/not_run"
+      "results.schema_version（值必须等于对应 artifact_kinds[*].schema_version）",
+      "results.run_id", "results.task_id", "results.generated_utc8", "results.source_commit",
+      "results.status", "results.input_scope_label", "results.checks",
+      "results.counters（14 键语义）", "results.boundary_cases",
+      "results.invariants（长跑，含 10 个必需键）", "results.geometries / numeric_checks（多几何）",
+      "results.stream.frame_period_ns（**短跑与长跑均提供**；阶段6 T6-A03 的帧周期来源）",
+      "frame_assertion_stable_required（逐帧，必须存在）",
+      "manifest.files[].path/sha256（校验器会**实测**哈希）", "manifest.tools.<role>.path/sha256",
+      "manifest.limitations/not_run"
     ],
     "detail_not_for_consumers": [
-      "results.process_seconds", "results.render.*", "results.demo.*", "results.keyframes[].png_path",
-      "results.artifacts.*", "results.logs.*", "manifest.eol_status", "manifest.manifest_refreshed_utc8",
-      "console/*", "keyframes/*.png", "demo.mp4"
-    ]
+      "results.process_seconds", "results.render.*", "results.demo.*", "results.keyframes[]",
+      "results.artifacts.*", "results.logs.*", "results.recomputed_counters", "results.input.*",
+      "results.five_tuples_head", "results.hud_last", "results.submit_verdicts", "results.commits",
+      "results.odd_padding", "results.canvas_fit", "results.assertion_mode", "results.purpose",
+      "manifest.counters", "manifest.invariants", "manifest.checks", "manifest.logs", "manifest.render",
+      "manifest.demo", "manifest.numeric_checks", "manifest.goal_reached", "manifest.summary",
+      "manifest.scope_statement", "manifest.own_test_suite_log", "manifest.assertion_count",
+      "manifest.keyframe_count", "manifest.recompute_matches_online", "manifest.eol_status",
+      "manifest.manifest_refreshed_utc8", "manifest.manifest_refresh_note",
+      "frame_assertion_stable_optional 中全部键", "console/*", "keyframes/*.png", "demo.mp4"
+    ],
+    "unclassified_policy": "未在 stable/detail 中逐键列出的**容器内字段**一律视为 detail_not_for_consumers；消费者不得依赖；若阶段6/7 需要，须走版本升级流程加入 stable_for_consumers。"
   },
   "consumer_notes": {
     "stage6": [
-      "T6-A03 基线 t_effective − window_complete 可用：display frame period = results.stream.frame_period_ns（长跑）或 results.stream（短跑）",
-      "帧关联消费 results.counters + frame_assertion 稳定子集；不得依赖 PS 绘制的完成时刻语义（本轮 NOT_RUN）"
+      "T6-A03 基线 t_effective − window_complete 的帧周期来源：results.stream.frame_period_ns（短跑与长跑均提供，稳定）",
+      "帧关联消费 results.counters + frame_assertion_stable_required；不得依赖 PS 绘制完成时刻语义（本轮 NOT_RUN）"
     ],
     "stage7": [
-      "仅消费 schema_version + 稳定字段；仓库/PNG/MP4 不作依赖",
-      "版本升级须新增 schema_version（不原地改语义）"
+      "只消费 schema_version（值受校验器守卫）+ 稳定字段；不得依赖仓库路径、PNG/MP4 或摘要文本",
+      "版本升级须提升 schema_version 值（不原地改语义）"
     ]
   },
   "versioning_rules": [
     "语义变化（字段含义/单位/取值范围）必须提升 schema_version 版本号，不原地修改 v1",
     "仅新增可选字段可在 v1 内进行，且必须在 stability.detail_not_for_consumers 或新增文档中说明",
-    "删除/重命名稳定字段属于破坏性变更，必须新建版本并在契约文档登记迁移说明"
+    "删除/重命名稳定字段属于破坏性变更，必须新建版本并在契约文档登记迁移说明",
+    "契约本体（本文件）新增必填键属于契约版本提升；校验器对**本文件缺键**必须 fail-closed（退出码 2）"
+  ],
+  "contract_required_keys": [
+    "contract_id", "contract_version", "frozen_utc8", "purpose", "authority",
+    "input_scope_label_expected", "status_label_expected", "exit_code_semantics",
+    "results_required_common", "artifact_kinds", "counter_keys", "frame_assertion_required",
+    "frame_assertion_stable_required", "frame_assertion_stable_optional", "manifest_required",
+    "manifest_files_entry_required", "manifest_tools_shape", "manifest_cross_checks",
+    "results_checks_rule", "event_log_fields", "known_inconsistencies", "stability",
+    "consumer_notes", "versioning_rules"
   ]
 }

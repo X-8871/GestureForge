@@ -1,0 +1,813 @@
+{
+  "schema_version": "gestureforge_s5t03_hud_occlusion_v1",
+  "run_id": "s5t03_hud_occlusion_20261026_r02",
+  "task_id": "S5-T03",
+  "generated_utc8": "2026-10-27T01:05:09+08:00",
+  "source_commit": "33a8f94237489f4e194e58d161d4bbeeaa78421b",
+  "status": "PRELIMINARY",
+  "input_scope_label": "synthetic_replay",
+  "purpose": "量化 HUD 不透明面板对**框线像素**的遮挡（差分栅格化），供显示侧边界评估",
+  "method": "A=仅边框像素集；B=边框+HUD 像素集；occluded=A\\B；HUD 像素=H（无框渲染）；ratio=|occluded|/|A|",
+  "limit": {
+    "value": 0.1,
+    "semantics": "本仓库离线渲染**告警阈值**（非 Wong/阶段7 冻结的验收指标，也不代表板级指标）",
+    "verdict_rule": "ratio <= limit ⇒ WITHIN_LIMIT；否则 EXCEEDS_LIMIT"
+  },
+  "geometries": [
+    "landscape_1280x720",
+    "portrait_720x1280",
+    "oddw_683x384"
+  ],
+  "layouts": [
+    {
+      "id": "far_bottom_right",
+      "expect_zero": true,
+      "boxes": [
+        {
+          "xyxy": [
+            0.6,
+            0.62,
+            0.92,
+            0.95
+          ],
+          "class_id": 1,
+          "class_name": "one",
+          "score": 0.9
+        }
+      ]
+    },
+    {
+      "id": "top_left_under_hud",
+      "expect_zero": false,
+      "boxes": [
+        {
+          "xyxy": [
+            0.01,
+            0.01,
+            0.28,
+            0.2
+          ],
+          "class_id": 0,
+          "class_name": "fist",
+          "score": 0.81
+        }
+      ]
+    },
+    {
+      "id": "mixed_three",
+      "expect_zero": false,
+      "boxes": [
+        {
+          "xyxy": [
+            0.01,
+            0.02,
+            0.22,
+            0.16
+          ],
+          "class_id": 3,
+          "class_name": "two_up",
+          "score": 0.77
+        },
+        {
+          "xyxy": [
+            0.4,
+            0.35,
+            0.62,
+            0.6
+          ],
+          "class_id": 2,
+          "class_name": "three",
+          "score": 0.83
+        },
+        {
+          "xyxy": [
+            0.7,
+            0.72,
+            0.95,
+            0.96
+          ],
+          "class_id": 4,
+          "class_name": "palm",
+          "score": 0.88
+        }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "geometry": "landscape_1280x720",
+      "layout": "far_bottom_right",
+      "canvas": [
+        1280,
+        720
+      ],
+      "boxes": 1,
+      "border_pixels_total": 2587,
+      "border_pixels_occluded": 0,
+      "border_pixels_visible": 2587,
+      "occlusion_ratio": 0.0,
+      "hud_pixels": 70700,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 312,
+        "y2": 225
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 0,
+      "intersection_method_pixels": 0,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "WITHIN_LIMIT",
+      "expect_zero_occlusion": true,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 1,
+        "border_pixels_drawn": 2587,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": []
+    },
+    {
+      "geometry": "landscape_1280x720",
+      "layout": "top_left_under_hud",
+      "canvas": [
+        1280,
+        720
+      ],
+      "boxes": 1,
+      "border_pixels_total": 1927,
+      "border_pixels_occluded": 1473,
+      "border_pixels_visible": 454,
+      "occlusion_ratio": 0.764401,
+      "hud_pixels": 70700,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 312,
+        "y2": 225
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 1473,
+      "intersection_method_pixels": 1470,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "EXCEEDS_LIMIT",
+      "expect_zero_occlusion": false,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 1,
+        "border_pixels_drawn": 1927,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": [
+        [
+          12,
+          7
+        ],
+        [
+          12,
+          8
+        ],
+        [
+          12,
+          9
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          12,
+          12
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          14
+        ]
+      ],
+      "keyframes": {
+        "nohud": {
+          "path": "keyframes/landscape_1280x720_top_left_under_hud_nohud.png",
+          "sha256": "543e089969037d86d0b42de298247a765702a191b5831babd718f61d8132e53e"
+        },
+        "hud": {
+          "path": "keyframes/landscape_1280x720_top_left_under_hud_hud.png",
+          "sha256": "d53f1368f989f0bad7f4e2c570bc56a563006885b90c53c654793c53b0c52310"
+        }
+      }
+    },
+    {
+      "geometry": "landscape_1280x720",
+      "layout": "mixed_three",
+      "canvas": [
+        1280,
+        720
+      ],
+      "boxes": 3,
+      "border_pixels_total": 5281,
+      "border_pixels_occluded": 1475,
+      "border_pixels_visible": 3806,
+      "occlusion_ratio": 0.279303,
+      "hud_pixels": 70700,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 312,
+        "y2": 225
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 1475,
+      "intersection_method_pixels": 1473,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "EXCEEDS_LIMIT",
+      "expect_zero_occlusion": false,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 3,
+        "border_pixels_drawn": 5281,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist",
+          "palm",
+          "one"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": [
+        [
+          12,
+          14
+        ],
+        [
+          12,
+          15
+        ],
+        [
+          12,
+          16
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          12,
+          18
+        ],
+        [
+          12,
+          19
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          12,
+          21
+        ]
+      ]
+    },
+    {
+      "geometry": "portrait_720x1280",
+      "layout": "far_bottom_right",
+      "canvas": [
+        720,
+        1280
+      ],
+      "boxes": 1,
+      "border_pixels_total": 2607,
+      "border_pixels_occluded": 0,
+      "border_pixels_visible": 2607,
+      "occlusion_ratio": 0.0,
+      "hud_pixels": 201721,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 546,
+        "y2": 368
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 0,
+      "intersection_method_pixels": 0,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "WITHIN_LIMIT",
+      "expect_zero_occlusion": true,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 1,
+        "border_pixels_drawn": 2607,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": []
+    },
+    {
+      "geometry": "portrait_720x1280",
+      "layout": "top_left_under_hud",
+      "canvas": [
+        720,
+        1280
+      ],
+      "boxes": 1,
+      "border_pixels_total": 1747,
+      "border_pixels_occluded": 1747,
+      "border_pixels_visible": 0,
+      "occlusion_ratio": 1.0,
+      "hud_pixels": 201721,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 546,
+        "y2": 368
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 1747,
+      "intersection_method_pixels": 1745,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "EXCEEDS_LIMIT",
+      "expect_zero_occlusion": false,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 1,
+        "border_pixels_drawn": 1747,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": [
+        [
+          6,
+          13
+        ],
+        [
+          6,
+          14
+        ],
+        [
+          6,
+          15
+        ],
+        [
+          6,
+          16
+        ],
+        [
+          6,
+          17
+        ],
+        [
+          6,
+          18
+        ],
+        [
+          6,
+          19
+        ],
+        [
+          6,
+          20
+        ]
+      ],
+      "keyframes": {
+        "nohud": {
+          "path": "keyframes/portrait_720x1280_top_left_under_hud_nohud.png",
+          "sha256": "7701a96256176de15e8ae506e8e3b0f3ee18cd6cbdb30f2291a86a3b29d4f083"
+        },
+        "hud": {
+          "path": "keyframes/portrait_720x1280_top_left_under_hud_hud.png",
+          "sha256": "108e18b75c6856a72cf53c6de87305aa25ed161a7739d7f172e19c874cf37f38"
+        }
+      }
+    },
+    {
+      "geometry": "portrait_720x1280",
+      "layout": "mixed_three",
+      "canvas": [
+        720,
+        1280
+      ],
+      "boxes": 3,
+      "border_pixels_total": 5173,
+      "border_pixels_occluded": 1319,
+      "border_pixels_visible": 3854,
+      "occlusion_ratio": 0.254978,
+      "hud_pixels": 201722,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 546,
+        "y2": 368
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 1319,
+      "intersection_method_pixels": 1319,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "EXCEEDS_LIMIT",
+      "expect_zero_occlusion": false,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 3,
+        "border_pixels_drawn": 5173,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist",
+          "palm",
+          "one"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": [
+        [
+          6,
+          26
+        ],
+        [
+          6,
+          27
+        ],
+        [
+          6,
+          28
+        ],
+        [
+          6,
+          29
+        ],
+        [
+          6,
+          30
+        ],
+        [
+          6,
+          31
+        ],
+        [
+          6,
+          32
+        ],
+        [
+          6,
+          33
+        ]
+      ]
+    },
+    {
+      "geometry": "oddw_683x384",
+      "layout": "far_bottom_right",
+      "canvas": [
+        683,
+        384
+      ],
+      "boxes": 1,
+      "border_pixels_total": 1379,
+      "border_pixels_occluded": 0,
+      "border_pixels_visible": 1379,
+      "occlusion_ratio": 0.0,
+      "hud_pixels": 27221,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 183,
+        "y2": 147
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 0,
+      "intersection_method_pixels": 0,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "WITHIN_LIMIT",
+      "expect_zero_occlusion": true,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 1,
+        "border_pixels_drawn": 1379,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": []
+    },
+    {
+      "geometry": "oddw_683x384",
+      "layout": "top_left_under_hud",
+      "canvas": [
+        683,
+        384
+      ],
+      "boxes": 1,
+      "border_pixels_total": 1027,
+      "border_pixels_occluded": 853,
+      "border_pixels_visible": 174,
+      "occlusion_ratio": 0.830574,
+      "hud_pixels": 27221,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 183,
+        "y2": 147
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 853,
+      "intersection_method_pixels": 853,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "EXCEEDS_LIMIT",
+      "expect_zero_occlusion": false,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 1,
+        "border_pixels_drawn": 1027,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": [
+        [
+          6,
+          4
+        ],
+        [
+          6,
+          5
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          6,
+          11
+        ]
+      ],
+      "keyframes": {
+        "nohud": {
+          "path": "keyframes/oddw_683x384_top_left_under_hud_nohud.png",
+          "sha256": "1bc53d341b534161e3721356fbfe492c34b2487d0fc051b4b7c060e608968aab"
+        },
+        "hud": {
+          "path": "keyframes/oddw_683x384_top_left_under_hud_hud.png",
+          "sha256": "3e8d7bb9bd478b070baf5e11bc36de6ddcb84c47f090fadb3f596cb1621437d9"
+        }
+      }
+    },
+    {
+      "geometry": "oddw_683x384",
+      "layout": "mixed_three",
+      "canvas": [
+        683,
+        384
+      ],
+      "boxes": 3,
+      "border_pixels_total": 2817,
+      "border_pixels_occluded": 783,
+      "border_pixels_visible": 2034,
+      "occlusion_ratio": 0.277955,
+      "hud_pixels": 27221,
+      "hud_panel_px": {
+        "x1": 0,
+        "y1": 0,
+        "x2": 183,
+        "y2": 147
+      },
+      "occlusion_method": "per_pixel_color_diff(A vs A+HUD)",
+      "panel_method_pixels": 783,
+      "intersection_method_pixels": 783,
+      "methods_consistent": true,
+      "limit": 0.1,
+      "verdict": "EXCEEDS_LIMIT",
+      "expect_zero_occlusion": false,
+      "expectation_met": true,
+      "render_stats_border_only": {
+        "background": "provided",
+        "boxes_drawn": 3,
+        "border_pixels_drawn": 2817,
+        "labels_drawn": 0,
+        "label_placements": {},
+        "classes_drawn": [
+          "fist",
+          "palm",
+          "one"
+        ],
+        "hud_lines_drawn": 0,
+        "zero_area_dropped": 0,
+        "state": "OK",
+        "drawn": true,
+        "stale_effective": false,
+        "font": {
+          "font_id": "caller_provided",
+          "scaled": null
+        }
+      },
+      "sample_occluded_px": [
+        [
+          6,
+          8
+        ],
+        [
+          6,
+          9
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          6,
+          11
+        ],
+        [
+          6,
+          12
+        ],
+        [
+          6,
+          13
+        ],
+        [
+          6,
+          14
+        ],
+        [
+          6,
+          15
+        ]
+      ]
+    }
+  ],
+  "summary": {
+    "cases": 9,
+    "max_occlusion_ratio": 1.0,
+    "mean_occlusion_ratio": 0.378579,
+    "exceeds_limit": [
+      "landscape_1280x720",
+      "oddw_683x384",
+      "portrait_720x1280"
+    ],
+    "zero_occlusion_cases": [
+      "far_bottom_right"
+    ]
+  },
+  "render": {
+    "pillow_version": "12.2.0",
+    "font": {
+      "font_id": "arial.ttf",
+      "font_path": "C:\\Windows\\Fonts\\arial.ttf",
+      "font_sha256": "5f9f2d8104ad5e69e1be8107224063dc8c36f9e24680b2f9be324244c0b424a1",
+      "font_size_px": 9,
+      "scaled": true
+    },
+    "class_colors_rgb": {
+      "fist": "#0072B2",
+      "palm": "#E69F00",
+      "one": "#009E73",
+      "two_up": "#CC79A7",
+      "three": "#D55E00"
+    },
+    "line_width_px": 2,
+    "rounding_rule": "round_half_up_to_nearest_pixel_index"
+  },
+  "checks": {
+    "failures": [],
+    "passed": true
+  },
+  "limitations": [
+    "输入为合成归一化坐标；只量化**框线像素**被 HUD 覆盖的比例，不含标签文字覆盖口径。",
+    "阈值 0.1 为本仓库离线告警口径，**不是**验收指标；改阈值只改判定串不改语义。",
+    "板级真彩目视下的 HUD 遮挡须板上窗口验证（NOT_RUN）。",
+    "PNG 供人工抽检；JSON 为权威。G0/G1/G3/G4/G5 均未通过。"
+  ],
+  "not_run": [
+    "真实回放接入（无阶段4 冻结回放结果包）",
+    "板上动态映射与绘制（本轮不接板卡）",
+    "板级真彩目视下的 HUD 遮挡（须板上窗口）",
+    "摄像头真实采集路径",
+    "T5-10 板上回归"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_timing36_source_probe_20261026_r01",
+  "source_commit": "beab61e1a987798774678fc05baae5dcff472b9d",
+  "evidence_dir": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅尝试读取既有 routed DCP 的时钟信息，未修改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r01/README.md",
+      "sha256": "f1db30cc540e751418b57d772a73726005798f26b3096cae033e74035691c8e2",
+      "role": "artifact",
+      "keep_reason": "记录参数传递失败、失败前置保护与未读取 DCP 的边界"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r01/probe_clocks.tcl",
+      "sha256": "4ef5ec09cf01805fc3bb2ad37a1a7a43803f4b149db000d791960926b67deb74",
+      "role": "source",
+      "keep_reason": "保留本次失败调用所用的只读脚本原文"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r01/stdout.txt",
+      "sha256": "a11ceb6486b4d0c70a9b23c1fcc5fbf4d3352af1f8f42e96af0852a3a656e12f",
+      "role": "result",
+      "keep_reason": "证明 Tcl 参数为空并在 open_checkpoint 前退出，真实 Vivado 退出码为 2"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r01/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "保留原始空 stderr"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r01/source_provenance.json",
+      "sha256": "b8dfb16350e91532377f343e3e555dc363e97d9b1dc0e7b4239dab4071d9865f",
+      "role": "artifact",
+      "keep_reason": "机器可读记录未消费的 DCP 身份、启动参数、时间与失败边界"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Read-only probe invocation",
+      "status": "FAIL",
+      "command": "vivado.bat -mode batch -source probe_clocks.tcl -tclargs <routed.dcp> <output_dir> -nojournal",
+      "exit_code": 2,
+      "reason": "Vivado 已识别 BASIC 许可证；Tcl argv 为空，按保护条件在 open_checkpoint 前退出。未读取 DCP、未写回设计、未访问硬件。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1 Build 6511674",
+    "license": "BASIC，许可证内容未读取"
+  },
+  "limitations": [
+    "此 RunId 是保留的失败调用证据，不含时钟查询结果。",
+    "DCP 哈希来自启动前身份核验；该失败调用未打开该 DCP。"
+  ]
+}

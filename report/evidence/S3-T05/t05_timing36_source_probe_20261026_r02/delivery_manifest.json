@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_timing36_source_probe_20261026_r02",
+  "source_commit": "beab61e1a987798774678fc05baae5dcff472b9d",
+  "evidence_dir": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅只读分析已路由 DCP 中的时钟对象及连接关系，没有修改、定义或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/README.md",
+      "sha256": "bf152d2b0ae432a61ccaf3e6cb1d537434dddef157e83974507dd7a7d0eab5e5",
+      "role": "artifact",
+      "keep_reason": "记录只读探测结论、根因推断、修复候选及未关闭边界"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/probe_clocks.tcl",
+      "sha256": "54c17c57211dbb10cc786d1f7f602cf1e9dbd1982a73b72e037ee0114b979b16",
+      "role": "source",
+      "keep_reason": "绑定只读查询命令与固定 DCP、输出路径"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/stdout.txt",
+      "sha256": "8be82a011943dc4390518b0b2eb0da46a53b6138c5eccfdc9509ce3563ef1b22",
+      "role": "result",
+      "keep_reason": "Vivado 原始日志，含工具版本、DCP 打开信息、clock/pin/net 查询、完成标记与正常退出消息"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "保留原始空 stderr"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/clocks.rpt",
+      "sha256": "e23addb297a787b6fcfea7d23136ddfd1aac3736bbfaa1182e667d6352429c96",
+      "role": "result",
+      "keep_reason": "routed DCP 的完整 report_clocks 输出，保留 10 ns PixelClk、2 ns SerialClk 与 master-source 报告"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/source_provenance.json",
+      "sha256": "a06db9a9d740eb9c6f9257538cd612beb83f50266bb10a1587ef4da5add17a44",
+      "role": "artifact",
+      "keep_reason": "机器可读绑定 DCP、原报告、命令、工具、哈希与实际只读边界"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/validate_probe_outputs.py",
+      "sha256": "2ce136fc77609193e22fdd3b97a2b5c8f9de0a5c08392334e1554f165bfa5c9d",
+      "role": "source",
+      "keep_reason": "只读断言用于本次根因定位的原始 Vivado 查询、时钟报告、既有方法报告及 XDC 行"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_dcp_readonly_20261024_r01/v3_clocks.rpt",
+      "sha256": "3758e9bf38e02767bd5fdee823191559984c66aeacc97007660eede88bd32594",
+      "role": "source",
+      "keep_reason": "同一 DCP 的既有时钟报告，用于对照生成时钟属性"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_dcp_readonly_20261024_r01/v3_methodology.rpt",
+      "sha256": "f3726bb662b4b8aaa52e1fa76f4f43069f46c20d9ba5e9f0890dadc485d1b6df",
+      "role": "source",
+      "keep_reason": "绑定 TIMING-36/30 的原始方法学警告与数量"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_dcp_readonly_20261024_r01/v3_constraints_exported.xdc",
+      "sha256": "b6ecb117565c2b8ce3b59757461c0cb590d9d47ea5d1e3fc432713ed7e8cbcd6",
+      "role": "source",
+      "keep_reason": "绑定 routed DCP 中 rgb2dvi_clocks.xdc 的原始 generated-clock 约束"
+    }
+  ],
+  "checks": [
+    {
+      "name": "TIMING-36 source/net evidence content",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B report/evidence/S3-T05/t05_timing36_source_probe_20261026_r02/validate_probe_outputs.py",
+      "exit_code": 0,
+      "reason": "验证脚本退出码 0；只读断言确认输入 DCP 哈希标记、实际 PixelClk/SerialClk 网络及时钟映射、既有 TIMING-36 诊断行与 XDC 约束行一致。Vivado 原始进程的数值退出码仍未由编排返回。"
+    },
+    {
+      "name": "TIMING-36 constraint repair and final routed recheck",
+      "status": "BLOCKED",
+      "command": "Isolated constraint correction, then applicable synth/implementation, clock/path coverage reports and independent review",
+      "exit_code": null,
+      "reason": "本 RunId 没有修改约束或重跑实现；准确拓扑已定位，但警告仍存在于被测 routed DCP，最终修复和签核未执行。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1 Build 6511674",
+    "device": "xc7z020clg400-2",
+    "license": "BASIC，许可证内容未读取"
+  },
+  "limitations": [
+    "本次探测只确认现有 routed DCP 的对象、属性与网络连接，不修改 XDC、不创建或删除 clock object、不重跑综合/实现。",
+    "TIMING-36/30 仍在既有报告中；该发现不代表告警已修复或时序签核通过。",
+    "numeric Vivado process exit code 未被执行编排返回；仅以 Tcl 完成标记、正常退出行和空 stderr 描述工具输出。",
+    "未做 RTL 等价、I/O delay 完整性、板上显示或外部接口时序验证，不代表 G2/G3/G4/G5。"
+  ]
+}

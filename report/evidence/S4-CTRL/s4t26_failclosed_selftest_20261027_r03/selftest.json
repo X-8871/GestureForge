@@ -1,0 +1,122 @@
+{
+  "schema_version": "s4t26_failclosed_selftest_v2",
+  "task_id": "S4-T26-FAILCLOSED-SELFTEST",
+  "run_id": "s4t26_failclosed_selftest_20261027_r03",
+  "checker": "verification/test_s4t26_failclosed.py",
+  "checker_sha256": "3d6863f852480dded330e1bbaf893b854fbbb84e6eba113a41f609f1d2f032ed",
+  "generated_utc8": "2026-10-27T01:21:27+08:00",
+  "worktree": "D:\\codex-worktrees\\w4",
+  "activation_report_pinned_sha256": "6d73283c698a94dd30cf00634de59fb76a8e889916eb4d00e50b76c245687216",
+  "cases": [
+    {
+      "id": "T1_audit_evidence_dir_is_file",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "非法证据目录必须归为输入错误（2），不得与未闭合（1）混同"
+    },
+    {
+      "id": "T2_audit_report_not_pinned",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "禁止用被改写过的 activation report 自证关闭"
+    },
+    {
+      "id": "T2b_audit_repin_requires_flag",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "换钉须具名承认；即使承认，审计结论仍是 BLOCKED/1，不会变绿"
+    },
+    {
+      "id": "T3_audit_runid_reuse",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "RunId 不得复用，旧证据不得被覆盖"
+    },
+    {
+      "id": "T4_audit_no_binding_audit_switch_removed",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "绑定口径歧义不可通过开关跳过"
+    },
+    {
+      "id": "T5_reconcile_evidence_dir_is_file",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "非法证据目录归为输入错误"
+    },
+    {
+      "id": "T6_audit_real_unclosed_exit1",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "producer 不可复现 + 绑定歧义时必须 BLOCKED/1"
+    },
+    {
+      "id": "T7_reconcile_real_unclosed_exit1",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "当前桥接器无 PASS 运行时必须 BLOCKED/1"
+    },
+    {
+      "id": "T8_reconcile_missing_root",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "证据根缺失属输入错误"
+    },
+    {
+      "id": "T9_reconcile_invalid_structure_exit2",
+      "expect": 2,
+      "actual": 2,
+      "meaning": "结构非法的合法 JSON 必须归为输入错误（2），不得伪装成未闭合（1）"
+    },
+    {
+      "id": "T10_blocked_run_on_current_bridge",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "跑过但失败 ≠ 通过（首轮 Review 的 P1 绿通道）"
+    },
+    {
+      "id": "T11_pass_on_stale_bridge",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "门必须在当前桥接器字节上跑过，旧 PASS 不算"
+    },
+    {
+      "id": "T12_exit_code_bool_false",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "False == 0 的隐式比较会造成绿通道，必须严格整型判定"
+    },
+    {
+      "id": "T13_missing_gate_check",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "缺任一门不得算门 PASS（防止只看顶层 status）"
+    },
+    {
+      "id": "T14_positive_control_exit0",
+      "expect": 0,
+      "actual": 0,
+      "meaning": "证明判定不是恒 1：条件全满足时必须能通过"
+    },
+    {
+      "id": "T15_g0_blocked_gate_pass",
+      "expect": 1,
+      "actual": 1,
+      "meaning": "G0 未闭合时不得因门 PASS 而整体判通过"
+    }
+  ],
+  "unit_checks": [
+    {
+      "id": "T16_qualifies_as_gate_pass_truth_table",
+      "kind": "function_level_truth_table",
+      "rows": 8,
+      "expect": "全部一致",
+      "actual": "全部一致",
+      "meaning": "只有 PASS+整型0+当前字节+五项检查齐备才算门通过"
+    }
+  ],
+  "failures": [],
+  "verdict": "PASS",
+  "exit_code": 0,
+  "scope": "只读负控；T1–T15 用真实子进程退出码证明未闭合不会被判成通过；T16 为函数级真值表"
+}

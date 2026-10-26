@@ -1,4 +1,22 @@
-# 阶段4 状态（写权：Workbuddy 项目总控已 CLAIMED；现 OFFERED 给 Workbuddy 阶段4总控新窗口）
+# 阶段4 状态（写权：Workbuddy 阶段4总控已 CLAIMED；task-26 仍 BLOCKED，未冻结）
+
+## 本轮结果（S4-T26-PRODUCER-AUDIT，2026-10-27 00:53 UTC+8）
+
+- 接管：以现场 HEAD `0fcd67595ae5be85b99ee93928a9b265786f3af0` 生成 successor 记录并真实 `--claim`，取得 **`HANDOFF_OK / exit 0 / 9 PASS / 0 FAIL / 0 SKIP`**（2026-10-27 00:41:39）。首次执行即通过，无失败重试；上一窗口在 `e65ea51` 上的 claim 未被沿用。证据 `report/evidence/S4-CTRL/w4_workbuddy_takeover_20261027_r02/`。
+- 保护核验：既有 15 项（1 项 STATE 差异 + 12 个 ELF/MAP + 两个 task-26 证据目录）原位、原归属；19 个未跟踪文件 SHA **19/19 一致**；STATE 既有未提交差异（27 增/8 删）仍在工作区、未提交。claim 后工作区为 16 项，增量仅本窗口自己的新证据目录。
+- **task-26 状态口径修正（重要）**：`2929/5070、10358/20280` 的 T29 控制差异产生于 T25 预处理修复（`e65ea51`，桥接器 `8a80c33c…`）**之前**；该修复后的诊断探针 `s4t26_layer_divergence_20261026_r02` 记录 `LAYER_MATCH_AND_REQUIRED_GATES_PASS`、38/38 层逐字节一致（layer 30/37 为 yolo 别名层，`t25_stored=false`，不与独立存储张量比对）、两样本 head13/head26 与黄金完全一致、D9/NMS 2→1。本窗口独立复算四份 head 二进制，**全部与黄金逐字节一致**。诊断探针只是“观察 `forward_one` 局部变量”，**不是权威门运行**，不得据此把 task-26 改称 PASS。
+- 阻断归因拆分：**B1** activation producer 身份不可复现（记录 `f025f5ab…`/`0487e694…`，固定路径现值 `879148e0…`/`ef907ba3…`，4+5 个候选副本零命中；固定路径 mtime 分别晚 15,995/15,964 秒 ⇒ 报告后被重建覆盖；报告 SHA 由 `sha256_file` 运行期计算，工具 raw SHA `288390f8…` 与记录一致）；**B2** 当前桥接器字节无任何权威门 PASS 运行（7 次桥接结果全部早于 `e65ea51`）；**B3** 绑定字节口径歧义（T29 参考 raw `26392c8d…` vs CRLF 归一化 `24361a13…`，契约绑归一化、材料化清单绑原始，内容同源非漂移）；**B4** 旧 r02 证据缺输入身份字段（当前代码已输出，需重跑落盘）。四项均未闭合；**B5（task-27 输入包）为下游依赖，不计入本轮阻断**。
+- 本轮交付（离线、只读）：`scripts/stage4_s4ctrl/audit_t26_producer_provenance.py`（fail-closed 身份/绑定审计，报告 SHA 钉死 + 换钉需 `--allow-repin`，绑定审计无跳过开关）、`scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py`（门禁证据对齐，须 status=PASS + 整型 exit 0 + 运行期桥接器 SHA 等于当前字节 + 五项必备检查全 PASS）、`verification/test_s4t26_failclosed.py`（20 项子进程负控 + 1 项函数级真值表）、`docs/stage4/s4t26_status_audit_20261027_r03.md`（现状审计 + 关闭条件 + 责任方）。真实结果：审计 `BLOCKED / exit 1`（7 项未闭合）、对齐 `BLOCKED / exit 1`（2 项未闭合）、负控 `PASS / exit 0`；均**不自动变绿**；`reconcile` 的 `PASS` 只表示证据文件内部自洽且满足判定条件，不表示门已在实机跑过（伪造自洽证据根同样可得 PASS）。
+- 留档不作证据（本窗口更早迭代，原样保留、不引用其结论）：`s4t26_producer_audit_20261027_r00/`（首跑 TypeError，已补 `NOT_EVIDENCE` manifest，无 `audit.json` 结论）、`…_r01|r02|r03/`、`s4t26_gate_reconcile_20261027_r01|r02|r03|r04/`、`s4t26_failclosed_selftest_20261027_r01|r02|r03|r04|r05|r06/`。结论一律以 audit_r04 / gate_reconcile_r05 / failclosed_selftest_r07 为准。
+- 复核记录：第 1 轮 Reviewer `CHANGES_REQUIRED`（P1–P10，含“时间戳当通过”“`--no-binding-audit` 绿通道”“报告未钉死”）；第 2 轮 `CHANGES_REQUIRED`（F1 `False == 0` 绿通道、F2 非法结构 JSON 崩成 exit 1、F3 文档与 r00 manifest 不同步、F4 负控自述不实、R1 STATE 哈希口径）；第 3 轮 `CHANGES_REQUIRED`（`RecursionError` 逃逸成 exit 1、落盘失败留 0 字节残文件、单运行结果损坏被降级为“没跑过”）；第 4 轮 `CHANGES_REQUIRED`（负控 T17 的残留断言写在临时目录上下文之外，属恒真断言）；第 5 轮 Reviewer 以变异测试确认 T17 在重新引入缺陷时确实失败，判 `PASS`。全部已修并重新留证。评审用 SHA 均为**整文件工作区原始字节**口径（如 STATE 顶部块以 `D:\codex-worktrees\w4\.codex\STATE.md` 整文件计、非行区间；工作区为 CRLF、180 处，`core.autocrlf=true`，LF 归一化后哈希不同）。
+- 未做：真实网络推理、权威门运行、单字节负控、PNG 检查、task-27 包、任何板卡/JTAG/COM4/摄像头/HDMI/Vivado/hw_server 操作。`ENABLE=0`、RAW 系统 G0 未闭合、P/4-D/G3/G5 `NOT_RUN`、`s4-shared-io r06 DRAFT_PENDING_REVIEW`、真实 C/PL BGR→RGB 运行时 `NOT_IMPLEMENTED` 全部不变。
+- 下一步最小可验收任务：**B2 可行性预检**（只读）——核对当前 `task_blockers`/静态检查在 G0 仍 BLOCKED 时是否允许门运行，产出“能否重跑、缺什么”的机器可读结论；不执行推理。B1 须 Wong 在“登记 provenance 断点”与“授权重跑 512 样本标定”之间裁决。
+
+## 当前交接行（11字段，2026-10-27 02:16 UTC+8）
+
+任务=`S4-T26-PRODUCER-AUDIT：task-26 现状审计、producer 身份与黄金绑定核对` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`0fcd67595ae5be85b99ee93928a9b265786f3af0` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 15 项保持原位（1 项 STATE 差异 + 12 个 ELF/MAP + 两个 task-26 证据目录），19 个未跟踪文件 SHA 19/19 未变；本窗口新增 takeover_r02、producer_audit_r00|r01|r02|r03|r04、gate_reconcile_r01|r02|r03|r04|r05、failclosed_selftest_r01|r02|r03|r04|r05|r06|r07 及本文 STATE 增量归 Workbuddy 阶段4总控` | 让出声明=`仅认领 w4；claim HANDOFF_OK/exit0/9 PASS；未操作硬件、未下载、未烧录、未开阶段7；不代表 G0/G1/G3/G4/G5 或实物验收通过` | 心跳(UTC+8)=`2026-10-27 02:16` | 证据入口=`report/evidence/S4-CTRL/w4_workbuddy_takeover_20261027_r02/manifest.json；report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/audit.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r05/reconcile.json；report/evidence/S4-CTRL/s4t26_failclosed_selftest_20261027_r07/selftest.json；docs/stage4/s4t26_status_audit_20261027_r03.md` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; git --no-optional-locks -C D:/codex-worktrees/w4 status --short; python -B scripts/stage4_s4ctrl/audit_t26_producer_provenance.py --evidence-dir report/evidence/S4-CTRL/s4t26_producer_audit_<新RunId>; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>; python -B verification/test_s4t26_failclosed.py --evidence-dir report/evidence/S4-CTRL/s4t26_failclosed_selftest_<新RunId>` | 状态/下一接手方=`IN_PROGRESS / Workbuddy 阶段4总控；阻断 B1–B4 未闭合（B5 为下游依赖），下一步 B2 可行性预检（只读），B1 待 Wong 裁决`
+
+## 历史交接（2026-10-27 00:29；已由上方本轮接管取代）
 
 ## Workbuddy 协作治理交接（2026-10-27 00:29 UTC+8）
 
@@ -14,13 +32,23 @@
 
 ---
 
-# 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS；上次 OFFER 已撤回）
+# 阶段4 状态（写权：Codex 项目总控已正式 OFFERED；next_owner=Workbuddy 项目总控）
+
+本次交接于 2026-10-27 00:21 UTC+8 按 Wong 明确决定生效，以下当前交接行优先于本文件其余历史写权及任务继续执行陈述。Codex 完成本次 STATE 更新后停止 w4 写入；Workbuddy 尚须正式 CLAIMED。本次仅交接 w4，不包含硬件、main 或其他工作树写权；阶段技术阻碍及 ENABLE=0 保持有效。
 
 ## 当前任务结果（S4-T26-GOLDEN-REBIND，2026-10-26）
 
 - 提交 `138d096358210d84f930eb8af616b1112aef543d`；checker r13 SHA `e0a454dbca52f38512075539170e2645a2bd79a490de63ad971b8360b1b8d801`、bridge r10 SHA `6780446fc4f0d774b5868896b455deec8fc3dcd9e1ffa12a6990577138e57f26` 经独立 Reviewer PASS。决策记录与黄金材料化清单位于 `docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md`、`report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r02/`。
 - T25 冻结切片材料化与 SHA 核验通过。sample_102 raw-head 真实前向逐字节匹配；sample_000 真实前向的 head13/head26 均与 T29 不同，D9/NMS、单字节扰动及 task-25 回放按门控停止；结果 BLOCKED，未生成 task-27 包。旧校准样本标为 `NOT_USED_HISTORICAL`；Darknet r03/r04 控制失败仍非黄金来源。
 - G0 r13 为 `BLOCKED / exit 2 / 0 FAIL`，阻断项为 activation producer 来源 SHA 与当前 EXE/hook 不一致。`ENABLE=0`、RAW G0 OPEN、P/4-D/G3/G5 NOT_RUN；未操作硬件。原有 STATE 差异和12个 ELF/MAP 均保留，不纳入本次代码提交。
+
+## 当前任务结果（S4-T26-GOLDEN-CONTROL，2026-10-26 21:31 UTC+8）
+
+- w4 当前提交 `f73132398e21ae1604f6318640cd94bc1b68d5ac`；task-26 检查器 r12 / 桥接器 r09 已独立 Reviewer PASS 后提交。检查器 SHA `583fcfd902c42b49164c9eea10b0816c2f4d7230c5c909c39e6730ebedab5a34`，桥接器 SHA `bad7f8a99707d6d8fe485c63b6e14a46bc9ffdb79719c993b657a25f94d3f9fb`。固定审查基线为 `4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e` 且按祖先关系验证；r10 的 `33988ed7e8a97a9d5395b8cfd136a327c37d7dc9` 仅作历史记录。
+- G0 r12：**BLOCKED / exit 2，无 FAIL**。cv2 既有 Python 3.12.10、校准图身份/SHA、task-25 package/frame 祖先绑定、桥接器动态 HEAD 契约与原13项保护均 PASS；仅 activation producer 来源 SHA 和校准 raw head13/head26 oracle 未闭合。
+- T29 `test_fist_000` 控制：r04 Darknet 前向 exit 0；hook 的 layer29/36 输出经冻结 scale 量化后与黄金不一致，分别 `2929/5070`、`10358/20280` 字节不同，结论 **BLOCKED**。r03 的启动失败（`0xC0000135`）及 r04 完整日志、float dump、对拍与清单保留于 `report/evidence/S4-CTRL/s4t26_golden_control_20261026_r03/`、`..._r04/`；G0 记录见 `s4t26_g0_inputs_20261026_r12/`。
+- 按控制门槛立即停止：G0 已只读核验校准图像 SHA `c116ba1d…35ee70b`，但未对其推理，未生成新 raw head 或 producer/activation 记录；D9/NMS、负向对照、PNG 检查与 task-27 包均 `NOT_RUN`。
+- ENABLE=0，RAW G0 未闭合，P、4-D、G3、G5 均 `NOT_RUN`。未操作板卡/JTAG/COM4/Vivado/下载/烧录。原13项改动继续保留，本 STATE 增量未暂存。
 
 ## 当前任务（S4-T26-GOLDEN-CONTROL，2026-10-26 20:44 UTC+8）
 
@@ -29,8 +57,18 @@
 - 执行顺序：修正固定提交/祖先绑定并独立复审 → 当前 Darknet/hook 对 T29 `test_fist_000` 导出 layer 29/36、按冻结 scale 量化并逐字节控制对拍 → **仅完全一致后**生成指定校准样本新黄金和 producer 记录，再推进真实推理/回放。任何控制差异立即停止，结果保持 BLOCKED。
 - `ENABLE=0`、RAW 系统 G0 未闭合、P/4-D/G3/G5 NOT_RUN 继续有效；本任务不自动解除这些关口。
 
-## 当前交接行（11字段，2026-10-26 20:44 UTC+8）
-任务=`S4-T26-GOLDEN-CONTROL：撤回 OFFER、修正基线绑定并执行独立黄金控制` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`d2262bca4c562cf2ff9037e6ed098e37f3d62596` | 允许修改范围=`仅 w4 内 task-26 相关代码、文档、新 RunId 证据和 STATE` | 未提交改动归属=`原有 STATE 用户差异及12个ELF/MAP保留、不混入提交；本轮新证据和状态增量归当前Codex` | 让出声明=`Wong 已撤回上次 OFFER；Codex 继续 task-26，DSH 不 claim；硬件与其他工作树无操作授权` | 心跳(UTC+8)=`2026-10-26 20:44` | 证据入口=`report/evidence/S4-CTRL/s4t26_golden_control_20261026_r01/initial_snapshot.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex 项目总控；DSH 不 claim`
+## 当前交接行（11字段，2026-10-27 00:21 UTC+8；正式 OFFER）
+任务=`阶段4 w4 写权移交 Workbuddy；保全 task-26 阻断状态与既有差异` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`e65ea51e8c0a5e4c735756ea1aad6bbd101dfb51` | 允许修改范围=`接收方正式 CLAIMED 后仅 w4 内阶段4 task-26 相关 docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、独立新 RunId 的 report/evidence/S4-CTRL/ 和 .codex/STATE.md；保护既有差异及证据，不覆盖旧 RunId；本次 Codex 仅修改 STATE，不授予硬件、main 或其他树写权` | 未提交改动归属=`现场15项：.codex/STATE.md 为原有用户差异及 Codex 状态增量；12个ELF/MAP为 Codex 本机恢复产物；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r11/ 与 s4t26_golden_rebind_20261026_r01/ 为既有 Codex task-26 证据目录；19个未跟踪文件逐项 SHA 及原始 STATE/差异已保全于证据快照；全部留原位、不清理、不覆盖、不暂存或批量提交，归属不因交接改写` | 让出声明=`Wong 已明确决定向 Workbuddy 移交 w4；Codex 完成本次 STATE 交接更新后停止所有 w4 写入；现场 HEAD 保持不变、暂存区为空、index.lock 不存在，未发现 Git/Vivado/XSDB/hw_server/Vitis/XSCT/XSim 引擎进程或3121监听；未操作硬件；不包含硬件、main 或其他工作树写权；不代表阶段验收通过` | 心跳(UTC+8)=`2026-10-27 00:21` | 证据入口=`C:\Users\22061\.codex\visualizations\2026\10\26\01a177b7-4c60-7003-bd5d-d82034919404\w4_offer_workbuddy_20261027_0021\snapshot.before.json（逐文件SHA）；同目录 STATE.before.md、tracked.before.patch；report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r02/；report/evidence/S4-CTRL/s4t26_golden_control_20261026_r01/initial_snapshot.json` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; git --no-optional-locks -C D:/codex-worktrees/w4 status --short; git --no-optional-locks -C D:/codex-worktrees/w4 diff -- .codex/STATE.md（只读核对并对照保全快照；不 reset/clean/覆盖；认领前重查锁与资源）` | 状态/下一接手方=`OFFERED / Workbuddy 项目总控；next_owner=Workbuddy 项目总控；待接收方正式 CLAIMED`
+
+## 收尾快照（2026-10-26 18:03 UTC+8；优先于旧交接行）
+
+- **阶段4未冻结。** 当前 HEAD `33988ed7e8a97a9d5395b8cfd136a327c37d7dc9`。BGR888 契约 r06 的定向包经独立复审 PASS，但契约仍标 `DRAFT_PENDING_REVIEW`；RAW 系统 G0 为 `CHANGES_REQUIRED_NOT_CLOSED`，候选 region 未冻结且 `ENABLE=0`。
+- **未闭合阻碍**：真实 C/PL BGR→RGB 运行时未实现；task-26 回放桥真实推理因缺可导入 `cv2` 的既有解释器、冻结校准样本绑定的 raw head13/head26 黄金及冻结参数 SHA 而 `BLOCKED/exit 2`；注入集成 11/12，剩余用例为 sandbox 阻断；RAW G0 尚有 D2 整帧/padding、HP0 owner/排空、平台 BD/XSA、PS RAW task 冲突、协议、资源/布线时序与 mailbox ABI 等缺口；帧周期 P、4-D、真实彩色回归及 G5 未完成。Wong 批准 stale limit 为 200 ms；该决策本身不冻结 r06 契约或完成实测。
+- Wong 报告手册断电重启后 JTAG/A9 恢复；本轮未独立验证或操作板卡。阶段4 板级窗口仍须按 `CDX-20261023-019` 由 lead 正式 OFFER；在硬件前置/授权完成前保持 `ENABLE=0`，不访问候选 RAW region。
+- 当前 13 个状态项为本树既有 `STATE.md` 改动及 12 个未跟踪 ELF/MAP（6 对），全部保留；不在本轮提交/改写业务契约、脚本或构建产物。所有阶段活动已按 Wong 指令停止。Codex 仍持本树写权，Wong 表示后续交接给 DSH，但尚无正式 `OFFERED/CLAIMED`。
+
+## 当前交接行（11字段，2026-10-26 18:03 UTC+8）
+任务=`阶段4状态收尾：暂停开发与硬件活动，记录 RAW G0、回放/P 和 G5 阻碍，准备后续 DSH 交接` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`33988ed7e8a97a9d5395b8cfd136a327c37d7dc9` | 允许修改范围=`本轮仅 .codex/STATE.md；不改契约、地址图、脚本、构建产物或硬件` | 未提交改动归属=`已有 STATE 差异及 12 个未跟踪 ELF/MAP 保持原样，未暂存或清理；本轮状态摘要归当前 Codex` | 让出声明=`按 Wong 指令停止一切开发/硬件活动；未进行 Vivado/JTAG/COM 操作，region 仍 ENABLE=0/非 FROZEN；用户报告 JTAG/A9 恢复但未独立验证；当前尚未正式向 DSH OFFER` | 心跳(UTC+8)=`2026-10-26 18:03` | 证据入口=`report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/delivery_manifest.json；report/evidence/S4-CTRL/s4t26_forward_bridge_20261024_r07/delivery_manifest.json；report/evidence/S4-CTRL/t21_raw_address_crosscheck_20261024_r05/raw_address_owner_crosscheck.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（活动暂停；RAW G0、推理、P、4-D/G3/G5 均未闭合）/ 等 Wong 正式交接给 DSH；交接前写权属 Codex`
 
 ## task-26 G0 接续结果（2026-10-26 19:32 UTC+8；r10 为最终固定输入预检）
 
@@ -44,16 +82,15 @@
 ## 历史交接行（11字段，2026-10-26 19:40 UTC+8；OFFER 已由当前任务撤回）
 任务=`S4-CODEX-T26-OFFLINE G0 阻断收尾并交还 w4 写权` | 负责人=`Codex 项目总控（当前让出方）` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`33988ed7e8a97a9d5395b8cfd136a327c37d7dc9` | 允许修改范围=`docs/stage4/；scripts/stage4_s4ctrl/；scripts/stage4_s4b/；verification/；report/evidence/S4-CTRL/；.codex/STATE.md` | 未提交改动归属=`task-26 检查器和 r03-r10 证据已提交于 29b7c231；原有 .codex/STATE.md 用户差异及 12 个 ELF/MAP 未提交、未改动` | 让出声明=`独立 Reviewer PASS；task-26 G0 BLOCKED/exit 2；Codex 已停止 w4 写入并 OFFERED 给 DSH 项目总控；未启动硬件、Vivado、JTAG、COM4 或板测；阶段3与硬件仍归 DSH` | 心跳(UTC+8)=`2026-10-26 19:40` | 证据入口=`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r10/manifest.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`OFFERED / DSH 项目总控（待 DSH claim）`
 
-
 更新：2026-10-25 05:31（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
 **写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续。task-26 桥接脚本及 r07 包已提交于当前基线 `06c9ab8`；其独立只读复审 PASS（仅代码/证据一致性），真实推理仍 BLOCKED/exit 2。task-21 registry 修复经 R4-03 独立复审 PASS，现已完成总控复核并提交；无硬件/Vivado操作。**
 
-## 当前增量（BGR888 契约 r06，2026-10-25 22:55 UTC+8）
+## 当前增量（BGR888 契约 r06，2026-10-25 23:03 UTC+8）
 
 - 当前基线 `2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de`；契约升为 `s4-shared-io/1.2.0 r06`，**`DRAFT_PENDING_REVIEW`**。共享 `pixel_format` 为名称字符串，支持规格值 `BGR888`；像素通道序 `[B,G,R]` 与平台 `byte_order=little` 分开。D2 离线 Python 参考只做一次逐像素 BGR→RGB，再 resize/归一化/量化。
 - **真实 C/PL 运行期仍 `NOT_IMPLEMENTED`**：缺 mailbox PS driver；`s4b_preproc_frame` 未接入实际 RTL top，且当前独立模块未实现 BGR 通道重排。C enum 的 `1=RGB565` 与候选 wire `mailbox_pixel_format_code=1` 仅属不同命名空间，候选映射未冻结，禁止直接 cast。RAW 系统 G0 保持 `CHANGES_REQUIRED_NOT_CLOSED`，地址区非冻结、`ENABLE=0`。
 - 唯一证据包 `report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/` 绑定 16 个源码路径。定向结果：契约 27/27、upstream 17/17、r06 负例 10/10、G0 依据 17/17 + 离线复算 13/13 + gap 状态 3/3、registry 10/10、地址/词汇 11/11、BGR 映射 2/2；整组注入 11/12，唯一 integration case 因沙箱拒绝创建固定工作树临时目录而未执行成功，不算通过。JSON/占位扫描/CRLF-aware diff check 均通过。
-- 当前增量已完成独立复审 PASS：首轮发现历史清单版本误标后，生成器已改为既有清单不可覆盖；r02 清单固定 SHA 核验通过，构建器重跑 exit 0 并保留四份旧清单字节。复审结果及重跑摘要见 `report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/`。本轮源码/STATE 及两个新证据 RunId 待精确核对后提交；旧 12 项 ELF/MAP 未跟踪产物未动。仍未闭合：校准样本独立 heads 与 `cv2` 运行环境、RAW G0、真实 PS/PL 集成、帧周期 P、板级窗口和 G5。
+- 当前增量已完成独立复审 PASS：首轮发现历史清单版本误标后，生成器已改为既有清单不可覆盖；r02 清单固定 SHA 核验通过，构建器重跑 exit 0 并保留四份旧清单字节。复审结果及重跑摘要见 `report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/`。源码、STATE 及两个新证据 RunId 已提交于 `33988ed`；旧 12 项 ELF/MAP 未跟踪产物未动。仍未闭合：校准样本独立 heads 与 `cv2` 运行环境、RAW G0、真实 PS/PL 集成、帧周期 P、板级窗口和 G5。
 
 ## 当前离线修复（task-21，2026-10-25）
 
@@ -130,9 +167,9 @@
 - 2B/阶段3/阶段5/阶段6 工作树与厂商原件只读；本树一次只跑一个重型任务；不 push。
 - **换行/字节口径前提（2026-10-24 更正）**：本树**存在 `.gitattributes`**（根 + 嵌套 `docs/stage4/`、`report/evidence/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`），其 `-text` **覆盖** w4 的 `docs/stage4/**` 与 `report/evidence/**`（`check-attr text: unset`），故这些文件 disk==blob；**未覆盖**跨树引用（dbdf `report/evidence/S3-T05/**` 为 `text: unspecified` ⇒ 我此前“本树无 .gitattributes”的陈述**有误，以本条为准**）。**不再新增覆盖**（lead 决定，与阶段3 同口径）；契约将新增顶层**绑定字节口径声明**（记录工作树磁盘字节 SHA；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径），并按 N-1 把 dbdf 两项改绑为 blob 内容口径。
 
-## 当前交接行（11 字段，2026-10-25 22:55 UTC+8）
+## 历史交接行（11 字段，2026-10-25 23:03 UTC+8；保留历史快照）
 
-任务=`BGR888 输入契约 r06 修订与 fail-closed 证据` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de` | 允许修改范围=`docs/stage4/ 契约/registry/readiness/地址/计划、scripts/stage4_s4b/、scripts/stage4_s4ctrl/、verification/ 两项定向测试、report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/**、report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/**、.codex/STATE.md` | 未提交改动归属=`本轮 17 个 tracked 文件（含 .codex/STATE.md）与两个新 RunId evidence 归当前 Codex，尚未提交；旧 12 项 ELF/MAP 未跟踪文件未动` | 让出声明=`Developer 已停写；runtime 路径只读审计结束；独立 Reviewer PASS（S4-20261025 历史清单不可变修复）；未操作硬件` | 心跳(UTC+8)=`2026-10-25 22:55` | 证据入口=`report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/delivery_manifest.json；report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/verification_summary.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（r06 独立复审 PASS，runtime NOT_IMPLEMENTED，RAW G0 CHANGES_REQUIRED_NOT_CLOSED；注入集成用例 11/12 且剩余用例为 sandbox BLOCKED）/ 下一步=证据与差异最终核验并精确提交；随后阶段5消费侧改绑`
+任务=`BGR888 输入契约 r06 修订与 fail-closed 证据` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de` | 允许修改范围=`docs/stage4/ 契约/registry/readiness/地址/计划、scripts/stage4_s4b/、scripts/stage4_s4ctrl/、verification/ 两项定向测试、report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/**、report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/**、.codex/STATE.md` | 未提交改动归属=`本轮 17 个 tracked 文件（含 .codex/STATE.md）与两个新 RunId evidence 已提交于 33988ed；旧 12 项 ELF/MAP 未跟踪文件未动` | 让出声明=`Developer 已停写；runtime 路径只读审计结束；独立 Reviewer PASS（S4-20261025 历史清单不可变修复）；未操作硬件` | 心跳(UTC+8)=`2026-10-25 23:03` | 证据入口=`report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/delivery_manifest.json；report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/delivery_manifest.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（r06 独立复审 PASS，runtime NOT_IMPLEMENTED，RAW G0 CHANGES_REQUIRED_NOT_CLOSED；注入集成用例 11/12 且剩余用例为 sandbox BLOCKED）/ 下一步=阶段5消费侧改绑并解决未闭合接口/集成依赖`
 
 ## 历史交接行（task-21，2026-10-25 05:31 UTC+8）
 

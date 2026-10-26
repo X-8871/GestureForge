@@ -1,0 +1,16 @@
+首次运行失败记录（2026-10-27，保留原始 traceback，不做改写）
+命令：python -B scripts/stage4_s4ctrl/audit_t26_producer_provenance.py --evidence-dir report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r01
+实际退出码：1
+原因：file_mtime 返回 naive datetime，与生成的 aware datetime（含 +08:00）相减触发 TypeError。
+未写出任何证据文件（失败发生在 audit.json 落盘之前），因此 r01 目录保持为空后重跑。
+修复：file_mtime 统一用 datetime.fromtimestamp(..., tz=CN) 返回带时区时间。
+
+原始输出：
+Traceback (most recent call last):
+  File "D:/codex-worktrees/w4/scripts/stage4_s4ctrl/audit_t26_producer_provenance.py", line 403, in <module>
+    sys.exit(main())
+  File "D:/codex-worktrees/w4/scripts/stage4_s4ctrl/audit_t26_producer_provenance.py", line 313, in main
+    producers = audit_producer(report, roots, args.max_depth)
+  File "D:/codex-worktrees/w4/scripts/stage4_s4ctrl/audit_t26_producer_provenance.py", line 167, in audit_producer
+    delta = (mtime - generated_at).total_seconds()
+TypeError: can't subtract offset-naive and offset-aware datetimes

@@ -1,5 +1,15 @@
 # 阶段5 状态（HDMI 结果显示：离线准备 + S5-T01 合成源 bring-up + S5-T03 真彩契约改绑与用例骨架）
 
+## 收尾快照（2026-10-26 18:03 UTC+8；优先于旧交接行）
+
+- **阶段5未验收，G0/G1/G3/G4/G5 未通过。** 当前 HEAD `673d371cae8a9775e31b9e3a911fe9646dcac658`，盘点前工作树干净。task-24 r06 代码审查 PASS、40/40 离线测试通过；对应证据构建器曾因 quiet-window 发现 PID 24196 而最终 exit 1，未触碰该进程，不能把该轮表述为完整证据包装通过。
+- **未闭合阻碍**：camera/replay 运行时未实现；阶段4 UR-1 回放字段扩展确认与结果包未就绪；动态坐标映射、实时 stale 过期、HUD 视觉、真实注入长跑、T5-10 板上回归、capture_fps 和显示延迟物理测量均 `NOT_RUN`。UR-3 显示侧规格决策已完成，200 ms stale 上限已批准，但实测仍未做。
+- 旧 `SUSPENDED_BOARD_DETACHED` 是此前快照。Wong 现在报告已现场断电重启且 JTAG/A9 恢复；本轮未连接验证，也没有阶段5板测窗口授权，因此只记为用户报告，不能恢复板测结论。阶段5实物项仍暂停。
+- 本轮只更新本状态文档，无代码、证据或硬件操作。Codex 仍持本树写权；Wong 表示稍后交接给 DSH，当前没有正式 `OFFERED/CLAIMED`。
+
+## 当前交接行（11字段，2026-10-26 18:03 UTC+8）
+任务=`阶段5状态收尾：暂停开发/硬件活动，更新未验收状态与跨阶段阻碍，准备后续 DSH 交接` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`673d371cae8a9775e31b9e3a911fe9646dcac658` | 允许修改范围=`本轮仅 .codex/STATE.md；不改业务代码、证据或硬件` | 未提交改动归属=`盘点前本树干净；本轮 STATE 收尾摘要归当前 Codex` | 让出声明=`已按 Wong 指令停止活动；无本轮板卡/显示测试；用户报告 JTAG/A9 恢复但未独立验证；阶段5 G0/G1/G3/G4/G5 未通过；当前尚未正式向 DSH OFFER` | 心跳(UTC+8)=`2026-10-26 18:03` | 证据入口=`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/；docs/stage5/s5a_g0_ur3_decision_20261025_r01.md；report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/` | 恢复命令=`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（活动暂停；camera/replay、阶段4接口与实际渲染/硬件 G3/G5 阻塞）/ 等 Wong 正式交接给 DSH；交接前写权属 Codex`
+
 更新：2026-10-25 20:04（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
 当前：Codex 依据主仓 `DSH-20261024-006` 接管。task-24 r06 的独立复审 **PASS**，关闭拒绝原因日志、repeat 上下文、u32 join-key 和状态不变性问题；完整离线测试 40/40。证据构建器最终退出 1，仅因 quiet-window 检出 PID 24196；未触碰进程。Wong 于 2026-10-25 委托 Codex 项目总控确定 UR-3，并确认跨阶段 stale 常量为 200 ms；阶段5显示侧决策已落盘，引用阶段4活动契约中 `APPROVED_BY_WONG` 的同源常量。实际实时 stale 测量仍 `NOT_RUN`；决策只关闭 UR-3，不代表阶段 G0/G1/G3/G4/G5 通过。
 当前证据：`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（manifest SHA256 `2131101579d295da22dd934a8880e313f6ac934dcce5030c7bf07543c6366249`）；r04/r05 失败包和此前 r01-r03 全部保留。相机/回放运行时仍 `UNIMPLEMENTED`，板级验证 `SUSPENDED_BOARD_DETACHED`。
@@ -7,7 +17,7 @@
 合成源/离线骨架结论一律不得升级为真实集成结论；**实现层 camera/回放路径尚未实现**（NB-5）。
 **全局事实（2026-10-24 10:29）**：Wong 已重连板卡与摄像头；须重新核验部署身份、运行期地址及真彩目视后才能按授权窗口执行。本轮只做离线修复，未操作硬件。
 
-当前交接（优先于末尾历史交接）：任务=`task-24 join-key fail-closed 与拒绝日志修复；代码/证据复审 PASS，证据构建被 quiet-window 阻断` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5 / stage5-display-prep` | 起始提交=`30147ab1f958c0dad2795da8e4b1c073ac39adaa` | 允许修改范围=`本轮 docs/stage5、scripts/stage5_t03、verification/s5_display_geometry_reference.py、report/evidence/S5-T03/r04-r06、STATE` | 未提交改动归属=`r04-r06 修复差异及 STATE 归当前 Codex 阶段5任务；此前提交与旧 RunId 不改写` | 让出声明=`DSH-20261024-006 正式 OFFERED；阶段5 Developer 已停写，独立 Reviewer PASS；总控复核/提交中；板级验证仍暂停` | 心跳(UTC+8)=`2026-10-24 20:39` | 证据入口=`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（r04/r05 为失败记录） | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD` | 状态/下一接手方=`IN_PROGRESS（task-24 修复复审 PASS；quiet-window FAIL 因 PID 24196；G0/G1/G3/G4/G5 未通过；摄像头/回放运行时 UNIMPLEMENTED；板级 SUSPENDED_BOARD_DETACHED）/ 下一接手方=Codex 总控做精确差异核验与提交`
+历史交接（2026-10-24 20:39；由上方收尾快照取代）: 任务=`task-24 join-key fail-closed 与拒绝日志修复；代码/证据复审 PASS，证据构建被 quiet-window 阻断` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5 / stage5-display-prep` | 起始提交=`30147ab1f958c0dad2795da8e4b1c073ac39adaa` | 允许修改范围=`本轮 docs/stage5、scripts/stage5_t03、verification/s5_display_geometry_reference.py、report/evidence/S5-T03/r04-r06、STATE` | 未提交改动归属=`r04-r06 修复差异及 STATE 归当前 Codex 阶段5任务；此前提交与旧 RunId 不改写` | 让出声明=`DSH-20261024-006 正式 OFFERED；阶段5 Developer 已停写，独立 Reviewer PASS；总控复核/提交中；板级验证仍暂停` | 心跳(UTC+8)=`2026-10-24 20:39` | 证据入口=`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（r04/r05 为失败记录） | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD` | 状态/下一接手方=`IN_PROGRESS（task-24 修复复审 PASS；quiet-window FAIL 因 PID 24196；G0/G1/G3/G4/G5 未通过；摄像头/回放运行时 UNIMPLEMENTED；板级 SUSPENDED_BOARD_DETACHED）/ 下一接手方=Codex 总控做精确差异核验与提交`
 
 ## 目标与范围
 - 已完成：S5-A 契约/G0、S5-B 离线渲染叠框自测、S5-C 与阶段4 数值链回归、S5-D 阶段6 建议；S5-T01 合成源（PS 合成图）板上 bring-up。
@@ -62,3 +72,9 @@
 
 ## 交接行（11 字段，2026-10-24 02:40）
 任务=`task-24 阶段5 NB 轮（NB-1 fail-closed / NB-2 扫描式漂移登记 / NB-3 逐字一致 / NB-4 时间戳 / NB-5 绑定断言+实现状态）完成，固定新基线待复审` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`654c72e` | 允许修改范围=`docs/stage5/**`、`scripts/stage5_t03/**`、`report/evidence/S5-T03/**`、`tmp/5/**`、`.gitattributes`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 忽略项；无他人改动混入）` | 让出声明=`**板卡已被 Wong 拔下 ⇒ 板级工作暂停**；本轮 0 个硬件进程、3121 未监听、未加载位流/未烧录；工作树写权仍由本阶段总控独占；**本轮固定基线后不再写，等待复审**` | 心跳(UTC+8)=`2026-10-24 02:40` | 证据入口=`report/evidence/S5-T03/**`、`docs/stage5/S5T03_*`、`docs/stage5/s5t03_*` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T03 v3 已交付并固定基线；待 DSH 项目总控派独立复审；下一轮按无板卡工作流用阶段4 回放结果包实现回放路径并做离线动态显示回归）/ 本阶段总控`
+
+## 正式 OFFERED 交接行（2026-10-26 21:07 UTC+8；优先于以上历史交接及写权陈述）
+
+任务=阶段5正式写权交接 | 负责人=Codex 项目总控 | 工作树/分支=D:\codex-worktrees\w5 / stage5-display-prep | 起始提交=673d371cae8a9775e31b9e3a911fe9646dcac658（交接前基线；正式 OFFER 版本为包含本行的提交） | 允许修改范围=本次仅 .codex/STATE.md 的交接记录与提交；后续阶段5业务修改按接手任务及既有授权执行 | 未提交改动归属=本次开始时仅有1项 .codex/STATE.md 差异，原有收尾快照及历史交接调整完整保留，与本正式交接行同批提交；未混入其他文件 | 让出声明=Wong 已明确授权本次交接；Codex 项目总控在本行及原有 STATE 差异提交完成后立即停止写 w5，不再暂存或提交；核验时无 index.lock，未发现 Git/Vivado/XSDB/hw_server/Vitis/XSCT/XSim 进程；本行不构成硬件窗口授权或阶段验收通过 | 心跳(UTC+8)=2026-10-26 21:07 | 证据入口=.codex/STATE.md（本行所在提交）；report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/delivery_manifest.json；docs/stage5/s5a_g0_ur3_decision_20261025_r01.md | 恢复命令=git -C D:/codex-worktrees/w5 log -1 --format=%H -- .codex/STATE.md; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD | 状态/下一接手方=OFFERED / DSH 项目总控
+
+本行是正式让出记录；DSH 项目总控须以提交后的实际 HEAD 重新核验并明确 CLAIMED，方可推进认领状态。此前阶段5未验收及未执行项继续按原文保留。

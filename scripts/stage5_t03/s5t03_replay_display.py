@@ -89,8 +89,13 @@ def boundary_cases() -> list[dict[str, Any]]:
     return cases
 
 
-def select_keyframes(events: list[dict[str, Any]], *, keyframe_max: int) -> dict[int, list[str]]:
-    """关键帧选择（有界）：首/末、每类首个、零框、被拒、过期、长跑检查点。"""
+def select_keyframes(events: list[dict[str, Any]], *, keyframe_max: int,
+                     rejects_by_index: Mapping[int, list[str]] | None = None) -> dict[int, list[str]]:
+    """关键帧选择（有界）：首/末、每类首个、零框、被拒、过期、长跑检查点。
+
+    N2 修复：被拒标签只在**该帧确实发生**对应 outcome 时打（此前用全局累积键集合，会把标签
+    打在"显示键恰命中集合"的无关帧上）。`rejects_by_index` 由驱动按帧传入；缺省则不打被拒标签。
+    """
     picked: dict[int, list[str]] = {}
 
     def mark(index: int, tag: str) -> None:
@@ -119,12 +124,8 @@ def select_keyframes(events: list[dict[str, Any]], *, keyframe_max: int) -> dict
         if int(event.get("boxes") or 0) >= 3 and not hud_marked:
             hud_marked = True
             mark(index, "hud_multi_box")
-        for reject in ("duplicate", "duplicate_frame_id", "out_of_order"):
-            if reject not in seen_reject:
-                key = (event.get("session_id"), event.get("result_frame_id"), event.get("result_seq"))
-                if key in (event.get("rejected_keys") or []):
-                    seen_reject.add(reject)
-                    mark(index, f"rejected_{reject}")
+        for reject in sorted(set((rejects_by_index or {}).get(index, []))):
+            mark(index, f"rejected_{reject}")
     if len(events) > 8:
         step = max(1, len(events) // 4)
         for index in range(step, len(events), step):
@@ -208,24 +209,43 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
     hud_last: Mapping[str, Any] | None = None
     rejected_keys: set[tuple] = set()
     submit_verdicts: list[dict[str, Any]] = []
-    for step in steps:
+    rejects_by_index: dict[int, list[str]] = {}
+    for index, step in enumerate(steps):
+        step_rejects: list[str] = []
         for record in step.get("results") or []:
             outcome = pipeline.submit_result(record)
-            submit_verdicts.append({"outcome": outcome.get("outcome"), "verdict": outcome.get("verdict"),
+            kind = str(outcome.get("outcome"))
+            fail = outcome.get("verdict") == P.VERDICT_FAIL
+            # N3：duplicate/invalid 两条返回路径不带 reject_reason ⇒ 显式给出**派生**原因并标注来源
+            reason = outcome.get("reject_reason")
+            if fail and not reason:
+                reason = f"derived:{kind}"
+            submit_verdicts.append({"outcome": kind, "verdict": outcome.get("verdict"),
                                     "frame_id": record.get("frame_id"), "result_seq": record.get("result_seq"),
-                                    "reject_reason": outcome.get("reject_reason")})
-            if outcome.get("verdict") == P.VERDICT_FAIL:
+                                    "repeat_index": record.get("repeat_index"),
+                                    "reject_reason": reason,
+                                    "reject_reason_source": "pipeline" if outcome.get("reject_reason") else ("derived" if fail else None)})
+            if fail:
                 rejected_keys.add((record.get("session_id"), record.get("frame_id"), record.get("result_seq")))
+                step_rejects.append(kind)
         committed = pipeline.commit_frame(int(step["displayed_frame_id"]), int(step["overlay_commit_ns"]),
                                           warmup=bool(step.get("warmup", False)))
         event = committed["event"]
         event["rejected_keys"] = sorted(rejected_keys)
+        event["rejects_this_frame"] = step_rejects          # N2：按帧记录真实拒绝 outcome
         events.append(event)
         five_tuples.append(committed["five_tuple"])
         hud_last = committed["hud"]
+        if step_rejects:
+            rejects_by_index[index] = step_rejects
     pipeline.assert_recomputable()
 
-    picked = select_keyframes(events, keyframe_max=keyframe_max)
+    # N3：帧级事件日志随证据落盘（可独立复算；旧骨架 r03 亦有此能力）
+    logs_dir = out_dir / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    log_info = pipeline.log.dump_jsonl(logs_dir / f"events_{mode}_{frames}.jsonl")
+
+    picked = select_keyframes(events, keyframe_max=keyframe_max, rejects_by_index=rejects_by_index)
     assertions: list[dict[str, Any]] = []
     keyframe_records: list[dict[str, Any]] = []
     failures: list[str] = []
@@ -277,6 +297,7 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
                 entry["png_sha256"] = stats["png_sha256"]
                 entry["png_bytes"] = stats["png_bytes"]
                 entry["render"] = stats
+                entry["render"]["font"] = font_info            # N7：逐帧记录真实字体身份
                 entry["checks"]["boxes_drawn_matches"] = int(stats["boxes_drawn"]) == int(event["boxes"])
                 entry["checks"]["border_pixels_match"] = all(
                     int(b["border_pixels"]) == len(R.border_pixel_sets(int(b["px"]["x1"]), int(b["px"]["y1"]),
@@ -382,7 +403,11 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
         "checks": {"frames": len(events), "assertions": len(assertions), "failures": failures,
                    "passed": not failures},
         "artifacts": {"results_json": "results.json", "frame_assertions_jsonl": "frame_assertions.jsonl",
-                      "keyframes_dir": "keyframes/", "manifest": "manifest.json"},
+                      "keyframes_dir": "keyframes/", "logs_dir": "logs/", "manifest": "manifest.json"},
+        "logs": log_info,
+        "commits": {"source_head_at_run": git_head(),
+                    "note": "N4：证据在代码提交后重跑时，source_head_at_run 即被测代码提交；"
+                            "代码↔证据绑定以 manifest.tools[].sha256 为准"},
         "limitations": ["输入为合成流；capture_time_ns 为合成单调时钟值，不是真实采集时刻。",
                         "真实回放接入 NOT_RUN（无可消费阶段4 冻结结果包）。",
                         "PNG/MP4 不是验收依据；机器验收以 results.json + frame_assertions.jsonl 为准。",
@@ -414,6 +439,11 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
         },
         "counters": results["counters"], "recompute_matches_online": results["recompute_matches_online"],
         "checks": results["checks"], "keyframe_count": results["keyframe_count"],
+        "logs": log_info,
+        "render": {"pillow_version": RD.PILLOW_VERSION, "font": font_info,
+                   "class_colors_rgb": {k: "#%02X%02X%02X" % v for k, v in RD.CLASS_COLORS_RGB.items()},
+                   "line_width_px": R.DISPLAY_LINE_WIDTH_PX, "rounding_rule": R.ROUNDING_RULE,
+                   "font_base_px_at_720": RD.FONT_BASE_PX_AT_720},
         "demo": demo_info,
         "files": [{"path": p.relative_to(out_dir).as_posix(), "sha256": sha256_file(p),
                    "bytes": p.stat().st_size}

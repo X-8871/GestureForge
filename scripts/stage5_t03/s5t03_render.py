@@ -139,11 +139,12 @@ def label_anchor(box_px: Mapping[str, int], text_width: int, text_height: int, *
 
 def render_frame(decision: Mapping[str, Any], *, canvas_width: int, canvas_height: int,
                  background: Any = None, hud: Mapping[str, Any] | None = None,
-                 font: Any = None, draw_hud: bool = True) -> tuple[Any, dict[str, Any]]:
+                 font: Any = None, draw_hud: bool = True, draw_labels: bool = True) -> tuple[Any, dict[str, Any]]:
     """把一帧决策栅格化；返回 (PIL.Image, stats)。
 
     `decision` 即 `DisplayPipeline.commit_frame()["event"]`：只读消费 `box_px`/`state`/`stale_effective`；
     边框像素集一律取自 `R.border_pixel_sets`，本模块不重算几何。
+    `draw_labels=False` 用于**像素级精确断言**（只画边框，便于与参考像素集逐点比对）。
     """
     if not PIL_AVAILABLE:
         raise RenderUnavailableError(f"Pillow 不可用：{PIL_IMPORT_ERROR}")
@@ -181,6 +182,8 @@ def render_frame(decision: Mapping[str, Any], *, canvas_width: int, canvas_heigh
         stats["classes_drawn"].append(str(box.get("class_name")))
 
         text = f"{str(box.get('class_name', '')).upper()} {float(box['score']):.2f}"
+        if not draw_labels:
+            continue
         text_w, text_h, ink_x0, ink_y0 = _text_box(draw, text, font)
         lx, ly, placement = label_anchor(px, text_w, text_h, canvas_width=width,
                                          canvas_height=height, safe=safe)

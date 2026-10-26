@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 import json
 import pathlib
+import re
 import sys
 import tempfile
 import unittest
@@ -85,8 +86,53 @@ class T_Render(unittest.TestCase):
                 checked += 1
         self.assertGreater(checked, 0, "样本流必须至少绘制过一个框")
 
+    def test_02b_rendered_pixels_exactly_equal_reference_border_sets(self) -> None:
+        """**像素级**单源断言：只画边框时，非背景像素集合必须**恰好等于** `R.border_pixel_sets`。
+
+        判别力（N1/复审 V1）：把渲染层换成自写线宽（例如 1 px）或自写取整，本用例必须失败。
+        """
+        _, events, _ = run_small()
+        drawn = [e for e in events if e["drawn"]]
+        self.assertTrue(drawn, "样本流必须有绘制帧")
+        background_rgb = (7, 7, 7)
+        font, _ = RD.load_font(RD.font_size_px(720))
+        for event in drawn[:6]:
+            background = RD.Image.new("RGB", (1280, 720), background_rgb)
+            image, stats = RD.render_frame(event, canvas_width=1280, canvas_height=720,
+                                           background=background, hud=None, font=font,
+                                           draw_hud=False, draw_labels=False)
+            self.assertEqual(stats["labels_drawn"], 0)
+            pixels = image.load()
+            rendered = {(x, y) for x in range(1280) for y in range(720) if pixels[x, y] != background_rgb}
+            expected: set[tuple[int, int]] = set()
+            for box in event["box_px"]:
+                px = box["px"]
+                expected |= set(R.border_pixel_sets(int(px["x1"]), int(px["y1"]), int(px["x2"]),
+                                                    int(px["y2"]), R.DISPLAY_LINE_WIDTH_PX, 1280, 720))
+            self.assertEqual(rendered, expected,
+                             f"渲染像素与冻结参考不一致：多 {len(rendered - expected)} px / 少 {len(expected - rendered)} px")
+
+    def test_03b_font_identity_is_honest(self) -> None:
+        """字体诚实标注（N1 判别力）：可用字体 ⇒ `scaled=true` 且尺寸正确；**无字体 ⇒ 必须 scaled=false**。"""
+        size = RD.font_size_px(720)
+        font, info = RD.load_font(size)
+        if info["scaled"]:
+            self.assertEqual(info["font_size_px"], size)
+            self.assertIsNotNone(info["font_sha256"])
+        else:
+            self.assertIsNone(info["font_size_px"])
+        original = RD.FONT_CANDIDATES
+        try:
+            RD.FONT_CANDIDATES = ()                      # 强制回退路径
+            _, fallback = RD.load_font(size)
+            self.assertFalse(fallback["scaled"], "回退字体不得声称 scaled=true")
+            self.assertIsNone(fallback["font_size_px"], "回退字体不得声称满足字号规格")
+            self.assertIn("note", fallback)
+        finally:
+            RD.FONT_CANDIDATES = original
+
     def test_03_render_stats_match_decision(self) -> None:
-        """渲染统计必须与决策一致：框数、HUD 13 行、类色表命中 UR-3。"""
+        """渲染统计必须与决策一致：框数、HUD 行数、类色表命中 UR-3。"""
         _, events, _ = run_small()
         font, info = RD.load_font(RD.font_size_px(720))
         self.assertIn("scaled", info)
@@ -196,6 +242,44 @@ class T_ReplayArtifacts(unittest.TestCase):
             results = json.loads((out / "results.json").read_text(encoding="utf-8"))
             self.assertEqual(results["demo"]["status"], "NOT_RUN")
             self.assertTrue(results["demo"]["demo_only"])
+
+
+    def test_12_reject_tags_match_actual_outcomes(self) -> None:
+        """N2 判别力（端到端）：关键帧文件名里的 `rejected_<kind>` 必须对应**实际发生**的 FAIL 类型。
+
+        复审 N2 的原始缺陷：本次 `duplicate_frame_id_results=0`，却出现 `…_rejected_duplicate_frame_id` 文件名。
+        """
+        with tempfile.TemporaryDirectory(prefix="s5t03_rej_") as tmp:
+            out = pathlib.Path(tmp) / "run"
+            code = REP.run_replay(out_dir=out, mode="mixed", frames=64, seed=SEED, canvas=(1280, 720),
+                                  background_path=None, keyframe_max=24, want_demo=False)
+            self.assertEqual(code, 0)
+            results = json.loads((out / "results.json").read_text(encoding="utf-8"))
+            fail_kinds = {str(v["outcome"]) for v in results["submit_verdicts"] if v["verdict"] == "FAIL"}
+            self.assertTrue(fail_kinds, "mixed 流应存在真实被拒提交")
+            self.assertNotIn("duplicate_frame_id", fail_kinds, "本流不应出现等价 frame_id 拒绝（用于判别误标）")
+            for name in sorted(q.name for q in (out / "keyframes").glob("*.png")):
+                for kind in re.findall(r"rejected_([a-z_]+?)(?:\+|\.png)", name):
+                    self.assertIn(kind, fail_kinds, f"关键帧 {name} 标注了未发生的拒绝类型 {kind}")
+
+    def test_13_event_log_written_and_reject_reason_present(self) -> None:
+        """N3：帧级事件日志必须落盘；FAIL 提交必须带非空 `reject_reason`（管线来源或显式标注派生）。"""
+        with tempfile.TemporaryDirectory(prefix="s5t03_log_") as tmp:
+            out = pathlib.Path(tmp) / "run"
+            code = REP.run_replay(out_dir=out, mode="mixed", frames=64, seed=SEED, canvas=(1280, 720),
+                                  background_path=None, keyframe_max=6, want_demo=False)
+            self.assertEqual(code, 0)
+            logs = sorted((out / "logs").glob("events_*.jsonl"))
+            self.assertTrue(logs, "必须落盘帧级事件日志")
+            lines = logs[0].read_text(encoding="utf-8").strip().splitlines()
+            self.assertGreaterEqual(len(lines), 64, "事件日志应覆盖全部提交帧")
+            results = json.loads((out / "results.json").read_text(encoding="utf-8"))
+            fails = [v for v in results["submit_verdicts"] if v["verdict"] == "FAIL"]
+            self.assertTrue(fails, "mixed 流应包含被拒提交")
+            self.assertTrue(all(v.get("reject_reason") for v in fails), "FAIL 提交必须带 reject_reason")
+            self.assertTrue(all(v.get("reject_reason_source") for v in fails), "必须标注原因来源")
+            self.assertIn("logs", results)
+            self.assertIn("font", json.loads((out / "manifest.json").read_text(encoding="utf-8"))["render"])
 
 
 class T_Stage3Binding(unittest.TestCase):

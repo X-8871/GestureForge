@@ -196,39 +196,43 @@ def check_frame_assertions(path: pathlib.Path, contract: dict[str, Any]) -> tupl
     return count, errs
 
 
-def check_event_log_keys(run: pathlib.Path, contract: dict[str, Any]) -> tuple[dict[str, int], list[str]]:
+def check_event_log_keys(run: pathlib.Path, contract: dict[str, Any], *, required: bool = True
+                         ) -> tuple[dict[str, int], list[str]]:
     """BL-1 永久防线：事件日志的**实物键集**必须与契约声明逐字一致。
 
     契约曾把 frame_assertions 的字段名误当事件日志键位；校验器以前根本不读事件日志，
     所以这种漂移无法被发现。现在逐条比对首条 submit/commit 记录的键集（多余或缺失都报错）。
+    N-2/N-3（复审）：**所有** `logs/events_*` 文件都要检；对要求日志的产物种类，缺日志是**违约**。
     """
     candidates = sorted(list(run.glob("logs/events_*.jsonl")) + list(run.glob("logs/events_*.jsonl.gz")))
     if not candidates:
-        return {}, []
+        return {}, (["缺 logs/events_*.jsonl(.gz)（该种类要求可复算的事件日志）"] if required else [])
     spec = contract["event_log_fields"]
     expected = {"sub": set(spec["submit_record_keys"]), "commit": set(spec["commit_record_keys"])}
     seen: dict[str, set[str]] = {}
     errs: list[str] = []
-    path = candidates[0]
-    opener = (lambda: gzip.open(path, "rt", encoding="utf-8")) if path.suffix == ".gz" else \
-             (lambda: open(path, encoding="utf-8"))
-    with opener() as handle:
-        for line in handle:
-            if not line.strip():
-                continue
-            record = json.loads(line)
-            kind = record.get("t")
-            if kind in expected and kind not in seen:
-                seen[kind] = set(record)
-                extra = sorted(seen[kind] - expected[kind])
-                absent = sorted(expected[kind] - seen[kind])
-                if extra or absent:
-                    errs.append(f"事件日志 {kind} 记录键集与契约不符：多 {extra} / 缺 {absent}")
-            if len(seen) == len(expected):
-                break
+    for path in candidates:
+        opener = (lambda p=path: gzip.open(p, "rt", encoding="utf-8")) if path.suffix == ".gz" else \
+                 (lambda p=path: open(p, encoding="utf-8"))
+        with opener() as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                record = json.loads(line)
+                kind = record.get("t")
+                if kind in expected:
+                    keys = set(record)
+                    seen.setdefault(kind, keys)
+                    extra = sorted(keys - expected[kind])
+                    absent = sorted(expected[kind] - keys)
+                    if extra or absent:
+                        errs.append(f"事件日志 {path.name} 的 {kind} 记录键集与契约不符："
+                                    f"多 {extra} / 缺 {absent}")
+                        break
     counts = {kind: len(keys) for kind, keys in seen.items()}
-    if not seen:
-        errs.append("事件日志存在但未找到 submit/commit 记录（t 字段）")
+    missing_kinds = sorted(set(expected) - set(seen))
+    if missing_kinds:
+        errs.append(f"事件日志中未找到 {missing_kinds} 记录（t 字段）")
     return counts, errs
 
 
@@ -264,7 +268,7 @@ def validate_package(run: pathlib.Path, contract: dict[str, Any]) -> dict[str, A
         report["errors"] += errs
     elif needs:
         report["errors"].append("缺 frame_assertions.jsonl(.gz)（该种类要求逐帧断言）")
-    counts, log_errs = check_event_log_keys(run, contract)
+    counts, log_errs = check_event_log_keys(run, contract, required=bool(needs))
     if counts:
         report["counts"]["event_log_keys"] = counts
     report["errors"] += log_errs

@@ -17,6 +17,7 @@ from __future__ import annotations
 import gzip
 import json
 import pathlib
+import re
 import shutil
 import sys
 import tempfile
@@ -136,6 +137,69 @@ class T_ContractMalformed(unittest.TestCase):
         for run in (SHORT, LONG, MG):
             report = V.validate_package(run, self.contract)
             self.assertTrue(report["ok"], f"{run.name}: {report['errors']}")
+
+
+    def test_09_markdown_section6_matches_json_keys(self) -> None:
+        """**R-1/N-7 永久防线**：契约 `.md` §6 的键位清单必须与 `.json` 的 `event_log_fields` 逐字一致。
+
+        根因：v1.0.2 只改了 `.json`，`.md` 仍留幻影键（rseq/state/drawn/boxes/sr/sk/ar/af/zd/verdict/outcome），
+        而证据 manifest 又把该 `.md` 绑定为契约交付物 ⇒ 交付物自相矛盾且无从自动发现。
+        """
+        md = (REPO_ROOT / "docs/stage5/s5t03_json_contract_v1.md").read_text(encoding="utf-8")
+        spec = self.contract["event_log_fields"]
+        # 解析 "**submit 记录（11 键）**：`a, b, c`" 形式的清单
+        parsed: dict[str, set[str]] = {}
+        for label, kind in (("submit", "submit_record_keys"), ("commit", "commit_record_keys")):
+            match = re.search(rf"\*\*{label} 记录[^*]*\*\*[：:]\s*`([^`]+)`", md, re.S)
+            self.assertIsNotNone(match, f"§6 未找到 {label} 记录键位清单")
+            parsed[kind] = {item.strip() for item in match.group(1).split(",") if item.strip()}
+        for kind, keys in parsed.items():
+            self.assertEqual(keys, set(spec[kind]), f".md §6 的 {kind} 与 .json 不一致")
+            self.assertNotIn("verdict", keys, "幻影键 verdict 不得出现")
+            self.assertNotIn("rseq", keys, "幻影键 rseq 不得出现")
+
+    def test_10_missing_event_log_is_an_error_for_replay_kinds(self) -> None:
+        """N-3：要求可复算日志的种类，缺 `logs/events_*` 必须违约。"""
+        run = self.tmpdir / "short_no_logs"
+        shutil.rmtree(run, ignore_errors=True)
+        shutil.copytree(SHORT, run)
+        shutil.rmtree(run / "logs")
+        report = V.validate_package(run, self.contract)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("events_" in item for item in report["errors"]), report["errors"])
+
+    def test_11_all_event_logs_are_checked(self) -> None:
+        """N-2：包内**多个** `logs/events_*` 都要检——第二个文件键位错也必须被抓。"""
+        run = self.tmpdir / "short_two_logs"
+        shutil.rmtree(run, ignore_errors=True)
+        shutil.copytree(SHORT, run)
+        logs = sorted((run / "logs").glob("events_*"))
+        self.assertTrue(logs)
+        bad = run / "logs" / "events_zzz_bad.jsonl"
+        first_log = logs[0]
+        opener = (lambda: gzip.open(first_log, "rt", encoding="utf-8")) if first_log.suffix == ".gz" else \
+                 (lambda: open(first_log, encoding="utf-8"))
+        with opener() as handle:
+            first = json.loads(next(line for line in handle if line.strip()))
+        first["boxes"] = "phantom"          # commit 记录混入幻影键
+        bad.write_text(json.dumps(first, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+        report = V.validate_package(run, self.contract)
+        self.assertFalse(report["ok"])
+        self.assertTrue(any("events_zzz_bad" in item for item in report["errors"]), report["errors"])
+
+    def test_12_contract_json_version_and_keys_are_consistent(self) -> None:
+        """契约自洽：版本 ≥1.0.3、必填键含说明键、legend_ref 指向真实层级。"""
+        self.assertIn(self.contract["contract_version"], ("1.0.3", "1.0.4", "1.0.5"))
+        self.assertIn("frame_assertion_required_vs_stable", self.contract["contract_required_keys"])
+        self.assertIn("newly_frozen_for_skeleton_only/log_artifacts",
+                      self.contract["event_log_fields"]["legend_ref"])
+        params = json.loads((REPO_ROOT / "docs/stage5/s5t03_offline_skeleton_params_v1.json")
+                            .read_text(encoding="utf-8"))
+        legend = params["newly_frozen_for_skeleton_only"]["log_artifacts"]
+        self.assertEqual(set(self.contract["event_log_fields"]["submit_record_keys"]),
+                         set(legend["compact_fields_result_submit"]))
+        self.assertEqual(set(self.contract["event_log_fields"]["commit_record_keys"]),
+                         set(legend["compact_fields_overlay_commit"]))
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-# 阶段5 离线 replay/display JSON 契约 v1（`gestureforge_s5t03_json_contract` **1.0.1**）
+# 阶段5 离线 replay/display JSON 契约 v1（`gestureforge_s5t03_json_contract` **1.0.3**）
 
-- 冻结时刻（UTC+8）：2026-10-27 00:25；维护：DSH 阶段5 总控（w5 接管后）
+- 冻结时刻（UTC+8）：2026-10-27 01:10；维护：DSH 阶段5 总控（w5 接管后）
 - 机器可读契约：[`s5t03_json_contract_v1.json`](s5t03_json_contract_v1.json)（**校验器只读此文件**，字段清单不在代码里硬编码）
 - 校验器：[`../../scripts/stage5_t03/validate_s5t03_json.py`](../../scripts/stage5_t03/validate_s5t03_json.py)
 - 定位：供**阶段6/7 消费**的稳定接口；**JSON/日志为权威**，`keyframes/*.png` 与 `demo.mp4` **不作验收依据**。
@@ -67,10 +67,20 @@
 4. 契约本体新增必填键属契约版本提升；校验器对**契约缺键**必须 fail-closed；
 5. 校验器退出码：**0** 全部通过 / **1** 违约（含 `checks.passed` 非 true、哈希不符、schema_version 值不符）/ **2** 输入或环境错误（契约缺失或不完整、包目录不存在、`--packages-from` 文件不存在、未指定包）。
 
-## 6. 事件日志键位（权威可复算来源）
-- commit 记录：`t, dfid, rfid, rseq, state, drawn, boxes, se, sr, sk, ar, af, ts, zd`；
-- submit 记录：`t, rfid, rseq, seq, verdict, outcome, rr`；
-- **拒绝原因键是 `rr`**（不是 `reason`）；`results.submit_verdicts[].reject_reason` 是另一路描述，二者可能不同（见 `known_inconsistencies`）。
+## 6. 事件日志键位（权威可复算来源，**与 `.json` 的 `event_log_fields` 逐字一致**）
+> **v1.0.2/v1.0.3 更正**：本节早期版本曾把 `frame_assertions` 的字段名误当事件日志键位（幻影键
+> `rseq/state/drawn/boxes/sr/sk/ar/af/zd/verdict/outcome`）。现一律以下列 **compact 键**为准，
+> 图例出处：`docs/stage5/s5t03_offline_skeleton_params_v1.json`
+> `#/newly_frozen_for_skeleton_only/log_artifacts/compact_fields_result_submit` 与 `.../compact_fields_overlay_commit`。
+> 校验器会读 `logs/events_*.jsonl(.gz)` 的键集与本节/`.json` 声明比对，漂移即违约。
+
+- **submit 记录（11 键）**：`t, fid, sid, seq, oc, vf, rr, ri, rd, rb, pri`
+  （`t="sub"`；`oc`=outcome；`vf`=verdict；`rr`=reject_reason；`ri/rd/rb/pri`=repeat 相关）。
+- **commit 记录（12 键）**：`t, dfid, ts, rfid, sid, seq, st, dr, bx, za, se, w`
+  （`t="commit"`；`dfid`=displayed_frame_id；`ts`=overlay_commit_ns；`st`=state；`dr`=drawn 0/1；
+  `bx`=boxes；`za`=zero_area_dropped；`se`=stale_effective 0/1；`w`=warmup 0/1）。
+- **拒绝原因键是 `rr`**（不是 `reason`）；`results.submit_verdicts[].reject_reason` 是另一路描述，
+  二者可能不同（见 `known_inconsistencies`）。
 
 ## 7. 已知不一致（登记，不在 v1 内统一）
 | id | 描述 | 消费规则 |

@@ -1,7 +1,7 @@
 {
   "contract_id": "gestureforge_s5t03_json_contract",
-  "contract_version": "1.0.2",
-  "frozen_utc8": "2026-10-27T00:55:00+08:00",
+  "contract_version": "1.0.3",
+  "frozen_utc8": "2026-10-27T01:10:00+08:00",
   "purpose": "冻结阶段5 离线 replay/display 产物的 JSON 契约，供阶段6/7 消费；JSON/日志为权威，PNG/MP4 不作验收依据。",
   "authority": {
     "authoritative": [
@@ -180,7 +180,7 @@
   "results_checks_rule": "checks 必须是对象且含布尔 passed 与数组 failures；**passed 必须为 true**（失败运行不得作为交付证据），且 failures 为空时 passed 必须为 true",
   "event_log_fields": {
     "authoritative": true,
-    "legend_ref": "docs/stage5/s5t03_offline_skeleton_params_v1.json#log_artifacts.compact_fields_result_submit / .compact_fields_overlay_commit",
+    "legend_ref": "docs/stage5/s5t03_offline_skeleton_params_v1.json#/newly_frozen_for_skeleton_only/log_artifacts/compact_fields_result_submit 与 .../compact_fields_overlay_commit",
     "note": "帧级事件日志是计数复算的权威来源。**v1.0.2 更正**：早期版本曾把 frame_assertions 的字段名误当事件日志键位——键位一律以下方 compact 键为准（与实物逐字一致）。",
     "submit_record_keys": [
       "t",
@@ -322,7 +322,8 @@
     "仅新增可选字段可在 v1 内进行，且必须在 stability.detail_not_for_consumers 或新增文档中说明",
     "删除/重命名稳定字段属于破坏性变更，必须新建版本并在契约文档登记迁移说明",
     "契约本体（本文件）新增必填键属于契约版本提升；校验器对**本文件缺键**必须 fail-closed（退出码 2）",
-    "v1.0.2 更正：事件日志键位改为实物 compact 键并新增校验器核对；补 T6-A03 离线/实测口径注记（不改任何 schema_version 值）"
+    "v1.0.2 更正：事件日志键位改为实物 compact 键并新增校验器核对；补 T6-A03 离线/实测口径注记（不改任何 schema_version 值）",
+    "v1.0.3 更正：legend_ref 补全 JSON 指针层级；frame_assertion_required_vs_stable 纳入必填；并同步 .md §6 事件日志键位与 .json 逐字一致（新增 .md↔.json 一致性测试）"
   ],
   "contract_required_keys": [
     "contract_id",
@@ -348,7 +349,8 @@
     "known_inconsistencies",
     "stability",
     "consumer_notes",
-    "versioning_rules"
+    "versioning_rules",
+    "frame_assertion_required_vs_stable"
   ],
   "frame_assertion_required_vs_stable": {
     "relation": "两个清单当前**逐字相同**（14 键）；保留分离是为了让未来版本能在不破坏必需语义的前提下扩展稳定子集",

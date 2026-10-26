@@ -78,3 +78,13 @@
 任务=阶段5正式写权交接 | 负责人=Codex 项目总控 | 工作树/分支=D:\codex-worktrees\w5 / stage5-display-prep | 起始提交=673d371cae8a9775e31b9e3a911fe9646dcac658（交接前基线；正式 OFFER 版本为包含本行的提交） | 允许修改范围=本次仅 .codex/STATE.md 的交接记录与提交；后续阶段5业务修改按接手任务及既有授权执行 | 未提交改动归属=本次开始时仅有1项 .codex/STATE.md 差异，原有收尾快照及历史交接调整完整保留，与本正式交接行同批提交；未混入其他文件 | 让出声明=Wong 已明确授权本次交接；Codex 项目总控在本行及原有 STATE 差异提交完成后立即停止写 w5，不再暂存或提交；核验时无 index.lock，未发现 Git/Vivado/XSDB/hw_server/Vitis/XSCT/XSim 进程；本行不构成硬件窗口授权或阶段验收通过 | 心跳(UTC+8)=2026-10-26 21:07 | 证据入口=.codex/STATE.md（本行所在提交）；report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/delivery_manifest.json；docs/stage5/s5a_g0_ur3_decision_20261025_r01.md | 恢复命令=git -C D:/codex-worktrees/w5 log -1 --format=%H -- .codex/STATE.md; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD | 状态/下一接手方=OFFERED / DSH 项目总控
 
 本行是正式让出记录；DSH 项目总控须以提交后的实际 HEAD 重新核验并明确 CLAIMED，方可推进认领状态。此前阶段5未验收及未执行项继续按原文保留。
+
+## 接管交接行（11 字段，2026-10-26 21:21 UTC+8；**优先于以上全部**，已 CLAIMED）
+
+任务=`S5-T03 阶段5 写权接管（handoff_check --claim 通过）与「离线 replay/display 骨架」推进；本轮不接板卡、不宣称任何关口通过` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`c2deb2f10bdc1a92858295ffe6818cf871a5df5f`（含 OFFERED 行的 OFFER 提交；`git log -1 --format=%H -- .codex/STATE.md` 实测） | 允许修改范围=`.codex/STATE.md`、`scripts/stage5_t03/**`、`docs/stage5/**`、`report/evidence/S5-T03/**`、`tmp/5/**` | 未提交改动归属=`本轮产物（接管证据目录 + 本行）归 DSH 阶段5 总控，与本行同批提交；无他人改动混入` | 让出声明=`**未让出：本阶段总控独占 w5 写权（CLAIMED→IN_PROGRESS）**；本轮不接板卡：未加载位流/ELF、未占用 JTAG/COM4、未启动 hw_server、未烧录；板级工作维持 SUSPENDED_BOARD_DETACHED` | 心跳(UTC+8)=`2026-10-26 21:21` | 证据入口=`report/evidence/S5-T03/s5t03_takeover_20261026_r01/`（含 `manifest.json`、`console/claim_verbatim.json`、`console/claim_corrected.json`） | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short; python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json` | 状态/下一接手方=`IN_PROGRESS（CLAIMED；本轮范围＝阶段5 离线 replay/display 骨架；未验收项按原文保留；G0/G1/G3/G4/G5 均未通过）/ 本阶段总控`
+
+接管事实（`handoff_check --claim`，真实退出码）：
+- 原文记录：exit 1，`PASS 7 / FAIL 2`（a 起始提交、g 证据入口）——原样留证于 `console/claim_verbatim.json`。
+- **更正后记录：exit 0，`HANDOFF_OK`，`PASS 9 / FAIL 0`**（`console/claim_corrected.json`）。
+- 两处更正经 Wong 2026-10-26 批准，依据与影响见接管证据 `summary.md` §3：①`base_commit` 由"交接前基线 673d371"改为**含 OFFERED 行的 OFFER 提交 c2deb2f**（OFFERED 行自注"正式 OFFER 版本为包含本行的提交"）；②证据入口改为本接管证据目录（含 checker 要求的 `manifest.json`，非删除/绕过校验）。Codex 的 OFFERED 行与历史交接行**原样保留，未覆盖、未删除**。
+- 核验现场：无 `index.lock`、未提交改动 0 项、无重型进程、心跳未超时、`status=OFFERED` 允许接管。

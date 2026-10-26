@@ -1,0 +1,61 @@
+{
+  "schema_version": "gestureforge_s5t03_takeover_v1",
+  "task_id": "S5-T03",
+  "run_id": "s5t03_takeover_20261026_r01",
+  "generated_utc8": "2026-10-26T21:20:24+08:00",
+  "purpose": "S5-T03 阶段5 写权接管（handoff_check --claim）证据与记录更正留痕",
+  "offer": {
+    "offer_commit": "c2deb2f10bdc1a92858295ffe6818cf871a5df5f",
+    "offer_commit_scope": ".codex/STATE.md only",
+    "offered_line": "STATE.md 第 76-78 行「正式 OFFERED 交接行（2026-10-26 21:07）」",
+    "from_owner": "Codex 项目总控",
+    "to_owner": "DSH 项目总控",
+    "status": "OFFERED"
+  },
+  "record_corrections_approved_by": "Wong 2026-10-26（选项：按记录更正后接管）",
+  "record_corrections": [
+    {
+      "check": "a",
+      "field": "base_commit",
+      "was": "673d371cae8a9775e31b9e3a911fe9646dcac658（交接前基线）",
+      "now": "c2deb2f10bdc1a92858295ffe6818cf871a5df5f",
+      "basis": "OFFERED 行自注「起始提交=交接前基线；正式 OFFER 版本为包含本行的提交」；实测 `git log -1 --format=%H -- .codex/STATE.md` = OFFER 提交"
+    },
+    {
+      "check": "g",
+      "field": "evidence_dir",
+      "was": "report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06（含 delivery_manifest.json，非 manifest.json）",
+      "now": "report/evidence/S5-T03/s5t03_takeover_20261026_r01",
+      "basis": "checker 要求证据目录含 manifest.json；本目录即本次接管的证据承载，非删除/绕过校验"
+    }
+  ],
+  "allowed_paths_basis": "工作树写权交接 + Wong 2026-10-26 指示「只做阶段5离线 replay/display 骨架，不接板卡、不宣称任何关口通过」",
+  "claim_verbatim_result": {
+    "PASS": 6,
+    "FAIL": 3,
+    "SKIP": 0
+  },
+  "claim_corrected_result": {
+    "PASS": 9,
+    "FAIL": 0,
+    "SKIP": 0
+  },
+  "claim_corrected_status": "HANDOFF_OK",
+  "scope_statement": "本目录只证明接管流程与记录更正；不代表 G0/G1/G3/G4/G5、测试通过或实物验收。",
+  "files": [
+    {
+      "path": "report/evidence/S5-T03/s5t03_takeover_20261026_r01/console/claim_corrected.json",
+      "sha256": "bc397a997d0cf778f9401f6d0cdca67b25701d63af75c42b34d52e70b5072afe"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5t03_takeover_20261026_r01/console/claim_verbatim.json",
+      "sha256": "6a1956da60a82cfb05c186d8b39601a9b434cc289438f46e0b3d0a536d40bb40"
+    },
+    {
+      "path": "report/evidence/S5-T03/s5t03_takeover_20261026_r01/summary.md",
+      "sha256": "2112be8d277967de26640f85f0fbef3f194896bcc436ca1cd87d6dc7c68ef4f6"
+    }
+  ],
+  "state_line_added": true,
+  "state_note": "接管交接行（CLAIMED/IN_PROGRESS）已写入 .codex/STATE.md 并与本目录同批提交"
+}

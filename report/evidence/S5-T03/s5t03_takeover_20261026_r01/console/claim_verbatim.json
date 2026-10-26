@@ -1,0 +1,82 @@
+{
+  "status": "HANDOFF_FAILED",
+  "worktree_arg": "D:\\codex-worktrees\\w5",
+  "worktree_root": "D:\\codex-worktrees\\w5",
+  "branch": "stage5-display-prep",
+  "head": "c2deb2f10bdc1a92858295ffe6818cf871a5df5f",
+  "record_provided": true,
+  "checks": [
+    {
+      "id": "a",
+      "name": "工作树存在与分支/HEAD 一致性",
+      "status": "FAIL",
+      "evidence": "工作树根=D:\\codex-worktrees\\w5；实际分支=stage5-display-prep；实际HEAD=c2deb2f10bdc1a92858295ffe6818cf871a5df5f；声明工作树=D:\\codex-worktrees\\w5；声明分支=stage5-display-prep；声明起始提交=673d371cae8a9775e31b9e3a911fe9646dcac658",
+      "reason": "record 声明起始提交 673d371cae8a9775e31b9e3a911fe9646dcac658，实际 HEAD c2deb2f10bdc1a92858295ffe6818cf871a5df5f"
+    },
+    {
+      "id": "b",
+      "name": "index.lock 解析与占用",
+      "status": "PASS",
+      "evidence": "git --no-optional-locks rev-parse --git-path index.lock（cwd=D:\\codex-worktrees\\w5） → D:/FPGA_Competition/.git/worktrees/w5/index.lock；存在=False"
+    },
+    {
+      "id": "c",
+      "name": "未提交改动计数与归属声明",
+      "status": "PASS",
+      "evidence": "git --no-optional-locks -c core.quotepath=false status --short（cwd=D:\\codex-worktrees\\w5）→ 未提交改动 1 项；样例：?? report/evidence/S5-T03/s5t03_takeover_20261026_r01/；声明归属=本次开始时仅有1项 .codex/STATE.md 差异，与本正式交接行同批提交；未混入其他文件"
+    },
+    {
+      "id": "d",
+      "name": "重型进程占用",
+      "status": "PASS",
+      "evidence": "待匹配进程名=vivado、xsim、xelab、xvlog、hw_server、cs_server、xsdb；未发现占用"
+    },
+    {
+      "id": "e",
+      "name": "交接心跳时效",
+      "status": "PASS",
+      "evidence": "heartbeat_utc8=2026-10-26 21:07（归一化 2026-10-26 21:07:00 UTC+8）；阈值=120 分钟；当前时间(UTC+8)=2026-10-26 21:20:23；距今=13.4 分钟"
+    },
+    {
+      "id": "f",
+      "name": "交接状态机与接管条件",
+      "status": "PASS",
+      "evidence": "status=OFFERED；状态机：IDLE→OFFERED→CLAIMED→IN_PROGRESS→DONE；只有 OFFERED 允许接管；--claim 接管条件满足"
+    },
+    {
+      "id": "g",
+      "name": "证据入口",
+      "status": "FAIL",
+      "evidence": "evidence_dir=report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06；解析路径=D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r06；缺失 D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_repeat_validation_fix_20261024_r06\\manifest.json",
+      "reason": "证据目录缺少 manifest.json"
+    },
+    {
+      "id": "h",
+      "name": "允许修改范围与越界核验",
+      "status": "FAIL",
+      "evidence": "允许修改范围=.codex/STATE.md；声明要改动的路径=.codex/STATE.md、scripts/stage5_t03/run_s5t03_evidence.py、docs/stage5、report/evidence/S5-T03/s5t03_takeover_20261026_r01",
+      "reason": "scripts/stage5_t03/run_s5t03_evidence.py：不在允许修改范围内；docs/stage5：不在允许修改范围内；report/evidence/S5-T03/s5t03_takeover_20261026_r01：不在允许修改范围内"
+    },
+    {
+      "id": "i",
+      "name": "接管让出契约",
+      "status": "PASS",
+      "evidence": "yield_statement=Wong 已明确授权本次交接；Codex 项目总控在本行及原有 STATE 差异提交完成后立即停止写 w5，不再暂存或提交；核验时无 index.lock，未发现 Git/Vivado/XSDB/hw_server/Vitis/XSCT/XSim 进程；本行不构成硬件窗口授权或阶段验收通过；next_owner=DSH 项目总控；规则：--claim 时 yield_statement 与 next_owner 必须非空且非占位；heartbeat_utc8 的可解析性由检查项 e 核验"
+    }
+  ],
+  "counts": {
+    "PASS": 6,
+    "FAIL": 3,
+    "SKIP": 0
+  },
+  "lost_contact": {
+    "lost_contact": false,
+    "heartbeat_expired": false,
+    "heavy_processes": false,
+    "index_lock_present": false,
+    "note": "只有「心跳超时+无重型进程+无 index.lock」同时成立才可判失联；否则只能报告，不能自行接管。"
+  },
+  "warnings": [],
+  "scope_statement": "只读核验：不代表 G0/G4/G5、测试通过或实物验收；不执行恢复命令，不写仓库文件。",
+  "_exit_code": 1
+}

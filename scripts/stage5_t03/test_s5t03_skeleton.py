@@ -261,8 +261,11 @@ class T01_ContractIntegrity(unittest.TestCase):
             blob = subprocess.run(["git", "-C", str(REPO_ROOT), "show", f"{BASE_COMMIT}:{rel}"],
                                   capture_output=True)
             self.assertEqual(blob.returncode, 0, f"基线中不存在该证据：{rel}")
-            baseline = hashlib.sha256(blob.stdout).hexdigest()
-            live = sha256_file(REPO_ROOT / rel)
+            # 归一化换行后再比对（仓库 core.autocrlf=true，checkout 可能改写工作区换行；
+            # 该判据只关心**内容**是否被改动，不应因 EOL 差异误报）
+            baseline = hashlib.sha256(blob.stdout.replace(b"\r\n", b"\n")).hexdigest()
+            live_bytes = (REPO_ROOT / rel).read_bytes().replace(b"\r\n", b"\n")
+            live = hashlib.sha256(live_bytes).hexdigest()
             self.assertEqual(live, baseline, f"既有证据内容被改动：{rel}")
 
 

@@ -2,8 +2,8 @@
   "schema_version": "gestureforge_s5t02_offline_dynamic_map_v1",
   "run_id": "s5t02_offline_dynamic_map_20261027_r02",
   "task_id": "S5-T02",
-  "generated_utc8": "2026-10-27T02:15:41+08:00",
-  "source_commit": "93348c28d997e4eda413f2cbf072b3a4f8303257",
+  "generated_utc8": "2026-10-27T02:33:40+08:00",
+  "source_commit": "8ff43ad2271e55efc973a987789eb492b304fd42",
   "status": "OFFLINE_PRELIMINARY_BOARD_NOT_RUN",
   "input_scope_label": "synthetic_dynamic_stream_not_stage4_output",
   "goal_reached": "S5T02_OFFLINE_C_IMPLEMENTATION_CROSS_CHECKED_VS_FROZEN_REFERENCE",
@@ -125,7 +125,7 @@
     },
     "tests": {
       "path": "scripts/stage5_t01/test_s5t02_dynamic_map.py",
-      "sha256": "b63978c050302a01a7a18bd7a34883dca95f3450606a3a6d8b1e265d31db2267"
+      "sha256": "852b482f5fe4f98af49a2620c69506828fe38fa3ba60472f02c1e5584d893599"
     },
     "reference": {
       "path": "verification/s5_display_geometry_reference.py",
@@ -142,10 +142,11 @@
   },
   "build": {
     "cc_version": "gcc (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0",
+    "binary_path": "build/s5_dynamic_map_host.exe",
     "binary_sha256": "636fb2e7716fdee914533ab7d67dcf7587ad9997327bb6467eed6d8ed642d654",
     "binary_bytes": 69331,
-    "binary_included": false,
-    "note": "二进制未入库；用 build_dynamic_map.sh 可重建。"
+    "binary_included": true,
+    "note": "二进制**已入库**（build/ 下），其 sha256 只绑定包内这一份产物——同源重建会因 PE 时间戳不同而哈希不同，故不作为可重建性依据；可重建性由源码哈希 + 编译参数 + 构建脚本保证。"
   },
   "files": [
     {
@@ -200,8 +201,8 @@
     },
     {
       "path": "console/unittest_all.txt",
-      "sha256": "9834f090af3b5487a7d2261f103be2c372c76f9abeba264a75b67001f5f97d03",
-      "bytes": 3808
+      "sha256": "b02c51372892d74fbb659434b6e3e3164a2fc51d7ef116eb67d7933eab72c4a5",
+      "bytes": 2543
     },
     {
       "path": "console/verify_stdout.txt",
@@ -230,8 +231,8 @@
     },
     {
       "path": "summary.md",
-      "sha256": "5f7ddade94a82dc6a5c451a0a85d5671332dcbae4b5b169db8e4a79f5ec904c5",
-      "bytes": 6007
+      "sha256": "991c1a370464d578b8ed78efca45a51235ee598321c05b67c92c7d14e99ccc5d",
+      "bytes": 6163
     },
     {
       "path": "verify/verify_all.json",

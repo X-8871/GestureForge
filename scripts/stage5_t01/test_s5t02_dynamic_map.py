@@ -44,7 +44,7 @@ def _compile(src_dir: pathlib.Path, out_bin: pathlib.Path) -> subprocess.Complet
     return subprocess.run(
         ["gcc", *CFLAGS, "-I", str(src_dir), "-o", str(out_bin),
          str(src_dir / "s5_dynamic_map_host.c"), str(src_dir / "s5_dynamic_map.c"), "-lm"],
-        capture_output=True, text=True)
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
 
 
 class T_DynamicMap(unittest.TestCase):
@@ -56,26 +56,26 @@ class T_DynamicMap(unittest.TestCase):
         # 路径用正斜杠 Windows 形式（Git Bash 原生可读；避免 cygpath 的 /tmp↔D:\tmp 映射歧义）
         cls.run_dir_posix = str(cls.run_dir).replace("\\", "/")
         cls.build = subprocess.run([GIT_BASH, str(BUILD_SCRIPT).replace("\\", "/"), cls.run_dir_posix],
-                                   capture_output=True, text=True)
+                                   capture_output=True, text=True, encoding="utf-8", errors="replace")
         if cls.build.returncode != 0:
             raise AssertionError(f"隔离构建失败：rc={cls.build.returncode}\nstdout={cls.build.stdout[-400:]}\nstderr={cls.build.stderr[-400:]}")
         candidates = [cls.run_dir / "build" / "s5_dynamic_map_host",
                       cls.run_dir / "build" / "s5_dynamic_map_host.exe"]
         cls.binary = next((p for p in candidates if p.is_file()), candidates[0])
         cls.gen = subprocess.run([sys.executable, "-B", str(GEN), "--out", str(cls.run_dir)],
-                                 capture_output=True, text=True)
+                                 capture_output=True, text=True, encoding="utf-8", errors="replace")
         combined = cls.run_dir / "all.tsv"
         combined.write_text((cls.run_dir / "cases.tsv").read_text(encoding="utf-8") +
                             (cls.run_dir / "stream_120.tsv").read_text(encoding="utf-8"),
                             encoding="utf-8", newline="\n")
         cls.c_run = subprocess.run([str(cls.binary), str(combined), str(cls.run_dir / "all_c.jsonl")],
-                                   capture_output=True, text=True)
+                                   capture_output=True, text=True, encoding="utf-8", errors="replace")
         cls.jsonl = cls.run_dir / "all_c.jsonl"
         cls.report_path = cls.run_dir / "verify.json"
         cls.verify = subprocess.run(
             [sys.executable, "-B", str(VERIFY), "--cases", str(cls.run_dir / "cases.tsv"),
              "--stream", str(cls.run_dir / "stream_120.tsv"), "--jsonl", str(cls.jsonl),
-             "--json", str(cls.report_path)], capture_output=True, text=True)
+             "--json", str(cls.report_path)], capture_output=True, text=True, encoding="utf-8", errors="replace")
         cls.report = json.loads(cls.report_path.read_text(encoding="utf-8")) if cls.report_path.is_file() else {}
 
     @classmethod
@@ -203,14 +203,14 @@ class T_DynamicMap(unittest.TestCase):
         self.assertEqual(build.returncode, 0, build.stderr[-500:])
         jsonl = pathlib.Path(self.tmp.name) / "mut.jsonl"
         run = subprocess.run([str(binary), str(self.run_dir / "all.tsv"), str(jsonl)],
-                             capture_output=True, text=True)
+                             capture_output=True, text=True, encoding="utf-8", errors="replace")
         if run.returncode != 0:
             return run
         return subprocess.run(
             [sys.executable, "-B", str(VERIFY), "--cases", str(self.run_dir / "cases.tsv"),
              "--stream", str(self.run_dir / "stream_120.tsv"), "--jsonl", str(jsonl),
              "--json", str(pathlib.Path(self.tmp.name) / "mut_verify.json")],
-            capture_output=True, text=True)
+            capture_output=True, text=True, encoding="utf-8", errors="replace")
 
     def test_10_mutation_span_off_by_one_is_caught(self) -> None:
         """取整少一步（用 span 而非 span−1）⇒ 对拍必须失败。"""
@@ -252,7 +252,7 @@ class T_DynamicMap(unittest.TestCase):
         lines.append("E")
         path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
         result = subprocess.run([str(self.binary), str(path), str(pathlib.Path(self.tmp.name) / "tm.jsonl")],
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, encoding="utf-8", errors="replace")
         self.assertNotEqual(result.returncode, 0, ">15 框必须被拒")
 
     def test_21_non_positive_area_fails(self) -> None:
@@ -260,7 +260,7 @@ class T_DynamicMap(unittest.TestCase):
         path.write_text("F 0 0 0 1 1000000000 1000500000 1001500000 0 0 OK 1\n"
                         "B 0 0.5 0.40 0.40 0.30 0.30 30 11\nE\n", encoding="utf-8", newline="\n")
         result = subprocess.run([str(self.binary), str(path), str(pathlib.Path(self.tmp.name) / "bb.jsonl")],
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, encoding="utf-8", errors="replace")
         self.assertNotEqual(result.returncode, 0, "非正面积框必须被拒（不得静默绘制）")
 
     # ── 无板卡依赖 ─────────────────────────────────────────────────────────

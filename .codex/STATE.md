@@ -6,6 +6,7 @@
 - 让出方提示的矛盾**已统一**：下方 18:03「收尾快照」与**历史**交接行中的「阶段3 G5 未通过」是**当时（19:00 前）的历史快照**；**当前正式口径**以本文件顶部的「2026-10-26 阶段3 收尾判定：通过（带记录性局限）」及其紧随的「记录性局限」为准（判定 + 基线 + 本地 tag `stage3-close-20261026`；收尾证据正由独立 Reviewer 复审中）。
 - `main` 的 `OFFERED` 属**项目总控层**（本任务范围仅阶段3）；本树不代为主目录认领或提交。
 - 既有未提交项继续**全部保留不回退**：`NA/`、`clockInfo.txt`、v14 补丁、`scripts/stage3_t17/jtag_t17_w1_sr_sample.tcl`（归原 Codex 任务）。
+- **收尾证据独立复审**：已派具名 Reviewer 成员 `rev-s3`（只读，钉在 tag `stage3-close-20261026` → 提交 `5faa151`）；**复审期间不改被审对象**（`report/evidence/S3-T17/stage3_closeout_20261026_r01/`、`…/t17_g3_reconfirm_20261026_r02/`、`…/t17_takeover_20261026_r01/`、本 STATE 的收尾/局限块）。结论回来后并入本节并提交；`CHANGES_REQUIRED` 则按第 3 条修复后用新基线复审。
 
 ## 2026-10-26 接管（DSH 阶段三总控）
 - **接手方 = DSH 阶段三总控**；工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`；接管时 HEAD `2ed66096c0f49d89817bf8c33607c7d54f69ac0e`。依据 Wong 2026-10-26 直接指令（「现在准许你接管阶段三」+「目前已上板，赶快完成阶段三的冻结」）；**接管时交接行仍为 `IN_PROGRESS`、非 `OFFERED`** ⇒ `handoff_check --claim` 契约未满足、**未执行 `--claim`**，该偏差如实留痕（建议让出方补记 `OFFERED`）。

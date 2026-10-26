@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_a9_enum_20261026_r02",
+  "source_commit": "15aaca4ee7daf0f2e808f3aea4b18e5cffdff1c3",
+  "evidence_dir": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 只做获批的只读 JTAG 枚举与条件性 A9 state 查询，不修改或冻结业务接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/README.md",
+      "sha256": "1d69515a280adfd799fdb821657a6a32883213d141060e2e7bcddc80bd469fdf",
+      "role": "artifact",
+      "keep_reason": "授权范围、实际枚举结论与未确认项"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/.gitattributes",
+      "sha256": "3e999f705c5bd32a33c2800ad381104aa061dabaed2e10290523f5f697641904",
+      "role": "artifact",
+      "keep_reason": "锚定保护原始 XSDB 混合行尾字节"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/preflight.json",
+      "sha256": "39e411827baedb4f1cf526409011b9edbd51c8a9603ee7de0cbf13ba9fba02bd",
+      "role": "result",
+      "keep_reason": "本次授权、工作树、锁、进程/会话与前置限制"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/enumerate_a9_state.tcl",
+      "sha256": "2024042d13dd0b444cc2a750e87e095a05a1782d47e452cf310fea7e02c471ff",
+      "role": "source",
+      "keep_reason": "经授权的只读枚举及条件性 state 查询脚本"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/execution_summary.json",
+      "sha256": "3c37c2206388876aa42b1a856af0b07733f4b22b9d30dd7f3dafefe0dbe0900b",
+      "role": "result",
+      "keep_reason": "原始枚举结论、返回码和禁止操作计数"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/postrun.json",
+      "sha256": "1e330c3f09ed8bab40483f4f96228b115d392258c4a26dccb3d62525731b5a8b",
+      "role": "result",
+      "keep_reason": "收窗后的进程、监听、锁核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/started_at.txt",
+      "sha256": "187216fe1bf774df670c7025e52ab17c2737606bc2ba85c45bd71bdf389905c3",
+      "role": "result",
+      "keep_reason": "XSDB 调用开始时间"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/ended_at.txt",
+      "sha256": "5b71312eb2a05ebd3a5784d9f8d5a410efe5891e3cb2c1c804ad348408393a64",
+      "role": "result",
+      "keep_reason": "XSDB 调用结束时间"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/wrapper_exit_code.txt",
+      "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+      "role": "result",
+      "keep_reason": "XSDB 包装器退出码"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/xsdb_wrapper.stdout.txt",
+      "sha256": "ee64a894f2c81d5b316eb7f4fc81289620e8b4dfb3739431202dd2d52e4ce8f9",
+      "role": "log",
+      "keep_reason": "XSDB/hw_server/JTAG 原始标准输出"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r02/xsdb_wrapper.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "XSDB 包装器原始标准错误输出"
+    }
+  ],
+  "checks": [
+    {
+      "name": "approved_read_only_jtag_enumeration",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_w1_a9_enum_20261026_r02\\enumerate_a9_state.tcl",
+      "exit_code": 5,
+      "reason": "JTAG-HS1 与 xc7z020 可见；DAP APB 错误 0x30000021；没有 A9 target，因此未读取 state。",
+      "status": "FAIL"
+    },
+    {
+      "name": "post_run_resource_cleanup",
+      "command": "Get-Process vivado,xsdb,hw_server,vitis; netstat -ano; Test-Path <resolved index.lock>",
+      "exit_code": 0,
+      "reason": "当前用户进程视图无目标进程，3121 无监听，index.lock 不存在；系统 tasklist 查询被拒绝且有一条 TIME_WAIT，不存在监听。",
+      "status": "PASS"
+    },
+    {
+      "name": "no_state_changing_or_register_commands_in_tcl",
+      "command": "PowerShell standalone Tcl command scan for con|stop|mrd|mwr|rst|fpga|dow",
+      "exit_code": 0,
+      "reason": "脚本扫描无命中；仅连接、枚举、A9 存在时读取 state、断开连接。",
+      "status": "PASS"
+    }
+  ],
+  "tool_versions": {
+    "XSDB": "2026.1",
+    "shell": "PowerShell"
+  },
+  "limitations": [
+    "DAP APB transaction error 0x30000021 阻止 A9 target 出现，未获得 A9 state。",
+    "系统级 tasklist 进程查询返回 Access denied；本用户进程视图与 Vivado MCP 会话查询无目标进程/会话。",
+    "未确认当前 HDMI、部署身份、VDMA 状态及运行期地址；阶段3 G3/G4/G5 未通过。"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "task11_full_equivalence_20261026_r02",
+  "source_commit": "15aaca4ee7daf0f2e808f3aea4b18e5cffdff1c3",
+  "evidence_dir": "report/evidence/S3-T05/task11_full_equivalence_20261026_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本记录确定验证边界，不修改或冻结运行时接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/task11_full_equivalence_20261026_r02/README.md",
+      "sha256": "a97e62a7146c9469776cecc3b0ff2c360a23db35abc68b4879460d261bf48e6f",
+      "role": "artifact",
+      "keep_reason": "已确定的比较契约、G0启动阻塞及阶段边界"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_full_equivalence_20261026_r02/contract.json",
+      "sha256": "984feac7e51538822d836e17e704fc95b5349b5b4cc74289566a5d52257a3e38",
+      "role": "source",
+      "keep_reason": "总控定案的 task-11 完整顺序等价比较契约"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_full_equivalence_20261026_r02/port_mapping.json",
+      "sha256": "bd1e7451e3496c862d33d5d6d899cbe411cbdea8348f0eddcbb9ffb0dbef11bb",
+      "role": "result",
+      "keep_reason": "RTL/XCI/OOC网表的全量静态端口与FIFO bundle映射"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_full_equivalence_20261026_r02/result.json",
+      "sha256": "7c44166ee08243ef3a8753a09ebac4e2b3b479a45e8aa1cdf6f5d5903e3af724",
+      "role": "result",
+      "keep_reason": "契约决策与完整 SEC 未执行状态"
+    },
+    {
+      "path": "report/evidence/S3-T05/task11_full_equivalence_20261026_r01/manifest.json",
+      "sha256": "af8b1cd485309bde1cad5fb18eb5dd0a377619afa802fe8322db880d10b2ac36",
+      "role": "input",
+      "keep_reason": "既有 task-11 输入身份、网表/XCI 参数与工具盘点绑定"
+    }
+  ],
+  "checks": [
+    {
+      "name": "task11_g0_contract_selected",
+      "status": "PASS",
+      "command": "Record comparison contract delegated to Codex project controller",
+      "exit_code": 0,
+      "reason": "比较口径已写入 contract.json；该 PASS 仅指决策已记录，不表示 G0 放行。"
+    },
+    {
+      "name": "static_rtl_xci_netlist_port_mapping",
+      "status": "PASS",
+      "command": "Read-only port and concatenation mapping inspection against bound RTL/XCI/OOC netlist files",
+      "exit_code": 0,
+      "reason": "12 个封装端口及 18-bit FIFO bundle 静态映射已记录；不表示状态等价。"
+    },
+    {
+      "name": "full_rtl_netlist_sequential_equivalence",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "缺少可用 SEC 引擎路径/license；OOC 同版源码来源及 XPM/UNISIM INIT/GSR/复位状态语义未绑定。"
+    }
+  ],
+  "tool_versions": {
+    "documentation": "UTF-8, LF",
+    "shell": "PowerShell"
+  },
+  "limitations": [
+    "完整顺序等价保持 BLOCKED_NOT_RUN。",
+    "OOC build_report.json 未记录 source_commit；原语模型版本与 INIT/GSR/复位状态映射仍未闭合。",
+    "契约/静态映射/包装通过不代表 G0、task-11 或阶段3 G5通过。"
+  ]
+}

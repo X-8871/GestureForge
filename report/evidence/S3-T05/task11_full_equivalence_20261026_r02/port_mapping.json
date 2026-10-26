@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "mapping_status": "STATICALLY_MAPPED_FORMAL_STATE_MAPPING_OPEN",
+  "source_commit": "15aaca4ee7daf0f2e808f3aea4b18e5cffdff1c3",
+  "inputs": {
+    "patched_rtl_snapshot_sha256": "db4857fe2fc8d86aa831bac619ddfc676d076f0114ba2c07988d944f894adce6",
+    "ooc_netlist_sha256": "7b8f457c1cd5377367b3032369ba72fc5d00ac465629ecd970d6fb7e479b852a",
+    "ooc_xci_sha256": "5a330509fc2ff1f08c1bd4f602cdc6f3c6d4ac80cdf92e71e848cace56b44db6",
+    "ooc_build_report_sha256": "7f424c36535362841f72eb19d1b94e1d90d328d2f85dee67da22e7f7b175d3c0",
+    "ooc_build_report_source_commit": null
+  },
+  "configured_parameters": {"BUFFER_DEPTH": 2048, "DEBUG_OV5640": false},
+  "wrapper_boundary_port_count": 12,
+  "internal_netlist_core_port_count": 7,
+  "ports": [
+    {"name":"cmos_vsync","direction":"input","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name 1-bit input","internal_core":"not connected; RTL register has no downstream use and is pruned"},
+    {"name":"cmos_href","direction":"input","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name 1-bit input","internal_core":"same-name input, directly connected"},
+    {"name":"cmos_pclk","direction":"input","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name 1-bit input","internal_core":"same-name input, directly connected; generates internal cmos_aresetn counter state"},
+    {"name":"cmos_d[9:0]","direction":"input","rtl_width":10,"xci_width":10,"netlist_boundary":"same-name 10-bit input","internal_core":"cmos_d[7:0] receives RTL cmos_d[9:2]; RTL bits [1:0] unused; no bit reversal"},
+    {"name":"m_axis_video_aclk","direction":"input","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name 1-bit input","internal_core":"same-name input, directly connected; independent clock"},
+    {"name":"m_axis_video_aresetn","direction":"input","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name input, active-low XCI polarity","internal_core":"not connected; RTL data path does not consume this port"},
+    {"name":"m_axis_video_tdata[15:0]","direction":"output","rtl_width":16,"xci_width":16,"netlist_boundary":"same-name 16-bit output","internal_core":"dout[17:2]"},
+    {"name":"m_axis_video_tvalid","direction":"output","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name output","internal_core":"same-name output"},
+    {"name":"m_axis_video_tready","direction":"input","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name input; XCI driver_value=1","internal_core":"same-name input, directly connected; bind to 1 for this configured instance"},
+    {"name":"m_axis_video_tlast","direction":"output","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name 1-bit output","internal_core":"dout[1]"},
+    {"name":"m_axis_video_tuser","direction":"output","rtl_width":1,"xci_width":1,"netlist_boundary":"same-name 1-bit output","internal_core":"dout[0]"},
+    {"name":"m_axis_video_tkeep[1:0]","direction":"output","rtl_width":2,"xci_width":2,"netlist_boundary":"same-name 2-bit output","internal_core":"both bits tied to 1; no internal core port"}
+  ],
+  "internal_fifo_data_bundle": {
+    "write_order": "{data[15:0], last, user}",
+    "read_mapping": {"dout[17:2]":"m_axis_video_tdata[15:0]","dout[1]":"m_axis_video_tlast","dout[0]":"m_axis_video_tuser"},
+    "fifo": {"width":18,"write_depth":2048,"read_depth":2048,"related_clocks":false,"cdc_sync_stages":2}
+  },
+  "scope_exclusions": ["SCCB/sensor-control signals are outside the RTL/XCI/netlist boundary."],
+  "still_open": [
+    "Formal state mapping and reachability across the asynchronous FIFO are not proven.",
+    "Exact XPM/UNISIM model version and INIT/GSR/reset semantics are not bound.",
+    "OOC build report does not bind the generated netlist to an RTL source commit."
+  ],
+  "evidence_basis": "Patched RTL top-level declarations and logic, XCI boundary.ports/parameters, and OOC simulation-netlist wrapper/core connections. Static mapping only; not an equivalence result."
+}

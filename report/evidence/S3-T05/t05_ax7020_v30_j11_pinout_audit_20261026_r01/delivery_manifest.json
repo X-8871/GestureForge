@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_ax7020_v30_j11_pinout_audit_20261026_r01",
+  "source_commit": "8f937b4955f54c566b567222e1df07747dfba22c",
+  "evidence_dir": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只读核对已存在的 J11 手册针脚表与阶段三 XDC PACKAGE_PIN 声明；没有修改或冻结接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/README.md",
+      "sha256": "6b130985699d86a61f91f1777cfd7d1827d67ff45c92e74c6776e85ddb52606f",
+      "role": "artifact",
+      "keep_reason": "记录手册事实、J11 PIN3–18 与 XDC 映射及本次结论边界。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/source_provenance.json",
+      "sha256": "16a80ceb49d1527d6da677a4a96f6f1dea117b521954dc72e6325f223301ce2a",
+      "role": "artifact",
+      "keep_reason": "绑定用户确认的 PDF 路径与哈希、解析参数、页码、XDC 基线和限制。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/page-0029.png",
+      "sha256": "d154bd7083047e27a6f227619eec3838f115aaa7bbf123d21027a98ad2fb063a",
+      "role": "result",
+      "keep_reason": "手册印刷第29页 §7.5 与 J11 表起始部分的视觉证据。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/page-0030.png",
+      "sha256": "f215ba94d66e63931f83d3a1a125382eb498b032a2171b36b065307846461e79",
+      "role": "result",
+      "keep_reason": "手册印刷第30页 J11 表中段的视觉证据。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/page-0031.png",
+      "sha256": "413dfe9b651550ba36b0d25a27ed809e589fa2129b7f57b9f3dc55683a8299f2",
+      "role": "result",
+      "keep_reason": "手册印刷第31页 J11 表尾及后续章节开头的视觉证据。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/verify_j11_pin_map.py",
+      "sha256": "c5a8fc324ed4e7fc5abfe92189471101aaa339180877b81b5ff16341905d260b",
+      "role": "source",
+      "keep_reason": "可复跑的轻量核对脚本，将手册表摘录的16个 J11 封装坐标与基线 XDC 对照。"
+    },
+    {
+      "path": "board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "sha256": "d1d3e976f84e0aa5a67ff695d07c83983cf32887c463d6bf25250821f64aa595",
+      "role": "source",
+      "keep_reason": "绑定本次映射核对所用的阶段三 XDC 基线。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "手册选定页解析与视觉复核",
+      "status": "PASS",
+      "command": "read_pdf.py AX7020_User Manual_V3.0.pdf --pages 23-33 --mode text --output D:\\tmp\\s3_ax7020_v30_manual_20261026_r01",
+      "exit_code": 0,
+      "reason": "Docling 2.115.0 成功解析，manifest 无警告；视觉复核并将印刷第29–31页留存在本 RunId。"
+    },
+    {
+      "name": "J11 PIN3–18 封装坐标与阶段三 XDC 逐项核对",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\.venv\\Scripts\\python.exe -B report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/verify_j11_pin_map.py",
+      "exit_code": 0,
+      "reason": "16 个接点对应的封装坐标一致；仅验证文档表格与约束声明，不证明实物 PCB 修订或现场接线。"
+    },
+    {
+      "name": "当前板卡修订、实物接线及 DVP I/O delay 闭合",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "手册未绑定当前实物修订/转接布线，也未给出 DVP data-to-PCLK 输入延迟；本次不得从 33 Ω 描述推导延迟。"
+    }
+  ],
+  "tool_versions": {
+    "PDF parser": "Docling 2.115.0 via read-pdf-reliably Skill",
+    "PDF render": "180 DPI",
+    "source_commit": "8f937b4955f54c566b567222e1df07747dfba22c"
+  },
+  "limitations": [
+    "未独立确认当前实物 PCB 修订与 AX7020 V3.0 手册对应。",
+    "未验证相机转接板、传感器模块或现场接线。",
+    "手册未提供本设计的 DVP data-to-PCLK 输入延迟数值；不得据此生成 set_input_delay。",
+    "串联 33 Ω 电阻不能单独用于推导板级时延。",
+    "本 RunId 只完成 J11 pinout 文档交叉核对，不关闭 C2、I/O delay、TIMING-17/36、VDMA 根因、task-11 完整等价或阶段 G3/G4/G5。"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "run_id": "t05_ax7020_v30_j11_pinout_audit_20261026_r01",
+  "stage": "3",
+  "task_id": "S3-T05",
+  "source_commit": "8f937b4955f54c566b567222e1df07747dfba22c",
+  "source_manual": {
+    "path": "D:\\FPGA_Competition\\摄像头资料\\Wong搜集的资料\\AX7020_User Manual_V3.0.pdf",
+    "sha256": "2c17f708ecbc01c9c870d9bfdfed3b7706dbe86cf6dec08f75c9a710e5ce13ee",
+    "size_bytes": 1996370,
+    "total_pages": 33,
+    "relevant_printed_pages": [29, 30, 31]
+  },
+  "parser": {
+    "skill": "read-pdf-reliably",
+    "script": "C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably\\scripts\\read_pdf.py",
+    "docling_version": "2.115.0",
+    "command": "$skill = 'C:\\Users\\22061\\.codex\\skills\\read-pdf-reliably'; & \"$skill\\.venv\\Scripts\\python.exe\" \"$skill\\scripts\\read_pdf.py\" 'D:\\FPGA_Competition\\摄像头资料\\Wong搜集的资料\\AX7020_User Manual_V3.0.pdf' --pages 23-33 --mode text --output 'D:\\tmp\\s3_ax7020_v30_manual_20261026_r01'",
+    "exit_code": 0,
+    "requested_pages": [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33],
+    "mode": "text",
+    "ocr_enabled": false,
+    "render_dpi": 180,
+    "warnings": []
+  },
+  "visual_review": {
+    "status": "completed",
+    "files": [
+      "page-0029.png",
+      "page-0030.png",
+      "page-0031.png"
+    ],
+    "finding": "手册印刷第29页§7.5/J11表起始、第30–31页表格内容已目视核对。"
+  },
+  "comparison_source": {
+    "path": "board/stage3/hardware/an5642_j11_cmos2.xdc",
+    "sha256": "d1d3e976f84e0aa5a67ff695d07c83983cf32887c463d6bf25250821f64aa595",
+    "source_commit": "8f937b4955f54c566b567222e1df07747dfba22c",
+    "comparison_scope": "J11 PIN3–18 的 ZYNQ 封装坐标与 XDC PACKAGE_PIN 端口映射逐项对照"
+  },
+  "limitations": [
+    "未独立确认当前实物 PCB 修订与此手册版本对应。",
+    "未验证相机转接板、传感器模块及现场接线。",
+    "手册不提供本设计所需的 DVP data-to-PCLK 输入延迟参数；不得据此生成 set_input_delay 数值。",
+    "33 Ω 串联电阻描述不能单独用于推导板级时延。"
+  ]
+}

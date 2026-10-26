@@ -14,6 +14,8 @@
 
 **2026-10-26 APU/W1 恢复更新**：APU 读回及恢复 R01、修正门禁后的 R02-R04 均因 DAP APB `0x30000021` 无 A9 target；R01 旧脚本接受 `Stopped: (Suspended)` 的程序偏差已记录，R02-R04 新脚本经独立审查，仅严格 `Stopped` 才执行一次 `con`，但三轮均未查询状态或执行 `con`。无寄存器操作/停机/复位/烧录；最终收窗无硬件进程、3121 监听或 Vivado MCP 会话。A9/HDMI 未恢复或确认；不得再重用这些 RunId，阶段3 G5 仍未通过。证据：`report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/`、`report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/`、`..._r02/`、`..._r03/`、`..._r04/`。
 
+**2026-10-26 16:26 J11 手册核对**：按 Wong 确认的 AX7020 V3.0 候选手册（SHA-256 `2c17f708…e5ce13ee`，印刷第29–31页），J11 PIN3–18 封装坐标与 `an5642_j11_cmos2.xdc` 在基线 `8f937b4` 逐项一致；轻量脚本 16/16、交付清单检查 `CHECKS_OK`，独立 Reviewer `PASS`。证据 `report/evidence/S3-T05/t05_ax7020_v30_j11_pinout_audit_20261026_r01/`。**仅关闭文档引脚映射交叉核对**；未绑定当前 PCB 修订/转接板/现场接线，手册无 DVP data-to-PCLK 延迟值，I/O delay 与 TIMING-17/36、G3/G4/G5 不因此关闭。
+
 ## 当前彩色部署（唯一口径；每次硬件使用前重新核对现场与产物）
 - 位流 **无补偿 SOF `7cb33068…`**（1,668,969 B）；XSA **`1f5b138e…`**（633,089 B）；应用 **`an5642_j11cmos2_v10_read.elf` `1457cda4…`**（015 §2.2 身份；本轮已实算复核一致）。
 - 构建来源 `e9b853f`（本分支）、`xc7z020clg400-2`、Vivado 2026.1；约束 `an5642_j11_cmos2.xdc` `2dae928c…`；补丁 `alinx_ov5640_sof_hrefgap.patch` `fd854a62…`（GAP_THRESH=16384；HTS=1892/VTS=740 ⇒ 612<16384<38452）；WNS **1.054525** / WHS 0.058931 / TNS=THS=0；DRC 0 error、8 warning、0 critical。

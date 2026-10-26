@@ -90,15 +90,16 @@ class T_DynamicMap(unittest.TestCase):
         meta = json.loads((self.run_dir / "cases_meta.json").read_text(encoding="utf-8"))
         self.assertEqual(meta["canvas"], [1280, 720])
         self.assertIn("HDMI", meta["canvas_source"])
-        self.assertEqual(len(meta["cases"]), 9)                     # 6 用例 + 3 过期边界
+        # 6 必备用例 + 4 非 OK 带框 + 零面积 + both + placement 组合 + NO_HAND 大 age + 3 过期边界
+        self.assertEqual(len(meta["cases"]), 17)
         self.assertGreaterEqual(meta["stream"]["frames"], 100)     # ≥100 帧五元组
 
     def test_02_c_run_and_cross_check_pass(self) -> None:
         self.assertEqual(self.c_run.returncode, 0, self.c_run.stderr[-400:])
         self.assertEqual(self.verify.returncode, 0, self.verify.stdout[-800:])
         self.assertTrue(self.report["passed"], self.report["failures"][:5])
-        self.assertEqual(self.report["frames_compared"], 129)
-        self.assertEqual(self.report["verdict_counts"], {"pixel_exact": 129})
+        self.assertEqual(self.report["frames_compared"], 137)
+        self.assertEqual(self.report["verdict_counts"], {"pixel_exact": 137})
         self.assertEqual(self.report["semantics_unique"], ["B_latest_result_overlay"])
 
     def test_03_five_tuple_and_counters(self) -> None:
@@ -106,9 +107,10 @@ class T_DynamicMap(unittest.TestCase):
         self.assertEqual(self.report["displayed_ne_result_frames"], 2)
         counters = self.report["counters_expected"]
         for name in ("frames_committed", "warmup_frames", "dropped_frames", "timeouts",
-                     "error_results", "duplicate_results", "out_of_order_results", "stale_cleared"):
+                     "error_results", "duplicate_results", "out_of_order_results", "stale_cleared",
+                     "zero_area_dropped"):
             self.assertGreater(counters[name], 0, f"{name} 未覆盖到故障路径")
-        self.assertEqual(self.report["counters_from_c_summary"]["frames_committed"], 129)
+        self.assertEqual(self.report["counters_from_c_summary"]["frames_committed"], 137)
 
     def test_04_hud_na_not_faked(self) -> None:
         self.assertEqual(self.report["hud_field_count"], 13)
@@ -127,14 +129,51 @@ class T_DynamicMap(unittest.TestCase):
         raw = [json.loads(line) for line in self.jsonl.read_text(encoding="utf-8").splitlines() if line.strip()]
         rows = [row for row in raw if "summary" not in row]
         # 用例在文件最前面共 9 帧（长流从 0 重新编号，不能用 frame_index 做字典键）
-        cases = rows[:9]
+        cases = rows[:17]
+        # 实际顺序：0..5 原 6 用例 → 6/7 两个 age 边界 → 8..15 复审新增 → 16 显式 flag
         self.assertFalse(cases[6]["stale_effective"], "age_frame==limit 不应判过期")
         self.assertEqual(cases[6]["boxes_drawn"], 1)
         self.assertTrue(cases[7]["stale_effective"], "age_frame==limit+1 应判过期")
         self.assertEqual(cases[7]["boxes_drawn"], 0)
         self.assertEqual(cases[7]["stale_reason"], "age_frame_exceeds_limit")
-        self.assertTrue(cases[8]["stale_effective"])
-        self.assertEqual(cases[8]["stale_reason"], "stale_flag")
+        self.assertTrue(cases[16]["stale_effective"])
+        self.assertEqual(cases[16]["stale_reason"], "stale_flag")
+
+    def test_05b_review_coverage_is_exercised(self) -> None:
+        """复审 B3/B4/B6/B7 的覆盖性：both 原因、placement 组合、零面积、非 OK 带框守恒。"""
+        coverage = self.report["coverage_requirements"]
+        for name, ok in coverage.items():
+            self.assertTrue(ok, f"覆盖性判据未满足：{name}")
+        raw = [json.loads(line) for line in self.jsonl.read_text(encoding="utf-8").splitlines() if line.strip()]
+        cases = [row for row in raw if "summary" not in row][:17]
+        # B2：非 OK 状态**带 2 框**仍必须 0 绘制（此前悬挂指针导致误绘 + 计数被隐藏）→ 索引 8..11
+        for index, state in zip((8, 9, 10, 11), ("TIMEOUT", "ERROR", "DUPLICATE", "OUT_OF_ORDER")):
+            self.assertEqual(cases[index]["boxes"], [], cases[index]["state"])
+            self.assertEqual(cases[index]["boxes_drawn"], 0, cases[index]["state"])
+            self.assertEqual(cases[index]["state"], state)
+        # B3：both 串必须与冻结参考逐字一致 → 索引 13
+        self.assertEqual(cases[13]["stale_reason"], "both")
+        # B4：placement 组合必须被覆盖 → 索引 14
+        placements = {box["label_placement"] for row in cases for box in row.get("boxes", [])}
+        self.assertTrue(any("clamped_bottom+clamped_x" in item for item in placements), placements)
+        # B6：零面积计数增长且同帧另一框照常绘制 → 索引 12
+        self.assertEqual(cases[12]["zero_area_dropped"], 1)
+        self.assertEqual(cases[12]["boxes_drawn"], 1)
+        # B7：NO_HAND 且 age 越限 ⇒ 如实报非过期 → 索引 15
+        self.assertFalse(cases[15]["stale_effective"])
+        self.assertEqual(cases[15]["stale_reason"], "none")
+        self.assertEqual(cases[15]["boxes_drawn"], 0)
+
+    def test_05c_hud_fields_match_authoritative_table(self) -> None:
+        """B5：HUD 字段名必须与 P1 权威表一致（且对拍器已逐项核对 11 项值）。"""
+        authoritative = self.report["hud_fields_authoritative"]
+        self.assertEqual(len(authoritative), 13)
+        rows = [json.loads(line) for line in self.jsonl.read_text(encoding="utf-8").splitlines() if line.strip()]
+        for row in rows:
+            if "summary" in row:
+                continue
+            self.assertEqual(list(row["hud"]), authoritative)
+            break
 
     def test_06_honest_labels(self) -> None:
         limitations = " ".join(self.report["limitations"])

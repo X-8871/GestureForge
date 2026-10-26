@@ -21,7 +21,8 @@
 #define S5D_DISPLAY_LINE_WIDTH_PX  2               /* 正偶数；语义"偶数线宽居中" */
 #define S5D_SAFE_AREA_PX_1080P     16              /* 按输出高度相对缩放 */
 #define S5D_LABEL_GAP_PX           2
-#define S5D_MAX_BOXES              15              /* ≤15 框，2A 稳定顺序**不重排** */
+#define S5D_MAX_BOXES              15
+#define S5D_MAX_BORDER_PIXELS      16384   /* 单框边框像素上限（画布内） */              /* ≤15 框，2A 稳定顺序**不重排** */
 #define S5D_DISPLAY_SEMANTICS      "B_latest_result_overlay"
 #define S5D_HUD_FIELD_COUNT        13
 #define S5D_NOT_AVAILABLE          "NA"
@@ -30,7 +31,7 @@
 #define S5D_STALE_REASON_NONE  "none"
 #define S5D_STALE_REASON_FLAG  "stale_flag"
 #define S5D_STALE_REASON_AGE   "age_frame_exceeds_limit"
-#define S5D_STALE_REASON_BOTH  "stale_flag_and_age_frame_exceeds_limit"
+#define S5D_STALE_REASON_BOTH  "both"   /* 逐字镜像冻结参考 STALE_REASON_BOTH */
 
 /* HUD 13 字段名（§5.4 顺序与 P1 一致） */
 extern const char *const S5D_HUD_FIELDS[S5D_HUD_FIELD_COUNT];

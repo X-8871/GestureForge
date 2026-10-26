@@ -120,10 +120,12 @@ int main(int argc, char **argv)
     s5d_frame_result result;
     s5d_counters counters;
     int have_frame = 0, frame_index = 0, rc = 0;
+    int declared_nbox = -1;
     int bx[S5DH_MAX_BORDER_PIXELS], by[S5DH_MAX_BORDER_PIXELS], counts[S5D_MAX_BOXES];
     int label_w[S5D_MAX_BOXES], label_h[S5D_MAX_BOXES];
     int *border_x = NULL, *border_y = NULL;
     int64_t virtual_time_ns = 0;
+    char state_storage[64] = {0};   /* B2：跨 F/E 行存活，绝不指向块内局部 */
 
     if (argc > 1 && strcmp(argv[1], "--help") == 0) {
         fprintf(stderr, "用法：s5_dynamic_map_host [stream.tsv] [out.jsonl] [--canvas WxH]\n");
@@ -161,7 +163,7 @@ int main(int argc, char **argv)
         }
         kind = line[0];
         if (kind == 'F') {
-            char state[32];
+            char state[64];
             int stale_flag = 0, warmup = 0, nbox = 0, consumed = 0;
             long long capture = 0, result_ns = 0, commit = 0;
             unsigned dfid = 0, rfid = 0, rseq = 0;
@@ -184,11 +186,13 @@ int main(int argc, char **argv)
             frame.result_seq = rseq;
             frame.stale_flag = stale_flag;
             frame.warmup = warmup;
-            frame.state = strcmp(state, "OK") == 0 ? "OK" : state;
+            /* B2：复制进持久缓冲（原实现把块内局部数组的地址存进跨行使用的结构体 = 悬挂指针） */
+            snprintf(state_storage, sizeof(state_storage), "%s", state);
+            frame.state = state_storage;
             frame.nbox = 0;
+            declared_nbox = nbox;                  /* 记录声明值，E 行核验 */
             have_frame = 1;
             virtual_time_ns = commit;
-            (void)nbox;
         } else if (kind == 'B') {
             int class_id = 0, lw = 0, lh = 0;
             double score = 0.0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;
@@ -223,6 +227,12 @@ int main(int argc, char **argv)
                 counters.dropped_frames += dropped;
             }
         } else if (kind == 'E') {                  /* E = 结束当前 F（可选，显式） */
+            if (declared_nbox >= 0 && declared_nbox != frame.nbox) {
+                fprintf(stderr, "F 行声明 nbox=%d 与实际 B 行数 %d 不一致（frame_index=%d）\n",
+                        declared_nbox, frame.nbox, frame_index);
+                rc = 3;
+                break;
+            }
             s5d_status status = s5d_process_frame(&frame, g_canvas_w, g_canvas_h,
                                                   NULL, label_w, label_h, frame.nbox, &result, &counters);
             int i;
@@ -233,12 +243,23 @@ int main(int argc, char **argv)
                 break;
             }
             for (i = 0; i < result.nbox_drawn; i++) {
-                counts[i] = (int)s5d_border_pixels(&result.drawn[i].rect, S5D_DISPLAY_LINE_WIDTH_PX,
-                                                   g_canvas_w, g_canvas_h, border_x, border_y,
-                                                   S5DH_MAX_BORDER_PIXELS);
+                int recomputed = (int)s5d_border_pixels(&result.drawn[i].rect, S5D_DISPLAY_LINE_WIDTH_PX,
+                                                        g_canvas_w, g_canvas_h, border_x, border_y,
+                                                        S5DH_MAX_BORDER_PIXELS);
+                if (recomputed != result.drawn[i].border_pixels) {
+                    fprintf(stderr, "border_pixels 自校不一致：核心 %d vs 宿主 %d（box=%d）\n",
+                            result.drawn[i].border_pixels, recomputed, i);
+                    rc = 5;
+                    break;
+                }
+                counts[i] = recomputed;             /* 使用核心值（已互校） */
+            }
+            if (rc != 0) {
+                break;
             }
             emit_frame_json(out, frame_index, &frame, &result, &counters, border_x, border_y,
                             counts, virtual_time_ns);
+            declared_nbox = -1;
             have_frame = 0;
         } else {
             fprintf(stderr, "未知行类型 '%c'：%s", kind, line);

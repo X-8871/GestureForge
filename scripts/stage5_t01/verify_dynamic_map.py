@@ -30,6 +30,23 @@ import verification.s5_display_geometry_reference as R  # noqa: E402
 import scripts.stage5_t03.s5t03_render as RD  # noqa: E402
 
 SCHEMA = "gestureforge_s5t02_dynamic_map_verification_v1"
+
+
+def _authoritative_hud_fields() -> list[str]:
+    """从 P1 生成器（唯一权威表）解析 HUD 13 字段名，避免在本文件另立第二套。"""
+    import ast
+    import re
+    text = (REPO_ROOT / "scripts/stage5_t01/gen_overlay_cases.py").read_text(encoding="utf-8")
+    match = re.search(r"hud_fields = (\[[^\]]*\])", text)
+    if not match:
+        raise InputError("未能从 gen_overlay_cases.py 解析 hud_fields")
+    fields = ast.literal_eval(match.group(1))
+    if len(fields) != 13:
+        raise InputError(f"P1 权威 HUD 字段数 {len(fields)} != 13")
+    return list(fields)
+
+
+AUTHORITATIVE_HUD_FIELDS = _authoritative_hud_fields()
 HUD_REQUIRED_NA = ("CAPTURE_FPS", "INFERENCE_FPS")
 HUD_FIELD_COUNT = 13
 
@@ -57,6 +74,7 @@ def parse_tsv(path: pathlib.Path) -> tuple[list[dict[str, Any]], dict[str, Any]]
                 "capture_time_ns": int(parts[5]), "result_time_ns": int(parts[6]),
                 "overlay_commit_ns": int(parts[7]), "stale_flag": int(parts[8]),
                 "warmup": int(parts[9]), "state": parts[10], "boxes": [], "closed": False,
+                "dropped_so_far": counters["dropped_frames"],
             }
         elif kind == "B":
             if current is None:
@@ -112,6 +130,12 @@ def expect_frame(frame: dict[str, Any], canvas: tuple[int, int],
     if frame["warmup"]:
         counters["warmup_frames"] += 1
         return expected
+    if frame["state"] == "NO_HAND":
+        # 任务卡 §3：NO_HAND ⇒ boxes=0 且**非过期**（不得计 stale_cleared）
+        expected["stale_effective"] = False
+        expected["stale_reason"] = R.STALE_REASON_NONE
+        expected["no_hand"] = True
+        return expected
     if stale["stale_effective"]:
         counters["stale_cleared"] += 1
         return expected
@@ -161,8 +185,7 @@ def compare(cases_path: pathlib.Path, stream_path: pathlib.Path, jsonl_path: pat
     if len(rows) != len(all_frames):
         raise InputError(f"C 输出帧数 {len(rows)} != 输入帧数 {len(all_frames)}")
 
-    counters = {"frames_committed": 0, "warmup_frames": 0,
-                "dropped_frames": tsv_counters["dropped_frames"] + stream_counters["dropped_frames"],
+    counters = {"frames_committed": 0, "warmup_frames": 0, "dropped_frames": 0,
                 "timeouts": 0, "error_results": 0, "duplicate_results": 0, "out_of_order_results": 0,
                 "stale_cleared": 0, "zero_area_dropped": 0, "boxes_drawn": 0}
     failures: list[str] = []
@@ -174,6 +197,8 @@ def compare(cases_path: pathlib.Path, stream_path: pathlib.Path, jsonl_path: pat
 
     for position, (frame, row) in enumerate(zip(all_frames, rows)):
         is_stream = position >= len(frames)
+        # D 行位置敏感：dropped 只在此行之后才计入（与 C 读取顺序一致）
+        counters["dropped_frames"] = int(frame.get("dropped_so_far", 0))
         expected = expect_frame(frame, canvas, counters)
         semantics.add(row.get("display_semantics"))
         if frame["displayed_frame_id"] != frame["result_frame_id"]:
@@ -211,8 +236,10 @@ def compare(cases_path: pathlib.Path, stream_path: pathlib.Path, jsonl_path: pat
             deltas = {axis: int(got.get(axis, 1 << 30)) - int(want[axis]) for axis in ("x1", "y1", "x2", "y2")}
             if any(delta != 0 for delta in deltas.values()):
                 if all(abs(delta) <= 1 for delta in deltas.values()):
+                    # 离线路径期望逐像素精确；≤1 px 仅记录为**未达标**（不得静默放过）
                     verdict = "within_1px"
-                    notes.append(f"box[{index}] 矩形偏差 ≤1 px：{deltas}")
+                    notes.append(f"box[{index}] 矩形偏差 ≤1 px（离线期望精确）：{deltas}")
+                    failures.append(f"frame[{frame['frame_index']}].box[{index}] 存在 ≤1 px 偏差：{deltas}")
                 else:
                     verdict = "pixel_mismatch"
                     failures.append(f"frame[{frame['frame_index']}].box[{index}] 矩形偏差 {deltas}")
@@ -224,10 +251,27 @@ def compare(cases_path: pathlib.Path, stream_path: pathlib.Path, jsonl_path: pat
         mismatch_counts[verdict] = mismatch_counts.get(verdict, 0) + 1
         case_verdicts.append({"frame_index": frame["frame_index"], "verdict": verdict, "notes": notes})
 
-        # HUD 13 字段
+        # HUD 13 字段：字段名须与 P1 权威表一致，且 11 项值逐项核对（§5.5）
         hud = row.get("hud") or {}
-        if len(hud) != HUD_FIELD_COUNT:
-            failures.append(f"frame[{frame['frame_index']}].hud 字段数 {len(hud)} != {HUD_FIELD_COUNT}")
+        if list(hud) != AUTHORITATIVE_HUD_FIELDS:
+            failures.append(f"frame[{frame['frame_index']}].hud 字段名/顺序与 P1 权威表不一致：{list(hud)}")
+        else:
+            expected_hud = {
+                "CAPTURE_FPS": "NA", "INFERENCE_FPS": "NA", "DISPLAY_FPS": "NA",
+                "INFERENCE_TIME_NS": "NA",
+                "AGE_RESULT_NS": int(expected["age_result_ns"]),
+                "AGE_FRAME_NS": int(expected["age_frame_ns"]),
+                "FRAME_ID": int(frame["displayed_frame_id"]),
+                "BOXES": int(expected["boxes_drawn"]),
+                "STALE_CLEARED": int(counters["stale_cleared"]),
+                "DROPPED_FRAMES": int(counters["dropped_frames"]),
+                "TIMEOUTS": int(counters["timeouts"]),
+                "WARMUP_STATE": "WARM" if frame["warmup"] else "STEADY",
+                "DISPLAY_SEMANTICS": R.DISPLAY_SEMANTICS,
+            }
+            for field, want in expected_hud.items():
+                if hud.get(field) != want:
+                    failures.append(f"frame[{frame['frame_index']}].hud.{field}: {hud.get(field)!r} != {want!r}")
         for field in HUD_REQUIRED_NA:
             if hud.get(field) != "NA":
                 failures.append(f"frame[{frame['frame_index']}].hud.{field} 必须为 NA（不得用 0 伪装）：{hud.get(field)!r}")
@@ -243,6 +287,27 @@ def compare(cases_path: pathlib.Path, stream_path: pathlib.Path, jsonl_path: pat
     if len(stream_frames) >= 100 and seen_result_ids != set(range(len(stream_frames))):
         failures.append(f"长流 result_frame_id 未覆盖 0..{len(stream_frames) - 1}："
                         f"缺 {sorted(set(range(len(stream_frames))) - seen_result_ids)[:5]}")
+    placements_seen = set()
+    reasons_seen = set()
+    for row in rows:
+        for box in (row.get("boxes") or []):
+            placements_seen.add(box.get("label_placement"))
+        reasons_seen.add(row.get("stale_reason"))
+    coverage_requirements = {
+        "placement 组合 +clamped_bottom": any("clamped_bottom" in (p or "") for p in placements_seen),
+        "placement 组合同时 clamped_bottom+clamped_x":
+            any("clamped_bottom+clamped_x" in (p or "") for p in placements_seen),
+        "stale_reason=both": "both" in reasons_seen,
+        "zero_area_dropped>0": counters.get("zero_area_dropped", 0) > 0,
+        "非 OK 状态带框仍守恒（timeouts>0 且对应帧 boxes=0）":
+            counters.get("timeouts", 0) > 0 and counters.get("error_results", 0) > 0
+            and counters.get("duplicate_results", 0) > 0 and counters.get("out_of_order_results", 0) > 0,
+        "NO_HAND 不计 stale": any(row.get("state") == "NO_HAND" and not row.get("stale_effective")
+                                 for row in rows),
+    }
+    for name, ok in coverage_requirements.items():
+        if not ok:
+            failures.append(f"覆盖性判据未满足：{name}")
     if displayed_ne_result_recorded == 0:
         failures.append("用例流中没有任何 displayed != result 帧（无法验证如实记录）")
 
@@ -254,6 +319,8 @@ def compare(cases_path: pathlib.Path, stream_path: pathlib.Path, jsonl_path: pat
         "displayed_ne_result_frames": displayed_ne_result_recorded,
         "semantics_unique": sorted(semantics),
         "hud_field_count": HUD_FIELD_COUNT, "hud_na_required": list(HUD_REQUIRED_NA),
+        "hud_fields_authoritative": AUTHORITATIVE_HUD_FIELDS,
+        "coverage_requirements": coverage_requirements,
         "failures": failures, "passed": not failures,
         "limitations": [
             "本对拍证明 C 侧映射与冻结参考一致（宿主执行）；**不是**板上验证。",

@@ -144,6 +144,42 @@ def build_cases(canvas_height: int) -> tuple[list[str], list[dict[str, Any]]]:
         capture_ns=base + 7 * PERIOD_NS, result_ns=base + 7 * PERIOD_NS + 500_000,
         commit_ns=base + 7 * PERIOD_NS + limit + 1, stale_flag=0, warmup=0, state="OK",
         boxes=[(1, 0.88, (0.35, 0.35, 0.55, 0.60))])
+    # ── 复审新增覆盖（B2/B3/B4/B6/B7）─────────────────────────────────────
+    # B2：非 OK 状态**带框**（曾因 state 悬挂指针导致计数被隐藏、故障帧被误绘）
+    for offset, state in enumerate(("TIMEOUT", "ERROR", "DUPLICATE", "OUT_OF_ORDER")):
+        add(f"nonok_with_boxes_{state.lower()}", f"{state} 且带 2 框 ⇒ 单独计数、不绘制",
+            displayed_frame_id=20 + offset, result_frame_id=20 + offset, result_seq=20 + offset,
+            capture_ns=base + (20 + offset) * PERIOD_NS,
+            result_ns=base + (20 + offset) * PERIOD_NS + 500_000,
+            commit_ns=base + (20 + offset) * PERIOD_NS + 1_500_000,
+            stale_flag=0, warmup=0, state=state,
+            boxes=[(0, 0.60, (0.10, 0.10, 0.30, 0.30)), (1, 0.65, (0.40, 0.40, 0.60, 0.60))])
+    # B6：裁剪后零面积（框整体在画布外）⇒ 计数不绘制；同帧另一框正常
+    add("zero_area_clipped", "越界框裁剪后零面积 ⇒ zero_area_dropped+1 且不绘制",
+        displayed_frame_id=30, result_frame_id=30, result_seq=30,
+        capture_ns=base + 30 * PERIOD_NS, result_ns=base + 30 * PERIOD_NS + 500_000,
+        commit_ns=base + 30 * PERIOD_NS + 1_500_000, stale_flag=0, warmup=0, state="OK",
+        boxes=[(2, 0.70, (-0.60, -0.60, -0.20, -0.20)), (3, 0.72, (0.30, 0.30, 0.55, 0.55))])
+    # B3：flag 与 age 同时越限 ⇒ reason 必须是冻结参考的 "both"
+    add("both_stale_flag_and_age", "stale_flag 且 age_frame>limit ⇒ reason=both",
+        displayed_frame_id=31, result_frame_id=31, result_seq=31,
+        capture_ns=base + 31 * PERIOD_NS, result_ns=base + 31 * PERIOD_NS + 500_000,
+        commit_ns=base + 31 * PERIOD_NS + limit + 10_000_000, stale_flag=1, warmup=0, state="OK",
+        boxes=[(1, 0.66, (0.30, 0.30, 0.50, 0.55))])
+    # B4：同时触发"下安全边钳位 + 左右钳位"（右下角 + 长标签）⇒ placement 组合串必须被覆盖
+    add("placement_bottom_and_x_clamped", "右下角大标签 ⇒ +clamped_bottom+clamped_x",
+        displayed_frame_id=32, result_frame_id=32, result_seq=32,
+        capture_ns=base + 32 * PERIOD_NS, result_ns=base + 32 * PERIOD_NS + 500_000,
+        commit_ns=base + 32 * PERIOD_NS + 1_500_000, stale_flag=0, warmup=0, state="OK",
+        # y1≈715（画布底）触发下安全边钳位；x1≈1228 且标签较宽触发左右钳位
+        boxes=[(4, 0.93, (0.960, 0.995, 0.999, 0.999))])
+    # B7：NO_HAND 且 age 越限 ⇒ 按任务卡 §3「NO_HAND 非过期」（不计 stale_cleared、boxes=0）
+    add("no_hand_with_large_age", "NO_HAND 且 age_frame>limit ⇒ 仍非过期（§3 口径）",
+        displayed_frame_id=33, result_frame_id=33, result_seq=33,
+        capture_ns=base + 33 * PERIOD_NS, result_ns=base + 33 * PERIOD_NS + 500_000,
+        commit_ns=base + 33 * PERIOD_NS + limit + 50_000_000, stale_flag=0, warmup=0,
+        state="NO_HAND", boxes=[])
+
     add("edge_explicit_stale_flag", "显式 stale_flag（age 很小）过期",
         displayed_frame_id=8, result_frame_id=8, result_seq=9,
         capture_ns=base + 8 * PERIOD_NS, result_ns=base + 8 * PERIOD_NS + 500_000,

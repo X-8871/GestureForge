@@ -296,7 +296,11 @@ s5d_status s5d_process_frame(const s5d_frame *frame, int canvas_width, int canva
         return S5D_OK;
     }
     if (frame->state != NULL && strcmp(frame->state, "NO_HAND") == 0) {
-        /* 无手势 ⇒ boxes=0（**非过期**）；五元组已在前面统一计算 */
+        /* 无手势 ⇒ boxes=0 且**如实报"非过期"**（任务卡 §3）：清掉按 age 派生的 stale 标记，
+         * 不计 stale_cleared（曾因把派生标记原样上报而与参考/任务卡口径冲突 —— 复审 B7）。 */
+        result.stale.stale_effective = 0;
+        result.stale.age_frame_exceeds_limit = 0;
+        result.stale.reason = S5D_STALE_REASON_NONE;
         *out = result;
         return S5D_OK;
     }
@@ -329,6 +333,15 @@ s5d_status s5d_process_frame(const s5d_frame *frame, int canvas_width, int canva
         if (s5d_label_anchor(&rect, tw, th, canvas_width, canvas_height, safe,
                              &ax, &ay, &placement) != S5D_OK) {
             return S5D_E_DIMENSION;
+        }
+        {
+            /* N2（复审）：核心自己算边框像素数并写入结果，避免板上调用方依赖一个从未赋值的字段 */
+            static int border_xs[S5D_MAX_BORDER_PIXELS];
+            static int border_ys[S5D_MAX_BORDER_PIXELS];
+            size_t pixels = s5d_border_pixels(&rect, S5D_DISPLAY_LINE_WIDTH_PX,
+                                              canvas_width, canvas_height,
+                                              border_xs, border_ys, S5D_MAX_BORDER_PIXELS);
+            result.drawn[drawn].border_pixels = (int)pixels;
         }
         result.drawn[drawn].class_id = frame->boxes[i].class_id;
         result.drawn[drawn].score = frame->boxes[i].score;

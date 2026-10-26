@@ -55,6 +55,16 @@ BASE_COMMIT = "654c72eb8e883b1a43fe8b6c3f073a9cb6f023b9"
 UNTOUCHED_PATHS = ("report/evidence/S5-A", "report/evidence/S5-B",
                    "report/evidence/S5-C", "report/evidence/S5-T01")
 
+def _baseline_evidence_files() -> tuple[str, ...]:
+    """基线提交中 UNTOUCHED_PATHS 下的全部文件（用于内容哈希比对；不随新增而变）。"""
+    listed = subprocess.run(["git", "-C", str(REPO_ROOT), "ls-tree", "-r", "--name-only",
+                             BASE_COMMIT, "--", *UNTOUCHED_PATHS],
+                            capture_output=True, text=True, encoding="utf-8", errors="replace")
+    return tuple(line.strip() for line in listed.stdout.splitlines() if line.strip())
+
+
+EXISTING_EVIDENCE_FILES = _baseline_evidence_files() if BASE_COMMIT else ()
+
 
 def sha256_file(path: pathlib.Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -229,12 +239,31 @@ class T01_ContractIntegrity(unittest.TestCase):
                          f"登记了但扫描未命中（登记过时）：{sorted(registered - found)}")
 
     def test_existing_synthetic_evidence_untouched(self):
-        command = ["git", "-C", str(REPO_ROOT), "diff", "--name-only", BASE_COMMIT, "--",
+        """不得**改动/删除/改名**既有合成源证据；在此目录下**新增**证据包（新 RunId）不算违反。
+
+        修订（2026-10-27，S5-T02 复审 B1 裁决）：原判据用 `git diff --name-only`，会把
+        `report/evidence/S5-T01/<新 RunId>/**` 这类**新增**文件也算作"改动"，与任务卡 §4
+        （允许 `report/evidence/S5-T01/<新RunId>/**`）冲突；且未 track 时看不见、track 后立刻变红
+        （套件结论随提交状态漂移）。现按 `--name-status` 只对 **M/D/R**（改动/删除/改名）判违反。
+        """
+        command = ["git", "-C", str(REPO_ROOT), "diff", "--name-status", BASE_COMMIT, "--",
                    *UNTOUCHED_PATHS]
-        completed = subprocess.run(command, capture_output=True, text=True)
+        completed = subprocess.run(command, capture_output=True, text=True,
+                                   encoding="utf-8", errors="replace")
         self.assertEqual(completed.returncode, 0, completed.stderr)
-        self.assertEqual(completed.stdout.strip(), "",
-                         f"既有合成源证据被改动：{completed.stdout.strip()}")
+        violations = [line for line in completed.stdout.splitlines()
+                      if line.strip() and line.split()[0][0] in ("M", "D", "R")]
+        self.assertEqual(violations, [],
+                         f"既有合成源证据被改动/删除/改名：{violations}")
+        # 另：既有**文件**的内容哈希必须与基线提交一致（防止改名规避）
+        for rel in EXISTING_EVIDENCE_FILES:
+            # 按**字节**取 blob（避免 Windows GBK 默认编码破坏非 ASCII 内容）
+            blob = subprocess.run(["git", "-C", str(REPO_ROOT), "show", f"{BASE_COMMIT}:{rel}"],
+                                  capture_output=True)
+            self.assertEqual(blob.returncode, 0, f"基线中不存在该证据：{rel}")
+            baseline = hashlib.sha256(blob.stdout).hexdigest()
+            live = sha256_file(REPO_ROOT / rel)
+            self.assertEqual(live, baseline, f"既有证据内容被改动：{rel}")
 
 
 class T02_CoordinateMapping(unittest.TestCase):

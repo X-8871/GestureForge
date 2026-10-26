@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_timing36_inmemory_constraint_probe_20261026_r04",
+  "source_commit": "dc6bda97fb943533451932b7152c0b51ffdc3787",
+  "evidence_dir": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅在固定routed DCP的隔离内存会话中诊断时序约束，没有定义、修改或冻结接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/README.md",
+      "sha256": "a99dd35d3733e705e9baf98bddee500cedc0d5b400bb15e88d1ab9c695626ded",
+      "role": "artifact",
+      "keep_reason": "记录R03审查整改、R04真实汇总行计数及限制"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/probe_reset_timing_reload_xdc.tcl",
+      "sha256": "b249f24444e019c41aa3323d61f277f605f7879b9ab0d73bd743bbe66b03d165",
+      "role": "source",
+      "keep_reason": "固定输入、移除精确单行、按报告汇总行解析规则数量"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/constraints_without_rgb2dvi_serial_generated_clock.xdc",
+      "sha256": "1354ae71c0c43b98ecd73cac2dee34ece7d9f533ff111b15c4aa9eaf865365ce",
+      "role": "artifact",
+      "keep_reason": "原XDC的字节级单行删除副本"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/clocks_before.rpt",
+      "sha256": "d8e5d299dd0af324dd341c86932acadc143da102ea76cea9880dcd09e51ef70c",
+      "role": "result",
+      "keep_reason": "Vivado原始基线时钟报告"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/methodology_before.rpt",
+      "sha256": "d7b8e567e05e1bf1e5950ce8ca840d470bcdb083b15eb528c304d7696bf7bd62",
+      "role": "result",
+      "keep_reason": "Vivado原始变更前方法学汇总及明细"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/clocks_after.rpt",
+      "sha256": "05dddf07a8cb20cca3d7357db79ed6c15bd6b31481bf0aad557e2091427714d4",
+      "role": "result",
+      "keep_reason": "Vivado原始重载后时钟报告"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/methodology_after.rpt",
+      "sha256": "5efd9ab0dfa84f239c352d4c03da95f18a9ecd6af6d00701afc1e305856d6c83",
+      "role": "result",
+      "keep_reason": "Vivado原始重载后方法学汇总及明细"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/stdout.txt",
+      "sha256": "e5e34329de40deef4d3b2d3959d446db47ca3be90427b42881085c55edb81e99",
+      "role": "result",
+      "keep_reason": "Vivado原始stdout含准确规则行计数"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "Vivado原始stderr"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "role": "result",
+      "keep_reason": "Vivado数值进程退出码"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/source_provenance.json",
+      "sha256": "db4e94e575adbdafc914364b7e7d0766b33236b94bd58e856c4ed18280096b18",
+      "role": "artifact",
+      "keep_reason": "绑定DCP/XDC哈希、工具版本、命令与范围"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/validate_probe_outputs.py",
+      "sha256": "9d2437c7d659823efb49ad4e0a2906a7a6051d690d0427683a8b5774ceaf1cae",
+      "role": "source",
+      "keep_reason": "核验固定输入哈希、候选文件、原始日志和全部方法学汇总行"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_dcp_readonly_20261024_r01/v3_constraints_exported.xdc",
+      "sha256": "b6ecb117565c2b8ce3b59757461c0cb590d9d47ea5d1e3fc432713ed7e8cbcd6",
+      "role": "source",
+      "keep_reason": "DCP导出的原始timing XDC，作为候选单行变更的输入。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Reset and reload timing XDC in memory",
+      "status": "PASS",
+      "command": "vivado.bat -mode batch -nojournal -source report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/probe_reset_timing_reload_xdc.tcl",
+      "exit_code": 0,
+      "reason": "汇总表行准确记录TIMING-36/30 1→0、TIMING-17=240、TIMING-18=1；SerialClk端口仍由I=2.000ns驱动。"
+    },
+    {
+      "name": "Output and input binding assertions",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B report/evidence/S3-T05/t05_timing36_inmemory_constraint_probe_20261026_r04/validate_probe_outputs.py",
+      "exit_code": 0,
+      "reason": "核验DCP/XDC哈希、候选XDC精确单行差异、Vivado日志/退出码及所有方法学汇总行。"
+    },
+    {
+      "name": "Project constraint correction and routed timing signoff",
+      "status": "BLOCKED",
+      "command": "将修正落实到可复现工程约束输入并重建/路由，检查完整时钟与路径覆盖并独立审查",
+      "exit_code": null,
+      "reason": "当前仅为DCP内存诊断；没有改实际工程/IP源文件或重跑综合、实现、route。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1 Build 6511674",
+    "device": "xc7z020clg400-2",
+    "license": "BASIC；未读取许可证文件内容"
+  },
+  "limitations": [
+    "reset_timing/read_xdc只作用于隔离Vivado进程内存，未写回DCP/XDC。",
+    "TIMING-17=240、TIMING-18=1、TIMING-9=1仍存在；I/O delay、task-11、VDMA根因及板级复核仍开放。",
+    "清单CHECKS_OK仅代表文件绑定正确，不代表工程修复、路由签核或G2/G3/G4/G5。"
+  ]
+}

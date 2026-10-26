@@ -51,6 +51,10 @@ def load_contract(path: pathlib.Path = CONTRACT_PATH) -> dict[str, Any]:
         contract = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise ContractError(f"契约文件不是合法 JSON：{exc}") from exc
+    # B5 残余（复审 BL-2）：合法 JSON 但**不是对象**（数组/字符串/数字/null/bool）也是环境错误 ⇒ 必须 exit 2，
+    # 不得崩成 1。
+    if not isinstance(contract, dict):
+        raise ContractError(f"契约根必须是 JSON 对象（实为 {type(contract).__name__}）")
     # B5：契约自身必须 fail-closed —— 必填键（含契约自声明的 contract_required_keys）
     required = contract.get("contract_required_keys")
     if not isinstance(required, list) or not required:
@@ -58,15 +62,27 @@ def load_contract(path: pathlib.Path = CONTRACT_PATH) -> dict[str, Any]:
     missing = [key for key in required if key not in contract]
     if missing:
         raise ContractError(f"契约缺必填键：{missing}")
-    for name, spec in contract["artifact_kinds"].items():
+    kinds = contract.get("artifact_kinds")
+    if not isinstance(kinds, dict) or not kinds:
+        raise ContractError("契约 artifact_kinds 必须是非空对象")
+    for name, spec in kinds.items():
+        if not isinstance(spec, dict):
+            raise ContractError(f"契约 artifact_kinds.{name} 必须是对象")
         for key in ("schema_version", "requires_frame_assertions", "required_results", "detect"):
             if key not in spec:
                 raise ContractError(f"契约 artifact_kinds.{name} 缺 {key}")
         if not isinstance(spec["schema_version"], str) or not spec["schema_version"]:
             raise ContractError(f"契约 artifact_kinds.{name}.schema_version 必须是非空字符串")
+    stability = contract.get("stability")
+    if not isinstance(stability, dict):
+        raise ContractError("契约 stability 必须是对象")
     for key in ("stable_for_consumers", "detail_not_for_consumers", "unclassified_policy"):
-        if key not in contract["stability"]:
+        if key not in stability:
             raise ContractError(f"契约 stability 缺 {key}")
+    event_log = contract.get("event_log_fields")
+    if not isinstance(event_log, dict) or not event_log.get("submit_record_keys") \
+            or not event_log.get("commit_record_keys"):
+        raise ContractError("契约 event_log_fields 必须含非空的 submit_record_keys/commit_record_keys")
     return contract
 
 
@@ -140,7 +156,7 @@ def check_manifest(manifest: dict[str, Any], run: pathlib.Path, results: dict[st
             elif sha256_file(target) != entry["sha256"]:
                 errs.append(f"manifest.files[{index}] 哈希不符：{entry['path']}")
     on_disk = {p.relative_to(run).as_posix() for p in run.rglob("*")
-               if p.is_file() and p.name != "manifest.json"}
+               if p.is_file() and p.relative_to(run).as_posix() != "manifest.json"}
     unlisted = sorted(on_disk - listed)
     if unlisted:
         errs.append(f"盘上有未列入 manifest.files[] 的文件：{unlisted[:5]}")
@@ -180,6 +196,42 @@ def check_frame_assertions(path: pathlib.Path, contract: dict[str, Any]) -> tupl
     return count, errs
 
 
+def check_event_log_keys(run: pathlib.Path, contract: dict[str, Any]) -> tuple[dict[str, int], list[str]]:
+    """BL-1 永久防线：事件日志的**实物键集**必须与契约声明逐字一致。
+
+    契约曾把 frame_assertions 的字段名误当事件日志键位；校验器以前根本不读事件日志，
+    所以这种漂移无法被发现。现在逐条比对首条 submit/commit 记录的键集（多余或缺失都报错）。
+    """
+    candidates = sorted(list(run.glob("logs/events_*.jsonl")) + list(run.glob("logs/events_*.jsonl.gz")))
+    if not candidates:
+        return {}, []
+    spec = contract["event_log_fields"]
+    expected = {"sub": set(spec["submit_record_keys"]), "commit": set(spec["commit_record_keys"])}
+    seen: dict[str, set[str]] = {}
+    errs: list[str] = []
+    path = candidates[0]
+    opener = (lambda: gzip.open(path, "rt", encoding="utf-8")) if path.suffix == ".gz" else \
+             (lambda: open(path, encoding="utf-8"))
+    with opener() as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            record = json.loads(line)
+            kind = record.get("t")
+            if kind in expected and kind not in seen:
+                seen[kind] = set(record)
+                extra = sorted(seen[kind] - expected[kind])
+                absent = sorted(expected[kind] - seen[kind])
+                if extra or absent:
+                    errs.append(f"事件日志 {kind} 记录键集与契约不符：多 {extra} / 缺 {absent}")
+            if len(seen) == len(expected):
+                break
+    counts = {kind: len(keys) for kind, keys in seen.items()}
+    if not seen:
+        errs.append("事件日志存在但未找到 submit/commit 记录（t 字段）")
+    return counts, errs
+
+
 def validate_package(run: pathlib.Path, contract: dict[str, Any]) -> dict[str, Any]:
     report: dict[str, Any] = {"run_id": run.name, "errors": [], "counts": {}}
     if not run.is_dir():
@@ -212,6 +264,10 @@ def validate_package(run: pathlib.Path, contract: dict[str, Any]) -> dict[str, A
         report["errors"] += errs
     elif needs:
         report["errors"].append("缺 frame_assertions.jsonl(.gz)（该种类要求逐帧断言）")
+    counts, log_errs = check_event_log_keys(run, contract)
+    if counts:
+        report["counts"]["event_log_keys"] = counts
+    report["errors"] += log_errs
     report["ok"] = not report["errors"]
     return report
 

@@ -134,5 +134,24 @@ class T_LongRun(unittest.TestCase):
             self.assertNotIn(forbidden, source, f"不应包含 {forbidden}")
 
 
+    def test_10_missing_pillow_reported_as_failure(self) -> None:
+        """同一口径覆盖长跑模块：缺 Pillow ⇒ `passed=false` 且退出码 1。"""
+        import scripts.stage5_t03.s5t03_render as _RD
+        original = _RD.PIL_AVAILABLE
+        try:
+            _RD.PIL_AVAILABLE = False
+            with tempfile.TemporaryDirectory(prefix="s5t03_long_nopil_") as tmp:
+                out = pathlib.Path(tmp) / "run"
+                code = LR.run_long(out_dir=out, frames=300, seed=SEED, canvas=(1280, 720),
+                                   stage3_binding=None, keyframe_max=3, want_demo=False,
+                                   stream_mode="mixed", warmup_frames=0)
+                results = json.loads((out / "results.json").read_text(encoding="utf-8"))
+                self.assertEqual(code, 1)
+                self.assertFalse(results["checks"]["passed"])
+                self.assertTrue(any("render_unavailable" in item for item in results["checks"]["failures"]))
+        finally:
+            _RD.PIL_AVAILABLE = original
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

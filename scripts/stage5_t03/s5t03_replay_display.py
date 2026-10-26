@@ -293,7 +293,7 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
                 png_path = keyframes / f"{index:05d}_fid{int(event['displayed_frame_id']):05d}_{tag}.png"
                 stats = RD.render_to_png(png_path, event, canvas_width=width, canvas_height=height,
                                          background=background, hud=hud, font=font)
-                entry["png_path"] = stats["png_path"].replace(str(REPO_ROOT), "").lstrip("/\\")
+                entry["png_path"] = png_path.relative_to(out_dir).as_posix()
                 entry["png_sha256"] = stats["png_sha256"]
                 entry["png_bytes"] = stats["png_bytes"]
                 entry["render"] = stats
@@ -376,6 +376,10 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
                                   "reason": "ffmpeg 编码失败；demo 仅为可选演示，不影响 JSON 主证据"})
             (console / "ffmpeg_demo.txt").write_text("".join(logs), encoding="utf-8")
 
+    if not RD.PIL_AVAILABLE:
+        # 复审非阻断观察 1（由 fail-open 升级为显式失败）：缺 Pillow 时渲染路径 NOT_RUN，
+        # **不得**让 `checks.passed=true` 掩盖"什么都没渲染"。
+        failures.append(f"render_unavailable:Pillow 不可用 ⇒ 渲染路径 NOT_RUN（{RD.PIL_IMPORT_ERROR}）")
     recomputed = pipeline.recompute()
     results = {
         "schema_version": SCHEMA, "run_id": out_dir.name, "task_id": "S5-T03",
@@ -383,7 +387,8 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
         "source_commit": git_head(), "status": STATUS_LABEL, "input_scope_label": INPUT_SCOPE_LABEL,
         "stream": {"mode": mode, "frames": frames, "seed": seed,
                    "frame_period_ns": period_ns, "canvas": [width, height],
-                   "params_id": params.get("params_id"), "params_path": str(P.default_params_path().relative_to(REPO_ROOT))},
+                   "params_id": params.get("params_id"),
+                   "params_path": P.default_params_path().relative_to(REPO_ROOT).as_posix()},
         "input": background_info,
         "display_semantics": R.DISPLAY_SEMANTICS,
         "counters": dict(pipeline.counters),
@@ -434,7 +439,7 @@ def run_replay(*, out_dir: pathlib.Path, mode: str, frames: int, seed: int, canv
             "geometry_reference": {"path": "verification/s5_display_geometry_reference.py",
                                    "sha256": sha256_file(REPO_ROOT / "verification/s5_display_geometry_reference.py"),
                                    "contract_id": R.CONTRACT_ID},
-            "params": {"path": str(P.default_params_path().relative_to(REPO_ROOT)),
+            "params": {"path": P.default_params_path().relative_to(REPO_ROOT).as_posix(),
                        "sha256": sha256_file(P.default_params_path())},
         },
         "counters": results["counters"], "recompute_matches_online": results["recompute_matches_online"],

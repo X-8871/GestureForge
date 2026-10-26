@@ -258,9 +258,14 @@ class T_ReplayArtifacts(unittest.TestCase):
             fail_kinds = {str(v["outcome"]) for v in results["submit_verdicts"] if v["verdict"] == "FAIL"}
             self.assertTrue(fail_kinds, "mixed 流应存在真实被拒提交")
             self.assertNotIn("duplicate_frame_id", fail_kinds, "本流不应出现等价 frame_id 拒绝（用于判别误标）")
+            tagged = {kind for name in sorted(q.name for q in (out / "keyframes").glob("*.png"))
+                      for kind in re.findall(r"rejected_([a-z_]+?)(?:\+|\.png)", name)}
             for name in sorted(q.name for q in (out / "keyframes").glob("*.png")):
                 for kind in re.findall(r"rejected_([a-z_]+?)(?:\+|\.png)", name):
                     self.assertIn(kind, fail_kinds, f"关键帧 {name} 标注了未发生的拒绝类型 {kind}")
+            # 双向（复审观察 3）：实际发生的每种 FAIL 类型都必须在**某个**关键帧名里出现（有界采样下成立）
+            if len(fail_kinds) <= 24:
+                self.assertEqual(tagged, set(fail_kinds), f"漏标：发生了 {fail_kinds}，标注仅 {tagged}")
 
     def test_13_event_log_written_and_reject_reason_present(self) -> None:
         """N3：帧级事件日志必须落盘；FAIL 提交必须带非空 `reject_reason`（管线来源或显式标注派生）。"""
@@ -272,7 +277,8 @@ class T_ReplayArtifacts(unittest.TestCase):
             logs = sorted((out / "logs").glob("events_*.jsonl"))
             self.assertTrue(logs, "必须落盘帧级事件日志")
             lines = logs[0].read_text(encoding="utf-8").strip().splitlines()
-            self.assertGreaterEqual(len(lines), 64, "事件日志应覆盖全部提交帧")
+            commits = sum(1 for line in lines if json.loads(line).get("t") == "commit")
+            self.assertEqual(commits, 64, "每个显示帧必须恰好一条 commit 事件")
             results = json.loads((out / "results.json").read_text(encoding="utf-8"))
             fails = [v for v in results["submit_verdicts"] if v["verdict"] == "FAIL"]
             self.assertTrue(fails, "mixed 流应包含被拒提交")
@@ -280,6 +286,24 @@ class T_ReplayArtifacts(unittest.TestCase):
             self.assertTrue(all(v.get("reject_reason_source") for v in fails), "必须标注原因来源")
             self.assertIn("logs", results)
             self.assertIn("font", json.loads((out / "manifest.json").read_text(encoding="utf-8"))["render"])
+
+
+    def test_14_missing_pillow_is_reported_as_failure(self) -> None:
+        """复审观察 1（fail-open 关闭）：缺渲染依赖时**不得**报 `passed=true`。"""
+        original = RD.PIL_AVAILABLE
+        try:
+            RD.PIL_AVAILABLE = False
+            with tempfile.TemporaryDirectory(prefix="s5t03_nopil_") as tmp:
+                out = pathlib.Path(tmp) / "run"
+                code = REP.run_replay(out_dir=out, mode="mixed", frames=16, seed=SEED, canvas=(1280, 720),
+                                      background_path=None, keyframe_max=4, want_demo=False)
+                results = json.loads((out / "results.json").read_text(encoding="utf-8"))
+                self.assertEqual(code, 1, "缺 Pillow 必须 exit 1")
+                self.assertFalse(results["checks"]["passed"], "不得把缺依赖报成通过")
+                self.assertTrue(any("render_unavailable" in item for item in results["checks"]["failures"]),
+                                results["checks"]["failures"])
+        finally:
+            RD.PIL_AVAILABLE = original
 
 
 class T_Stage3Binding(unittest.TestCase):

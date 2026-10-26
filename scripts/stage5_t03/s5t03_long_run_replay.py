@@ -193,6 +193,9 @@ def run_long(*, out_dir: pathlib.Path, frames: int, seed: int, canvas: tuple[int
                                      "hud": dict(hud), "render": stats, "font": font_info,
                                      "input_frame_sha256": input_info.get("background_sha256")})
     elapsed = time.time() - t0
+    if not RD.PIL_AVAILABLE:
+        # 复审非阻断观察 1：缺 Pillow 时渲染路径 NOT_RUN，不得让 `checks.passed=true` 掩盖
+        failure_list.append(f"render_unavailable:Pillow 不可用 ⇒ 渲染路径 NOT_RUN（{RD.PIL_IMPORT_ERROR}）")
     pipeline.assert_recomputable()
 
     # 事件日志（紧凑、gzip）：长跑全量可复算

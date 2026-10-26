@@ -91,7 +91,7 @@
 
 本轮已交付（离线 replay/display 骨架渲染路径；详见 `s5t03_offline_replay_display_20261026_r03/summary.md`）：
 - 新增 `scripts/stage5_t03/s5t03_render.py`（栅格化：边框像素**只取** `R.border_pixel_sets`；UR-3 类别色与字号；标签越界翻转/安全区；HUD 13 行 `UNAVAILABLE`→`NA`）与 `s5t03_replay_display.py`（合成流→管线→渲染→**三层产物**；阶段3 输入帧绑定装载；三例过期边界；关键帧有界选择；demo 生成），新增 13 项测试。
-- 证据 `…_r03`：`results.json`（权威）+ `frame_assertions.jsonl`（240 行）+ `keyframes/`（14 张）+ `demo.mp4`（`demo_only`）+ `manifest.json` + `console/`；**240 帧 0 失败**、`recompute_matches_online=true`、12 项计数与既有骨架 r03 基线**逐项相同**；边界 `==limit` 不过期 / `limit+1` 过期 / 显式 `stale_flag` 过期三例 PASS。
+- 证据 `…_r03`：`results.json`（权威）+ `frame_assertions.jsonl`（240 行）+ `keyframes/`（14 张）+ `demo.mp4`（`demo_only`）+ `manifest.json` + `console/`；**240 帧 0 失败**、`recompute_matches_online=true`、14 项计数与既有骨架 r03 基线**逐项相同**；边界 `==limit` 不过期 / `limit+1` 过期 / 显式 `stale_flag` 过期三例 PASS。
 - 输入帧：阶段3 `frame_full.bin`（BGR888 1280×720 stride 3840）SHA `939fce22…` **实测与绑定一致**，仅作**输入帧**；**推理结果为合成流** ⇒ 真实回放接入仍 `NOT_RUN`。
 - 测试：`test_s5t03_skeleton` + `test_s5t03_replay_display` → **Ran 53 tests, OK, exit 0**。
 - 未做（NOT_RUN，不得冒充）：真实回放接入（无阶段4 冻结回放结果包）、板上动态映射/绘制、摄像头真实采集、真实集成 30 分钟与 T5-10 板上回归、HUD 屏上视觉确认。

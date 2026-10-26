@@ -1,0 +1,42 @@
+{
+  "schema_version": "s4t26_commit_scope_v1",
+  "task_id": "S4-T26-COMMIT-SCOPE",
+  "run_id": "s4t26_commit_scope_20261027_r01",
+  "generated_utc8": "2026-10-27T02:17:00+08:00",
+  "commit": {
+    "prev": "0fcd67595ae5be85b99ee93928a9b265786f3af0",
+    "current": "5472c27e2b716001f0a710b0ea90f3674fd63465",
+    "subject": "docs(stage4): audit task-26 producer identity and golden bindings"
+  },
+  "state_file": {
+    "numstat": "46\t9\t.codex/STATE.md",
+    "note": "STATE 为整文件：无法只提交新增块而排除同一文件内既有的未提交差异",
+    "removed_lines_count": 9,
+    "added_lines_count": 46,
+    "removed_lines": [
+      "# 阶段4 状态（写权：Workbuddy 项目总控已 CLAIMED；现 OFFERED 给 Workbuddy 阶段4总控新窗口）",
+      "# 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS；上次 OFFER 已撤回）",
+      "## 当前交接行（11字段，2026-10-26 20:44 UTC+8）",
+      "任务=`S4-T26-GOLDEN-CONTROL：撤回 OFFER、修正基线绑定并执行独立黄金控制` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\\codex-worktrees\\w4` / `stage4-infer-prep` | 起始提交=`d2262bca4c562cf2ff9037e6ed098e37f3d62596` | 允许修改范围=`仅 w4 内 task-26 相关代码、文档、新 RunId 证据和 STATE` | 未提交改动归属=`原有 STATE 用户差异及12个ELF/MAP保留、不混入提交；本轮新证据和状态增量归当前Codex` | 让出声明=`Wong 已撤回上次 OFFER；Codex 继续 task-26，DSH 不 claim；硬件与其他工作树无操作授权` | 心跳(UTC+8)=`2026-10-26 20:44` | 证据入口=`report/evidence/S4-CTRL/s4t26_golden_control_20261026_r01/initial_snapshot.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex 项目总控；DSH 不 claim`",
+      "",
+      "## 当前增量（BGR888 契约 r06，2026-10-25 22:55 UTC+8）",
+      "- 当前增量已完成独立复审 PASS：首轮发现历史清单版本误标后，生成器已改为既有清单不可覆盖；r02 清单固定 SHA 核验通过，构建器重跑 exit 0 并保留四份旧清单字节。复审结果及重跑摘要见 `report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/`。本轮源码/STATE 及两个新证据 RunId 待精确核对后提交；旧 12 项 ELF/MAP 未跟踪产物未动。仍未闭合：校准样本独立 heads 与 `cv2` 运行环境、RAW G0、真实 PS/PL 集成、帧周期 P、板级窗口和 G5。",
+      "## 当前交接行（11 字段，2026-10-25 22:55 UTC+8）",
+      "任务=`BGR888 输入契约 r06 修订与 fail-closed 证据` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\\codex-worktrees\\w4 / stage4-infer-prep` | 起始提交=`2c1dcd6e81efdfd9d4ed6f70b5d1af9016b985de` | 允许修改范围=`docs/stage4/ 契约/registry/readiness/地址/计划、scripts/stage4_s4b/、scripts/stage4_s4ctrl/、verification/ 两项定向测试、report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/**、report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/**、.codex/STATE.md` | 未提交改动归属=`本轮 17 个 tracked 文件（含 .codex/STATE.md）与两个新 RunId evidence 归当前 Codex，尚未提交；旧 12 项 ELF/MAP 未跟踪文件未动` | 让出声明=`Developer 已停写；runtime 路径只读审计结束；独立 Reviewer PASS（S4-20261025 历史清单不可变修复）；未操作硬件` | 心跳(UTC+8)=`2026-10-25 22:55` | 证据入口=`report/evidence/S4-CTRL/s4_bgr888_contract_20261025_r01/delivery_manifest.json；report/evidence/S4-CTRL/s4_t21_manifest_immutability_20261025_r01/verification_summary.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（r06 独立复审 PASS，runtime NOT_IMPLEMENTED，RAW G0 CHANGES_REQUIRED_NOT_CLOSED；注入集成用例 11/12 且剩余用例为 sandbox BLOCKED）/ 下一步=证据与差异最终核验并精确提交；随后阶段5消费侧改绑`"
+    ]
+  },
+  "deviation": "本次提交把 .codex/STATE.md 的**既有未提交差异**（Codex 于 00:21–23:03 对交接行/标题的改写）一并纳入提交，未做到“只提交自己新增的 STATE 内容”。内容未丢失、未被改写，但归属由“未提交/Codex”变为“已提交/本窗口提交”，属范围偏差，须登记。",
+  "remedy_options": [
+    "接受现状：内容无损，仅在提交归属上由本窗口承担；不重写历史。",
+    "如需严格区分：由 Codex 或 Wong 指定新提交，单独说明该段差异的历史归属（不得 amend/rebase 既有提交）。"
+  ],
+  "other_deviations": [
+    "STATE 在 Reviewer PASS 之后又改了两处文字（心跳 01:25→02:16；复核记录补第 4/5 轮），结论与证据引用未变；评审基线 bcb48b13… 与提交内容不同，差异仅为这两处。",
+    "s4t26_failclosed_selftest_20261027_r01|r02|r03 三个留档目录只有 selftest.json、无 manifest。"
+  ],
+  "boundaries": [
+    "不重写历史（未 amend/rebase），不删除既有提交。",
+    "既有 15 项中的 12 个 ELF/MAP 与两个证据目录仍未跟踪、未提交、未修改。",
+    "不代表任何阶段门通过；ENABLE=0、task-26 BLOCKED 不变。"
+  ]
+}

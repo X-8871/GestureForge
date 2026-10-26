@@ -1,0 +1,288 @@
+{
+  "task_id": "S4-T26-GOLDEN-CONTROL",
+  "run_id": "s4t26_golden_control_20261026_r04",
+  "status": "BLOCKED",
+  "created_utc8": "2026-10-26T21:28:48+08:00",
+  "execution": {
+    "command": [
+      "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+      "detector",
+      "test",
+      "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\data\\gesture_tiny416_d8_formal.data",
+      "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+      "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+      "D:\\FPGA_Data\\HaGRIDv2\\dataset\\fist\\fist\\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+      "-dont_show"
+    ],
+    "exit_code": 0,
+    "started_utc8": "2026-10-26T21:26:00+08:00",
+    "ended_utc8": "2026-10-26T21:26:01+08:00",
+    "duration_seconds": 1.297,
+    "cuda_gpu": "RTX 4060 Laptop GPU (Darknet stdout; CUDA-version 13030)",
+    "timeout_seconds": 300
+  },
+  "producer_inputs": {
+    "darknet_exe_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+    "darknet_exe_sha256": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+    "hook_source_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_source\\src\\network_kernels.cu",
+    "hook_source_sha256": "ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f",
+    "cfg_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+    "cfg_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+    "weights_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+    "weights_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+    "data_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\data\\gesture_tiny416_d8_formal.data",
+    "data_sha256": "0e23bd65353850a7043d8bd30343fcfb16c991be5fdd41362ae6434452d0e6af",
+    "names_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+    "names_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368"
+  },
+  "T29_control": {
+    "sample_id": "test_fist_000",
+    "input_sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "T25_index_commit": "f669103b30e75fd7074e5fceee8a57f5ae6f3a90",
+    "T25_index_sha256": "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72",
+    "T29_reference_commit": "7277b1a2afcc26ecd9febdd2d39255a48f5c4526",
+    "T29_reference_sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33",
+    "T25_shard_sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+    "raw_stream_sha256": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80"
+  },
+  "quantization": {
+    "implementation": {
+      "module": "D:\\codex-worktrees\\w4\\verification\\s1_t02_d2_int8_forward.py",
+      "module_sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+      "rounding": "half away from zero",
+      "saturation": "[-127,127]"
+    },
+    "head13_scale": 0.24267549589862975,
+    "head26_scale": 0.30223452951025775
+  },
+  "comparison": {
+    "all_heads_byte_identical": false,
+    "status": "BLOCKED_MISMATCH",
+    "layers": {
+      "29": {
+        "scale": 0.24267549589862975,
+        "count": 5070,
+        "float_dump_sha256": "c292510fa90d04081e38029745955455369f0bc1e612a480d021c9177dc27189",
+        "candidate_sha256": "cd2d7138e5beb87969af0efde095affad2b613aee965ad7abe5519b49dc994be",
+        "frozen_reference_sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+        "mismatch_count": 2929,
+        "byte_equal": false
+      },
+      "36": {
+        "scale": 0.30223452951025775,
+        "count": 20280,
+        "float_dump_sha256": "5c864a40324bae631f3d8e3846f2e4918c3817a833cea51572ae9c712090a756",
+        "candidate_sha256": "0ebd32099f2b6afa931db2036499fe00e305c06c8501f9240e15b4988999a3ef",
+        "frozen_reference_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+        "mismatch_count": 10358,
+        "byte_equal": false
+      }
+    }
+  },
+  "outputs": [
+    {
+      "path": "activation_stats.csv",
+      "sha256": "2a7911095118186a93800f6d86915192531304b3181bc6f9f472cfd2d007de32",
+      "size_bytes": 2272
+    },
+    {
+      "path": "bad.list",
+      "sha256": "944419b5c85e1026b76df5d527a11eea471c2f8311a6c48f87b03594b1164413",
+      "size_bytes": 16936
+    },
+    {
+      "path": "control_comparison.json",
+      "sha256": "b4200da6e8a0e71fa539639f4114273cbf6aaaa8fcd2447b70c1e4ceb61e2589",
+      "size_bytes": 3915
+    },
+    {
+      "path": "darknet.stderr.txt",
+      "sha256": "90f3b157fcfa85d9aeafd28def7c25f69ec42722927670e38d884c65caf7dad4",
+      "size_bytes": 54691
+    },
+    {
+      "path": "darknet.stdout.txt",
+      "sha256": "54e2a597ac7b9a4bf850853e2762987cd46781bb140675d7dceed0a97f30b716",
+      "size_bytes": 453
+    },
+    {
+      "path": "darknet_activation_dumps/index.csv",
+      "sha256": "8ef243eec592efc4f543debac260d9c83eb49ba94c38e55e903315614e2383f9",
+      "size_bytes": 3011
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_00.bin",
+      "sha256": "27795e1033b08840ede6cc473a10dd0f0a4d2d5ead7c91025c5a207f3ef02af6",
+      "size_bytes": 5537792
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_01.bin",
+      "sha256": "88344036a74c61e730f970dccf3412b3cb13e917630f8f646a1d48a4de214c46",
+      "size_bytes": 2768896
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_02.bin",
+      "sha256": "28e08572237486964b4e176c590cab14cf85b116101d3b5c8b7315c76befd6c5",
+      "size_bytes": 2768896
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_04.bin",
+      "sha256": "69390f58585de7c74495f3bf8b14856be889d95fe4d8423ced56700f6006f495",
+      "size_bytes": 1384448
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_05.bin",
+      "sha256": "e98e5a15a0bd48e7dda4b1de4b505c4bb40621ffd6996aa51bd87748eb69c33a",
+      "size_bytes": 1384448
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_07.bin",
+      "sha256": "3cbad0013e7ada24470074c046bb7b1184ece458dfc2a21adc98f32aa90bcaf6",
+      "size_bytes": 2768896
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_10.bin",
+      "sha256": "11c1aa15b620b9426f24e19a41921c58af6279e7f9fa67773db6bf02b78a628b",
+      "size_bytes": 1384448
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_12.bin",
+      "sha256": "dd8d8798bccf8ec46206d2a1bf17451766fdb4432618ef4a0a6405f1797dffbd",
+      "size_bytes": 692224
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_13.bin",
+      "sha256": "8ad36f67209369e94fdca2ae6ba9b4611da486bf8df914baf7ebda7d4917a913",
+      "size_bytes": 692224
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_15.bin",
+      "sha256": "0cfa4973f10ea2f78e5ad28755c98eb4c7a7172ca1307fdaeda13089a202f2f5",
+      "size_bytes": 1384448
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_18.bin",
+      "sha256": "b4c3d6924e5a5fb1c9da8112cc96a145b3f154b2d9bd8c29dde0a867e8c92540",
+      "size_bytes": 692224
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_20.bin",
+      "sha256": "05405e2b2b42b43301f805dee9a45f25ef1321c298eb7a698e614ea4a076945f",
+      "size_bytes": 346112
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_21.bin",
+      "sha256": "8c94c425bb77a7fc6a0587fb6036a172744e0013c7c31b9e84b671e180f9eeb8",
+      "size_bytes": 346112
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_23.bin",
+      "sha256": "e607d33d92418d2f4feefaedafab28485dba69149cb0bd501fd878b08b2a5a3b",
+      "size_bytes": 692224
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_26.bin",
+      "sha256": "fc96352adf9b490359b226a015df705d1b6c1a76cecf8ad6d170ed563994085e",
+      "size_bytes": 346112
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_27.bin",
+      "sha256": "352068fecf10a0782233f34c8fc1e5666f7ac2f74229580eee0fda8b3b7a6d41",
+      "size_bytes": 173056
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_28.bin",
+      "sha256": "5158fdc623d3da036d8131d4a214733d1a91e250abd5d55c62ab86eca3c5bbf8",
+      "size_bytes": 346112
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_29.bin",
+      "sha256": "c292510fa90d04081e38029745955455369f0bc1e612a480d021c9177dc27189",
+      "size_bytes": 20280
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_32.bin",
+      "sha256": "3785e9d898084687787bbc97e78e364954587d48d037b8f1056eb5d159e37ad3",
+      "size_bytes": 86528
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_35.bin",
+      "sha256": "2363a94285c01da91e4d65125c9dbd84623fa3601daf4667ad63e7c74e4f21e0",
+      "size_bytes": 692224
+    },
+    {
+      "path": "darknet_activation_dumps/sample_0000_layer_36.bin",
+      "sha256": "5c864a40324bae631f3d8e3846f2e4918c3817a833cea51572ae9c712090a756",
+      "size_bytes": 81120
+    },
+    {
+      "path": "darknet_execution.json",
+      "sha256": "158fe7ccc9272f92ae40266e07c963dd58abe6167c79d56524baf8ce951abcc5",
+      "size_bytes": 2091
+    },
+    {
+      "path": "input_binding.json",
+      "sha256": "91ad7284bcb5e1af5581b52269c2be0d5ea02f55210b077bf5b52f2b2cb1265d",
+      "size_bytes": 5225
+    },
+    {
+      "path": "inputs/t29_test_fist_000_head13.raw",
+      "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "size_bytes": 5070
+    },
+    {
+      "path": "inputs/t29_test_fist_000_head26.raw",
+      "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+      "size_bytes": 20280
+    },
+    {
+      "path": "predictions.jpg",
+      "sha256": "a9b547b4e9716e7f3dcfe21df79c0fabb75986084be18b5d2421464243e46d06",
+      "size_bytes": 486776
+    },
+    {
+      "path": "quantized_control_candidates/control_layer_29_quantized.raw",
+      "sha256": "cd2d7138e5beb87969af0efde095affad2b613aee965ad7abe5519b49dc994be",
+      "size_bytes": 5070
+    },
+    {
+      "path": "quantized_control_candidates/control_layer_36_quantized.raw",
+      "sha256": "0ebd32099f2b6afa931db2036499fe00e305c06c8501f9240e15b4988999a3ef",
+      "size_bytes": 20280
+    },
+    {
+      "path": "runtime_preflight_note.json",
+      "sha256": "015ba7b9943d854f7270b656378d00873df40f0131c8f8a35c2db1043949529a",
+      "size_bytes": 280
+    },
+    {
+      "path": "summary.md",
+      "sha256": "37461b6b988703aa605787dbec26230af9c7fff0b6e6f236fcce16d8236ee55e",
+      "size_bytes": 1855
+    }
+  ],
+  "blocking_rule": "Control sample comparison was not byte-identical; STOP. Do not forward the calibration sample or generate new goldens/producer record/task-27 inputs. Its path and SHA were read-only verified by the separate G0 r12 check.",
+  "execution_scope": {
+    "real_darknet_forward": "PASS for control sample only",
+    "calibration_forward": "NOT_RUN",
+    "D9_NMS": "NOT_RUN",
+    "negative_controls": "NOT_RUN",
+    "PNG_IMREAD_UNCHANGED": "NOT_RUN",
+    "task27_package": "NOT_GENERATED",
+    "hardware": "NOT_RUN"
+  },
+  "global_gates": {
+    "ENABLE": "0",
+    "RAW_G0": "NOT_CLOSED",
+    "P": "NOT_RUN",
+    "4-D": "NOT_RUN",
+    "G3": "NOT_RUN",
+    "G5": "NOT_RUN"
+  },
+  "limitations": [
+    "This result is offline host control only; no live, board, or stage acceptance claim.",
+    "G0 r12 read-only verified calibration sample identity/SHA; no calibration-sample forward, new golden, activation record, or task-27 package was produced.",
+    "Darknet stderr includes missing data/labels/32_0.png through data/labels/126_7.png messages from the data-file label scan; specified test image prediction and hook dumps still occurred. See raw stderr.",
+    "No new activation/producer record was generated; old activation report and all source inputs remain unchanged."
+  ]
+}

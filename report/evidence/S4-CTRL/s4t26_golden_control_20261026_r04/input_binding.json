@@ -1,0 +1,84 @@
+{
+  "task_id": "S4-T26-GOLDEN-CONTROL",
+  "run_id": "s4t26_golden_control_20261026_r04",
+  "created_utc8": "2026-10-26T21:24:42+08:00",
+  "status": "READY_FOR_CONTROL_INFERENCE",
+  "execution": "NOT_RUN",
+  "w4_head_observed": "f73132398e21ae1604f6318640cd94bc1b68d5ac",
+  "preparation_note": "r02 的准备脚本在创建目录前因本地引用字典键错误退出；未写入文件、未启动 Darknet；本 RunId 为首次持久化控制实验。",
+  "control_sample": {
+    "sample_id": "test_fist_000",
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\dataset\\fist\\fist\\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+    "sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "t25_index_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S2A-T25\\cpu_layer_golden_index.json",
+    "t25_index_commit": "f669103b30e75fd7074e5fceee8a57f5ae6f3a90",
+    "t25_index_sha256": "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72",
+    "t29_reference_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S2A-T29\\cpu_decode_nms_reference.json",
+    "t29_reference_commit": "7277b1a2afcc26ecd9febdd2d39255a48f5c4526",
+    "t29_reference_sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33"
+  },
+  "source_shard": {
+    "path_read_only": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\tensors\\sample_000.zlib",
+    "sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+    "declared_by_t25_index": true,
+    "raw_stream_sha256": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80",
+    "raw_stream_bytes": 11382150,
+    "note": "压缩 shard 不在固定 Git tree 中；仅按被提交 T25 index 声明的全文件 SHA 只读消费。"
+  },
+  "references": {
+    "head13": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_control_20261026_r04\\inputs\\t29_test_fist_000_head13.raw",
+      "layer_index": 29,
+      "scale": 0.24267549589862975,
+      "byte_offset_in_t25_raw_stream": 10772736,
+      "byte_length": 5070,
+      "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "provenance": "T29 冻结 raw head；按 T25/T29 已提交索引的固定偏移由 T25 shard 抽取"
+    },
+    "head26": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_control_20261026_r04\\inputs\\t29_test_fist_000_head26.raw",
+      "layer_index": 36,
+      "scale": 0.30223452951025775,
+      "byte_offset_in_t25_raw_stream": 11361870,
+      "byte_length": 20280,
+      "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+      "provenance": "T29 冻结 raw head；按 T25/T29 已提交索引的固定偏移由 T25 shard 抽取"
+    }
+  },
+  "producer_inputs": {
+    "darknet_exe_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+    "darknet_exe_sha256": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+    "hook_source_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_source\\src\\network_kernels.cu",
+    "hook_source_sha256": "ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f",
+    "cfg_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+    "cfg_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+    "weights_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+    "weights_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+    "data_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\data\\gesture_tiny416_d8_formal.data",
+    "data_sha256": "0e23bd65353850a7043d8bd30343fcfb16c991be5fdd41362ae6434452d0e6af",
+    "names_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\gesture.names",
+    "names_sha256": "5926aa20da3fa403315e64a116202d355b044d17f6d7949f5709ce9c9ae3d368"
+  },
+  "quantization": {
+    "rounding": "round half away from zero",
+    "saturation": "[-127,127]",
+    "head13_scale": 0.24267549589862975,
+    "head26_scale": 0.30223452951025775,
+    "implementation": "verification/s1_t02_d2_int8_forward.py::round_away_array + saturate_array"
+  },
+  "limitations": [
+    "尚未运行 Darknet；不能据本记录宣称控制通过或生成校准黄金。",
+    "只记录离线主机前向；不构成实时、板级、任务验收或阶段验收。"
+  ],
+  "prior_attempt": {
+    "run_id": "s4t26_golden_control_20261026_r03",
+    "status": "BLOCKED_BEFORE_FORWARD",
+    "reason": "0xC0000135; no network forward occurred; see result_interpretation.json"
+  },
+  "runtime_adjustment": {
+    "kind": "process_local_PATH_append_only",
+    "directory": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_source\\build\\darknet\\x64",
+    "pthreadVC2_sha256": "0e6af724609ef6846982ef717013426c359c455fff324e906d8d55c8bb88d16e",
+    "no_install": true
+  }
+}

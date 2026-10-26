@@ -1,0 +1,62 @@
+{
+  "schema": "gestureforge_delivery_manifest_v1",
+  "task_id": "S3-T17",
+  "run_id": "t17_g3_reconfirm_20261026_r02",
+  "created_utc8": "2026-10-26",
+  "purpose": "阶段3 当前部署 G3 重确认（含下载授权窗口）：恢复目标部署并核对身份/地址/配置/活性/VDMA 状态。",
+  "status": "PARTIALLY_CONFIRMED_HUMAN_VISUAL_PENDING",
+  "authorization": "Wong 2026-10-26「都可以」= 含下载的 G3 重确认窗口 + 接受两项残留为记录性局限",
+  "deployment": {
+    "bitstream": {"path": "tmp/s3r06/t04_sof_fix_20261020_r01/project/ov5640_single.runs/impl_1/design_1_wrapper.bit", "sha256_prefix": "7cb330685260ced3", "bytes": 1668969},
+    "xsa": {"path": "tmp/s3r06/t04_sof_fix_20261020_r01/design_1_wrapper.xsa", "sha256_prefix": "1f5b138e693065c6", "bytes": 633089},
+    "elf": {"path": "tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf", "sha256_prefix": "1457cda4867649dc", "bytes": 306272}
+  },
+  "commands": [
+    {"cmd": "jtag_t17_link_check.tcl", "exit": 0, "result": "GATE_A9_READY=True（APU + A9 双核 Running）"},
+    {"cmd": "run_t05_board_capture.sh <sof_fix_run> <v10_read.elf> g3r2 70", "exit": 0, "result": "T05_DOWNLOAD_EXIT=0 / T05_ALL_DONE=1"},
+    {"cmd": "jtag_t17_g3_reconfirm.tcl <empty>", "exit": 0, "result": "全部寄存器读取成功；S2MM SR=0x00015810"},
+    {"cmd": "jtag_t17_dump_rows.tcl <empty> 0x00110C00 3840 0 60 120 180 240 300 360 420 480 540 600 660 719", "exit": 0, "result": "13 行各 3840 B"},
+    {"cmd": "analyze_missing_msb_signature.py <rows>", "exit": 1, "result": "maxB=0、两 bit 置位率 0.000%；因暗场（max 8–12）**判据不适用**，不作为缺位/故障依据"}
+  ],
+  "observed": {
+    "uart_cfg": "S3_DIAG5_CFG VSIZE=0x2D0 HSIZE=0xF00 STRIDE=0xF00 ADDR=0x00110C00 MM2S_SR=0x11000",
+    "uart_pad": "S3_DIAG9_PAD 3017=0xFF 3018=0xFF 301D=0x00 301E=0x00 D9SEL=0 D6SEL=0",
+    "chipid": "TRY0=TRY1=TRY2=0x5640",
+    "sensor_503d": "0x00（彩条未启用）",
+    "s2mm": {"CR": "0x00018003", "SR": "0x00015810", "VSIZE": "0x2D0", "HSIZE": "0xF00", "STRIDE": "0xF00", "ADDR": "0x00110C00"},
+    "mm2s": {"CR": "0x00010001", "SR": "0x00011000", "VSIZE": "0x2D0", "HSIZE": "0xF00", "STRIDE": "0xF00", "ADDR": "0x00110C00"},
+    "frame_liveness": "应用指纹（帧内相对偏移 0x000000/0x080000/0x100000，各 64 KB）nz=16384 且 t=5/15/25 互异",
+    "frame_content": "13 行扫描：非零 ~1280–1328/3840 字节；max 8–12；蓝通道 0 ⇒ 近乎全黑场景"
+  },
+  "judgement_correction": {
+    "issue": "以『缺位签名』判据字面结果推断故障属**误用**：该判据前提为明亮/彩条帧。",
+    "action": "本轮明确记为『判据不适用（暗场）』，不作为缺位复现或故障依据。"
+  },
+  "conclusion": "当前部署 G3 = 部分重确认：部署身份（间接）、运行期地址/配置、帧活性、VDMA 状态均与记录一致；**真彩目视待人工**（明亮场景）。",
+  "artifacts": [
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/window_plan.json", "role": "窗口方案（范围/步骤/停止条件/恢复/两项残留处置）"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/preflight.txt", "role": "前置快照"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/link_check.txt", "role": "链路闸门原始输出"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/uart_g3r2.log", "role": "应用 UART 原始输出"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/register_probe.txt", "role": "运行期寄存器原始回读"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/rows_dump.txt", "role": "3 行转储原始输出"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/row_sweep.txt", "role": "13 行扫描原始输出"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/rows/", "role": "3 行样本（各 3840 B）"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/sweep/", "role": "13 行扫描样本（各 3840 B）"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/hashes.txt", "role": "产物哈希"}
+  ],
+  "residual_disposition": {
+    "vdma_first_frame_bit11_root_cause": "记录性局限（Wong 2026-10-26 接受）；本轮第 3 次独立复现启动瞬态 SR=0x00015810；未定位首次置位分支；无 AXI-Stream 握手观测/无 ILA",
+    "task11_full_sec_equivalence": "记录性局限（Wong 2026-10-26 接受）；本机无适用 SEC 引擎/license 且输入绑定缺项"
+  },
+  "does_not_claim": [
+    "真彩目视已完成",
+    "位完整性判据在暗场通过",
+    "阶段3 G5 通过"
+  ],
+  "limitations": [
+    "JTAG 无法读位流哈希，身份为间接核对",
+    "真彩目视需人工在明亮场景确认",
+    "缺位类判据须在明亮/彩条帧上运行"
+  ]
+}

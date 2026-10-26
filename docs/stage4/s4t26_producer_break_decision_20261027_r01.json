@@ -1,0 +1,53 @@
+{
+  "schema_version": "s4t26_producer_break_decision_v1",
+  "decision_id": "S4-T26-PRODUCER-BREAK-20261027-r01",
+  "decided_at_utc8": "2026-10-27 07:20",
+  "decided_by": "Workbuddy 阶段4总控（依 Wong 2026-10-27 授权：技术方案与推进节奏自行判断）",
+  "scope": "仅处置 task-26 G0 的 activation producer provenance 一项；不改变任何冻结数值，不闭合 P/4-D/G3/G5，不放宽其他检查项",
+  "problem": {
+    "item": "activation_producer_provenance",
+    "recorded_producer": {
+      "darknet_executable": "f025f5ab7547b2c33976a19f6aad4b46fd95e38485df85c08878d0ec6f229948",
+      "activation_hook_source": "0487e69488483bd1f99ad9d0070973b1ea2e288c842cc57790abbb0cd7ef7d65"
+    },
+    "current_bytes_at_fixed_path": {
+      "darknet_executable": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+      "activation_hook_source": "ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f"
+    },
+    "candidate_copies_scanned": {"darknet_exe": 4, "network_kernels_cu": 5, "matches": 0},
+    "explanation": "报告生成于 2026-09-22T13:45:35+08:00；固定路径 EXE/hook 的 mtime 为 18:12:10 / 18:11:39（+15,995 / +15,964 秒），构建目录 173 个 .obj 中 84 个落在 17:36、最新一个 18:12 ⇒ 校准跑完后该路径被重新构建并覆盖，原始 producer 字节未保留",
+    "report_sha_is_runtime_computed": true,
+    "producer_tool_sha_matches_record": "288390f8bafe2c601604556e61f104a35305f1503802c3ca7bf96e7788f7dde4",
+    "evidence": "report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/audit.json（BLOCKED / exit 1，7 项未闭合）"
+  },
+  "options_considered": [
+    {
+      "option": "A 登记 provenance 断点，冻结 scale 仅按数值 SHA 消费",
+      "cost": "零计算；只改记录与判定口径",
+      "risk": "无法再声明原始 producer 可复现；需在下游一一标注",
+      "chosen": true
+    },
+    {
+      "option": "B 用当前 EXE/hook 重跑 512 样本激活标定，产生新 scale 集",
+      "cost": "需重建 Darknet 环境、重跑 512 样本、重材料化 T25/T29 黄金、重跑 109 样本 D9 对照与阶段4 双门",
+      "risk": "冻结 scale 改变会同时使 S4-A r06 绑定、T25/T29 张量、2A 109 样本证据全部失效，波及 2A/2B/阶段4 三条线",
+      "chosen": false,
+      "reason": "收益是恢复 producer 可复现性，但数值完整性已由 SHA 链保证；代价远大于收益，且会把已冻结证据推入重做"
+    }
+  ],
+  "preserved_integrity": {
+    "activation_report_sha256": "6d73283c698a94dd30cf00634de59fb76a8e889916eb4d00e50b76c245687216",
+    "activation_stats_csv_sha256": "a4b807f7a5cc9d3b62047757931741a60e4c414f18cb5c09616a211fb8af37cb",
+    "per_layer_scales": "按值消费，未重算、未替换",
+    "downstream_bindings": "S4-A r06 契约绑定 activation report SHA；T25/T29 冻结张量与其 SHA 不变",
+    "statement": "本决策不声称原始 producer 可复现，只声明“冻结 scale 数值的字节完整性由 SHA 链保证，producer 身份存在已登记的断点”"
+  },
+  "consequences": [
+    "G0 该项状态记为 ACCEPTED_WITH_DOCUMENTED_BREAK，不再以 PASS 表示",
+    "任何新的前向/标定必须自行绑定其 producer SHA，不得引用本断点作为通行证",
+    "阶段4 冻结记录必须列明该断点；对外/验收材料不得声称 activation producer 可复现",
+    "该断点不解除 ENABLE=0，不闭合 P/4-D/G3/G5"
+  ],
+  "reversal_condition": "若日后恢复原始 producer 字节或以新标定产出新 scale 集并重做下游，须以新 RunId 复核并撤销本断点登记",
+  "approved_by_user_scope": "Wong 2026-10-27「所有技术方案、实现细节与推进节奏方面的决策均由你自行判断并执行，不要向我提问或等待确认」"
+}

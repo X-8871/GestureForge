@@ -33,7 +33,9 @@ EV = WORKTREE / "report/evidence/S4-CTRL"
 BRIDGE_REL = "scripts/stage4_s4ctrl/replay_forward_bridge.py"
 
 DIVERGENCE_RUN = "s4t26_layer_divergence_20261026_r02"
-G0_RUN = "s4t26_g0_inputs_20261026_r13"
+# G0 取最新一次运行（编号最大），避免钉死在历史 RunId 上
+G0_RUN_GLOB = "s4t26_g0_inputs_20261026_r*"
+G0_CLOSED_STATUSES = ("PASS", "CLOSED_WITH_ACCEPTED_BREAK")
 
 REQUIRED_GATE_CHECKS = (
     "raw_head_gate_forward_byte_compare",
@@ -106,6 +108,24 @@ def write_json_atomic(out_dir: Path, name: str, payload: dict[str, object]) -> N
     os.replace(tmp, out_dir / name)
 
 
+def g0_preflight_path(root: Path, explicit_run: str | None = None) -> Path:
+    """确定要采信的 G0 预检文件。
+
+    优先 `--g0-run` 显式指定；否则取“最新一个已闭合（PASS / CLOSED_WITH_ACCEPTED_BREAK）”
+    的运行；都没有时退回最新一次运行（由调用方按未闭合处理）。
+    """
+    if explicit_run:
+        return root / explicit_run / "preflight_verification.json"
+    candidates = sorted(root.glob(f"{G0_RUN_GLOB}/preflight_verification.json"))
+    if not candidates:
+        return root / "s4t26_g0_inputs_20261026_r13/preflight_verification.json"
+    for path in reversed(candidates):
+        _, payload = read_json(path)
+        if payload and payload.get("status") in G0_CLOSED_STATUSES and is_strict_zero(payload.get("exit_code")):
+            return path
+    return candidates[-1]
+
+
 def head_rows(root: Path) -> list[dict[str, object]]:
     """逐对核对 head 二进制与黄金文件。"""
     rows: list[dict[str, object]] = []
@@ -143,10 +163,9 @@ def collect_runs(root: Path, bridge_sha_now: str) -> tuple[list[dict[str, object
 
     runs: list[dict[str, object]] = []
     invalid: list[str] = []
-    paths = sorted(
-        [*root.glob("s4t26_forward_bridge_*/replay_forward_bridge_result.json"),
-         *root.glob("s4t26_golden_rebind_*/replay_forward_bridge_result.json")],
-        key=lambda p: p.parent.name)
+    # 扫描证据根下全部桥接运行结果（不按 RunId 前缀白名单，避免漏掉合法的新 RunId）
+    paths = sorted(root.glob("*/replay_forward_bridge_result.json"),
+                   key=lambda p: p.parent.name)
     for path in paths:
         status, data = read_json(path)
         if status != "ok" or data is None:
@@ -197,14 +216,21 @@ def qualifies_as_gate_pass(run: dict[str, object]) -> bool:
 
 
 def g0_closed(g0: dict[str, object]) -> bool:
-    """G0 闭合判定：status 必须为 PASS 且退出码必须是整型 0（两者不一致时按未闭合）。"""
-    return g0.get("status") == "PASS" and is_strict_zero(g0.get("exit_code"))
+    """G0 闭合判定。
+
+    允许两种闭合状态：PASS（无断点）与 CLOSED_WITH_ACCEPTED_BREAK（存在已登记断点）。
+    两者都要求退出码是整型 0；状态与退出码不一致时一律按未闭合。
+    """
+    return (g0.get("status") in G0_CLOSED_STATUSES
+            and is_strict_zero(g0.get("exit_code")))
 
 
 def main() -> int:
     """执行对齐并写证据。"""
     parser = argparse.ArgumentParser(description="task-26 门禁证据对齐")
     parser.add_argument("--evidence-dir", required=True)
+    parser.add_argument("--g0-run", default=None,
+                        help="显式指定采信的 G0 RunId（默认取最新已闭合运行，否则最新一次）")
     parser.add_argument("--evidence-root", default=str(EV),
                         help="被对齐证据的根目录；默认 report/evidence/S4-CTRL（负控用临时根）")
     args = parser.parse_args()
@@ -235,7 +261,7 @@ def main() -> int:
     for key, path in (
         ("divergence_report", root / f"{DIVERGENCE_RUN}/layer_divergence_report.json"),
         ("authoritative_run", root / "s4t26_golden_rebind_20261026_r02/replay_forward_bridge_result.json"),
-        ("g0_r13_preflight", root / f"{G0_RUN}/preflight_verification.json"),
+        ("g0_preflight", g0_preflight_path(root, args.g0_run)),
     ):
         statuses[key], data[key] = read_json(path)
     broken = [k for k, s in statuses.items() if s != "ok"]
@@ -244,7 +270,7 @@ def main() -> int:
         print(f"[ERROR] 关键证据不可用（{detail}）；按输入错误处理")
         return 2
 
-    divergence, authoritative, g0_r13 = data["divergence_report"], data["authoritative_run"], data["g0_r13_preflight"]
+    divergence, authoritative, g0_r13 = data["divergence_report"], data["authoritative_run"], data["g0_preflight"]
     bridge_now = sha256_file(bridge_path)
     sources = divergence.get("sources")
     bridge_in_divergence = None

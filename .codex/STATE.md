@@ -1,6 +1,33 @@
-# 阶段4 状态（写权：Workbuddy 阶段4总控已 CLAIMED；task-26 仍 BLOCKED，未冻结）
+# 阶段4 状态（写权：Workbuddy 阶段4总控；离线推理链已冻结，板级项未闭合）
 
-## 本轮结果（S4-T26-PRODUCER-AUDIT，2026-10-27 00:53 UTC+8）
+## 本轮结果（S4-T26-GATE-RERUN + 离线范围冻结，2026-10-27 07:23 UTC+8）
+
+- **task-26 离线门已在当前桥接器字节上通过**：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r02/`
+  （status PASS / exit 0 / 6 项检查全 PASS / 34.98 s）。两样本四个 head 与材料化黄金逐字节一致
+  （sample_000 `07b59ca3…`/`7524ce5c…`、sample_102 `902bb209…`/`f96cca66…`），单字节负控、
+  PNG `IMREAD_UNCHANGED`、task-25 回放帧均 PASS，**task-27 回放结果包已生成**（`replay_only`）。
+  上一轮 2929/5070、10358/20280 的差异确认为 T25 预处理修复前产物，已不再适用。
+- **桥接器改动（r11→r12）**：把“黄金来源目录”与“输出 RunId”解耦（新增 `--golden-run-dir`），
+  允许在新 RunId 上重跑权威门而绝不覆盖黄金与旧证据；黄金清单 SHA `47e4cc36…` 仍钉死。
+  首次尝试 `s4t26_gate_rerun_20261027_r01` 因 `run_dir` 残留引用报 `NameError`（exit 2），
+  该失败证据保留；修好后 r02 才 PASS。
+- **B1 producer 断点按决策 A 处置**：`docs/stage4/s4t26_producer_break_decision_20261027_r01.json`
+  （SHA `95b70b9d…`）。理由：报告 SHA 由 `sha256_file` 运行期计算、工具 SHA 与记录一致，
+  数值完整性由 SHA 链保证；重跑 512 样本标定会改变冻结 scale 并使 2A/2B/阶段4 三条线证据失效。
+  G0 新增 `--accept-producer-break`（默认关闭），命中后该项记为 `ACCEPTED_WITH_DOCUMENTED_BREAK`
+  而非 PASS；G0 r22 结果为 **`CLOSED_WITH_ACCEPTED_BREAK` / exit 0**；不带开关时 r21 仍 `BLOCKED / exit 2`（fail-closed 默认未变）。
+- **B3 绑定字节口径**：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`，4 条绑定逐一复算一致
+  （契约绑 CRLF 归一化、材料化清单绑原始字节、工具绑原始字节）；契约自身已有 `binding_byte_basis` 声明。
+  另修正上一轮文档/STATE 中工具 SHA 的抄录错误（应为 `288390f8…f104a353…`）。
+- **门禁对齐器** `s4t26_gate_reconcile_20261027_r10`：**PASS / exit 0**（0 项未闭合）。
+  修正其两处缺陷：RunId 前缀白名单会漏掉合法新 RunId（改为全目录扫描）、G0 只认 r13（改为取最新已闭合运行并支持 `--g0-run`）。
+- **阶段4 判定：`OFFLINE_SCOPE_FROZEN`（离线范围冻结）**，记录见 `docs/stage4/s4_stage4_freeze_record_20261027_r01.md`。
+  未闭合：共享 IO 契约 r06 仍 `DRAFT_PENDING_REVIEW`；RAW 系统 G0 有 10 项设计/复审缺口 + 4 项硬件依赖；
+  P / 4-D / G3 均 `NOT_RUN`；`ENABLE=0`；真实 C/PL BGR→RGB `NOT_IMPLEMENTED`。
+  因此**不宣称 G3/G4/G5 整体通过**，板级项须另行硬件窗口与正式 OFFER。
+- 全程未操作板卡/JTAG/COM4/摄像头/HDMI/Vivado/hw_server，未下载、未烧录。
+
+## 历史（S4-T26-PRODUCER-AUDIT，2026-10-27 00:53 UTC+8）
 
 - 接管：以现场 HEAD `0fcd67595ae5be85b99ee93928a9b265786f3af0` 生成 successor 记录并真实 `--claim`，取得 **`HANDOFF_OK / exit 0 / 9 PASS / 0 FAIL / 0 SKIP`**（2026-10-27 00:41:39）。首次执行即通过，无失败重试；上一窗口在 `e65ea51` 上的 claim 未被沿用。证据 `report/evidence/S4-CTRL/w4_workbuddy_takeover_20261027_r02/`。
 - 保护核验：既有 15 项（1 项 STATE 差异 + 12 个 ELF/MAP + 两个 task-26 证据目录）原位、原归属；19 个未跟踪文件 SHA **19/19 一致**；STATE 既有未提交差异（27 增/8 删）仍在工作区、未提交。claim 后工作区为 16 项，增量仅本窗口自己的新证据目录。

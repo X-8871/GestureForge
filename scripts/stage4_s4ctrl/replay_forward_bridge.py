@@ -38,7 +38,7 @@ from pathlib import Path
 import numpy as np
 
 CN = timezone(timedelta(hours=8))
-BRIDGE_VERSION = "r11"
+BRIDGE_VERSION = "r12"
 WORKTREE = Path(__file__).resolve().parents[2]
 FORWARD_MODULE = WORKTREE / "verification" / "s1_t02_d2_int8_forward.py"
 D9_MODULE = WORKTREE / "verification" / "s1_t02_d9_yolo_decode.py"
@@ -1333,9 +1333,13 @@ def _legacy_main_r09() -> int:
     return exit_code
 
 
-def load_rebound_goldens(run_dir: Path) -> dict[str, dict[str, object]]:
-    """按决策、T25/T29 索引与原始文件字节验证双样本材料化黄金。"""
-    manifest_path = run_dir / "golden_materialization_manifest.json"
+def load_rebound_goldens(golden_dir: Path) -> dict[str, dict[str, object]]:
+    """按决策、T25/T29 索引与原始文件字节验证双样本材料化黄金。
+
+    `golden_dir` 是**黄金来源目录**（材料化 RunId），与本次运行输出目录解耦：
+    黄金字节与其清单 SHA 固定，输出必须写入新 RunId，不得覆盖黄金目录。
+    """
+    manifest_path = golden_dir / "golden_materialization_manifest.json"
     verify(manifest_path, GOLDEN_MANIFEST_SHA256, "材料化黄金清单")
     verify(REBIND_DECISION, REBIND_DECISION_SHA256, "Wong 批准的黄金改绑决策")
     verify(T25_INDEX, T25_INDEX_RAW_SHA256, "T25 黄金索引")
@@ -1428,9 +1432,9 @@ def load_rebound_goldens(run_dir: Path) -> dict[str, dict[str, object]]:
             if t25_tensor_sha != expected_sha or t29_tensor_sha != expected_sha:
                 raise RuntimeError(f"冻结 {sample_id}/{name} T25/T29 SHA 不一致")
             golden_rel = Path(str(material.get("file", "")))
-            golden_path = (run_dir / golden_rel).resolve()
-            if not golden_path.is_relative_to(run_dir.resolve()):
-                raise RuntimeError(f"黄金文件路径越出本 RunId：{golden_rel}")
+            golden_path = (golden_dir / golden_rel).resolve()
+            if not golden_path.is_relative_to(golden_dir.resolve()):
+                raise RuntimeError(f"黄金文件路径越出黄金来源目录：{golden_rel}")
             raw_bytes = golden_path.read_bytes()
             exact_slice = raw_stream[offset:offset + length]
             actual_sha = sha256_bytes(raw_bytes)
@@ -1456,8 +1460,11 @@ def load_rebound_goldens(run_dir: Path) -> dict[str, dict[str, object]]:
     return result
 
 
-def r10_preflight(run_dir: Path) -> dict[str, object]:
-    """先验证批准、固定文件、材料化黄金、树提交与回放时间元数据。"""
+def r10_preflight(run_dir: Path, golden_dir: Path) -> dict[str, object]:
+    """先验证批准、固定文件、材料化黄金、树提交与回放时间元数据。
+
+    `run_dir` 仅用于本轮输出；黄金与决策绑定从 `golden_dir` 读取。
+    """
     checks: dict[str, dict[str, object]] = {}
 
     def add(name: str, passed: bool, detail: dict[str, object]) -> None:
@@ -1497,10 +1504,11 @@ def r10_preflight(run_dir: Path) -> dict[str, object]:
     add("frozen_source_hashes", source_ok, hashes)
 
     try:
-        goldens = load_rebound_goldens(run_dir)
+        goldens = load_rebound_goldens(golden_dir)
         add("approved_decision_and_materialized_t25_t29_goldens", True,
             {"decision_path": str(REBIND_DECISION), "decision_sha256": REBIND_DECISION_SHA256,
-             "manifest_path": str(GOLDEN_MANIFEST), "manifest_sha256": GOLDEN_MANIFEST_SHA256,
+             "manifest_path": str(golden_dir / "golden_materialization_manifest.json"),
+             "manifest_sha256": GOLDEN_MANIFEST_SHA256,
              "gates": {sample_id: {"gate": item["gate"]["gate"],
                                    "image_sha256": item["image_sha256"],
                                    "heads": head_hashes(item["expected_heads"])}
@@ -1636,28 +1644,37 @@ def write_r10_outputs(out_dir: Path, preflight: dict[str, object], report: dict[
 def main() -> int:
     """执行已批准的双样本门；所有必需验证通过后才生成 task-27 包。"""
     parser = argparse.ArgumentParser(description="task-26 双样本离线推理与回放证据桥")
-    parser.add_argument("--run-dir", required=True, type=Path)
+    parser.add_argument("--run-dir", required=True, type=Path,
+                        help="本次运行的证据输出目录（新 RunId；不得指向黄金来源目录）")
+    parser.add_argument("--golden-run-dir", default=GOLDEN_OUTPUT_DIR, type=Path,
+                        help="黄金来源 RunId（只读；默认本轮已材料化的 r02）")
     args = parser.parse_args()
     started = time.perf_counter()
     out_dir = args.run_dir.resolve()
-    if out_dir != (WORKTREE / "report" / "evidence" / "S4-CTRL" / GOLDEN_RUN_ID).resolve():
-        print("[BLOCKED] r10 只接受本轮已材料化黄金的固定 RunId", flush=True)
+    golden_run_dir = args.golden_run_dir.resolve()
+
+    # 输出目录必须位于阶段4 证据根下，且不得与黄金来源目录相同（防覆盖黄金）
+    evidence_root = (WORKTREE / "report" / "evidence" / "S4-CTRL").resolve()
+    if evidence_root not in out_dir.parents:
+        print(f"[BLOCKED] 输出目录必须位于 {evidence_root} 下：{out_dir}", flush=True)
         return 2
-    if not out_dir.is_dir():
-        print(f"[BLOCKED] 材料化黄金 RunId 不存在：{out_dir}", flush=True)
+    if out_dir == golden_run_dir:
+        print("[BLOCKED] 输出目录不得等于黄金来源目录（禁止覆盖黄金与旧证据）", flush=True)
         return 2
-    expected_existing = {"golden", "golden_materialization_manifest.json"}
-    existing = {path.name for path in out_dir.iterdir()}
-    if existing - expected_existing:
-        print(f"[BLOCKED] RunId 已含非本轮输出，拒绝覆盖：{sorted(existing - expected_existing)}", flush=True)
+    if not golden_run_dir.is_dir():
+        print(f"[BLOCKED] 黄金来源 RunId 不存在：{golden_run_dir}", flush=True)
+        return 2
+    if out_dir.exists() and any(out_dir.iterdir()):
+        print(f"[BLOCKED] 输出 RunId 已存在且非空，拒绝复用：{out_dir}", flush=True)
         return 2
     expected_golden_names = {"approved_no_hand_001_head13.bin", "approved_no_hand_001_head26.bin",
                              "test_fist_000_head13.bin", "test_fist_000_head26.bin"}
-    golden_dir = out_dir / "golden"
+    golden_dir = golden_run_dir / "golden"
     actual_golden_names = {path.name for path in golden_dir.iterdir() if path.is_file()} if golden_dir.is_dir() else set()
     if actual_golden_names != expected_golden_names:
-        print(f"[BLOCKED] golden/ 内容不符：{sorted(actual_golden_names)}", flush=True)
+        print(f"[BLOCKED] 黄金来源 golden/ 内容不符：{sorted(actual_golden_names)}", flush=True)
         return 2
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     tmp_dir = WORKTREE / "tmp" / "4" / "S4-CTRL" / out_dir.name
     if tmp_dir.exists() and any(tmp_dir.iterdir()):
@@ -1667,7 +1684,7 @@ def main() -> int:
     global LOG_PATH
     LOG_PATH = out_dir / "console.log"
 
-    preflight = r10_preflight(out_dir)
+    preflight = r10_preflight(out_dir, golden_run_dir)
     interpreter_probes = probe_cv2_runtimes()
     preflight["runtime_interpreter_probes"] = interpreter_probes
     preflight["bridge_source"] = {"path": str(Path(__file__).resolve()), "version": BRIDGE_VERSION,

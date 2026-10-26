@@ -1,0 +1,53 @@
+{
+  "schema_version": "s4_binding_byte_basis_registry_v1",
+  "registry_id": "S4-BINDING-BASIS-20261027-r01",
+  "created_utc8": "2026-10-27 07:30",
+  "purpose": "消除同一逻辑文件在不同记录中被不同字节口径绑定导致的假不一致；每条绑定必须声明自己的 byte_basis",
+  "basis_definitions": {
+    "raw": "工作区文件原始字节（含 CRLF）的 SHA-256",
+    "crlf_normalized": "把 CRLF 归一化为 LF 后的 SHA-256（等价于 Git index blob 内容）",
+    "git_blob": "git show <rev>:<path> 输出的 blob 字节 SHA-256（实际等于 crlf_normalized）"
+  },
+  "bindings": [
+    {
+      "id": "s4a_contract_t29_reference",
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "declared_sha256": "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231",
+      "byte_basis": "crlf_normalized",
+      "declared_in": "docs/stage4/s4a_stage4_g0_fields.json → upstream_bindings[s2a_t29_cpu_decode_nms_reference]",
+      "note": "冻结契约按 Git blob / LF 内容绑定；工作区为 CRLF，raw 值不同属正常"
+    },
+    {
+      "id": "golden_materialization_t29_reference",
+      "path": "report/evidence/S2A-T29/cpu_decode_nms_reference.json",
+      "declared_sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33",
+      "byte_basis": "raw",
+      "declared_in": "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r02/golden_materialization_manifest.json → frozen_sources.t29_reference",
+      "note": "材料化清单按运行期磁盘字节绑定；两者内容同源，仅换行形式不同"
+    },
+    {
+      "id": "golden_materialization_t25_index",
+      "path": "report/evidence/S2A-T25/cpu_layer_golden_index.json",
+      "declared_sha256": "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72",
+      "byte_basis": "raw",
+      "declared_in": "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r02/golden_materialization_manifest.json → frozen_sources.t25_index",
+      "note": "同上"
+    },
+    {
+      "id": "activation_production_tool",
+      "path": "D:/FPGA_Competition/verification/s1_t02_d2_activation_calibration.py",
+      "declared_sha256": "288390f8bafe2c601604556e61f104a35305f1503802c3ca7bf96e7788f7dde4",
+      "byte_basis": "raw",
+      "declared_in": "report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_activation_calibration_r1.json → tool.sha256",
+      "note": "报告按树外路径运行期计算；仓库内同名副本为 CRLF，crlf_normalized 后同值"
+    }
+  ],
+  "rule": [
+    "新增绑定记录必须写明 byte_basis，缺声明即视为未绑定",
+    "跨记录比对必须先对齐口径；口径不同不等于内容漂移",
+    "同一路径允许在不同记录使用不同口径，但必须在各自的 declared_in 中可追溯"
+  ],
+  "verified_at_utc8": "2026-10-27 07:30",
+  "verification_evidence": "report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/audit.json（同时给出 raw 与 normalized 两种复算值）",
+  "scope_note": "本登记只解决口径歧义，不改变任何已冻结文件的数值或标注意义"
+}

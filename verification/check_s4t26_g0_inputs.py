@@ -14,7 +14,8 @@ from typing import Any
 
 
 CN = timezone(timedelta(hours=8))
-CHECKER_VERSION = "r14"
+CHECKER_VERSION = "r15"
+
 WORKTREE = Path(r"D:\codex-worktrees\w4")
 DBDF = Path(r"D:\codex-worktrees\dbdf")
 EXPECTED_W4_BASELINE_COMMIT = "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e"
@@ -22,6 +23,11 @@ HISTORIC_R10_EXPECTED_W4_HEAD = "33988ed7e8a97a9d5395b8cfd136a327c37d7dc9"
 GOLDEN_RUN_ID = "s4t26_golden_rebind_20261026_r02"
 GOLDEN_RUN_DIR = WORKTREE / "report/evidence/S4-CTRL" / GOLDEN_RUN_ID
 GOLDEN_MANIFEST = GOLDEN_RUN_DIR / "golden_materialization_manifest.json"
+# 已登记的 producer provenance 断点决策（内容 SHA 固定；换文档即失效，防止事后替换）
+PRODUCER_BREAK_DECISION = WORKTREE / "docs/stage4/s4t26_producer_break_decision_20261027_r01.json"
+PRODUCER_BREAK_DECISION_SHA256 = (
+    "95b70b9d88ff7ea9508821bb913eba5a6d6984a0956caa883c9c6e1c7c372d01"
+)
 GOLDEN_MANIFEST_SHA256 = "47e4cc362d174f1c8eb451197554e5978cd818032c3461af655f959f9fa108c6"
 DECISION_RECORD = WORKTREE / "docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md"
 DECISION_RECORD_SHA256 = "819c9054be9bc3232d51666bc9e52e112fc3932b1d3a165d36040f26744356e1"
@@ -43,11 +49,20 @@ ACTIVATION_REPORT_SHA256 = "6d73283c698a94dd30cf00634de59fb76a8e889916eb4d00e50b
 REFERENCE_RUN = WORKTREE / "report/evidence/S1-T02/20260922_s1_t02_d2_tiny416_int8_forward_r2.json"
 REFERENCE_RUN_SHA256 = "3d5ccedc9dc25f62353711c75f509706187047dbd70321cefb98e0bc0ade3973"
 BRIDGE_SOURCE = WORKTREE / "scripts/stage4_s4ctrl/replay_forward_bridge.py"
+EXPECTED_BRIDGE_VERSION = "r12"
+EXPECTED_BRIDGE_SHA256 = "0ab164e1da1677d121c27b5d3203c5ef997de772d3a0415f4b252e2ac947357b"
 S4B_CONTRACT = WORKTREE / "docs/stage4/s4b_shared_input_result_contract.json"
 PREEXISTING_PATHS = {
-    ".codex/STATE.md",
     *[f"report/evidence/S4-B/s4b_ps_tensor_20261023_{run}/s4b_ps_tensor_diagnostic.{ext}"
       for run in ("r04", "r05", "r09", "r11", "r12", "r13") for ext in ("elf", "map")],
+    # Codex 时代遗留、归属不变的两个未跟踪证据目录
+    "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r11/",
+    "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r01/",
+}
+# STATE 已由本窗口提交，改为要求“已跟踪且无未提交差异”，不再作为未提交改动计入
+LEGACY_EVIDENCE_DIRS = {
+    "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r11/",
+    "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r01/",
 }
 TASK_OWNED_UNCOMMITTED_PATHS = {
     "verification/check_s4t26_g0_inputs.py",
@@ -595,10 +610,27 @@ def verify_darknet_control_not_golden() -> dict[str, Any]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="task-26 G0 冻结输入只读预检")
     parser.add_argument("--run-id", required=True)
+    parser.add_argument("--accept-producer-break", action="store_true",
+                        help=("按已登记断点决策接受 activation producer provenance 一项；"
+                              "仅在决策文件 SHA 与内置常量一致时生效，且该项只记为已接受断点、不改写为 PASS"))
     args = parser.parse_args()
     if not re.fullmatch(r"s4t26_g0_inputs_20261026_r[0-9]{2}", args.run_id):
         print("[FAIL] run-id 不符合本轮固定命名范围", file=sys.stderr)
         return 1
+    break_decision: dict[str, Any] | None = None
+    if args.accept_producer_break:
+        if not PRODUCER_BREAK_DECISION.is_file():
+            print(f"[FAIL] 断点决策文件缺失：{PRODUCER_BREAK_DECISION}", file=sys.stderr)
+            return 1
+        actual_decision_sha = sha256_file(PRODUCER_BREAK_DECISION)
+        if actual_decision_sha != PRODUCER_BREAK_DECISION_SHA256:
+            print(f"[FAIL] 断点决策文件与内置 SHA 不一致：{actual_decision_sha}", file=sys.stderr)
+            return 1
+        break_decision = json.loads(PRODUCER_BREAK_DECISION.read_text(encoding="utf-8"))
+        if break_decision.get("problem", {}).get("item") != "activation_producer_provenance":
+            print("[FAIL] 断点决策文件未针对 activation producer provenance", file=sys.stderr)
+            return 1
+
     run_dir = WORKTREE / "report/evidence/S4-CTRL" / args.run_id
     if run_dir.exists():
         print(f"[FAIL] 目标 RunId 已存在，拒绝覆盖：{run_dir}", file=sys.stderr)
@@ -646,10 +678,24 @@ def main() -> int:
         parameter_status = "PASS" if assets_ok else "FAIL" if assets_fail else "BLOCKED"
         add_check(checks, "frozen_parameter_sources", parameter_status, contract_assets)
         producer_sources_ok = contract_assets["activation_report"]["producer_sources_match"]
-        add_check(checks, "activation_producer_provenance", "PASS" if producer_sources_ok else "BLOCKED",
-                  {"reason": "activation report 记录的生成可执行文件或 hook 源码 SHA 与固定路径当前字节不符" if not producer_sources_ok else None,
-                   "mismatches": {key: value for key, value in contract_assets["activation_report"]["inputs"].items()
-                                  if value["status"] != "PASS"}})
+        mismatch_detail = {key: value for key, value in contract_assets["activation_report"]["inputs"].items()
+                           if value["status"] != "PASS"}
+        if producer_sources_ok:
+            add_check(checks, "activation_producer_provenance", "PASS", {"reason": None, "mismatches": {}})
+        elif break_decision is not None:
+            add_check(checks, "activation_producer_provenance", "ACCEPTED_WITH_DOCUMENTED_BREAK",
+                      {"reason": "activation report 记录的生成可执行文件或 hook 源码 SHA 与固定路径当前字节不符；"
+                                 "按已登记决策接受为 provenance 断点，不表示 producer 可复现",
+                       "mismatches": mismatch_detail,
+                       "decision_path": str(PRODUCER_BREAK_DECISION),
+                       "decision_sha256": PRODUCER_BREAK_DECISION_SHA256,
+                       "decision_id": break_decision.get("decision_id"),
+                       "consequence": break_decision.get("consequences"),
+                       "reversal_condition": break_decision.get("reversal_condition")})
+        else:
+            add_check(checks, "activation_producer_provenance", "BLOCKED",
+                      {"reason": "activation report 记录的生成可执行文件或 hook 源码 SHA 与固定路径当前字节不符",
+                       "mismatches": mismatch_detail})
 
     try:
         task25 = verify_task25_package()
@@ -701,7 +747,8 @@ def main() -> int:
                                        source_text, re.MULTILINE))
         pin_detail = {"bridge_source_sha256": sha256_file(BRIDGE_SOURCE),
                       "bridge_version": bridge_version.group(1) if bridge_version else None,
-                      "expected_bridge_version": "r11",
+                      "expected_bridge_version": EXPECTED_BRIDGE_VERSION,
+                      "expected_bridge_sha256": EXPECTED_BRIDGE_SHA256,
                       "task_w4_head_observed_only": w4_head,
                       "dbdf_head_observed_only": dbdf_head,
                       "task25_package_commit": TASK25_PACKAGE_COMMIT,
@@ -712,7 +759,8 @@ def main() -> int:
                       "frame_commit_is_ancestor": frame_ancestor,
                       "legacy_head_pins_present": old_head_pins,
                       "interpretation": "w4 与 dbdf HEAD 只记录观察值；task-25 包提交和帧提交固定，并分别要求为当前 dbdf HEAD 的祖先"}
-        pin_ok = (pin_detail["bridge_version"] == "r11"
+        pin_ok = (pin_detail["bridge_version"] == EXPECTED_BRIDGE_VERSION
+                  and pin_detail["bridge_source_sha256"] == EXPECTED_BRIDGE_SHA256
                   and pin_detail["bridge_package_commit"] == TASK25_PACKAGE_COMMIT
                   and pin_detail["bridge_frame_commit"] == TASK25_FRAME_COMMIT
                   and package_ancestor and frame_ancestor and not old_head_pins)
@@ -748,14 +796,22 @@ def main() -> int:
         raise RuntimeError(status_result.stderr.decode("utf-8", errors="replace"))
     status_lines = status_result.stdout.decode("utf-8", errors="replace").splitlines()
     observed_dirty = {line[3:].replace("\\", "/") for line in status_lines if len(line) >= 4}
-    own_prefixes = (
-        "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r",
-        "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r",
+    # 允许出现的改动范围 = 阶段4 本轮可写范围；范围之外的任何脏文件都算“越界”，
+    # 这样既不把本轮新证据当既有改动，也不会漏掉外部误改。
+    allowed_dirty_prefixes = (
+        "report/evidence/S4-CTRL/",
+        "docs/stage4/",
+        "scripts/stage4_s4ctrl/",
+        "verification/",
     )
-    own_paths = {"docs/stage4/s4t26_golden_rebind_decision_20261026_r01.md"}
-    observed_preexisting = {path for path in observed_dirty
-                            if path not in TASK_OWNED_UNCOMMITTED_PATHS and path not in own_paths
-                            and not path.startswith(own_prefixes)}
+    observed_preexisting = {
+        path for path in observed_dirty
+        if path not in TASK_OWNED_UNCOMMITTED_PATHS
+        and not path.startswith(allowed_dirty_prefixes)
+        # 12 个遗留 ELF/MAP 与两个遗留证据目录另有哈希/清单核验，不在此重复计入
+        and path not in PREEXISTING_ARTIFACT_SHA256
+        and path.rstrip("/") + "/" not in LEGACY_EVIDENCE_DIRS
+    }
     artifact_hashes = {}
     for relpath, expected_sha in PREEXISTING_ARTIFACT_SHA256.items():
         path = WORKTREE / relpath
@@ -764,22 +820,42 @@ def main() -> int:
                                     "status": "PASS" if actual_sha == expected_sha else "FAIL"}
     state_diff = run(["git", "-C", str(WORKTREE), "diff", "--", ".codex/STATE.md"])
     state_diff_sha = sha256_bytes(state_diff.stdout) if state_diff.returncode == 0 else None
-    preexisting_ok = (observed_preexisting == PREEXISTING_PATHS
+    state_tracked = run(["git", "-C", str(WORKTREE), "ls-files", "--error-unmatch",
+                         ".codex/STATE.md"]).returncode == 0
+    state_clean = state_tracked and state_diff.returncode == 0 and not state_diff.stdout.strip()
+    preexisting_ok = (not observed_preexisting
                       and all(item["status"] == "PASS" for item in artifact_hashes.values())
-                      and state_diff.returncode == 0)
+                      and state_clean)
     add_check(checks, "preexisting_changes_preserved", "PASS" if preexisting_ok else "FAIL",
-              {"expected_preexisting_paths": sorted(PREEXISTING_PATHS),
-               "observed_preexisting_paths_excluding_task_owned_files": sorted(observed_preexisting),
+              {"pinned_legacy_artifacts": sorted(PREEXISTING_ARTIFACT_SHA256),
+               "legacy_evidence_dirs": sorted(LEGACY_EVIDENCE_DIRS),
+               "allowed_dirty_prefixes": list(allowed_dirty_prefixes),
+               "out_of_scope_dirty_paths": sorted(observed_preexisting),
                "task_owned_uncommitted_paths": sorted(TASK_OWNED_UNCOMMITTED_PATHS),
                "elf_map_hashes": artifact_hashes,
                "state_worktree_sha256": sha256_file(WORKTREE / ".codex/STATE.md"),
-               "state_existing_diff_sha256": state_diff_sha,
-               "attribution": ".codex/STATE.md 保留既有状态差异；12 个 ELF/MAP 为既有本机恢复产物，未修改、删除或暂存"})
+               "state_tracked": state_tracked,
+               "state_clean": state_clean,
+               "state_uncommitted_diff_sha256": state_diff_sha if state_diff and state_diff.stdout.strip() else None,
+               "attribution": ".codex/STATE.md 已提交且无未提交差异；12 个 ELF/MAP 为既有本机恢复产物，按 SHA 逐个核验未变；两个遗留证据目录未动"})
 
     blockers = [f"{item['name']}: {item['detail']}" for item in checks if item["status"] == "BLOCKED"]
     failures = [item["name"] for item in checks if item["status"] == "FAIL"]
-    status = "FAIL" if failures else ("BLOCKED" if blockers else "PASS")
-    exit_code = 1 if failures else (2 if blockers else 0)
+    accepted_breaks = [
+        {"name": item["name"],
+         "decision_id": (item.get("detail") or {}).get("decision_id"),
+         "decision_sha256": (item.get("detail") or {}).get("decision_sha256"),
+         "statement": "已登记断点：不表示该项可复现，不得作为对外/验收的可复现性声明"}
+        for item in checks if item["status"] == "ACCEPTED_WITH_DOCUMENTED_BREAK"
+    ]
+    if failures:
+        status, exit_code = "FAIL", 1
+    elif blockers:
+        status, exit_code = "BLOCKED", 2
+    elif accepted_breaks:
+        status, exit_code = "CLOSED_WITH_ACCEPTED_BREAK", 0
+    else:
+        status, exit_code = "PASS", 0
     out = {
         "task_id": "S4-T26-GOLDEN-REBIND", "task_name": "阶段4 task-26 黄金来源改绑 G0",
         "checker_version": CHECKER_VERSION,
@@ -791,6 +867,7 @@ def main() -> int:
                         "platform": platform.platform(), "numpy_probe_not_needed": True,
                         "cv2_probe_count": len(probes)},
         "checks": checks, "blocking_reasons": blockers, "failures": failures,
+        "accepted_breaks": accepted_breaks,
         "execution": {"sample_102_raw_head_forward": "NOT_RUN", "sample_000_positive_detection_forward": "NOT_RUN",
                       "replay_frame_forward": "NOT_RUN",
                       "raw_head13_head26_capture_or_compare": "NOT_RUN", "d9_decode_nms": "NOT_RUN",

@@ -1,5 +1,12 @@
 # S5-T03 离线 replay/display 骨架（渲染路径）RunId `s5t03_offline_replay_display_20261026_r04`
 
+> **历史记录说明（2026-10-26 补注，不修改本包历史正文数字）**：本包为**历史 RunId**，其后有修正版；
+> 正文中的测试数/提交号/耗时可能早于修正（例如曾写 57 或 68 项测试、或引用 `a172dfb`/`21c11a5` 等提交）。
+> **权威一律以本包 `results.json` / `manifest.json` / `console/` 为准**；本轮只回填过 `manifest.files[]` 哈希并加注记，
+> **未改写**任何历史证据内容。最终版：短跑 `s5t03_offline_replay_display_20261026_r06`、
+> 长跑 `s5t03_offline_long_run_replay_20261026_r04`、多几何 `s5t03_multi_geometry_render_20261026_r02`。
+
+
 - 时间（UTC+8）：2026-10-26 21:56–21:59；执行方：DSH 阶段5 总控（w5 接管后）
 - 定位：**r03 的复审修复版**。独立复审（subagent `4b1f619b`）对 r03 定稿 **PASS**，并给出 8 条非阻断观察；本 RunId 关闭其中 N1/N2/N3/N4/N7，并更正 N5 表述。
 - 代码提交：**`21c11a5`**（本证据在**代码提交后**重跑 ⇒ `results.json.source_commit` 即被测代码提交；代码↔证据绑定另以 `manifest.tools[].sha256` 为准）

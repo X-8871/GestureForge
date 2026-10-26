@@ -110,8 +110,9 @@ class T_MultiGeometry(unittest.TestCase):
         self.assertEqual(len(keyframes), 8, "每个几何 2 张（overlay + border_only）")
         for name, entry in self.manifest["tools"].items():
             path = REPO_ROOT / entry["path"]
-            if path.is_file():
-                self.assertEqual(MG.sha256_file(path), entry["sha256"], name)
+            # 复审第 4 轮非阻断 1：工具文件缺失必须**显式失败**，不得静默跳过
+            self.assertTrue(path.is_file(), f"工具文件缺失：{entry['path']}")
+            self.assertEqual(MG.sha256_file(path), entry["sha256"], name)
         self.assertEqual(self.results["input_scope_label"], "synthetic_replay")
         self.assertEqual(self.results["status"], "PRELIMINARY")
         self.assertTrue(any("真实回放" in item for item in self.results["not_run"]))

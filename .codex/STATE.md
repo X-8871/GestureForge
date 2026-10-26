@@ -12,6 +12,8 @@
 **2026-10-25 20:24 G2 状态**：阶段3完整 G2（原 r02 + 新 VDMA 时序勘误）经独立 Reviewer `PASS`，复核基线 `78f2bde`。已分开绑定应用 UART `phase=0=0x00014810`、`t=5s=0x00015810`、独立只读探测与 W1C 值；旧 r02 字节保留。该 PASS 仅关闭完整 G2 证据审查，不关闭 VDMA 根因、G3/G4/G5；VDMA 仍 `PARTIAL`、根因 `OPEN`，阶段3 G5 未通过。
 **2026-10-26 W1 更新**：Windows 只读枚举发现 FTDI `USB\VID_0403&PID_6014\210512180081` 与 COM4；保留的 r03 XSDB 记录确认 Digilent JTAG-HS1、`arm_dap`、`xc7z020` IDCODE `0x23727093`，但首个 `mrd 0x43010030` 超时。新 RunId `report/evidence/S3-T17/t17_w1_readonly_20261026_r01/` 用 XSDB `state` 门禁后确认 A9 从 Running 变 Stopped，再读 `S2MM_SR` `0x43010034` 仍超时；脚本因此未读运行期地址，读取错误后 state 不再被判为 halted，未执行 `con`，未写寄存器/复位/烧录。XSDB wrapper exit 0、探测 exit 2；随后确认无 `xsdb/hw_server` 进程或 3121 监听。最终 A9 状态未由本次证据明确确认；部署身份、当前真彩目视、VDMA 状态与运行期地址均未完成，W1 收窗，失败证据保留且不重跑旧 RunId。板卡 JTAG 已枚举，但本结果不关闭 VDMA 根因或阶段3 G3/G4/G5。
 
+**2026-10-26 W1 替代路径候选**：`report/evidence/S3-T17/t17_w1_apu_readonly_20261026_r01/` 已准备 APU/AXI-AP 只读读回与条件恢复脚本，经独立 Reviewer `PASS`；状态仍是 `PREPARED_NOT_AUTHORIZED_NOT_EXECUTED`。该路径有缓存维护副作用、最长 15 分钟，并要求 Wong 对新窗口及可能的条件式恢复作明确批准；未获批准不执行。即使成功也不能单独关闭 VDMA 根因、TIMING/I/O delay 或 task-11 完整等价，阶段3 G5 仍未通过。
+
 ## 当前彩色部署（唯一口径；每次硬件使用前重新核对现场与产物）
 - 位流 **无补偿 SOF `7cb33068…`**（1,668,969 B）；XSA **`1f5b138e…`**（633,089 B）；应用 **`an5642_j11cmos2_v10_read.elf` `1457cda4…`**（015 §2.2 身份；本轮已实算复核一致）。
 - 构建来源 `e9b853f`（本分支）、`xc7z020clg400-2`、Vivado 2026.1；约束 `an5642_j11_cmos2.xdc` `2dae928c…`；补丁 `alinx_ov5640_sof_hrefgap.patch` `fd854a62…`（GAP_THRESH=16384；HTS=1892/VTS=740 ⇒ 612<16384<38452）；WNS **1.054525** / WHS 0.058931 / TNS=THS=0；DRC 0 error、8 warning、0 critical。

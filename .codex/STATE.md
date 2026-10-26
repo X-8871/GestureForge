@@ -6,7 +6,8 @@
 - 接管核验（只读）：五树无 `index.lock`；无 vivado/xsdb/hw_server/vitis 进程；3121 无监听；可用内存 3080 MiB；`handoff_check` = PASS 3 / FAIL 1（c 未声明归属，因未提供 record）/ SKIP 5。证据 `report/evidence/S3-T17/t17_takeover_20261026_r01/`。
 - **JTAG/A9 已恢复（本轮独立验证）**：`JTAG-HS1 210512180081` + `arm_dap 4ba00477` + `xc7z020 23727093`；目标树 16 项含 APU 与 Cortex-A9 #0/#1 (Running)，DAP 无错误。
 - **本轮结果**：① **部署 G3 重确认未完成** —— 对 `0x43010034` 读超时、COM4 30 s **0 字节**（4 个应用标记全 MISSING）⇒ **板上当前无目标部署**（最可能为断电后 PL 位流丢失；本工程未烧 QSPI），随后 DAP 报 `0xF0000021`、A9 #0 停留 halt（恢复需现场断电重启）；证据 `report/evidence/S3-T17/t17_g3_reconfirm_20261026_r01/`。② v14 诊断候选**只读离线审查已完成**（补丁/ELF 哈希与记录一致；ELF 头 ARM/ET_EXEC/entry 0x100000；输入 XSA 与部署 XSA 逐字节一致；源↔二进制一致；默认不写彩条；副作用相对现部署无新增；但缺 manifest/ELF 头记录/独立审查，且其基线与 v10 源码差 99 行）——**仍不得部署**。
-- **阶段3 G5 仍未通过**：阻断项不变（VDMA 首帧 bit11 根因 `PARTIAL/OPEN`；task-11 完整 SEC `BLOCKED_NOT_RUN`；TIMING-17/I-O delay 为记录性局限；部署 G3 需含下载授权的窗口重确认）。
+- **2026-10-26 G3 重确认窗口（含下载授权，RunId `t17_g3_reconfirm_20261026_r02`，提交见下方本轮提交）**：链路闸门通过（APU + A9 双核 Running）；**下载成功**（`T05_DOWNLOAD_EXIT=0`；bit `7cb33068…` 1,668,969 B、ELF `1457cda4…` 306,272 B，本地实算哈希与记录一致）；**间接身份与运行期事实逐项复现**：UART `ADDR=0x00110C00` + `S3_DIAG9_PAD` 一致 + `CHIPID 三路 0x5640`；`ADDR_S2MM=ADDR_MM2S=0x00110C00`（采集/显示同址）、`STRIDE=HSIZE=0x0F00`、`VSIZE=0x02D0`、`CR_S2MM=0x00018003`、**`SR_S2MM=0x00015810`（启动瞬态第 3 次独立复现）**、`MM2S_SR=0x00011000`；帧活性成立（帧内相对偏移指纹 0x000000/0x080000/0x100000 各 64 KB，`nz=16384` 且 t=5/15/25 三值互异）。**但转储帧近乎全黑（13 行扫描 max 8–12/255、蓝通道 0）⇒ 缺位列判据不适用（其前提为明亮/彩条帧），本轮不据此判故障**（此前对该判据的引用已在 README 更正）。**真彩目视仍未由本轮完成（需明亮场景人工确认）**。收窗干净：无 hw_server/vivado 进程、3121 无监听。证据 `report/evidence/S3-T17/t17_g3_reconfirm_20261026_r02/`。
+- **阶段3 G5 仍未通过**：阻断项不变（VDMA 首帧 bit11 根因 `PARTIAL/OPEN`；task-11 完整 SEC `BLOCKED_NOT_RUN`；TIMING-17/I-O delay 为记录性局限——以上后两项已由 Wong 2026-10-26 按「记录性局限」接受；部署 G3 待真彩目视补齐）。
 
 ## 收尾快照（2026-10-26 18:03 UTC+8；优先于旧交接行）
 

@@ -14,7 +14,7 @@ from typing import Any
 
 
 CN = timezone(timedelta(hours=8))
-CHECKER_VERSION = "r13"
+CHECKER_VERSION = "r14"
 WORKTREE = Path(r"D:\codex-worktrees\w4")
 DBDF = Path(r"D:\codex-worktrees\dbdf")
 EXPECTED_W4_BASELINE_COMMIT = "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e"
@@ -701,7 +701,7 @@ def main() -> int:
                                        source_text, re.MULTILINE))
         pin_detail = {"bridge_source_sha256": sha256_file(BRIDGE_SOURCE),
                       "bridge_version": bridge_version.group(1) if bridge_version else None,
-                      "expected_bridge_version": "r10",
+                      "expected_bridge_version": "r11",
                       "task_w4_head_observed_only": w4_head,
                       "dbdf_head_observed_only": dbdf_head,
                       "task25_package_commit": TASK25_PACKAGE_COMMIT,
@@ -712,7 +712,7 @@ def main() -> int:
                       "frame_commit_is_ancestor": frame_ancestor,
                       "legacy_head_pins_present": old_head_pins,
                       "interpretation": "w4 与 dbdf HEAD 只记录观察值；task-25 包提交和帧提交固定，并分别要求为当前 dbdf HEAD 的祖先"}
-        pin_ok = (pin_detail["bridge_version"] == "r10"
+        pin_ok = (pin_detail["bridge_version"] == "r11"
                   and pin_detail["bridge_package_commit"] == TASK25_PACKAGE_COMMIT
                   and pin_detail["bridge_frame_commit"] == TASK25_FRAME_COMMIT
                   and package_ancestor and frame_ancestor and not old_head_pins)

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""离线真实彩色链 · task-26 双样本门与回放结果桥（r10，离线等价）。
+"""离线真实彩色链 · task-26 双样本门与回放结果桥（r11，离线等价）。
 
 ## 边界（2026-10-24 lead 裁决，逐条实现）
-1. **优先复用而非重写**：`import` 既有 `verification/s1_t02_d2_int8_forward.py`，调用其
-   `load_image_chw`（冻结预处理本体：BGR→RGB、自带确定性双线性、letterbox 0.5、/255、CHW）
-   与 `forward_one`（**内部完成量化**：`Tensor(saturate(round_away(chw/INPUT_SCALE)), INPUT_SCALE)`）。
+1. **优先复用而非重写**：使用 T25 冻结的 `preprocess_rgb_uint8_to_chw_int8` 产生实际输入，
+   以其 INT8 值乘冻结 `INPUT_SCALE` 传给既有 `forward_one`；入口回量化必须逐字节不变。
+   `forward_one` 内部完成量化：`Tensor(saturate(round_away(chw/INPUT_SCALE)), INPUT_SCALE)`。
    本文件**不复制**任何预处理或网络数学，也不修改任何冻结件。
-2. **量化与顺序沿冻结口径**：量化全部发生在既有 `forward_one` 内部；证据记录 `INPUT_SCALE`、
+2. **量化与顺序沿冻结口径**：网络量化由既有 `forward_one` 执行；证据记录 `INPUT_SCALE`、
    各层 `activation_scale` 与张量/输出摘要哈希。
 3. **可复现与判别力**：同一输入跑两次须得同一层级摘要哈希；负向对照覆盖错 scale、跨过 INT8 量化档的输入改动、有损 JPEG 容器。
 4. **双样本门**：`approved_no_hand_001` 只作 raw-head 逐字节门，`test_fist_000` 作阳性检测/D9/NMS 门；旧校准样本只保留历史身份。
@@ -38,7 +38,7 @@ from pathlib import Path
 import numpy as np
 
 CN = timezone(timedelta(hours=8))
-BRIDGE_VERSION = "r10"
+BRIDGE_VERSION = "r11"
 WORKTREE = Path(__file__).resolve().parents[2]
 FORWARD_MODULE = WORKTREE / "verification" / "s1_t02_d2_int8_forward.py"
 D9_MODULE = WORKTREE / "verification" / "s1_t02_d9_yolo_decode.py"
@@ -77,6 +77,7 @@ T25_INDEX_RAW_SHA256 = "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d12723
 T29_REFERENCE_RAW_SHA256 = "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33"
 EXPECTED_W4_BASELINE_COMMIT = "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e"
 GOLDEN_RUN_ID = "s4t26_golden_rebind_20261026_r02"
+GOLDEN_OUTPUT_DIR = WORKTREE / "report" / "evidence" / "S4-CTRL" / GOLDEN_RUN_ID
 GOLDEN_MANIFEST = WORKTREE / "report" / "evidence" / "S4-CTRL" / GOLDEN_RUN_ID / "golden_materialization_manifest.json"
 GOLDEN_MANIFEST_SHA256 = "47e4cc362d174f1c8eb451197554e5978cd818032c3461af655f959f9fa108c6"
 REBIND_DECISION = WORKTREE / "docs" / "stage4" / "s4t26_golden_rebind_decision_20261026_r01.md"
@@ -148,6 +149,56 @@ def load_forward_module():
     sys.modules["d2fwd_bridge"] = module
     spec.loader.exec_module(module)
     return module
+
+
+def load_t25_preprocessed_forward_input(path: Path, width: int, height: int, module: object,
+                                        expected_sha256: str | None) -> tuple[np.ndarray, dict[str, object]]:
+    """复用 T25 冻结 RGB→INT8 预处理，并验证 forward_one 的回量化字节不变。"""
+    if str(WORKTREE) not in sys.path:
+        sys.path.insert(0, str(WORKTREE))
+    numeric = importlib.import_module("verification.s1_t02_d2_numeric_reference")
+    delivery = importlib.import_module("verification.s2a_model_delivery")
+    if float(numeric.INPUT_SCALE) != float(module.INPUT_SCALE):
+        raise RuntimeError("T25 预处理 scale 与 forward_one INPUT_SCALE 不一致")
+    rgb = delivery.decode_rgb(path)
+    t25_values = numeric.preprocess_rgb_uint8_to_chw_int8(rgb.tolist(), width, height)
+    t25_int8 = np.ascontiguousarray(np.asarray(t25_values, dtype=np.int8))
+    expected_shape = (3, height, width)
+    if t25_int8.shape != expected_shape or int(t25_int8.min()) < -127 or int(t25_int8.max()) > 127:
+        raise RuntimeError(f"T25 预处理 INT8 CHW 形状/范围错误：{t25_int8.shape}")
+    t25_bytes = t25_int8.tobytes(order="C")
+    t25_sha = sha256_bytes(t25_bytes)
+    if expected_sha256 is not None and t25_sha != expected_sha256.lower():
+        raise RuntimeError(f"T25 预处理输入 SHA 不匹配：expected={expected_sha256} actual={t25_sha}")
+    forward_chw = np.ascontiguousarray(t25_int8.astype(np.float64) * np.float64(module.INPUT_SCALE))
+    forward_int8 = np.asarray(module.saturate_array(module.round_away_array(
+        forward_chw / module.INPUT_SCALE)), dtype=np.int8)
+    forward_bytes = np.ascontiguousarray(forward_int8).tobytes(order="C")
+    if not np.array_equal(forward_int8, t25_int8):
+        raise RuntimeError("forward_one 入口回量化与 T25 预处理 INT8 不逐字节相同")
+    float_bytes = forward_chw.tobytes(order="C")
+    evidence = {
+        "preprocess_oracle": "verification/s1_t02_d2_numeric_reference.py::preprocess_rgb_uint8_to_chw_int8",
+        "image_decoder": "verification/s2a_model_delivery.py::decode_rgb",
+        "decoded_rgb_shape_hwc": list(rgb.shape),
+        "decoded_rgb_dtype": str(rgb.dtype),
+        "decoded_rgb_sha256": sha256_bytes(np.ascontiguousarray(rgb).tobytes(order="C")),
+        "t25_post_quantization": {"dtype": "int8", "shape_chw": list(t25_int8.shape),
+                                  "scale": float(numeric.INPUT_SCALE), "sha256": t25_sha,
+                                  "expected_sha256": expected_sha256.lower() if expected_sha256 else None},
+        "forward_one_pre_quantization": {"dtype": str(forward_chw.dtype),
+                                         "shape_chw": list(forward_chw.shape),
+                                         "source": "T25 INT8 values multiplied by frozen INPUT_SCALE",
+                                         "raw_data_sha256": sha256_bytes(float_bytes)},
+        "forward_one_post_quantization": {"dtype": str(forward_int8.dtype),
+                                          "shape_chw": list(forward_int8.shape),
+                                          "scale": float(module.INPUT_SCALE),
+                                          "quantizer": "round_away_array(x / INPUT_SCALE), saturate_array([-127,127])",
+                                          "raw_data_sha256": sha256_bytes(forward_bytes),
+                                          "bytewise_equal_to_t25": True},
+        "cross_dtype_hash_comparison_performed": False,
+    }
+    return forward_chw, evidence
 
 
 def load_d9_module():
@@ -1726,7 +1777,9 @@ def main() -> int:
             if image_bgr is None:
                 raise RuntimeError(f"OpenCV 无法读取输入图像：{path}")
             height, width = image_bgr.shape[:2]
-            image_chw = module.load_image_chw(path, 416, 416)
+            image_chw, preprocess_evidence = load_t25_preprocessed_forward_input(
+                path, 416, 416, module,
+                str(item["t25_sample"]["preprocessed_input"]["sha256"]))
             before = time.perf_counter()
             metrics, stats, actual_heads = capture_forward_heads(
                 module, d9, image_chw, sections, float_layers, package_layers,
@@ -1741,6 +1794,7 @@ def main() -> int:
                 "input_path": str(path), "input_sha256": item["image_sha256"],
                 "input_shape_bgr": list(image_bgr.shape), "input_chw_shape": list(image_chw.shape),
                 "input_chw_sha256": sha256_bytes(np.ascontiguousarray(image_chw).tobytes()),
+                "preprocessing_representations": preprocess_evidence,
                 "raw_head_match": raw_equal, "raw_head_comparison": raw_comparison,
                 "actual_heads": saved_heads, "actual_head_sha256": actual_hashes,
                 "offline_host_elapsed_ms": elapsed_ms,
@@ -1788,7 +1842,9 @@ def main() -> int:
         try:
             base_item = goldens[RAW_HEAD_GATE["sample_id"]]
             base_path = Path(base_item["image_path"])
-            base_chw = module.load_image_chw(base_path, 416, 416)
+            base_chw, mutation_preprocess_evidence = load_t25_preprocessed_forward_input(
+                base_path, 416, 416, module,
+                str(base_item["t25_sample"]["preprocessed_input"]["sha256"]))
             quantized = np.asarray(module.saturate_array(module.round_away_array(
                 base_chw.astype(np.float64) / module.INPUT_SCALE)), dtype=np.int8)
             tampered, mutation = mutate_one_input_byte(quantized)
@@ -1809,7 +1865,8 @@ def main() -> int:
                    {**mutation, "changed_int8_elements": int(np.count_nonzero(quantized != tampered)),
                     "roundtrip_exact": roundtrip_exact, "baseline_head_sha256": baseline_hashes,
                     "perturbed_head_sha256": changed_hashes, "head_hash_changed": hash_changed,
-                    "input_gate": RAW_HEAD_GATE["sample_id"]})
+                    "input_gate": RAW_HEAD_GATE["sample_id"],
+                    "preprocessing_representations": mutation_preprocess_evidence})
         except Exception as exc:
             record("negative_control_one_int8_input_byte", False,
                    {"error": f"{type(exc).__name__}: {exc}"})
@@ -1862,7 +1919,8 @@ def main() -> int:
                 raise RuntimeError("task-25 回放帧 PNG 编码失败")
             replay_png = tmp_dir / "task25_replay_frame.png"
             replay_png.write_bytes(frame_png.tobytes())
-            replay_chw = module.load_image_chw(replay_png, 416, 416)
+            replay_chw, replay_preprocess_evidence = load_t25_preprocessed_forward_input(
+                replay_png, 416, 416, module, None)
             replay_meta = goldens[POSITIVE_DETECTION_GATE["sample_id"]]["t29_sample"]["head_tensors"]
             frame_started = time.perf_counter()
             replay_metrics, replay_stats, replay_heads = capture_forward_heads(
@@ -1914,6 +1972,7 @@ def main() -> int:
                            "raw_candidate_count_before_stable_nms": replay_candidate_count,
                            "decoded_predictions": replay_prediction_rows},
                     "offline_host_elapsed_ms": replay_elapsed_ms,
+                    "preprocessing_representations": replay_preprocess_evidence,
                     "metrics_and_integer_stats_role": "diagnostic_only_not_golden",
                     "metrics": replay_metrics, "integer_stats": replay_stats.get("integer_stats", {}),
                 },

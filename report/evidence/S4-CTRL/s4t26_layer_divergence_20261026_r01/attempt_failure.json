@@ -1,0 +1,69 @@
+{
+  "task_id": "S4-T26-LAYER-DIVERGENCE",
+  "run_id": "s4t26_layer_divergence_20261026_r01",
+  "attempt": 1,
+  "status": "BLOCKED_PROBE_IMPLEMENTATION_ERROR",
+  "exit_code": 1,
+  "command": "Python312 -B layer_divergence_probe.py",
+  "failure": "Analyzer read decompressed_bytes at network root; T25 index stores it under network.compressed_shard. No forward_one call or network layer output was executed.",
+  "preprocessing_input_comparison": {
+    "shape_chw": [
+      3,
+      416,
+      416
+    ],
+    "dtype": "int8",
+    "t25_expected_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "t25_actual_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "bridge_actual_sha256": "5c3a1ab7644f23209ae1d6884938a2e41fd96bcdc7fcbc4c0f47e010de789073",
+    "different_byte_count": 2,
+    "max_absolute_int8_difference": 1,
+    "first_mismatches": [
+      {
+        "flat_index": 55605,
+        "bridge": 93,
+        "t25": 92
+      },
+      {
+        "flat_index": 102908,
+        "bridge": 93,
+        "t25": 92
+      }
+    ]
+  },
+  "preserved_13_unchanged": true,
+  "task27_input_generated": false,
+  "hardware_execution": "NOT_RUN",
+  "files": [
+    {
+      "path": "layer_divergence_probe.py",
+      "size_bytes": 23997,
+      "sha256": "26f5a649e33428d4c0fc7fc0ab8515e4cb5ba6529f7fc9ff24d2a59690a326a1"
+    },
+    {
+      "path": "preexisting_snapshot.json",
+      "size_bytes": 5258,
+      "sha256": "ccca85b8ea3965dd504636f2e116afe1abb65f56e85875d5ab0880d8254e7b63"
+    },
+    {
+      "path": "t25_preprocessed_input_int8.bin",
+      "size_bytes": 519168,
+      "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e"
+    },
+    {
+      "path": "bridge_input_prequant_float32_chw.bin",
+      "size_bytes": 2076672,
+      "sha256": "6e8e174afe29fb3168a75ac1cd4ce779ab1489f0ff2d6012d9c5df4bc7c90c77"
+    },
+    {
+      "path": "bridge_input_prequant_float64_chw.bin",
+      "size_bytes": 4153344,
+      "sha256": "37c1e926ea2fad37cae88cf6df0c3108a35063f9631c83e5ff0bf5ccd39f4f3b"
+    },
+    {
+      "path": "bridge_input_postquant_int8_chw.bin",
+      "size_bytes": 519168,
+      "sha256": "5c3a1ab7644f23209ae1d6884938a2e41fd96bcdc7fcbc4c0f47e010de789073"
+    }
+  ]
+}

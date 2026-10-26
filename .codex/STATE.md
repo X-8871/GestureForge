@@ -81,10 +81,18 @@
 
 ## 接管交接行（11 字段，2026-10-26 21:21 UTC+8；**优先于以上全部**，已 CLAIMED）
 
-任务=`S5-T03 阶段5 写权接管（handoff_check --claim 通过）与「离线 replay/display 骨架」推进；本轮不接板卡、不宣称任何关口通过` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`c2deb2f10bdc1a92858295ffe6818cf871a5df5f`（含 OFFERED 行的 OFFER 提交；`git log -1 --format=%H -- .codex/STATE.md` 实测） | 允许修改范围=`.codex/STATE.md`、`scripts/stage5_t03/**`、`docs/stage5/**`、`report/evidence/S5-T03/**`、`tmp/5/**` | 未提交改动归属=`本轮产物（接管证据目录 + 本行）归 DSH 阶段5 总控，与本行同批提交；无他人改动混入` | 让出声明=`**未让出：本阶段总控独占 w5 写权（CLAIMED→IN_PROGRESS）**；本轮不接板卡：未加载位流/ELF、未占用 JTAG/COM4、未启动 hw_server、未烧录；板级工作维持 SUSPENDED_BOARD_DETACHED` | 心跳(UTC+8)=`2026-10-26 21:21` | 证据入口=`report/evidence/S5-T03/s5t03_takeover_20261026_r01/`（含 `manifest.json`、`console/claim_verbatim.json`、`console/claim_corrected.json`） | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short; python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json` | 状态/下一接手方=`IN_PROGRESS（CLAIMED；本轮范围＝阶段5 离线 replay/display 骨架；未验收项按原文保留；G0/G1/G3/G4/G5 均未通过）/ 本阶段总控`
+任务=`S5-T03 阶段5 写权接管（handoff_check --claim 通过）与「离线 replay/display 骨架」交付；本轮不接板卡、不宣称任何关口通过` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`c2deb2f10bdc1a92858295ffe6818cf871a5df5f`（含 OFFERED 行的 OFFER 提交；`git log -1 --format=%H -- .codex/STATE.md` 实测） | 允许修改范围=`.codex/STATE.md`、`scripts/stage5_t03/**`、`docs/stage5/**`、`report/evidence/S5-T03/**`、`tmp/5/**` | 未提交改动归属=`接管证据 + 渲染/replay 实现与测试 + 3 个 replay/display RunId，均归 DSH 阶段5 总控并与本轮提交同批；无他人改动混入` | 让出声明=`**未让出：本阶段总控独占 w5 写权（CLAIMED→IN_PROGRESS）**；本轮不接板卡：未加载位流/ELF、未占用 JTAG/COM4、未启动 hw_server、未烧录；板级工作维持 SUSPENDED_BOARD_DETACHED` | 心跳(UTC+8)=`2026-10-26 21:40` | 证据入口=`report/evidence/S5-T03/s5t03_takeover_20261026_r01/`（接管·含 `manifest.json`）；`report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r03/`（离线 replay/display 渲染路径·**JSON 为权威** + 关键帧 + demo_only mp4） | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short; python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json` | 状态/下一接手方=`IN_PROGRESS（离线 replay/display 骨架渲染路径已交付：240 帧 0 失败、53 测试 OK、边界三例 PASS；独立复审进行中；真实回放/板上/摄像头项仍 NOT_RUN；G0/G1/G3/G4/G5 均未通过）/ 本阶段总控`
 
 接管事实（`handoff_check --claim`，真实退出码）：
 - 原文记录：exit 1，`PASS 7 / FAIL 2`（a 起始提交、g 证据入口）——原样留证于 `console/claim_verbatim.json`。
 - **更正后记录：exit 0，`HANDOFF_OK`，`PASS 9 / FAIL 0`**（`console/claim_corrected.json`）。
 - 两处更正经 Wong 2026-10-26 批准，依据与影响见接管证据 `summary.md` §3：①`base_commit` 由"交接前基线 673d371"改为**含 OFFERED 行的 OFFER 提交 c2deb2f**（OFFERED 行自注"正式 OFFER 版本为包含本行的提交"）；②证据入口改为本接管证据目录（含 checker 要求的 `manifest.json`，非删除/绕过校验）。Codex 的 OFFERED 行与历史交接行**原样保留，未覆盖、未删除**。
 - 核验现场：无 `index.lock`、未提交改动 0 项、无重型进程、心跳未超时、`status=OFFERED` 允许接管。
+
+本轮已交付（离线 replay/display 骨架渲染路径；详见 `s5t03_offline_replay_display_20261026_r03/summary.md`）：
+- 新增 `scripts/stage5_t03/s5t03_render.py`（栅格化：边框像素**只取** `R.border_pixel_sets`；UR-3 类别色与字号；标签越界翻转/安全区；HUD 13 行 `UNAVAILABLE`→`NA`）与 `s5t03_replay_display.py`（合成流→管线→渲染→**三层产物**；阶段3 输入帧绑定装载；三例过期边界；关键帧有界选择；demo 生成），新增 13 项测试。
+- 证据 `…_r03`：`results.json`（权威）+ `frame_assertions.jsonl`（240 行）+ `keyframes/`（14 张）+ `demo.mp4`（`demo_only`）+ `manifest.json` + `console/`；**240 帧 0 失败**、`recompute_matches_online=true`、12 项计数与既有骨架 r03 基线**逐项相同**；边界 `==limit` 不过期 / `limit+1` 过期 / 显式 `stale_flag` 过期三例 PASS。
+- 输入帧：阶段3 `frame_full.bin`（BGR888 1280×720 stride 3840）SHA `939fce22…` **实测与绑定一致**，仅作**输入帧**；**推理结果为合成流** ⇒ 真实回放接入仍 `NOT_RUN`。
+- 测试：`test_s5t03_skeleton` + `test_s5t03_replay_display` → **Ran 53 tests, OK, exit 0**。
+- 未做（NOT_RUN，不得冒充）：真实回放接入（无阶段4 冻结回放结果包）、板上动态映射/绘制、摄像头真实采集、真实集成 30 分钟与 T5-10 板上回归、HUD 屏上视觉确认。
+- 历史 RunId 保留不删：`…_r01`（ffmpeg 构建不支持 glob 的 demo 失败记录）、`…_r02`（最终代码前版本）。

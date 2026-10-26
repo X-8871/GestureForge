@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "run_id": "t05_vdma_bitfield_erratum_20261026_r01",
+  "stage_tree": "D:\\codex-worktrees\\dbdf",
+  "project_baseline": "389acaf564cf268e96b564a4911fc75dab3f42fe",
+  "analysis_mode": "read_only_offline",
+  "hardware_access": false,
+  "sources": [
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vivado\\data\\ip\\xilinx\\axi_vdma_v6_3\\component.xml",
+      "bytes": 434331,
+      "sha256": "548D9809A6FBDE96C9EFD11A417A5ED9FB225EB1E69C52545F487C92BBFD30F5",
+      "version": "AXI VDMA IP metadata v6.3 installed with Vivado 2026.1",
+      "ranges": ["3327-3338", "3346-3356", "3420-3427"],
+      "claims": [
+        "bit 11 field SOFLateErr, mask 0x00000800",
+        "bit 12 field FrmCnt_Irq, mask 0x00001000",
+        "bits 23:16 field IRQFrameCntSts, mask 0x00FF0000"
+      ]
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\Vivado\\data\\ip\\xilinx\\axi_vdma_v6_3\\hdl\\axi_vdma_v6_3_vh_rfs.vhd",
+      "bytes": 3643435,
+      "sha256": "410CEBF4AD6E019AF154D232D7B76F1A261E9C2E805CC192DB20DA6114680590",
+      "version": "AXI VDMA generated HDL v6.3 installed with Vivado 2026.1",
+      "ranges": ["70020", "71880-71891"],
+      "claims": [
+        "bit 11 latch input combines frame-size/SOF-late internal state",
+        "SOF-late pulse logic depends on channel-ready and stream-valid/user conditions; sticky bit alone does not identify one trigger path"
+      ]
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\data\\embeddedsw\\XilinxProcessorIPLib\\drivers\\axivdma_v6_17\\src\\xaxivdma_hw.h",
+      "bytes": 13460,
+      "sha256": "7D5836D42D31746124442D039DCB8B5C33186B9709F9C4C602FA7D3B59B8F0E5",
+      "version": "Xilinx AXI VDMA standalone driver v6.17 installed with Vivado 2026.1",
+      "ranges": ["181", "189", "202"],
+      "claims": [
+        "ERR_FSZ_MORE mask 0x00000800",
+        "FRMCNT interrupt mask 0x00001000",
+        "frame count mask 0x00FF0000"
+      ]
+    },
+    {
+      "path": "D:\\Xilinx\\2026.1\\data\\embeddedsw\\XilinxProcessorIPLib\\drivers\\axivdma_v6_17\\src\\xaxivdma_channel.c",
+      "bytes": 42253,
+      "sha256": "85C59046A5F11B109F9E593A786277597A6E8C53B8006C8EF344E11EE6343686",
+      "version": "Xilinx AXI VDMA standalone driver v6.17 installed with Vivado 2026.1",
+      "ranges": ["620", "828-834", "991-996", "1015-1019"],
+      "claims": [
+        "software stores vertical size in channel state during configuration",
+        "direct-mode channel config writes HSIZE/STRIDE",
+        "channel start sets CR.RUNSTOP and writes VSIZE last to start transfer"
+      ]
+    },
+    {
+      "path": "D:\\codex-worktrees\\dbdf\\board\\stage3\\software\\sensor\\s3_t04_app_diag_v11.patch",
+      "bytes": 33645,
+      "sha256": "2E6428ACFFBC1EC9C905ABF7F6838AB3D40E91665AE3BF7171317185F6F48537",
+      "version": "Stage 3 diagnostic V11 patch in project baseline",
+      "ranges": ["572-585"],
+      "claims": [
+        "15-second wait precedes vdma_write_init()",
+        "phase=0 diagnostic sampling follows vdma_write_init() return and VDMA_WRITE_STARTED marker"
+      ]
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s2_sdk\\17_ov5640_single\\ov5640_single.sdk\\an5642_test\\src\\vdma.c",
+      "bytes": 3974,
+      "sha256": "F5757B4E57119E434CFBDEB9840D1E9D6469A3705ECC74A08297D0DD9F4546C0",
+      "version": "Vendor example reference source; read-only, not modified",
+      "ranges": ["113-171"],
+      "claims": [
+        "vdma_write_init() software call order is CfgInitialize, DmaConfig, DmaSetBufferAddr, then vdma_write_start"
+      ]
+    },
+    {
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\vdma_sticky_result.md",
+      "bytes": 3377,
+      "sha256": "1B88969AD26BAA215B02C30A73CD41BEA34DBFC1CF40C22C063DF453F198CADA",
+      "version": "Prior submitted stage 3 window evidence; unchanged",
+      "ranges": ["8-20", "27-33", "39-43"],
+      "claims": [
+        "phase=0 SR 0x00014810 and t=5s SR 0x00015810",
+        "one-time W1C observation 0x00015810 to 0x00011000",
+        "31 minutes 15 seconds of post-clear steady-state samples"
+      ]
+    }
+  ],
+  "official_reference": {
+    "url": "https://docs.amd.com/r/en-US/pg020_axi_vdma/S2MM_VDMASR-S2MM-VDMA-Status-Register-Offset-34h",
+    "document": "AMD AXI Video Direct Memory Access v6.3 Product Guide (PG020)",
+    "version": "6.3 English",
+    "release_date": "2022-06-08",
+    "checked_date": "2026-10-26",
+    "claims": [
+      "S2MM_VDMASR bit 11 is SOFLateErr and the guide describes incoming frame size greater than programmed VSIZE",
+      "bit 12 is FrmCnt_Irq",
+      "bits 23:16 are IRQFrameCntSts"
+    ]
+  },
+  "observations": {
+    "phase_0_sr": "0x00014810",
+    "t_5s_sr": "0x00015810",
+    "xor_increment": "0x00001000",
+    "post_w1c_sr": "0x00011000",
+    "frame_count_status_bits_23_16": "0x01"
+  },
+  "conclusion": "bitfield terminology corrected; bit11 startup trigger and root cause remain open; existing evidence does not close G5"
+}

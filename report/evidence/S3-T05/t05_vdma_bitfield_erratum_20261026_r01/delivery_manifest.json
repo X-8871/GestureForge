@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_vdma_bitfield_erratum_20261026_r01",
+  "source_commit": "389acaf564cf268e96b564a4911fc75dab3f42fe",
+  "evidence_dir": "report/evidence/S3-T05/t05_vdma_bitfield_erratum_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 是只读 VDMA 状态位与旧术语勘误核验，没有更改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_bitfield_erratum_20261026_r01/README.md",
+      "sha256": "844e160a7ffdb351f926a55e38a9ae9c3c99254810d69fc1bc9202e86c2f706f",
+      "role": "artifact",
+      "keep_reason": "记录 S2MM_VDMASR 位定义勘误、根因未关闭结论与后续所需硬件证据"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_vdma_bitfield_erratum_20261026_r01/source_provenance.json",
+      "sha256": "fecb61e43d60ea562c6759b2e3de34a582007a9cbbaeb108aab82ee88fb07d79",
+      "role": "result",
+      "keep_reason": "绑定本地 IP 元数据/HDL/驱动、软件顺序、旧采样与官方文档版本的路径及 SHA-256"
+    },
+    {
+      "path": "board/stage3/software/sensor/s3_t04_app_diag_v11.patch",
+      "sha256": "2e6428acffbc1ec9c905abf7f6838ab3d40e91665ae3bf7171317185f6f48537",
+      "role": "source",
+      "keep_reason": "绑定现有 V11 软件等待、vdma_write_init() 与 phase=0 采样的先后关系"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/vdma_sticky_result.md",
+      "sha256": "1b88969ad26baa215b02c30a73cd41bea34dbfc1cf40c22c063df453f198cada",
+      "role": "source",
+      "keep_reason": "绑定被勘误术语的既有板级原始结果说明，不覆盖或改写旧证据"
+    }
+  ],
+  "checks": [
+    {
+      "name": "S2MM_VDMASR bitfield cross-check",
+      "status": "PASS",
+      "command": "Cross-check AMD PG020 v6.3, Vivado 2026.1 AXI VDMA v6.3 metadata/HDL and standalone driver v6.17",
+      "exit_code": 0,
+      "reason": "bit11=SOFLateErr/0x0800; bit12=FrmCnt_Irq/0x1000; bits23:16=IRQFrameCntSts/0x00FF0000。"
+    },
+    {
+      "name": "Startup bit11 trigger localization",
+      "status": "BLOCKED",
+      "command": "Capture first bit11 assertion aligned with VDMA configuration/start and AXI-Stream frame-boundary signals",
+      "exit_code": null,
+      "reason": "现有采样在 vdma_write_init() 返回后开始，未记录首次置位沿或 TUSER/TLAST/TREADY/TVALID；不得据此判定根因关闭。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado_local_ip_metadata": "2026.1 / AXI VDMA v6.3",
+    "Vivado_embedded_sw_driver": "2026.1 / AXI VDMA v6.17",
+    "AMD_PG020": "v6.3 English, released 2022-06-08"
+  },
+  "limitations": [
+    "本机未找到 PG020 PDF；在线核对使用 AMD 官方 PG020 v6.3 页面，版本与 URL 见 README 和 source_provenance.json。",
+    "bit11 是粘滞状态，局部 HDL 同时关联 frame-size 与 SOF timing；仅状态寄存器不能唯一识别触发支路。",
+    "该材料只纠正 bit12 术语并核对位定义，不解释启动 bit11 根因，不代表 G3/G4/G5 或实物验收通过。",
+    "未操作或读取硬件；下一步硬件观测需新的具体授权与窗口。"
+  ]
+}

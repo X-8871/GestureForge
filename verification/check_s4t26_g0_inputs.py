@@ -13,9 +13,11 @@ from typing import Any
 
 
 CN = timezone(timedelta(hours=8))
+CHECKER_VERSION = "r12"
 WORKTREE = Path(r"D:\codex-worktrees\w4")
 DBDF = Path(r"D:\codex-worktrees\dbdf")
-EXPECTED_W4_HEAD = "33988ed7e8a97a9d5395b8cfd136a327c37d7dc9"
+EXPECTED_W4_BASELINE_COMMIT = "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e"
+HISTORIC_R10_EXPECTED_W4_HEAD = "33988ed7e8a97a9d5395b8cfd136a327c37d7dc9"
 TASK25_PACKAGE = Path("report/evidence/S3-T05/t05_replay_binding_20261025_r01")
 TASK25_MANIFEST_SOURCE_COMMIT = "9dcb0229cdd5fdd968f91dfd200f1df92acaa9cd"
 TASK25_PACKAGE_COMMIT = "584b07664e88a18bf786ba9565a138861e136d76"
@@ -34,6 +36,10 @@ PREEXISTING_PATHS = {
     ".codex/STATE.md",
     *[f"report/evidence/S4-B/s4b_ps_tensor_20261023_{run}/s4b_ps_tensor_diagnostic.{ext}"
       for run in ("r04", "r05", "r09", "r11", "r12", "r13") for ext in ("elf", "map")],
+}
+TASK_OWNED_UNCOMMITTED_PATHS = {
+    "verification/check_s4t26_g0_inputs.py",
+    "scripts/stage4_s4ctrl/replay_forward_bridge.py",
 }
 PREEXISTING_ARTIFACT_SHA256 = {
     "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.elf": "85dc56c409e2e2d09ba6579086b3475acf5f811f9cdf4d121ccc74ba4dc1a8dd",
@@ -107,6 +113,13 @@ def git_object_sha256(tree: Path, commit: str, relpath: str) -> str:
     if result.returncode != 0:
         raise RuntimeError(result.stderr.decode("utf-8", errors="replace").strip())
     return sha256_bytes(result.stdout)
+
+
+def git_is_ancestor(tree: Path, ancestor: str, descendant: str) -> bool:
+    result = run(["git", "-C", str(tree), "merge-base", "--is-ancestor", ancestor, descendant])
+    if result.returncode not in (0, 1):
+        raise RuntimeError(result.stderr.decode("utf-8", errors="replace").strip())
+    return result.returncode == 0
 
 
 def add_check(checks: list[dict[str, Any]], name: str, status: str, detail: Any) -> None:
@@ -281,15 +294,15 @@ def verify_task25_package() -> dict[str, Any]:
                                  status_result.stderr.decode("utf-8", errors="replace").strip())
     package_worktree_status = status_result.stdout.decode("utf-8", errors="replace").strip()
     index_sha_after = sha256_file(index_path) if index_path.is_file() else None
-    package_is_ancestor = run(["git", "-C", str(DBDF), "merge-base", "--is-ancestor",
-                               package_commit, current_dbdf_head]).returncode == 0
+    package_is_ancestor = git_is_ancestor(DBDF, package_commit, current_dbdf_head)
+    frame_is_ancestor = git_is_ancestor(DBDF, TASK25_FRAME_COMMIT, current_dbdf_head)
     commits_ok = (manifest_source_commit == TASK25_MANIFEST_SOURCE_COMMIT
                   and git_text(DBDF, "cat-file", "-e", f"{manifest_source_commit}^{{commit}}") == ""
                   and git_text(DBDF, "cat-file", "-e", f"{package_commit}^{{commit}}") == ""
                   and git_text(DBDF, "cat-file", "-e", f"{TASK25_FRAME_COMMIT}^{{commit}}") == "")
     if manifest_missing_fields or missing_fields or any(item.get("status") == "BLOCKED" for item in declared_files):
         package_status = "BLOCKED"
-    elif (not frame_ok or not files_ok or not commits_ok or not package_is_ancestor
+    elif (not frame_ok or not files_ok or not commits_ok or not package_is_ancestor or not frame_is_ancestor
           or package_worktree_status or index_sha_before != index_sha_after):
         package_status = "FAIL"
     else:
@@ -298,6 +311,7 @@ def verify_task25_package() -> dict[str, Any]:
         "package_path": str(package_dir), "package_commit": package_commit,
         "manifest_source_commit": manifest_source_commit,
         "package_commit_is_ancestor_of_observed_dbdf_head": package_is_ancestor,
+        "frame_commit_is_ancestor_of_observed_dbdf_head": frame_is_ancestor,
         "package_and_frame_worktree_status": package_worktree_status,
         "dbdf_index_read_only_check": {"git_option": "--no-optional-locks", "index_path": str(index_path),
                                         "sha256_before": index_sha_before, "sha256_after": index_sha_after,
@@ -310,7 +324,9 @@ def verify_task25_package() -> dict[str, Any]:
                   "required_source_commit": TASK25_FRAME_COMMIT, "expected_sha256": TASK25_FRAME_SHA256,
                   "disk_sha256": frame_disk_sha, "source_commit_sha256": frame_commit_sha,
                   "size_bytes": frame_disk.stat().st_size if frame_disk.is_file() else None,
-                  "status": "PASS" if frame_ok and binding_commit == TASK25_FRAME_COMMIT else "FAIL"},
+                  "commit_is_ancestor_of_observed_dbdf_head": frame_is_ancestor,
+                  "status": "PASS" if frame_ok and binding_commit == TASK25_FRAME_COMMIT
+                  and frame_is_ancestor else "FAIL"},
         "input_interface_fields": {"required": required, "missing": missing_fields,
                                    "source_kind": binding.get("source_kind"), "mode": binding.get("mode"),
                                    "timing_claim_scope": binding.get("timing_claim_scope"),
@@ -392,8 +408,19 @@ def main() -> int:
     checks: list[dict[str, Any]] = []
     w4_head = git_text(WORKTREE, "rev-parse", "HEAD")
     w4_branch = git_text(WORKTREE, "branch", "--show-current")
-    add_check(checks, "task_baseline", "PASS" if w4_head == EXPECTED_W4_HEAD and w4_branch == "stage4-infer-prep" else "FAIL",
-              {"expected_head": EXPECTED_W4_HEAD, "actual_head": w4_head, "branch": w4_branch})
+    baseline_commit_exists = (git_text(WORKTREE, "cat-file", "-e",
+                                       f"{EXPECTED_W4_BASELINE_COMMIT}^{{commit}}") == "")
+    baseline_is_ancestor = git_is_ancestor(WORKTREE, EXPECTED_W4_BASELINE_COMMIT, w4_head)
+    baseline_ok = (w4_branch == "stage4-infer-prep" and baseline_commit_exists
+                   and baseline_is_ancestor)
+    add_check(checks, "task_baseline", "PASS" if baseline_ok else "FAIL",
+              {"head_observed": w4_head,
+               "expected_reviewed_baseline_commit": EXPECTED_W4_BASELINE_COMMIT,
+               "expected_baseline_commit_exists": baseline_commit_exists,
+               "expected_baseline_is_ancestor_of_observed_head": baseline_is_ancestor,
+               "historical_r10_expected_head_not_current_baseline": HISTORIC_R10_EXPECTED_W4_HEAD,
+               "branch": w4_branch, "required_branch": "stage4-infer-prep",
+               "interpretation": "固定审查基线必须存在且为当前观测 HEAD 的祖先；r10 的 33988ed 仅作历史记录"})
 
     try:
         contract_assets = verify_contract_assets()
@@ -469,22 +496,34 @@ def main() -> int:
     try:
         require_file(BRIDGE_SOURCE, "固定版本回放桥接入口")
         source_text = BRIDGE_SOURCE.read_text(encoding="utf-8")
-        expected_bridge_base = re.search(r'^BASELINE_COMMIT\s*=\s*"([0-9a-f]+)"', source_text, re.MULTILINE)
-        expected_dbdf_head = re.search(r'^EXPECTED_DBDF_HEAD\s*=\s*"([0-9a-f]+)"', source_text, re.MULTILINE)
+        bridge_version = re.search(r'^BRIDGE_VERSION\s*=\s*"([^"]+)"', source_text, re.MULTILINE)
+        bridge_package = re.search(r'^TASK25_PACKAGE_COMMIT\s*=\s*"([0-9a-f]+)"', source_text, re.MULTILINE)
+        bridge_frame = re.search(r'^TASK25_FRAME_COMMIT\s*=\s*"([0-9a-f]+)"', source_text, re.MULTILINE)
         dbdf_head = git_text(DBDF, "rev-parse", "HEAD")
+        package_ancestor = git_is_ancestor(DBDF, TASK25_PACKAGE_COMMIT, dbdf_head)
+        frame_ancestor = git_is_ancestor(DBDF, TASK25_FRAME_COMMIT, dbdf_head)
+        old_head_pins = bool(re.search(r'^(?:BASELINE_COMMIT|EXPECTED_W4_HEAD|EXPECTED_DBDF_HEAD|DBDF_TREE_HEAD)\s*=',
+                                       source_text, re.MULTILINE))
         pin_detail = {"bridge_source_sha256": sha256_file(BRIDGE_SOURCE),
-                      "bridge_expected_w4_head": expected_bridge_base.group(1) if expected_bridge_base else None,
-                      "task_w4_head": w4_head,
-                      "bridge_expected_dbdf_head": expected_dbdf_head.group(1) if expected_dbdf_head else None,
+                      "bridge_version": bridge_version.group(1) if bridge_version else None,
+                      "expected_bridge_version": "r09",
+                      "task_w4_head_observed_only": w4_head,
                       "dbdf_head_observed_only": dbdf_head,
                       "task25_package_commit": TASK25_PACKAGE_COMMIT,
                       "task25_frame_source_commit": TASK25_FRAME_COMMIT,
-                      "interpretation": "旧桥接入口的 HEAD 固定值与本轮明确基线不一致；未以 dbdf 当前 HEAD 替代 task-25 固定提交，也未执行旧桥接入口"}
-        pin_ok = (pin_detail["bridge_expected_w4_head"] == w4_head
-                  and pin_detail["bridge_expected_dbdf_head"] == dbdf_head)
-        add_check(checks, "bridge_runner_pinned_baseline", "PASS" if pin_ok else "BLOCKED", pin_detail)
+                      "bridge_package_commit": bridge_package.group(1) if bridge_package else None,
+                      "bridge_frame_commit": bridge_frame.group(1) if bridge_frame else None,
+                      "package_commit_is_ancestor": package_ancestor,
+                      "frame_commit_is_ancestor": frame_ancestor,
+                      "legacy_head_pins_present": old_head_pins,
+                      "interpretation": "w4 与 dbdf HEAD 只记录观察值；task-25 包提交和帧提交固定，并分别要求为当前 dbdf HEAD 的祖先"}
+        pin_ok = (pin_detail["bridge_version"] == "r09"
+                  and pin_detail["bridge_package_commit"] == TASK25_PACKAGE_COMMIT
+                  and pin_detail["bridge_frame_commit"] == TASK25_FRAME_COMMIT
+                  and package_ancestor and frame_ancestor and not old_head_pins)
+        add_check(checks, "bridge_runner_moving_head_contract", "PASS" if pin_ok else "BLOCKED", pin_detail)
     except (MissingInputError, OSError, RuntimeError) as exc:
-        add_check(checks, "bridge_runner_pinned_baseline", "BLOCKED",
+        add_check(checks, "bridge_runner_moving_head_contract", "BLOCKED",
                   {"reason": f"固定桥接入口或精确版本无法核验：{type(exc).__name__}: {exc}"})
 
     try:
@@ -516,7 +555,7 @@ def main() -> int:
     observed_dirty = {line[3:].replace("\\", "/") for line in status_lines if len(line) >= 4}
     own_prefix = "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r"
     observed_preexisting = {path for path in observed_dirty
-                            if path != "verification/check_s4t26_g0_inputs.py" and not path.startswith(own_prefix)}
+                            if path not in TASK_OWNED_UNCOMMITTED_PATHS and not path.startswith(own_prefix)}
     artifact_hashes = {}
     for relpath, expected_sha in PREEXISTING_ARTIFACT_SHA256.items():
         path = WORKTREE / relpath
@@ -530,7 +569,8 @@ def main() -> int:
                       and state_diff.returncode == 0)
     add_check(checks, "preexisting_changes_preserved", "PASS" if preexisting_ok else "FAIL",
               {"expected_preexisting_paths": sorted(PREEXISTING_PATHS),
-               "observed_paths_excluding_this_checker": sorted(observed_preexisting),
+               "observed_preexisting_paths_excluding_task_owned_files": sorted(observed_preexisting),
+               "task_owned_uncommitted_paths": sorted(TASK_OWNED_UNCOMMITTED_PATHS),
                "elf_map_hashes": artifact_hashes,
                "state_worktree_sha256": sha256_file(WORKTREE / ".codex/STATE.md"),
                "state_existing_diff_sha256": state_diff_sha,
@@ -542,10 +582,11 @@ def main() -> int:
     exit_code = 1 if failures else (2 if blockers else 0)
     out = {
         "task_id": "S4-CODEX-T26-OFFLINE", "task_name": "阶段4 task-26 离线真实推理与回放结果包 G0",
+        "checker_version": CHECKER_VERSION,
         "run_id": args.run_id, "status": status, "exit_code": exit_code,
         "generated_utc8": datetime.now(CN).isoformat(timespec="seconds"),
         "command": [sys.executable, str(Path(__file__).resolve()), "--run-id", args.run_id],
-        "worktree": str(WORKTREE), "branch": w4_branch, "baseline_commit": w4_head,
+        "worktree": str(WORKTREE), "branch": w4_branch, "head_observed_only": w4_head,
         "environment": {"python": sys.version, "executable": sys.executable,
                         "platform": platform.platform(), "numpy_probe_not_needed": True,
                         "cv2_probe_count": len(probes)},
@@ -568,8 +609,9 @@ def main() -> int:
     source_path = Path(__file__).resolve()
     manifest = {
         "task_id": out["task_id"], "run_id": args.run_id, "status": status, "exit_code": exit_code,
-        "worktree": str(WORKTREE), "baseline_commit": w4_head, "command": out["command"],
-        "source": {"path": str(source_path), "sha256": sha256_file(source_path)},
+        "worktree": str(WORKTREE), "head_observed_only": w4_head, "command": out["command"],
+        "source": {"path": str(source_path), "version": CHECKER_VERSION,
+                   "sha256": sha256_file(source_path)},
         "inputs": {"s4a_contract_sha256": optional_sha256_file(S4A_CONTRACT),
                    "activation_report_sha256": optional_sha256_file(ACTIVATION_REPORT),
                    "reference_run_sha256": optional_sha256_file(REFERENCE_RUN),

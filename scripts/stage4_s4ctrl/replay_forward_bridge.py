@@ -39,8 +39,8 @@ from pathlib import Path
 import numpy as np
 
 CN = timezone(timedelta(hours=8))
+BRIDGE_VERSION = "r09"
 WORKTREE = Path(__file__).resolve().parents[2]
-BASELINE_COMMIT = "1046cdc9eedefd903e6b96e0190f4897c6a371db"
 FORWARD_MODULE = WORKTREE / "verification" / "s1_t02_d2_int8_forward.py"
 D9_MODULE = WORKTREE / "verification" / "s1_t02_d9_yolo_decode.py"
 D6_MODULE = WORKTREE / "verification" / "s1_t02_d6_detection_metrics.py"
@@ -49,6 +49,8 @@ T29_REFERENCE = WORKTREE / "report" / "evidence" / "S2A-T29" / "cpu_decode_nms_r
 T29_GENERATOR = WORKTREE / "verification" / "s2a_decode_nms_reference.py"
 T29_TEST = WORKTREE / "verification" / "test_s2a_decode_nms_reference.py"
 BOUND_T25_T29_TREE = Path(r"D:\codex-worktrees\dbdf")
+TASK25_PACKAGE_COMMIT = "584b07664e88a18bf786ba9565a138861e136d76"
+TASK25_FRAME_COMMIT = "0ad2000cbc4af7b29f299c2277465bba608a8129"
 S4A_CONTRACT = WORKTREE / "docs" / "stage4" / "s4a_stage4_g0_fields.json"
 # 激活报告未列入 S4-A 契约；本离线脚本单独固定其 raw SHA 与 LF 内容 SHA，不改写正式契约。
 ACTIVATION_REPORT = WORKTREE / "report" / "evidence" / "S1-T02" / "20260922_s1_t02_d2_tiny416_activation_calibration_r1.json"
@@ -65,8 +67,6 @@ WEIGHT_REPORT = WORKTREE / "report" / "evidence" / "S1-T02" / "20260922_s1_t02_d
 WEIGHT_REPORT_SHA256 = "d867cd5dc7497f0de9db5c4e0643afd2e52d4c1e77632852487e8afceaa0dd80"
 FORWARD_MODULE_SHA256 = "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
 FORWARD_MODULE_CONTENT_SHA256 = "5dfdbb4a9e57256b362629a2de40b9724df6d28ae225ce6d6622429b9cbad393"
-EXPECTED_W4_HEAD = BASELINE_COMMIT
-EXPECTED_DBDF_HEAD = "1d54894be4d547955034eeff8bce853dd4286fac"
 T25_INDEX_LF_SHA256 = "cbda3f257ac626252901f978464b93c5c2e909634e30c1bcf70cd588f0f6950d"
 T29_REFERENCE_LF_SHA256 = "24361a13e262d1774ae255195dac3b05df4c16b9c287ff06945f2d630d3a0231"
 D9_MODULE_LF_SHA256 = "0be8e2dc0878116b5239a20a397f4f063de7b33c2ee38e1d0aadf1ced7d365c6"
@@ -74,7 +74,6 @@ D6_MODULE_LF_SHA256 = "5ff91ffbbaa82935811f2ddc335434a3c70afa58eaa980e353e64b057
 T29_GENERATOR_LF_SHA256 = "219a09720d9de0723730b51ed9c007aeec5e1b9abf6bc49c5e0268c2173bc49c"
 T25_INDEX_RAW_SHA256 = "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72"
 T29_REFERENCE_RAW_SHA256 = "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33"
-DBDF_TREE_HEAD = EXPECTED_DBDF_HEAD
 T29_SCORE_THRESHOLD = 0.25
 REFERENCE_STATUS = "INT8_INTEGER_FORWARD_COMPLETE_FLOAT_REFERENCE_COMPARISON_PENDING_REVIEW"
 SOURCE_SNAPSHOT = WORKTREE / "report" / "evidence" / "S4-CTRL" / "s4t26_forward_bridge_20261024_r01" / "replay_forward_bridge.py.original"
@@ -144,6 +143,15 @@ def git_head(path: Path) -> str:
     result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(path), capture_output=True,
                             check=True, text=True, encoding="utf-8")
     return result.stdout.strip().lower()
+
+
+def git_is_ancestor(path: Path, ancestor: str, descendant: str) -> bool:
+    """固定上游提交必须是观察到的工作树 HEAD 祖先；不固定移动中的 HEAD。"""
+    result = subprocess.run(["git", "merge-base", "--is-ancestor", ancestor, descendant], cwd=str(path),
+                            capture_output=True, check=False, text=True, encoding="utf-8")
+    if result.returncode not in (0, 1):
+        raise RuntimeError(result.stderr.strip() or "git merge-base --is-ancestor 失败")
+    return result.returncode == 0
 
 
 def current_yolo_head_bindings(sections: list[object], d9: object,
@@ -404,7 +412,7 @@ def probe_cv2_runtimes() -> list[dict[str, object]]:
     return result
 
 
-def run_static_interface_selfcheck(sample_index: int) -> dict[str, object]:
+def run_static_interface_selfcheck(sample_index: int, run_id: str) -> dict[str, object]:
     """只读核验冻结模块、cfg/head 映射、参考来源与校准样本身份。"""
     checks: dict[str, dict[str, object]] = {}
 
@@ -416,10 +424,17 @@ def run_static_interface_selfcheck(sample_index: int) -> dict[str, object]:
         w4_branch = subprocess.run(["git", "branch", "--show-current"], cwd=str(WORKTREE),
                                    capture_output=True, check=True, text=True, encoding="utf-8").stdout.strip()
         dbdf_head = git_head(BOUND_T25_T29_TREE)
-        add("bound_tree_heads", w4_head == EXPECTED_W4_HEAD and w4_branch == "stage4-infer-prep"
-            and dbdf_head == EXPECTED_DBDF_HEAD,
-            {"w4": {"head": w4_head, "branch": w4_branch, "expected_head": EXPECTED_W4_HEAD},
-             "dbdf_t25_t29": {"head": dbdf_head, "expected_head": EXPECTED_DBDF_HEAD},
+        package_is_ancestor = git_is_ancestor(BOUND_T25_T29_TREE, TASK25_PACKAGE_COMMIT, dbdf_head)
+        frame_is_ancestor = git_is_ancestor(BOUND_T25_T29_TREE, TASK25_FRAME_COMMIT, dbdf_head)
+        add("bound_tree_heads", w4_branch == "stage4-infer-prep" and package_is_ancestor and frame_is_ancestor,
+            {"w4": {"head_observed_only": w4_head, "branch": w4_branch,
+                    "head_is_not_pinned": True},
+             "dbdf_t25_t29": {"head_observed_only": dbdf_head,
+                              "task25_package_commit": TASK25_PACKAGE_COMMIT,
+                              "task25_package_is_ancestor": package_is_ancestor,
+                              "task25_frame_commit": TASK25_FRAME_COMMIT,
+                              "task25_frame_is_ancestor": frame_is_ancestor},
+             "fixed_inputs": "task-25 package/frame commits are immutable; current dbdf HEAD may advance",
              "fail_closed": True})
     except Exception as exc:
         add("bound_tree_heads", False, {"error": f"{type(exc).__name__}: {exc}", "fail_closed": True})
@@ -594,7 +609,7 @@ def run_static_interface_selfcheck(sample_index: int) -> dict[str, object]:
     if not reference_ok:
         task_blockers.append("冻结校准样本缺少独立 raw head13/head26 黄金，历史 metrics/integer_stats 不作为替代")
     return {
-        "task_id": "S4-CTRL/S4-T26", "run_id": "s4t26_forward_bridge_20261024_r07",
+        "task_id": "S4-CTRL/S4-T26", "run_id": run_id, "checker_version": BRIDGE_VERSION,
         "status": "PASS" if not static_failures else "FAIL",
         "static_checks": checks, "static_failures": static_failures,
         "task_blockers": task_blockers, "runtime_forward": "NOT_RUN",
@@ -629,10 +644,10 @@ def write_static_failure(out_dir: Path, started: float, preflight: dict[str, obj
     command = [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]]
     emit("[FAIL] 静态冻结输入/HEAD/API 自检失败；推理与解码均未运行")
     report = {
-        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": "r07",
+        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": BRIDGE_VERSION,
         "status": "FAIL", "exit_code": 1, "generated_utc8": now_cn(), "elapsed_seconds": elapsed,
         "command": command, "worktree": str(WORKTREE),
-        "baseline": {"commit": BASELINE_COMMIT, "branch": "stage4-infer-prep"},
+        "baseline": {"head_observed_only": git_head(WORKTREE), "branch": "stage4-infer-prep"},
         "hardware_execution": "NOT_RUN", "real_frozen_sample_inference": "NOT_RUN",
         "replay_frame_forward": "NOT_RUN", "preflight": preflight,
         "runtime_interpreter_probes": interpreter_probes,
@@ -751,10 +766,10 @@ def write_runtime_blocked(out_dir: Path, started: float, preflight: dict[str, ob
     emit("[BLOCKED] 冻结校准样本前向、回放帧前向、heads 对照和解码/NMS 均为 NOT_RUN")
     preflight_path = out_dir / "preflight_verification.json"
     report = {
-        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": "r07",
+        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": BRIDGE_VERSION,
         "status": "BLOCKED", "exit_code": 2, "generated_utc8": now_cn(), "elapsed_seconds": elapsed,
         "command": command, "worktree": str(WORKTREE),
-        "baseline": {"commit": BASELINE_COMMIT, "branch": "stage4-infer-prep"},
+        "baseline": {"head_observed_only": git_head(WORKTREE), "branch": "stage4-infer-prep"},
         "bound_tree_heads": preflight["static_checks"].get("bound_tree_heads", {}).get("detail"),
         "cross_tree_t25_t29": preflight["static_checks"].get("cross_tree_t25_t29_content", {}).get("detail"),
         "hardware_execution": "NOT_RUN", "real_frozen_sample_inference": "NOT_RUN",
@@ -826,10 +841,10 @@ def main() -> int:
     global LOG_PATH
     LOG_PATH = out_dir / "console.log"
 
-    preflight = run_static_interface_selfcheck(args.sample_index)
+    preflight = run_static_interface_selfcheck(args.sample_index, out_dir.name)
     interpreter_probes = probe_cv2_runtimes()
     preflight["runtime_interpreter_probes"] = interpreter_probes
-    preflight["bridge_source"] = {"path": str(Path(__file__).resolve()),
+    preflight["bridge_source"] = {"path": str(Path(__file__).resolve()), "version": BRIDGE_VERSION,
                                   "sha256": sha256_file(Path(__file__).resolve())}
     preflight["command"] = [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]]
     preflight_path = out_dir / "preflight_verification.json"
@@ -865,8 +880,8 @@ def main() -> int:
                                  capture_output=True, check=True, text=True).stdout.strip()
     current_branch = subprocess.run(["git", "branch", "--show-current"], cwd=WORKTREE,
                                     capture_output=True, check=True, text=True).stdout.strip()
-    if current_head != BASELINE_COMMIT or current_branch != "stage4-infer-prep":
-        raise SystemExit(f"[FAIL] 工作树基线漂移：head={current_head} branch={current_branch}")
+    if current_branch != "stage4-infer-prep":
+        raise SystemExit(f"[FAIL] 工作树分支不符：head_observed={current_head} branch={current_branch}")
     snapshot_sha = verify(SOURCE_SNAPSHOT, SOURCE_SNAPSHOT_SHA256, "原稿快照")
     contract_sha = verify(S4A_CONTRACT, S4A_CONTRACT_SHA256, "S4-A 契约")
     bindings = resolve_contract_bindings()
@@ -906,10 +921,8 @@ def main() -> int:
                           "lf_content_sha256": reference_content_sha},
         "source_snapshot": {"path": str(SOURCE_SNAPSHOT),
                             "sha256": snapshot_sha},
-        "baseline": {"head": current_head, "branch": current_branch},
-        "bound_tree_heads": {"w4": current_head, "dbdf_t25_t29": git_head(BOUND_T25_T29_TREE),
-                             "dbdf_expected": EXPECTED_DBDF_HEAD,
-                             "drift_assertion": git_head(BOUND_T25_T29_TREE) == EXPECTED_DBDF_HEAD},
+        "baseline": {"head_observed_only": current_head, "branch": current_branch},
+        "bound_tree_heads": checks.get("bound_tree_heads", {}).get("detail", {}),
     }
     for key, entry in bindings.items():
         identity[key] = {"path": entry["path"], "sha256": verify(Path(entry["path"]), entry["sha256"], key)}
@@ -1181,7 +1194,10 @@ def main() -> int:
                    "api": "decode_yolov4_tiny416", "score_threshold": T29_SCORE_THRESHOLD,
                    "raw_candidate_count_before_nms": replay_candidate_count,
                    "decoded_predictions": replay_prediction_records},
-            "bound_tree_heads": {"w4": git_head(WORKTREE), "dbdf_t25_t29": git_head(BOUND_T25_T29_TREE)},
+            "bound_tree_heads": {"w4_head_observed_only": git_head(WORKTREE),
+                                 "dbdf_t25_t29_head_observed_only": git_head(BOUND_T25_T29_TREE),
+                                 "task25_package_commit": TASK25_PACKAGE_COMMIT,
+                                 "task25_frame_commit": TASK25_FRAME_COMMIT},
             "marking": {"evidence_kind": "offline_replay", "range_label": "camera_capture_replay_colour",
                         "timing_claim_scope": "replay_only", "buffer_scope": "offline_host",
                         "statement": "离线主机回放结果，不代表 PL 或实物输出"},
@@ -1193,11 +1209,11 @@ def main() -> int:
     exit_code = 0 if status == "PASS" else 1
     elapsed_seconds = time.perf_counter() - started
     report = {
-        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": "r07",
+        "task_id": "S4-CTRL/S4-T26", "checker": "replay_forward_bridge", "checker_version": BRIDGE_VERSION,
         "status": status, "exit_code": exit_code, "generated_utc8": now_cn(), "elapsed_seconds": elapsed_seconds,
         "command": [sys.executable, str(Path(__file__).resolve()), *sys.argv[1:]],
         "worktree": str(WORKTREE), "hardware_execution": "NOT_RUN",
-        "baseline": {"commit": BASELINE_COMMIT, "branch": "stage4-infer-prep"},
+        "baseline": {"head_observed_only": git_head(WORKTREE), "branch": "stage4-infer-prep"},
         "marking": {"evidence_kind": "offline_equivalent", "timing_claim_scope": "replay_only",
                     "buffer_scope": "offline_host", "statement": "离线等价，不声明与板上一致"},
         "reuse_declaration": "预处理与网络数学全部来自既有 verification/s1_t02_d2_int8_forward.py（load_image_chw / forward_one），本脚本不复制第二份数学",
@@ -1231,7 +1247,8 @@ def main() -> int:
         "task_id": "S4-CTRL/S4-T26", "run_id": out_dir.name, "status": status, "exit_code": exit_code,
         "worktree": str(WORKTREE), "baseline": report["baseline"], "command": report["command"],
         "elapsed_seconds": elapsed_seconds, "versions": versions,
-        "source": {"path": str(Path(__file__).resolve()), "sha256": sha256_file(Path(__file__).resolve()),
+        "source": {"path": str(Path(__file__).resolve()), "version": BRIDGE_VERSION,
+                   "sha256": sha256_file(Path(__file__).resolve()),
                    "original_snapshot_path": str(SOURCE_SNAPSHOT), "original_snapshot_sha256": snapshot_sha},
         "inputs": identity, "outputs": artifact_hashes, "temporary_artifacts": temporary_hashes,
         "limitations": report["limitations"],

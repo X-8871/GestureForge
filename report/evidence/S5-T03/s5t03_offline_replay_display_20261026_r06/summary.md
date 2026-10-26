@@ -30,3 +30,11 @@
 - 板上动态映射与绘制（板级 SUSPENDED_BOARD_DETACHED；本轮不接板卡）
 - 真实采集路径（摄像头未到货）
 - 真实集成的 30 分钟联调与 T5-10 板上回归
+
+## 附：可复现信息与绑定口径（第 5 轮复审 O-5/O-6 补记）
+- 本包套件命令（另见 `console/suite_command.txt`）：
+  ```
+  python -B -m unittest scripts.stage5_t03.test_s5t03_json_contract scripts.stage5_t03.test_s5t03_multi_geometry_render scripts.stage5_t03.test_s5t03_long_run_replay scripts.stage5_t03.test_s5t03_replay_display scripts.stage5_t03.test_s5t03_skeleton
+  ```
+- **绑定口径**：`manifest.tools[]` 绑定的是**驱动/渲染/参考/参数**文件哈希（运行产物由它们决定）；
+  测试文件**不在** tools 中绑定，因此套件日志用于证明"当前代码库能通过全部测试"，不构成产物溯源的一部分。

@@ -138,19 +138,27 @@ def validate_g0_preflight(path: Path, expected_run_id: str) -> dict[str, object]
     checks = payload.get("checks")
     if not isinstance(checks, list) or not checks:
         raise ValueError(f"preflight 没有 checks 明细：{expected_run_id}")
-    names = {str(item.get("name")) for item in checks if isinstance(item, dict)}
-    missing = [name for name in G0_REQUIRED_CHECKS if name not in names]
+    by_name = {str(item.get("name")): item for item in checks if isinstance(item, dict)}
+    missing = [name for name in G0_REQUIRED_CHECKS if name not in by_name]
     if missing:
         raise ValueError(f"preflight 缺少必需检查项 {missing}：{expected_run_id}")
-    # 若同目录有交付清单，交叉核对它登记的 preflight SHA
+    # 逐项状态必须为 PASS 或已接受断点；名字齐全但状态全 BLOCKED 的伪造件在此被拦下
+    bad_status = {name: by_name[name].get("status") for name in G0_REQUIRED_CHECKS
+                  if by_name[name].get("status") not in ("PASS", "ACCEPTED_WITH_DOCUMENTED_BREAK")}
+    if bad_status:
+        raise ValueError(f"preflight 检查项状态不可采信 {bad_status}：{expected_run_id}")
+    if payload.get("blocking_reasons"):
+        raise ValueError(f"preflight 仍含 blocking_reasons：{expected_run_id}")
+    # 必须存在交付清单，且其登记的 preflight SHA 与实际一致
     manifest = read_json(path.parent / "delivery_manifest.json")[1]
-    if isinstance(manifest, dict):
-        outputs = manifest.get("outputs")
-        if isinstance(outputs, dict):
-            entry = outputs.get("preflight_verification.json")
-            if isinstance(entry, dict) and entry.get("sha256"):
-                if entry["sha256"] != sha256_file(path):
-                    raise ValueError(f"delivery_manifest 登记的 preflight SHA 与实际不符：{expected_run_id}")
+    if not isinstance(manifest, dict):
+        raise ValueError(f"缺少可解析的 delivery_manifest.json：{expected_run_id}")
+    outputs = manifest.get("outputs")
+    entry = outputs.get("preflight_verification.json") if isinstance(outputs, dict) else None
+    if not isinstance(entry, dict) or not entry.get("sha256"):
+        raise ValueError(f"delivery_manifest 未登记 preflight SHA：{expected_run_id}")
+    if entry["sha256"] != sha256_file(path):
+        raise ValueError(f"delivery_manifest 登记的 preflight SHA 与实际不符：{expected_run_id}")
     return payload
 
 
@@ -159,7 +167,7 @@ def g0_preflight_path(root: Path, explicit_run: str | None = None) -> tuple[Path
 
     `--g0-run` 只接受位于证据根下的**已有 RunId 名**（不接受路径、不允许越界），
     且该目录的 preflight 必须自洽：`run_id` 与目录名一致、`checker_version` 以 r 开头、
-    `checks` 非空。否则按输入错误处理，防止用一行伪造 JSON 把断点洗成 PASS。
+    `checks` 非空。否则按输入错误处理，校验逐项状态、阻断列表与交付清单 SHA，防止伪造件被采信。
     未显式指定时取“最新一个已闭合运行”，都没有则取最新一次（调用方按未闭合处理）。
     """
     if explicit_run:

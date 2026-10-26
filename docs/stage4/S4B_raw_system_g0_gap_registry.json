@@ -5,12 +5,12 @@
   "created_utc8": "2026-10-24T00:40:00+08:00",
   "owner": "DSH 阶段4 总控（stage4-lead）",
   "updated_utc8": "2026-10-27T07:55:00+08:00",
-  "revision_note": "r04（2026-10-25，全离线）：RAW 格式明确为 BGR888/B-G-R，平台 byte_order=little 单独表示多字节字段端序；D2 要求 resize 前先逐像素 BGR→RGB。绑定地址图 r04 与 readiness 更新；新增 G-20 登记当前 C/PL BGR888 支持缺口，状态不得因离线参考通过而关闭。共享契约为 s4-shared-io/1.2.0 r06、DRAFT_PENDING_REVIEW、runtime_support_status=NOT_IMPLEMENTED。",
+  "revision_note": "r04（2026-10-25，全离线）：RAW 格式明确为 BGR888/B-G-R，平台 byte_order=little 单独表示多字节字段端序；D2 要求 resize 前先逐像素 BGR→RGB。绑定地址图 r04 与 readiness 更新；新增 G-20 登记当前 C/PL BGR888 支持缺口，状态不得因离线参考通过而关闭。共享契约为 s4-shared-io/1.3.0 r07、DRAFT_PENDING_REVIEW、runtime_support_status=NOT_IMPLEMENTED。",
   "hardware_execution": "NOT_RUN",
   "purpose": "承接 d4f30e3 的未完成 RAW 系统 G0 检查点，把 RAW BGR888（B/G/R）→ D2 前置 BGR→RGB → PL 预处理 → HP0 串行 owner → 冻结网络 → PS 解码/NMS 结果链路的缺口逐项登记；本轮只关闭可离线判定部分。",
   "shared_input_contract": {
-    "contract_id": "s4-shared-io/1.2.0",
-    "revision": "r06",
+    "contract_id": "s4-shared-io/1.3.0",
+    "revision": "r07",
     "status": "DRAFT_PENDING_REVIEW",
     "runtime_support_status": "NOT_IMPLEMENTED",
     "raw_frame": {
@@ -108,9 +108,9 @@
     {
       "id": "shared_input_contract",
       "path": "docs/stage4/s4b_shared_input_result_contract.json",
-      "sha256": "8626cb5786dc49bcd6e2f486ce48e4f7d0cbfcff76697964c5781f5460682049",
-      "role": "共享输入/结果契约 s4-shared-io/1.2.0 r06 的机器权威",
-      "byte_basis": "raw",
+      "sha256": "76482567ea052abf5b8bc22e4d16a2490167b939dfdce895d8bd336067c2eba8",
+      "role": "共享输入/结果契约 s4-shared-io/1.3.0 r07 的机器权威",
+      "byte_basis": "worktree_disk_bytes",
       "update_note": "契约升 r07（1.3.0）后同步；旧值 28a56dab… 为 r06 @ c9ed296"
     },
     {
@@ -125,7 +125,7 @@
       "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
       "sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229",
       "role": "frame_full.bin BGR bytes 经 Python 离线解码回放适配器",
-      "byte_basis": "raw",
+      "byte_basis": "worktree_disk_bytes",
       "update_note": "桥接器升 r12 后同步；旧值 ad71cae0… 为 06c9ab8 的 blob 口径"
     },
     {
@@ -376,7 +376,7 @@
       "id": "bgr888_runtime_support_fail_closed",
       "description": "RAW BGR888/little/通道语义、D2 离线重排及当前 C/PL 未实现状态一致；mailbox PS driver 缺失、候选 code 1 不得 cast 到 C enum；PL preprocessing 无 RTL top 实例；G0 继续 CHANGES_REQUIRED，ENABLE=0",
       "expected": {
-        "contract_version": "1.2.0",
+        "contract_version": "1.3.0",
         "runtime_support_status": "NOT_IMPLEMENTED",
         "pixel_format": "BGR888",
         "channel_order": [
@@ -669,7 +669,7 @@
         "stage3_colour_reverify",
         "stage_3_4_direction_decision"
       ],
-      "offline_action_this_round": "共享契约 r06（s4-shared-io/1.2.0）明确 BGR888/B-G-R、byte_order=little 分层、D2 转 RGB 的顺序要求及阶段3 证据侧 UR-1 回放元数据；只核对离线参考与现有实现差异，不表示运行期支持已完成。",
+      "offline_action_this_round": "共享契约 r07（s4-shared-io/1.3.0）明确 BGR888/B-G-R、byte_order=little 分层、D2 转 RGB 的顺序要求及阶段3 证据侧 UR-1 回放元数据；只核对离线参考与现有实现差异，不表示运行期支持已完成。",
       "remaining": "C 注入描述符与 PL RAW 前处理仍不支持 BGR888；真实采集回归（≥100 帧真实网络输入逐值比对、颜色/预处理独立参考、≥30 分钟且 ≥1000 次有效推理）仍未执行。",
       "next_owner": "阶段4（硬件窗口）"
     },
@@ -696,7 +696,7 @@
         "readiness_doc",
         "address_map"
       ],
-      "offline_action_this_round": "静态核对确认冻结 D2 Python 图像参考会在 resize 前执行 BGR→RGB；现有 C enum 值 1 是 RGB565，而 G0 readiness 中 mailbox_pixel_format_code=1 是独立候选编码映射到 BGR888，当前不得直接 cast。阶段4 现有 C 源无 mailbox PS driver；PL 按 pixel*3+channel_q 直取通道字节且无 BGR 反转控制，当前源码也未发现 s4b_preproc_frame 的 RTL 顶层实例。契约 r06 将 runtime_support_status 保持为 NOT_IMPLEMENTED、mailbox driver 保持为 NOT_IMPLEMENTED、pl_integration_status 保持为 NOT_INSTANTIATED。",
+      "offline_action_this_round": "静态核对确认冻结 D2 Python 图像参考会在 resize 前执行 BGR→RGB；现有 C enum 值 1 是 RGB565，而 G0 readiness 中 mailbox_pixel_format_code=1 是独立候选编码映射到 BGR888，当前不得直接 cast。阶段4 现有 C 源无 mailbox PS driver；PL 按 pixel*3+channel_q 直取通道字节且无 BGR 反转控制，当前源码也未发现 s4b_preproc_frame 的 RTL 顶层实例。契约 r07 将 runtime_support_status 保持为 NOT_IMPLEMENTED、mailbox driver 保持为 NOT_IMPLEMENTED、pl_integration_status 保持为 NOT_INSTANTIATED。",
       "remaining": "需单独实现并审查 mailbox PS driver 与独立 mailbox_pixel_format_code→共享格式字符串/C enum 的显式映射；禁止 code 1 直接 cast（现有 C enum 1=RGB565）。实现 BGR888 输入识别及逐像素 B/G/R→R/G/B 重排，确保发生在 resize/归一化/量化之前；将前处理实际接入 PL 顶层；添加字节级通道反例、整帧 D2 逐值对拍并绑定实现版本后，方可更新运行期支持状态。",
       "next_owner": "阶段4 Developer + 独立 Reviewer"
     }
@@ -714,5 +714,7 @@
     "未做新综合/实现/仿真；未新增 RTL。",
     "CLOSED_OFFLINE 只覆盖确定性算术与容量事实，不代表数值、接口、平台或实物验收。",
     "本登记表不替代独立 G0 审查，也不改变 d4f30e3 检查点的历史记录。"
-  ]
+  ],
+  "contract_id": "s4-shared-io/1.3.0",
+  "revision": "r07"
 }

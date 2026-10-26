@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r06）。
+"""阶段4↔阶段5 共享输入/结果契约与注入运行书只读自检（r07）。
 
 退出码：0 = 全部 PASS，1 = 存在 FAIL，2 = 输入/环境错误。
 
@@ -389,11 +389,11 @@ def validate_colour_profiles(contract: dict) -> list[str]:
 def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -> list[str]:
     """检查 r06 的 BGR888 字节语义、离线参考顺序与运行期 fail-closed 证据。"""
     errors: list[str] = []
-    if contract.get("contract_version") != "1.2.0" or contract.get("revision") != "r06":
-        errors.append("契约必须为 s4-shared-io/1.2.0 r06")
+    if contract.get("contract_version") != "1.3.0" or contract.get("revision") != "r07":
+        errors.append("契约必须为 s4-shared-io/1.3.0 r07")
     if contract.get("status") != "DRAFT_PENDING_REVIEW":
         errors.append("契约必须保持 DRAFT_PENDING_REVIEW，待独立复审")
-    if "s4-shared-io/1.2.0" not in doc or "（r06）" not in doc:
+    if "s4-shared-io/1.3.0" not in doc or "（r07）" not in doc:
         errors.append("人读契约版本必须与机器契约 r06 一致")
 
     profiles = contract.get("input_source_profiles", {})
@@ -531,7 +531,7 @@ def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -
         if "S4_FMT_BGR888" in implementation or "BGR888" in implementation:
             errors.append("C 注入实现出现 BGR888 代码；须更新运行期状态与独立验证")
         if "#define S4_INJECT_CONTRACT_VERSION \"s4-shared-io/1.1.0\"" not in header:
-            errors.append("当前 C 注入头版本已变化；须核查 1.2.0 是否已有运行期实现")
+            errors.append("当前 C 注入头版本已变化；须核查 1.3.0 是否已有运行期实现")
         if "S4_FMT_RGB565 = 1" not in enum_body:
             errors.append("当前 C enum 数值 1 不再是 RGB565；须重核 wire-code 映射证据")
         direct_read = "({32'd0, sample_x_comb} * 64'd3) + {62'd0, channel_q}"

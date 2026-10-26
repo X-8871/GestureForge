@@ -30,7 +30,7 @@
 | S4-A 人读镜像 | `docs/stage4/S4A_stage4_g0_tracking_and_timing_draft.md` | `75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84`（当前 r06 镜像） | 只读引用 |
 | 阶段4 地址图 | `docs/stage4/S4B_stage4_address_map.json` | 见 JSON `upstream_bindings.stage4_address_map` 当前绑定（**r04**，BGR888 RAW 字节语义） | `DRAFT_PENDING_REVIEW`，未冻结 |
 | 冻结 D2 离线图像参考 | `verification/s1_t02_d2_int8_forward.py` | `0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a` | 仅离线参考；不证明 C/PL 运行期支持 |
-| RAW 回放适配器 | `scripts/stage4_s4ctrl/replay_forward_bridge.py` | `2f4445e72cde4d3693f31f2741bec1214a7cc3ec299f93505f59dc19bcb896dd`（r12 现行字节；原 `ad71cae0…` 经 `replaces` 记于契约 JSON） | `frame_full.bin` BGR 字节离线适配；只调用 Python D2，不证明 C/PL 支持 |
+| RAW 回放适配器 | `scripts/stage4_s4ctrl/replay_forward_bridge.py` | `c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229`（r12 现行字节；原 `ad71cae0…` 经 `replaces` 记于契约 JSON） | `frame_full.bin` BGR 字节离线适配；只调用 Python D2，不证明 C/PL 支持 |
 | 阶段3 部署地址事实（条件①） | `dbdf/report/evidence/S3-T05/t05_stage3_window_20261024_r01/address_facts.md` | **blob 口径** `d5ba4b6b…9de4f7a`（dbdf 新 HEAD `6fa77a64`；原磁盘值 `19f754d8…` 已失效） | 只读（不写 dbdf） |
 | Wong D1=A 批准记录 | `decisions/stage4_raw_address_optionA_20261024_r01.md` | `d18359aa…854f8` | 只读 |
 | DSH D1–D4 初裁记录 | `decisions/stage4_raw_address_d1_d4_20261024_r01.md` | `3d5b2abd…e2bf34` | 只读 |
@@ -177,13 +177,13 @@
 - 本契约和地址图当前均为 `DRAFT_PENDING_REVIEW`：经独立审查与 Lead 确认后再冻结；冻结前不得作为验收依据。
 - **r06 消费方重绑清单（只读请求，不改 w5/w6）**：
   - **阶段5（w5）**：冻结前重绑地址图至 **r04**、共享契约至 **1.2.0/r06**；RAW 回放元数据新增 evidence-side `pixel_format=BGR888`、`channel_order=[B,G,R]`，并保留平台 `byte_order=little` 的独立含义。该元数据用于 UR-1 回放证据，不扩展运行时帧字段；阶段5 的显示五元组/HUD/`display_semantics=B_latest_result_overlay` 语义不变，仍不得写阶段4 缓冲。
-  - **阶段6（w6）**：如消费本契约，冻结前重绑至 **1.2.0/r06**；跨阶段 `stale_age_limit` 常量值不变（200000000 ns、同源），`T6-A03` 数值仍待阶段4 实测帧周期 P（`NOT_RUN`）。
+  - **阶段6（w6）**：如消费本契约，冻结前重绑至 **1.3.0/r07**；跨阶段 `stale_age_limit` 常量值不变（200000000 ns、同源），`T6-A03` 数值仍待阶段4 实测帧周期 P（`NOT_RUN`）。
   - 两个消费方均须以跨方请求（本树 `report/evidence/S4-CTRL/**` 唯一编号）确认重绑并做适用回归；本契约**不代改** w5/w6 行为表。
 
 ## 5. 限制
 
 - 不含真实板测结果；本轮无任何硬件执行（未装载位流、未打开 COM4/JTAG、未起 hw_server）。
-- **r06 尚未经独立复审**（r04 既有 PASS 不覆盖 r06）；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。冻结前必须对**固定提交 + 被审 SHA** 另行独立复审。
+- **r07 尚未经独立复审**（r04 既有 PASS 不覆盖 r06）；自检 PASS 只证明绑定/结构与约定一致，不等于接口语义已审、测试成功或 G0/G4/G5 通过。冻结前必须对**固定提交 + 被审 SHA** 另行独立复审。
 - 地址图 r04 的 `raw_frame`/`raw_meta` 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、`enable_required=true`）：**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到独立审查和硬件窗口实测（CPU1 保持停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成。
 - 阶段3 部署实测的采集/显示帧基址为**运行期分配**（`dispCtrl.framePtr[curFrame]`），**无链接期静态保证**、换应用会变；任何消费方使用前必须运行期回读，**禁止硬编码**。
 - 绑定字节口径：默认工作树磁盘字节；dbdf 两项按 `git_blob_content` 显式声明；跨换行环境复算须 `-c core.autocrlf=false` 或用 blob 口径。

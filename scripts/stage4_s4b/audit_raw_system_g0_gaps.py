@@ -252,7 +252,7 @@ def main() -> int:
         "enable_zero": "ENABLE=0" in raw_region.get("notes", ""),
     }
     bgr_ok = (
-        bgr_actual["contract_version"] == "1.2.0"
+        bgr_actual["contract_version"] == "1.3.0"
         and bgr_actual["contract_status"] == "DRAFT_PENDING_REVIEW"
         and bgr_actual["runtime_support_status"] == "NOT_IMPLEMENTED"
         and bgr_actual["pixel_format"] == "BGR888"

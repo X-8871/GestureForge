@@ -20,7 +20,7 @@
 | task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r26`（exit 0，`accept_producer_break=true` 已写入 command/字段）；同一字节无开关的 `r25` 仍 `BLOCKED/2`，证明默认 fail-closed |
 | 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r13`（exit 0，0 项未闭合；记录 `g0.run_id=r26` 与 `selection_mode`） |
 | 绑定字节口径 | **已登记** | `docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`（4/4 声明值复算一致）；契约内已有 `binding_byte_basis` 声明 |
-| 共享 IO 契约 | **r07 已按规则重绑两处过期绑定，仍 `DRAFT_PENDING_REVIEW`** | 重绑：桥接器 `ad71cae0…`(06c9ab8) → `2f4445e7…`(r12 现行)；w5 显示字段 `10d24a39…`(b6d11d4) → `af51a4bf…`(a54f09f)。冻结前仍需独立复审并引用被审 SHA |
+| 共享 IO 契约 | **r07 已按规则重绑两处过期绑定，仍 `DRAFT_PENDING_REVIEW`** | 重绑：桥接器 `ad71cae0…`(06c9ab8) → `c6117bb4…`(r12 现行 raw)；w5 显示字段 `10d24a39…`(b6d11d4) → `af51a4bf…`(a54f09f)。冻结前仍需独立复审并引用被审 SHA |
 | RAW 系统 G0 | **未闭合** | `docs/stage4/S4B_raw_system_g0_gap_registry.json`：OPEN_REQUIRES_DESIGN_OR_REVIEW 10、PARTIALLY_CLOSED_OFFLINE 4、NOT_RUN_HARDWARE_REQUIRED 4、BLOCKED_PENDING_HARDWARE 1、CLOSED_OFFLINE 1 |
 | 帧周期 P | `NOT_RUN` | 需板上真实采集；方案与校验器已在 `docs/stage4/S4B_frame_period_P_measurement_plan.md` |
 | 4-D 端到端延迟 | `NOT_RUN` | 需板上注入帧 + 真实链路 |

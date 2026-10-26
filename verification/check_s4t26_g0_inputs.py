@@ -841,11 +841,12 @@ def main() -> int:
 
     try:
         _contract = json.loads(S4B_CONTRACT.read_text(encoding="utf-8"))
+        contract_id = str(_contract.get("contract_id", "UNKNOWN"))
         contract_version = str(_contract.get("contract_version", "UNKNOWN"))
         contract_revision = str(_contract.get("revision", "UNKNOWN"))
         contract_status = str(_contract.get("status", "UNKNOWN"))
     except Exception as exc:  # noqa: BLE001 - 只影响限制文字，不影响判定
-        contract_version = contract_revision = contract_status = f"UNREADABLE({type(exc).__name__})"
+        contract_id = contract_version = contract_revision = contract_status = f"UNREADABLE({type(exc).__name__})"
 
     blockers = [f"{item['name']}: {item['detail']}" for item in checks if item["status"] == "BLOCKED"]
     failures = [item["name"] for item in checks if item["status"] == "FAIL"]
@@ -883,15 +884,15 @@ def main() -> int:
                       "negative_controls": "NOT_RUN", "png_imread_unchanged_pixel_identity": "NOT_RUN",
                       "hardware_vivado_jtag_com4": "NOT_RUN"},
         "result_semantics_to_preserve": semantics,
-        "shared_input_contract": {"contract_id": contract_version, "revision": contract_revision,
-                                  "status": contract_status},
+        "shared_input_contract": {"contract_id": contract_id, "contract_version": contract_version,
+                                  "revision": contract_revision, "status": contract_status},
         "limitations": [
             "此 RunId 仅记录 G0 输入核验；未产生真实网络推理、检测或任务-27/28 可消费的冻结推理结果包。",
             "task-25 单帧只作离线回放输入；其秒级文档墙钟时间不是 PS 单调时钟，也不提供实时帧周期。",
             "当前 Darknet/hook 控制未复现 T29；不作为黄金来源，r03/r04 失败证据保持原样。",
             "approved_no_hand_001 仅关闭 raw-head 门；阳性检测/显示覆盖单独由 test_fist_000 承担。",
             "原校准图 98529267-1eda-43a6-8e38-245947ecb312.jpg 标记 NOT_USED_HISTORICAL。",
-            f"s4-shared-io {contract_version} {contract_revision} 状态 {contract_status}；ENABLE=0，RAW 系统 G0 未闭合。",
+            f"{contract_id}/{contract_version} {contract_revision} 状态 {contract_status}；ENABLE=0，RAW 系统 G0 未闭合。",
             "阶段3、板卡、JTAG、COM4、下载、烧录及硬件会话均未访问。",
             "既有 12 个 ELF/MAP 未修改、未删除、未暂存；本轮开始时 .codex/STATE.md 的既有差异保持原样。",
         ],

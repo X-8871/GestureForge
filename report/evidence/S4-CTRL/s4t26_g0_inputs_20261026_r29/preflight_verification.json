@@ -1,0 +1,689 @@
+{
+  "task_id": "S4-T26-GOLDEN-REBIND",
+  "task_name": "阶段4 task-26 黄金来源改绑 G0",
+  "checker_version": "r15",
+  "run_id": "s4t26_g0_inputs_20261026_r29",
+  "status": "BLOCKED",
+  "exit_code": 2,
+  "generated_utc8": "2026-10-27T07:56:49+08:00",
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "D:\\codex-worktrees\\w4\\verification\\check_s4t26_g0_inputs.py",
+    "--run-id",
+    "s4t26_g0_inputs_20261026_r29"
+  ],
+  "accept_producer_break": false,
+  "worktree": "D:\\codex-worktrees\\w4",
+  "branch": "stage4-infer-prep",
+  "head_observed_only": "9cdcf660591207518c150cbb0984192d47cb9a51",
+  "environment": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy_probe_not_needed": true,
+    "cv2_probe_count": 6
+  },
+  "checks": [
+    {
+      "name": "task_baseline",
+      "status": "PASS",
+      "detail": {
+        "head_observed": "9cdcf660591207518c150cbb0984192d47cb9a51",
+        "expected_reviewed_baseline_commit": "4c726f17d4a83df9e6fbd8b1a9863c0ac2fb256e",
+        "expected_baseline_commit_exists": true,
+        "expected_baseline_is_ancestor_of_observed_head": true,
+        "historical_r10_expected_head_not_current_baseline": "33988ed7e8a97a9d5395b8cfd136a327c37d7dc9",
+        "branch": "stage4-infer-prep",
+        "required_branch": "stage4-infer-prep",
+        "interpretation": "固定审查基线必须存在且为当前观测 HEAD 的祖先；r10 的 33988ed 仅作历史记录"
+      }
+    },
+    {
+      "name": "frozen_parameter_sources",
+      "status": "PASS",
+      "detail": {
+        "s4a_contract": {
+          "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields.json",
+          "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+          "expected_sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+          "status": "G0_ROUND_FROZEN_R06",
+          "revision": "r06"
+        },
+        "assets": {
+          "s2a_external_cfg": {
+            "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+            "contract_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+            "actual_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+            "bytes": 3522,
+            "status": "PASS"
+          },
+          "s2a_external_darknet_weights": {
+            "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+            "contract_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+            "actual_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+            "bytes": 23558276,
+            "status": "PASS"
+          },
+          "s2a_external_gf8": {
+            "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+            "contract_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+            "actual_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+            "bytes": 5903100,
+            "status": "PASS"
+          },
+          "s2a_external_calibration_list": {
+            "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+            "contract_sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+            "actual_sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+            "bytes": 41408,
+            "status": "PASS"
+          }
+        },
+        "calibration_list": {
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+          "line_count": 512,
+          "unique_line_count": 512,
+          "first_sample_entry": "D:/FPGA_Data/HaGRIDv2/dataset/fist/fist/98529267-1eda-43a6-8e38-245947ecb312.jpg"
+        },
+        "activation_report": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S1-T02\\20260922_s1_t02_d2_tiny416_activation_calibration_r1.json",
+          "expected_sha256": "6d73283c698a94dd30cf00634de59fb76a8e889916eb4d00e50b76c245687216",
+          "actual_sha256": "6d73283c698a94dd30cf00634de59fb76a8e889916eb4d00e50b76c245687216",
+          "hash_matches": true,
+          "parameter_inputs_match": true,
+          "producer_sources_match": false,
+          "inputs": {
+            "cfg": {
+              "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+              "expected_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+              "actual_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+              "status": "PASS"
+            },
+            "weights": {
+              "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+              "expected_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+              "actual_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+              "status": "PASS"
+            },
+            "calibration_list": {
+              "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+              "expected_sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+              "actual_sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+              "status": "PASS"
+            },
+            "stats_csv": {
+              "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\activation_stats_r1.csv",
+              "expected_sha256": "a4b807f7a5cc9d3b62047757931741a60e4c414f18cb5c09616a211fb8af37cb",
+              "actual_sha256": "a4b807f7a5cc9d3b62047757931741a60e4c414f18cb5c09616a211fb8af37cb",
+              "status": "PASS"
+            },
+            "darknet_executable": {
+              "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+              "expected_sha256": "f025f5ab7547b2c33976a19f6aad4b46fd95e38485df85c08878d0ec6f229948",
+              "actual_sha256": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+              "status": "FAIL"
+            },
+            "activation_hook_source": {
+              "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_source\\src\\network_kernels.cu",
+              "expected_sha256": "0487e69488483bd1f99ad9d0070973b1ea2e288c842cc57790abbb0cd7ef7d65",
+              "actual_sha256": "ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f",
+              "status": "FAIL"
+            }
+          },
+          "status": "ACTIVATION_SCALE_CALIBRATION_COMPLETE_INTEGER_FORWARD_PENDING"
+        }
+      }
+    },
+    {
+      "name": "activation_producer_provenance",
+      "status": "BLOCKED",
+      "detail": {
+        "reason": "activation report 记录的生成可执行文件或 hook 源码 SHA 与固定路径当前字节不符",
+        "mismatches": {
+          "darknet_executable": {
+            "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_build\\Release\\darknet.exe",
+            "expected_sha256": "f025f5ab7547b2c33976a19f6aad4b46fd95e38485df85c08878d0ec6f229948",
+            "actual_sha256": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+            "status": "FAIL"
+          },
+          "activation_hook_source": {
+            "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_activation_calibration_r1\\darknet_source\\src\\network_kernels.cu",
+            "expected_sha256": "0487e69488483bd1f99ad9d0070973b1ea2e288c842cc57790abbb0cd7ef7d65",
+            "actual_sha256": "ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f",
+            "status": "FAIL"
+          }
+        }
+      }
+    },
+    {
+      "name": "task25_replay_input_package",
+      "status": "PASS",
+      "detail": {
+        "package_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_replay_binding_20261025_r01",
+        "package_commit": "584b07664e88a18bf786ba9565a138861e136d76",
+        "manifest_source_commit": "9dcb0229cdd5fdd968f91dfd200f1df92acaa9cd",
+        "package_commit_is_ancestor_of_observed_dbdf_head": true,
+        "frame_commit_is_ancestor_of_observed_dbdf_head": true,
+        "package_and_frame_worktree_status": "",
+        "dbdf_index_read_only_check": {
+          "git_option": "--no-optional-locks",
+          "index_path": "D:\\FPGA_Competition\\.git\\worktrees\\FPGA_Competition1\\index",
+          "sha256_before": "6742d743f48a624e21033cbab52cdd5e98300506f19f6d1a4864407e9a864fcd",
+          "sha256_after": "6742d743f48a624e21033cbab52cdd5e98300506f19f6d1a4864407e9a864fcd",
+          "unchanged": true
+        },
+        "package_commit_exists": true,
+        "package_manifest_sha256": "616da71d98ed60e59917d064848583100c14013505c6e8b7a4eda36802067b6e",
+        "binding_sha256": "2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41",
+        "manifest_files": [
+          {
+            "path": "report/evidence/S3-T05/t05_replay_binding_20261025_r01/README.md",
+            "expected_sha256": "431c3ed8933b16b72cf00024d62bd727a1685ecfc9833971f5fca64677e27516",
+            "disk_sha256": "431c3ed8933b16b72cf00024d62bd727a1685ecfc9833971f5fca64677e27516",
+            "manifest_commit_sha256": "431c3ed8933b16b72cf00024d62bd727a1685ecfc9833971f5fca64677e27516",
+            "status": "PASS"
+          },
+          {
+            "path": "report/evidence/S3-T05/t05_replay_binding_20261025_r01/replay_input_binding.json",
+            "expected_sha256": "2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41",
+            "disk_sha256": "2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41",
+            "manifest_commit_sha256": "2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41",
+            "status": "PASS"
+          },
+          {
+            "path": "scripts/stage3_t17/verify_t17_blob_identity.py",
+            "expected_sha256": "fa88a8b9e558f1f3141b0cea4dff0c54315fd696ae00195048337ecfcfbaaa40",
+            "disk_sha256": "fa88a8b9e558f1f3141b0cea4dff0c54315fd696ae00195048337ecfcfbaaa40",
+            "manifest_commit_sha256": "fa88a8b9e558f1f3141b0cea4dff0c54315fd696ae00195048337ecfcfbaaa40",
+            "status": "PASS"
+          },
+          {
+            "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/frame_full.bin",
+            "expected_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+            "disk_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+            "manifest_commit_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+            "status": "PASS"
+          },
+          {
+            "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/reference_frame_set.md",
+            "expected_sha256": "995395f8b6bc61cf772fe0c60dbd13d25dda85b3594a5ad28966d1eb77ddcad1",
+            "disk_sha256": "995395f8b6bc61cf772fe0c60dbd13d25dda85b3594a5ad28966d1eb77ddcad1",
+            "manifest_commit_sha256": "995395f8b6bc61cf772fe0c60dbd13d25dda85b3594a5ad28966d1eb77ddcad1",
+            "status": "PASS"
+          },
+          {
+            "path": "report/evidence/S3-T05/t05_codex_evidence_fix_20261024_r01/frame_binding_check.json",
+            "expected_sha256": "2ac0c1676b4b419a17a9f044b87427ea528affead5c315157de4a848556e544f",
+            "disk_sha256": "2ac0c1676b4b419a17a9f044b87427ea528affead5c315157de4a848556e544f",
+            "manifest_commit_sha256": "2ac0c1676b4b419a17a9f044b87427ea528affead5c315157de4a848556e544f",
+            "status": "PASS"
+          }
+        ],
+        "manifest_missing_fields": [],
+        "all_manifest_files_match_disk_and_commit": true,
+        "frame": {
+          "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\frame_full.bin",
+          "source_commit": "0ad2000cbc4af7b29f299c2277465bba608a8129",
+          "required_source_commit": "0ad2000cbc4af7b29f299c2277465bba608a8129",
+          "expected_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+          "disk_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+          "source_commit_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+          "size_bytes": 2764800,
+          "commit_is_ancestor_of_observed_dbdf_head": true,
+          "status": "PASS"
+        },
+        "input_interface_fields": {
+          "required": [
+            "schema_version",
+            "task_id",
+            "input_id",
+            "source_kind",
+            "mode",
+            "timing_claim_scope",
+            "source_worktree",
+            "source_commit",
+            "source_frame_path",
+            "source_frame_sha256",
+            "source_frame_size_bytes",
+            "frame_integrity",
+            "source_frame_id",
+            "width",
+            "height",
+            "stride_bytes",
+            "pixel_format",
+            "byte_order",
+            "coordinate_origin",
+            "capture_time_available",
+            "source_capture_time_text",
+            "source_capture_time_precision",
+            "capture_time_ns",
+            "clock_domain",
+            "timestamp_source",
+            "limitations"
+          ],
+          "missing": [],
+          "source_kind": "camera",
+          "mode": "offline_replay",
+          "timing_claim_scope": "replay_only",
+          "dimensions": [
+            1280,
+            720
+          ],
+          "stride_bytes": 3840,
+          "pixel_format": "BGR888",
+          "byte_order": "BGR",
+          "capture_time_available": true,
+          "capture_time_ns": 1792776253000000000,
+          "clock_domain": "replay_documented_wallclock"
+        },
+        "semantic_mismatches": {},
+        "interfaces_declared_by_package": [],
+        "interfaces_not_applicable_reason": "本 RunId 只为已采集单帧增加回放元数据适配，不改变或冻结阶段4/5正式接口；消费方契约仍须在各自工作树完成 G0。",
+        "current_dbdf_head_observed_only": "2becf9948f8e89cbb98e6fb0879559c300197bc0",
+        "status": "PASS"
+      }
+    },
+    {
+      "name": "approved_rebound_gate_goldens",
+      "status": "PASS",
+      "detail": {
+        "status": "PASS",
+        "decision_record": {
+          "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4t26_golden_rebind_decision_20261026_r01.md",
+          "sha256": "819c9054be9bc3232d51666bc9e52e112fc3932b1d3a165d36040f26744356e1"
+        },
+        "materialization_manifest": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_rebind_20261026_r02\\golden_materialization_manifest.json",
+          "sha256": "47e4cc362d174f1c8eb451197554e5978cd818032c3461af655f959f9fa108c6"
+        },
+        "source_indexes": {
+          "t25_index_sha256": "2d76f9e284130c96374de6ea3525e0c92778b0f701c8894cd4d127234c8d3c72",
+          "t29_reference_sha256": "26392c8d7f5ca8643a26c149411c66d6f2343a544f8c4f03d32584dc4e071d33"
+        },
+        "gates": {
+          "approved_no_hand_001": {
+            "gate": "raw_head_gate",
+            "sample_index": 102,
+            "image_path": "D:\\FPGA_Data\\HaGRIDv2\\user_no_hand\\20260915_friend_001.png",
+            "image_sha256": "10f1f104343cae97abf817316de3a75bacb646da6c686a2204eedcc2611f34f4",
+            "compressed_shard_sha256": "50910134351acd1d8ab70ffd7129a13a0553440316efee572f34fceb5e6f79d6",
+            "decompressed_stream_sha256": "7e1e75a903e3c65a3449c9e78295225768e75a90633d5982267ebdddc4b8cd69",
+            "heads": {
+              "head13": {
+                "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_rebind_20261026_r02\\golden\\approved_no_hand_001_head13.bin",
+                "sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+                "shape_nchw": [
+                  1,
+                  30,
+                  13,
+                  13
+                ],
+                "scale": 0.24267549589862975,
+                "byte_offset": 10772736,
+                "byte_length": 5070,
+                "byte_identical_to_t25_slice": true,
+                "t25_tensor_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+                "t29_tensor_sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d"
+              },
+              "head26": {
+                "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_rebind_20261026_r02\\golden\\approved_no_hand_001_head26.bin",
+                "sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+                "shape_nchw": [
+                  1,
+                  30,
+                  26,
+                  26
+                ],
+                "scale": 0.30223452951025775,
+                "byte_offset": 11361870,
+                "byte_length": 20280,
+                "byte_identical_to_t25_slice": true,
+                "t25_tensor_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+                "t29_tensor_sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2"
+              }
+            }
+          },
+          "test_fist_000": {
+            "gate": "positive_detection_gate",
+            "sample_index": 0,
+            "image_path": "D:\\FPGA_Data\\HaGRIDv2\\dataset\\fist\\fist\\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+            "image_sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+            "compressed_shard_sha256": "49488538ced503bad996e284a3593d4fc7a1cf3b605d90221b3ca09875c4966e",
+            "decompressed_stream_sha256": "090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80",
+            "heads": {
+              "head13": {
+                "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_rebind_20261026_r02\\golden\\test_fist_000_head13.bin",
+                "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+                "shape_nchw": [
+                  1,
+                  30,
+                  13,
+                  13
+                ],
+                "scale": 0.24267549589862975,
+                "byte_offset": 10772736,
+                "byte_length": 5070,
+                "byte_identical_to_t25_slice": true,
+                "t25_tensor_sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+                "t29_tensor_sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+              },
+              "head26": {
+                "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_golden_rebind_20261026_r02\\golden\\test_fist_000_head26.bin",
+                "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+                "shape_nchw": [
+                  1,
+                  30,
+                  26,
+                  26
+                ],
+                "scale": 0.30223452951025775,
+                "byte_offset": 11361870,
+                "byte_length": 20280,
+                "byte_identical_to_t25_slice": true,
+                "t25_tensor_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+                "t29_tensor_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+              }
+            }
+          }
+        },
+        "old_calibration_sample": {
+          "sample_id": "98529267-1eda-43a6-8e38-245947ecb312",
+          "sha256": "c116ba1d...35ee70b",
+          "status": "NOT_USED_HISTORICAL"
+        },
+        "source_policy": "当前 Darknet/hook 控制未复现 T29；只消费 T25/T29 冻结张量，不以当前 Darknet 生成黄金"
+      }
+    },
+    {
+      "name": "darknet_control_not_golden_source",
+      "status": "PASS",
+      "detail": {
+        "status": "PASS",
+        "run_id": "s4t26_golden_control_20261026_r04",
+        "comparison_sha256": "b4200da6e8a0e71fa539639f4114273cbf6aaaa8fcd2447b70c1e4ceb61e2589",
+        "producer_exe_sha256": "879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289",
+        "producer_hook_sha256": "ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f",
+        "layers": {
+          "29": 2929,
+          "36": 10358
+        },
+        "all_control_heads_byte_identical": false,
+        "conclusion": "Darknet 控制未复现 T29，当前 Darknet/hook 不作为黄金来源"
+      }
+    },
+    {
+      "name": "existing_cv2_interpreter",
+      "status": "PASS",
+      "detail": {
+        "probes": [
+          {
+            "interpreter": "C:\\Users\\22061\\anaconda3\\python.exe",
+            "command": [
+              "C:\\Users\\22061\\anaconda3\\python.exe",
+              "-B",
+              "-c",
+              "import cv2; print(cv2.__version__)"
+            ],
+            "status": "UNAVAILABLE",
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'cv2'"
+          },
+          {
+            "interpreter": "C:\\Users\\22061\\anaconda3\\envs\\dl_env\\python.exe",
+            "command": [
+              "C:\\Users\\22061\\anaconda3\\envs\\dl_env\\python.exe",
+              "-B",
+              "-c",
+              "import cv2; print(cv2.__version__)"
+            ],
+            "status": "UNAVAILABLE",
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'cv2'"
+          },
+          {
+            "interpreter": "C:\\Users\\22061\\anaconda3\\pkgs\\python-3.11.15-h1044e36_0\\python.exe",
+            "command": [
+              "C:\\Users\\22061\\anaconda3\\pkgs\\python-3.11.15-h1044e36_0\\python.exe",
+              "-B",
+              "-c",
+              "import cv2; print(cv2.__version__)"
+            ],
+            "status": "UNAVAILABLE",
+            "exit_code": 3221225781,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "interpreter": "C:\\Users\\22061\\anaconda3\\pkgs\\python-3.7.0-hea74fb7_0\\python.exe",
+            "command": [
+              "C:\\Users\\22061\\anaconda3\\pkgs\\python-3.7.0-hea74fb7_0\\python.exe",
+              "-B",
+              "-c",
+              "import cv2; print(cv2.__version__)"
+            ],
+            "status": "UNAVAILABLE",
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'cv2'"
+          },
+          {
+            "interpreter": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "command": [
+              "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+              "-B",
+              "-c",
+              "import cv2; print(cv2.__version__)"
+            ],
+            "status": "AVAILABLE",
+            "exit_code": 0,
+            "stdout": "4.13.0",
+            "stderr": ""
+          },
+          {
+            "interpreter": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+            "command": [
+              "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+              "-B",
+              "-c",
+              "import cv2; print(cv2.__version__)"
+            ],
+            "status": "UNAVAILABLE",
+            "exit_code": 1,
+            "stdout": "",
+            "stderr": "Traceback (most recent call last):\r\n  File \"<string>\", line 1, in <module>\r\nModuleNotFoundError: No module named 'cv2'"
+          }
+        ],
+        "scope_note": "核验 task-26 已声明的既有解释器候选；未安装或修改依赖"
+      }
+    },
+    {
+      "name": "bridge_runner_moving_head_contract",
+      "status": "PASS",
+      "detail": {
+        "bridge_source_sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229",
+        "bridge_version": "r12",
+        "expected_bridge_version": "r12",
+        "expected_bridge_sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229",
+        "task_w4_head_observed_only": "9cdcf660591207518c150cbb0984192d47cb9a51",
+        "dbdf_head_observed_only": "2becf9948f8e89cbb98e6fb0879559c300197bc0",
+        "task25_package_commit": "584b07664e88a18bf786ba9565a138861e136d76",
+        "task25_frame_source_commit": "0ad2000cbc4af7b29f299c2277465bba608a8129",
+        "bridge_package_commit": "584b07664e88a18bf786ba9565a138861e136d76",
+        "bridge_frame_commit": "0ad2000cbc4af7b29f299c2277465bba608a8129",
+        "package_commit_is_ancestor": true,
+        "frame_commit_is_ancestor": true,
+        "legacy_head_pins_present": false,
+        "interpretation": "w4 与 dbdf HEAD 只记录观察值；task-25 包提交和帧提交固定，并分别要求为当前 dbdf HEAD 的祖先"
+      }
+    },
+    {
+      "name": "replay_semantics_and_stage_boundaries",
+      "status": "PASS",
+      "detail": {
+        "timing_claim_scope": "replay_only",
+        "result_join_key": [
+          "session_id",
+          "frame_id",
+          "result_seq"
+        ],
+        "stale_limit_ns": 200000000,
+        "stale_limit_status": "APPROVED_BY_WONG",
+        "capture_time_source": "task-25 documented capture_time_ns / replay_documented_wallclock only",
+        "injection_start_ns_as_capture_time": false,
+        "enable": 0,
+        "raw_system_g0": "NOT_CLOSED",
+        "p_4d_g3_g5": "NOT_RUN"
+      }
+    },
+    {
+      "name": "preexisting_changes_preserved",
+      "status": "PASS",
+      "detail": {
+        "pinned_legacy_artifacts": [
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.elf",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.map",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.elf",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.map",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.elf",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.map",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.elf",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.map",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.elf",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.map",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.elf",
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.map"
+        ],
+        "legacy_evidence_dirs": [
+          "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r11/",
+          "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r01/"
+        ],
+        "allowed_dirty_prefixes": [
+          "report/evidence/S4-CTRL/",
+          "docs/stage4/",
+          "scripts/stage4_s4ctrl/",
+          "verification/"
+        ],
+        "out_of_scope_dirty_paths": [],
+        "task_owned_uncommitted_paths": [
+          "scripts/stage4_s4ctrl/replay_forward_bridge.py",
+          "verification/check_s4t26_g0_inputs.py"
+        ],
+        "elf_map_hashes": {
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.elf": {
+            "expected_sha256": "85dc56c409e2e2d09ba6579086b3475acf5f811f9cdf4d121ccc74ba4dc1a8dd",
+            "actual_sha256": "85dc56c409e2e2d09ba6579086b3475acf5f811f9cdf4d121ccc74ba4dc1a8dd",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.map": {
+            "expected_sha256": "00fcee65c8cebfdf8b7d1b96217d8612cb412ba1d4e68ea56a64a6cf74634c13",
+            "actual_sha256": "00fcee65c8cebfdf8b7d1b96217d8612cb412ba1d4e68ea56a64a6cf74634c13",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.elf": {
+            "expected_sha256": "f2280f7a834856f3c89ad5e955a6ed0c80b8d9932617abb9fe82bf8033e48654",
+            "actual_sha256": "f2280f7a834856f3c89ad5e955a6ed0c80b8d9932617abb9fe82bf8033e48654",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.map": {
+            "expected_sha256": "ab9d7b8d06d0deb23bf62bc53efb729930ae0be40fddd34d9fd2a4b9adf9c49f",
+            "actual_sha256": "ab9d7b8d06d0deb23bf62bc53efb729930ae0be40fddd34d9fd2a4b9adf9c49f",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.elf": {
+            "expected_sha256": "e63cf0eea1110652d1152801e02dcf57cb06ba77aae096c6767eaf3f5c620d3b",
+            "actual_sha256": "e63cf0eea1110652d1152801e02dcf57cb06ba77aae096c6767eaf3f5c620d3b",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.map": {
+            "expected_sha256": "d39f5e0c922602980d4a75b94da255eb555f8c39be90dbd1431ad910d2fe6bc7",
+            "actual_sha256": "d39f5e0c922602980d4a75b94da255eb555f8c39be90dbd1431ad910d2fe6bc7",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.elf": {
+            "expected_sha256": "7b8c469c11dcadd30be1150e1cce35c199e02f2119c995aa822b60a0fd1074d8",
+            "actual_sha256": "7b8c469c11dcadd30be1150e1cce35c199e02f2119c995aa822b60a0fd1074d8",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.map": {
+            "expected_sha256": "dbc7ab15ead170b6644c6eb6478b15a0b48659100bea5857f67b859517e85865",
+            "actual_sha256": "dbc7ab15ead170b6644c6eb6478b15a0b48659100bea5857f67b859517e85865",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.elf": {
+            "expected_sha256": "f61300d26dc0b66410b9348b5e96719e7c06061ce807cbc86a8149962471718e",
+            "actual_sha256": "f61300d26dc0b66410b9348b5e96719e7c06061ce807cbc86a8149962471718e",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.map": {
+            "expected_sha256": "0fbeab6d269a5f31cc50be5c00e8bf4671bfbe99975cfe7e15e190f605d45b00",
+            "actual_sha256": "0fbeab6d269a5f31cc50be5c00e8bf4671bfbe99975cfe7e15e190f605d45b00",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.elf": {
+            "expected_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+            "actual_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+            "status": "PASS"
+          },
+          "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.map": {
+            "expected_sha256": "4a0f9cf8e281482a70459f5e247c9b42863bff058b91c38eb7fcf832fcc1d62d",
+            "actual_sha256": "4a0f9cf8e281482a70459f5e247c9b42863bff058b91c38eb7fcf832fcc1d62d",
+            "status": "PASS"
+          }
+        },
+        "state_worktree_sha256": "f917777f56e53b60aee0ff67f3792fba105cd76f4d30b356a3f9b480d47066ae",
+        "state_tracked": true,
+        "state_clean": true,
+        "state_uncommitted_diff_sha256": null,
+        "attribution": ".codex/STATE.md 已提交且无未提交差异；12 个 ELF/MAP 为既有本机恢复产物，按 SHA 逐个核验未变；两个遗留证据目录未动"
+      }
+    }
+  ],
+  "blocking_reasons": [
+    "activation_producer_provenance: {'reason': 'activation report 记录的生成可执行文件或 hook 源码 SHA 与固定路径当前字节不符', 'mismatches': {'darknet_executable': {'path': 'D:\\\\FPGA_Data\\\\HaGRIDv2\\\\darknet_inputs\\\\runs\\\\s1_t02_d2_activation_calibration_r1\\\\darknet_build\\\\Release\\\\darknet.exe', 'expected_sha256': 'f025f5ab7547b2c33976a19f6aad4b46fd95e38485df85c08878d0ec6f229948', 'actual_sha256': '879148e06aeaa250667c63ada108c10723d4e8056697352f6d9149b1f5ce1289', 'status': 'FAIL'}, 'activation_hook_source': {'path': 'D:\\\\FPGA_Data\\\\HaGRIDv2\\\\darknet_inputs\\\\runs\\\\s1_t02_d2_activation_calibration_r1\\\\darknet_source\\\\src\\\\network_kernels.cu', 'expected_sha256': '0487e69488483bd1f99ad9d0070973b1ea2e288c842cc57790abbb0cd7ef7d65', 'actual_sha256': 'ef907ba3f7bbe43b1eeac6f6647fc1b1b6ebea32721fbf7bf95658033f2d196f', 'status': 'FAIL'}}}"
+  ],
+  "failures": [],
+  "accepted_breaks": [],
+  "execution": {
+    "sample_102_raw_head_forward": "NOT_RUN",
+    "sample_000_positive_detection_forward": "NOT_RUN",
+    "replay_frame_forward": "NOT_RUN",
+    "raw_head13_head26_capture_or_compare": "NOT_RUN",
+    "d9_decode_nms": "NOT_RUN",
+    "negative_controls": "NOT_RUN",
+    "png_imread_unchanged_pixel_identity": "NOT_RUN",
+    "hardware_vivado_jtag_com4": "NOT_RUN"
+  },
+  "result_semantics_to_preserve": {
+    "timing_claim_scope": "replay_only",
+    "result_join_key": [
+      "session_id",
+      "frame_id",
+      "result_seq"
+    ],
+    "stale_limit_ns": 200000000,
+    "stale_limit_status": "APPROVED_BY_WONG",
+    "capture_time_source": "task-25 documented capture_time_ns / replay_documented_wallclock only",
+    "injection_start_ns_as_capture_time": false,
+    "enable": 0,
+    "raw_system_g0": "NOT_CLOSED",
+    "p_4d_g3_g5": "NOT_RUN"
+  },
+  "shared_input_contract": {
+    "contract_id": "s4-shared-io",
+    "contract_version": "1.3.0",
+    "revision": "r07",
+    "status": "DRAFT_PENDING_REVIEW"
+  },
+  "limitations": [
+    "此 RunId 仅记录 G0 输入核验；未产生真实网络推理、检测或任务-27/28 可消费的冻结推理结果包。",
+    "task-25 单帧只作离线回放输入；其秒级文档墙钟时间不是 PS 单调时钟，也不提供实时帧周期。",
+    "当前 Darknet/hook 控制未复现 T29；不作为黄金来源，r03/r04 失败证据保持原样。",
+    "approved_no_hand_001 仅关闭 raw-head 门；阳性检测/显示覆盖单独由 test_fist_000 承担。",
+    "原校准图 98529267-1eda-43a6-8e38-245947ecb312.jpg 标记 NOT_USED_HISTORICAL。",
+    "s4-shared-io/1.3.0 r07 状态 DRAFT_PENDING_REVIEW；ENABLE=0，RAW 系统 G0 未闭合。",
+    "阶段3、板卡、JTAG、COM4、下载、烧录及硬件会话均未访问。",
+    "既有 12 个 ELF/MAP 未修改、未删除、未暂存；本轮开始时 .codex/STATE.md 的既有差异保持原样。"
+  ]
+}

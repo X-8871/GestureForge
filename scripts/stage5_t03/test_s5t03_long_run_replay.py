@@ -96,9 +96,20 @@ class T_LongRun(unittest.TestCase):
                     "assertion_mode", "input_scope_label"):
             self.assertIn(key, first)
         log = next((self.out / "logs").glob("events_*.jsonl.gz"))
+        commits = submits = 0
         with gzip.open(log, "rt", encoding="utf-8") as handle:
-            events = sum(1 for line in handle if line.strip())
-        self.assertGreaterEqual(events, 2000)
+            for line in handle:
+                if not line.strip():
+                    continue
+                kind = json.loads(line).get("t")
+                if kind == "commit":
+                    commits += 1
+                elif kind == "sub":
+                    submits += 1
+        # N4（第 3 轮复审）：**独立**从日志复算 commit 事件数，必须恰好等于帧数
+        self.assertEqual(commits, 2000, "每个显示帧必须恰好一条 commit 事件（独立复算）")
+        self.assertGreaterEqual(submits, 1, "应有结果提交事件")
+        self.assertEqual(self.results["invariants"]["one_commit_event_per_frame"], commits == 2000)
 
     def test_06_boundary_cases_pass(self) -> None:
         """过期边界三例（渲染路径）必须 PASS 且语义正确。"""

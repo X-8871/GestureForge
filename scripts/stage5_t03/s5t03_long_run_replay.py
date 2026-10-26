@@ -269,6 +269,9 @@ def run_long(*, out_dir: pathlib.Path, frames: int, seed: int, canvas: tuple[int
         "margin_within_one_period": (0 <= margin_ns < period_ns) if canonical else None,
     }
     invariants = {
+        # N5（第 3 轮复审）：no_deadlock 仅表示"断言覆盖全部帧"；真正的死锁判据是
+        # one_commit_event_per_frame（每显示帧恰好一次 overlay 提交事件）。
+        "deadlock_evidence": "one_commit_event_per_frame（每显示帧恰好一次 overlay 提交事件）",
         "period_count": period_count,
         "period_ns": period_ns,
         "virtual_elapsed_ns": virtual_elapsed_ns,
@@ -324,7 +327,9 @@ def run_long(*, out_dir: pathlib.Path, frames: int, seed: int, canvas: tuple[int
         "schema_version": SCHEMA, "run_id": out_dir.name, "task_id": "S5-T03",
         "generated_utc8": results["generated_utc8"], "source_commit": results["source_commit"],
         "status": STATUS_LABEL, "input_scope_label": INPUT_SCOPE_LABEL,
-        "goal_reached": "OFFLINE_LONG_RUN_REPLAY_GE_30MIN_VIRTUAL_WITH_CHECKPOINT_KEYFRAMES_AND_FULL_LOGS",
+        "goal_reached": ("OFFLINE_LONG_RUN_REPLAY_GE_30MIN_VIRTUAL_WITH_CHECKPOINT_KEYFRAMES_AND_FULL_LOGS"
+                         if invariants["canonical_long_run"] else
+                         "OFFLINE_LONG_RUN_REPLAY_SMOKE_BELOW_CANONICAL_FRAMES"),
         "invariants": invariants, "counters": results["counters"],
         "checks": results["checks"], "assertion_count": assertion_count,
         "keyframe_count": len(full_entries), "demo": demo,
@@ -342,7 +347,7 @@ def run_long(*, out_dir: pathlib.Path, frames: int, seed: int, canvas: tuple[int
             "geometry_reference": {"path": "verification/s5_display_geometry_reference.py",
                                    "sha256": sha256_file(REPO_ROOT / "verification/s5_display_geometry_reference.py"),
                                    "contract_id": R.CONTRACT_ID},
-            "params": {"path": str(P.default_params_path().relative_to(REPO_ROOT)),
+            "params": {"path": P.default_params_path().relative_to(REPO_ROOT).as_posix(),
                        "sha256": sha256_file(P.default_params_path())},
         },
         "files": [{"path": p.relative_to(out_dir).as_posix(), "sha256": sha256_file(p), "bytes": p.stat().st_size}

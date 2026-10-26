@@ -1,5 +1,18 @@
 # 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS）
 
+## task-26 G0 接续结果（2026-10-26 19:32 UTC+8；r10 为最终固定输入预检）
+
+- 修复两轮 Reviewer 意见后，权威直接命令运行 `s4t26_g0_inputs_20261026_r10` 返回 **BLOCKED / exit 2**，无 FAIL。既有 Python 3.12.10 可导入 `cv2 4.13.0`；校准清单 SHA `d637a2fe…a1a35c`、D8 cfg `5475dff0…725376`、weights `3984affa…f7d8a`、GF8 `f6feb6d4…93cc39`、S4-A r06 与 activation report SHA 均匹配冻结绑定。缺失必需文件/绑定和 task-25 字段分类为 BLOCKED；task-25 状态核验使用 `--no-optional-locks` 并记录 dbdf index 前后 SHA 不变；RunId 必须显式提供且已存在目录拒绝覆盖。
+- 缺失输入故障注入 `r08`（S4-A 路径不存在）与 `r09`（task-25 包目录不存在）均完整生成 preflight 与 delivery manifest、返回 BLOCKED/2、无 FAIL；正式输入未被改动。Reviewer 对 r07 的 CHANGES_REQUIRED 为“缺输入时 delivery manifest 仍无条件计算 SHA/解引用”；当前检查器用可空 SHA 与空输入记录关闭该项，r08/r09 已覆盖两条缺失路径。
+- task-25 包从明确提交 `584b07664e88a18bf786ba9565a138861e136d76` 消费，清单 SHA `616da71d…067b6e`；源帧提交 `0ad2000cbc4af7b29f299c2277465bba608a8129`，SHA `939fce22…6752f0`，1280×720 BGR888 输入字段完整。其 `capture_time_ns` 是秒级 `replay_documented_wallclock`，仅作 `replay_only`；不把 `injection_start_ns` 当采集时间。
+- 阻断：冻结校准样本 `D:\FPGA_Data\HaGRIDv2\dataset\fist\fist\98529267-1eda-43a6-8e38-245947ecb312.jpg`（SHA `c116ba1d…35ee70b`）的历史记录只有 metrics/integer_stats，无同 SHA 的独立 raw head13/head26 黄金；activation report 引用的 Darknet EXE SHA `f025f5ab…229948`、hook 源 SHA `0487e694…7ef7d65` 与固定路径当前字节不符；旧桥接入口固定 w4/dbdf HEAD 与本任务指定基线/精确 task-25 来源不符，未执行该入口。
+- 实际网络推理、raw head 对拍、D9/NMS、负向对照、PNG `IMREAD_UNCHANGED` 检查和硬件运行均 `NOT_RUN`；未生成 task-27/28 冻结推理结果。继续保持 `ENABLE=0`、RAW 系统 G0 未闭合、P/4-D/G3/G5 `NOT_RUN`；s4-shared-io r06 仍 `DRAFT_PENDING_REVIEW`。
+- 验收证据：权威目录 `report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r10/`（预检 JSON SHA `72f87a8b…65233a`；检查器 SHA `c31d09e4…62025d`）。dbdf task-25 输入与显式提交核验通过，状态检查 index SHA 前后相同；r03-r09 作为前置诊断/故障注入尝试原样保留。既有 12 个 ELF/MAP 哈希复核未变、既有 STATE 差异保留。
+
+## 当前交接行（11字段，2026-10-26 19:32 UTC+8；覆盖 18:03 行）
+任务=`S4-CODEX-T26-OFFLINE G0 阻断收尾并交还 w4 写权` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`33988ed7e8a97a9d5395b8cfd136a327c37d7dc9` | 允许修改范围=`docs/stage4/；scripts/stage4_s4ctrl/；scripts/stage4_s4b/；verification/；report/evidence/S4-CTRL/；.codex/STATE.md` | 未提交改动归属=`本轮 G0 检查器及 r03-r10 证据属 task-26 增量；原有 .codex/STATE.md 用户差异及 12 个 ELF/MAP 仍未提交，保持原样` | 让出声明=`代码/证据已停止写入，正等待对当前检查器和 r08-r10 证据独立复审；未启动硬件、Vivado、JTAG、COM4 或板测；阶段3及硬件仍归 DSH` | 心跳(UTC+8)=`2026-10-26 19:32` | 证据入口=`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r10/manifest.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS（G0 BLOCKED / exit 2；独立复审中）/ 本轮 PASS 后将 OFFERED 给 DSH 项目总控`
+
+
 更新：2026-10-25 05:31（UTC+8）。工作树 `D:\codex-worktrees\w4`／分支 `stage4-infer-prep`。规则见 `D:\FPGA_Competition\AGENTS.md`。
 **写权：依 `DSH-20261024-006` 正式 OFFER 与 Wong 授权，由 Codex 项目总控接续。task-26 桥接脚本及 r07 包已提交于当前基线 `06c9ab8`；其独立只读复审 PASS（仅代码/证据一致性），真实推理仍 BLOCKED/exit 2。task-21 registry 修复经 R4-03 独立复审 PASS，现已完成总控复核并提交；无硬件/Vivado操作。**
 

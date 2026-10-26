@@ -1,0 +1,38 @@
+{
+  "task_id": "S4-CODEX-T26-OFFLINE",
+  "run_id": "s4t26_g0_inputs_20261026_r08",
+  "scenario": "S4-A contract path is missing",
+  "injection": {
+    "global": "S4A_CONTRACT",
+    "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stage4_g0_fields_missing_probe.json",
+    "path_verified_absent_before_run": true,
+    "method": "In-memory module global override; the referenced input file and formal contract were not modified."
+  },
+  "actual_invocation": {
+    "shell": "PowerShell",
+    "pipeline": "inline importlib harness piped to Python 3.12.10 with -B -",
+    "operation": "Load check_s4t26_g0_inputs.py, override S4A_CONTRACT, set --run-id s4t26_g0_inputs_20261026_r08, call main()."
+  },
+  "observed": {
+    "process_exit_code": 2,
+    "status": "BLOCKED",
+    "preflight_created": true,
+    "delivery_manifest_created": true,
+    "failure_check_names": [],
+    "blocking_check_names": [
+      "frozen_parameter_sources",
+      "frozen_calibration_sample_identity",
+      "frozen_calibration_raw_head_oracle",
+      "bridge_runner_pinned_baseline"
+    ],
+    "delivery_manifest_missing_s4a_hash": null
+  },
+  "evidence": {
+    "preflight_verification": "preflight_verification.json",
+    "delivery_manifest": "delivery_manifest.json"
+  },
+  "limitations": [
+    "这是缺失输入路径的 fail-closed 故障注入核验，不是实际推理或 task-26 输入通过结论。",
+    "该探针不修改正式 S4-A 文件、task-25 工作树、硬件或其他工作树。"
+  ]
+}

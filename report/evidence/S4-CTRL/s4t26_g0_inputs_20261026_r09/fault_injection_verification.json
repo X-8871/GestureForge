@@ -1,0 +1,40 @@
+{
+  "task_id": "S4-CODEX-T26-OFFLINE",
+  "run_id": "s4t26_g0_inputs_20261026_r09",
+  "scenario": "task-25 replay package is missing",
+  "injection": {
+    "global": "TASK25_PACKAGE",
+    "path": "report/evidence/S3-T05/t05_replay_binding_missing_probe",
+    "directory_verified_absent_before_run": true,
+    "method": "In-memory module global override; the dbdf worktree and task-25 input package were not modified."
+  },
+  "actual_invocation": {
+    "shell": "PowerShell",
+    "pipeline": "inline importlib harness piped to Python 3.12.10 with -B -",
+    "operation": "Load check_s4t26_g0_inputs.py, override TASK25_PACKAGE, set --run-id s4t26_g0_inputs_20261026_r09, call main()."
+  },
+  "observed": {
+    "process_exit_code": 2,
+    "status": "BLOCKED",
+    "preflight_created": true,
+    "delivery_manifest_created": true,
+    "failure_check_names": [],
+    "blocking_check_names": [
+      "activation_producer_provenance",
+      "task25_replay_input_package",
+      "frozen_calibration_raw_head_oracle",
+      "bridge_runner_pinned_baseline"
+    ],
+    "delivery_manifest_task25_manifest_hash": null,
+    "delivery_manifest_task25_binding_hash": null,
+    "delivery_manifest_task25_frame_hash": null
+  },
+  "evidence": {
+    "preflight_verification": "preflight_verification.json",
+    "delivery_manifest": "delivery_manifest.json"
+  },
+  "limitations": [
+    "这是缺失 task-25 包路径的 fail-closed 故障注入核验，不是实际推理或 task-26 输入通过结论。",
+    "该探针未读取或修改阶段3工作树及其 Git 索引。"
+  ]
+}

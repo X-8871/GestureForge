@@ -1,0 +1,259 @@
+{
+  "schema_version": "gestureforge_s5t02_offline_dynamic_map_v1",
+  "run_id": "s5t02_offline_dynamic_map_20261027_r02",
+  "task_id": "S5-T02",
+  "generated_utc8": "2026-10-27T02:15:41+08:00",
+  "source_commit": "93348c28d997e4eda413f2cbf072b3a4f8303257",
+  "status": "OFFLINE_PRELIMINARY_BOARD_NOT_RUN",
+  "input_scope_label": "synthetic_dynamic_stream_not_stage4_output",
+  "goal_reached": "S5T02_OFFLINE_C_IMPLEMENTATION_CROSS_CHECKED_VS_FROZEN_REFERENCE",
+  "review_round": {
+    "verdict": "CHANGES_REQUIRED",
+    "blockers_closed": [
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5",
+      "B6",
+      "B7"
+    ],
+    "non_blocking_addressed": [
+      "N1",
+      "N2",
+      "N3",
+      "N6"
+    ],
+    "adjudication": "B1 的根因是 S5-T03 不变量判据把『新增证据包』也算作『改动 S5-* 证据』，与任务卡 §4（允许 report/evidence/S5-T01/<新RunId>/**）冲突；裁决：判据只对既有文件的 M/D/R 判违反，并保留既有文件内容哈希比对。"
+  },
+  "scope_statement": "本包只完成 S5-T02 的**离线可做部分**；**§4.5/§7.3 未关闭**；板级 B1–B10 全部 NOT_RUN；不得据此宣称板上动态映射已验证。",
+  "exit_codes": {
+    "build": 0,
+    "generate": 0,
+    "c_execution": 0,
+    "cross_check": 0,
+    "unittest": 0
+  },
+  "checks": {
+    "cross_check_passed": true,
+    "frames_compared": 137,
+    "verdict_counts": {
+      "pixel_exact": 137
+    },
+    "failures": [],
+    "coverage_requirements": {
+      "placement 组合 +clamped_bottom": true,
+      "placement 组合同时 clamped_bottom+clamped_x": true,
+      "stale_reason=both": true,
+      "zero_area_dropped>0": true,
+      "非 OK 状态带框仍守恒（timeouts>0 且对应帧 boxes=0）": true,
+      "NO_HAND 不计 stale": true
+    },
+    "hud_fields_authoritative": [
+      "CAPTURE_FPS",
+      "INFERENCE_FPS",
+      "DISPLAY_FPS",
+      "INFERENCE_TIME_NS",
+      "AGE_RESULT_NS",
+      "AGE_FRAME_NS",
+      "FRAME_ID",
+      "BOXES",
+      "STALE_CLEARED",
+      "DROPPED_FRAMES",
+      "TIMEOUTS",
+      "WARMUP_STATE",
+      "DISPLAY_SEMANTICS"
+    ],
+    "suite": "Ran 130 tests"
+  },
+  "counters": {
+    "frames_committed": 137,
+    "warmup_frames": 3,
+    "dropped_frames": 4,
+    "timeouts": 3,
+    "error_results": 2,
+    "duplicate_results": 3,
+    "out_of_order_results": 3,
+    "stale_cleared": 6,
+    "zero_area_dropped": 1,
+    "boxes_drawn": 235
+  },
+  "semantics": [
+    "B_latest_result_overlay"
+  ],
+  "hud": {
+    "field_count": 13,
+    "na_fields": [
+      "CAPTURE_FPS",
+      "INFERENCE_FPS"
+    ]
+  },
+  "canvas": [
+    1280,
+    720
+  ],
+  "canvas_source": "scripts/stage5_t01/gen_overlay_cases.py:CANVAS_W, CANVAS_H（HDMI 实测模式）",
+  "reference": {
+    "contract_id": "S5A-G0-v2",
+    "path": "verification/s5_display_geometry_reference.py",
+    "sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645"
+  },
+  "tools": {
+    "dynamic_map_core": {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.c",
+      "sha256": "799b3626a63cc3501fc6ee2d5b14b9426cf2910f21cc19e5ede03b298dec2105"
+    },
+    "dynamic_map_header": {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.h",
+      "sha256": "85edd69bd250b4786f0b2f10ccf6b6c1fb7e78e85ab0b7916d9956f33b207340"
+    },
+    "dynamic_map_host_cli": {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map_host.c",
+      "sha256": "8abe3acc96edb39bc3c072aed6ba17f04148ca6cbc8b411c927986f4598b998f"
+    },
+    "case_generator": {
+      "path": "scripts/stage5_t01/gen_dynamic_map_cases.py",
+      "sha256": "ca8f57e5c7cfb2991a5d6e604355d417d7806a3538f192d8cd42df8db7d66f8a"
+    },
+    "verifier": {
+      "path": "scripts/stage5_t01/verify_dynamic_map.py",
+      "sha256": "25826beee79bc42f863059f656f1cd0c975bd3e98f154906e85d2a492414217b"
+    },
+    "build_script": {
+      "path": "scripts/stage5_t01/build_dynamic_map.sh",
+      "sha256": "d550bc1f7f10827d19b7f25fd41ca1f4e31332f83ddee1476c891998969ae6e7"
+    },
+    "tests": {
+      "path": "scripts/stage5_t01/test_s5t02_dynamic_map.py",
+      "sha256": "b63978c050302a01a7a18bd7a34883dca95f3450606a3a6d8b1e265d31db2267"
+    },
+    "reference": {
+      "path": "verification/s5_display_geometry_reference.py",
+      "sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645"
+    },
+    "render_label_anchor": {
+      "path": "scripts/stage5_t03/s5t03_render.py",
+      "sha256": "f81cbc0c7dae676bca6d162933f7645efdb01cd274bc2f90d237df6e19c7f899"
+    },
+    "params": {
+      "path": "docs/stage5/s5t03_offline_skeleton_params_v1.json",
+      "sha256": "184aa5bf6ae970807d91cd6420884b8bb60b9dbd0f685965cbd06d544438db9b"
+    }
+  },
+  "build": {
+    "cc_version": "gcc (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0",
+    "binary_sha256": "636fb2e7716fdee914533ab7d67dcf7587ad9997327bb6467eed6d8ed642d654",
+    "binary_bytes": 69331,
+    "binary_included": false,
+    "note": "二进制未入库；用 build_dynamic_map.sh 可重建。"
+  },
+  "files": [
+    {
+      "path": "build/build.json",
+      "sha256": "a682596fbbebb8b1ecdac88721c9463133aee4392012b26825b3f430c9a9c236",
+      "bytes": 1065
+    },
+    {
+      "path": "build/build.log",
+      "sha256": "1ceaf41d3af798adff09b740f33f1662534c978120b06b055d0f3244f2e7e588",
+      "bytes": 363
+    },
+    {
+      "path": "build/s5_dynamic_map_host.exe",
+      "sha256": "636fb2e7716fdee914533ab7d67dcf7587ad9997327bb6467eed6d8ed642d654",
+      "bytes": 69331
+    },
+    {
+      "path": "c_output/all_c.jsonl",
+      "sha256": "1530936e2667e76b2df71f5192060a058c13ee80691313e0697e552a6477b5af",
+      "bytes": 159657
+    },
+    {
+      "path": "console/binary_path.txt",
+      "sha256": "02ef59a069797ccdcd6c6f23a2e6134dcf1e3cf562b84040372ebe146848a267",
+      "bytes": 87
+    },
+    {
+      "path": "console/build_stdout.txt",
+      "sha256": "0b710d99e3f63bee23d5ce9ba6d5d528a607fb3b10c4fa68af3a8bb4d8a0e311",
+      "bytes": 213
+    },
+    {
+      "path": "console/c_stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "console/command.txt",
+      "sha256": "13866f9233c85b372280b2544691e0eab01753f418a12476518e78f4e5c7ff8c",
+      "bytes": 898
+    },
+    {
+      "path": "console/gen_stdout.txt",
+      "sha256": "40b66273526eab2934d113ffdf1c47e5a077ba9e5126082b291857e82a40aaf7",
+      "bytes": 145
+    },
+    {
+      "path": "console/suite_command.txt",
+      "sha256": "5cae5f23250439618a25c8f7bfad02c2f0b5529dee02ae7a5e023a9647d90334",
+      "bytes": 388
+    },
+    {
+      "path": "console/unittest_all.txt",
+      "sha256": "9834f090af3b5487a7d2261f103be2c372c76f9abeba264a75b67001f5f97d03",
+      "bytes": 3808
+    },
+    {
+      "path": "console/verify_stdout.txt",
+      "sha256": "624069b9c91fac2428513213d5d45045db129166c26406d4fabc714e4ed751cb",
+      "bytes": 74
+    },
+    {
+      "path": "stream/all.tsv",
+      "sha256": "952595b42e17939cca263e1c5c6ad15901a6d56a4d664725a08d575062c24b5f",
+      "bytes": 23614
+    },
+    {
+      "path": "stream/cases.tsv",
+      "sha256": "7d09dbf5257411dddd123d12f94e66f616b7e40e5fa351cefe9095f07d13cd92",
+      "bytes": 4410
+    },
+    {
+      "path": "stream/cases_meta.json",
+      "sha256": "a1aa0ee2576269cbe4ed0d286aa97dd92e1944131ca3c868e38dd7efc2c95a6e",
+      "bytes": 3387
+    },
+    {
+      "path": "stream/stream_120.tsv",
+      "sha256": "a4aa922a05d2dc7df39d7e03dbde3b7bf28137eb4366643e48e0f60c77486286",
+      "bytes": 19204
+    },
+    {
+      "path": "summary.md",
+      "sha256": "5f7ddade94a82dc6a5c451a0a85d5671332dcbae4b5b169db8e4a79f5ec904c5",
+      "bytes": 6007
+    },
+    {
+      "path": "verify/verify_all.json",
+      "sha256": "4ab70a7d2610f1937934444c1f81f69d65f294909b472e185b83f6a30fd37fab",
+      "bytes": 14418
+    }
+  ],
+  "limitations": [
+    "本对拍证明 C 侧映射与冻结参考一致（宿主执行）；**不是**板上验证。",
+    "输入为**合成**动态流，**非阶段4 输出**；阶段4 冻结结果接入后须复跑（另行 RunId）。",
+    "HUD 的 CAPTURE_FPS/INFERENCE_FPS 在离线路径必然为 NA；板级实测仍 NOT_RUN。",
+    "本包为宿主执行 + 离线对拍；不是板上验证，§4.5/§7.3 未关闭。",
+    "二进制未入库，仅记录编译参数与源码哈希。"
+  ],
+  "not_run": [
+    "板上动态映射与绘制（B1–B10）",
+    "真实回放接入（阶段4 契约未冻结）",
+    "摄像头采集路径",
+    "30 分钟板上长跑（B6）",
+    "T5-10 板上回归",
+    "板上真彩目视（P5 重做）",
+    "UART/读回真实链路",
+    "§4.5/§7.3 关闭（须板上 B1–B10 + 独立复审）"
+  ]
+}

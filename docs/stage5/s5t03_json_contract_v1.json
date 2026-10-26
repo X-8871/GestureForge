@@ -1,0 +1,90 @@
+{
+  "contract_id": "gestureforge_s5t03_json_contract",
+  "contract_version": "1.0.0",
+  "frozen_utc8": "2026-10-26T23:50:00+08:00",
+  "purpose": "冻结阶段5 离线 replay/display 产物的 JSON 契约，供阶段6/7 消费；JSON/日志为权威，PNG/MP4 不作验收依据。",
+  "authority": {
+    "authoritative": ["results.json", "frame_assertions.jsonl(.gz)", "logs/events_*.jsonl(.gz)", "manifest.json"],
+    "non_authoritative": ["keyframes/*.png", "demo.mp4"],
+    "note": "摘要（summary.md）为派生文档；与本契约产物冲突时以 JSON/日志为准。"
+  },
+  "input_scope_label_expected": "synthetic_replay",
+  "status_label_expected": "PRELIMINARY",
+  "results_required_common": [
+    "schema_version", "run_id", "task_id", "generated_utc8", "source_commit",
+    "status", "input_scope_label", "checks"
+  ],
+  "artifact_kinds": {
+    "replay_display": {
+      "schema_version": "gestureforge_s5t03_replay_display_v1",
+      "requires_frame_assertions": true,
+      "required_results": ["counters", "boundary_cases", "keyframes", "demo", "limitations", "not_run"],
+      "detect": "results.json 无 invariants 且无 geometries"
+    },
+    "long_run_replay": {
+      "schema_version": "gestureforge_s5t03_long_run_replay_v1",
+      "requires_frame_assertions": true,
+      "required_results": ["counters", "invariants", "boundary_cases", "keyframes", "demo",
+                           "limitations", "not_run", "stream", "assertion_count"],
+      "required_invariants": ["period_count", "period_ns", "virtual_elapsed_ns", "required_ns",
+                              "margin_ns", "canonical_long_run", "one_commit_event_per_frame",
+                              "commit_timestamps_monotonic", "recompute_matches_online", "no_deadlock"],
+      "detect": "results.json 含 invariants"
+    },
+    "multi_geometry_render": {
+      "schema_version": "gestureforge_s5t03_multi_geometry_render_v1",
+      "requires_frame_assertions": false,
+      "required_results": ["geometries", "numeric_checks", "limitations", "not_run"],
+      "detect": "results.json 含 geometries"
+    }
+  },
+  "counter_keys": [
+    "frames_committed", "overlay_drawn_frames", "boxes_drawn", "warmup_frames", "dropped_frames",
+    "timeouts", "error_results", "invalid_records", "stale_cleared", "duplicate_results",
+    "duplicate_frame_id_results", "out_of_order_results", "zero_hand_frames", "zero_area_dropped"
+  ],
+  "frame_assertion_required": [
+    "frame_index", "displayed_frame_id", "result_frame_id", "result_seq", "state", "drawn", "boxes",
+    "stale_effective", "stale_reason", "skip_reason", "age_result_ns", "age_frame_ns",
+    "display_semantics", "input_scope_label"
+  ],
+  "frame_assertion_stable": [
+    "frame_index", "displayed_frame_id", "result_frame_id", "result_seq", "state", "drawn", "boxes",
+    "zero_area_dropped", "stale_effective", "stale_reason", "skip_reason", "age_result_ns",
+    "age_frame_ns", "display_semantics", "input_scope_label", "assertion_mode"
+  ],
+  "manifest_required": [
+    "schema_version", "run_id", "task_id", "generated_utc8", "source_commit", "status",
+    "files", "tools", "limitations", "not_run"
+  ],
+  "manifest_files_entry_required": ["path", "sha256"],
+  "stability": {
+    "stable_for_consumers": [
+      "results.schema_version", "results.run_id", "results.task_id", "results.generated_utc8",
+      "results.source_commit", "results.status", "results.input_scope_label", "results.checks",
+      "results.counters（14 键语义）", "results.boundary_cases", "results.invariants（长跑）",
+      "results.geometries / numeric_checks（多几何）", "frame_assertion 稳定子集",
+      "manifest.files[].path/sha256", "manifest.tools[].path/sha256", "manifest.limitations/not_run"
+    ],
+    "detail_not_for_consumers": [
+      "results.process_seconds", "results.render.*", "results.demo.*", "results.keyframes[].png_path",
+      "results.artifacts.*", "results.logs.*", "manifest.eol_status", "manifest.manifest_refreshed_utc8",
+      "console/*", "keyframes/*.png", "demo.mp4"
+    ]
+  },
+  "consumer_notes": {
+    "stage6": [
+      "T6-A03 基线 t_effective − window_complete 可用：display frame period = results.stream.frame_period_ns（长跑）或 results.stream（短跑）",
+      "帧关联消费 results.counters + frame_assertion 稳定子集；不得依赖 PS 绘制的完成时刻语义（本轮 NOT_RUN）"
+    ],
+    "stage7": [
+      "仅消费 schema_version + 稳定字段；仓库/PNG/MP4 不作依赖",
+      "版本升级须新增 schema_version（不原地改语义）"
+    ]
+  },
+  "versioning_rules": [
+    "语义变化（字段含义/单位/取值范围）必须提升 schema_version 版本号，不原地修改 v1",
+    "仅新增可选字段可在 v1 内进行，且必须在 stability.detail_not_for_consumers 或新增文档中说明",
+    "删除/重命名稳定字段属于破坏性变更，必须新建版本并在契约文档登记迁移说明"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema": "gestureforge_delivery_manifest_v1",
+  "task_id": "S3-T17",
+  "run_id": "t17_g3_reconfirm_20261026_r01",
+  "created_utc8": "2026-10-26",
+  "purpose": "阶段3 当前部署 G3 重确认（只读窗口）：核对 JTAG/A9 可用性、部署身份、运行期 S2MM/MM2S 地址与真彩画面基础。",
+  "status": "NOT_COMPLETED_TARGET_DEPLOYMENT_ABSENT",
+  "base_commit": "2ed66096c0f49d89817bf8c33607c7d54f69ac0e",
+  "window": {
+    "authorization": "Wong 2026-10-26 直接指令（准许接管 + 已上板赶快冻结）；仅只读",
+    "prohibited": ["下载位流", "烧录 QSPI", "写寄存器", "复位", "改线"],
+    "duration_actual": "约 3 分钟（链路检查 + 探测 + 串口 30 s + 收窗）"
+  },
+  "commands": [
+    {"cmd": "run_xsdb.sh jtag_t17_link_check.tcl", "exit": 0, "result": "LINK=OK / TARGET_COUNT=16 / A9 双核 Running / 无 DAP 错误"},
+    {"cmd": "run_xsdb.sh jtag_t17_g3_reconfirm.tcl <空目录>", "exit": 2, "result": "STATE=Stopped: (Suspended)；mrd 0x43010034 超时；DAP 变 0xF0000021；con 被闸门跳过"},
+    {"cmd": "read_uart.py COM4 30 <本RunId>/uart_capture_30s.bin", "exit": 0, "result": "0 字节；4 个应用标记全 MISSING"}
+  ],
+  "observations": {
+    "jtag_chain": "Digilent JTAG-HS1 210512180081 / arm_dap 4ba00477 / xc7z020 idcode 23727093",
+    "a9_targets": "APU + ARM Cortex-A9 MPCore #0/#1 (Running)",
+    "s2mm_sr_read": "TIMEOUT (Memory read error at 0x43010034)",
+    "dap_after_failure": "APB AP transaction error, DAP status 0xF0000021",
+    "a9_final_state": "halted core #0（con 被状态闸门跳过）",
+    "uart_bytes": 0
+  },
+  "conclusion": "当前板上不具备可访问的采集/显示 VDMA 且无应用输出 ⇒ 目标部署不在位（最可能为断电后 PL 位流丢失；本工程未烧 QSPI）。部署身份、运行期地址、真彩画面重做均未完成，部署 G3 仍开放。",
+  "artifacts": [
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r01/README.md", "role": "结论与限制"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r01/g3_reconfirm_probe.stdout.txt", "role": "探测原始输出（含真实退出码）"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r01/uart_capture_30s.bin", "role": "COM4 只读抓取（0 字节）"},
+    {"path": "report/evidence/S3-T17/t17_g3_reconfirm_20261026_r01/hashes.txt", "role": "本 RunId 产物哈希"}
+  ],
+  "side_effects_disclosed": [
+    "探测导致 DAP 进入 APB 错误态、A9 #0 停留 halt；恢复需现场断电重启",
+    "未执行任何复位/下载/写寄存器；未改线"
+  ],
+  "does_not_claim": [
+    "部署身份已核对",
+    "运行期 S2MM/MM2S 地址已回读",
+    "真彩目视已重做",
+    "阶段3 G3/G4/G5 通过"
+  ],
+  "limitations": [
+    "JTAG 无法读取位流哈希，身份核对只能间接",
+    "只读窗口不含下载 ⇒ 无法恢复目标部署后核对",
+    "串口 30 s 采样窗口较短；但 0 字节与 PL 不可访问一致"
+  ],
+  "next_window_request": {
+    "need": "含下载授权的板级窗口",
+    "steps": [
+      "现场断电重启恢复 DAP/A9",
+      "下载 bit 7cb33068… + ELF 1457cda4…",
+      "回读 ADDR/STRIDE/HSIZE/VSIZE/CR/SR + 抓 UART S3_DIAG5_CFG/S3_DIAG9_PAD + 转储 3 行做位完整性判据",
+      "Wong 重做真彩目视并记录原话"
+    ],
+    "stop_conditions": ["任一 mrd 超时即停止读取不重试", "DAP 报错即收窗"]
+  }
+}

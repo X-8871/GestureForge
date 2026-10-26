@@ -1,0 +1,30 @@
+{
+  "schema": "gestureforge_delivery_manifest_v1",
+  "task_id": "S3-T17",
+  "run_id": "t17_takeover_20261026_r01",
+  "created_utc8": "2026-10-26",
+  "purpose": "阶段3接管记录：Wong 直接授权后由 DSH 阶段三总控认领 dbdf 工作树，并固定接管时的基线、前置状态与既有未提交改动归属。",
+  "status": "TAKEOVER_BY_DIRECT_USER_AUTHORIZATION",
+  "base_commit": "2ed66096c0f49d89817bf8c33607c7d54f69ac0e",
+  "artifacts": [
+    {"path": "report/evidence/S3-T17/t17_takeover_20261026_r01/takeover_record.json", "role": "接管记录（授权依据、偏差、前置状态、既有未提交改动归属）"},
+    {"path": "report/evidence/S3-T17/t17_takeover_20261026_r01/README.md", "role": "接管说明与边界"},
+    {"path": "report/evidence/S3-T17/t17_takeover_20261026_r01/preflight.json", "role": "接管时锁/进程/端口/内存快照"},
+    {"path": "report/evidence/S3-T17/t17_takeover_20261026_r01/handoff_check_before.json", "role": "handoff_check 只读原始输出与退出码"},
+    {"path": "report/evidence/S3-T17/t17_takeover_20261026_r01/hashes.txt", "role": "本 RunId 产物与接管前基线文件哈希"}
+  ],
+  "claims_limited_to": [
+    "记录接管事实与前置状态",
+    "记录 OFFERED 交接行缺失的偏差与依据"
+  ],
+  "does_not_claim": [
+    "阶段3 G3/G4/G5 通过",
+    "VDMA 根因已定位",
+    "task-11 完整 SEC 等价已通过",
+    "板卡当前部署身份已核对（另在 G3 窗口证据中单独记录）"
+  ],
+  "limitations": [
+    "handoff_check 的 --claim 契约未满足（交接行非 OFFERED），本认领以 Wong 直接授权为依据",
+    "接管时未执行任何硬件动作"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "gestureforge_takeover_record_v1",
+  "run_id": "t17_takeover_20261026_r01",
+  "task": "S3-T17 阶段3接管与冻结收尾",
+  "date_utc8": "2026-10-26",
+  "takeover": {
+    "new_owner": "DSH 阶段三总控",
+    "tree": "D:\\codex-worktrees\\dbdf",
+    "branch": "codex/stage3-video",
+    "base_commit_observed": "2ed66096c0f49d89817bf8c33607c7d54f69ac0e",
+    "previous_owner_recorded": "Codex 阶段3总控（dbdf STATE 交接行 2026-10-26 18:03：IN_PROGRESS，等 Wong 正式交接给 DSH，在此之前写权仍属 Codex）",
+    "formal_offered_record_present": false,
+    "authorization_basis": "Wong 2026-10-26 直接指令：先「现在准许你接管阶段三」，随后「目前已上板，赶快完成阶段三的冻结」。按根 AGENTS.md「用户当前明确指令优先」，以该直接授权作为让出依据；OFFERED 交接行缺失一事如实记录，不伪称 Codex 已按状态机置 OFFERED。",
+    "deviation_from_state_machine": "接管时 dbdf 交接行状态为 IN_PROGRESS（非 OFFERED），handoff_check 的 --claim 契约（检查项 i/f）无法满足，因此未执行 --claim；本次认领以 Wong 直接授权为依据并在此留痕。建议让出方补记 OFFERED 以消除歧义。",
+    "previous_owner_uncommitted_work": {
+      "preserved": true,
+      "items": [
+        " M .codex/STATE.md（Codex 未提交的状态文档改动，原样保留，本接管在其基础上追加，不覆盖不回退）",
+        "?? NA/",
+        "?? clockInfo.txt",
+        "?? board/stage3/software/sensor/s3_t04_app_diag_v14_vdma_trace_only.patch",
+        "?? scripts/stage3_t17/jtag_t17_w1_sr_sample.tcl"
+      ]
+    }
+  },
+  "preflight_at_takeover": {
+    "index_lock_present": false,
+    "heavy_processes_present": false,
+    "port_3121_listening": false,
+    "free_memory_mib": 3080,
+    "other_trees": {
+      "D:\\FPGA_Competition": {"branch": "main", "head": "bdb7a360", "dirty": 408, "index_lock": false},
+      "D:\\codex-worktrees\\w4": {"branch": "stage4-infer-prep", "head": "33988ed7", "dirty": 13, "index_lock": false},
+      "D:\\codex-worktrees\\w5": {"branch": "stage5-display-prep", "head": "673d371c", "dirty": 1, "index_lock": false},
+      "D:\\codex-worktrees\\w6": {"branch": "stage6-interact-prep", "head": "3be42b89", "dirty": 17, "index_lock": false}
+    }
+  },
+  "handoff_check_before_claim": {
+    "command": "python -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\dbdf --json",
+    "status": "HANDOFF_FAILED",
+    "counts": {"PASS": 3, "FAIL": 1, "SKIP": 5},
+    "fail_detail": "c 未提交改动计数与归属声明：未提交改动 5 项但未提供 record 声明归属",
+    "pass_detail": "a 工作树/分支/HEAD 一致；b index.lock 不存在；d 无重型进程",
+    "lost_contact": null,
+    "note": "SKIP 5 项（心跳/状态机/证据入口/范围/接管契约）均因未提供 record；不代表接管契约已满足"
+  },
+  "scope": {
+    "allowed_write": "D:\\codex-worktrees\\dbdf（阶段3工作树）",
+    "not_allowed": "主目录 main、w4/w5/w6/w2b、厂商原件 D:\\FPGA\\AX7Z020、两个 mailbox；不 push",
+    "hardware": "板级动作按窗口授权执行；只读优先；不结束他方进程"
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "schema_version": "gestureforge_s5t02_offline_dynamic_map_v1",
+  "run_id": "s5t02_offline_dynamic_map_20261027_r01",
+  "task_id": "S5-T02",
+  "generated_utc8": "2026-10-27T01:44:16+08:00",
+  "source_commit": "0ea7c768c892102e9103b4d3dcb571e43c4e93ea",
+  "status": "OFFLINE_PRELIMINARY_BOARD_NOT_RUN",
+  "input_scope_label": "synthetic_dynamic_stream_not_stage4_output",
+  "goal_reached": "S5T02_OFFLINE_C_IMPLEMENTATION_CROSS_CHECKED_VS_FROZEN_REFERENCE",
+  "scope_statement": "本包只完成 S5-T02 的**离线可做部分**（C 实现 + 宿主隔离构建 + 用例生成 + 对拍校验）；**§4.5/§7.3 未关闭**，板级 B1–B10 全部 NOT_RUN；不得据此宣称板上动态映射已验证。",
+  "exit_codes": {
+    "build": 0,
+    "generate": 0,
+    "c_execution": 0,
+    "cross_check": 0,
+    "unittest": 0
+  },
+  "checks": {
+    "cross_check_passed": true,
+    "frames_compared": 129,
+    "verdict_counts": {
+      "pixel_exact": 129
+    },
+    "failures": [],
+    "suite": "Ran 128 tests"
+  },
+  "counters": {
+    "frames_committed": 129,
+    "warmup_frames": 3,
+    "dropped_frames": 4,
+    "timeouts": 2,
+    "error_results": 1,
+    "duplicate_results": 2,
+    "out_of_order_results": 2,
+    "stale_cleared": 5,
+    "zero_area_dropped": 0,
+    "boxes_drawn": 233
+  },
+  "semantics": [
+    "B_latest_result_overlay"
+  ],
+  "hud": {
+    "field_count": 13,
+    "na_fields": [
+      "CAPTURE_FPS",
+      "INFERENCE_FPS"
+    ]
+  },
+  "canvas": [
+    1280,
+    720
+  ],
+  "canvas_source": "scripts/stage5_t01/gen_overlay_cases.py:CANVAS_W, CANVAS_H（HDMI 实测模式）",
+  "reference": {
+    "contract_id": "S5A-G0-v2",
+    "path": "verification/s5_display_geometry_reference.py",
+    "sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645"
+  },
+  "tools": {
+    "dynamic_map_core": {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.c",
+      "sha256": "05568af21373b243fafd4d852d2159c09aca84914d57cbf842cd1605ac9eb0e9"
+    },
+    "dynamic_map_header": {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.h",
+      "sha256": "2baaa0b59b4181b56bb484abb940afd46f0f0ff340416e4dace83a295a382dd6"
+    },
+    "dynamic_map_host_cli": {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map_host.c",
+      "sha256": "4401e1b6557d46dcebf0db28dd4663a6fae786c837f91bd02a150609ded38cc9"
+    },
+    "case_generator": {
+      "path": "scripts/stage5_t01/gen_dynamic_map_cases.py",
+      "sha256": "72ad265950f56ed5807557bae18e94ec7c2fd3e4f609699e3a0fbb1fcc6760b3"
+    },
+    "verifier": {
+      "path": "scripts/stage5_t01/verify_dynamic_map.py",
+      "sha256": "c6b31d8b289b6d3f7109e4410f0ce9b0deda288104ada1c2cc9acc3a9c4d15ba"
+    },
+    "build_script": {
+      "path": "scripts/stage5_t01/build_dynamic_map.sh",
+      "sha256": "d550bc1f7f10827d19b7f25fd41ca1f4e31332f83ddee1476c891998969ae6e7"
+    },
+    "tests": {
+      "path": "scripts/stage5_t01/test_s5t02_dynamic_map.py",
+      "sha256": "0857dfdd59d486ff8233dbd6d67a2f84f4674ef1463a8386bd1fdad7fb460f02"
+    },
+    "reference": {
+      "path": "verification/s5_display_geometry_reference.py",
+      "sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645"
+    },
+    "render_label_anchor": {
+      "path": "scripts/stage5_t03/s5t03_render.py",
+      "sha256": "f81cbc0c7dae676bca6d162933f7645efdb01cd274bc2f90d237df6e19c7f899"
+    },
+    "params": {
+      "path": "docs/stage5/s5t03_offline_skeleton_params_v1.json",
+      "sha256": "184aa5bf6ae970807d91cd6420884b8bb60b9dbd0f685965cbd06d544438db9b"
+    }
+  },
+  "build": {
+    "cc_version": "gcc (x86_64-win32-seh-rev0, Built by MinGW-W64 project) 8.1.0",
+    "binary_sha256": "f335e0426be0335262e3b552746bbc25bba0bbb03b274e81c422e4c7c324eaa5",
+    "binary_bytes": 69222,
+    "binary_included": false,
+    "note": "二进制未入库（可复现：脚本 + 源码哈希已绑定）；需要时用 build_dynamic_map.sh 重建。"
+  },
+  "files": [
+    {
+      "path": "build/build.json",
+      "sha256": "ba3a589c42df63f567728e8f882b64a7c0f7b1cfab2279453976b54709ad551e",
+      "bytes": 1065
+    },
+    {
+      "path": "build/build.log",
+      "sha256": "363b9bc0165aa0e866b8f5b8027ce9867984b3aa0df41edc1625e5ddc7d8889a",
+      "bytes": 363
+    },
+    {
+      "path": "build/s5_dynamic_map_host.exe",
+      "sha256": "f335e0426be0335262e3b552746bbc25bba0bbb03b274e81c422e4c7c324eaa5",
+      "bytes": 69222
+    },
+    {
+      "path": "c_output/all_c.jsonl",
+      "sha256": "fd5d8a12fa7daf4ab905ee52feb8555db2220906f05c3cc4c6dd32790bb3de2f",
+      "bytes": 152085
+    },
+    {
+      "path": "console/binary_path.txt",
+      "sha256": "edcc186bd26871b60b4fd11267fb3e4eb0f0f22145659b9ffb5215c6e2cdba91",
+      "bytes": 87
+    },
+    {
+      "path": "console/build_stdout.txt",
+      "sha256": "601e2b75f8d0722b49438a3c3e4a3a3c0db97d806b41f962c345635cf3448556",
+      "bytes": 213
+    },
+    {
+      "path": "console/c_stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "console/command.txt",
+      "sha256": "41bfbc053940c46b5f07854dd082a41230b0f1ee38bdb48aafdc339987f1e47c",
+      "bytes": 791
+    },
+    {
+      "path": "console/gen_stdout.txt",
+      "sha256": "15a0df9505c25963c564213d1bfcfe19b4cf66ef0649585b7287a04d1a36d118",
+      "bytes": 144
+    },
+    {
+      "path": "console/suite_command.txt",
+      "sha256": "5cae5f23250439618a25c8f7bfad02c2f0b5529dee02ae7a5e023a9647d90334",
+      "bytes": 388
+    },
+    {
+      "path": "console/unittest_all.txt",
+      "sha256": "92c7de90f13dd16faaaff214a96cb675e37d3cd36b4bcdf342c597f96a1c1b9f",
+      "bytes": 3173
+    },
+    {
+      "path": "console/verify_stdout.txt",
+      "sha256": "101d39d3686018f63c1e794183f34c3458309d47f24d612830480ff7fb3b1b6f",
+      "bytes": 74
+    },
+    {
+      "path": "stream/all.tsv",
+      "sha256": "15dd69a891eb3e530bde8a793201cc54f16b11efe43338998e553d2349fde689",
+      "bytes": 21804
+    },
+    {
+      "path": "stream/cases.tsv",
+      "sha256": "61da03c6af476efd51b03493fbfdeabff881fd7a651b0aeb10f74913ab290731",
+      "bytes": 2600
+    },
+    {
+      "path": "stream/cases_meta.json",
+      "sha256": "c25f16a5be767880c714d2b972858fdce3d6b0c421e8b7f02f3d024a54854c0c",
+      "bytes": 2152
+    },
+    {
+      "path": "stream/stream_120.tsv",
+      "sha256": "a4aa922a05d2dc7df39d7e03dbde3b7bf28137eb4366643e48e0f60c77486286",
+      "bytes": 19204
+    },
+    {
+      "path": "summary.md",
+      "sha256": "9af931f0f45310484272054c0477bd4312da3e6205f9529101a5cc444b3296c6",
+      "bytes": 3838
+    },
+    {
+      "path": "verify/verify_all.json",
+      "sha256": "1d04d631008b5097cedd2e580859f8f7cb8dc9f4cb449442a1125249b8ff37b2",
+      "bytes": 13104
+    }
+  ],
+  "limitations": [
+    "本对拍证明 C 侧映射与冻结参考一致（宿主执行）；**不是**板上验证。",
+    "输入为**合成**动态流，**非阶段4 输出**；阶段4 冻结结果接入后须复跑（另行 RunId）。",
+    "HUD 的 CAPTURE_FPS/INFERENCE_FPS 在离线路径必然为 NA；板级实测仍 NOT_RUN。",
+    "本包为宿主执行 + 离线对拍；不是板上验证，§4.5/§7.3 未关闭。",
+    "二进制未入库，仅记录编译参数与源码哈希；重建脚本已绑定。"
+  ],
+  "not_run": [
+    "板上动态映射与绘制（B1–B10）",
+    "真实回放接入（阶段4 契约未冻结）",
+    "摄像头采集路径",
+    "30 分钟板上长跑（B6）",
+    "T5-10 板上回归",
+    "板上真彩目视（P5 重做）",
+    "UART/读回真实链路",
+    "§4.5/§7.3 关闭（须板上 B1–B10 + 独立复审）"
+  ]
+}

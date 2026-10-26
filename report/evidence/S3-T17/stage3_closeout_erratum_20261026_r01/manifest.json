@@ -1,0 +1,47 @@
+{
+  "schema": "gestureforge_delivery_manifest_v1",
+  "task_id": "S3-T17",
+  "run_id": "stage3_closeout_erratum_20261026_r01",
+  "created_utc8": "2026-10-26",
+  "purpose": "对独立复审 CHANGES_REQUIRED 的勘误响应：修正记录准确性与 RunId/窗口边界；不重做板级工作、不改写历史对象。",
+  "reviewed_baseline": {"tag": "stage3-close-20261026", "commit": "5faa1514892100258a32dd3195a41c77a37b9fcf", "review_verdict": "CHANGES_REQUIRED"},
+  "erratum_policy": "勘误不改历史：stage3_closeout_20261026_r01 与 t17_g3_reconfirm_20261026_r02 的既有字节保留；本文档为权威更正。",
+  "fixes": {
+    "P1_bars_window_boundary": {"status": "CLOSED", "action": "彩条会话另立登记（本 RunId 的 bars_session/ 子目录），附位流/XSA/ELF 身份与哈希、下载记录(T05_DOWNLOAD_EXIT=0)、传感器写入与写回 0x00、判定器 stdout；声明 r02 的窗口边界仅覆盖 18:45–18:46 会话；真彩口径更正为『机器判据通过 + 人工目视沿用 10-24』"},
+    "P2_darkframe_judge": {"status": "CLOSED", "action": "所用脚本=scripts/stage3_t05/analyze_missing_msb_signature.py，真实退出码=0（非 1）；t17 判定器那次调用路径不存在→exit 2 输入错误；附 stdout；结论『暗帧判据不适用』不变"},
+    "P3_constraint_identity": {"status": "CLOSED", "action": "构建输入副本 2dae928c… / in-tree 正式源 d1d3e976… 分列；9e27f53 已以名义假设加入 create_clock CMOS1_PCLK（未纳入冻结位流、未签核）；TIMING-36 正式修复仍未落"},
+    "P4_frame_drop_policy": {"status": "CLOSED", "action": "对照表补行『容许丢帧策略与计数口径（G0 明确）= OPEN/未定义』"},
+    "P5_dirty_count": {"status": "CLOSED", "action": "更正为原始 checker 输出的 8 项"},
+    "P6_freeze_commit_key": {"status": "CLOSED", "action": "统一指向 tag stage3-close-20261026（^{} = 5faa151）"},
+    "P7_ordinal": {"status": "CLOSED", "action": "『第 3 次』改为『再次独立复现』"},
+    "P8_cross_tree_pointer_and_variant": {"status": "CLOSED", "action": "决策文件改为跨树绝对路径；替代接口确认= PENDING_USER_CONFIRMATION 并列入记录性局限"},
+    "P9_read_path_addressing": {"status": "CLOSED", "action": "需地址的判定一律用 jtag_t17_dump_rows.tcl（运行期回读 ADDR_S2MM）；不依赖 jtag_read_safe.tcl 默认 base"},
+    "P10_wording": {"status": "CLOSED", "action": "『互异⇒实时』收敛为『帧缓冲内容随时间变化』；nz 16383 例外已注明"}
+  },
+  "constraint_identity": {
+    "build_input_copy": {"path": "tmp/s3r06/t04_sof_fix_20261020_r01/vendor_src/src/constraints/an5642.xdc", "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"},
+    "in_tree_source": {"path": "board/stage3/hardware/an5642_j11_cmos2.xdc", "sha256": "d1d3e976f84e0aa5a67ff695d07c83983cf32887c463d6bf25250821f64aa595", "bytes": 3751, "note": "9e27f53 加入 create_clock CMOS1_PCLK（名义假设）"}
+  },
+  "bars_session": {
+    "registered_under": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/bars_session/",
+    "not_part_of": "t17_g3_reconfirm_20261026_r02 的窗口边界",
+    "bitstream": {"sha256_prefix": "7cb330685260ced3", "bytes": 1668969},
+    "xsa": {"sha256_prefix": "1f5b138e693065c6", "bytes": 633089},
+    "elf": {"path": "tmp/s3r06/t04_j11cmos2_elf_v12/elf_build/app/an5642_j11cmos2_v12_bars_freeze.elf", "sha256_prefix": "527a74fca6ea0774c3462501", "bytes": 310368},
+    "download": "run_t05_board_capture.sh <t04_sof_fix_20261020_r01> <v12 ELF> barsg3 55 -> T05_DOWNLOAD_EXIT=0 / T05_ALL_DONE=1",
+    "sensor_write": "S3_DIAG12_BARS=503D before=0x00 after=0x80 readback=0x80 write_status=0",
+    "restore": "re-download v10_read.elf -> T05_DOWNLOAD_EXIT=0；503D 回读 0x00（S3_DIAG5_SENS / S3_DIAG7_AWB）",
+    "judge": {"script": "scripts/stage3_t17/analyze_t17_bit_integrity.py", "target": "t17_g3_reconfirm_20261026_r02/bars_frame/frame_full.bin", "exit": 0, "result": "BIT_INTEGRITY_PASS（C3/C4/C5/C6/C7 PASS）；requires_human_visual=true", "stdout": "bars_session/bit_integrity_bars.stdout.txt"}
+  },
+  "dark_frame_check": {"script": "scripts/stage3_t05/analyze_missing_msb_signature.py", "exit": 0, "result": "符合『两字节 MSB 恒 0』签名；前提为明亮/彩条帧 ⇒ 对暗帧不适用", "stdout": "p2_darkframe_msb_signature.stdout.txt", "invalid_attempt": {"script": "scripts/stage3_t17/analyze_t17_bit_integrity.py", "target": "rows/frame_full.bin（不存在）", "exit": 2, "stdout": "p2_darkframe_t17_attempt.stdout.txt"}},
+  "verdict_after_erratum": "阶段3 收尾通过（带记录性局限）——口径以本勘误为准（真彩=机器判据通过+人工目视沿用；约束=构建输入/正式源分列；丢帧口径=OPEN；替代接口=PENDING_USER_CONFIRMATION）",
+  "artifacts": [
+    {"path": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/README.md", "role": "勘误正文（P1–P10 关闭依据）"},
+    {"path": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/manifest.json", "role": "本清单"},
+    {"path": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/p2_darkframe_msb_signature.stdout.txt", "role": "P2 复算 stdout（exit 0）"},
+    {"path": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/p2_darkframe_t17_attempt.stdout.txt", "role": "P2 无效调用 stdout（exit 2）"},
+    {"path": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/bars_session/bit_integrity_bars.stdout.txt", "role": "P1 彩条帧判定器 stdout（exit 0）"},
+    {"path": "report/evidence/S3-T17/stage3_closeout_erratum_20261026_r01/hashes.txt", "role": "本 RunId 产物哈希"}
+  ],
+  "does_not_claim": ["阶段3 G5 无条件通过", "VDMA 根因已定位", "task-11 完整等价通过", "真彩已由本轮人工目视完成（仍沿用 10-24 记录）"]
+}

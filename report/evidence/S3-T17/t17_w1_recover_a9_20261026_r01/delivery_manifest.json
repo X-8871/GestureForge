@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_recover_a9_20261026_r01",
+  "source_commit": "dee446850c84d8c0186ecc85e341bc738695cc31",
+  "evidence_dir": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 RunId 是经批准的一次性运行态恢复尝试；没有更改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/README.md",
+      "sha256": "6f3132c0a43eca087fa2402d82b2e312eca681b50ac7eb69f856e06e719418b2",
+      "role": "artifact",
+      "keep_reason": "授权范围、程序偏差、操作结果、未确认状态和阶段限制"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/recover_a9_if_confirmed_halted.tcl",
+      "sha256": "86f336aae232ab20cb9ae3b6617a844bf78670594a0c4fcef86e8060b482a318",
+      "role": "source",
+      "keep_reason": "实际执行的原始恢复脚本；保留其宽于本次授权的状态门禁，不作改写"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/preflight.json",
+      "sha256": "f0beb3ed92c250f1a2b9a18c4beac3fafe74719d5c85cf2fb7bbcde070783126",
+      "role": "result",
+      "keep_reason": "用户授权、七树锁、设备枚举和会话前置核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/execution_summary.json",
+      "sha256": "e2e4832d44d0f5b028492f79fd76c648c64fc22e6bac33ec13f3ae4f52703c19",
+      "role": "result",
+      "keep_reason": "实际目标枚举、脚本门禁偏差、退出码、操作计数和未确认项"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/postrun.json",
+      "sha256": "465ad0f5bde397988f43587497b61b3db439ff9664b744c704af0f783c59b6b1",
+      "role": "result",
+      "keep_reason": "收窗后硬件进程、监听和MCP会话核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/wrapper_result.json",
+      "sha256": "11f0b7c927ae1207298d5c2f353b7751d4578619b32a2e5be9a108b585c029c6",
+      "role": "result",
+      "keep_reason": "XSDB包装退出码与精确运行时间"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/xsdb.stdout.txt",
+      "sha256": "69eb5346707d4f641c732110b0bdec338d6166e6aa7ed48580cafaec92470b41",
+      "role": "log",
+      "keep_reason": "XSDB与Tcl原始标准输出"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_recover_a9_20261026_r01/xsdb.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "XSDB与Tcl原始标准错误，保留空文件"
+    }
+  ],
+  "checks": [
+    {
+      "name": "A9 target enumeration and state gate",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_w1_recover_a9_20261026_r01\\recover_a9_if_confirmed_halted.tcl",
+      "exit_code": 2,
+      "reason": "连接成功，但 target tree 只有 DAP APB transaction error 0x30000021 与 xc7z020；无 Cortex-A9 target，Tcl 在状态查询前退出。"
+    },
+    {
+      "name": "Conditional A9 resume",
+      "status": "BLOCKED",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_w1_recover_a9_20261026_r01\\recover_a9_if_confirmed_halted.tcl",
+      "exit_code": null,
+      "reason": "A9 target 不可见，未查询状态；未执行 con。"
+    },
+    {
+      "name": "Recovery script scope matches authorization",
+      "status": "FAIL",
+      "command": "Compare the approved state predicate with the preserved executed Tcl predicate.",
+      "exit_code": 1,
+      "reason": "Wong approved only exact Stopped, while the executed script also accepts Stopped: (Suspended). The target failed before state query, so the broader branch was not evaluated and con was not issued."
+    },
+    {
+      "name": "Post-run resource cleanup check",
+      "status": "PASS",
+      "command": "Get-Process xsdb/hw_server/vivado/vitis; Get-NetTCPConnection -LocalPort 3121 -State Listen; vivado_list_sessions",
+      "exit_code": 0,
+      "reason": "2026-10-26 11:22:52 UTC+8 无目标进程、3121监听或Vivado MCP会话。"
+    }
+  ],
+  "tool_versions": {
+    "XSDB": "2026.1",
+    "PowerShell": "7"
+  },
+  "limitations": [
+    "A9当前状态未确认；本次未恢复板卡运行态。",
+    "Wong报告HDMI冻结或黑屏；任务端未直接观察，且是否与先前A9暂停相关未证实。",
+    "清单检查只验证证据包装与哈希，不能代表硬件恢复成功或阶段3 G3/G4/G5通过。"
+  ]
+}

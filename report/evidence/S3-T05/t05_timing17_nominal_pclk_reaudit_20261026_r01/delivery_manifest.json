@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T05",
+  "run_id": "t05_timing17_nominal_pclk_reaudit_20261026_r01",
+  "source_commit": "110ddf1b5b3c2e2087afb7260a031a042a393a2c",
+  "evidence_dir": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只读重分析既有 routed DCP 的时钟约束，不定义、修改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/README.md",
+      "sha256": "15d2c008afdfe8eaec23afb85fba99fc792808e9212c8c2e6740964cf526485f",
+      "role": "artifact",
+      "keep_reason": "说明首次分析因 1 ps 周期量化与断言精度不匹配而失败，并指向新 RunId 重试。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/reanalyze_routed_dcp.tcl",
+      "sha256": "79b9277f707413e9e482a0f173da57e9d9579ebdc19f780c2116c22028252ce7",
+      "role": "source",
+      "keep_reason": "保留失败尝试所用的 DCP/XDC 输入、时钟读取断言及后续报告命令。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/vivado_exit_code.txt",
+      "sha256": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04",
+      "role": "result",
+      "keep_reason": "Vivado 进程退出码 1。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/vivado.log",
+      "sha256": "558efe3833b9601af3d318e7862ffe2007ded77643f88646ed7ff1f65cfa4c93",
+      "role": "result",
+      "keep_reason": "Vivado 完整日志，包含 XDC 周期舍入及断言失败位置。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/vivado.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "保留原始空 stderr。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/vivado.stdout.txt",
+      "sha256": "a99fea8a1eab2328719ce932f48a934630238f521c9ddf42534eb9ada65a0cc8",
+      "role": "result",
+      "keep_reason": "Vivado 原始 stdout，保留周期舍入和 Tcl 错误。"
+    },
+    {
+      "path": "report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/input_design_1_wrapper_routed.dcp",
+      "sha256": "e5f5a429a1eff9e6602f3bca92cefdcca562f1ee39a8e2a0aba0351c58562a84",
+      "role": "artifact",
+      "keep_reason": "保留本次输入 routed DCP 的字节级副本；SHA-256 与 Tcl 实际打开的原路径一致。"
+    },
+    {
+      "path": "board/stage3/hardware/an5642_j11_cmos2.xdc",
+      "sha256": "d1d3e976f84e0aa5a67ff695d07c83983cf32887c463d6bf25250821f64aa595",
+      "role": "source",
+      "keep_reason": "绑定本次应用的候选名义 CMOS1_PCLK 时钟约束。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "First routed-DCP timing reanalysis attempt",
+      "status": "FAIL",
+      "command": "vivado.bat -mode batch -nojournal -source report/evidence/S3-T05/t05_timing17_nominal_pclk_reaudit_20261026_r01/reanalyze_routed_dcp.tcl",
+      "exit_code": 1,
+      "reason": "Vivado 将周期舍入为 11.905 ns；r01 断言期望 11.904762 ns 且容差不足，停止于报告生成前。"
+    },
+    {
+      "name": "Timing report generation",
+      "status": "BLOCKED",
+      "command": "report_clocks; report_methodology; report_timing_summary; report_clock_interaction",
+      "exit_code": null,
+      "reason": "周期断言失败后脚本提前退出，未生成时序报告；更正尝试见 r02。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1 Build 6511674",
+    "device": "xc7z020clg400-2",
+    "license": "BASIC；未读取许可证文件内容"
+  },
+  "limitations": [
+    "这是被保留的失败尝试，不代表设计实现失败；失败原因为 Tcl 断言没有容纳 Vivado 的 1 ps 周期量化。",
+    "没有完成时序报告，也没有综合、实现、路由、生成 bitstream、写回 DCP/XDC 或操作硬件。",
+    "该包通过文件包装检查也不能视为 TIMING-17 关闭、时序签核或阶段3 G5。"
+  ]
+}

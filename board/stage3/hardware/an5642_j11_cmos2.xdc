@@ -58,3 +58,8 @@ set_property PULLUP true [get_ports cmos1_i2c_scl_io]
 set_property PULLUP true [get_ports cmos1_i2c_sda_io]
 
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets cmos1_pclk_IBUF]
+
+# 名义时钟依据：厂商初始化摘录注释称 24 MHz 输入下 0x3035=0x21、0x3036=0x69 对应 PCLK=84 MHz；
+# v10/v11 板级 UART 回读到 0x3035=0x21（见 t05_color_msb_missing_20261022_r01、t05_stage3_window_20261024_r01）。
+# PCLK 尚未由仪器实测，实际频偏须复核后调整周期；该约束仅为名义 STA 假设，不代表时序签核通过。
+create_clock -name CMOS1_PCLK -period 11.904762 [get_ports {cmos1_pclk}]

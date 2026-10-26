@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "stage": "3",
+  "task_id": "S3-T17",
+  "run_id": "t17_w1_a9_enum_20261026_r01",
+  "source_commit": "110ddf1b5b3c2e2087afb7260a031a042a393a2c",
+  "evidence_dir": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次仅做经 Wong 批准的只读 JTAG target 枚举和条件性 A9 state 查询，没有修改或冻结阶段接口。",
+  "files": [
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/README.md",
+      "sha256": "804351be402c0caf69c207198456a06d412a3770bc766c08307d0f9451d3a1d0",
+      "role": "artifact",
+      "keep_reason": "授权范围、只读枚举结果、收窗状态及未验证项"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/.gitattributes",
+      "sha256": "3e999f705c5bd32a33c2800ad381104aa061dabaed2e10290523f5f697641904",
+      "role": "artifact",
+      "keep_reason": "将混合 CRLF/LF 的原始 XSDB 输出按原字节存入 Git，保持清单绑定哈希"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/preflight.json",
+      "sha256": "735128cc3e9a17e9d572d265e2f42459f7a31cecaa70222ece112a56f870a2e6",
+      "role": "result",
+      "keep_reason": "RunId、工作树、锁、进程、监听及环境前置核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/enumerate_a9_state.tcl",
+      "sha256": "2024042d13dd0b444cc2a750e87e095a05a1782d47e452cf310fea7e02c471ff",
+      "role": "source",
+      "keep_reason": "经授权仅查询 JTAG target 列表及 A9 state 的脚本"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/execution_summary.json",
+      "sha256": "85287e7a1f01e15476ec0879c5db7fcef29648e6b3d38523abd3e1e9bfa87282",
+      "role": "result",
+      "keep_reason": "XSDB/Tcl 返回码、JTAG 链、target tree 及未执行动作"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/postrun.json",
+      "sha256": "1a5cf77f1a342e15354817f4a2e80301a13faefbdb2a8be147cb47f2d842e3d6",
+      "role": "result",
+      "keep_reason": "窗口结束后的硬件服务、监听和锁核验"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/xsdb_wrapper.stdout.txt",
+      "sha256": "fc332c6b5b09cce210ad484bfc0a096d04be7a878a72ec7180dbb58ec76d404c",
+      "role": "log",
+      "keep_reason": "XSDB、hw_server、JTAG 枚举及 Tcl 的原始标准输出"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/xsdb_wrapper.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "XSDB 包装器原始空标准错误输出"
+    },
+    {
+      "path": "report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/wrapper_exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "result",
+      "keep_reason": "XSDB wrapper 真实退出码"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Approved read-only JTAG enumeration",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vivado\\bin\\xsdb.bat D:\\codex-worktrees\\dbdf\\report/evidence/S3-T17/t17_w1_a9_enum_20261026_r01/enumerate_a9_state.tcl",
+      "exit_code": 5,
+      "reason": "JTAG-HS1 与 xc7z020 可见；DAP APB 错误 0x30000021；无 A9 target，因此未读取 state。"
+    },
+    {
+      "name": "Post-run resource cleanup",
+      "status": "PASS",
+      "command": "Get-Process vivado,xsdb,hw_server,vitis; Get-NetTCPConnection -LocalPort 3121 -State Listen; Test-Path <resolved index.lock>",
+      "exit_code": 0,
+      "reason": "收窗复查均为 0/False；本次 XSDB 创建的 hw_server 已自行退出，未结束任何进程。"
+    },
+    {
+      "name": "No state-changing/debug-memory commands in Tcl",
+      "status": "PASS",
+      "command": "! rg -n '\\b(con|stop|mrd|mwr|rst|fpga|dow)\\b' enumerate_a9_state.tcl",
+      "exit_code": 0,
+      "reason": "取反扫描退出码 0；源脚本没有状态改变、寄存器访问或编程命令。"
+    }
+  ],
+  "tool_versions": {
+    "XSDB": "2026.1",
+    "shell": "Git Bash / PowerShell 7"
+  },
+  "limitations": [
+    "未获得 A9 target/state；当前 HDMI 和部署身份没有重新确认。",
+    "DAP APB transaction error 阻断处理器侧只读查询；本轮未尝试重置或恢复。",
+    "Windows PnP 与可用内存查询被系统拒绝；XSDB 直接枚举已确认 JTAG-HS1 和 FPGA IDCODE。",
+    "CHECKS_OK 或文件哈希一致仅表示证据包装完整，不代表实物恢复或阶段3 G3/G4/G5通过。"
+  ]
+}

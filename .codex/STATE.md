@@ -1,4 +1,14 @@
-# 阶段4 状态（写权：已 OFFERED 给 DSH 项目总控，待领取）
+# 阶段4 状态（写权：Codex 项目总控 / IN_PROGRESS；上次 OFFER 已撤回）
+
+## 当前任务（S4-T26-GOLDEN-CONTROL，2026-10-26 20:44 UTC+8）
+
+- Wong 明确撤回 `d2262bc` 的 w4 OFFER，由 Codex 继续 task-26；**DSH 不 claim**。仅修改 w4；不操作板卡、JTAG、COM4 或 Vivado，不改写 main/dbdf/w2b/w5/w6。
+- 起始提交 `d2262bca4c562cf2ff9037e6ed098e37f3d62596`；原有 STATE 差异及 12 个 ELF/MAP 已逐项核验、保持原位。初始归属与 SHA：`report/evidence/S4-CTRL/s4t26_golden_control_20261026_r01/initial_snapshot.json`；原始 STATE 临时恢复快照在该清单声明的 tmp 目录，不纳入提交。
+- 执行顺序：修正固定提交/祖先绑定并独立复审 → 当前 Darknet/hook 对 T29 `test_fist_000` 导出 layer 29/36、按冻结 scale 量化并逐字节控制对拍 → **仅完全一致后**生成指定校准样本新黄金和 producer 记录，再推进真实推理/回放。任何控制差异立即停止，结果保持 BLOCKED。
+- `ENABLE=0`、RAW 系统 G0 未闭合、P/4-D/G3/G5 NOT_RUN 继续有效；本任务不自动解除这些关口。
+
+## 当前交接行（11字段，2026-10-26 20:44 UTC+8）
+任务=`S4-T26-GOLDEN-CONTROL：撤回 OFFER、修正基线绑定并执行独立黄金控制` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`d2262bca4c562cf2ff9037e6ed098e37f3d62596` | 允许修改范围=`仅 w4 内 task-26 相关代码、文档、新 RunId 证据和 STATE` | 未提交改动归属=`原有 STATE 用户差异及12个ELF/MAP保留、不混入提交；本轮新证据和状态增量归当前Codex` | 让出声明=`Wong 已撤回上次 OFFER；Codex 继续 task-26，DSH 不 claim；硬件与其他工作树无操作授权` | 心跳(UTC+8)=`2026-10-26 20:44` | 证据入口=`report/evidence/S4-CTRL/s4t26_golden_control_20261026_r01/initial_snapshot.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex 项目总控；DSH 不 claim`
 
 ## task-26 G0 接续结果（2026-10-26 19:32 UTC+8；r10 为最终固定输入预检）
 
@@ -9,7 +19,7 @@
 - 实际网络推理、raw head 对拍、D9/NMS、负向对照、PNG `IMREAD_UNCHANGED` 检查和硬件运行均 `NOT_RUN`；未生成 task-27/28 冻结推理结果。继续保持 `ENABLE=0`、RAW 系统 G0 未闭合、P/4-D/G3/G5 `NOT_RUN`；s4-shared-io r06 仍 `DRAFT_PENDING_REVIEW`。
 - 验收证据：权威目录 `report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r10/`（预检 JSON SHA `72f87a8b…65233a`；检查器 SHA `c31d09e4…62025d`）。dbdf task-25 输入与显式提交核验通过，状态检查 index SHA 前后相同；r03-r09 作为前置诊断/故障注入尝试原样保留。既有 12 个 ELF/MAP 哈希复核未变、既有 STATE 差异保留。
 
-## 当前交接行（11字段，2026-10-26 19:40 UTC+8；覆盖 18:03 行）
+## 历史交接行（11字段，2026-10-26 19:40 UTC+8；OFFER 已由当前任务撤回）
 任务=`S4-CODEX-T26-OFFLINE G0 阻断收尾并交还 w4 写权` | 负责人=`Codex 项目总控（当前让出方）` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`33988ed7e8a97a9d5395b8cfd136a327c37d7dc9` | 允许修改范围=`docs/stage4/；scripts/stage4_s4ctrl/；scripts/stage4_s4b/；verification/；report/evidence/S4-CTRL/；.codex/STATE.md` | 未提交改动归属=`task-26 检查器和 r03-r10 证据已提交于 29b7c231；原有 .codex/STATE.md 用户差异及 12 个 ELF/MAP 未提交、未改动` | 让出声明=`独立 Reviewer PASS；task-26 G0 BLOCKED/exit 2；Codex 已停止 w4 写入并 OFFERED 给 DSH 项目总控；未启动硬件、Vivado、JTAG、COM4 或板测；阶段3与硬件仍归 DSH` | 心跳(UTC+8)=`2026-10-26 19:40` | 证据入口=`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r10/manifest.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`OFFERED / DSH 项目总控（待 DSH claim）`
 
 

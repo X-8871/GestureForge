@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_no_hand_20261027_r04",
+  "source_commit": "590823bdd6bd281bfaf41652a40e29ee0829f6e2",
+  "evidence_dir": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只读绑定阶段4/5 的跨树 replay-only 文件；没有把离线范围冻结件申报为阶段6 集成接口。",
+  "files": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "阶段6 已批准行为表：NO_HAND 与窗口推进语义依据"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "source",
+      "keep_reason": "阶段6 行为说明与范围约束"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "8008086680ddc15e46979b1211e6b201bc476d337e0b4e61257de46c1f0a5f27",
+      "role": "source",
+      "keep_reason": "被评估的阶段6 实际状态机核心；本轮未调用"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "source",
+      "keep_reason": "被评估的阶段6 参数校验层；本轮未装载参数"
+    },
+    {
+      "path": "verification/s6d_replay_preview_preflight.py",
+      "sha256": "fe457df64cefbc2cf8376a16f72f93e06472e2414f7aab17010bae5abb2448ea",
+      "role": "source",
+      "keep_reason": "本轮回放输入门实现"
+    },
+    {
+      "path": "verification/test_s6d_replay_preview_preflight.py",
+      "sha256": "0ca476647df2d76ed57f78b862e524afb6d8c1ec7974c3d538076da2af4d44e6",
+      "role": "source",
+      "keep_reason": "本轮回放输入门定向测试"
+    },
+    {
+      "path": "verification/run_s6d_replay_preview.py",
+      "sha256": "aeae0917dc41f67018fc746984db8220687cc9f15728703e4aa2760bbdf83e62",
+      "role": "source",
+      "keep_reason": "负责捕获主预检 runner 实际退出码并固定最终清单的本轮包装器"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/preflight_result.json",
+      "sha256": "eb51181ba097c1b40398aac6ed69792ee9ab4d7578f9be2ff604ea907b30b7be",
+      "role": "result",
+      "keep_reason": "本轮输入资格与上游绑定结果"
+    }
+  ],
+  "checks": [
+    {
+      "name": "阶段4/5 独立只读绑定复算",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\tmp\\s6d_r04_frozen_blob_39axw8oo\\s6d_replay_preview_preflight_r04.py --upstream-audit --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "上游独立复算命令、stdout、stderr 与退出码均收录；逐文件 SHA 和 pinned commit 记录在 preflight_result.json。",
+    "输入资格 BLOCKED 属于本次结果，不代表结构/哈希检查失败。"
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_no_hand_20261027_r04",
+  "scope": "replay_only 单帧离线预检；阶段6状态机未调用；不代表实物/实时结果。",
+  "stage6_source_commit": "590823bdd6bd281bfaf41652a40e29ee0829f6e2",
+  "stage6_core_binding": {
+    "path": "src/stage6/s6_core.py",
+    "disk_sha256": "8008086680ddc15e46979b1211e6b201bc476d337e0b4e61257de46c1f0a5f27",
+    "head_blob_sha256": "8008086680ddc15e46979b1211e6b201bc476d337e0b4e61257de46c1f0a5f27",
+    "disk_matches_head_blob": true
+  },
+  "runtime_source_bindings": [
+    {
+      "path": "verification/run_s6d_replay_preview.py",
+      "template_sha256": "aeae0917dc41f67018fc746984db8220687cc9f15728703e4aa2760bbdf83e62",
+      "executed_copy": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/runner_runtime.py",
+      "executed_copy_sha256": "ea83784c6cb6f95cdbcff6dece6144d794d3213fb3fed1c11b8e38dc01b13ee6",
+      "changes": [
+        "RunId 固定值从 r03 定向到本包 r04",
+        "预检子进程指向本包绑定的预检运行副本"
+      ]
+    },
+    {
+      "path": "verification/s6d_replay_preview_preflight.py",
+      "template_sha256": "fe457df64cefbc2cf8376a16f72f93e06472e2414f7aab17010bae5abb2448ea",
+      "executed_copy": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/preflight_runtime.py",
+      "executed_copy_sha256": "666939637f2a7ccbef9ff1ec911f206a8e2e0471bab4215c94a9f2e1f3b49b4d",
+      "changes": [
+        "RunId 固定值从 r03 定向到本包 r04",
+        "对阶段4契约从固定 Git blob 提交读取字节并验证 SHA；不消费当前工作树的更新契约"
+      ]
+    },
+    {
+      "path": "verification/test_s6d_replay_preview_preflight.py",
+      "sha256": "0ca476647df2d76ed57f78b862e524afb6d8c1ec7974c3d538076da2af4d44e6",
+      "bound_by": "inputs_manifest.json",
+      "test_exit_code": 0
+    }
+  ],
+  "stage4_frozen_contract_binding": {
+    "current_w4_head": "ff3dcbf9a9d5fbb44b7fe637aaca9972b7a64fb8",
+    "current_worktree_contract_sha256": "2848ba031a6411e2920f7f8edbd58a3199d3404a2558a867d6c0f245c0796a94",
+    "frozen_contract_bytes_commit": "4400bb89cba5a860d6baa9e976bb08f25606cf15",
+    "frozen_contract_blob_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "expected_frozen_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "frozen_commit_reachable_from_current_head": true,
+    "reviewed_contract_commit": "5f9a04a045f4aaa7516759513f660f9872cbab61",
+    "reviewed_prechange_json_sha256": "8beea2c55053be879ad810308b11cf63ea1e0cd7bc1a229fda5715a9255e5147",
+    "note": "当前工作树契约 SHA 与 r07 冻结 SHA 不同；r07 冻结字节在不可变提交 4400… 中，按用户要求按提交/blob 内容绑定；首次工作树直读失败原样保留。"
+  },
+  "preserved_attempt1": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\tmp\\s6d_r04_runtime_o5qte6s4\\run_s6d_replay_preview_r04.py --project-root D:\\codex-worktrees\\w6 --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --run-dir report/evidence/S6-D/s6d_replay_no_hand_20261027_r04",
+    "exit_code": 2,
+    "stdout_path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/preserved_attempt1_stdout.txt",
+    "stdout_sha256": "534e4c71a6b67ef2056b1a5619dd1d8a4ddd476a9242bdb30ad60692a6d7f7ef",
+    "stderr_path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/preserved_attempt1_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "effect": "上游审计在创建RunId目录前失败；没有覆盖、生成或改变旧RunId。"
+  },
+  "final_wrapper_process": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\tmp\\s6d_r04_frozen_blob_39axw8oo\\run_s6d_replay_preview_r04.py --project-root D:\\codex-worktrees\\w6 --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --run-dir report/evidence/S6-D/s6d_replay_no_hand_20261027_r04",
+    "exit_code": 2,
+    "stdout_path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/runtime_wrapper_stdout.txt",
+    "stdout_sha256": "3643aebd7643b1289713302f2ea8cb6247b9d86ecfa2996cbc107fbc05527221",
+    "stderr_path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r04/runtime_wrapper_stderr.txt",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "preflight_runner_exit_code": 2,
+    "preflight_status": "BLOCKED",
+    "unit_test_exit_code": 0,
+    "upstream_audit_exit_code": 0,
+    "inputs_check_exit_code": 0,
+    "evidence_check_exit_code": 0
+  },
+  "initial_manifest_checks": {
+    "replay-only 单帧输入资格": {
+      "status": "BLOCKED",
+      "exit_code": null,
+      "command": null
+    },
+    "阶段4/5 独立只读绑定复算": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\tmp\\s6d_r04_frozen_blob_39axw8oo\\s6d_replay_preview_preflight_r04.py --upstream-audit --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5"
+    },
+    "阶段交付 inputs 模式": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r04\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6"
+    },
+    "定向单元测试": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 -m unittest -v verification.test_s6d_replay_preview_preflight"
+    },
+    "阶段交付 evidence 模式": {
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r04\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6"
+    },
+    "主预检 runner 实际进程退出": {
+      "status": "BLOCKED",
+      "exit_code": null,
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\tmp\\s6d_r04_frozen_blob_39axw8oo\\s6d_replay_preview_preflight_r04.py --project-root D:\\codex-worktrees\\w6 --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --run-dir report/evidence/S6-D/s6d_replay_no_hand_20261027_r04"
+    }
+  },
+  "runner_result_sha256": "eb51181ba097c1b40398aac6ed69792ee9ab4d7578f9be2ff604ea907b30b7be",
+  "runner_stdout_sha256": "91c0f94cc7d518ad872c39e7f75a2cfc6b9af00a2288fd226a54eeff9cc84901",
+  "unit_test_output_sha256": "a2c3cb54aafece4f0f6f1c8e285a5e7df31d70e1f9565f864fb80d983d2401e5",
+  "upstream_audit_output_sha256": "27fc64b6219cbeab6a3c0f17dba88a7ce6e14e1771d6870a6380fc08c3d5fd72",
+  "input_check_output_sha256": "9891a911056b443f90ae8fc4a984540e56ba39b2f07979c3f42eb01082d111d5",
+  "evidence_check_output_sha256": "3bcd30819153d3e5c4c58b08f90f6edeb8ae9a3fdd97389ca24e6eb3496136e6",
+  "not_run": [
+    "S6-D 状态机核心处理",
+    "T6-A03/P 实测帧周期",
+    "G3 板级验证",
+    "6-E 实物验收",
+    "G4/G5"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "reviewer": "rev-s5 (DSH independent Reviewer, read-only)",
+  "task": "S5-T04 offline-scope freeze independent review",
+  "reviewed_worktree": "D:\\codex-worktrees\\w5",
+  "branch": "stage5-display-prep",
+  "baseline_commit": "2a2d2cc01cd31444a1a854115d99a31cbe8499bf",
+  "freeze_commit": "26b743901b4ec76107ca2cd6a010337a5ae40bf2",
+  "final_head": "2797cc3e072a8dfa1287f3e54cd606b46de16f99",
+  "tag": "stage5-offline-freeze-20261027 -> 26b7439 (annotated, not pushed)",
+  "verdict": "PASS",
+  "blocking_findings": [],
+  "non_blocking_findings": [
+    "F1 verifier docstring says path-escape => exit 2, but implementation accepts repo-scope ../ or absolute paths outside --root (my injections: exit 0). No such path exists in r05 frozen set; frozen set is git+manifest bound. Close before G5.",
+    "F2 README §6 wording implies check_stage_delivery was re-run inside the git-archive export; package's own F6 evidence ran it only in the independent checkout (archive has no .git => checker exit 2 in my replay).",
+    "F3 frozen_set.json superseded_runs lists only r00,r01; r02/r03/r04 supersession is documented only in STATE/tag/commit messages.",
+    "F4 f6export failed dirs r00/r00b have internal run_id = ..._r01 (pre-fix hardcoded-RunId bug) and r00 has checker_checks_ok=true while checker_exit_code=2; preserved as-is (do not rewrite), needs a pointer note next round.",
+    "F5 builder docstring says top-level dirs are dir_digest, implementation uses file_set; dir_digest branch unused in this freeze."
+  ],
+  "key_exit_codes": {
+    "cat_file_type_three_commits": [0, 0, 0],
+    "ancestry_2a2d2cc_to_26b7439": 0,
+    "ancestry_26b7439_to_2797cc3": 0,
+    "worktree_status_porcelain": 0,
+    "index_lock_absent": true,
+    "tag_on_remote": "absent (ls-remote rc=0, only refs/heads/main returned)",
+    "frozen_set_json_sha256": "109254238e2aede8ab9005ed153e768e611c3ba325a5b1b75b312b415408b1bf",
+    "verifier_archive_export": 0,
+    "verifier_shared_checkout_26b7439": 0,
+    "verifier_live_w5_head": 0,
+    "checker_evidence_in_archive_no_git": 2,
+    "checker_evidence_in_checkout": 0,
+    "checker_inputs_in_checkout": 2,
+    "builder_reproduction_in_checkout": 0,
+    "offline_suite_archive_copy": 1,
+    "offline_suite_checkout_26b7439": 0,
+    "legacy_suite_83": 1
+  },
+  "injections": {
+    "total": 19,
+    "as_contract": 17,
+    "deviations": ["path_escape_relative expected 2 observed 0", "path_escape_absolute expected 2 observed 0"],
+    "detail": "logs/injections.json"
+  },
+  "coverage": {
+    "members": 77,
+    "member_kinds": {"file": 58, "file_set": 19},
+    "by_group": {"contracts_and_specs": 14, "offline_implementation": 3, "offline_evidence_replay_display": 44, "offline_evidence_s5t02": 7, "host_upstream_references": 9},
+    "file_level_registrations": 196,
+    "files_rehashed_by_reviewer": 196,
+    "hash_mismatches": 0,
+    "range_holes": 0,
+    "docs_stage5_tracked": 17,
+    "docs_stage5_registered": 13,
+    "docs_stage5_unregistered_justified": ["S5T01_stage5_board_bringup_runbook.md", "S5T02_onboard_dynamic_mapping_taskcard.md", "S5_stage5_display_spec_draft.md", "s5t01_injection_plan_example.json"],
+    "stage3_frame_939fce22_bound": true,
+    "stale_200ms_approval_receipt_bound": true
+  },
+  "f6_replay": {
+    "git_archive_full_export_files": 3207,
+    "verifier_exit": 0,
+    "checkout_verifier_exit": 0,
+    "checkout_checker_evidence_exit": 0,
+    "builder_members_identical_to_committed": true
+  },
+  "regression": {
+    "modules": 10,
+    "archive_copy": {"exit": 1, "tests": 142, "failures": 1, "skipped": 2, "note": "only test_existing_synthetic_evidence_untouched fails: shells out to git diff BASE_COMMIT, archive lacks .git"},
+    "checkout": {"exit": 0, "tests": 142, "failures": 0, "skipped": 2, "elapsed_s": 168.6, "long_run_frames": 106573},
+    "legacy_probe": {"exit": 1, "tests": 83, "failures": 18, "elapsed_s": 11.1, "disclosed_and_excluded": true}
+  },
+  "boundary_honesty": {
+    "no_G0_G5_board_physical_realtime_claims": true,
+    "task27_not_run": true,
+    "legacy_18_disclosed_not_counted": true
+  },
+  "trace_retention": {
+    "failed_superseded_dirs_present": 7,
+    "modified_after_creation": 0,
+    "r01_frozen_set_overwrite_reverted_before_commit": true
+  },
+  "artifacts": {
+    "report": "D:\\tmp\\review\\S5_T04_20261027_r01\\S5_T04_REVIEW_REPORT.md",
+    "logs": "D:\\tmp\\review\\S5_T04_20261027_r01\\logs\\",
+    "isolated_copies": "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\ (f6a_archive, f6b_clone, inject)"
+  },
+  "w5_written_by_reviewer": false,
+  "hardware_touched": false
+}

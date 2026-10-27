@@ -1,0 +1,22 @@
+[PASS] clean_isolated_copy: exit=0 (expect 0) FROZEN_SET_VERIFIED
+[PASS] tamper_one_byte_file_member: exit=1 (expect 1) FROZEN_SET_MISMATCH
+[PASS] delete_file_member: exit=2 (expect 2) FROZEN_SET_ENV_ERROR
+[PASS] tamper_file_set_entry: exit=1 (expect 1) FROZEN_SET_MISMATCH
+[PASS] delete_file_set_entry: exit=2 (expect 2) FROZEN_SET_ENV_ERROR
+[PASS] extra_file_in_file_set_dir: exit=0 (expect 0) FROZEN_SET_VERIFIED
+[PASS] frozen_set_expected_hash_edit: exit=1 (expect 1) FROZEN_SET_MISMATCH
+[PASS] missing_frozen_set_argument: exit=2 (expect 2) [ENV_ERROR] 必须显式给出 --frozen-set（禁止内置 RunId 默认路径，避免校验过期包）
+[PASS] frozen_set_absent: exit=2 (expect 2) [ENV_ERROR] 冻结集不存在：D:\tmp\review\S5_T04_20261027_r01\work\scratch\nope.json
+[PASS] frozen_set_is_directory: exit=2 (expect 2) [ENV_ERROR] 冻结集不存在：D:\tmp\review\S5_T04_20261027_r01\work\inject\report
+[PASS] frozen_set_malformed_json: exit=2 (expect 2) [ENV_ERROR] 冻结集不可解析：Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+[PASS] root_absent: exit=2 (expect 2) [ENV_ERROR] --root 不是目录：D:\tmp\review\S5_T04_20261027_r01\work\no_such_root
+[PASS] file_member_path_is_dir: exit=2 (expect 2) FROZEN_SET_ENV_ERROR
+[PASS] unknown_kind: exit=2 (expect 2) FROZEN_SET_ENV_ERROR
+[PASS] host_reference_absent: exit=2 (expect 2) FROZEN_SET_ENV_ERROR
+[FAIL] path_escape_relative: exit=0 (expect 2) FROZEN_SET_VERIFIED
+[FAIL] path_escape_absolute: exit=0 (expect 2) FROZEN_SET_VERIFIED
+[PASS] skip_host_references: exit=0 (expect 0) FROZEN_SET_VERIFIED
+      skip-host: skipped_host_lines=9 (expect 9)
+[PASS] selftest: exit=0 steps={'clean': 0, 'tampered_one_byte': 1, 'deleted_one_member': 2} verdict=SELFTEST_PASS
+
+=== SUMMARY: 17/19 as expected; unexpected=['path_escape_relative', 'path_escape_absolute'] ===

@@ -1,0 +1,91 @@
+=== frozen_set.json sha256 vs claim ===
+109254238e2aede8ab9005ed153e768e611c3ba325a5b1b75b312b415408b1bf CLAIM_MATCH
+
+=== superseded_runs (full) ===
+[
+ {
+  "run_id": "s5_freeze_20261027_r00_runner_crash",
+  "reason": "运行器在解析套件摘要时崩溃（未产出清单）；保留不改写"
+ },
+ {
+  "run_id": "s5_freeze_20261027_r01",
+  "reason": "F6 自证发现冻结工具缺陷：导出/检出未携带 `.gitattributes` ⇒ 换行被转换、44 项哈希不符；r02 已修工具并把 `.gitattributes` 纳入冻结集，故 r01 被取代（保留不改写）"
+ }
+]
+
+=== not_frozen (full) ===
+[
+ {
+  "item": "docs/stage5/S5_stage5_display_spec_draft.md、S5T01_*、S5T02_onboard_dynamic_mapping_taskcard.md",
+  "reason": "上游草案/任务卡/运行书，非冻结交付面（历史入口），本轮不登记"
+ },
+ {
+  "item": "report/evidence/S5-A|S5-B|S5-C|S5-CTRL|S5-T01 的历史 RunId（含板级 hw_gate/hw_probe/board_dynamic_map/pixel_*）",
+  "reason": "历史轮次与**板级**证据：板级项不在本冻结范围（不主张），且历史包按其自身轮次自证；本轮不重写、不冻结"
+ },
+ {
+  "item": "scripts/stage5_t01/**（含 P1 C 应用与构建）",
+  "reason": "板上应用与构建属板级范围；离线宿主映射实现由 s5t02_offline_dynamic_map_20261027_r02 覆盖"
+ },
+ {
+  "item": "scripts/stage5_s5a|s5b|s5c（S5-A/B/C 历史离线准备与测试）",
+  "reason": "不属于本卡定义的离线 replay/display 路径；其测试依赖 w4 侧黄金数据（`s4c_replay_20261021_r05`、`S4-B/20261021_r13`），上游漂移后当前失败（实测：全量 225 项中 19 项失败，其中 s5b 15 项、s5c 3 项、几何夹具 1 项（已修））；如实登记为已知缺口，不并入冻结范围、不冒称通过"
+ },
+ {
+  "item": "report/evidence/S5-T04/s5_freeze_20261027_r00_runner_crash（本冻结轮首次运行器崩溃）",
+  "reason": "运行器在解析套件摘要时崩溃（未产出清单），按其真实值保留为独立 RunId，不覆盖重跑；修复见 r01"
+ },
+ {
+  "item": "task-27（回放/彩色输入路径实现 + 用回放结果包做离线动态回归）",
+  "reason": "该卡整体 NOT_RUN（未按卡交付）：冻结的是既有离线骨架与离线消费，不是 task-27 的完整实现与回归"
+ },
+ {
+  "item": "任何 G0/G1/G3/G4/G5 或板级/实物结论",
+  "reason": "本冻结只覆盖离线字节集，不主张任何关口通过"
+ }
+]
+
+=== range-hole: file_set 登记条目 vs 基线提交内该目录的已跟踪文件 ===
+OK             scripts/stage5_t03: tracked=25 registered=25 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/console: tracked=6 registered=6 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/keyframes: tracked=22 registered=22 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/logs: tracked=1 registered=1 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/console: tracked=6 registered=6 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/keyframes: tracked=25 registered=25 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/logs: tracked=1 registered=1 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/console: tracked=5 registered=5 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/keyframes: tracked=8 registered=8 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_json_contract_20261026_r04/console: tracked=4 registered=4 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/console: tracked=5 registered=5 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/keyframes: tracked=6 registered=6 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/console: tracked=5 registered=5 missing=[] extra=[]
+OK             report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/console: tracked=3 registered=3 missing=[] extra=[]
+OK             report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/build: tracked=2 registered=2 missing=[] extra=[]
+OK             report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/c_output: tracked=1 registered=1 missing=[] extra=[]
+OK             report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/console: tracked=8 registered=8 missing=[] extra=[]
+OK             report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/stream: tracked=4 registered=4 missing=[] extra=[]
+OK             report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/verify: tracked=1 registered=1 missing=[] extra=[]
+
+=== 冻结实现目录覆盖率 ===
+scripts/stage5_t03: tracked_relevant=25 registered=25 unregistered=[]
+verification: tracked_relevant=2 registered=2 unregistered=['verification/verify_stage5_frozen_set.py']
+
+=== HEAD 清单绑定核对（delivery_manifest.json 里每个 files[].sha256）===
+manifest entries=25 bad=0
+
+=== 阶段3 帧 / stale=200ms 绑定 ===
+  host::stage3_input_frame_full_bin: sha256=939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0
+  host::stage3_replay_input_binding: sha256=2addbb5a7da2c4c4b75f5518af6639f42b0e3b6bdfd4da1a67a34e9289f38a41
+  host::wong_stale_200ms_approval_receipt: sha256=d8edb84849cd1f93fded902dd913e841564bb1abedbfacd7c7ecde3112e874fb
+  frame_full.bin actual sha256: 939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0
+  approval receipt actual sha256: d8edb84849cd1f93fded902dd913e841564bb1abedbfacd7c7ecde3112e874fb
+
+=== 冻结契约中对 939fce22 / stale 200ms 的引用 ===
+  docs/stage5/s5a_stage5_display_g0_fields.json: ['stale200']
+  docs/stage5/S5A_stage5_display_g0_spec_v2.md: ['stale200']
+  docs/stage5/s5t03_offline_skeleton_params_v1.json: ['stale200']
+  docs/stage5/S5T03_offline_case_skeleton_v1.md: ['stale200']
+  docs/stage5/s5a_g0_ur3_decision_20261025_r01.json: ['stale200', 'approval-ref']
+  docs/stage5/s5a_g0_ur3_decision_20261025_r01.md: ['stale200', 'approval-ref']
+
+RANGE_HOLE_COUNT = 0

@@ -1,0 +1,193 @@
+=== top-level keys ===
+  schema_version: 'gestureforge_s5t04_frozen_set_v1'
+  frozen_set_id: 'S5T04-OFFLINE-SCOPE-FROZEN-20261027-R01'
+  task_id: 'S5-T04'
+  stage: 5
+  freeze_kind: 'OFFLINE_SCOPE_FROZEN'
+  baseline_commit: '2a2d2cc01cd31444a1a854115d99a31cbe8499bf'
+  generated_utc8: '2026-10-27T19:03:36+08:00'
+  generator: 'scripts/stage5_t04/build_stage5_frozen_set.py'
+  verifier: 'verification/verify_stage5_frozen_set.py'
+  claims: ['离线契约/规格字节', '离线实现字节', '离线证据包字节', '宿主侧上游引用字节']
+  non_claims: ['G0/G1/G3/G4/G5', '板级/实物/实时结论', 'task-27 完整实现与回归']
+  external_reference_policy: 'host 成员为跨树/主仓只读引用：默认参与校验（缺失/不符 ⇒ exit 2/1）；在离开本机的导出副本中可用 --skip-host-references 跳过，但跳过的项会逐条打印，不得当作已验证。'
+  tracked_only_rule: '冻结集只登记 Git 已跟踪文件；构建时对未跟踪成员 fail-closed（不可由提交单独复现的一律拒收）'
+  restore_entrypoints: ['python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5 --frozen-set <冻结包>/frozen_set.json', 'python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --frozen-set <冻结包>/frozen_set.json --selftest tmp/5/S5-T04/fro
+  byte_fidelity_note: '冻结成员一律按**工作树原始字节**登记，且**只登记已纳入 Git 的文件**（目录成员为 `file_set`，逐件列 path/sha256/bytes）：未跟踪的生成物（`__pycache__`、构建产物等）不属于冻结范围，否则 F6「单独检出后自检」会因副本缺少这些文件而误报（r01/r04 实测踩坑）。`.gitattributes` 本身也是冻结成员并带 `.gitattributes -text` 自规则，保证其字节不经 EOL 转换。'
+  superseded_runs: [{'run_id': 's5_freeze_20261027_r00_runner_crash', 'reason': '运行器在解析套件摘要时崩溃（未产出清单）；保留不改写'}, {'run_id': 's5_freeze_20261027_r01', 'reason': 'F6 自证发现冻结工具缺陷：导出/检出未携带 `.gitattributes` ⇒ 换行被转换、44 项哈希不符；r02 已修工具并把 `.gitattributes` 纳入冻结集，故 r01 被取代（保留不改写）'}]
+  not_frozen: [{'item': 'docs/stage5/S5_stage5_display_spec_draft.md、S5T01_*、S5T02_onboard_dynamic_mapping_taskcard.md', 'reason': '上游草案/任务卡/运行书，非冻结交付面（历史入口），本轮不登记'}, {'item': 'report/evidence/S5-A|S5-B|S5-C|S5-CTRL|S5-T01 的历史 RunId（含板级 hw_gate/hw_probe/board_dynamic_map/pixel_*）', 'reason': '历史轮次与*
+  members: list[77]
+
+=== member totals: 77 ===
+by_group: {"contracts_and_specs": 14, "host_upstream_references": 9, "offline_evidence_replay_display": 44, "offline_evidence_s5t02": 7, "offline_implementation": 3}
+by_kind : {"file": 58, "file_set": 19}
+by_scope: {"host": 9, "repo": 68}
+
+=== members (id | group | kind | scope | path | entries) ===
+[00] contract::.gitattributes | contracts_and_specs | file | repo | .gitattributes | 1
+[01] contract::s5a_stage5_display_g0_fields.json | contracts_and_specs | file | repo | docs/stage5/s5a_stage5_display_g0_fields.json | 1
+[02] contract::S5A_stage5_display_g0_spec_v2.md | contracts_and_specs | file | repo | docs/stage5/S5A_stage5_display_g0_spec_v2.md | 1
+[03] contract::s5t03_input_contract_binding_v1.json | contracts_and_specs | file | repo | docs/stage5/s5t03_input_contract_binding_v1.json | 1
+[04] contract::S5T03_input_contract_binding_colour_v1.md | contracts_and_specs | file | repo | docs/stage5/S5T03_input_contract_binding_colour_v1.md | 1
+[05] contract::s5t03_offline_skeleton_params_v1.json | contracts_and_specs | file | repo | docs/stage5/s5t03_offline_skeleton_params_v1.json | 1
+[06] contract::S5T03_offline_case_skeleton_v1.md | contracts_and_specs | file | repo | docs/stage5/S5T03_offline_case_skeleton_v1.md | 1
+[07] contract::s5t03_json_contract_v1.json | contracts_and_specs | file | repo | docs/stage5/s5t03_json_contract_v1.json | 1
+[08] contract::s5t03_json_contract_v1.md | contracts_and_specs | file | repo | docs/stage5/s5t03_json_contract_v1.md | 1
+[09] contract::s5a_g0_ur3_decision_20261025_r01.json | contracts_and_specs | file | repo | docs/stage5/s5a_g0_ur3_decision_20261025_r01.json | 1
+[10] contract::s5a_g0_ur3_decision_20261025_r01.md | contracts_and_specs | file | repo | docs/stage5/s5a_g0_ur3_decision_20261025_r01.md | 1
+[11] contract::S5T03_stage4_frozen_replay_consumption_v1.md | contracts_and_specs | file | repo | docs/stage5/S5T03_stage4_frozen_replay_consumption_v1.md | 1
+[12] contract::S5T03_board_verification_pending_v1.md | contracts_and_specs | file | repo | docs/stage5/S5T03_board_verification_pending_v1.md | 1
+[13] contract::PROVENANCE_s4d_v1_baseline.md | contracts_and_specs | file | repo | docs/stage5/PROVENANCE_s4d_v1_baseline.md | 1
+[14] impl_file::verification/s5_display_geometry_reference.py | offline_implementation | file | repo | verification/s5_display_geometry_reference.py | 1
+[15] impl_file::verification/test_s5_display_geometry_reference.py | offline_implementation | file | repo | verification/test_s5_display_geometry_reference.py | 1
+[16] impl_dir::scripts/stage5_t03 | offline_implementation | file_set | repo | scripts/stage5_t03 | 25
+[17] evidence_dir::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/console | 6
+[18] evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/demo.mp4 | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/demo.mp4 | 1
+[19] evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/frame_assertions.jsonl | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/frame_assertions.jsonl | 1
+[20] evidence_dir::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/keyframes | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/keyframes | 22
+[21] evidence_dir::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/logs | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/logs | 1
+[22] evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/manifest.json | 1
+[23] evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/results.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/results.json | 1
+[24] evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/summary.md | 1
+[25] evidence_dir::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/console | 6
+[26] evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/demo.mp4 | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/demo.mp4 | 1
+[27] evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/frame_assertions.jsonl.gz | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/frame_assertions.jsonl.gz | 1
+[28] evidence_dir::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/keyframes | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/keyframes | 25
+[29] evidence_dir::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/logs | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/logs | 1
+[30] evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/manifest.json | 1
+[31] evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/results.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/results.json | 1
+[32] evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/summary.md | 1
+[33] evidence_dir::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/console | 5
+[34] evidence_dir::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/keyframes | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/keyframes | 8
+[35] evidence_file::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/manifest.json | 1
+[36] evidence_file::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/results.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/results.json | 1
+[37] evidence_file::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/summary.md | 1
+[38] evidence_dir::report/evidence/S5-T03/s5t03_json_contract_20261026_r04/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_json_contract_20261026_r04/console | 4
+[39] evidence_file::report/evidence/S5-T03/s5t03_json_contract_20261026_r04/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_json_contract_20261026_r04/manifest.json | 1
+[40] evidence_file::report/evidence/S5-T03/s5t03_json_contract_20261026_r04/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_json_contract_20261026_r04/summary.md | 1
+[41] evidence_dir::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/console | 5
+[42] evidence_dir::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/keyframes | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/keyframes | 6
+[43] evidence_file::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/manifest.json | 1
+[44] evidence_file::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/results.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/results.json | 1
+[45] evidence_file::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/summary.md | 1
+[46] evidence_dir::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/console | 5
+[47] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/consumer_report.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/consumer_report.json | 1
+[48] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/crosscheck_report.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/crosscheck_report.json | 1
+[49] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/five_tuples.jsonl | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/five_tuples.jsonl | 1
+[50] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/frames.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/frames.json | 1
+[51] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/frames.jsonl | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/frames.jsonl | 1
+[52] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/freeze_integrity.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/freeze_integrity.json | 1
+[53] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/gate_evidence_projection.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/gate_evidence_projection.json | 1
+[54] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/manifest.json | 1
+[55] evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/summary.md | 1
+[56] evidence_dir::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/console | offline_evidence_replay_display | file_set | repo | report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/console | 3
+[57] evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/five_tuples.jsonl | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/five_tuples.jsonl | 1
+[58] evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/frames.jsonl | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/frames.jsonl | 1
+[59] evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/manifest.json | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/manifest.json | 1
+[60] evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/summary.md | offline_evidence_replay_display | file | repo | report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/summary.md | 1
+[61] evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/build | offline_evidence_s5t02 | file_set | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/build | 2
+[62] evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/c_output | offline_evidence_s5t02 | file_set | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/c_output | 1
+[63] evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/console | offline_evidence_s5t02 | file_set | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/console | 8
+[64] evidence_file::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/manifest.json | offline_evidence_s5t02 | file | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/manifest.json | 1
+[65] evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/stream | offline_evidence_s5t02 | file_set | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/stream | 4
+[66] evidence_file::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/summary.md | offline_evidence_s5t02 | file | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/summary.md | 1
+[67] evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/verify | offline_evidence_s5t02 | file_set | repo | report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/verify | 1
+[68] host::stage3_input_frame_full_bin | host_upstream_references | file | host | D:\codex-worktrees\dbdf\report\evidence\S3-T05\t05_stage3_window_20261024_r01\frame_full.bin | 1
+[69] host::stage3_replay_input_binding | host_upstream_references | file | host | D:\codex-worktrees\dbdf\report\evidence\S3-T05\t05_replay_binding_20261025_r01\replay_input_binding.json | 1
+[70] host::stage4_replay_package_freeze_json | host_upstream_references | file | host | D:\codex-worktrees\w4\report\evidence\S4-CTRL\s4t27_replay_package_freeze_20261027_r01\replay_package_freeze.json | 1
+[71] host::stage4_replay_package_freeze_manifest | host_upstream_references | file | host | D:\codex-worktrees\w4\report\evidence\S4-CTRL\s4t27_replay_package_freeze_20261027_r01\manifest.json | 1
+[72] host::stage4_positive_replay_freeze_index | host_upstream_references | file | host | D:\codex-worktrees\w4\report\evidence\S4-CTRL\s4t27_replay_positive_20261027_r01\freeze_index.json | 1
+[73] host::stage4_positive_replay_package | host_upstream_references | file | host | D:\codex-worktrees\w4\report\evidence\S4-CTRL\s4t27_replay_positive_20261027_r01\task27_replay_result_package_positive.json | 1
+[74] host::wong_stale_200ms_approval_receipt | host_upstream_references | file | host | D:\FPGA_Competition\report\evidence\CTRL-DSH-HANDOFF\decisions\stage6_approval_receipt_20261023_r01.md | 1
+[75] host::stage3_closeout_partial_open_and_task11 | host_upstream_references | file | host | D:\codex-worktrees\dbdf\report\evidence\S3-T17\stage3_closeout_20261026_r01\manifest.json | 1
+[76] host::stage4_freeze_supplement_hardware_limitation | host_upstream_references | file | host | D:\codex-worktrees\w4\docs\stage4\s4_stage4_freeze_supplement_hardware_20261027_r01.md | 1
+sum of file-level registrations (file members + file_set entries): 196
+duplicate ids: []
+duplicate (scope,path): []
+
+=== independent hash recomputation ===
+checked files: 196; total bytes: 35356021 (33.72 MiB)
+mismatched: 0; missing: 0
+
+per-member result:
+  OK  contract::.gitattributes                           file        n=1
+  OK  contract::s5a_stage5_display_g0_fields.json        file        n=1
+  OK  contract::S5A_stage5_display_g0_spec_v2.md         file        n=1
+  OK  contract::s5t03_input_contract_binding_v1.json     file        n=1
+  OK  contract::S5T03_input_contract_binding_colour_v1.md file        n=1
+  OK  contract::s5t03_offline_skeleton_params_v1.json    file        n=1
+  OK  contract::S5T03_offline_case_skeleton_v1.md        file        n=1
+  OK  contract::s5t03_json_contract_v1.json              file        n=1
+  OK  contract::s5t03_json_contract_v1.md                file        n=1
+  OK  contract::s5a_g0_ur3_decision_20261025_r01.json    file        n=1
+  OK  contract::s5a_g0_ur3_decision_20261025_r01.md      file        n=1
+  OK  contract::S5T03_stage4_frozen_replay_consumption_v1.md file        n=1
+  OK  contract::S5T03_board_verification_pending_v1.md   file        n=1
+  OK  contract::PROVENANCE_s4d_v1_baseline.md            file        n=1
+  OK  impl_file::verification/s5_display_geometry_reference.py file        n=1
+  OK  impl_file::verification/test_s5_display_geometry_reference.py file        n=1
+  OK  impl_dir::scripts/stage5_t03                       file_set    n=25
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/console file_set    n=6
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/demo.mp4 file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/frame_assertions.jsonl file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/keyframes file_set    n=22
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/logs file_set    n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/results.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/console file_set    n=6
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/demo.mp4 file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/frame_assertions.jsonl.gz file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/keyframes file_set    n=25
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/logs file_set    n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/results.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_offline_long_run_replay_20261026_r04/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/console file_set    n=5
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/keyframes file_set    n=8
+  OK  evidence_file::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/results.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_multi_geometry_render_20261026_r02/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_json_contract_20261026_r04/console file_set    n=4
+  OK  evidence_file::report/evidence/S5-T03/s5t03_json_contract_20261026_r04/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_json_contract_20261026_r04/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/console file_set    n=5
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/keyframes file_set    n=6
+  OK  evidence_file::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/results.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_hud_occlusion_20261026_r02/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/console file_set    n=5
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/consumer_report.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/crosscheck_report.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/five_tuples.jsonl file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/frames.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/frames.jsonl file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/freeze_integrity.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/gate_evidence_projection.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/console file_set    n=3
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/five_tuples.jsonl file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/frames.jsonl file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/manifest.json file        n=1
+  OK  evidence_file::report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/build file_set    n=2
+  OK  evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/c_output file_set    n=1
+  OK  evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/console file_set    n=8
+  OK  evidence_file::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/manifest.json file        n=1
+  OK  evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/stream file_set    n=4
+  OK  evidence_file::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/summary.md file        n=1
+  OK  evidence_dir::report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02/verify file_set    n=1
+  OK  host::stage3_input_frame_full_bin                  file        n=1
+  OK  host::stage3_replay_input_binding                  file        n=1
+  OK  host::stage4_replay_package_freeze_json            file        n=1
+  OK  host::stage4_replay_package_freeze_manifest        file        n=1
+  OK  host::stage4_positive_replay_freeze_index          file        n=1
+  OK  host::stage4_positive_replay_package               file        n=1
+  OK  host::wong_stale_200ms_approval_receipt            file        n=1
+  OK  host::stage3_closeout_partial_open_and_task11      file        n=1
+  OK  host::stage4_freeze_supplement_hardware_limitation file        n=1
+
+unsafe repo paths (absolute/..): []
+
+VERDICT: ALL_MATCH

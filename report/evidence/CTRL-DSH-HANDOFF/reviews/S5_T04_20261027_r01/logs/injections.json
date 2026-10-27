@@ -1,0 +1,298 @@
+{
+  "root": "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+  "cases": 19,
+  "passed": 17,
+  "failed": [
+    "path_escape_relative",
+    "path_escape_absolute"
+  ],
+  "results": [
+    {
+      "case": "clean_isolated_copy",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 0,
+      "expect": 0,
+      "pass": true,
+      "tail": "FROZEN_SET_VERIFIED",
+      "note": "期望 FROZEN_SET_VERIFIED",
+      "seconds": 0.88
+    },
+    {
+      "case": "tamper_one_byte_file_member",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 1,
+      "expect": 1,
+      "pass": true,
+      "tail": "FROZEN_SET_MISMATCH",
+      "note": "改 verification/s5_display_geometry_reference.py",
+      "seconds": 0.23
+    },
+    {
+      "case": "delete_file_member",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "FROZEN_SET_ENV_ERROR",
+      "note": "删 verification/s5_display_geometry_reference.py",
+      "seconds": 0.2
+    },
+    {
+      "case": "tamper_file_set_entry",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 1,
+      "expect": 1,
+      "pass": true,
+      "tail": "FROZEN_SET_MISMATCH",
+      "note": "改 report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/console/command.txt",
+      "seconds": 0.21
+    },
+    {
+      "case": "delete_file_set_entry",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "FROZEN_SET_ENV_ERROR",
+      "note": "删 report/evidence/S5-T03/s5t03_offline_replay_display_20261026_r06/console/command.txt",
+      "seconds": 0.2
+    },
+    {
+      "case": "extra_file_in_file_set_dir",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 0,
+      "expect": 0,
+      "pass": true,
+      "tail": "FROZEN_SET_VERIFIED",
+      "note": "契约语义：file_set 只逐件校验登记文件，不检测新增未登记文件",
+      "seconds": 0.2
+    },
+    {
+      "case": "frozen_set_expected_hash_edit",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_bad_hash.json"
+      ],
+      "exit": 1,
+      "expect": 1,
+      "pass": true,
+      "tail": "FROZEN_SET_MISMATCH",
+      "note": "只改 frozen_set 期望哈希，不改文件",
+      "seconds": 0.21
+    },
+    {
+      "case": "missing_frozen_set_argument",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "[ENV_ERROR] 必须显式给出 --frozen-set（禁止内置 RunId 默认路径，避免校验过期包）",
+      "note": "",
+      "seconds": 0.08
+    },
+    {
+      "case": "frozen_set_absent",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\nope.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "[ENV_ERROR] 冻结集不存在：D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\nope.json",
+      "note": "",
+      "seconds": 0.08
+    },
+    {
+      "case": "frozen_set_is_directory",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "[ENV_ERROR] 冻结集不存在：D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report",
+      "note": "",
+      "seconds": 0.08
+    },
+    {
+      "case": "frozen_set_malformed_json",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_malformed.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "[ENV_ERROR] 冻结集不可解析：Expecting property name enclosed in double quotes: line 1 column 3 (char 2)",
+      "note": "",
+      "seconds": 0.08
+    },
+    {
+      "case": "root_absent",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\no_such_root",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "[ENV_ERROR] --root 不是目录：D:\\tmp\\review\\S5_T04_20261027_r01\\work\\no_such_root",
+      "note": "",
+      "seconds": 0.08
+    },
+    {
+      "case": "file_member_path_is_dir",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_file_is_dir.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "FROZEN_SET_ENV_ERROR",
+      "note": "",
+      "seconds": 0.22
+    },
+    {
+      "case": "unknown_kind",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_unknown_kind.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "FROZEN_SET_ENV_ERROR",
+      "note": "",
+      "seconds": 0.22
+    },
+    {
+      "case": "host_reference_absent",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_host_missing.json"
+      ],
+      "exit": 2,
+      "expect": 2,
+      "pass": true,
+      "tail": "FROZEN_SET_ENV_ERROR",
+      "note": "",
+      "seconds": 0.22
+    },
+    {
+      "case": "path_escape_relative",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_escape_relative.json"
+      ],
+      "exit": 0,
+      "expect": 2,
+      "pass": false,
+      "tail": "FROZEN_SET_VERIFIED",
+      "note": "契约要求 exit 2；观察实际是否拦截 root 之外的 ../ 路径",
+      "seconds": 0.21
+    },
+    {
+      "case": "path_escape_absolute",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\scratch\\fs_escape_absolute.json"
+      ],
+      "exit": 0,
+      "expect": 2,
+      "pass": false,
+      "tail": "FROZEN_SET_VERIFIED",
+      "note": "repo scope 写成绝对路径，观察是否拦截",
+      "seconds": 0.22
+    },
+    {
+      "case": "skip_host_references",
+      "args": [
+        "--root",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject",
+        "--frozen-set",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\inject\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json",
+        "--skip-host-references"
+      ],
+      "exit": 0,
+      "expect": 0,
+      "pass": true,
+      "tail": "FROZEN_SET_VERIFIED",
+      "note": "",
+      "seconds": 0.21,
+      "skipped_host_lines": 9
+    },
+    {
+      "case": "reviewer_runs_selftest_in_isolated_copy",
+      "args": [
+        "--selftest",
+        "D:\\tmp\\review\\S5_T04_20261027_r01\\work\\selftest_ws"
+      ],
+      "exit": 0,
+      "expect": 0,
+      "pass": true,
+      "steps": {
+        "clean": 0,
+        "tampered_one_byte": 1,
+        "deleted_one_member": 2
+      },
+      "verdict": "SELFTEST_PASS",
+      "seconds": null
+    }
+  ]
+}

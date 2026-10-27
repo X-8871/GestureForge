@@ -71,7 +71,7 @@ KEEP_REASON = {
 LIMITATIONS = [
     "**离线范围冻结**：本包只冻结**离线**契约/实现/证据字节并证明其可复现，不代表 G0/G1/G3/G4/G5 或任何板级/实物验收。",
     "**不主张真实回放接入**：阶段4 回放结果包（`s4t27_replay_package_freeze_20261027_r01`，`replay_only`）与本树离线消费已存在，"
-    "但 `task-27`（回放/彩色输入路径实现 + 用回放结果包做离线动态回归）整体仍 **NOT_RUN**；板上/实时回放不主张。",
+    "但 **task-27 的板级/实时/实物部分**仍未做（NOT_RUN）；其**离线部分已交付并纳入本冻结**。板上/实时回放不主张。",
     "**不主张板级项**：板上动态映射/绘制、摄像头真实采集、真实集成 30 分钟、T5-10 板上回归、HUD 屏上视觉确认、真彩目视一律 NOT_RUN。",
     "**继承上游局限（引用不改写）**：阶段3 VDMA 首帧 bit11 `PARTIAL_OPEN`、task-11 `BLOCKED_NOT_RUN`、`TIMING-17`/I-O delay 未签核；"
     "阶段4 `complete_stage4_or_RGB_preprocess=NOT_CLAIMED`。",
@@ -299,7 +299,7 @@ def freeze_document(context: dict) -> str:
         "## 4. 冻结集校验器与真实退出码",
         "| 步骤 | 命令 | 退出码 | 结论 |",
         "|---|---|---|---|",
-        f"| 冻结集生成 | `python -B scripts/stage5_t04/build_stage5_frozen_set.py` | {context['build']['exit_code']} | "
+        f"| 冻结集生成 | `python -B scripts/stage5_t04/build_stage5_frozen_set.py --out <冻结包目录>/frozen_set.json`（`--out` 必填） | {context['build']['exit_code']} | "
         f"{frozen.get('members')} 个成员，`frozen_set.json` sha256 `{context['frozen_set_sha256']}` |",
         f"| 冻结集校验 | `python -B verification/verify_stage5_frozen_set.py` | **{verify['exit_code']}** | "
         f"`{verify['status']}`（一致 {verify['totals']['matched']} / 不一致 {verify['totals']['mismatched']} / "

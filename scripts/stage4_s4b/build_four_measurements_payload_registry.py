@@ -140,7 +140,11 @@ def main() -> int:
     print(json.dumps({"registry": str(out), "sha256": sha256_file(out),
                       "tcl": [{"path": e["path"], "sha256": e["sha256"]} for e in registry["payloads"]["tcl_scripts"]],
                       "plan_sha256": registry["payloads"]["plan_document"]["sha256"],
-                      "M4": registry["applicability"]["M4"]["status"]}, ensure_ascii=False, indent=2))
+                      "elf_sha256": registry["payloads"]["minimal_measurement_elf"]["elf"]["sha256"],
+                      "M4a": registry["applicability"]["M4a"]["status"],
+                      "M4b": registry["applicability"]["M4b"]["status"],
+                      "M4_overall": registry["applicability"]["M4_overall"]["status"]},
+                     ensure_ascii=False, indent=2))
     return 0
 
 

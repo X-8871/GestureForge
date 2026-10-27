@@ -36,6 +36,9 @@
   伴生基座表 `hash_basis_manifest.json` 与索引 `hashes_sha256.txt` 已**删除**（避免两文件漂移与自引用循环）。
   `hash_basis_commit` 语义＝**承载 `files[]` 全部字节的提交**（清单自身不入 `files[]`，其字节不上卷）：r02＝`f9755f6`、自证包 r02＝`feb34c9`。
   实测（HEAD `643684c`）：r02 与自证包 `check_stage_delivery --mode evidence` **0/0**、`check_manifest_hash_basis --mode strict` **0/0**、`--mode declared-only` **0/0**。
+- **权威运行方式（补证）**：门禁权威运行是显式 `--commit <hash_basis_commit>`（默认 HEAD 仅在该提交后 files[] 字节未变时等价）。
+  真实输出已落盘：`report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01/`（`console/*.txt` + `results_authoritative_gates.json`；
+   以 `--commit f9755f6` 运行的 strict / declared-only / checker 三项实测 **0/0/0**，裁决依据同 S5-T04 复审 F2）。
 - **干净检出自证**：`report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/`（针对 C8 `76c74fe`；`CLEAN_CHECKOUT_PASS`，5 项门禁全 0）；r01 保留为历史（双文件形式）。
 - **N2（已修）**：`assert_replay_record` 补齐 `algorithm`/`value`/`length_bytes==stride×height` 三要素；自检 6 类注入、用例 17 项全 OK。
 - **N3（已修）**：本文件第 62 行旧句改为"离线部分已交付；板级/实时未做"。

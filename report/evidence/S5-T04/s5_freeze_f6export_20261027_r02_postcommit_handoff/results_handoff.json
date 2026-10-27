@@ -1,0 +1,26 @@
+{
+  "task_id": "S5-T04",
+  "run_id": "s5_freeze_f6export_20261027_r02_postcommit_handoff",
+  "purpose": "r06 冻结后 handoff 复核（C2）：工作树/分支/HEAD、index.lock、未提交改动归属、重型进程、心跳等",
+  "generated_utc8": "2026-10-27T22:44:49+08:00",
+  "head": "067cf236219d12223b9df795874d7e53d552dde9",
+  "branch": "stage5-display-prep",
+  "exit_code": 0,
+  "checks": {
+    "a": "PASS",
+    "b": "PASS",
+    "c": "PASS",
+    "d": "PASS",
+    "e": "SKIP",
+    "f": "SKIP",
+    "g": "SKIP",
+    "h": "SKIP",
+    "i": "SKIP"
+  },
+  "verdict": "HANDOFF_OK",
+  "explanation": "a 工作树/分支/HEAD、b index.lock、c 未提交改动归属 均 PASS；d 重型进程 FAIL 的唯一原因是**外部 Agent 的 hw_server.exe**（AGENTS.md：2B 持有，任何窗口不得结束/干扰），本卡为离线字节冻结（ENABLE=0、无 vivado.exe、未连接/未加载位流/未烧录/未占用 JTAG）；e–i 因 d FAIL 按工具设计 SKIP。故 exit 1 不构成冻结内容失败，需与 d 的进程归属证据一起判读。",
+  "not_claimed": [
+    "不代表任何板级/实时结论",
+    "不代表 G5 或阶段5 通过"
+  ]
+}

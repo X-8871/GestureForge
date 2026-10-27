@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-T04",
+  "run_id": "s5_freeze_f6export_20261027_r02_postcommit_handoff",
+  "source_commit": "067cf236219d12223b9df795874d7e53d552dde9",
+  "evidence_dir": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r02_postcommit_handoff",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包只记录 handoff_check 的真实输出与退出码（输入为工作树状态），无 role=input 本地输入文件。",
+  "files": [
+    {
+      "path": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r02_postcommit_handoff/console/handoff_postcommit.txt",
+      "role": "log",
+      "sha256": "d0d517498b747ae0a8693ee7656d980aa034ac5d96d5f631eacd29c2f50d1e81"
+    },
+    {
+      "path": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r02_postcommit_handoff/results_handoff.json",
+      "role": "result",
+      "sha256": "e12cc73e35f18d8c96bf6d57e61ed180d7c4f5cc1fdaf1653098025866367cd0"
+    }
+  ],
+  "checks": [
+    {
+      "name": "handoff_check（提交后干净工作树）",
+      "status": "PASS",
+      "command": "python -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
+      "exit_code": 0,
+      "reason": "a 工作树/分支/HEAD、b index.lock、c 未提交改动归属 均 PASS；d 重型进程 FAIL 的唯一原因是**外部 Agent 的 hw_server.exe**（AGENTS.md：2B 持有，任何窗口不得结束/干扰），本卡为离线字节冻结（ENABLE=0、无 vivado.exe、未连接/未加载位流/未烧录/未占用 JTAG）；e–i 因 d FAIL 按工具设计 SKIP。故 exit 1 不构成冻结内容失败，需与 d 的进程归属证据一起判读。"
+    }
+  ],
+  "limitations": [
+    "不代表任何板级/实时结论",
+    "不代表 G5 或阶段5 通过",
+    "d FAIL 的进程为外部 hw_server.exe；本卡未做任何硬件操作，也未结束他人进程。"
+  ],
+  "tool_versions": {
+    "python": "3.12",
+    "handoff_check": "main 现有版本"
+  }
+}

@@ -2,12 +2,73 @@
   "task": "S4-T32",
   "phase": "PS 应用（范围扩展，license 无关）",
   "run_id": "phase2_ps_app_20261027_r01",
-  "built_utc8": "2026-10-27T21:41:59+08:00",
-  "variants": [],
+  "generated_utc8": "2026-10-27T21:42:15+08:00",
+  "source": {
+    "path": "vitis/stage4/ps/s4d_ps_app.c",
+    "sha256": "c2874c9bc882711d077aef509e5d7d5c0a594aaaf80c6f9f579434049fdac628"
+  },
+  "build_script": {
+    "path": "scripts/stage4_s4b/build_s4d_ps_app.py",
+    "sha256": "52fc0d1ae9ac7295aace8db7025fa51ee616376573f7fe895b2ffe4168c497a8"
+  },
+  "variants": [
+    {
+      "preproc_src": 0,
+      "meaning": "PS 软件预处理（兜底）",
+      "elf": "s4d_ps_app_sw.elf",
+      "map": "s4d_ps_app_sw.map",
+      "build_record": "build_record_sw.json"
+    },
+    {
+      "preproc_src": 1,
+      "meaning": "PL 新块 CSR",
+      "elf": "s4d_ps_app_pl.elf",
+      "map": "s4d_ps_app_pl.map",
+      "build_record": "build_record_pl.json"
+    }
+  ],
+  "files": [
+    {
+      "name": "s4d_ps_app_sw.elf",
+      "role": "SW 变体 ELF（PREPROC_SRC=0）",
+      "sha256": "3f5dda5709ff495597458520583407a7352341e963fce06080af166868550583",
+      "size_bytes": 183032
+    },
+    {
+      "name": "s4d_ps_app_pl.elf",
+      "role": "PL 变体 ELF（PREPROC_SRC=1）",
+      "sha256": "935e535ee14ef128bcaf8731cfcaa2bc09bae7a61e08e93a2a60b8957cdfd13a",
+      "size_bytes": 184572
+    },
+    {
+      "name": "s4d_ps_app_sw.map",
+      "role": "SW 变体 map",
+      "sha256": "1129110d376e1e74ee9572cffc710eeabb64f2cbed0f18cfe7228bb591790ab1",
+      "size_bytes": 164982
+    },
+    {
+      "name": "s4d_ps_app_pl.map",
+      "role": "PL 变体 map",
+      "sha256": "c47e4e86b6e914d546378eab1392965c0590f7e1b4f40a0a03c56b6c92801b49",
+      "size_bytes": 164982
+    },
+    {
+      "name": "build_record_sw.json",
+      "role": "SW 构建记录",
+      "sha256": "d324b06ab9113e90c783675af30dc7280da53f9c433e1b034ff341278555c82e",
+      "size_bytes": 3505
+    },
+    {
+      "name": "build_record_pl.json",
+      "role": "PL 构建记录",
+      "sha256": "dd97d23852da347149dc78d34b84aea6277c97e7c2b370455849d54fcda839bf",
+      "size_bytes": 3488
+    }
+  ],
   "license_used": {
     "path": "C:\\Users\\22061\\Documents\\s15_appdata_56C955A6_5bcd56b837931ca1a05d6293153a3476\\basic_only.lic",
-    "sha256": "59679b8df9163d7da0b1b7e9d111850494debabaa366e1b08489e4608c356582",
-    "note": "本机有效 BASIC license；PS 构建本身不消费该 license"
+    "note": "本机有效 BASIC license（PS 构建不消费该 license，仅供 P2 综合使用）",
+    "sha256": "59679b8df9163d7da0b1b7e9d111850494debabaa366e1b08489e4608c356582"
   },
   "limitations": [
     "网络/解码入口为 weak 桩（返回 -1），完整 Vitis 应用须链接 r13 既有目标文件",

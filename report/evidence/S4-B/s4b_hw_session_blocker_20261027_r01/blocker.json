@@ -1,0 +1,77 @@
+{
+  "schema_version": "s4b_hw_session_blocker_v1",
+  "task_id": "S4-B-REAL-02B",
+  "run_id": "s4b_hw_session_blocker_20261027_r01",
+  "generated_utc8": "2026-10-27T15:54:19+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "scope": "S4B_PS_TENSOR_DIAGNOSTIC",
+  "verdict": "BLOCKED_ENVIRONMENT_PORT_RESERVED",
+  "attempt": {
+    "action": "启动 hw_server 以建立 JTAG 会话，取 exclusive_session 证据",
+    "command": "D:/Xilinx/2026.1/Vivado/bin/hw_server.bat",
+    "hw_server_banner": "Xilinx hw_server v2026.1 (Build date May 29 2026)",
+    "hw_server_stderr": "Cannot create listening port TCP::3121: Socket bind error.",
+    "process_after": "hw_server 进程 0（启动后立即退出）",
+    "port_3121_listening": 0
+  },
+  "root_cause_diagnosis": {
+    "direct_bind_test": {
+      "IPv4_0.0.0.0:3121": "FAIL errno=13 (EACCES)",
+      "IPv4_127.0.0.1:3121": "FAIL errno=13 (EACCES)",
+      "IPv6_all:3121": "FAIL errno=13 (EACCES)",
+      "IPv4_0.0.0.0:49152": "BIND OK"
+    },
+    "excluded_port_ranges_ipv4": [
+      "3096-3195",
+      "3196-3295",
+      "3337-3436",
+      "3437-3536",
+      "3537-3636",
+      "3730-3829",
+      "3830-3929",
+      "4018-4117",
+      "20192",
+      "20882",
+      "50000-50059(managed)"
+    ],
+    "dynamic_port_range": "1024 + 13977（即 1024-15000）",
+    "winnat": {
+      "status": "Running",
+      "start_type": "Manual"
+    },
+    "conclusion": "3121 落在 Windows excludedportrange 3096-3195 内（IPv4/IPv6 均保留），bind 返回 EACCES。hw_server 无法监听 3121。",
+    "is_admin": false,
+    "note": "excludedportrange 由 Hyper-V/winnat 动态保留，释放需管理员权限；当前会话无管理员权限，阶段4 无法自行解除。"
+  },
+  "why_cannot_workaround": {
+    "adapter_hardcoded": "adapter 要求 exclusive_session.xsdb_peer 属于 {Host:localhost 或 127.0.0.1, Port:'3121'}，端口硬编码；改 hw_server 监听端口无法通过校验。",
+    "consequence": "必须让 3121 在本机可绑定，否则 exclusive_session 无法取得，8/8 不可达。"
+  },
+  "impact_on_claim": {
+    "offer_commit": "7f8ed5ba5f097d93cc244d33971af831c69ad4d0",
+    "offer_heartbeat": "2026-10-27T15:47:51+08:00",
+    "claim_commit": "a414e66f773bba8f84879a0c08f0331bd0c40450",
+    "expiry_utc8": "2026-10-27T16:47:51+08:00",
+    "risk": "若 16:47:51 前无法建立会话，CLAIM 过期，需 main 重新 OFFER（不可复用旧行）。"
+  },
+  "requested_action": {
+    "needed_from": "Wong（管理员权限）",
+    "option_a_fastest": [
+      "net stop winnat",
+      "（取证完成后）net start winnat"
+    ],
+    "option_b_permanent": [
+      "netsh int ipv4 set dynamicport tcp start=20000 num=10000",
+      "netsh int ipv6 set dynamicport tcp start=20000 num=10000",
+      "net stop winnat",
+      "net start winnat"
+    ],
+    "side_effect": "停/重启 winnat 期间 Hyper-V / WSL / Docker 的 NAT 网络短暂中断（数十秒）。"
+  },
+  "boundaries": [
+    "未装载位流",
+    "未打开串口",
+    "未执行任何板上写操作",
+    "hw_server 启动即失败退出，无残留进程"
+  ]
+}

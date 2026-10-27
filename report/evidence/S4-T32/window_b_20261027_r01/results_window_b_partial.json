@@ -1,0 +1,49 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "window": "B",
+  "run_id": "window_b_20261027_r01",
+  "opened_utc8": "2026-10-27T22:41:00+08:00",
+  "closed_utc8": "2026-10-27T22:44:00+08:00",
+  "conclusion": "STOPPED_PL_PROGRAM_FALSE_NEGATIVE",
+  "steps": {
+    "P0_gate": "PASS",
+    "P0b_hw_server": "PASS",
+    "P1_smoke": "PASS",
+    "PL_program": "FAIL",
+    "M3_recheck": "NOT_RUN",
+    "P4_teardown": "PASS"
+  },
+  "PL_program": {
+    "driver_verdict": "FAIL",
+    "actual_effect": "PL 已成功装载",
+    "evidence": [
+      "日志含 `INFO: [Labtools 27-3164] End of startup status: HIGH`（装载成功标志）",
+      "日志含 `Device xc7z020 (JTAG device index = 1) is programmed with a design ...`（refresh 成功）"
+    ],
+    "root_cause": "Tcl 用 `get_property PROGRAM.IS_DONE $dev` 判成功，但 Zynq-7000 hw_device 无此属性 ⇒ `ERROR: [Labtoolstcl 44-56] hw_device [xc7z020_1] does not have a [PROGRAM.IS_DONE] property`；脚本未打印 PROGRAM_OK、driver 视为失败并停",
+    "bit": {
+      "path": "D:/FPGA_Competition/w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit",
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+      "bytes": 4045776
+    },
+    "qspi_written": false,
+    "fix": "program_2b_bit.tcl r2：去掉 PROGRAM.IS_DONE，改为 program_hw_devices 无异常 + refresh + PROGRAM.FILE 回读非空"
+  },
+  "not_executed": [
+    "M3 只读整区复检（driver 因 PL_program FAIL 停止，未到该步）",
+    "M4-a",
+    "M4-b 首轮",
+    "M1/M2（未到）"
+  ],
+  "board_state_after": [
+    "PL 已配置（2B bit 555a70c2…）",
+    "PS 应用未装载（未到 PRELOAD）",
+    "hw_server 已停：3121 无 LISTENING",
+    "ENABLE=0 未变"
+  ],
+  "exit_codes": {
+    "P1_smoke": "exit=0",
+    "PL_program": "exit=1"
+  },
+  "boundary": "未烧 QSPI；未改线；未改 ENABLE；未发独立 stop；未 push；未接触其它树。"
+}

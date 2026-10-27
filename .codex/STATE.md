@@ -7,7 +7,7 @@
 - **M1（文书谎报范围）**：README §1.2 删去未冻结的 `stage5_s5a|s5b|s5c` 并注明排除；§1.3 证据包改为**从 `frozen_set` 动态枚举（11 个，含 3 个 S5-T27 包）**；§6 F6 路径改 `…f6export_20261027_r02`（r07 自证为 `…_r03`）；均改**生成器模板**（非手改产物）。
 - **M2（范围自相矛盾）**：`not_frozen`、README §2.1/§7、`results_freeze.not_run` 统一为“**task-27 离线部分已交付并纳入本冻结；板级/实时/实物未做**”。
 - **M3（成员标识/计数）**：成员 `id` 改**路径派生唯一**（`contract::<path>` 等）；重复路径去重（`scripts/stage5_t27/.gitattributes` 仅作契约成员，file_set 跳过）；新增 `coverage` 块：**93 成员 / 93 唯一 id / 221 登记 = 221 唯一文件 / 宿主 9**，并加构建器 fail-closed 断言。
-- **m1–m6**：README §4 补 `--out` 与第 4 项自测（路径逃逸=2）；`carried_forward_rule` 改“旧 77 路径与成员内既有字节保留，仅 `stage5_t03` file_set 追加 3 文件”；r05 diff 口径更正（r06/r07 未改 r05，6 文件差异属 `2797cc3` 已披露纠正）；`not_run` 随 M2；attempt1 NOTE 补 `final_exit=1` 推导说明；F6 的 C 项标注“C1 信息项，非门禁”。
+- **m1–m6**：README §4 补 `--out`；自测行先仅 3 项（复审 m1′ 指出后改为按 `selftest_injection.json` 动态渲染 4 项，含路径逃逸=2；已重生成 README）；`carried_forward_rule` 改“旧 77 路径与成员内既有字节保留，仅 `stage5_t03` file_set 追加 3 文件”；r05 diff 口径更正（r06/r07 未改 r05，6 文件差异属 `2797cc3` 已披露纠正）；`not_run` 随 M2；attempt1 NOTE 补 `final_exit=1` 推导说明；F6 的 C 项标注“C1 信息项，非门禁”；§6 F6 路径参数化为本轮 RunId（`…_r03`）；§8 第 2 条改“离线已交付并纳入、板级/实时/实物未做”。r07 复审 4 MINOR 修法均为**非冻结成员**（README/生成器/失败目录 ADDENDUM/STATE），`frozen_set.json` 字节仍 `4461bbbc…`、tag r3 仍指 `679b8a1`。
 - **真实退出码（r07）**：runner `final_exit=0`（build/verify/selftest/suite/quiet/clean/checker 全 0；套件 159 OK）；verifier `FROZEN_SET_VERIFIED` **0（93/93）**；自测 `SELFTEST_PASS` **4/4**；F6 `s5_freeze_f6export_20261027_r03`：A 导出校验 **0**、B 部分检出校验 **0**、副本内 checker **0**（C1 提交前 handoff 仅信息）；r07 清单 checker **0**、gate strict **0**（24 条目）、declared-only **0**。
 - **未做/不主张**：板级 B1–B10、真彩目视、HUD 屏上视觉、真实 30 分钟、T5-10、G0–G5 全未做未主张；**冻结 ≠ 验收通过，不构成 G5**。
 

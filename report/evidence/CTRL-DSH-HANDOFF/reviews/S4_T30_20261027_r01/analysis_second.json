@@ -1,0 +1,162 @@
+{
+  "new_stage4_regions": [
+    {
+      "name": "injection_frame_rgb",
+      "range": "0x10700000-0x10b00000",
+      "len": 4194304,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_G0",
+      "vs_2B_tensor": "DISJOINT",
+      "vs_2B_GF8": "DISJOINT",
+      "vs_2B_feature": "DISJOINT"
+    },
+    {
+      "name": "raw_frame",
+      "range": "0x12000000-0x12c00000",
+      "len": 12582912,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "vs_2B_tensor": "DISJOINT",
+      "vs_2B_GF8": "DISJOINT",
+      "vs_2B_feature": "DISJOINT"
+    },
+    {
+      "name": "raw_meta",
+      "range": "0x12c00000-0x12c08000",
+      "len": 32768,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "vs_2B_tensor": "DISJOINT",
+      "vs_2B_GF8": "DISJOINT",
+      "vs_2B_feature": "DISJOINT"
+    }
+  ],
+  "new_vs_2b_hits": [],
+  "new_vs_2b_disjoint": true,
+  "all_regions_vs_2b": [
+    {
+      "name": "ps_app_arena",
+      "status": "FROZEN_2B_CANDIDATE",
+      "overlap_with_2b": [],
+      "same_object_as_2b": true
+    },
+    {
+      "name": "network_input_tensor",
+      "status": "FROZEN_2A_2B",
+      "overlap_with_2b": [
+        "2B_tensor"
+      ],
+      "same_object_as_2b": true
+    },
+    {
+      "name": "gf8_weight_package",
+      "status": "FROZEN_2A_2B",
+      "overlap_with_2b": [
+        "2B_GF8"
+      ],
+      "same_object_as_2b": true
+    },
+    {
+      "name": "injection_frame_rgb",
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_G0",
+      "overlap_with_2b": [],
+      "same_object_as_2b": false
+    },
+    {
+      "name": "raw_frame",
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "overlap_with_2b": [],
+      "same_object_as_2b": false
+    },
+    {
+      "name": "raw_meta",
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "overlap_with_2b": [],
+      "same_object_as_2b": false
+    },
+    {
+      "name": "feature_envelope",
+      "status": "FROZEN_2A_2B",
+      "overlap_with_2b": [
+        "2B_feature"
+      ],
+      "same_object_as_2b": true
+    },
+    {
+      "name": "pl_control_csr",
+      "status": "FROZEN_2B",
+      "overlap_with_2b": [],
+      "same_object_as_2b": true
+    }
+  ],
+  "shrink_note_text": "本条为**本阶段自设**准入声明（原条目无 sources，非 2B 冻结保留）；缩减只覆盖 raw_frame/raw_meta 两个 region，其余禁区不动；**缩减量 12,615,680 B = raw_frame 12,582,912 B + raw_meta 32,768 B**（2026-10-27 S4-T30 复核补记，数值由机械核验复算）。",
+  "shrink_numbers_with_commas": {
+    "12,615,680": true,
+    "12,582,912": true,
+    "32,768": true
+  },
+  "shrink_numbers_plain": {
+    "12615680": true,
+    "12582912": true,
+    "32768": true
+  },
+  "parent_shrink_note": "本条为**本阶段自设**准入声明（原条目无 sources，非 2B 冻结保留）；缩减只覆盖 raw_frame/raw_meta 两个 region，其余禁区不动。",
+  "shrink_note_delta_only_arithmetic": true,
+  "contract_parent": {
+    "contract_version": "1.3.0",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "revision": "r07"
+  },
+  "contract_child": {
+    "contract_version": "1.3.0",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "revision": "r07"
+  },
+  "contract_semantic_diff_keys": [],
+  "contract_binding_diff": {
+    "parent_address_map_sha": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
+    "child_address_map_sha": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+    "parent_rebind_count": 1,
+    "child_rebind_count": 2
+  },
+  "parent_exists": {
+    "raw_frame_present": true,
+    "raw_meta_present": true,
+    "parent_status": "APPROVED",
+    "parent_approved_by": "Wong",
+    "parent_approved_at": "2026-10-27T14:15:07+08:00",
+    "parent_has_approval_scope_note": true,
+    "parent_gap6_start": "0x12C08000",
+    "parent_gap6_end": "0x20000000",
+    "parent_gap_count": 9
+  },
+  "approval_scope_note": "批准范围：本图登记的区域基址/长度/状态与 direction_scope=UART_CPU_PATH_ONLY。不解除 ENABLE=0，不替代其余七类硬件门禁，不授权 mailbox/RAW 路径。",
+  "shrink_introduced_by": [
+    "33988ed feat(s4): define BGR888 contract and protect evidence",
+    "81d7e86 fix(stage4): close review blocking B-1/B-2/B-3 and non-blocking N-a..N-d (fail-closed tree drift)",
+    "d29ef5f feat(stage4): land option A RAW/META regions + contract r05 and fold review non-blocking N-1..N-4"
+  ],
+  "shrink_log_exit": 0,
+  "d29": {
+    "gap_count": 9,
+    "gap6_start": "0x12C08000",
+    "exists": true
+  },
+  "d29_parent": {
+    "gap_count": 9,
+    "gap6_start": "0x12000000",
+    "exists": true
+  },
+  "evidence_timestamps": [
+    {
+      "file": "mechanical_checks.json",
+      "ts": "2026-10-27T19:45:05+08:00"
+    }
+  ],
+  "commit_time": "2026-10-27T19:46:50+08:00",
+  "timestamps_after_commit": [],
+  "exit_code_files": {
+    "gap_audit.exit_code.txt": "MISSING",
+    "gap_audit_r02.exit_code.txt": "MISSING",
+    "verify_d1a_landing.exit_code.txt": "MISSING",
+    "contract_selfcheck.exit_code.txt": "MISSING",
+    "exits.txt": "MISSING"
+  }
+}

@@ -1,0 +1,565 @@
+{
+  "commit_meta": "e39f6de6f83fc06783ee9b97e86afabef0170e89|2026-10-27T19:46:50+08:00|2026-10-27T19:46:50+08:00|X-8871|feat(stage4): land D1=A address ruling with mechanical verification (S4-T30)",
+  "parent_meta": "83c9284ad2296b9b2c836250cee615e255533615|2026-10-27T17:58:24+08:00|2026-10-27T17:58:24+08:00|X-8871|chore(stage4): session teardown - hw_server stopped, JTAG released after hardware freeze",
+  "regions": [
+    {
+      "name": "ps_app_arena",
+      "base": "0x100000",
+      "len": 16777216,
+      "end": "0x1100000",
+      "ok": true,
+      "status": "FROZEN_2B_CANDIDATE",
+      "space": "ddr"
+    },
+    {
+      "name": "network_input_tensor",
+      "base": "0x10000000",
+      "len": 519168,
+      "end": "0x1007ec00",
+      "ok": true,
+      "status": "FROZEN_2A_2B",
+      "space": "ddr"
+    },
+    {
+      "name": "gf8_weight_package",
+      "base": "0x10100000",
+      "len": 5903100,
+      "end": "0x106a12fc",
+      "ok": true,
+      "status": "FROZEN_2A_2B",
+      "space": "ddr"
+    },
+    {
+      "name": "injection_frame_rgb",
+      "base": "0x10700000",
+      "len": 4194304,
+      "end": "0x10b00000",
+      "ok": true,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_G0",
+      "space": "ddr"
+    },
+    {
+      "name": "raw_frame",
+      "base": "0x12000000",
+      "len": 12582912,
+      "end": "0x12c00000",
+      "ok": true,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "space": "ddr"
+    },
+    {
+      "name": "raw_meta",
+      "base": "0x12c00000",
+      "len": 32768,
+      "end": "0x12c08000",
+      "ok": true,
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "space": "ddr"
+    },
+    {
+      "name": "feature_envelope",
+      "base": "0x11000000",
+      "len": 11382200,
+      "end": "0x11adadb8",
+      "ok": true,
+      "status": "FROZEN_2A_2B",
+      "space": "ddr"
+    },
+    {
+      "name": "pl_control_csr",
+      "base": "0x43c00000",
+      "len": 65536,
+      "end": "0x43c10000",
+      "ok": true,
+      "status": "FROZEN_2B",
+      "space": "pl_mmio"
+    }
+  ],
+  "arith_all_ok": true,
+  "pairs_total": 28,
+  "pairs_same_space": 21,
+  "pairs_cross_space": 7,
+  "overlaps": [],
+  "overlaps_zero": true,
+  "b2_hits": [
+    {
+      "region": "network_input_tensor",
+      "b2": "2B_tensor",
+      "overlap": 519168
+    },
+    {
+      "region": "gf8_weight_package",
+      "b2": "2B_GF8",
+      "overlap": 5903100
+    },
+    {
+      "region": "feature_envelope",
+      "b2": "2B_feature",
+      "overlap": 11382200
+    }
+  ],
+  "b2_disjoint": false,
+  "gaps_count_parent": 9,
+  "gaps_count_child": 9,
+  "gaps_diff_parent_child": [
+    {
+      "index": 6,
+      "changed_fields": [
+        "shrink_note"
+      ],
+      "parent": {
+        "base_addr_hex": "0x12C08000",
+        "end_addr_exclusive_hex": "0x20000000",
+        "length_bytes": 222265344
+      },
+      "child": {
+        "base_addr_hex": "0x12C08000",
+        "end_addr_exclusive_hex": "0x20000000",
+        "length_bytes": 222265344
+      }
+    }
+  ],
+  "shrink_entry": {
+    "address_space": "ddr",
+    "base_addr_hex": "0x12C08000",
+    "end_addr_exclusive_hex": "0x20000000",
+    "length_bytes": 222265344,
+    "rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围（2026-10-24 由 Wong D1=A 决定精确缩减；原条目起点 0x12000000 已由 raw_frame/raw_meta 占用）",
+    "sources": [
+      "D1-A-DECISION",
+      "D1-D4-DECISION"
+    ],
+    "shrink_note": "本条为**本阶段自设**准入声明（原条目无 sources，非 2B 冻结保留）；缩减只覆盖 raw_frame/raw_meta 两个 region，其余禁区不动；**缩减量 12,615,680 B = raw_frame 12,582,912 B + raw_meta 32,768 B**（2026-10-27 S4-T30 复核补记，数值由机械核验复算）。",
+    "gap_exception": "raw_frame/raw_meta 位于本条被缩减掉的前 12.03 MiB 内，但其访问仍受 `enable_required=true` 与 `status=PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW` 约束：ENABLE=0、不访问候选区、不装载位流、不做板级操作。"
+  },
+  "shrink_check": {
+    "start_0x12C08000": true,
+    "end_0x20000000": true,
+    "length_field_eq_span": true,
+    "shrink_bytes": 12615680,
+    "raw_frame_len": 12582912,
+    "raw_meta_len": 32768,
+    "shrink_eq_two_regions": true,
+    "note_mentions_numbers": false
+  },
+  "parent_shrink_entry": {
+    "address_space": "ddr",
+    "base_addr_hex": "0x12C08000",
+    "end_addr_exclusive_hex": "0x20000000",
+    "length_bytes": 222265344,
+    "rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围（2026-10-24 由 Wong D1=A 决定精确缩减；原条目起点 0x12000000 已由 raw_frame/raw_meta 占用）",
+    "sources": [
+      "D1-A-DECISION",
+      "D1-D4-DECISION"
+    ],
+    "shrink_note": "本条为**本阶段自设**准入声明（原条目无 sources，非 2B 冻结保留）；缩减只覆盖 raw_frame/raw_meta 两个 region，其余禁区不动。",
+    "gap_exception": "raw_frame/raw_meta 位于本条被缩减掉的前 12.03 MiB 内，但其访问仍受 `enable_required=true` 与 `status=PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW` 约束：ENABLE=0、不访问候选区、不装载位流、不做板级操作。"
+  },
+  "contract_meta": {
+    "contract_id": "s4-shared-io",
+    "contract_version": "1.3.0",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "revision": "r07",
+    "updated_utc8": "2026-10-27T12:27:52+08:00"
+  },
+  "freeze_record": {
+    "frozen_revision": "r07",
+    "frozen_contract_version": "1.3.0",
+    "freeze_scope": "OFFLINE_ONLY",
+    "based_on_reviewed_json_sha256": "8beea2c55053be879ad810308b11cf63ea1e0cd7bc1a229fda5715a9255e5147",
+    "based_on_reviewed_md_sha256": "07ded4db9bfbc467be360a949f1ba2223bd0cd4d971492ec4d4ff9c73f1baab2",
+    "reviewed_commit": "5f9a04a045f4aaa7516759513f660f9872cbab61",
+    "frozen_at_utc8": "2026-10-27T12:27:52+08:00",
+    "frozen_by": "Workbuddy 阶段4总控（Wong 2026-10-27 授权）",
+    "change_policy": "冻结后任何语义字段改动必须升 r08、重新独立复审并在全链重绑；仅状态/措辞/注释的改动可由阶段4 以单独提交登记，但必须重绑所有引用 SHA。",
+    "allowed_consumers": [
+      "阶段5：显示字段与结果语义只读消费",
+      "阶段6：P / 延迟口径只读消费",
+      "阶段4：task-27 回放结果包与离线回归"
+    ],
+    "forbidden_claims": [
+      "板上行为",
+      "UART 实收",
+      "真实采集质量"
+    ],
+    "boundary": "冻结范围仅离线。ENABLE=0；RAW 系统 G0 未闭合；P / 4-D / G3 / G4 / G5 均 NOT_RUN；不得据此声称板上行为、UART 实收或实时采集质量。"
+  },
+  "address_map_binding": {
+    "id": "stage4_address_map",
+    "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
+    "path": "docs/stage4/S4B_stage4_address_map.json",
+    "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+    "declared_revision": "r05（2026-10-27 D1=A 落盘复核：禁区条目补记缩减算术）",
+    "status_note": "地址图整体 `status=APPROVED`（Wong 2026-10-27 14:15:07 +08:00，approval_history 有记录）；`raw_frame`/`raw_meta` 仍为提案态 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**、`enable_required=true`）；**ENABLE=0 保持**，不据此提升任何关口。",
+    "replaces": {
+      "sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
+      "basis": "worktree_disk_bytes",
+      "reason": "Wong 批准地址图（status→APPROVED），地址/长度未变"
+    },
+    "byte_basis": "worktree_disk_bytes"
+  },
+  "binding_matches_actual_bytes": true,
+  "amap_actual_sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+  "parent_amap_sha256": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
+  "post_freeze_rebinds": [
+    {
+      "at_utc8": "2026-10-27T14:17:57+08:00",
+      "reason": "Wong 批准 stage4 地址图（DRAFT_PENDING_REVIEW→APPROVED），其字节 SHA 变化，冻结契约的 upstream_bindings 必须重绑。",
+      "changed_bindings": [
+        {
+          "id": "stage4_address_map",
+          "from": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
+          "to": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9"
+        }
+      ],
+      "semantics_changed": false,
+      "note": "仅绑定 SHA 与 status 相关记录更新；contract_version/contract_id/revision 与全部语义字段未变，故不升 r08、不触发重新复审。此条目按 freeze_record.change_policy 的「必须重绑所有引用 SHA」执行。"
+    },
+    {
+      "at_utc8": "2026-10-27T19:50:00+08:00",
+      "reason": "S4-T30 落盘复核：地址图 `gaps[]` 的禁区条目补记缩减算术（12,615,680 B = raw_frame 12,582,912 B + raw_meta 32,768 B），文件字节 SHA 变化，冻结契约的 `upstream_bindings` 必须重绑。",
+      "changed_bindings": [
+        {
+          "id": "stage4_address_map",
+          "from": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
+          "to": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e"
+        }
+      ],
+      "semantics_changed": false,
+      "note": "仅绑定 SHA + `status_note` 与事实对齐（地址图已由 Wong 2026-10-27 批准为 APPROVED）；contract_version/contract_id/revision 与全部语义字段未变，故不升版本、不触发重新复审；本条目按 `freeze_record.change_policy` 的「必须重绑所有引用 SHA」执行。"
+    }
+  ],
+  "rebind_chain_ok": true,
+  "rebind_timestamps": [
+    "2026-10-27T14:17:57+08:00",
+    "2026-10-27T19:50:00+08:00"
+  ],
+  "gaps_doc_meta": {
+    "revision": "r07",
+    "updated_utc8": "2026-10-27T19:52:00+08:00",
+    "source_checkpoint": {
+      "commit": "d4f30e35937efed07c4f3ff62393e2e3a6a2ebdc",
+      "commit_subject": "docs(stage4): checkpoint unfinished RAW G0 on requested stop",
+      "state": "CHECKPOINT_UNFINISHED_RAW_G0",
+      "system_g0": "CHANGES_REQUIRED_NOT_CLOSED",
+      "address_policy": "D1=A 已由 Wong 批准并落盘为 region（`status` 仍 DRAFT_PENDING_REVIEW、region 非 FROZEN）；**ENABLE=0、不访问候选区**仍然有效，地址获批 ≠ 可访问，材料 PASS ≠ 实物通过",
+      "stop_checkpoint_path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json",
+      "remaining_findings_from_checkpoint": [
+        "PS 无完整 golden 或参考摘要却要求网络前逐字节比较",
+        "旧 START gate 未明确覆盖整个 preproc owner 持有期",
+        "COMMIT 未要求逐字段精确回显 RAW_BEGIN",
+        "u32 session 跨启动唯一分配来源未定义",
+        "injection_start_ns 缺 PS 域来源/可用性策略"
+      ]
+    },
+    "revision_note": "r04（2026-10-25，全离线）：RAW 格式明确为 BGR888/B-G-R，平台 byte_order=little 单独表示多字节字段端序；D2 要求 resize 前先逐像素 BGR→RGB。绑定地址图 r04 与 readiness 更新；新增 G-20 登记当前 C/PL BGR888 支持缺口，状态不得因离线参考通过而关闭。共享契约为 s4-shared-io/1.3.0 r07、DRAFT_PENDING_REVIEW、runtime_support_status=NOT_IMPLEMENTED。",
+    "contract_id": "s4-shared-io/1.3.0",
+    "hardware_execution": "NOT_RUN"
+  },
+  "basis_bindings": [
+    {
+      "id": "stop_checkpoint",
+      "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json",
+      "sha256": "1b615cfe2e0ffddf79f972b6a8cb0b905e70289d8453d88bdb61e9ad4b55a87c",
+      "role": "d4f30e3 未完成 RAW G0 的停止检查点与未闭合发现"
+    },
+    {
+      "id": "input_scope_audit",
+      "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json",
+      "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968",
+      "role": "109 帧冻结样本的 packed 24-bit 三字节容量事实；该旧审计不证明当前 BGR888 通道语义"
+    },
+    {
+      "id": "address_map",
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+      "role": "区域/空洞/准入禁区与缓存维护方向（r05：D1=A 落盘复核补记缩减算术；整体 status=APPROVED，两 region 仍提案态）",
+      "byte_basis": "worktree_disk_bytes",
+      "replaces_sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced"
+    },
+    {
+      "id": "r13_memory_ranges",
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json",
+      "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80",
+      "role": "PS 诊断 ELF 的实际分配事实（arena/staging/tensor arena）"
+    },
+    {
+      "id": "readiness_doc",
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "98e5265382c08c5152ab1db237d6b18ac18146f7e132a50c2c7460861691d7a1",
+      "role": "已批准路线的系统接口 G0 候选（§8.2 地址/mailbox 布局及 BGR888 运行期缺口）",
+      "sha_note": "SHA 绑定当前工作树磁盘字节；r04 新增 BGR888/byte_order 分层、D2 前置通道重排、mailbox code/C enum 分域与 C/PS/PL 未实现门禁。旧哈希 `e6ae30a5…` 属 S4-B 冻结快照文件，不是当前磁盘版本。 | 2026-10-27：按 G-15 复审修复 result_seq 作用域、双读判据、READY opcode、RAW 维护范围与地址图 SHA 引用后重绑。",
+      "replaces_sha256": "a44544f48e4bc875719fbb5e4c30f51a949720374097590f99b1f10e0f7a5489"
+    },
+    {
+      "id": "shared_input_contract",
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "4d8dc0d4b2c5cf650640f3289a24fd76c504952a2621e4339cea14a15ada0448",
+      "role": "共享输入/结果契约 s4-shared-io/1.3.0 r07 的机器权威",
+      "byte_basis": "worktree_disk_bytes",
+      "update_note": "契约复审登记 REVIEWED_OFFLINE_ONLY 后同步"
+    },
+    {
+      "id": "d2_offline_reference",
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+      "role": "离线 D2 BGR 解码到 RGB 及 resize/归一化/量化前向参考；仅 offline-only",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "raw_replay_bridge",
+      "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
+      "sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229",
+      "role": "frame_full.bin BGR bytes 经 Python 离线解码回放适配器",
+      "byte_basis": "worktree_disk_bytes",
+      "update_note": "桥接器升 r12 后同步；旧值 ad71cae0… 为 06c9ab8 的 blob 口径"
+    },
+    {
+      "id": "c_inject_header",
+      "path": "vitis/stage4/s4_inject_frame.h",
+      "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34",
+      "role": "当前 C 注入格式枚举（未含 BGR888）",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "c_inject_impl",
+      "path": "vitis/stage4/s4_inject_frame.c",
+      "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9",
+      "role": "当前 C 注入 API 实现（只验证描述符/长度，不做 BGR 通道变换）",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "pl_preprocessor",
+      "path": "src/s4b_preproc_frame.sv",
+      "sha256": "1e5fc5eee8ed1d96cf0a1ae20124b6d96f9eb7838ac4b149b9c12d94a2831821",
+      "role": "当前 PL RAW 地址直接按 pixel*3+channel_q 读取；未实现 BGR888 重排",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "stage3_window_address_facts",
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md",
+      "sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "B-2/N-a：dbdf 该路径**确有** `-text` 覆盖，规则由 **`4aada6d`（2026-10-24 01:59 +0800）** 加入，原文 `report/evidence/S3-T05/** -text`（同提交注释：阶段3 板级窗口证据（S3-T05）保留原始字节）；更早的 `-text` 约定属 `report/evidence/S2A-*` 路径（2026-09-25…2026-10-01，如 `cdb2fbd`），**不覆盖 S3-T05**。故按已提交 blob 口径绑定（绑定记录时 dbdf HEAD=`6fa77a64`，disk==blob）；原 `19f754d8…` 磁盘值已随阶段3 更新失效。",
+      "role": "阶段3 视频通路部署地址事实（条件①第三方的书面事实；只读引用，不写 dbdf）"
+    },
+    {
+      "id": "stage4_raw_address_optionA_decision",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_optionA_20261024_r01.md",
+      "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8",
+      "role": "Wong D1=A 批准记录（G-01 的批准依据）"
+    },
+    {
+      "id": "stage4_raw_address_d1_d4_decision",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_d1_d4_20261024_r01.md",
+      "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34",
+      "role": "DSH D1–D4 初裁记录"
+    },
+    {
+      "id": "raw_reference_109",
+      "path": "report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/result.json",
+      "sha256": "666a6ef131236ffb581201a443032e1f3ca66c7f1879ccbb364a9ae7b9602aa0",
+      "role": "109 帧 RAW + 直接标量 D2 参考重生结果（本轮声称范围以该文件为准）"
+    },
+    {
+      "id": "ddr_audit",
+      "path": "report/evidence/S4-B/s4b_pl_ddr_g0_audit_20261023_r01/audit.json",
+      "sha256": "31b7f4b753c27cfae187462dccbc76ad066a11bd63671da2c0b05f9149a04bfe",
+      "role": "只读 DDR/所有权交叉审计（尚待独立 G0 审查）"
+    },
+    {
+      "id": "frozen_specification",
+      "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json",
+      "sha256": "2b8bb49fa520a22623f1737eb4fe75848eb6e16e67e4b4fc9f6655741fd4a8cc",
+      "role": "被审 readiness 文档快照绑定（source_commit 4639501）"
+    }
+  ],
+  "gap_ids": [
+    [
+      "G-01",
+      "PARTIALLY_CLOSED_OFFLINE"
+    ],
+    [
+      "G-02",
+      "PARTIALLY_CLOSED_OFFLINE"
+    ],
+    [
+      "G-03",
+      "CLOSED_OFFLINE"
+    ],
+    [
+      "G-04",
+      "PARTIALLY_CLOSED_OFFLINE"
+    ],
+    [
+      "G-05",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-06",
+      "BLOCKED_PENDING_HARDWARE"
+    ],
+    [
+      "G-07",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-08",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-09",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-10",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-11",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-12",
+      "PARTIALLY_CLOSED_OFFLINE"
+    ],
+    [
+      "G-13",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-14",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-15",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ],
+    [
+      "G-16",
+      "NOT_RUN_HARDWARE_REQUIRED"
+    ],
+    [
+      "G-17",
+      "NOT_RUN_HARDWARE_REQUIRED"
+    ],
+    [
+      "G-18",
+      "NOT_RUN_HARDWARE_REQUIRED"
+    ],
+    [
+      "G-19",
+      "NOT_RUN_HARDWARE_REQUIRED"
+    ],
+    [
+      "G-20",
+      "OPEN_REQUIRES_DESIGN_OR_REVIEW"
+    ]
+  ],
+  "g01": {
+    "id": "G-01",
+    "title": "RAW/META 物理地址与准入：设计级阻断（窗口内容量不足）——已由 Wong 批准 A 方案落盘，待独立复审与硬件实测",
+    "layer": "address",
+    "status": "PARTIALLY_CLOSED_OFFLINE",
+    "requires_hardware": false,
+    "blocking_class": "DESIGN_LEVEL_CAPACITY_AND_BOUNDARY",
+    "blocking_statement": "2B 专属窗口 [0x10000000,0x12000000) 内最大连续可用区 9,825,540 B < 最大冻结帧 11,059,200 B，**缺口 1,233,660 B** ⇒ 仅批准不足以在窗口内解决，属设计级阻断，须 Wong 决策。",
+    "approved_by_wong": true,
+    "approval_record": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_optionA_20261024_r01.md",
+    "initial_ruling_record": "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md",
+    "closed_by_d1a": [
+      "raw_region_arithmetic",
+      "candidate_outside_shrunk_forbidden_gap",
+      "approved_regions_registered",
+      "stage3_owner_fact_bound"
+    ],
+    "basis": [
+      "readiness_doc",
+      "address_map",
+      "ddr_audit",
+      "stage3_window_address_facts",
+      "stage4_raw_address_optionA_decision",
+      "stage4_raw_address_d1_d4_decision"
+    ],
+    "offline_action_this_round": "按 Wong D1=A 落盘 `raw_frame=[0x12000000,0x12C00000)` + `raw_meta=[0x12C00000,0x12C08000)`，并把本阶段自设禁区精确缩减为 `[0x12C08000,0x20000000)`；条件①三方交叉核对（2B/阶段5/阶段3）均不相交。",
+    "remaining": "① 独立复审（固定提交 + 被审 SHA）通过前 region 不得标 FROZEN；② 硬件窗口实测（CPU1 保持停止、无其他 DDR consumer、候选区板上未被占用、cache 维护与可见性）完成前 `ENABLE=0`、不访问候选区；③ D2 作废（不得用 107 帧子集）。",
+    "next_owner": "阶段4 写入方（落盘已完成）→ 独立 Reviewer（固定提交复审）→ 硬件窗口持有者（实测后 enable）"
+  },
+  "g02": {
+    "id": "G-02",
+    "title": "RAW/META owner 登记：已登记，待独立复审与批准条件闭环",
+    "layer": "ownership",
+    "status": "PARTIALLY_CLOSED_OFFLINE",
+    "requires_hardware": false,
+    "basis": [
+      "address_map",
+      "ddr_audit",
+      "stage3_window_address_facts"
+    ],
+    "offline_action_this_round": "已在地址图 r03 登记 `raw_frame`/`raw_meta` 的 owner / access（ps_cpu、pl_hp0、pl_gp0_lite）/ `cache_maintenance`（方向、64 B 向外取整）/ `dma_completion_order` / `alignment_bytes` / `status`=PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW / `enable_required=true` / `required_before_use`；并复核与 r13 实际分配、历史 framebuffer、阶段3 部署事实均不相交。",
+    "remaining": "独立 G0 审查（固定提交）通过前不得标 FROZEN；交叉审计本身仍待独立审查，且假设无其他 DDR consumer、CPU1 停止、未来会话独占。",
+    "next_owner": "独立 Reviewer（固定提交复审）→ 阶段4（复审后更新 status）"
+  },
+  "proposal_tokens": [
+    "DECIDED_PENDING_G0_REVIEW",
+    "ENABLE=0",
+    "FROZEN_STAGE4"
+  ],
+  "proposal_has_decided_pending": true,
+  "banned": [
+    {
+      "file": "S4B_stage4_address_map.json",
+      "kind": "enable_1",
+      "ctx": "测：CPU1 保持停止、无其他 DDR consumer、候选区板上实际未被占用、cache 维护与可见性\",         \"物理基址 enable=1 之前保持 ENABLE=0，且不产生任何 AXI 事务\"       ],       \"notes\": \"按 Wong 2026-10-"
+    },
+    {
+      "file": "S4B_stage4_address_map.json",
+      "kind": "enable_1",
+      "ctx": "定提交）后方可标 FROZEN\",         \"硬件窗口实测 DAP/cache 可见性与提交原子性\",         \"物理基址 enable=1 之前保持 ENABLE=0\"       ],       \"notes\": \"按 Wong 2026-10-24 D1=A 批准新增（3"
+    },
+    {
+      "file": "s4b_shared_input_result_contract.json",
+      "kind": "g0_approved",
+      "ctx": "r02 复审已 PASS**；`task-24` 仍在办 ⇒ 采用**固定修订**语义。**未冻结**（`FROZEN` 仍须硬件实测 + G0 批准）。\",       \"byte_basis_note\": \"B-1 复核：w5 于 2026-10-24 01:48:18 提交 `b6d"
+    }
+  ],
+  "parent_child_top_level_diff": [
+    "gaps"
+  ],
+  "parent_status": "APPROVED",
+  "parent_approved_by": "Wong",
+  "parent_approved_at": "2026-10-27T14:15:07+08:00",
+  "parent_region_names": [
+    "ps_app_arena",
+    "network_input_tensor",
+    "gf8_weight_package",
+    "injection_frame_rgb",
+    "raw_frame",
+    "raw_meta",
+    "feature_envelope",
+    "pl_control_csr"
+  ],
+  "parent_gap6": {
+    "address_space": "ddr",
+    "base_addr_hex": "0x12C08000",
+    "end_addr_exclusive_hex": "0x20000000",
+    "length_bytes": 222265344,
+    "rule": "不得访问：专属窗口之外 DDR，不在本阶段准入范围（2026-10-24 由 Wong D1=A 决定精确缩减；原条目起点 0x12000000 已由 raw_frame/raw_meta 占用）",
+    "sources": [
+      "D1-A-DECISION",
+      "D1-D4-DECISION"
+    ],
+    "shrink_note": "本条为**本阶段自设**准入声明（原条目无 sources，非 2B 冻结保留）；缩减只覆盖 raw_frame/raw_meta 两个 region，其余禁区不动。",
+    "gap_exception": "raw_frame/raw_meta 位于本条被缩减掉的前 12.03 MiB 内，但其访问仍受 `enable_required=true` 与 `status=PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW` 约束：ENABLE=0、不访问候选区、不装载位流、不做板级操作。"
+  },
+  "d29_parent_amap_available": true,
+  "d29_gap_count": 9,
+  "d29_region_names": [
+    "ps_app_arena",
+    "network_input_tensor",
+    "gf8_weight_package",
+    "injection_frame_rgb",
+    "feature_envelope",
+    "pl_control_csr"
+  ]
+}

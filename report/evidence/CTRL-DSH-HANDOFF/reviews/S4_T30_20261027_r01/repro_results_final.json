@@ -1,0 +1,102 @@
+{
+  "before": {
+    "status_sha256": "784eef0a5358ceb9cb52d43a764ee6d277aec6ef035371acf6c59daf286f0e7b",
+    "status_lines": 25,
+    "index_sha256": "1e9a87294251caccc779b4eb4b6297879466e679537e4eb177a87d3d9815158b",
+    "head": "e39f6de6f83fc06783ee9b97e86afabef0170e89"
+  },
+  "after": {
+    "status_sha256": "784eef0a5358ceb9cb52d43a764ee6d277aec6ef035371acf6c59daf286f0e7b",
+    "status_lines": 25,
+    "index_sha256": "1e9a87294251caccc779b4eb4b6297879466e679537e4eb177a87d3d9815158b",
+    "head": "e39f6de6f83fc06783ee9b97e86afabef0170e89"
+  },
+  "w4_unchanged": true,
+  "runs": [
+    {
+      "name": "verify_d1a_landing",
+      "command": "python -B D:\\codex-worktrees\\w4\\scripts\\stage4_s4ctrl\\verify_d1a_landing.py --run-dir D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_d1a_landing",
+      "exit_code": 0,
+      "stdout": "[PASS] A_region_arithmetic\n[PASS] B_zero_overlap\n[PASS] C_shared_vs_source_fidelity\n[PASS] D_disjoint_from_2b_frozen_objects\n[PASS] E_forbidden_gap_precise_shrink\n[PASS] F_status_discipline\n[PASS] G_contract_rebind\n[PASS] D1=A 落盘机械核验：7/7 通过；失败=[]\n",
+      "stderr": "",
+      "outdir": "D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_d1a_landing",
+      "produced_files": [
+        "mechanical_checks.json"
+      ]
+    },
+    {
+      "name": "verify_shared_io_contract",
+      "command": "python -B D:\\codex-worktrees\\w4\\scripts\\stage4_s4ctrl\\verify_shared_io_contract.py --evidence-dir D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_shared_io_contract",
+      "exit_code": 0,
+      "stdout": "[INFO] 证据已写入 D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_shared_io_contract\\verify_shared_io_contract_result.json\n[PASS] 运行书摘要/缓存说明/板上模板的输入与 heads 输出维护顺序一致\n[PASS] 运行书 PL done/输出 invalidate 反序变异 1/1 被拒绝\n[PASS] 契约 JSON 可解析且必需顶层键齐全\n[PASS] upstream_bindings 现场复算一致（17/17 项）\n[PASS] cdx_015 r02→r03 绑定取代关系已登记\n[PASS] 绑定字节口径声明齐全（默认磁盘字节；blob 口径 4 项）+ 2/2 负向对照被拒绝\n[PASS] r03 session/source/time/key/cache 语义与 S4-A、地址图一致\n[PASS] S4-A 人读镜像 SHA 与当前 r06 文件一致\n[PASS] r03 检查器变异反例 5/5 均被拒绝\n[PASS] 输入帧契约字段齐全（17 项）\n[PASS] capture_time 语义与 S4-A 一致（0 哨兵 + 注解；注入起点不得冒充）\n[PASS] measurement_scope 键集合与 S4-A 一致（8 个）\n[PASS] pl_timing/uart_transport/board_pl 取值域与 S4-A 一致（无自造枚举）\n[PASS] source_kind 取值域声明与 S4-A 一致（含跨命名映射）\n[PASS] 事件顺序 8 步齐全且次序正确\n[PASS] 帧序列规则含重复/回退/乱序处理（N5）\n[PASS] 人读契约覆盖全部输入字段名\n[PASS] 结果字段 16 项与检测字段 6 项与 S4-A 逐一相同\n[PASS] 显示关联五元组齐全（5 项）\n[PASS] display_semantics 取值等于阶段5 G0 已决值（B_latest_result_overlay）\n[PASS] hud_field_sources 键集合恰等于 13 个 HUD 字段\n[PASS] PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)\n[PASS] stale 已批准态：批准记录绑定 + 200000000 ns 与阶段5 同源 + 4/4 负向对照被拒绝\n[PASS] 真实彩色改绑齐全（标签/部署绑定/三层语义/几何/采集时钟/源帧哈希）+ 4/4 负向对照被拒绝\n[PASS] r06 BGR888/byte_order 分层、D2 顺序、UR-1 元数据、wire/C enum 分域与运行期 fail-closed 通过；10/10 负向对照被拒绝\n[PASS] 三种范围均有 allowed 与 forbidden\n[PASS] 消费边界声明阶段5 只读 + 版本化 + 变更流程\n[PASS] 共享契约自检：27 项通过、0 项失败\n",
+      "stderr": "",
+      "outdir": "D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_shared_io_contract",
+      "produced_files": [
+        "verify_shared_io_contract_result.json"
+      ]
+    },
+    {
+      "name": "audit_raw_system_g0_gaps",
+      "command": "python -B D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\audit_raw_system_g0_gaps.py --evidence-dir D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\audit_raw_system_g0_gaps",
+      "exit_code": 0,
+      "stdout": "[PASS] 缺口状态纪律通过：无被禁状态、需要硬件的缺口保持 NOT_RUN/BLOCKED、CLOSED_OFFLINE 有本轮 PASS 检查支持\n[PASS] 依据件现场复算一致（17/17 项）\n[PASS] 离线算术复算一致（13/13 项）\n[PASS] RAW 系统 G0 缺口复算：3 项通过、0 项失败\n",
+      "stderr": "",
+      "outdir": "D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\audit_raw_system_g0_gaps",
+      "produced_files": [
+        "raw_system_g0_gap_audit_result.json"
+      ]
+    }
+  ],
+  "compare": [
+    {
+      "checker": "verify_d1a_landing",
+      "produced": "D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_d1a_landing\\mechanical_checks.json",
+      "committed": "D:\\tmp\\review\\S4_T30_20261027_r01\\export_full\\report\\evidence\\S4-CTRL\\s4_d1a_landing_20261027_r01\\mechanical_checks.json",
+      "compare": {
+        "field_compare": {
+          "status": "SAME",
+          "checks": "SAME",
+          "failures": "SAME"
+        },
+        "produced_status": "PASS",
+        "committed_status": "PASS",
+        "produced_failures": 0,
+        "committed_failures": 0
+      }
+    },
+    {
+      "checker": "verify_shared_io_contract",
+      "produced": "D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\verify_shared_io_contract\\verify_shared_io_contract_result.json",
+      "committed": "D:\\tmp\\review\\S4_T30_20261027_r01\\export_full\\report\\evidence\\S4-CTRL\\s4_d1a_landing_20261027_r01\\contract_selfcheck\\verify_shared_io_contract_result.json",
+      "compare": {
+        "field_compare": {
+          "status": "SAME",
+          "failures": "SAME",
+          "passes": "SAME"
+        },
+        "produced_status": "PASS",
+        "committed_status": "PASS",
+        "produced_failures": 0,
+        "committed_failures": 0
+      }
+    },
+    {
+      "checker": "audit_raw_system_g0_gaps",
+      "produced": "D:\\tmp\\review\\S4_T30_20261027_r01\\repro\\audit_raw_system_g0_gaps\\raw_system_g0_gap_audit_result.json",
+      "committed": "D:\\tmp\\review\\S4_T30_20261027_r01\\export_full\\report\\evidence\\S4-CTRL\\s4_d1a_landing_20261027_r01\\gap_audit_r02\\raw_system_g0_gap_audit_result.json",
+      "compare": {
+        "field_compare": {
+          "status": "SAME",
+          "checks": "SAME",
+          "failures": "SAME",
+          "passes": "SAME"
+        },
+        "produced_status": "PASS",
+        "committed_status": "PASS",
+        "produced_failures": 0,
+        "committed_failures": 0
+      }
+    }
+  ],
+  "object": "e39f6de6f83fc06783ee9b97e86afabef0170e89"
+}

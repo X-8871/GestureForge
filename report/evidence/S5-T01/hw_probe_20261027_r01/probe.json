@@ -1,0 +1,54 @@
+{
+  "schema_version": "gestureforge_s5_hardware_probe_v1",
+  "task_ids": [
+    "S5-T01",
+    "S5-T02"
+  ],
+  "kind": "READ_ONLY_JTAG_PROBE",
+  "generated_utc8": "2026-10-27T12:36:26+08:00",
+  "tool": {
+    "vivado": "2026.1",
+    "hw_server": "v2026.1",
+    "cs_server": "v2026.1",
+    "mode": "tcl_no_gui",
+    "session_id": "vivado-20261027-123420-1f6f557a",
+    "vivado_pid": 7436
+  },
+  "target": {
+    "url": "localhost:3121/xilinx_tcf/Digilent/210512180081",
+    "cable": "Digilent JTAG-HS1",
+    "serial": "210512180081",
+    "targets_count": 1
+  },
+  "devices": [
+    {
+      "name": "arm_dap_0",
+      "note": "A9 DAP（无 REGISTER.IDCODE 属性，属正常）"
+    },
+    {
+      "name": "xc7z020_1",
+      "part": "xc7z020",
+      "note": "PL；`_1` 后缀**不能**独立证明 XC 系列或 -2 速度等级（见 AGENTS.md 器件口径）"
+    }
+  ],
+  "read_only_statement": "本轮**只做只读探测**：未 program_device、未加载位流/ELF、未烧录 QSPI/Flash、未重配 PL、未开 COM4；仅 open_hw_manager/connect_hw_server/open_hw_target/get_*",
+  "limitations": [
+    "REGISTER.IDCODE 在本流程对 arm_dap_0 / xc7z020_1 不可得（工具未暴露该属性）",
+    "JTAG 可见 ≠ 器件型号/速度等级已证；XC7Z020-2CLG400I 的适用性仍按既有补验口径",
+    "受连接判据（部署身份逐字符核对、真彩目视）**尚未重做**；本轮不引用旧目视结论"
+  ],
+  "authorization": {
+    "by": "Wong",
+    "quote": "阶段四还未完成，但是硬件窗口和实物授权可以给你",
+    "date_utc8": "2026-10-27 12:26",
+    "source": "report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261027-001-stage5-hardware-window-and-physical-authorization.md",
+    "gate": "GO（report/evidence/S5-T01/hw_gate_20261027_r03/）"
+  },
+  "not_run": [
+    "板上动态映射与绘制（B1–B10）",
+    "真实回放接入（阶段4 未完成）",
+    "摄像头采集路径",
+    "30 分钟板上长跑（B6）",
+    "T5-10 板上回归"
+  ]
+}

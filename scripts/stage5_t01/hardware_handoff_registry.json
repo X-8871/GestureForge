@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T12:32:53+08:00",
+  "generated_utc8": "2026-10-27T12:36:26+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -404,6 +404,17 @@
       "id": "DSH-20261026",
       "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
       "pending_author_confirmation": true
+    },
+    {
+      "id": "DSH-20261027-002",
+      "file": "dsh_mailbox/DSH-20261027-002-stage5-hardware-occupation.md",
+      "kind": "hardware_occupation",
+      "order_key": "20261027002",
+      "declared_by": "DSH 阶段5 总控",
+      "scope": "stage5_board_items_S5T02_B1_B2_B4_B5_windowA",
+      "note": "阶段5 硬件窗口开工：Vivado TCL 会话 vivado-20261027-123420-1f6f557a（PID 7436），已 connect_hw_server 并 open_hw_target（只读探测）；窗口 2026-10-27 12:34 起，单次≤3h；释放条件：跑完/阻断/超时后关闭会话并回执",
+      "evidence": "report/evidence/S5-T01/hw_probe_20261027_r01/probe.json",
+      "sha256": "e7339e2bf28b125f9b740f44976ad9f59f45bc3ecdd1d33cdcdbf34e59c428b3"
     }
   ]
 }

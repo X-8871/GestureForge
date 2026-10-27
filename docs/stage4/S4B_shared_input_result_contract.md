@@ -176,7 +176,7 @@
 - 阶段5 只读；任何字段增删/语义变化必须**新版本号** + 阶段4 所有者批准 + 适用回归；阶段5 只能消费已冻结版本。
 - 本契约和地址图当前均为 `DRAFT_PENDING_REVIEW`：经独立审查与 Lead 确认后再冻结；冻结前不得作为验收依据。
 - **r06 消费方重绑清单（只读请求，不改 w5/w6）**：
-  - **阶段5（w5）**：冻结前重绑地址图至 **r04**、共享契约至 **1.2.0/r06**；RAW 回放元数据新增 evidence-side `pixel_format=BGR888`、`channel_order=[B,G,R]`，并保留平台 `byte_order=little` 的独立含义。该元数据用于 UR-1 回放证据，不扩展运行时帧字段；阶段5 的显示五元组/HUD/`display_semantics=B_latest_result_overlay` 语义不变，仍不得写阶段4 缓冲。
+  - **阶段5（w5）**：冻结前重绑地址图至 **r04**、共享契约至 **1.3.0/r07**；RAW 回放元数据新增 evidence-side `pixel_format=BGR888`、`channel_order=[B,G,R]`，并保留平台 `byte_order=little` 的独立含义。该元数据用于 UR-1 回放证据，不扩展运行时帧字段；阶段5 的显示五元组/HUD/`display_semantics=B_latest_result_overlay` 语义不变，仍不得写阶段4 缓冲。
   - **阶段6（w6）**：如消费本契约，冻结前重绑至 **1.3.0/r07**；跨阶段 `stale_age_limit` 常量值不变（200000000 ns、同源），`T6-A03` 数值仍待阶段4 实测帧周期 P（`NOT_RUN`）。
   - 两个消费方均须以跨方请求（本树 `report/evidence/S4-CTRL/**` 唯一编号）确认重绑并做适用回归；本契约**不代改** w5/w6 行为表。
 
@@ -195,7 +195,7 @@
 ## r07 修订（2026-10-27）
 
 1. `s4_offline_raw_replay_bridge`：由 `06c9ab8` 的 blob `ad71cae0…` 重绑到 r12 现行原始字节；
-   `replaces.basis=git_blob`，并附 `raw_sha256=0c9e09d7…`，避免口径误标。
+   `replaces.basis=git_blob_content`，并附 `raw_sha256=0c9e09d7…`，避免口径误标。
 2. `stage5_display_g0_fields`：w5 在 `b6d11d4` 后经 `a465b48`/`5fd3336` 改动该文件，按规则重绑到
    `af51a4bf…`（修订 `a54f09f`），`replaces` 记录 `b6d11d4/10d24a39…`。
 3. `contract_version` 升 `1.3.0`；补 `byte_basis_pointer` 指向口径登记表。

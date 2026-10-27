@@ -5,7 +5,7 @@
   "status": "DRAFT_PENDING_REVIEW",
   "revision": "r07",
   "created_utc8": "2026-10-22T19:20:00+08:00",
-  "revision_note": "r07：按契约自身重绑规则处理两处过期绑定（语义未变）。① 桥接器 `s4_offline_raw_replay_bridge` 由 06c9ab8 的 blob `ad71cae0…` 重绑到 r12 现行**原始字节** `c6117bb4…`（旧值按 git_blob 口径登记在 replaces，并附 raw 值 `0c9e09d7…`）；② `stage5_display_g0_fields` 因 w5 在 b6d11d4 后两次改动，重绑到 `af51a4bf…`（a54f09f）。③ 补 `byte_basis_pointer`，说明 `raw` 与 `git_blob_content` 的等价关系见口径登记表。",
+  "revision_note": "r07：按契约自身重绑规则处理两处过期绑定（语义未变）。① 桥接器 `s4_offline_raw_replay_bridge` 由 06c9ab8 的 blob `ad71cae0…` 重绑到 r12 现行**原始字节** `c6117bb4…`（旧值按 git_blob 口径登记在 replaces，并附 raw 值 `0c9e09d7…`）；② `stage5_display_g0_fields` 因 w5 在 b6d11d4 后两次改动，重绑到 `af51a4bf…`（a54f09f）。③ 补 `byte_basis_pointer`，说明 `worktree_disk_bytes` 与 `git_blob_content` **不等价**，定义见口径登记表。",
   "reviewed_baseline_note": "r04 地址图及契约旧版本的既有独立复审 PASS 不覆盖 r05/r06/r07。r07 冻结前必须另行独立复审并引用固定提交 + 被审 SHA；复审通过后由阶段4 以仅改状态的提交登记。",
   "task_id": "S4-CTRL/S4B-contract",
   "implementer": "阶段4（本树 D:\\codex-worktrees\\w4）",
@@ -437,7 +437,7 @@
         "name": "contract_version",
         "type": "string",
         "required": true,
-        "semantics": "固定 's4-shared-io/1.2.0'；不匹配即拒绝消费"
+        "semantics": "固定 's4-shared-io/1.3.0'；不匹配即拒绝消费"
       },
       {
         "name": "source_kind",
@@ -887,7 +887,7 @@
     "change_process": "阶段5 需求变化以跨方请求提出（本树 report/evidence/S4-CTRL/** 唯一编号），由阶段4 决定是否纳入并出新版本"
   },
   "limits": [
-    "本契约 r06（1.2.0）与地址图 r04 均为 DRAFT_PENDING_REVIEW；独立复审通过并完成 Lead 提交前不得冻结或作为验收依据。",
+    "本契约 r07（1.3.0）与地址图 r04 均为 DRAFT_PENDING_REVIEW；独立复审通过并完成 Lead 提交前不得冻结或作为验收依据。",
     "地址图 r04 的 `raw_frame`/`raw_meta` 状态为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN）；**`ENABLE=0`、不访问候选区、不装载位流、不做板级操作**，直到独立审查与硬件窗口实测（CPU1 停止、无其他 DDR consumer、板上未被占用、cache 可见性）完成。",
     "RAW 输入契约要求 BGR888/B-G-R 并在冻结 D2 预处理前重排为 RGB/R-G-B；当前 C 注入 API 与 mailbox PS driver 均未实现该格式映射，PL RAW 读取无通道重排且前处理模块未实例化到 RTL 顶层，`runtime_support_status=NOT_IMPLEMENTED`。G0 候选 mailbox_pixel_format_code=1 不得直接 cast 为 C enum（其值 1 是 RGB565）。离线 Python D2 参考不代表真实运行期支持；补齐 driver/映射/PL 接入及逐像素、整帧 D2 验收前必须 fail-closed。",
     "绑定字节口径：默认工作树磁盘字节；dbdf 两项彩色证据按 `git_blob_content` 显式声明；跨换行环境复算须 `-c core.autocrlf=false` 或 blob 口径（见 `binding_byte_basis`）",

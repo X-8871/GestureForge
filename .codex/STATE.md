@@ -2,6 +2,8 @@
 
 **写权：Workbuddy 阶段4总控 受 Wong 2026-10-27 授权独占，覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
 
+任务=`S4-B-REAL-02B::s4b_hardware_session_claim` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:/codex-worktrees/w4 / stage4-infer-prep` | 起始提交=`6bf5a9d73a82679fb1f2327e1b5808fad302f126` | 允许修改范围=`S4B_PS_TENSOR_DIAGNOSTIC` | 未提交改动归属=`main OFFER 引用的未提交改动归属保持原口径；w4 侧仅本轮新增证据归 Workbuddy 阶段4总控` | 让出声明=`CLAIMED` | 心跳(UTC+8)=`2026-10-27 15:39` | 证据入口=`offer_commit=8b57876d922050b10c060378797c425ed6b92c5f;offer_blob_oid=0838bfd6b30a11bc670a8327c195cc4c5e08d618;offer_sha256=cb12d28bb03b4b342008dbe03a86698a48297e07a5275fe6c3d519565e603871;offer_source_commit=05eac1bfa708832f7a4582069ab3ec4d0c8677a3;hardware_run_id=s4b_ps_tensor_hw_20261027_r01;scope=S4B_PS_TENSOR_DIAGNOSTIC` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id <新RunId> --accept-producer-break` | 状态/下一接手方=`CLAIMED Workbuddy 阶段4总控`
+
 ## 本轮结果（硬件窗口已授权，等待 main OFFER，2026-10-27 14:55 UTC+8）
 
 - **Wong 已授权硬件窗口（R-1 完成）**。R-2 仍需 main 提交 OFFER —— 阶段4 不写 main。

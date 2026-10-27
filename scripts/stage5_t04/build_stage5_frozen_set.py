@@ -10,7 +10,7 @@
 
 规则（可复现）
 ==============
-- 证据包：顶层文件逐件登记 `file`；顶层目录登记为 `dir_digest`（覆盖目录内全部文件）。
+- 证据包/实现目录：顶层文件逐件登记 `file`；目录登记为 `file_set`（逐件列 path/sha256/bytes，仅含 Git 已跟踪文件）。
 - 所有 `repo` 成员的 `path` 相对仓库根；`host` 成员用绝对路径（跨树/主仓只读引用）。
 - 同一份成员清单 + 同一棵树 ⇒ 同一份 `frozen_set.json`。
 
@@ -49,6 +49,9 @@ CONTRACT_FILES = (
     "docs/stage5/S5T03_stage4_frozen_replay_consumption_v1.md",
     "docs/stage5/S5T03_board_verification_pending_v1.md",
     "docs/stage5/PROVENANCE_s4d_v1_baseline.md",
+    "docs/stage5/S5T27_replay_colour_input_path_v1.md",
+    "scripts/stage5_t27/.gitattributes",
+    "report/evidence/S5-T27/.gitattributes",
 )
 
 OFFLINE_IMPLEMENTATION_FILES = (
@@ -58,6 +61,7 @@ OFFLINE_IMPLEMENTATION_FILES = (
 
 OFFLINE_IMPLEMENTATION_DIRS = (
     "scripts/stage5_t03",
+    "scripts/stage5_t27",
 )
 
 # 说明（2026-10-27 冻结轮实测）：`scripts/stage5_s5a|s5b|s5c`（S5-A/B/C 历史离线准备）**不纳入**本冻结集：
@@ -74,6 +78,9 @@ OFFLINE_EVIDENCE_PACKAGES = (
     "report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04",
     "report/evidence/S5-T03/s5t03_stage4_positive_replay_20261027_r01",
     "report/evidence/S5-T01/s5t02_offline_dynamic_map_20261027_r02",
+    "report/evidence/S5-T27/s5t27_replay_colour_20261027_r02",
+    "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02",
+    "report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01",
 )
 
 # 宿主侧（仓库外）上游只读引用：冻结范围只"引用其字节"，不改写、不复制；
@@ -122,6 +129,8 @@ FREEZE_TOOLING_FILES = (
     "scripts/stage5_t04/build_stage5_frozen_set.py",
     "scripts/stage5_t04/run_stage5_freeze_evidence.py",
     "scripts/stage5_t04/run_f6_export_selfcheck.py",
+    "scripts/stage5_t27/inline_manifest_basis.py",
+    "scripts/stage5_t27/run_clean_checkout_proof.py",
 )
 
 NOT_FROZEN = (
@@ -275,7 +284,7 @@ def build() -> dict:
 
     return {
         "schema_version": "gestureforge_s5t04_frozen_set_v1",
-        "frozen_set_id": "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R01",
+        "frozen_set_id": "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R02",
         "task_id": "S5-T04",
         "stage": 5,
         "freeze_kind": "OFFLINE_SCOPE_FROZEN",
@@ -295,11 +304,34 @@ def build() -> dict:
             "`.gitattributes` 本身也是冻结成员并带 `.gitattributes -text` 自规则，保证其字节不经 EOL 转换。"),
         "superseded_runs": [
             {"run_id": "s5_freeze_20261027_r00_runner_crash",
-             "reason": "运行器在解析套件摘要时崩溃（未产出清单）；保留不改写"},
+             "reason": "运行器解析套件摘要时崩溃（int('19, skipped')），未产出清单；保留不改写"},
             {"run_id": "s5_freeze_20261027_r01",
-             "reason": "F6 自证发现冻结工具缺陷：导出/检出未携带 `.gitattributes` ⇒ 换行被转换、44 项哈希不符；"
-                       "r02 已修工具并把 `.gitattributes` 纳入冻结集，故 r01 被取代（保留不改写）"},
+             "reason": "F6 自证发现冻结工具缺陷：导出/检出未携带 .gitattributes ⇒ 换行被转换、44 项哈希不符；r02 起修工具并把 .gitattributes 纳入冻结集，故 r01 被取代（保留不改写）"},
+            {"run_id": "s5_freeze_20261027_r02_incomplete_builder_path",
+             "reason": "构建器曾以默认 --out 覆盖已提交的 r01 包（已用 git checkout 恢复）；该目录为残留，现构建器强制显式 --out。属工具缺陷，非成员内容问题（保留不改写）"},
+            {"run_id": "s5_freeze_20261027_r03",
+             "reason": "校验器/F6 驱动硬编码 r01 RunId ⇒ 改为强制显式 --frozen-set/--frozen-run-dir，r03 被取代"},
+            {"run_id": "s5_freeze_20261027_r04",
+             "reason": "3 项不符：__pycache__/未跟踪产物污染目录摘要、.gitattributes 自身换行不稳定 ⇒ 改为 file_set（仅 Git 已跟踪文件）+ .gitattributes -text 自规则，r04 被取代"},
+            {"run_id": "s5_freeze_20261027_r05",
+             "reason": "上一轮正式冻结（tag stage5-offline-freeze-20261027 → 26b7439；77 成员）；本 r06 为再冻结：纳入 task-27 增量与 N1 修复并清 5 项非阻断（F1–F5），故 r05 被 r06 取代。r05 字节与 tag 均不改不删（保留为历史）"},
         ],
+        "re_freeze": {
+            "reason": "task-27（回放/彩色输入路径 + 离线动态回归）交付 + 复审 N1 修复（子目录 .gitattributes、内联 hash_basis）纳入冻结；并清 S5-T04 复审 F1–F5",
+            "previous_frozen_set": "report/evidence/S5-T04/s5_freeze_20261027_r05/frozen_set.json",
+            "previous_frozen_set_sha256": "109254238e2aede8ab9005ed153e768e611c3ba325a5b1b75b312b415408b1bf",
+            "previous_baseline_commit": "26b743901b4ec76107ca2cd6a010337a5ae40bf2",
+            "previous_tag": "stage5-offline-freeze-20261027",
+            "previous_member_count": 77,
+            "delta_members": [
+                "契约/规格 +3：docs/stage5/S5T27_replay_colour_input_path_v1.md、scripts/stage5_t27/.gitattributes、report/evidence/S5-T27/.gitattributes",
+                "离线实现 +1 file_set：scripts/stage5_t27（跟踪文件逐件登记）",
+                "离线实现扩展：scripts/stage5_t03 file_set 由 25 件扩到 28 件（task-27 三件套）",
+                "离线证据包 +3：S5-T27 r02 主包 / clean_checkout r02 自证包 / hash_basis_authoritative r01",
+                "冻结工具 +2：inline_manifest_basis.py、run_clean_checkout_proof.py",
+            ],
+            "carried_forward_rule": "旧 77 成员身份（path/sha256/bytes）逐项保留，本轮不改其字节（独立复审核 0 改动）。",
+        },
         "not_frozen": list(NOT_FROZEN),
         "members": members,
     }

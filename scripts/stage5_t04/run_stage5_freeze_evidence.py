@@ -32,7 +32,7 @@ HERE = pathlib.Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 CHECKER = pathlib.Path("D:/FPGA_Competition/verification/check_stage_delivery.py")
 TASK_ID = "S5-T04"
-DEFAULT_RUN_DIR = "report/evidence/S5-T04/s5_freeze_20261027_r01"
+DEFAULT_RUN_DIR = "report/evidence/S5-T04/s5_freeze_20261027_r06"
 STATUS_OK = "CHECKS_OK"
 
 TOOLING_SOURCES = (
@@ -52,6 +52,8 @@ CONTRACT_SOURCES = (
 
 # DSH-20261027-017：`vivado-mcp-server*` 是 MCP 桥接进程，不等于 hw_server/xsdb，不得据此判"板级占用"
 HEAVY_PATTERNS = ("vivado.exe", "xsdb", "hw_server", "vitis", "xsim")
+EXTERNAL_HW_SESSION_MARKERS = ("hw_server",)  # 外部 Agent 的 JTAG server（如 2B），非本卡硬件操作
+
 BRIDGE_MARKERS = ("vivado-mcp-server",)
 
 KEEP_REASON = {
@@ -106,14 +108,25 @@ def run_command(args: list[str]) -> dict:
 
 
 def quiet_window_check() -> dict:
+    """安静窗口：自有重型工具（Vivado/xsim 等）必须不在跑；外部 `hw_server` 会话与 MCP 桥接只记录。
+
+    r06 修订（S5-T04 复审/再冻结轮）：`hw_server.exe` 属**其他 Agent 的硬件会话**（AGENTS.md：2B 持有、任何窗口不得结束
+    或干扰），而本卡是**离线字节冻结**（`ENABLE=0`、未连接/未加载位流/未烧录/未占用 JTAG）。若把外部 JTAG server 的存在
+    当作冻结失败条件，会把"别人开着板"误判成"我做了硬件操作"，且无法自行消除（不得杀他人进程）。故分档：
+    - `heavy_processes`（vivado.exe/xsdb/vitis/xsim）→ 判 BUSY（fail-closed，因为无法排除本卡占用）；
+    - `external_hw_sessions`（hw_server）→ 只记录，并要求与 `vivado.exe` 缺失一起作为"未驱动硬件"的证明。
+    """
     listing = subprocess.run(["tasklist"], capture_output=True, text=True,
                              encoding="utf-8", errors="replace")
     lines = [line.strip() for line in listing.stdout.splitlines() if line.strip()]
     heavy = [line for line in lines if any(p.lower() in line.lower() for p in HEAVY_PATTERNS)]
+    external = [line for line in lines if any(m.lower() in line.lower() for m in EXTERNAL_HW_SESSION_MARKERS)]
     bridges = [line for line in lines if any(m.lower() in line.lower() for m in BRIDGE_MARKERS)]
-    return {"heavy_processes": heavy, "mcp_bridge_processes": bridges,
+    return {"heavy_processes": heavy, "external_hw_sessions": external, "mcp_bridge_processes": bridges,
             "quiet_ok": not heavy,
-            "note": "vivado-mcp-server* 桥接进程按 DSH-20261027-017 只作信息记录，不判为板级占用"}
+            "board_driver_absent": not heavy,
+            "note": ("vivado-mcp-server* 桥接按 DSH-20261027-017 只作信息记录；hw_server 属外部 Agent 会话，"
+                     "本卡离线冻结不连接/不加载/不烧录，仅记录并在 README 说明")}
 
 
 def git_state() -> dict:
@@ -328,8 +341,20 @@ def freeze_document(context: dict) -> str:
         "## 6. 提交与 F6 自证",
         f"- 冻结前基线（`frozen_set.json.baseline_commit`）：`{frozen.get('baseline_commit')}`。",
         f"- 本轮内容提交与最终 HEAD：见外部报告（本文件不写自身提交哈希，避免自指）；`git log -1` 为权威。",
-        "- **F6 自证**：本轮内容提交单独 `git archive` 导出后，在导出副本内复跑冻结集校验器与 `check_stage_delivery`，"
+        "- **F6 自证**：本轮内容提交单独 `git archive` 导出（或 `git clone --shared --no-checkout` 部分检出）后，"
+        "在**副本内**复跑冻结集校验器；`check_stage_delivery --mode evidence` 在**主工作树**上运行"
+        "（其清单绑定按提交 blob 复算，副本与主树的 `files[]` 字节一致；副本内跑需自带完整依赖，故不作为权威口径，见 F2 更正），"
         "原始输出与真实退出码见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`。",
+        "",
+        "### 6.1 失败/被取代 RunId 的 `run_id` 残留（F4 标注，不重写失败证据）",
+        "- `report/evidence/S5-T04/s5_freeze_f6export_20261027_r00_crlf_fail/` 与 `…_r00b_tracked_dirs_fail/` 内部 "
+        "`results_f6export.json.run_id` 仍写着 `…_r01`（修复前驱动硬编码，属历史残留）。",
+        "- 处置：**不重写失败证据**；在此标注其真实归属为 `r00_crlf_fail` / `r00b_tracked_dirs_fail`，"
+        "r06 起驱动强制 `--frozen-run-dir` 显式传参（`run_id` 由目录名派生）。",
+        "",
+        "### 6.2 哈希基座（2026-10-27 项目级新规）",
+        "- 本包 `delivery_manifest.json` **内联** `hash_basis=\"commit_blob\"` + `hash_basis_commit=<40 位真实 SHA>`，"
+        "`files[]` 逐项声明基座；权威运行方式为显式 `--commit <hash_basis_commit>`（默认 HEAD 仅在该提交后字节未变时等价）。",
         "- 本地附注 tag：`stage5-offline-freeze-20261027`（**不 push**）。",
         "",
         "## 7. 限制",
@@ -376,6 +401,8 @@ def main(argv: list[str] | None = None) -> int:
         "# 安静窗口核验（S5-T04 冻结；未进行任何硬件操作）",
         f"heavy_patterns={list(HEAVY_PATTERNS)}",
         f"heavy_processes={quiet['heavy_processes'] or '(none)'}",
+        f"external_hw_sessions={quiet.get('external_hw_sessions') or '(none)'}",
+        f"board_driver_absent={quiet.get('board_driver_absent')}",
         f"mcp_bridge_processes={quiet['mcp_bridge_processes'] or '(none)'}",
         f"verdict={'QUIET' if quiet['quiet_ok'] else 'BUSY'}",
         f"note={quiet['note']}", ""]), encoding="utf-8")
@@ -504,6 +531,8 @@ def main(argv: list[str] | None = None) -> int:
                                    "note": "S5-A/B/C 历史准备模块，依赖 w4 侧黄金数据、上游漂移后失败；"
                                            "**不计入**本冻结的离线回归主张，如实登记为未闭合项"},
         "quiet_window": {"heavy_processes": quiet["heavy_processes"],
+                         "external_hw_sessions": quiet.get("external_hw_sessions", []),
+                         "board_driver_absent": quiet.get("board_driver_absent"),
                          "mcp_bridge_processes": quiet["mcp_bridge_processes"],
                          "verdict": "QUIET" if quiet["quiet_ok"] else "BUSY"},
         "worktree": {"branch": git["branch"], "head": git["head"],

@@ -131,8 +131,19 @@ def verify(root: pathlib.Path, frozen_set_path: pathlib.Path,
 
         try:
             candidate = pathlib.Path(raw_path)
-            resolved = candidate if (scope == "host" and candidate.is_absolute()) else (root / candidate)
-            resolved = pathlib.Path(resolved)
+            # F1（r06 修）：repo 成员路径必须**包含在工作树内**（禁止绝对路径或 '../' 逃逸）；
+            # 越界属声明错误 ⇒ 按 docstring 约定 fail-closed 为 exit 2（ENV_ERROR）。
+            if scope == "repo":
+                if candidate.is_absolute() or any(part == ".." for part in candidate.parts):
+                    raise FrozenSetError(f"{member_id}: repo 成员路径不得为绝对路径或含 '..'：{raw_path}")
+                resolved = pathlib.Path(root / candidate)
+                try:
+                    resolved.resolve().relative_to(pathlib.Path(root).resolve())
+                except ValueError:
+                    raise FrozenSetError(
+                        f"{member_id}: 路径逃出工作树（拒绝）：{raw_path}") from None
+            else:
+                resolved = candidate
             if not resolved.exists():
                 raise FrozenSetError(f"{member_id}: 成员缺失：{resolved}")
             if not resolved.is_file() and not resolved.is_dir():
@@ -277,12 +288,33 @@ def run_selftest(workdir: pathlib.Path, member_limit: int,
     missing.unlink()
     steps["deleted_one_member"] = invoke()
 
+    # F1 负例：声明路径逃出工作树 ⇒ 必须 exit 2（ENV_ERROR），不得静默通过
+    escaped = {"frozen_set_id": data.get("frozen_set_id", "") + "__selftest_escape",
+               "baseline_commit": data.get("baseline_commit"),
+               "note": "注入自测：路径逃逸（../ 与绝对路径各一条）",
+               "members": [
+                   {"id": "escape_dotdot", "kind": "file", "scope": "repo",
+                    "path": "../outside_w5.txt", "sha256": "0" * 64},
+                   {"id": "escape_absolute", "kind": "file", "scope": "repo",
+                    "path": str((workdir / "abs_probe.txt").resolve()), "sha256": "0" * 64},
+               ]}
+    (workdir / "outside_w5.txt").write_text("escape probe\n", encoding="utf-8")
+    escape_path = workdir / "frozen_set_escape.json"
+    escape_path.write_text(json.dumps(escaped, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    completed = subprocess.run([sys.executable, "-B", str(pathlib.Path(__file__).resolve()),
+                                "--root", str(workdir), "--frozen-set", str(escape_path),
+                                "--skip-host-references"],
+                               capture_output=True, text=True, encoding="utf-8", errors="replace")
+    steps["path_escape_rejected"] = {"exit_code": completed.returncode,
+                                     "stdout_tail": completed.stdout.strip().splitlines()[-1:]}
+
     expectations = {"clean": EXIT_VERIFIED, "tampered_one_byte": EXIT_MISMATCH,
-                    "deleted_one_member": EXIT_ENV_ERROR}
+                    "deleted_one_member": EXIT_ENV_ERROR, "path_escape_rejected": EXIT_ENV_ERROR}
     checks = [{"step": name, "expected_exit": expectations[name],
                "observed_exit": steps[name]["exit_code"],
                "pass": steps[name]["exit_code"] == expectations[name]}
-              for name in ("clean", "tampered_one_byte", "deleted_one_member")]
+              for name in ("clean", "tampered_one_byte", "deleted_one_member",
+                           "path_escape_rejected")]
     return {"workdir": str(workdir), "member_limit": member_limit,
             "steps": steps, "checks": checks,
             "verdict": "SELFTEST_PASS" if all(c["pass"] for c in checks) else "SELFTEST_FAIL",

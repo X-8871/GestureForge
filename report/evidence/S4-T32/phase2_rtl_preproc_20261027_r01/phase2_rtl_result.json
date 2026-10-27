@@ -1,37 +1,61 @@
 {
   "task_id": "S4-B/S4-T32",
-  "phase": "PL 预处理首增量 RTL + 自检 TB",
-  "status": "TB_PASS_RTL_READY",
+  "phase": "PL 增量：预处理流式转换 + HP0 串行 owner（RTL+TB）",
+  "status": "PARTIAL_RTL_TB_PASS_NN_PENDING",
   "rtl": {
-    "path": "src/stage4/s4b_preproc_frame.sv",
-    "sha256": "49e932e09e02c245919125ce72c85761ac19a8b7b6bd975df58de0657e6117a1"
+    "preproc_stream": {
+      "path": "src/stage4/s4b_preproc_frame.sv",
+      "sha256": "49e932e09e02c245919125ce72c85761ac19a8b7b6bd975df58de0657e6117a1"
+    },
+    "hp0_serial_owner": {
+      "path": "src/stage4/s4b_hp0_serial_owner.sv",
+      "sha256": "54380b80b69dfde2e705cfd2b37573f9cfa349e8d57f696dca25e9ee2813bd9c"
+    }
   },
   "tb": {
-    "path": "src/stage4/tb_s4b_preproc_frame.sv",
-    "sha256": "6022bf302b017f4e8ac72065aa6e6ef81b586c616c19f4d2458870a97b7c87d0"
+    "preproc_stream": {
+      "path": "src/stage4/tb_s4b_preproc_frame.sv",
+      "sha256": "6022bf302b017f4e8ac72065aa6e6ef81b586c616c19f4d2458870a97b7c87d0",
+      "verdict": "PASS",
+      "exits": "xvlog=0 xelab=0 xsim=0"
+    },
+    "hp0_serial_owner": {
+      "path": "src/stage4/tb_s4b_hp0_serial_owner.sv",
+      "sha256": "25a575269a32aae08652ce1dc81aeb1b54ed2f419d5ad3e565d9bbcbaa925acf",
+      "verdict": "PASS",
+      "exits": "xvlog=0 xelab=0 xsim=0"
+    }
   },
-  "xsim": {
-    "xvlog_exit": 0,
-    "xelab_exit": 0,
-    "xsim_exit": 0,
-    "verdict": "PASS",
-    "line": "[PASS] s4b_preproc_frame：6 像素全部匹配（BGR→RGB、INT8 饱和、tlast、计数）"
-  },
-  "scope": {
-    "included": [
-      "BGR888→RGB 字节序",
-      "INT8 v-128 饱和（0x00/0xFF/0x80/中间值）",
-      "tlast 直通",
-      "像素计数"
+  "serialization_protocol": {
+    "requesters": [
+      "ID_PREPROC=0",
+      "ID_NET=1"
     ],
-    "excluded_and_deferred": [
-      "几何 resize",
-      "pad 零填充/输出坐标",
-      "AXI4-Lite 0x200..0x27c 包装",
-      "AXI4/HP0 主接口"
+    "grant": "one-hot gnt0/gnt1；持有期内不可切换 owner；rel 只能由当前 owner 发出",
+    "ledger_states": [
+      "IDLE=0",
+      "GRANTED=1",
+      "DRAINING=2"
+    ],
+    "priority": "net 优先（避免推理被预处理饿死），可后续改轮转",
+    "assertions": [
+      "gnt0&gnt1 同时有效 ⇒ $error",
+      "GRANTED 期间 owner 切换 ⇒ $error",
+      "非 owner 发 rel ⇒ $error"
+    ],
+    "tb_cases": [
+      "冲突请求 one-hot",
+      "net 排空后切 preproc",
+      "双方撤销回 IDLE",
+      "单方请求/释放"
     ]
   },
-  "bd_integration": "NOT_STARTED（新增 AXI-Lite 从机需在 GP0 上加互连、HP0 为单 owner 需仲裁 ⇒ 属结构性 BD 改动，按 lead 要求先报后动）",
-  "build_r03": "NOT_RUN（待 BD 接入决策）",
+  "nn_letterbox": "NOT_IMPLEMENTED（640×480→416×416 最近邻 letterbox 未写；因此不做 build_r03）",
+  "bd_integration": "NOT_STARTED（需 AXI4-Lite wrapper + GP0 smartconnect + 2B master 侧第二请求方接线）",
+  "build_r03": "NOT_RUN",
+  "failed_attempts_honest": [
+    "preproc TB 首轮 1 处不符：我 TB 期望值 G/B 写反（DUT 正确）",
+    "owner TB 首轮：我 TB 未撤 req1 却期望切 preproc、且未等 gnt 就发 rel（设计正确，TB 时序/期望错误）"
+  ],
   "boundary": "离线；未接触板卡；ENABLE=0；未 FROZEN；不构成任何关口通过。"
 }

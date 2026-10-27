@@ -1,0 +1,60 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "phase": "PS 真实解码/NMS 链接（第 1 步）",
+  "status": "DECODE_CONSISTENCY_PASS_APP_WIRING_PENDING",
+  "decode_impl": {
+    "source": "verification/s2a_ps_decode_nms_reference.c",
+    "sha256": "cf1904da1b6f9110a957ea788cdb7f9c6b7773d2fd8b7b61779063e5f995d845",
+    "header": {
+      "path": "verification/s2a_ps_decode_nms_reference.h",
+      "sha256": "edd61d7f47e2681ebd3b21f599c9637d41b257f5e0fc7b9b909f7962d758ce47"
+    },
+    "origin": "r13 冻结实现（r13 app 通过 #include s2a_ps_decode_nms_reference.h 调用 s2a_t62_decode_nms）",
+    "scales": {
+      "head13": 0.24267549589862975,
+      "head26": 0.30223452951025775,
+      "source": "R4 host_result_test_fist_000.json decode 块（r13 记录）"
+    }
+  },
+  "offline_test": {
+    "source": "verification/test_s4d_decode_consistency.c",
+    "sha256": "3717b72a6e0c6282762083b45dbc6175013b611e1e0890f27030e3c17a191d2a",
+    "compiler": "d:\\mingw64\\bin\\gcc.exe",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "verdict": "PASS",
+    "inputs": {
+      "head13": {
+        "path": "report/evidence/S4-B/20261021_r01/test_fist_000_head13.raw",
+        "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+      },
+      "head26": {
+        "path": "report/evidence/S4-B/20261021_r01/test_fist_000_head26.raw",
+        "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+      }
+    },
+    "observed": {
+      "decode_rc": 0,
+      "count": 1,
+      "raw_candidates": 2,
+      "class_id": 0,
+      "source_order": 6570,
+      "score": 0.7697084233252404,
+      "xyxy": [
+        0.2481297045148163,
+        0.3713942307692308,
+        0.34786113088325127,
+        0.4362980769230769
+      ]
+    },
+    "reference": "S4-B/20261021_r01/host_result_test_fist_000.json（同样 1 框、同分数、同 xyxy、同 source_order=6570）",
+    "conclusion": "真实解码/NMS 实现与 r13 冻结参考逐字段一致（字段级容差 1e-9）"
+  },
+  "app_wiring": {
+    "status": "PENDING",
+    "reason": "两次锚点替换均失败（源文本与假设不一致）；未修改成功，故无新 ELF",
+    "mistake_recorded": "曾误把未链接解码的旧 ELF 复制为 s4d_ps_app_{sw,pl}_v3.elf；已删除，不作为交付",
+    "next": "按行号/正则稳健插入 include+宏，并以 arm-none-eabi-nm 校验 ELF 内含 s2a_t62_decode_nms 后再报 SHA"
+  },
+  "boundary": "离线；未接触板卡；ENABLE=0；未 push；不构成任何关口通过。"
+}

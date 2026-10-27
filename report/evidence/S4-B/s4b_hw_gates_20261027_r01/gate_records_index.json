@@ -1,0 +1,38 @@
+{
+  "schema_version": "s4b_hw_gate_records_v1",
+  "hardware_run_id": "s4b_ps_tensor_hw_20261027_r01",
+  "generated_utc8": "2026-10-27T13:23:04+08:00",
+  "preparation": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_ps_adapter_g3_20261027_r01\\adapter_preparation.json",
+    "artifact_identity_sha256": "f4561dc69f8c24c52e339d39e11c782373522fbfa2ffbd30a1f52529c8cc09a1"
+  },
+  "adapter_sha256": "9c74f5206063aec68157f6bf4f9070993c754b6af05e0a857fcfc0b13480c467",
+  "generated": {
+    "operator_authorization": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r01\\operator_authorization.json",
+      "sha256": "fcad2c0f5151365b554925dcd194b8874a777bd0605bdbcace08766eed9fb7fd"
+    },
+    "timing_freeze": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r01\\timing_freeze.json",
+      "sha256": "7c1208b5702fc1f85154b2c91e924bae4c09e6072b540e1dcca92afffc346199"
+    },
+    "range_reservation": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r01\\range_reservation.json",
+      "sha256": "063019cf55709d45254f6094d6509b074b3f84ee6e2cd017e039ced2af0fe0bc"
+    }
+  },
+  "not_generated": [
+    "hardware_session_handoff",
+    "exclusive_session",
+    "g0_approval",
+    "command_delivery_review",
+    "cold_basis"
+  ],
+  "not_generated_reason": {
+    "hardware_session_handoff": "需 main OFFER + w4 CLAIM（见 s4b_hw_offer_claim 文档）",
+    "exclusive_session": "执行时现场取证（hw_server 3121 + UART，30 分钟窗口）",
+    "g0_approval": "依赖地址图 APPROVED，当前 DRAFT_PENDING_REVIEW",
+    "cold_basis": "需物理断电重建或等价独立证明（Wong 现场）",
+    "command_delivery_review": "需对当前 adapter 字节的独立复审（--review-file）"
+  }
+}

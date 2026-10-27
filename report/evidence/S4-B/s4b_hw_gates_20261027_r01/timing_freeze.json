@@ -1,0 +1,28 @@
+{
+  "status": "APPROVED",
+  "hardware_run_id": "s4b_ps_tensor_hw_20261027_r01",
+  "artifact_identity_sha256": "f4561dc69f8c24c52e339d39e11c782373522fbfa2ffbd30a1f52529c8cc09a1",
+  "timebase_status": "APPROVED",
+  "threshold_status": "APPROVED",
+  "approval_id": "TIMING-s4b_ps_tensor_hw_20261027_r01",
+  "timebase": {
+    "source": "PS global timer（XTime_GetTime / 单调计数）",
+    "conversion": "ns = ticks * 1e9 / timer_freq_hz；timer_freq_hz 必须在执行前写入证据",
+    "forbidden": [
+      "host 墙钟",
+      "工具提交时刻",
+      "跨域直接相减"
+    ]
+  },
+  "threshold": {
+    "stale_age_limit_ns": 200000000,
+    "comparison": "严格大于（>），每结果只计一次并记录原因",
+    "single_source": "阶段4/5/6 共用同一常量",
+    "approved_by": "Wong",
+    "receipt_binding": {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4a_stale_age_limit_approval_applied_20261024_r01.json",
+      "sha256": "a0cb2a58fbaeaec506ccad75fd6a81591acdfc3e0994cd206ad08191ddd0eb0b"
+    }
+  },
+  "note": "冻结的是时基语义与阈值口径；timer_freq_hz 的实测值仍须在执行时记录，不得用假设值代替。"
+}

@@ -1,0 +1,140 @@
+{
+  "task_id": "S4-T27-REPLAY-POSITIVE",
+  "frame_id": 1,
+  "result_seq": 1,
+  "contract_result_key": {
+    "session_id": 1396854863,
+    "frame_id": 1,
+    "result_seq": 1
+  },
+  "replay_frame": {
+    "sample_id": "test_fist_000",
+    "sample_index": 0,
+    "status": "PASS",
+    "source_kind": "frozen_gate_positive_sample",
+    "image_sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "input_shape_bgr": [
+      1920,
+      1440,
+      3
+    ],
+    "input_chw_sha256": "ad61abae6b09a54f570862501e187024c14fef362cc06944f4baac99906085e5",
+    "decoded_rgb_sha256": "6866008588a1fab8e22176b19b244cddc55cfdb6605879f17e6ceea9ca66e170",
+    "actual_head_sha256": {
+      "head13": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "head26": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+    },
+    "preprocessing_representations": {
+      "preprocess_oracle": "verification/s1_t02_d2_numeric_reference.py::preprocess_rgb_uint8_to_chw_int8",
+      "image_decoder": "verification/s2a_model_delivery.py::decode_rgb",
+      "decoded_rgb_shape_hwc": [
+        1920,
+        1440,
+        3
+      ],
+      "decoded_rgb_dtype": "uint8",
+      "decoded_rgb_sha256": "6866008588a1fab8e22176b19b244cddc55cfdb6605879f17e6ceea9ca66e170",
+      "t25_post_quantization": {
+        "dtype": "int8",
+        "shape_chw": [
+          3,
+          416,
+          416
+        ],
+        "scale": 0.007874015748031496,
+        "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+        "expected_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e"
+      },
+      "forward_one_pre_quantization": {
+        "dtype": "float64",
+        "shape_chw": [
+          3,
+          416,
+          416
+        ],
+        "source": "T25 INT8 values multiplied by frozen INPUT_SCALE",
+        "raw_data_sha256": "ad61abae6b09a54f570862501e187024c14fef362cc06944f4baac99906085e5"
+      },
+      "forward_one_post_quantization": {
+        "dtype": "int8",
+        "shape_chw": [
+          3,
+          416,
+          416
+        ],
+        "scale": 0.007874015748031496,
+        "quantizer": "round_away_array(x / INPUT_SCALE), saturate_array([-127,127])",
+        "raw_data_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+        "bytewise_equal_to_t25": true
+      },
+      "cross_dtype_hash_comparison_performed": false
+    },
+    "offline_host_elapsed_ms": 5741.067600000179
+  },
+  "detections": {
+    "count": 1,
+    "boxes": [
+      {
+        "class_id": 0,
+        "class_name": "fist",
+        "score": 0.7697084233252404,
+        "xyxy": [
+          0.2481297045148163,
+          0.3713942307692308,
+          0.34786113088325127,
+          0.4362980769230769
+        ],
+        "source_order": 6570
+      }
+    ],
+    "raw_candidate_count_before_stable_nms": 2,
+    "expected_raw_candidate_count": 2,
+    "nms_output_count": 1,
+    "expected_nms_output_count": 1,
+    "t29_reference_predictions": [
+      {
+        "class_id": 0,
+        "class_name": "fist",
+        "score": 0.7697084233252404,
+        "source_order": 6570,
+        "xyxy": [
+          0.2481297045148163,
+          0.3713942307692308,
+          0.34786113088325127,
+          0.4362980769230769
+        ]
+      }
+    ],
+    "exact_t29_detection_match": true
+  },
+  "cross_gate_context": {
+    "note": "同一门禁运行内的负样本（approved_no_hand_001）仅作 raw-head 逐字节门，不参与本包主结果。",
+    "raw_head_gate_sample": "approved_no_hand_001",
+    "raw_head_gate_status": true
+  },
+  "source_bindings": {
+    "source_run": "s4t26_gate_rerun_20261027_r04",
+    "gate_result_path": "report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04\\replay_forward_bridge_result.json",
+    "gate_result_sha256": "dcf3455048252b3c5a52d412aafbb93678d1dfcca381e5a67442d5b93f39d845",
+    "bridge_source_sha256": null
+  },
+  "contract_binding": {
+    "contract_id": "s4-shared-io",
+    "contract_version": "1.3.0",
+    "revision": "r07",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "json_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145"
+  },
+  "marking": {
+    "replay_only": true,
+    "evidence_kind": "offline_replay",
+    "buffer_scope": "offline_host",
+    "statement": "离线主机回放；不代表 PL、实物或实时检测输出",
+    "session_id_provenance": "0x5342504F 为 replay-only 合成标识，不是 PS 分配的 u32 会话"
+  },
+  "limitations": [
+    "ENABLE=0；RAW 系统 G0 OPEN；P/4-D/G3/G5 NOT_RUN；",
+    "本包主结果为冻结正样本 test_fist_000 的离线回放，不是真实摄像头采集；",
+    "框坐标为解码后归一化原图 xyxy，仅用于离线回放口径。"
+  ]
+}

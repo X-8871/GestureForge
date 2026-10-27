@@ -95,3 +95,13 @@
 - 本卡**不含板级动作**：无 hw_server/xsdb 启动、无装载、无烧录；`ENABLE=0`；未 FROZEN。
 - M4-b 的**长跑**（≥30 min/≥1000 次）不在单窗口内，另批；本计划不把它标记为已满足。
 - 显示叠加（阶段5）不在本卡验收范围。
+
+## DDR 位完整性 / 保持测试（查根因；2026-10-27 增补）
+
+- 背景：窗口 B r02 候选区 6 字节差异（6 处各清 1 bit），地址归属 = `NEITHER_ACCOUNTED`。
+- 测试区首选 **arena 尾部 `0x01AE0000–0x01B00000`（128 KiB，候选区之外、登记对象之外）**；可选跨区 stripe `0x03000000`/`0x0C000000`（需单独批准）。
+- 图样：`0x00`、`0xFF`、`0xAA/0x55` 交错、**walking-1（每 64 B 一个 1 位）**；读时序：写后立即 + 30 s + 60 s，保持测试 + 5 min（窗口不足列独立长跑）。
+- 判定：任一处单 bit 差异 ⇒ **`DDR_BIT_ERROR_SUSPECTED`（不记 PASS）**，报告 errors/bytes/time；T3 失败 ⇒ `DDR_RETENTION_SUSPECTED`。
+- 先后：**先 bisect（S0→S1→S2）**；`NEITHER_STAGE`/`PRE_EXISTING_CHANGE` ⇒ 立即接 DDR 测试。
+- 详细版：`report/evidence/S4-T32/ddr_bit_test_plan_20261027_r01/ddr_bit_test_plan.md`。
+- **M2 措辞**：bisect 出结论前，M2 只能写"构造性排除 + 待重审"，不得写已证明。

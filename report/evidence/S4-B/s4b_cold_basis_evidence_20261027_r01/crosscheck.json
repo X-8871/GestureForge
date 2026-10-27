@@ -1,0 +1,30 @@
+{
+  "schema_version": "s4b_cold_basis_crosscheck_v2",
+  "captured_at_utc8": "2026-10-27T14:23:00+08:00",
+  "purpose": "交叉核验：排除复审负控夹具后，全阶段是否存在真实的板上执行/编程/复位记录。",
+  "hardware_execution_value_distribution": {
+    "NOT_RUN": 132,
+    "EXECUTED_WITH_EXPLICIT_GATES": 2,
+    "FAILED_OR_INCOMPLETE": 8
+  },
+  "non_NOT_RUN_records": {
+    "classified_as_review_fixtures": [
+      "report\\evidence\\S4-B\\s4b_ps_adapter_g2_20261023_r01\\original_probes\\R2\\api_root_case\\project\\tmp\\4\\S4-B-REAL-02B\\api_root_probe_r01\\adapter_hardware_result.json",
+      "report\\evidence\\S4-B\\s4b_ps_adapter_g2_20261023_r01\\original_probes\\R2\\r2_execute_api_root_probe.json",
+      "report\\evidence\\S4-B\\s4b_ps_adapter_g2_20261023_r02\\independent_review\\R2\\fake_bad_idle_project\\tmp\\4\\S4-B-REAL-02B\\fake_execute_bad_1792749212037300200\\adapter_hardware_result.json",
+      "report\\evidence\\S4-B\\s4b_ps_adapter_g2_20261023_r02\\independent_review\\R2\\fake_state_flip_project\\tmp\\4\\S4-B-REAL-02B\\fake_execute_pass_1792749212201513500\\adapter_hardware_result.json",
+      "report\\evidence\\S4-B\\s4b_ps_adapter_g2_20261023_r02\\independent_review\\R2\\fake_success_project\\tmp\\4\\S4-B-REAL-02B\\fake_execute_pass_1792749211808972000\\adapter_hardware_result.json",
+      "report\\evidence\\S4-CTRL\\s4_ps_adapter_closure_20261023_r01\\history\\repair2_and_repair3\\developer_and_arm_g2_r2\\r2_exec_20261023_01\\api_root_case\\project\\tmp\\4\\S4-B-REAL-02B\\api_root_probe_r01\\adapter_hardware_result.json",
+      "report\\evidence\\S4-CTRL\\s4_ps_adapter_closure_20261023_r01\\history\\repair2_and_repair3\\developer_and_arm_g2_r2\\r2_exec_20261023_01\\r2_execute_api_root_probe.json",
+      "report\\evidence\\S4-CTRL\\s4_ps_adapter_closure_20261023_r01\\history\\repair2_and_repair3\\developer_and_arm_g2_r2\\r2_repair1_20261023_1748_01\\fake_bad_idle_project\\tmp\\4\\S4-B-REAL-02B\\fake_execute_bad_1792749212037300200\\adapter_hardware_result.json",
+      "report\\evidence\\S4-CTRL\\s4_ps_adapter_closure_20261023_r01\\history\\repair2_and_repair3\\developer_and_arm_g2_r2\\r2_repair1_20261023_1748_01\\fake_state_flip_project\\tmp\\4\\S4-B-REAL-02B\\fake_execute_pass_1792749212201513500\\adapter_hardware_result.json",
+      "report\\evidence\\S4-CTRL\\s4_ps_adapter_closure_20261023_r01\\history\\repair2_and_repair3\\developer_and_arm_g2_r2\\r2_repair1_20261023_1748_01\\fake_success_project\\tmp\\4\\S4-B-REAL-02B\\fake_execute_pass_1792749211808972000\\adapter_hardware_result.json"
+    ],
+    "genuine_hardware_executions": [],
+    "fixture_criterion": "路径含 fake_ / api_root_probe / original_probes —— 均为 2026-10-23 G2 独立复审为验证 fail-closed 而构造的假项目，不是真实板上运行。"
+  },
+  "hardware_write_calls_found": [],
+  "conclusion": "排除复审夹具后，真实板上执行记录为 **0**；与进程观测（hw_server=0、3121 无监听）一致，AXI 生命周期为零事务。",
+  "honesty_note": "首次扫描曾把 2 条 EXECUTED_WITH_EXPLICIT_GATES 与 8 条 FAILED_OR_INCOMPLETE 当作真实执行，逐条核查后确认全部位于 fake_* / api_root_probe 复审夹具路径下，属负控产物。",
+  "scope_note": "只读扫描 report/evidence/S4-B 与 S4-CTRL 下的 JSON；跳过 >8MB 文件。"
+}

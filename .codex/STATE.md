@@ -2,7 +2,34 @@
 
 **写权：Workbuddy 阶段4总控 受 Wong 2026-10-27 授权独占，覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
 
-## 本轮结果（地址图批准 + 门禁 5/8，2026-10-27 14:18 UTC+8）
+## 本轮结果（阶段4 冻结签发 + 门禁 6/8，2026-10-27 14:28 UTC+8）
+
+- **判定：`OFFLINE_SCOPE_FROZEN`（离线范围冻结，已正式签发）**，
+  文书 `docs/stage4/s4_stage4_freeze_signed_20261027_r01.md`。
+  依据：`report/evidence/S4-CTRL/s4_frozen_set_verify_20261027_r05/` → `FROZEN_SET_VERIFIED` / `exit 0` / **8 项全通过**。
+  新增可复跑校验器 `verification/verify_stage4_frozen_set.py`（只读；异常 exit 2 不伪装成未通过）。
+- **硬件门禁 5/8 → 6/8**：`cold_basis` 以 `basis_kind=independently_proven_cold_lifecycle` 取得——
+  实时复算 hw_server 进程 0、3121 无监听、无 hw_axi；全仓交叉核验排除 2026-10-23 复审负控夹具
+  （`fake_*`/`api_root_probe`，共 10 条）后**真实板上执行记录为 0**。
+  推论：从未建立 JTAG 会话 ⇒ AXI 无遗留事务 ⇒ 等价冷启动。**这不是物理断电凭据**，
+  一旦出现任何 AXI 事务或启动过 hw_server 即失效。
+  记录 `report/evidence/S4-B/s4b_hw_gates_20261027_r04/`（6 类，manifest 覆盖完整）。
+- **为什么没做到 8/8（结构不可达，非取舍）**：Wong 2026-10-27 告知硬件窗口暂时不能授权。
+  `hardware_session_handoff` 必须由 main 在 main STATE 提交 OFFER（心跳 1h 有效，阶段4 不得写 main）；
+  `exclusive_session` 须执行时现场取证（30 min 窗口），窗口不授权则提前生成必过期。
+  提前生成这两类 = 伪造。故按 `OFFLINE_SCOPE_FROZEN` 签发，并把整体冻结的解除条件 R-1..R-7 写入文书。
+- **未达成项如实保留**：板级 P / 4-D / G3 / G4 / G5 全部 `NOT_RUN`；`ENABLE=0` 未变；
+  `raw_address_ownership` 提案仍 `DECISION_REQUESTED`（其 B 指「4-D 降为 107 帧」，与方向方案的 B 不同）。
+- 本轮修正的三处自身缺陷：
+  ① 冻结校验器 F3 原读 `result.json.bridge_source`（该字段实际在 `preflight_verification.json`），
+     改为读 preflight 并交叉核对 `preflight_sha256`；
+  ② F8 声明卫生扫描原把人读文档里的**否定句**（「不能整体冻结」「不宣称 G5 通过」）与契约
+     `forbidden_claims` 条目误判为违规；改为否定语境豁免，并把扫描范围收窄为人读文档；
+  ③ `make_runtime_gate_records.py` 不支持等价冷启动证明，已加 `--basis-kind` 并内置实时复算闸门
+     （检测到活跃 JTAG 会话即拒绝生成）。
+- 未接触板卡 / JTAG / COM4 / Vivado / hw_server；未在 main 写任何行；未下载未烧录；未开阶段7。
+
+## 历史（地址图批准 + 门禁 5/8，2026-10-27 14:18 UTC+8）
 
 - **两份地址文档已由 Wong 批准**（`DRAFT_PENDING_REVIEW` → **`APPROVED`**）：
   `docs/stage4/S4B_stage4_address_map.json`（`c0855078…`）与
@@ -118,7 +145,7 @@
 
 ## 当前交接行（11字段，2026-10-27 08:12 UTC+8）
 
-任务=`S4-B-REAL-02B 地址图批准 + 门禁 5/8：g0_approval 成立，剩 handoff/exclusive/cold_basis` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r30、gate_reconcile_r06..r15、gate_rerun_r01..r04、contract_verify_r01..r02、gap_audit_r01..r02、basis_sync_r01..r03 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 14:18` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r36/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r18/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md；report/evidence/S4-B/s4b_hw_gates_20261027_r03/gate_records_index.json；report/evidence/S4-B/s4b_address_approval_review_20261027_r01/approval_review.json；report/evidence/S4-B/s4b_adapter_review_20261027_r02/adapter_review.json；report/evidence/S4-CTRL/s4t27_replay_positive_20261027_r01/task27_replay_result_package_positive.json；docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`8 类门禁 5/8 成立（含 g0_approval）；剩 handoff（需 main OFFER，1h 窗口）、exclusive_session（现场，30min）、cold_basis（物理断电）。owner 提案 D1–D4 仍待 Wong 裁决（其 B≠本轮方向 B）。D 系列齐后同一小时内开跑`
+任务=`S4-FREEZE-SIGN：阶段4 离线范围冻结签发（门禁 6/8，硬件窗口未授权）` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r30、gate_reconcile_r06..r15、gate_rerun_r01..r04、contract_verify_r01..r02、gap_audit_r01..r02、basis_sync_r01..r03 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 14:28` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r36/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r18/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md；report/evidence/S4-CTRL/s4_frozen_set_verify_20261027_r05/frozen_set_verification.json；docs/stage4/s4_stage4_freeze_signed_20261027_r01.md；report/evidence/S4-B/s4b_hw_gates_20261027_r04/gate_records_index.json；report/evidence/S4-B/s4b_address_approval_review_20261027_r01/approval_review.json；report/evidence/S4-B/s4b_adapter_review_20261027_r02/adapter_review.json；report/evidence/S4-CTRL/s4t27_replay_positive_20261027_r01/task27_replay_result_package_positive.json；docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`OFFLINE_SCOPE_FROZEN（已签发，冻结集 8/8 校验通过）；硬件窗口未授权 ⇒ handoff/exclusive_session 不可达，整体冻结解除条件见签发文书 R-1..R-7；窗口授权后按 R-2→R-5 同一小时内串行执行`
 
 ## 历史交接（2026-10-27 00:29；已由上方本轮接管取代）
 

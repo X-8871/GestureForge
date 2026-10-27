@@ -1,0 +1,44 @@
+{
+  "schema_version": "s4b_cold_basis_bundle_v1",
+  "task_id": "S4-B-REAL-02B",
+  "built_at_utc8": "2026-10-27T14:24:12+08:00",
+  "purpose": "cold_basis 的等价独立证明：本阶段从未建立 JTAG 会话，故 AXI 生命周期为零事务。",
+  "jtag_session": {
+    "session_active": false,
+    "hw_server_count": 0,
+    "port_3121_listen_count": 0,
+    "hw_server_processes": [],
+    "hw_axi_processes": []
+  },
+  "hardware_presence": {
+    "ftdi": [
+      "OK|USB Serial Converter"
+    ],
+    "com_ports": [
+      "COM4"
+    ],
+    "note": "设备存在仅表示线缆已连接/板卡已上电，不表示存在 JTAG 会话。"
+  },
+  "non_jtag_services_note": "vivado-mcp-server 为 MCP 查询/配置服务，不持有 JTAG，不监听 3121，不产生 AXI 事务。",
+  "crosscheck": {
+    "genuine_hardware_executions": [],
+    "classified_as_review_fixtures_count": 10,
+    "fixture_criterion": "路径含 fake_ / api_root_probe / original_probes —— 均为 2026-10-23 G2 独立复审为验证 fail-closed 而构造的假项目，不是真实板上运行。",
+    "hardware_write_calls_found": []
+  },
+  "sources": [
+    {
+      "path": "observations.json",
+      "sha256": "fa3cb069a07dbf5fcb6481cb924d5db261c24afe2792afe78631433dfc1a9196"
+    },
+    {
+      "path": "crosscheck.json",
+      "sha256": "9377c34f065baab5941090bc38c09811a900ef356b1298aa8fc266cd79acf797"
+    }
+  ],
+  "limitations": [
+    "等价证明证明的是『无遗留 AXI 事务』，不是『刚发生过物理断电』。",
+    "若后续任何时刻启动过 hw_server 或产生 AXI 事务，本证明即失效，必须重新评估。",
+    "本证据不证板上功能、不证 P/4-D/G3。"
+  ]
+}

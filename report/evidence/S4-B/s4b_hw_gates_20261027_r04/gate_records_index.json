@@ -1,0 +1,55 @@
+{
+  "schema_version": "s4b_hw_gate_records_v1",
+  "hardware_run_id": "s4b_ps_tensor_hw_20261027_r01",
+  "generated_utc8": "2026-10-27T14:24:35+08:00",
+  "preparation": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_ps_adapter_g3_20261027_r01\\adapter_preparation.json",
+    "artifact_identity_sha256": "f4561dc69f8c24c52e339d39e11c782373522fbfa2ffbd30a1f52529c8cc09a1"
+  },
+  "adapter_sha256": "463bb429f9bb8242f6229873b1321df5d60acac1f4c0aa1caf4f069a07d78c8e",
+  "generated": {
+    "operator_authorization": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r04\\operator_authorization.json",
+      "sha256": "33dde650fc22ac0ff8103aeda3bcf5dbbe97a304bd0a0ef11ef6bacf6bf09553"
+    },
+    "timing_freeze": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r04\\timing_freeze.json",
+      "sha256": "7c1208b5702fc1f85154b2c91e924bae4c09e6072b540e1dcca92afffc346199"
+    },
+    "range_reservation": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r04\\range_reservation.json",
+      "sha256": "4bd42e42f892dade4d7aab33e55fa91b852fade19cbd4c624691778fc88bf361"
+    },
+    "g0_approval": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r04\\g0_approval.json",
+      "sha256": "5a0ae1357de86afb311b9a981084d1d8ae472991a1100fca4fa34996c9969940"
+    },
+    "command_delivery_review": {
+      "path": "report\\evidence\\S4-B\\s4b_hw_gates_20261027_r04\\command_delivery_review.json",
+      "sha256": "4cb896ec8eaca50635042ff8eec1615375f9959591f2db954b749f1734c2bba9"
+    }
+  },
+  "not_generated": [
+    "hardware_session_handoff",
+    "exclusive_session",
+    "cold_basis"
+  ],
+  "not_generated_reason": {
+    "hardware_session_handoff": "需 main 提交 S4-B-REAL-02B::s4b_hardware_session_handoff OFFER（心跳 1h）+ w4 CLAIM；当前硬件窗口未授权",
+    "exclusive_session": "须在执行时现场取证（hw_server 3121 + UART，30 分钟窗口）；当前硬件窗口未授权，提前生成必过期"
+  },
+  "generated_records": [
+    "cold_basis",
+    "command_delivery_review",
+    "g0_approval",
+    "operator_authorization",
+    "range_reservation",
+    "timing_freeze"
+  ],
+  "record_count": 6,
+  "cold_basis": {
+    "basis_kind": "independently_proven_cold_lifecycle",
+    "note": "以『零 JTAG 会话 ⇒ 零 AXI 事务』作等价独立证明；实时复算 hw_server=0、3121 无监听。不等于物理断电记录，若将来出现任何 AXI 事务即失效。"
+  },
+  "updated_at_utc8": "2026-10-27T14:25:25+08:00"
+}

@@ -1,0 +1,142 @@
+{
+  "schema_version": "s4_frozen_set_v1",
+  "task_id": "S4-FREEZE-VERIFY",
+  "run_id": "s4_frozen_set_verify_20261027_r05",
+  "verifier_sha256": "b9e95b0729badbfe460bcf4c58cbc491b90dd044b1415250d3086a72c6526f35",
+  "checks": [
+    {
+      "id": "F1_shared_result_contract_frozen",
+      "ok": true,
+      "detail": {
+        "status": "FROZEN_OFFLINE_ONLY",
+        "contract_version": "1.3.0",
+        "revision": "r07",
+        "freeze_scope": "OFFLINE_ONLY",
+        "frozen_revision": "r07",
+        "has_review_record": true,
+        "sha256": "2848ba031a6411e2920f7f8edbd58a3199d3404a2558a867d6c0f245c0796a94"
+      }
+    },
+    {
+      "id": "F2_address_maps_approved",
+      "ok": true,
+      "detail": {
+        "stage4_address_map": {
+          "status": "APPROVED",
+          "approved_by": "Wong",
+          "review_binding_verified": true,
+          "sha256": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9"
+        },
+        "shared_address_map": {
+          "status": "APPROVED",
+          "approved_by": "Wong",
+          "review_binding_verified": true,
+          "sha256": "f16e9a7c6c447fbf689fb831b0282eb846d1ccefe8cd985559d56d509a069848"
+        }
+      }
+    },
+    {
+      "id": "F3_task26_gate_pass",
+      "ok": true,
+      "detail": {
+        "status": "PASS",
+        "exit_code": 0,
+        "checks": {
+          "load_frozen_parameters": "PASS",
+          "raw_head_gate_forward_byte_compare": "PASS",
+          "positive_detection_gate_forward_d9_nms": "PASS",
+          "negative_control_one_int8_input_byte": "PASS",
+          "png_imread_unchanged_pixel_identity": "PASS",
+          "task25_replay_frame_forward": "PASS"
+        },
+        "bridge_recorded": "c6117bb4725974bf",
+        "bridge_worktree": "c6117bb4725974bf",
+        "bridge_sha_matches_worktree": true,
+        "preflight_sha_selfconsistent": true
+      }
+    },
+    {
+      "id": "F4_replay_packages",
+      "ok": true,
+      "detail": {
+        "base": {
+          "consumption_mode": "replay_only",
+          "file_count": 10,
+          "mismatched": []
+        },
+        "positive": {
+          "replay_only": true,
+          "detections": 1
+        }
+      }
+    },
+    {
+      "id": "F5_hardware_gate_records",
+      "ok": true,
+      "detail": {
+        "records_supplied": [
+          "cold_basis",
+          "command_delivery_review",
+          "g0_approval",
+          "operator_authorization",
+          "range_reservation",
+          "timing_freeze"
+        ],
+        "record_count": 6,
+        "missing_by_gate": {
+          "hardware_session_handoff": [
+            "hardware_session_handoff:record_missing",
+            "hardware_session_handoff:authoritative_record_invalid:handoff缺少由main当前历史可达的原OFFER blob指针",
+            "hardware_session_handoff:artifact_identity_sha256_mismatch",
+            "hardware_session_handoff:sdk_target_binding_invalid"
+          ],
+          "exclusive_session": [
+            "exclusive_session:record_missing",
+            "exclusive_session:peer_or_live_exclusivity_not_proven"
+          ]
+        },
+        "blocking_outside_hardware_window": []
+      }
+    },
+    {
+      "id": "F6_gate_manifest_coverage",
+      "ok": true,
+      "detail": {
+        "listed": 7,
+        "actual": 7,
+        "mismatch": []
+      }
+    },
+    {
+      "id": "F7_bgr_remap_present",
+      "ok": true,
+      "detail": {
+        "verdict": "PARTIAL_BYTE_CHECK_PASS_FULLFRAME_PENDING",
+        "rtl_has_remap_param": true,
+        "sim": "同一测试台翻转参数得到不同通道字节，证明重排由参数真实驱动，非巧合。"
+      }
+    },
+    {
+      "id": "F8_no_overclaiming",
+      "ok": true,
+      "detail": {
+        "scanned": [
+          ".codex\\STATE.md",
+          "docs\\stage4\\s4_stage4_freeze_record_20261027_r01.md",
+          "docs\\stage4\\s4_stage4_freeze_signed_20261027_r01.md"
+        ],
+        "violations": [],
+        "exempted": "命中点前后出现否定词的表述视为正确否定，不计违规"
+      }
+    }
+  ],
+  "failed": [],
+  "verdict": "FROZEN_SET_VERIFIED",
+  "exit_code": 0,
+  "scope": "阶段4 离线冻结集完整性校验：只读判定，不接触硬件、不启动服务、不改任何被校验文件。",
+  "not_covered": [
+    "hardware_session_handoff（需 main OFFER）",
+    "exclusive_session（需现场 30 分钟窗口）",
+    "板级 P / 4-D / G3（NOT_RUN）"
+  ]
+}

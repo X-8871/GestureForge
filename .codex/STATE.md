@@ -14,6 +14,15 @@
 - **修复（离线，窗口1 后）**：四个 Tcl 全部改为**先选目标再 mrd/rrd**、`targets` 按结构化元素解析；新增 `p1_smoke.tcl`（三步断言，退出码 11/12/13 指失败步）；驱动加入 P1 三步记录与 PRELOAD 装载流程。
 - **装载流程（不需新授权，落在"允许易失下载"内）**：`dow init.elf → con（PS/DDR 就绪）→ dow 最小 ELF → M1/M2/M3（CPU1 由构造保持 halted）→ M4-a 仅 con CPU0 → UART 交互`；**不执行 `stop`**；若仍需显式 stop，须 Wong 授权。
 - **窗口2（2026-10-27 20:53:28 开窗）结论**：`P0 PASS｜P1 三步 smoke PASS（targets/选目标/只读）｜LOAD FAIL（rst -processor → Invalid reset type，发生在任何 dow 之前 ⇒ 未下载任何载荷）｜M1 FAIL（脚本 info target 非 xsdb 子命令 ⇒ 无 state/PC 证据）｜M2 PARTIAL_INVALID（mrd 返回 ADDR: 空值）｜M3/M4-a NOT_RUN｜P4 清理 PASS（3121 已关、无残留）`。**候选区未被写入、未发 stop、无副作用；非技术结论、不构成任何通过。**
+## S4-T32（4-D 离线构建）进展（2026-10-27）
+
+- **Phase 1 = DONE**：三栏盘点/数据流与增量/地址分配（D1=A 内）/接口冻结/构建计划/风险清单 → `docs/stage4/S4D_4d_design_freeze_20261027_r01.md`、`S4D_4d_address_allocation_20261027_r01.json`；验证器 `verify_4d_address_allocation.py` **exit 0**；提交 `c7748bf`。
+- **Phase 2 = BLOCKED_ENVIRONMENT_LICENSE**：47 RTL + 冻结 BD 在 `tmp/4/S4-T32/build_r01/` 重建，**BD validate/wrapper 成功**；综合因 **Vivado ENTERPRISE license 2026-10-06 过期**无法启动（Common 17-345/17-348/17-3922）⇒ **无 bit/XSA/ELF**；未绕过授权；证据 `report/evidence/S4-T32/phase2_20261027_r01/`；提交 `480d8f1`。
+- **Phase 3（离线部分）= DONE**：bring-up 计划与 M3/M4-a/M4-b 判据 → `docs/stage4/S4D_4d_bringup_plan_20261027_r01.md`（**M4-b 必须用 4-D 真实 HP0 DMA 路径；不满足即 FAIL，不得用离线证据替代**；M3 必须采整区恢复后 dump）。
+- **离线自检/门禁**：Tcl 自检 `SELFCHECK_RESULT=PASS`；`py_compile` 4/4 exit 0；基座门禁 `--commit 480d8f1 --mode strict` = `manifests=1 checked=8 mismatched=0` **exit 0**。
+- **阻塞**：需有效 Vivado license 或已授权机器；PS 侧（Vitis）不需该 license，但 4-D PS 应用实现属范围扩展，待 DSH 裁。
+- 边界：全离线未接触板卡；`ENABLE=0` 未变；未 FROZEN；未 push；25 项遗留未动。
+
 ## 四项实测最终态（2026-10-27，Wong 方案A 第5窗口后；不再开窗口）
 
 - **M1 = PASS**：CPU1 `Stopped: (Suspended)`，PC `ffffff34` 两次（2.5 s）一致；证据 `report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/execution_20261027_r05/`。

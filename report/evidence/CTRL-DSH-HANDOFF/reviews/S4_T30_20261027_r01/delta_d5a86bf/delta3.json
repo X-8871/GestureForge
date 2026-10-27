@@ -1,0 +1,547 @@
+{
+  "greps": {
+    "at_utc8": {
+      "exit": 0,
+      "lines": [
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/audit_raw_system_g0_gaps.py:477:        \"generated_at_utc8\": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec=\"seconds\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/check_raw_address_options.py:177:        \"generated_at_utc8\": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec=\"seconds\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/crosscheck_raw_address_owners.py:183:        \"generated_at_utc8\": datetime.now(timezone.utc).astimezone(CN).isoformat(timespec=\"seconds\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_handoff_record.py:142:        \"recorded_at_utc8\": now.isoformat(timespec=\"seconds\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_hardware_gate_records.py:128:        \"authorized_at_utc8\": now_s,",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_hardware_gate_records.py:129:        \"expires_at_utc8\": expiry,",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_hardware_gate_records.py:181:        \"reserved_at_utc8\": now_s,",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_hardware_gate_records.py:221:            \"approved_at_utc8\": now_s,",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_hardware_gate_records.py:246:            \"reviewed_at_utc8\": review.get(\"reviewed_at_utc8\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_runtime_gate_records.py:171:            \"verified_at_utc8\": now.isoformat(timespec=\"seconds\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_runtime_gate_records.py:203:            extra = {\"power_cycle_at_utc8\": cycle_at.isoformat(timespec=\"seconds\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/make_runtime_gate_records.py:230:                     \"live_recheck_at_utc8\": now.isoformat(timespec=\"seconds\"),"
+      ]
+    },
+    "updated_utc8": {
+      "exit": 1,
+      "lines": []
+    },
+    "commit_time": {
+      "exit": 0,
+      "lines": [
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py:415:        \"bridge_last_commit_time\": bridge_committed,"
+      ]
+    },
+    "COMMIT_TIME": {
+      "exit": 1,
+      "lines": []
+    },
+    "committer": {
+      "exit": 1,
+      "lines": []
+    },
+    "mtime": {
+      "exit": 0,
+      "lines": [
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:125:def file_mtime(path: Path) -> datetime:",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:127:    return datetime.fromtimestamp(path.stat().st_mtime, tz=CN).replace(microsecond=0)",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:184:            mtime = file_mtime(fixed)",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:188:                \"fixed_path_mtime_utc8\": mtime.strftime(\"%Y-%m-%d %H:%M:%S\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:192:                delta = (mtime - generated_at).total_seconds()",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:194:                entry[\"fixed_path_mtime_minus_report_seconds\"] = round(delta, 1)",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:199:            entry[\"fixed_path_mtime_minus_report_seconds\"] = None",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:211:                \"mtime_utc8\": file_mtime(cand).strftime(\"%Y-%m-%d %H:%M:%S\"),",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:381:                f\"{key}: 固定路径 mtime({entry.get('fixed_path_mtime_utc8')}) 晚于报告生成时间 \"",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:382:                f\"{entry.get('fixed_path_mtime_minus_report_seconds')} 秒 ⇒ 该路径在报告后被改写\"",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:386:    # 报告时间必须落在 [工具 mtime, 现在] 之间，防止用未来时间戳绕过后写判定。",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4ctrl/audit_t26_producer_provenance.py:400:            tool_mtime = file_mtime(Path(tool_path_text))"
+      ]
+    },
+    "future": {
+      "exit": 0,
+      "lines": [
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/audit_raw_system_g0_gaps.py:16:from __future__ import annotations",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_manifest.py:12:from __future__ import annotations",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_preproc_geometry.py:3:from __future__ import annotations",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_preproc_geometry.py:7:import __future__",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_preproc_geometry.py:101:    has_future_annotations = any(",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_preproc_geometry.py:103:        and node.module == \"__future__\"",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_preproc_geometry.py:107:    if not has_future_annotations:",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_preproc_geometry.py:135:        flags=__future__.annotations.compiler_flag,",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/build_s4b_ps_tensor.py:5:from __future__ import annotations",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/check_hardware_gate_readiness.py:30:from __future__ import annotations",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/check_hardware_gate_readiness.py:78:    # dataclass 在 from __future__ import annotations 下需要模块已登记在 sys.modules，",
+        "d5a86bffa1c5217076efcacb494b37f0c980d6a9:scripts/stage4_s4b/check_raw_address_options.py:14:from __future__ import annotations"
+      ]
+    }
+  },
+  "time_assert_candidates": [],
+  "m01_keys": [
+    "schema_version",
+    "stage",
+    "task_id",
+    "run_id",
+    "card",
+    "worktree",
+    "branch",
+    "take_over",
+    "ruling",
+    "scope_note",
+    "files",
+    "checks",
+    "proposal_migration",
+    "not_done",
+    "boundary",
+    "nb_fixes_r02"
+  ],
+  "m02_keys": [
+    "schema_version",
+    "stage",
+    "task_id",
+    "run_id",
+    "card",
+    "purpose",
+    "reviewed_baseline",
+    "nb_fixes",
+    "identity",
+    "files",
+    "checks",
+    "not_done",
+    "boundary"
+  ],
+  "r01_binding_fields": {},
+  "r02_binding_fields": {},
+  "m02_full": {
+    "schema_version": 1,
+    "stage": "4",
+    "task_id": "S4-CTRL",
+    "run_id": "s4_d1a_landing_20261027_r02",
+    "card": "task-30",
+    "worktree": null,
+    "branch": null,
+    "take_over": null,
+    "ruling": null,
+    "scope_note": null,
+    "checks": [
+      {
+        "name": "复跑机械核验 A–G",
+        "command": "python -B scripts/stage4_s4ctrl/verify_d1a_landing.py --run-dir report/evidence/S4-CTRL/s4_d1a_landing_20261027_r02",
+        "exit_code": 0,
+        "status": "PASS",
+        "reason": "7/7；B 项 pairs=28（C(8,2)）"
+      },
+      {
+        "name": "复跑契约自检",
+        "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir .../s4_d1a_landing_20261027_r02/contract_selfcheck",
+        "exit_code": 0,
+        "status": "PASS",
+        "reason": "27 项通过、0 项失败"
+      },
+      {
+        "name": "复跑缺口审计",
+        "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir .../s4_d1a_landing_20261027_r02/gap_audit",
+        "exit_code": 0,
+        "status": "PASS",
+        "reason": "13/13 算术、依据件复算一致、状态纪律通过"
+      },
+      {
+        "name": "增量核对",
+        "command": null,
+        "exit_code": null,
+        "status": "NOT_RUN",
+        "reason": "由项目总控请同一 Reviewer 做增量核对（只看 NB-1..NB-4 是否真修、有无新问题）"
+      }
+    ],
+    "not_done": [
+      "板级四项实测",
+      "ENABLE=1 / 4-D 构建",
+      "真实链窗口 W-C"
+    ],
+    "boundary": "只写 w4；ENABLE=0；不 FROZEN；无板级访问；不 push；25 项未提交改动未动"
+  },
+  "m02_files_count": 12,
+  "r02_readme_self_manifest_refs": [
+    "`report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/landing_manifest.json`"
+  ],
+  "r01_files_binding": [
+    {
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "claimed": "7c20ac89a35e66c9",
+      "old": "7c20ac89a35e66c9",
+      "new": "7c20ac89a35e66c9",
+      "matches_old": true,
+      "matches_new": true
+    },
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "claimed": "4d8dc0d4b2c5cf65",
+      "old": "4d8dc0d4b2c5cf65",
+      "new": "25bc30d519da3c0d",
+      "matches_old": true,
+      "matches_new": false
+    },
+    {
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+      "claimed": "567953506d6aa06a",
+      "old": "acddf072fae147b1",
+      "new": "c65c281972a82516",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "docs/stage4/S4B_raw_address_ownership_proposal_20261024_r01.md",
+      "claimed": "1e6550d5e3b6c9ac",
+      "old": "1e6550d5e3b6c9ac",
+      "new": "1e6550d5e3b6c9ac",
+      "matches_old": true,
+      "matches_new": true
+    },
+    {
+      "path": ".codex/STATE.md",
+      "claimed": "61e015a06dbabd5e",
+      "old": "61e015a06dbabd5e",
+      "new": "2c78e60241a80573",
+      "matches_old": true,
+      "matches_new": false
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/verify_d1a_landing.py",
+      "claimed": "986040d6f1f1488a",
+      "old": "986040d6f1f1488a",
+      "new": "986040d6f1f1488a",
+      "matches_old": true,
+      "matches_new": true
+    },
+    {
+      "path": "docs/stage4/S4B_shared_address_map.json",
+      "claimed": "f16e9a7c6c447fbf",
+      "old": "f382cd45bc069bcc",
+      "new": "f382cd45bc069bcc",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/mechanical_checks.json",
+      "claimed": "2b2b4cdd75914749",
+      "old": "b058030613725919",
+      "new": "b058030613725919",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/contract_selfcheck/verify_shared_io_contract_result.json",
+      "claimed": "db2d37484ec0960a",
+      "old": "ee403a1745f04c7c",
+      "new": "ee403a1745f04c7c",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/gap_audit_r02/raw_system_g0_gap_audit_result.json",
+      "claimed": "ab43c5afafa3647b",
+      "old": "230c2d2d754766a1",
+      "new": "230c2d2d754766a1",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/gap_audit/raw_system_g0_gap_audit_result.json",
+      "claimed": "9bfd09c8a1f44cf1",
+      "old": "46565723369ea385",
+      "new": "46565723369ea385",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/verify_d1a_landing.stdout.txt",
+      "claimed": "14bd5736e7fbf859",
+      "old": "5a4159658a8d34f8",
+      "new": "5a4159658a8d34f8",
+      "matches_old": false,
+      "matches_new": false
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/exits.txt",
+      "claimed": "41679eb138a26bcb",
+      "old": "d08ef8ec7e64029e",
+      "new": "d08ef8ec7e64029e",
+      "matches_old": false,
+      "matches_new": false
+    }
+  ],
+  "r01_all_describe_audited": false,
+  "basis_bindings": [
+    {
+      "id": "stop_checkpoint",
+      "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/stop_checkpoint.json",
+      "sha256": "1b615cfe2e0ffddf79f972b6a8cb0b905e70289d8453d88bdb61e9ad4b55a87c",
+      "role": "d4f30e3 未完成 RAW G0 的停止检查点与未闭合发现"
+    },
+    {
+      "id": "input_scope_audit",
+      "path": "report/evidence/S4-B/s4b_pl_g0_input_scope_20261023_r01/input_scope_audit.json",
+      "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968",
+      "role": "109 帧冻结样本的 packed 24-bit 三字节容量事实；该旧审计不证明当前 BGR888 通道语义"
+    },
+    {
+      "id": "address_map",
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+      "role": "区域/空洞/准入禁区与缓存维护方向（r05：D1=A 落盘复核补记缩减算术；整体 status=APPROVED，两 region 仍提案态）",
+      "byte_basis": "worktree_disk_bytes",
+      "replaces_sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced"
+    },
+    {
+      "id": "r13_memory_ranges",
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json",
+      "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80",
+      "role": "PS 诊断 ELF 的实际分配事实（arena/staging/tensor arena）"
+    },
+    {
+      "id": "readiness_doc",
+      "path": "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+      "sha256": "98e5265382c08c5152ab1db237d6b18ac18146f7e132a50c2c7460861691d7a1",
+      "role": "已批准路线的系统接口 G0 候选（§8.2 地址/mailbox 布局及 BGR888 运行期缺口）",
+      "sha_note": "SHA 绑定当前工作树磁盘字节；r04 新增 BGR888/byte_order 分层、D2 前置通道重排、mailbox code/C enum 分域与 C/PS/PL 未实现门禁。旧哈希 `e6ae30a5…` 属 S4-B 冻结快照文件，不是当前磁盘版本。 | 2026-10-27：按 G-15 复审修复 result_seq 作用域、双读判据、READY opcode、RAW 维护范围与地址图 SHA 引用后重绑。",
+      "replaces_sha256": "a44544f48e4bc875719fbb5e4c30f51a949720374097590f99b1f10e0f7a5489"
+    },
+    {
+      "id": "shared_input_contract",
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+      "role": "共享输入/结果契约 s4-shared-io/1.3.0 r07 的机器权威",
+      "byte_basis": "worktree_disk_bytes",
+      "update_note": "契约复审登记 REVIEWED_OFFLINE_ONLY 后同步"
+    },
+    {
+      "id": "d2_offline_reference",
+      "path": "verification/s1_t02_d2_int8_forward.py",
+      "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a",
+      "role": "离线 D2 BGR 解码到 RGB 及 resize/归一化/量化前向参考；仅 offline-only",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "raw_replay_bridge",
+      "path": "scripts/stage4_s4ctrl/replay_forward_bridge.py",
+      "sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229",
+      "role": "frame_full.bin BGR bytes 经 Python 离线解码回放适配器",
+      "byte_basis": "worktree_disk_bytes",
+      "update_note": "桥接器升 r12 后同步；旧值 ad71cae0… 为 06c9ab8 的 blob 口径"
+    },
+    {
+      "id": "c_inject_header",
+      "path": "vitis/stage4/s4_inject_frame.h",
+      "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34",
+      "role": "当前 C 注入格式枚举（未含 BGR888）",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "c_inject_impl",
+      "path": "vitis/stage4/s4_inject_frame.c",
+      "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9",
+      "role": "当前 C 注入 API 实现（只验证描述符/长度，不做 BGR 通道变换）",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "pl_preprocessor",
+      "path": "src/s4b_preproc_frame.sv",
+      "sha256": "1e5fc5eee8ed1d96cf0a1ae20124b6d96f9eb7838ac4b149b9c12d94a2831821",
+      "role": "当前 PL RAW 地址直接按 pixel*3+channel_q 读取；未实现 BGR888 重排",
+      "byte_basis": "worktree_disk_bytes"
+    },
+    {
+      "id": "stage3_window_address_facts",
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\address_facts.md",
+      "sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a",
+      "byte_basis": "git_blob_content",
+      "byte_basis_note": "B-2/N-a：dbdf 该路径**确有** `-text` 覆盖，规则由 **`4aada6d`（2026-10-24 01:59 +0800）** 加入，原文 `report/evidence/S3-T05/** -text`（同提交注释：阶段3 板级窗口证据（S3-T05）保留原始字节）；更早的 `-text` 约定属 `report/evidence/S2A-*` 路径（2026-09-25…2026-10-01，如 `cdb2fbd`），**不覆盖 S3-T05**。故按已提交 blob 口径绑定（绑定记录时 dbdf HEAD=`6fa77a64`，disk==blob）；原 `19f754d8…` 磁盘值已随阶段3 更新失效。",
+      "role": "阶段3 视频通路部署地址事实（条件①第三方的书面事实；只读引用，不写 dbdf）"
+    },
+    {
+      "id": "stage4_raw_address_optionA_decision",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_optionA_20261024_r01.md",
+      "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8",
+      "role": "Wong D1=A 批准记录（G-01 的批准依据）"
+    },
+    {
+      "id": "stage4_raw_address_d1_d4_decision",
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\decisions\\stage4_raw_address_d1_d4_20261024_r01.md",
+      "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34",
+      "role": "DSH D1–D4 初裁记录"
+    },
+    {
+      "id": "raw_reference_109",
+      "path": "report/evidence/S4-B/s4b_raw_reference_109_20261023_r01/result.json",
+      "sha256": "666a6ef131236ffb581201a443032e1f3ca66c7f1879ccbb364a9ae7b9602aa0",
+      "role": "109 帧 RAW + 直接标量 D2 参考重生结果（本轮声称范围以该文件为准）"
+    },
+    {
+      "id": "ddr_audit",
+      "path": "report/evidence/S4-B/s4b_pl_ddr_g0_audit_20261023_r01/audit.json",
+      "sha256": "31b7f4b753c27cfae187462dccbc76ad066a11bd63671da2c0b05f9149a04bfe",
+      "role": "只读 DDR/所有权交叉审计（尚待独立 G0 审查）"
+    },
+    {
+      "id": "frozen_specification",
+      "path": "report/evidence/S4-B/s4b_pl_system_g0_review_20261023_r01/frozen_specification.json",
+      "sha256": "2b8bb49fa520a22623f1737eb4fe75848eb6e16e67e4b4fc9f6655741fd4a8cc",
+      "role": "被审 readiness 文档快照绑定（source_commit 4639501）"
+    }
+  ],
+  "basis_check": {
+    "contract_file_sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+    "address_map_sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+    "entries": [
+      {
+        "id": "stop_checkpoint",
+        "sha256": "1b615cfe2e0ffddf79f972b6a8cb0b905e70289d8453d88bdb61e9ad4b55a87c"
+      },
+      {
+        "id": "input_scope_audit",
+        "sha256": "a3da3b5a35a67d0b1ee6342f0f60cbeb7758924e2b348c7b7ca5b64df27d2968"
+      },
+      {
+        "id": "address_map",
+        "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e"
+      },
+      {
+        "id": "r13_memory_ranges",
+        "sha256": "5a53c214e4f3862d071016b64b182463e07c4c4877305bb196ef8f0af3889c80"
+      },
+      {
+        "id": "readiness_doc",
+        "sha256": "98e5265382c08c5152ab1db237d6b18ac18146f7e132a50c2c7460861691d7a1"
+      },
+      {
+        "id": "shared_input_contract",
+        "sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679"
+      },
+      {
+        "id": "d2_offline_reference",
+        "sha256": "0b90ef46b923b046cfcabb0b8ff8aaff4f6b927b9b8ee9eaa10335362c6c922a"
+      },
+      {
+        "id": "raw_replay_bridge",
+        "sha256": "c6117bb4725974bf61033207cb11e6990b22a9adc988718cc96f4aa50d8fb229"
+      },
+      {
+        "id": "c_inject_header",
+        "sha256": "a489ed89ba9aab7476598f1d8d2a8d33af17fd2c4bfec015c0434c463168fb34"
+      },
+      {
+        "id": "c_inject_impl",
+        "sha256": "62c65b12ed724e5cd4f387d9e5825ebd88a5f256424c4ea9416ed344a86e70d9"
+      },
+      {
+        "id": "pl_preprocessor",
+        "sha256": "1e5fc5eee8ed1d96cf0a1ae20124b6d96f9eb7838ac4b149b9c12d94a2831821"
+      },
+      {
+        "id": "stage3_window_address_facts",
+        "sha256": "d5ba4b6bc06015a90b994fd245ce6b722fcbd22d3af522cad2e4d16e29de4f7a"
+      },
+      {
+        "id": "stage4_raw_address_optionA_decision",
+        "sha256": "d18359aa62dcfc4bad7a549c268fb25be63f79e365f74e734bfe86a8229854f8"
+      },
+      {
+        "id": "stage4_raw_address_d1_d4_decision",
+        "sha256": "3d5b2abd358b3ae0f5686744bee959365c7b231157a337626b9c7ba1eee2bf34"
+      },
+      {
+        "id": "raw_reference_109",
+        "sha256": "666a6ef131236ffb581201a443032e1f3ca66c7f1879ccbb364a9ae7b9602aa0"
+      },
+      {
+        "id": "ddr_audit",
+        "sha256": "31b7f4b753c27cfae187462dccbc76ad066a11bd63671da2c0b05f9149a04bfe"
+      },
+      {
+        "id": "frozen_specification",
+        "sha256": "2b8bb49fa520a22623f1737eb4fe75848eb6e16e67e4b4fc9f6655741fd4a8cc"
+      }
+    ],
+    "contract_entries_match": [
+      true
+    ],
+    "map_entries_match": [
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "runs": [
+    {
+      "name": "verify_d1a_landing",
+      "exit_code": 0,
+      "files": [
+        "mechanical_checks.json"
+      ],
+      "stdout_tail": "[PASS] A_region_arithmetic\n[PASS] B_zero_overlap\n[PASS] C_shared_vs_source_fidelity\n[PASS] D_disjoint_from_2b_frozen_objects\n[PASS] E_forbidden_gap_precise_shrink\n[PASS] F_status_discipline\n[PASS] G_contract_rebind\n[PASS] D1=A 落盘机械核验：7/7 通过；失败=[]\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "verify_shared_io_contract",
+      "exit_code": 0,
+      "files": [
+        "verify_shared_io_contract_result.json"
+      ],
+      "stdout_tail": " pl_timing/uart_transport/board_pl 取值域与 S4-A 一致（无自造枚举）\n[PASS] source_kind 取值域声明与 S4-A 一致（含跨命名映射）\n[PASS] 事件顺序 8 步齐全且次序正确\n[PASS] 帧序列规则含重复/回退/乱序处理（N5）\n[PASS] 人读契约覆盖全部输入字段名\n[PASS] 结果字段 16 项与检测字段 6 项与 S4-A 逐一相同\n[PASS] 显示关联五元组齐全（5 项）\n[PASS] display_semantics 取值等于阶段5 G0 已决值（B_latest_result_overlay）\n[PASS] hud_field_sources 键集合恰等于 13 个 HUD 字段\n[PASS] PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)\n[PASS] stale 已批准态：批准记录绑定 + 200000000 ns 与阶段5 同源 + 4/4 负向对照被拒绝\n[PASS] 真实彩色改绑齐全（标签/部署绑定/三层语义/几何/采集时钟/源帧哈希）+ 4/4 负向对照被拒绝\n[PASS] r06 BGR888/byte_order 分层、D2 顺序、UR-1 元数据、wire/C enum 分域与运行期 fail-closed 通过；10/10 负向对照被拒绝\n[PASS] 三种范围均有 allowed 与 forbidden\n[PASS] 消费边界声明阶段5 只读 + 版本化 + 变更流程\n[PASS] 共享契约自检：27 项通过、0 项失败\n",
+      "stderr_tail": ""
+    },
+    {
+      "name": "audit_raw_system_g0_gaps",
+      "exit_code": 0,
+      "files": [
+        "raw_system_g0_gap_audit_result.json"
+      ],
+      "stdout_tail": "[PASS] 缺口状态纪律通过：无被禁状态、需要硬件的缺口保持 NOT_RUN/BLOCKED、CLOSED_OFFLINE 有本轮 PASS 检查支持\n[PASS] 依据件现场复算一致（17/17 项）\n[PASS] 离线算术复算一致（13/13 项）\n[PASS] RAW 系统 G0 缺口复算：3 项通过、0 项失败\n",
+      "stderr_tail": ""
+    }
+  ],
+  "w4_before": {
+    "status_sha256": "784eef0a5358ceb9cb52d43a764ee6d277aec6ef035371acf6c59daf286f0e7b",
+    "status_lines": 25,
+    "index_sha256": "d7206c0d3fc49cb42eebfa170309ed6acfc0690d51cd658aa4bff65a506dbee3",
+    "head": "d5a86bffa1c5217076efcacb494b37f0c980d6a9"
+  },
+  "w4_after": {
+    "status_sha256": "784eef0a5358ceb9cb52d43a764ee6d277aec6ef035371acf6c59daf286f0e7b",
+    "status_lines": 25,
+    "index_sha256": "d7206c0d3fc49cb42eebfa170309ed6acfc0690d51cd658aa4bff65a506dbee3",
+    "head": "d5a86bffa1c5217076efcacb494b37f0c980d6a9"
+  },
+  "w4_unchanged": true,
+  "compare_with_r02": [
+    {
+      "checker": "verify_d1a_landing",
+      "status": [
+        "PASS",
+        "PASS"
+      ],
+      "checks_equal": true
+    },
+    {
+      "checker": "verify_shared_io_contract",
+      "status": [
+        "PASS",
+        "PASS"
+      ],
+      "passes_equal": true
+    },
+    {
+      "checker": "audit_raw_system_g0_gaps",
+      "status": [
+        "PASS",
+        "PASS"
+      ],
+      "passes_equal": true
+    }
+  ],
+  "r02_exit_codes": {
+    "exits.txt": "mechanical=0 selfcheck=0 gap_audit=0",
+    "verify_d1a_landing.exit_code.txt": "exit=0",
+    "contract_selfcheck.exit_code.txt": "exit=0",
+    "gap_audit.exit_code.txt": "exit=0"
+  },
+  "r01_fail_evidence_preserved": {
+    "r01_gap_audit_exit": "exit=1",
+    "r01_gap_audit_present": true
+  }
+}

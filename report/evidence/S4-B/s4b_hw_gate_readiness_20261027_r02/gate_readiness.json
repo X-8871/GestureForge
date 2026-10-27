@@ -1,0 +1,183 @@
+{
+  "schema_version": "s4b_hw_gate_readiness_v1",
+  "checker_version": "r01",
+  "checker_sha256": "318bc2dc9f6d707e741f03c76143ad4025dbf19a132e816080e8485e9d42ac6d",
+  "task_id": "S4-B-HW-GATE-READINESS",
+  "run_id": "s4b_hw_gate_readiness_20261027_r02",
+  "generated_utc8": "2026-10-27T11:51:22+08:00",
+  "scope": "只读门禁就绪机检；不加载位流、不开串口、不启动 hw_server/xsdb",
+  "adapter": {
+    "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\s4b_ps_tensor_adapter.py",
+    "sha256": "9c74f5206063aec68157f6bf4f9070993c754b6af05e0a857fcfc0b13480c467"
+  },
+  "preparation": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_ps_adapter_g3_20261027_r01\\adapter_preparation.json",
+    "sha256": "cb462d8dc34f4ee4a20dd8830592703f8f99da17a224677ae2e9da2cd35f923d",
+    "artifact_identity_sha256": "f4561dc69f8c24c52e339d39e11c782373522fbfa2ffbd30a1f52529c8cc09a1",
+    "elf_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+    "derived_source_sha256": "7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102"
+  },
+  "main_offer": {
+    "present": false,
+    "commit": "bdb7a360916641382a04f018c668774543e45b8e",
+    "reason": "bdb7a360916641382a04f018c668774543e45b8e:.codex/STATE.md 中没有 S4-B-REAL-02B::s4b_hardware_session_handoff"
+  },
+  "w4_claim": {
+    "present": false,
+    "commit": "43c63d627b789a3611d4abb7b8a91b80b0d0e263",
+    "reason": "43c63d627b789a3611d4abb7b8a91b80b0d0e263:.codex/STATE.md 中没有 S4-B-REAL-02B::s4b_hardware_session_claim"
+  },
+  "dependencies": {
+    "address_map": {
+      "status": "DRAFT_PENDING_REVIEW",
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "ok": false,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "raw_address_ownership": {
+      "status": "DECISION_REQUESTED",
+      "path": "docs/stage4/s4b_raw_address_ownership_proposal_20261024_r01.json",
+      "ok": false,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "adapter_review_binding": {
+      "adapter_sha256": "9c74f5206063aec68157f6bf4f9070993c754b6af05e0a857fcfc0b13480c467",
+      "bound_reviews": [],
+      "ok": false,
+      "blocks": [
+        "command_delivery_review"
+      ]
+    },
+    "live_session": {
+      "hw_server_running": false,
+      "com_ports": [
+        "COM4"
+      ],
+      "expect_uart": "COM4",
+      "uart_present": true,
+      "ok": false,
+      "blocks": [
+        "exclusive_session"
+      ],
+      "note": "预检只能观测当前状态；exclusive_session 需执行时现场核对，30 分钟有效窗口"
+    }
+  },
+  "gates": {
+    "operator_authorization": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "hardware_session_handoff": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing",
+        "main_offer_absent",
+        "w4_claim_absent"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "exclusive_session": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing",
+        "dependency_not_met:live_session"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "g0_approval": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing",
+        "dependency_not_met:address_map",
+        "dependency_not_met:raw_address_ownership"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "command_delivery_review": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing",
+        "dependency_not_met:adapter_review_binding"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "timing_freeze": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "range_reservation": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    },
+    "cold_basis": {
+      "status": "BLOCKED",
+      "blockers": [
+        "record_missing"
+      ],
+      "record": {
+        "file": null,
+        "sha256": null
+      }
+    }
+  },
+  "blocked_gates": [
+    "operator_authorization",
+    "hardware_session_handoff",
+    "exclusive_session",
+    "g0_approval",
+    "command_delivery_review",
+    "timing_freeze",
+    "range_reservation",
+    "cold_basis"
+  ],
+  "verdict": "BLOCKED",
+  "hardware_execution": "NOT_RUN",
+  "next_actions": [
+    "关闭 G-01：把 S4B_stage4_address_map.json 由 DRAFT_PENDING_REVIEW 推进到 APPROVED（需独立复审引用被审 SHA），否则 g0_approval 结构上不可能通过",
+    "Wong 裁决 s4b_raw_address_ownership_proposal（当前 DECISION_REQUESTED）→ 落盘 A/B 方案决定",
+    "main 发正式硬件 OFFER：S4-B-REAL-02B::s4b_hardware_session_handoff，scope=S4B_PS_TENSOR_DIAGNOSTIC，证据入口 hardware_run_id=<完整RunId>",
+    "OFFER 落库后由 w4 写 CLAIM（六键：offer_commit/offer_blob_oid/offer_sha256/offer_source_commit/hardware_run_id/scope）",
+    "对当前 adapter 字节 9c74f5206063aec6… 重新独立复审并落 command_delivery_review",
+    "补 operator_authorization（authorized_by 可为 Wong 或阶段4 负责人，含精确 diagnostic 操作集）",
+    "补 timing_freeze / range_reservation / cold_basis（cold_basis 需物理断电重建或等价的冷生命周期独立证明）"
+  ],
+  "boundaries": [
+    "READY 只表示记录与依赖齐备，仍不等于门内检查项通过；",
+    "板卡上电、工作树写权交接、口头同意均不构成授权；",
+    "本预检不含任何板级结果，不得用于声称 G3/G4/G5。"
+  ]
+}

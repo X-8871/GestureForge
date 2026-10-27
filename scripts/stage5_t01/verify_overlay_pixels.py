@@ -112,6 +112,37 @@ def parse_dump(dump: pathlib.Path) -> dict[tuple[int, int], tuple[int, int, int]
     return pixels
 
 
+ADDR_LINE = re.compile(r"^\s*([0-9A-Fa-f]+)\s*:\s*((?:[0-9A-Fa-f]{8}\s*)+)$")
+
+
+def parse_dump_by_address(dump: pathlib.Path, buf0: int, stride: int) -> dict[tuple[int, int], tuple[int, int, int]]:
+    """按 mrd **实际地址**重建像素（精确；不受行段起点是否像素对齐影响）。
+
+    对每个 32 位字：从地址得到全局字节偏移 off；逐字节写入 (y=off//stride, x=(off%stride)//3) 的
+    3 字节槽（槽内位置 off%3）；槽满后成为该像素值（不足/不完整则跳过并在 limits 中说明）。
+    """
+    text = dump.read_text(encoding="utf-8", errors="replace")
+    slots: dict[tuple[int, int], list[int | None]] = {}
+    for line in text.splitlines():
+        m = ADDR_LINE.match(line)
+        if not m:
+            continue
+        addr = int(m.group(1), 16)
+        word_bytes = b"".join(bytes.fromhex(w) for w in re.findall(r"[0-9A-Fa-f]{8}", m.group(2)))
+        for index, value in enumerate(word_bytes):
+            off = addr - buf0 + index
+            if off < 0:
+                continue
+            y, x, pos = off // stride, (off % stride) // 3, off % 3
+            slot = slots.setdefault((x, y), [None, None, None])
+            slot[pos] = value
+    pixels: dict[tuple[int, int], tuple[int, int, int]] = {}
+    for key, slot in slots.items():
+        if all(v is not None for v in slot):
+            pixels[key] = (slot[0], slot[1], slot[2])
+    return pixels
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="显示缓冲像素级叠加对拍（期望由冻结参考现算）")
     parser.add_argument("--dump", required=True)
@@ -119,6 +150,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--header", default=str(REPO_ROOT / "tmp/5/S5-T01/p1_app/build/s5_overlay_cases.h"))
     parser.add_argument("--source", default=str(REPO_ROOT / "scripts/stage5_t01/p1_app/s5_overlay.c"))
     parser.add_argument("--json", dest="json_out", default=None)
+    parser.add_argument("--buf0", default="0x00138C00",
+                        help="显示缓冲基地址（须与当轮应用 S5_P1_BUF0 一致）")
+    parser.add_argument("--stride", type=int, default=3840, help="行字节跨度（1280*3）")
+    parser.add_argument("--mode", choices=("address", "declared-x"), default="address",
+                        help="address=按 mrd 地址精确重建（推荐）；declared-x=按段声明 x 分组（旧口径）")
     parser.add_argument("--min-coverage", type=float, default=0.5,
                         help="部分行转储时的最低覆盖率（默认 0.5；板上定行转储可调低，颜色仍须全对）")
     args = parser.parse_args(argv)
@@ -127,7 +163,10 @@ def main(argv: list[str] | None = None) -> int:
         cases = parse_case_table(pathlib.Path(args.header))
         colors = parse_class_colors(pathlib.Path(args.source))
         hud = parse_hud_rect(pathlib.Path(args.source))
-        pixels = parse_dump(pathlib.Path(args.dump))
+        if args.mode == "address":
+            pixels = parse_dump_by_address(pathlib.Path(args.dump), int(args.buf0, 16), int(args.stride))
+        else:
+            pixels = parse_dump(pathlib.Path(args.dump))
     except (InputError, OSError) as exc:
         print(f"[overlay-pixels] 输入错误：{exc}")
         return 2
@@ -169,6 +208,7 @@ def main(argv: list[str] | None = None) -> int:
            "dump": str(args.dump), "case": args.case,
            "canvas": [CANVAS_W, CANVAS_H], "line_width": LINE_W,
            "hud_rect_excluded": hud, "pixels_parsed": len(pixels),
+           "reconstruction_mode": args.mode, "buf0": args.buf0, "stride": int(args.stride),
            "boxes": per_box, "failures": failures, "passed": not failures,
            "min_coverage": args.min_coverage,
            "limitations": ["转储仅覆盖部分行；覆盖率低于 --min-coverage 即失败（默认 0.5）",

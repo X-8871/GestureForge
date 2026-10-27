@@ -39,6 +39,8 @@
 #endif
 
 #if S5_DYNAMIC_MAP
+/* 前置声明：色表定义在本文件后部，动态映射诊断需在此处引用 */
+static const u8 S5_CLASS_COLOR[5][3];
 #include "s5_dynamic_map.h"
 static s5d_frame_result s5dm_res;
 static s5d_counters s5dm_ctr;
@@ -84,9 +86,15 @@ static void s5dm_run_case(const s5_case_t *c)
                    (unsigned)s5dm_res.zero_area_dropped);
         for (i = 0; i < s5dm_res.nbox_drawn; i++) {
             s5d_drawn_box *d = &s5dm_res.drawn[i];
+            const u8 *dbg_rgb = S5_CLASS_COLOR[c->boxes[i].cls % 5];
             xil_printf("S5DM_B id=%u i=%d rect=%d,%d,%d,%d px=%d anchor=%d,%d pl=%s\r\n",
                        (unsigned)c->id, i, d->rect.x1, d->rect.y1, d->rect.x2, d->rect.y2,
                        d->border_pixels, d->label_x, d->label_y, d->label_placement);
+            /* S5DM_B2：自报本框实际使用的 cls 与 RGB（用于与送显缓冲逐像素对齐定案） */
+            xil_printf("S5DM_B2 id=%u i=%d cls=%u cls_id=%d rgb=%u,%u,%u core_cls=%d\r\n",
+                       (unsigned)c->id, i, (unsigned)(c->boxes[i].cls % 5),
+                       (int)c->boxes[i].cls, (unsigned)dbg_rgb[0], (unsigned)dbg_rgb[1],
+                       (unsigned)dbg_rgb[2], d->class_id);
         }
         s5dm_last_case = c->id;
     }

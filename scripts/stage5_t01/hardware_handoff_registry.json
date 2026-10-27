@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T14:23:35+08:00",
+  "generated_utc8": "2026-10-27T14:33:24+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -486,6 +486,26 @@
       "declared_by": "DSH 阶段5 总控",
       "note": "第四窗口释放（实际端口 23121）；像素对齐已实证锁定，颜色/类别映射仍未决（UNCONFIRMED）",
       "evidence": "report/evidence/S5-T01/s5t02_pixel_phase_probe_20261027_r01/"
+    },
+    {
+      "id": "DSH-20261027-010",
+      "file": "dsh_mailbox/DSH-20261027-010-stage5-window5-diag-cls-rgb.md",
+      "kind": "decision",
+      "order_key": "20261027010",
+      "sha256": "7d42f217024280ca9a61723d12283e7a7b9ac4caba1810e4d9a58f49987bf25f",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "第五窗口授权：自报 cls/rgb 定案（端口 23121）",
+      "evidence": "report/evidence/S5-T01/<新 RunId>/"
+    },
+    {
+      "id": "DSH-20261027-011",
+      "file": "dsh_mailbox/DSH-20261027-011-stage5-window5-release-port23121.md",
+      "kind": "hardware_release",
+      "order_key": "20261027011",
+      "sha256": "09ed6c3d874333cf73943b405de4c154d012018b8c55b10282fe455b084e4315",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "第五窗口释放（实际端口 23121）；取得自报 cls/rgb 地面真值；定位采样行选择陈旧",
+      "evidence": "report/evidence/S5-T01/s5t02_diag_cls_rgb_20261027_r01/"
     }
   ]
 }

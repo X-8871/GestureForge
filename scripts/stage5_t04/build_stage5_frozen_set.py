@@ -30,7 +30,8 @@ import time
 HERE = pathlib.Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 CHECKER = pathlib.Path("D:/FPGA_Competition/verification/check_stage_delivery.py")
-DEFAULT_OUT = "report/evidence/S5-T04/s5_freeze_20261027_r01/frozen_set.json"
+# 必须显式 `--out`：默认写死路径会在换 RunId 时覆盖已提交的冻结包（r02 踩坑），故 fail-closed。
+DEFAULT_OUT = ""
 
 # ── 成员清单（本卡声明的冻结范围）────────────────────────────────────────────
 CONTRACT_FILES = (
@@ -272,6 +273,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=DEFAULT_OUT)
     args = parser.parse_args(argv)
+    if not args.out:
+        print("[ENV_ERROR] 必须显式指定 --out（禁止默认覆盖已提交的冻结包）", file=sys.stderr)
+        return 2
     out = REPO_ROOT / args.out
     out.parent.mkdir(parents=True, exist_ok=True)
     data = build()

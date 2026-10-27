@@ -385,7 +385,8 @@ def main(argv: list[str] | None = None) -> int:
         "--- git status --short --untracked-files=no ---", git["tracked_status"], ""]), encoding="utf-8")
 
     # ── 1. 生成冻结集 ────────────────────────────────────────────────────
-    build = run_command([sys.executable, "-B", str(HERE / "build_stage5_frozen_set.py")])
+    build = run_command([sys.executable, "-B", str(HERE / "build_stage5_frozen_set.py"),
+                         "--out", str((run_dir / "frozen_set.json").relative_to(REPO_ROOT).as_posix())])
     (run_dir / "console" / "build_frozen_set.txt").write_text("\n".join([
         f"command={build['command']}", f"exit_code={build['exit_code']}",
         "--- stdout ---", build["stdout"].rstrip(), "--- stderr ---", build["stderr"].rstrip(), ""]),

@@ -1,0 +1,196 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "window": "A'",
+  "run_id": "window_a_20261027_r01",
+  "window_instruction": "lead 2026-10-27 22:24 UTC+8 开窗（Wong 批准方案 A，单窗，时间盒 40 min）：P0→P1→装载→M1/M2→M3→M4-a→收尾；M4-b 记 NOT_RUN。",
+  "started_utc8": "2026-10-27T22:26:00+08:00",
+  "hardware_execution": "EXECUTED",
+  "conclusion": "STOPPED_ON_FAILURE_M4A_LOAD_SEQUENCE",
+  "steps": {
+    "P0_gate": {
+      "status": "PASS",
+      "heavy_processes": [],
+      "index_lock_present": false,
+      "port_3121_free": true,
+      "uart_configured": "COM4",
+      "window_instruction_present": true
+    },
+    "P0b_hw_server": {
+      "status": "PASS",
+      "pid": 9508,
+      "error": ""
+    },
+    "P1_smoke": {
+      "status": "PASS",
+      "exit_code": 0,
+      "steps": {
+        "step1_targets": true,
+        "step2_select": true,
+        "step3_read": true
+      },
+      "failed_step": null,
+      "xsdb_version": "2026.1"
+    },
+    "PRELOAD": {
+      "status": "PASS",
+      "init_elf": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+      "app_elf": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\m4a_cache_probe.elf",
+      "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+      "app_elf_sha256": "fa8f22e0918dcdb794fe1f05d093bc586e23f34237daf50c81f31477517e13ca",
+      "init_exit": 0,
+      "app_exit": 0,
+      "init_tail": [],
+      "app_tail": []
+    },
+    "M1_cpu1_state": {
+      "status": "PASS",
+      "exit_code": 0,
+      "parsed": {
+        "SELECT": "OK",
+        "CPU1_SELECT": "name =~ \"*#1*\"",
+        "CPU1_STATE": "Stopped: (Suspended)",
+        "CPU1_PC_1": "pc: ffffff34",
+        "CPU1_STATE_2": "Stopped: (Suspended)",
+        "CPU1_PC_2": "pc: ffffff34",
+        "CPU1_PC_STABLE": "1",
+        "RESULT": "PASS"
+      }
+    },
+    "M2_consumer_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "parsed": {
+        "SELECT": "OK",
+        "TARGET[0]": "1",
+        "TARGET[1]": "APU",
+        "TARGET[2]": "2*",
+        "TARGET[3]": "ARM",
+        "TARGET[4]": "Cortex-A9",
+        "TARGET[5]": "MPCore",
+        "TARGET[6]": "#0",
+        "TARGET[7]": "(Suspended)",
+        "TARGET[8]": "3",
+        "TARGET[9]": "ARM",
+        "TARGET[10]": "Cortex-A9",
+        "TARGET[11]": "MPCore",
+        "TARGET[12]": "#1",
+        "TARGET[13]": "(Suspended)",
+        "TARGET[14]": "4",
+        "TARGET[15]": "xc7z020",
+        "DEVCGF_CTRL": "1308680319",
+        "DEVCGF_INT_STS": "2818703370",
+        "DEVCGF_STATUS": "1073744432",
+        "CPU_STATE[0]": "name =~ \"*#0*\"|Stopped: (Suspended)",
+        "CPU_STATE[1]": "name =~ \"*#1*\"|Stopped: (Suspended)",
+        "RESULT": "READ_ONLY_DONE"
+      },
+      "limit": "构造性证明（无总线探针）"
+    },
+    "M3_candidate_rw": {
+      "status": "PASS",
+      "snapshot_exit": 0,
+      "snapshot_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "candidate_bytes": 12615680,
+      "write_exit": 0,
+      "readback_exit": 0,
+      "restore_exit": 0,
+      "verify_exit": 0,
+      "restored_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "diff_bytes": 0,
+      "region_byte_equal": true,
+      "write_readback_identical_to_original": false
+    },
+    "M4a_cache_visibility": {
+      "status": "FAIL",
+      "run_exit": 0,
+      "elf_sha256": "fa8f22e0918dcdb794fe1f05d093bc586e23f34237daf50c81f31477517e13ca",
+      "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+      "subrange": {
+        "base": "0x12000000",
+        "bytes": 1024
+      },
+      "uart_protocol": "COM4 115200 8N1；R/I/F/W；应答行 M4A ...",
+      "checks": {
+        "jtag_read_exit": 0,
+        "orig_sha256": "0a28a98ee4b122813b4dcba4ba4c4dbf4425e47cb9f52319b7fd0d539289bf63",
+        "uart_error": "30.0s 内未收到 M4A READY 横幅"
+      },
+      "uart_exchanges": [],
+      "note": "M4-a 只测 cache 维护/可见性；收尾不 stop；W 后已再次恢复并逐字节校验"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "stopped_pids": [
+        9508
+      ],
+      "listening_3121": 0,
+      "residual_processes": [],
+      "time_wait_note": "TIME_WAIT 可接受，不清理"
+    }
+  },
+  "M3": {
+    "status": "PASS",
+    "candidate_bytes": 12615680,
+    "snapshot_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+    "restored_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+    "diff_bytes": 0,
+    "region_byte_equal": true,
+    "full_region_post_restore_dump": {
+      "path": "m3_snapshot_restored.bin",
+      "bytes": 12615680,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "captured": true
+    },
+    "original_snapshot": {
+      "path": "m3_snapshot_orig.bin",
+      "bytes": 12615680,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf"
+    },
+    "write_readback_identical_to_original": false,
+    "note": "写入后回读与原始快照不同 ⇒ 该区域被写生效；恢复后整区 readback 与快照逐字节相同（diff=0）⇒ 已完全还原。"
+  },
+  "M4a": {
+    "status": "FAIL",
+    "run_exit": 0,
+    "checks": {
+      "jtag_read_exit": 0,
+      "orig_sha256": "0a28a98ee4b122813b4dcba4ba4c4dbf4425e47cb9f52319b7fd0d539289bf63",
+      "uart_error": "30.0s 内未收到 M4A READY 横幅"
+    },
+    "elf_sha256": "fa8f22e0918dcdb794fe1f05d093bc586e23f34237daf50c81f31477517e13ca",
+    "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+    "failed_check": "uart_error: 30.0s 内未收到 M4A READY 横幅",
+    "root_cause_analysis": "xsdb 'con' 返回 'Already running'：m4a_cache_probe.elf 被 dow 下载时 CPU0 仍在运行（PRELOAD 已 con 过 init.elf），随后 con 未重启 CPU ⇒ 新 ELF 从未开始执行 ⇒ UART 无横幅。属驱动装载时序缺陷（下载后缺少复位/停核再启动），不是 cache 维护/可见性失败。",
+    "hardware_effect": "无（未写候选区：jtag_read_exit=0、未进入 W 步骤）"
+  },
+  "M4b": {
+    "status": "NOT_RUN",
+    "reason": "已提交驱动 L471-L475 硬编码 NOT_APPLICABLE，未覆盖 M4-b 流程；改由窗口 B 用驱动 v2 执行",
+    "not_inconclusive_not_pass": true
+  },
+  "teardown": {
+    "stopped_pids": [
+      9508
+    ],
+    "listening_3121": 0,
+    "residual_processes": [],
+    "time_wait_note": "TIME_WAIT 可接受，不清理"
+  },
+  "exit_codes": {
+    "P1_smoke": "exit=0\nelapsed_s=3.615",
+    "PRELOAD_init": "exit=0\nelapsed_s=7.088",
+    "PRELOAD_app": "exit=0\nelapsed_s=0.908",
+    "M1_cpu1_state": "exit=0\nelapsed_s=3.294",
+    "M2_consumer_check": "exit=0\nelapsed_s=0.787",
+    "M3_snapshot": "exit=0\nelapsed_s=32.557",
+    "M3_write": "exit=0\nelapsed_s=38.305",
+    "M3_readback": "exit=0\nelapsed_s=31.661",
+    "M3_restore": "exit=0\nelapsed_s=37.653",
+    "M3_verify": "exit=0\nelapsed_s=31.197",
+    "M4a_run_cpu0": "exit=0\nelapsed_s=2.268",
+    "M4a_jtag_read_orig": "exit=0\nelapsed_s=2.027"
+  },
+  "undeclared_or_assumed": "A4 timeout=400 未用到本窗口；A6/A7 属 M4-b，本窗口未验证；不得当作已验证。",
+  "boundary": "仅写候选区；未烧 QSPI；未改线；ENABLE=0；未发独立 stop；未 push；未动 25 项遗留；未结束 MCP 进程；未解锁 ENABLE=1。",
+  "honesty": "M3=PASS（整区恢复 dump 已采、diff=0）；M4-a=FAIL（装载时序，非 cache 结果）；M4-b=NOT_RUN；本窗口不构成 G3/G4/G5。"
+}

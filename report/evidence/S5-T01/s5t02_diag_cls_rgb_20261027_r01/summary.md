@@ -29,3 +29,7 @@
 - 实端口 **23121**（hw_server/TCL/资源检查一致）；下载 `S5DL_ALL_DONE=1`；未烧 QSPI
 - 释放后残留硬件进程 **['vivado-mcp-server-windows-amd64-2026.9.1.exe', 'vivado-mcp-server-windows-amd64-2026.9.1.exe', 'vivado-mcp-server-windows-amd64-2026.9.1.exe', 'vivado-mcp-server-windows-amd64-2026.9.1.exe', 'vivado-mcp-server-windows-amd64-2026.9.1.exe']**；netstat 23121 行数 **1**
 - **§4.5/§7.3 未关闭**；八类门禁 4/8；B5/B6/真彩目视/T5-10/板上真实回放 **NOT_RUN**
+
+## 5. 更正说明（收尾采样为瞬时值）
+- 收尾脚本采样到 、 是 **taskkill 后数秒内的瞬时状态**；
+  随后独立复核：**硬件进程 0**、23121 仅剩一条 （已关闭连接，**无监听**）⇒ 窗口已干净释放。

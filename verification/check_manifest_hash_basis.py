@@ -81,7 +81,8 @@ def entry_sha(item: dict) -> str | None:
 def main() -> int:
     ap = argparse.ArgumentParser(description="证据 manifest 哈希基座校验器（只读、fail-closed）")
     ap.add_argument("--repo", default=".", help="仓库/工作树根（默认当前目录）")
-    ap.add_argument("--commit", default="HEAD", help="commit_blob 基座使用的提交（默认 HEAD）")
+    ap.add_argument("--commit", default=None,
+                    help="commit_blob 基座使用的提交（缺省时优先取清单内联 hash_basis_commit，否则 HEAD）")
     ap.add_argument("--paths", action="append", default=None,
                     help="manifest 路径 glob（可重复；默认 report/evidence/**/*.json）")
     ap.add_argument("--mode", choices=("declared-only", "strict"), default="declared-only")
@@ -95,12 +96,14 @@ def main() -> int:
             print(f"[FAIL] 不是 Git 仓库：{repo}", file=sys.stderr)
             return 2
         root = Path(out.decode("utf-8", "replace").strip())
-        commit = args.commit
-        rc, out = git(root, "rev-parse", "--verify", f"{commit}^{{commit}}")
-        if rc != 0:
-            print(f"[FAIL] 提交不可解析：{commit}", file=sys.stderr)
-            return 2
-        commit = out.decode("utf-8", "replace").strip()
+        if args.commit is None:
+            commit = None
+        else:
+            rc, out = git(root, "rev-parse", "--verify", f"{args.commit}^{{commit}}")
+            if rc != 0:
+                print(f"[FAIL] 提交不可解析：{args.commit}", file=sys.stderr)
+                return 2
+            commit = out.decode("utf-8", "replace").strip()
     except Exception as exc:  # fail-closed
         print(f"[FAIL] 环境错误：{type(exc).__name__}: {exc}", file=sys.stderr)
         return 2
@@ -111,16 +114,25 @@ def main() -> int:
         paths.extend(sorted(root.glob(pattern)))
     paths = sorted({p for p in paths if p.is_file()})
 
-    blob_cache: dict[str, bytes | None] = {}
+    blob_cache: dict[tuple[str, str], bytes | None] = {}
 
-    def blob_bytes(rel: str) -> bytes | None:
-        if rel not in blob_cache:
-            rc, out = git(root, "cat-file", "blob", f"{commit}:{rel}")
-            blob_cache[rel] = out if rc == 0 else None
-        return blob_cache[rel]
+    def resolve_commit(value: str) -> str | None:
+        rc, out = git(root, "rev-parse", "--verify", f"{value}^{{commit}}")
+        return out.decode("utf-8", "replace").strip() if rc == 0 else None
+
+    def is_sha40(value: object) -> bool:
+        return isinstance(value, str) and len(value) == 40 and all(c in "0123456789abcdef" for c in value)
+
+    def blob_bytes(cm: str, rel: str) -> bytes | None:
+        key = (cm, rel)
+        if key not in blob_cache:
+            rc, out = git(root, "cat-file", "blob", f"{cm}:{rel}")
+            blob_cache[key] = out if rc == 0 else None
+        return blob_cache[key]
 
     checked = mismatched = skipped_entries = 0
     manifests = 0
+    manifests_basis_errors = False
     problems: list[dict] = []
     skipped_manifests: list[str] = []
 
@@ -136,6 +148,35 @@ def main() -> int:
             continue
         manifests += 1
         manifest_basis = doc.get("hash_basis")
+        # 基座提交解析：显式 --commit 优先；否则优先清单内联 hash_basis_commit；再否则 HEAD
+        declared_basis_commit = doc.get("hash_basis_commit")
+        eff_commit = commit
+        basis_error = None
+        if declared_basis_commit is not None:
+            if not is_sha40(declared_basis_commit):
+                basis_error = "invalid_hash_basis_commit_not_sha40"
+            else:
+                resolved = resolve_commit(declared_basis_commit)
+                if resolved is None:
+                    basis_error = "hash_basis_commit_not_resolvable"
+                elif commit is not None and resolved != commit:
+                    basis_error = "hash_basis_commit_conflicts_with_explicit_commit"
+                else:
+                    eff_commit = resolved
+        if eff_commit is None:
+            eff_commit = resolve_commit("HEAD")
+            if eff_commit is None:
+                print("[FAIL] 无法解析 HEAD", file=sys.stderr)
+                return 2
+        if basis_error:
+            problems.append({"manifest": str(path.relative_to(root)),
+                             "index": -1,
+                             "path": "-",
+                             "problem": basis_error,
+                             "hash_basis_commit": str(declared_basis_commit)[:80]})
+            mismatched += 1
+            manifests_basis_errors = True
+            continue
         seen = False
         for idx, item in enumerate(items):
             rel = entry_path(item)
@@ -155,7 +196,7 @@ def main() -> int:
                 seen = True
                 continue
             if basis == "commit_blob":
-                data = blob_bytes(rel)
+                data = blob_bytes(eff_commit, rel)
                 if data is None:
                     problems.append({"manifest": str(path.relative_to(root)), "index": idx,
                                      "path": rel, "problem": "path_not_in_commit"})
@@ -184,7 +225,8 @@ def main() -> int:
 
     summary = {
         "repo": str(root), "commit": commit, "mode": args.mode,
-        "globs": globs, "manifests_seen": manifests,
+                "manifests_seen": manifests,
+        "manifests_basis_errors": manifests_basis_errors,
         "entries_checked": checked, "mismatched": mismatched,
         "entries_skipped_undeclared": skipped_entries,
         "manifests_skipped_no_basis": len(skipped_manifests),

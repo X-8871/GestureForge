@@ -1,0 +1,190 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "run_id": "region_change_analysis_20261027_r01",
+  "generated_utc8": "2026-10-27T23:12:00+08:00",
+  "question": "窗口B r02 中候选区 6 字节差异的地址归属",
+  "classification": "NEITHER_ACCOUNTED",
+  "addresses": [
+    {
+      "address": "0x12b09e1b",
+      "ref": "0xd3",
+      "current": "0xc3",
+      "bits_cleared": [
+        4
+      ],
+      "attribution": "STAGE4_CANDIDATE_OR_META",
+      "segment": "raw_frame",
+      "in_init_elf": false,
+      "in_pl_window": false,
+      "in_stage4_candidate": true
+    },
+    {
+      "address": "0x12b4805b",
+      "ref": "0x4b",
+      "current": "0x43",
+      "bits_cleared": [
+        3
+      ],
+      "attribution": "STAGE4_CANDIDATE_OR_META",
+      "segment": "raw_frame",
+      "in_init_elf": false,
+      "in_pl_window": false,
+      "in_stage4_candidate": true
+    },
+    {
+      "address": "0x12b4906a",
+      "ref": "0x34",
+      "current": "0x30",
+      "bits_cleared": [
+        2
+      ],
+      "attribution": "STAGE4_CANDIDATE_OR_META",
+      "segment": "raw_frame",
+      "in_init_elf": false,
+      "in_pl_window": false,
+      "in_stage4_candidate": true
+    },
+    {
+      "address": "0x12b4930e",
+      "ref": "0xdc",
+      "current": "0xd8",
+      "bits_cleared": [
+        2
+      ],
+      "attribution": "STAGE4_CANDIDATE_OR_META",
+      "segment": "raw_frame",
+      "in_init_elf": false,
+      "in_pl_window": false,
+      "in_stage4_candidate": true
+    },
+    {
+      "address": "0x12bc8f82",
+      "ref": "0x9f",
+      "current": "0x9d",
+      "bits_cleared": [
+        1
+      ],
+      "attribution": "STAGE4_CANDIDATE_OR_META",
+      "segment": "raw_frame",
+      "in_init_elf": false,
+      "in_pl_window": false,
+      "in_stage4_candidate": true
+    },
+    {
+      "address": "0x12bc9f5b",
+      "ref": "0xdc",
+      "current": "0xcc",
+      "bits_cleared": [
+        4
+      ],
+      "attribution": "STAGE4_CANDIDATE_OR_META",
+      "segment": "raw_frame",
+      "in_init_elf": false,
+      "in_pl_window": false,
+      "in_stage4_candidate": true
+    }
+  ],
+  "init_elf": {
+    "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/verified_payload/init.elf",
+    "sections": [
+      {
+        "name": ".text",
+        "start": 0,
+        "end": 7640,
+        "perm": "AX"
+      },
+      {
+        "name": ".data",
+        "start": 7744,
+        "end": 14788,
+        "perm": "WA"
+      },
+      {
+        "name": ".mmu_tbl",
+        "start": 16384,
+        "end": 32767,
+        "perm": "A"
+      },
+      {
+        "name": ".bss",
+        "start": 36928,
+        "end": 37379,
+        "perm": "WA"
+      },
+      {
+        "name": ".heap",
+        "start": 37384,
+        "end": 45583,
+        "perm": "WA"
+      },
+      {
+        "name": ".stack/.abort/.fiq/.undef",
+        "start": 4294901760,
+        "end": 4294956032,
+        "perm": "WA"
+      }
+    ],
+    "tool": "arm-none-eabi-readelf -S / nm -n -S（Vitis 2026.1）",
+    "occupies": "0x00000000–0x0000B20F 与 0xFFFF0000 以上；与 0x12B09E1B 等相距 >280 MB"
+  },
+  "pl_windows": [
+    {
+      "name": "arena (2B 张量/feature/head)",
+      "start": 268435456,
+      "end": 301989888,
+      "source": "s2b_control_csr.sv L620 arena base 0x10000000 + ARENA_BYTES 0x02000000"
+    },
+    {
+      "name": "weights",
+      "start": 1048576,
+      "end": 6951676,
+      "source": "r13 configure_start 0x020=0x00100000、0x024=WEIGHT_BYTES"
+    },
+    {
+      "name": "feature",
+      "start": 16777216,
+      "end": 28159416,
+      "source": "CSR 0x038/0x03C 读映射（r13 L621）"
+    },
+    {
+      "name": "head13",
+      "start": 295985408,
+      "end": 295990478,
+      "source": "r13 L622"
+    },
+    {
+      "name": "head26",
+      "start": 296574592,
+      "end": 296594872,
+      "source": "r13 L623"
+    }
+  ],
+  "stage4_regions": [
+    {
+      "name": "raw_frame",
+      "start": 301989888,
+      "end": 314572800,
+      "source": "S4D_4d_address_allocation_20261027_r01.json"
+    },
+    {
+      "name": "raw_meta",
+      "start": 314572800,
+      "end": 314605568,
+      "source": "同上"
+    },
+    {
+      "name": "forbidden_gap",
+      "start": 314605568,
+      "end": 536870912,
+      "source": "同上"
+    }
+  ],
+  "logic": "6 个地址位于 [0x12000000,0x12C08000) 候选区内；init.elf 段、2B PL 已登记写窗（arena 止于 0x12000000）均不含这些地址 ⇒ 三方归属表无一方可解释",
+  "classification_meaning": "NEITHER_ACCOUNTED = 现有已登记写入方与 ELF 段表都无法解释这 6 字节变化；候选解释：DDR 保持/读写位问题、未登记写入方（PL 内部行为/其它总线主）、或参考快照与当前状态的合理差异（但不含我方写入）",
+  "limits": [
+    "仅比对已登记窗口与 init.elf 段表；PL 内部未文档化的写行为离线不可观测",
+    "未做片上读写位测试（属 bring-up 窗口）",
+    "6 处均为单 bit 清零，与'数据保持/读写位'类问题形态一致，但未证明"
+  ],
+  "conclusion": "三选一：**NEITHER_ACCOUNTED**（不得当作噪声；M3 维持 FAIL/未闭合，M2 论证待重审）"
+}

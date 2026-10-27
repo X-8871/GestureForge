@@ -247,8 +247,11 @@ class TestDisplayCanvasAndStale(unittest.TestCase):
 
 class TestRecordValidation(unittest.TestCase):
     def _record(self, **overrides):
+        # 2026-10-27（S5-T04 冻结轮）：result 契约已要求 session_id/result_seq/repeat_index（r04 join-key），
+        # 本夹具补上这三个必需字段（仅测试夹具，不改任何判定语义）。
         record = {
-            "frame_id": 7, "geometry": {"width": 1280, "height": 720}, "state": "OK",
+            "session_id": 7, "frame_id": 7, "result_seq": 1, "repeat_index": 1,
+            "geometry": {"width": 1280, "height": 720}, "state": "OK",
             "detection_count": 1,
             "detections": [{"class_id": 0, "class_name": "fist", "score": 0.83,
                             "xyxy": [0.1, 0.2, 0.3, 0.4], "source_order": 1}],

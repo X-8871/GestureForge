@@ -85,7 +85,9 @@ def main() -> int:
         print(f"[FAIL] w4 STATE 写权行不可解析：{type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
 
-    heartbeat = datetime.now(TZ_UTC8).strftime("%Y-%m-%d %H:%M")
+    # adapter 的 _parse_time 要求「带时区的 ISO 格式且 utcoffset 必须为 +08:00」；
+    # "YYYY-MM-DD HH:MM" 会解析成 naive → _recent_time 直接 False（实测）。
+    heartbeat = datetime.now(TZ_UTC8).isoformat(timespec="seconds")
     values = {
         "任务": OFFER_MARKER,
         "负责人": "DSH",
@@ -128,6 +130,9 @@ def main() -> int:
             problems.append("起始提交必须是 40 位提交 SHA")
         if not row.get("恢复命令"):
             problems.append("恢复命令不得为空")
+        if not adapter._recent_time(row.get("心跳(UTC+8)"), 3600):
+            problems.append("心跳必须为带时区的 ISO 格式且 utcoffset=+08:00（如 "
+                            "2026-10-27T15:32:00+08:00），否则 adapter 判为过期")
         # 唯一性：main 当前不应已存在同标记行
         _, existing = adapter._parse_state_handoff_rows((MAIN_ROOT / ".codex/STATE.md").read_bytes())
         dup = [r for r in existing if r.get("任务") == OFFER_MARKER]

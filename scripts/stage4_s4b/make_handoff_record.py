@@ -50,6 +50,7 @@ def main() -> int:
     ap.add_argument("--offer-commit", required=True)
     ap.add_argument("--claim-commit", required=True)
     ap.add_argument("--hardware-run-id", required=True)
+    ap.add_argument("--preparation", required=True)
     ap.add_argument("--out-dir", required=True)
     args = ap.parse_args()
 
@@ -96,18 +97,49 @@ def main() -> int:
         print(f"[FAIL] CLAIM 提交内的 CLAIM 行数为 {len(claims)}，必须为 1", file=sys.stderr)
         return 1
 
+    # ---- 4) 身份摘要与 sdk_target 绑定（adapter 的 validate_hardware_gates 要求）----
+    import hashlib
+    prep_path = Path(args.preparation)
+    prepared = adapter.validate_preparation(prep_path)
+    _, identity_digest = adapter._verified_artifact_identity(prepared)
+    sdk_binding = None
+    for b in prepared.data.get("bindings", []):
+        pth = str(b.get("path", ""))
+        if pth.lower().endswith(".xsa"):
+            sdk_binding = {"path": pth, "sha256": hashlib.sha256(Path(pth).read_bytes()).hexdigest()}
+            break
+    if sdk_binding is None:
+        print("[FAIL] 准备清单里没有 .xsa，无法生成 sdk_target_binding", file=sys.stderr)
+        return 1
+
+    # ---- 5) 接收方身份（来自 w4 提交版 STATE 的写权行）----
+    # 该快照函数返回 state_raw(bytes)，没有 state_text
+    stage_owner = adapter._state_stage_owner(claim_ctx["state_raw"].decode("utf-8"))
+
     now = datetime.now(TZ_UTC8)
     record = {
         "schema_version": "s4b_hardware_session_handoff_record_v1",
-        "kind": adapter.HANDOFF_RECORD_KIND,
+        # adapter 逐字段要求的键名（勿改）
+        "record_kind": adapter.HANDOFF_RECORD_KIND,
+        "claim_record_kind": adapter.HANDOFF_CLAIM_KIND,
         "task_id": "S4-B-REAL-02B",
         "hardware_run_id": args.hardware_run_id,
         "scope": "S4B_PS_TENSOR_DIAGNOSTIC",
-        "recorded_at_utc8": now.isoformat(timespec="seconds"),
+        "handoff_fields": offers[0],
+        "claim_fields": claims[0],
+        "source_commit": offers[0]["起始提交"],
+        "claim_commit": claims[0]["起始提交"],
+        "sender": offers[0]["负责人"],
+        "sender_worktree_branch": offers[0]["工作树/分支"],
+        "uncommitted_changes_owner": offers[0]["未提交改动归属"],
+        "receiver": stage_owner,
+        "receiver_worktree_branch": adapter.HANDOFF_TRUSTED_RECEIVER_BRANCH,
+        "artifact_identity_sha256": identity_digest,
+        "sdk_target_binding": sdk_binding,
+        # 真实 Git 身份（供人读与复核）
         "authority_source": authority_source,
         "claim_source": claim_source,
-        "offer_row": offers[0],
-        "claim_row": claims[0],
+        "recorded_at_utc8": now.isoformat(timespec="seconds"),
         "boundaries": [
             "本记录只绑定 OFFER 与 CLAIM 的真实 Git 身份，不证板上行为。",
             "OFFER 心跳 1 小时有效；过期即失效，须由 main 重新 OFFER。",

@@ -1,0 +1,79 @@
+{
+  "schema_version": "s4b_window_step0_v1",
+  "task_id": "S4-B-REAL-02B",
+  "run_id": "s4b_window_step0_20261027_r01",
+  "generated_utc8": "2026-10-27T15:43:35+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "purpose": "硬件窗口第 0 步前置核查（只读，未接触板卡、未启动任何服务）",
+  "scope": "S4B_PS_TENSOR_DIAGNOSTIC",
+  "step1_no_third_party_occupancy": {
+    "verdict": "PASS",
+    "heavy_process_count": 0,
+    "port_3121_listening": 0,
+    "com_ports": [
+      "COM4"
+    ],
+    "com4_present": true,
+    "ftdi": [
+      "OK|USB Serial Converter"
+    ],
+    "note": "Wong 告知阶段5 上板任务已停止；本机实测无 vivado/xsim/xsdb/hw_server/vitis 进程、3121 无监听、COM4 无占用。",
+    "captured_at": "2026-10-27T15:42:50+08:00"
+  },
+  "step2_deployment_identity": {
+    "verdict": "DISCREPANCY_REQUIRES_CONFIRMATION",
+    "stage4_actual": {
+      "diagnostic_elf": {
+        "sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d",
+        "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.elf"
+      },
+      "diagnostic_map": {
+        "sha256": "4a0f9cf8e281482a70459f5e247c9b42863bff058b91c38eb7fcf832fcc1d62d",
+        "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.map"
+      },
+      "bitstream": {
+        "sha256_prefix": "555a70c2",
+        "path": "w2b/.../S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit"
+      },
+      "xsa": {
+        "sha256_prefix": "ea52da1b",
+        "path": "w2b/.../S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.xsa"
+      },
+      "boot_seed": 5999430562011689267,
+      "session_range": [
+        1396845568,
+        1396846567
+      ]
+    },
+    "instructed_three_items_and_actual_owner": {
+      "xsa_1f5b138e": "阶段3：tmp/review/S3_T17_FIX_20261023_r01/dbdf_clone_lf/tmp/s3r06/04_sof_fix_20261020_r01/design_1_wrapper.xsa",
+      "elf_1457cda4": "阶段3：.../04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf",
+      "sof_7cb33068": "全盘扫描 146 个 .xsa/.sof/.elf 未找到该前缀文件"
+    },
+    "finding": "指令所列三件属阶段3 部署件；本 OFFER scope 为 S4B_PS_TENSOR_DIAGNOSTIC，实际使用的是阶段4 诊断 ELF/MAP + 2B 位流/XSA（上表）。两者不是同一套部署，需 Wong/DSH 确认应核对哪一套后再继续。"
+  },
+  "step3_no_reuse_of_old_address_or_visual": {
+    "verdict": "DEFERRED_TO_ON_BOARD",
+    "runtime_readback_ADDR_S2MM_ADDR_MM2S": "NOT_RUN（须上板后运行期回读，阶段3 已证运行期分配）",
+    "true_color_visual": "NOT_DONE（须重做，且需 Wong 在场）",
+    "constraint": "禁止复用旧地址与旧目视结论。"
+  },
+  "step4_eight_gates": {
+    "operator_authorization": "成立",
+    "timing_freeze": "成立",
+    "range_reservation": "成立",
+    "command_delivery_review": "成立（绑 adapter 463bb429…）",
+    "g0_approval": "成立",
+    "cold_basis": "成立（independently_proven_cold_lifecycle）",
+    "hardware_session_handoff": "未成立：OFFER 心跳格式不合规（见下）",
+    "exclusive_session": "未成立：尚未建立会话（须在开跑前 30 分钟内取证）",
+    "handoff_blocker_detail": "adapter._parse_time 要求带时区 ISO 且 utcoffset=+08:00；OFFER 8b57876 的心跳 '2026-10-27 15:32' 解析为 naive → _recent_time=False。实测 ISO 写法可通过。"
+  },
+  "boundaries": [
+    "只读核查",
+    "未启动 hw_server/xsdb",
+    "未打开串口",
+    "未装载位流",
+    "未碰板卡"
+  ]
+}

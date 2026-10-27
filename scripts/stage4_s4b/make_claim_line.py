@@ -116,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
                 f"offer_sha256={state_sha};offer_source_commit={offer_start};"
                 f"hardware_run_id={args.run_id};scope={SCOPE}")
 
-    now = datetime.now(TZ_UTC8).strftime("%Y-%m-%d %H:%M")
+    now = datetime.now(TZ_UTC8).isoformat(timespec="seconds")
     recovery = args.recovery_command or (
         "git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; "
         "python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id <新RunId> --accept-producer-break")

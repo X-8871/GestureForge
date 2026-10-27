@@ -1,6 +1,6 @@
 # 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
-## 收尾快照（2026-10-27 19:25 UTC+8；本节优先于下方任何历史陈述）
+## 收尾快照（2026-10-27 19:35 UTC+8；本节优先于下方任何历史陈述）
 
 - **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线范围冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5 或任何板级/实物/实时结论。本卡（`task-29`/`S5-T04`）**不需要板卡**，本轮未连接、未加载位流、未烧录。
 - **冻结前基线**（构建冻结集时 HEAD）：`2a2d2cc01cd31444a1a854115d99a31cbe8499bf`；**冻结提交（被审）**：`26b743901b4ec76107ca2cd6a010337a5ae40bf2`（tag `stage5-offline-freeze-20261027`；本文件所在的收尾提交为其后置补记）。
@@ -12,6 +12,17 @@
 - **F6 自证（PASS）**：冻结提交 `26b743901b4ec76107ca2cd6a010337a5ae40bf2` 单独导出/检出后复跑——A `git archive` 导出（无 Git 元数据）内校验器 **exit 0 / `FROZEN_SET_VERIFIED`**；B 独立 `--shared --no-checkout` 检出内校验器 **exit 0** 且 `check_stage_delivery` **exit 0 / CHECKS_OK**；C2 提交后 `handoff_check` **HANDOFF_OK / exit 0**。记录：`report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`。
 - **tag**：`stage5-offline-freeze-20261027` → 冻结提交 `26b7439`（本地附注 tag，**不 push**）。
 - **冻结后文字纠正**：r05 冻结文书 §1 第 2 项原稿误列 `scripts/stage5_s5a|s5b|s5c/**`（实际不在冻结集内）⇒ **只改 README 文字**并留痕（`console/doc_correction_after_freeze.txt`、README §9）；冻结集成员/哈希、校验器/自检/套件退出码均未变，清单按纠正字节重建后复检 **exit 0**。生成器文案缺陷（属冻结集成员，冻结后不改）登记为下一轮待修。
+
+## 独立复审（2026-10-27）：**PASS，0 阻断**
+
+- 复审记录（主仓，只读）：`report/evidence/CTRL-DSH-HANDOFF/reviews/S5_T04_20261027_r01/`（`review_summary.json` sha256 `317848735171eb79…`、`S5_T04_REVIEW_REPORT.md` sha256 `eb517a52631a2305…`）；主仓接收提交 `d4e835c`。
+- 复审核心事实：字节身份 `26b7439`（tag 指向、干净、未 push）｜文书身份 `2797cc3`｜`26b7439..2797cc3` 仅 STATE/文书/清单/F6 包，**`frozen_set.json` 两侧同一 blob `11e1aeb`**｜校验器三路（隔离归档/独立检出/live HEAD）均 `FROZEN_SET_VERIFIED`｜**19 组注入** 0/1/2 真实可区分（非恒真）｜全量重算 **196 文件 0 不符、范围洞 0**（77 成员＝58 file＋19 file_set，分组 14/3/44/7/9）｜F6 两路 exit 0｜回归 **142/0/2**、106 573 帧长跑复现｜构建器可复现 members。
+- **5 项非阻断（留到下一次重冻结时修，本冻结基线不受影响）**：
+  - **F1**：校验器 docstring 称"路径越界 ⇒ exit 2"，实现无 containment 检查（`../x`/绝对路径越出 `--root` 实测 exit 0）；r05 冻结集内**无**越界路径，风险受限 ⇒ 建议 **G5 前**补检查或改措辞。
+  - **F2**：README §6 措辞易误读为"归档导出副本内也跑了 checker"；实际 checker 只在独立检出跑（归档无 `.git` ⇒ checker exit 2），包内 console 已分列、**不构成假 PASS** ⇒ 改措辞。
+  - **F3**：`frozen_set.json.superseded_runs` 只登记 r00/r01，r02/r03/r04 的取代原因仅在 STATE/tag/提交消息 ⇒ 下轮补齐。
+  - **F4**：两个 F6 失败目录内部 `run_id` 仍为 `…_r01`（修复前硬编码残留）；**不重写失败证据**，下轮加指认说明。
+  - **F5**：构建器 docstring 写 `dir_digest`，实为 `file_set`（该分支本次未用）⇒ 下轮修注释。
 
 ## 写权与交接（更正过期陈述）
 
@@ -51,6 +62,6 @@
 - 复跑：`python -B verification/verify_stage5_frozen_set.py --root . --frozen-set report/evidence/S5-T04/s5_freeze_20261027_r05/frozen_set.json` → 期望 `FROZEN_SET_VERIFIED` / exit 0；加 `--selftest tmp/5/S5-T04/selftest` → 期望 0/1/2。
 - 恢复命令：`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 tag --list "stage5-offline-freeze*"`
 
-## 交接行（11 字段，2026-10-27 19:25 UTC+8）
+## 交接行（11 字段，2026-10-27 19:35 UTC+8）
 
-任务=`S5-T04 阶段5 离线范围冻结（OFFLINE_SCOPE_FROZEN）：冻结集复核 + 冻结文书 + 本地 tag + 送独立复审` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`2a2d2cc01cd31444a1a854115d99a31cbe8499bf` | 允许修改范围=`verification/verify_stage5_frozen_set.py、verification/test_s5_display_geometry_reference.py（夹具修复）、scripts/stage5_t04/**、report/evidence/S5-T04/**、.gitattributes、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随冻结/自证提交同批提交；失败/崩溃/被取代 RunId 保留不改写` | 让出声明=`本卡为**离线**冻结：未连接/未加载位流/未烧录/未占用 JTAG 串口；固定基线后停写被审对象，等待独立复审；板级项继续暂停` | 心跳(UTC+8)=`2026-10-27 19:25` | 证据入口=`report/evidence/S5-T04/**`、`verification/verify_stage5_frozen_set.py`、`docs/stage5/**` | 恢复命令=`python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5` | 状态/下一接手方=`FROZEN_FOR_REVIEW（离线范围已冻结；冻结提交 26b7439 + F6 自证 PASS；待 DSH 项目总控派独立 Reviewer；复审期间停写被审对象；此后按序：task-27 → 端到端真实链窗口 P1/W-E）/ 本阶段总控`
+任务=`S5-T04 离线范围冻结（已完成、复审 PASS）→ 现执行 task-27（阶段5 回放/彩色输入路径实现 + 离线动态显示回归）` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`2a2d2cc01cd31444a1a854115d99a31cbe8499bf` | 允许修改范围=`verification/verify_stage5_frozen_set.py、verification/test_s5_display_geometry_reference.py（夹具修复）、scripts/stage5_t04/**、report/evidence/S5-T04/**、.gitattributes、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随冻结/自证提交同批提交；失败/崩溃/被取代 RunId 保留不改写` | 让出声明=`本卡为**离线**冻结：未连接/未加载位流/未烧录/未占用 JTAG 串口；固定基线后停写被审对象，等待独立复审；板级项继续暂停` | 心跳(UTC+8)=`2026-10-27 19:35` | 证据入口=`report/evidence/S5-T04/**`、`verification/verify_stage5_frozen_set.py`、`docs/stage5/**` | 恢复命令=`python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5` | 状态/下一接手方=`REVIEW_PASSED_OFFLINE_FREEZE（复审 PASS 0 阻断，主仓 d4e835c 入库；5 项非阻断留待重冻结）→ **已 claim task-27**（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态回归 + B1–B10 对齐）/ 本阶段总控`

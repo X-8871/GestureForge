@@ -1,0 +1,70 @@
+{
+  "run_dir": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_b_20261027_r02",
+  "generated_utc8": "2026-10-27T22:46:18+08:00",
+  "steps": {
+    "P0_gate": {
+      "status": "PASS",
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "time_wait_note": "TIME_WAIT 不计入、不清理",
+      "mcp_exclusion": "名字含 mcp 的进程一律不判断、不结束"
+    },
+    "P0b_hw_server": {
+      "status": "PASS",
+      "ok": true,
+      "pid": 23444
+    },
+    "P1_smoke": {
+      "status": "PASS",
+      "exit": 0,
+      "steps": {
+        "step1_targets": true,
+        "step2": true,
+        "step3": true
+      }
+    },
+    "PL_program": {
+      "status": "PASS",
+      "exit": 0,
+      "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+    },
+    "PRELOAD_init": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "M1_cpu1_state": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "M2_consumer_check": {
+      "status": "PASS",
+      "exit": 0,
+      "note": "只读构造性；PL 已装载时走位流身份已登记分支"
+    },
+    "M3_recheck": {
+      "status": "FAIL",
+      "readback_exit": 0,
+      "dump": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_b_20261027_r02\\m3_recheck_dump.bin",
+      "dump_sha256": "3784ab58be9653dd10bdcb22c8eea91e747fee14854f580b83f93c4472082d81",
+      "dump_bytes": 12615680,
+      "reference_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "diff_bytes": 6,
+      "byte_equal": false,
+      "registered_sha_match": false,
+      "reason": "候选区与已登记快照不一致（PL 装载后可能被写）⇒ 立即停"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "stopped_pid": 23444,
+      "listening_3121": 0,
+      "residual_processes": [],
+      "time_wait_note": "TIME_WAIT 可接受，不清理"
+    }
+  },
+  "stop_reason": "M3 复检不通过（差异≠0 ⇒ 立即停）",
+  "conclusion": "STOPPED_ON_FAILURE",
+  "hardware_execution": "EXECUTED"
+}

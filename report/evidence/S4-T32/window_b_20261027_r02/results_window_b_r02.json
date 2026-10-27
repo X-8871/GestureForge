@@ -1,0 +1,144 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "window": "B r02",
+  "run_id": "window_b_20261027_r02",
+  "opened_utc8": "2026-10-27T22:58:00+08:00",
+  "steps": {
+    "P0_gate": {
+      "status": "PASS"
+    },
+    "P0b_hw_server": {
+      "status": "PASS"
+    },
+    "P1_smoke": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "PL_program": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "PRELOAD_init": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "M1_cpu1_state": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "M2_consumer_check": {
+      "status": "PASS",
+      "exit": 0
+    },
+    "M3_recheck": {
+      "status": "FAIL",
+      "dump_sha256": "3784ab58be9653dd10bdcb22c8eea91e747fee14854f580b83f93c4472082d81",
+      "dump_bytes": 12615680,
+      "reference_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "diff_bytes": 6,
+      "reason": "候选区与已登记快照不一致（PL 装载后可能被写）⇒ 立即停"
+    },
+    "P4_teardown": {
+      "status": "PASS"
+    }
+  },
+  "PL_program": {
+    "status": "PASS",
+    "criteria": [
+      "End of startup status: HIGH",
+      "Device ... is programmed",
+      "PROGRAM_FILE_READBACK=<2B bit path>",
+      "PROGRAM_OK",
+      "exit=0"
+    ],
+    "qspi_written": false,
+    "bit_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+  },
+  "M1_M2": {
+    "M1": "PASS (CPU1 Suspended, pc ffffff34 stable)",
+    "M2": "PASS（位流身份已登记分支：bit 555a70c2… 已装载）"
+  },
+  "M3_recheck": {
+    "status": "FAIL/未闭合",
+    "diff_bytes": 6,
+    "reference_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+    "readback_sha256": "3784ab58be9653dd10bdcb22c8eea91e747fee14854f580b83f93c4472082d81",
+    "diff_addrs": [
+      "0x12b09e1b",
+      "0x12b4805b",
+      "0x12b4906a",
+      "0x12b4930e",
+      "0x12bc8f82",
+      "0x12bc9f5b"
+    ],
+    "diff_values": [
+      [
+        "0xc3",
+        "0xd3"
+      ],
+      [
+        "0x43",
+        "0x4b"
+      ],
+      [
+        "0x30",
+        "0x34"
+      ],
+      [
+        "0xd8",
+        "0xdc"
+      ],
+      [
+        "0x9d",
+        "0x9f"
+      ],
+      [
+        "0xcc",
+        "0xdc"
+      ]
+    ],
+    "note": "PL 配置后候选区与窗口 A′ 参考不一致；本窗口未向该区写入任何字节"
+  },
+  "read_stability": {
+    "verdict": "REGION_CHANGED",
+    "dumpA_sha256": "3784ab58be9653dd10bdcb22c8eea91e747fee14854f580b83f93c4472082d81",
+    "dumpB_sha256": "3784ab58be9653dd10bdcb22c8eea91e747fee14854f580b83f93c4472082d81",
+    "A_vs_B_diff_count": 0,
+    "A_vs_ref_diff_count": 6,
+    "method": "同一状态连续两次整区只读 mrd dump，各 12,615,680 B（分别 32.7 s / 33.3 s），不写任何字节",
+    "conclusion": "两次 dump 逐字节完全相同（同 SHA）且均异于参考 ⇒ REGION_CHANGED：候选区内容在窗口 A′ 之后发生了真实变化，非读通道不稳定"
+  },
+  "M4a": {
+    "status": "NOT_RUN",
+    "reason": "按 lead 裁 (A) 规则：REGION_CHANGED ⇒ 立即停、不再跑 M4"
+  },
+  "M4b": {
+    "status": "NOT_RUN",
+    "reason": "同上"
+  },
+  "cause_analysis": {
+    "determined": false,
+    "candidates": [
+      "init.elf 执行期间对 DDR 的写入（本窗口 r02 曾 dow init.elf 并 con）",
+      "PL 配置后器件/DDR 状态变化",
+      "窗口 A′ 快照本身并非该状态下的稳定内容"
+    ],
+    "next_step": "用 init.elf 的链接映射核对这些地址归属；或按 快照→装 PL→快照→装 init→快照 的只读分段 bisect 定位首次变化点"
+  },
+  "exit_codes": {
+    "P1_smoke": 0,
+    "PL_program": 0,
+    "PRELOAD_init": 0,
+    "M1_cpu1_state": 0,
+    "M2_consumer_check": 0,
+    "M3_recheck_dump": 0,
+    "dumpA": 0,
+    "dumpB": 0,
+    "teardown": "PASS"
+  },
+  "teardown": {
+    "listening_3121": 0,
+    "residual_processes": []
+  },
+  "boundary": "本窗口候选区一律只读；仅 PL 位流与 init.elf 装载；未烧 QSPI；未改线；ENABLE=0；未发独立 stop；未写候选区外地址。"
+}

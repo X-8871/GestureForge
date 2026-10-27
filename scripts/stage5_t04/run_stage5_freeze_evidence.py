@@ -304,10 +304,12 @@ def freeze_document(context: dict) -> str:
         f"| 冻结集校验 | `python -B verification/verify_stage5_frozen_set.py` | **{verify['exit_code']}** | "
         f"`{verify['status']}`（一致 {verify['totals']['matched']} / 不一致 {verify['totals']['mismatched']} / "
         f"环境错误 {verify['totals']['env_errors']}） |",
-        f"| 注入自测（必须失败） | `python -B verification/verify_stage5_frozen_set.py --selftest <tmp>` | **{selftest['exit_code']}** | "
-        f"`{selftest['verdict']}`：clean={selftest['steps']['clean']['exit_code']}（期望 0）、"
-        f"篡改一字节={selftest['steps']['tampered_one_byte']['exit_code']}（期望 1）、"
-        f"删一件={selftest['steps']['deleted_one_member']['exit_code']}（期望 2） |",
+        "| 注入自测（必须失败） | `python -B verification/verify_stage5_frozen_set.py --selftest <tmp>` | "
+        f"**{selftest['exit_code']}** | `{selftest['verdict']}`："
+        + "、".join(
+            f"{name}={item['exit_code']}（期望 {item['expected_exit']}）"
+            for name, item in selftest.get("steps", {}).items())
+        + " |",
         f"| 离线套件（回归） | `{' '.join(suite['command'])}` | {suite['exit_code']} | "
         f"Ran {suite['summary']['ran']} / failures {suite['summary']['failures']} / errors {suite['summary']['errors']} / "
         f"skipped {suite['summary']['skipped']} |",
@@ -344,7 +346,7 @@ def freeze_document(context: dict) -> str:
         "- **F6 自证**：本轮内容提交单独 `git archive` 导出（或 `git clone --shared --no-checkout` 部分检出）后，"
         "在**副本内**复跑冻结集校验器；`check_stage_delivery --mode evidence` 在**主工作树**上运行"
         "（其清单绑定按提交 blob 复算，副本与主树的 `files[]` 字节一致；副本内跑需自带完整依赖，故不作为权威口径，见 F2 更正），"
-        "原始输出与真实退出码见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r02/`（C1 提交前 handoff 为**信息项，非门禁**；提交后 handoff 见 `…_r02_postcommit_handoff/`）。",
+        "原始输出与真实退出码见 `" + context["f6_run_dir_rel"] + "/`（C1 提交前 handoff 为**信息项，非门禁**；提交后 handoff 见 `" + context["f6_handoff_run_dir_rel"] + "/`）。",
         "",
         "### 6.1 失败/被取代 RunId 的 `run_id` 残留（F4 标注，不重写失败证据）",
         "- `report/evidence/S5-T04/s5_freeze_f6export_20261027_r00_crlf_fail/` 与 `…_r00b_tracked_dirs_fail/` 内部 "
@@ -367,7 +369,7 @@ def freeze_document(context: dict) -> str:
         "根因＝其测试依赖 w4 侧黄金数据（`s4c_replay_20261021_r05`、`S4-B/20261021_r13`）上游漂移，"
         "**不属于本卡定义的离线 replay/display 路径**；原始输出见 `console/legacy_suite_known_gap.txt`。"
         "本冻结**不冒称**这些历史模块回归通过；其历史结论仍按各自 RunId 自证。",
-        "2. **`task-27`（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态显示回归）未按卡交付**："
+        "2. **`task-27` 的板级/实时/实物部分未做（NOT_RUN）**：其**离线部分已交付并纳入本冻结**；"
         "阶段4 回放结果包已冻结（`replay_only`）且本树有离线消费证据，但该卡整体 NOT_RUN。",
         "3. **板级 B1–B10 全项**：已随 Wong 拔板暂停；重连后需先过第 0 步（占用/部署身份/运行期回读地址/真彩目视需 Wong 在场）。",
         "4. **端到端真实链窗口**（`end2end_real_chain_window_plan_20261027_r01`）中的 P1=task-27、W-E=B1–B10 均未开工（等待信号）。",
@@ -382,6 +384,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--source-commit", default="")
     parser.add_argument("--tmp-out", default="")
     parser.add_argument("--allow-existing", action="store_true")
+    parser.add_argument("--f6-run-dir", default="report/evidence/S5-T04/s5_freeze_f6export_20261027_r03",
+                        help="本轮 F6 自证包目录（写入 README §6，避免指错轮次）")
+    parser.add_argument("--f6-handoff-run-dir",
+                        default="report/evidence/S5-T04/s5_freeze_f6export_20261027_r02_postcommit_handoff")
     args = parser.parse_args(argv)
 
     run_dir = REPO_ROOT / args.run_dir
@@ -509,6 +515,8 @@ def main(argv: list[str] | None = None) -> int:
         "run_id": run_dir.name, "run_dir_rel": args.run_dir,
         "evidence_packages": sorted(evidence_packages),
         "generated_utc8": generated,
+        "f6_run_dir_rel": args.f6_run_dir,
+        "f6_handoff_run_dir_rel": args.f6_handoff_run_dir,
         "frozen_set_summary": frozen_summary, "frozen_set_sha256": sha256_file(frozen_set_path),
         "build": build, "verify": verify, "selftest": selftest,
         "suite": {"command": suite_command, "modules": modules,

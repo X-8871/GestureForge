@@ -197,6 +197,25 @@ class FakeProc:
 
 
 class ScanGuardTests(unittest.TestCase):
+    def _snapshot_for_notice(self, root: Path, notice_text: str, release_time: str):
+        mailbox = root / "mailbox"
+        mailbox.mkdir()
+        lease = root / "DSH-20261027-008-board-lease-stage6.md"
+        lease.write_text("允许 Codex 阶段6 使用板卡\n", encoding="utf-8")
+        notice = mailbox / "DSH-20261024-004-stage6-board-note.md"
+        notice.write_text(notice_text, encoding="utf-8")
+        release = mailbox / "DSH-20261027-010-board-released.md"
+        release.write_text(
+            "# DSH-20261027-010 板卡已释放\n"
+            f"时间：{release_time}（UTC+8）\n"
+            "关联 DSH-20261027-009 和租用条款；阶段6恢复有效，可以开启。\n",
+            encoding="utf-8",
+        )
+        pinned_sha = hashlib.sha256(lease.read_bytes()).hexdigest()
+        with patch.object(scan, "LEASE_SHA256", pinned_sha):
+            snapshot = scan.lease_snapshot(lease, mailbox)
+        return snapshot, notice
+
     def test_cli_without_execute_is_plan_only(self) -> None:
         output = io.StringIO()
         with patch.object(scan, "execute") as execute, contextlib.redirect_stdout(output):
@@ -354,6 +373,354 @@ class ScanGuardTests(unittest.TestCase):
             valid, reason = scan.lease_status(lease, mailbox)
             self.assertFalse(valid)
             self.assertIn("SHA-256 已变化", reason)
+
+    def test_unknown_minute_suffix_preserves_conservative_interval(self) -> None:
+        raw = "时间：2026-10-24 00:5x（UTC+8）"
+        interval = scan._mail_time_interval(raw)
+        self.assertIsNotNone(interval)
+        assert interval is not None
+        start, end, source_text = interval
+        self.assertEqual(start.isoformat(timespec="minutes"), "2026-10-24T00:50+08:00")
+        self.assertEqual(end.isoformat(timespec="minutes"), "2026-10-24T01:00+08:00")
+        self.assertEqual(source_text, raw)
+
+    def test_explicit_invalid_or_ambiguous_ranges_are_not_reduced_to_start_time(self) -> None:
+        invalid = (
+            "时间：2026-10-27 22:50–23:60（UTC+8）",
+            "时间：2026-10-27 22:50–23:15:60（UTC+8）",
+            "时间：2026-10-27 22:50–（UTC+8）",
+            "时间：2026-10-27 23:50–00:10（UTC+8）",
+        )
+        for raw in invalid:
+            with self.subTest(raw=raw):
+                self.assertIsNone(scan._mail_time_interval(raw))
+
+    def test_range_symbol_on_a_later_body_line_does_not_extend_timestamp(self) -> None:
+        raw = "时间：2026-10-27 22:50（UTC+8）\n备注：适用范围—只限阶段6。\n"
+        interval = scan._mail_time_interval(raw)
+        self.assertIsNotNone(interval)
+        assert interval is not None
+        start, end, source_text = interval
+        self.assertEqual(start.isoformat(timespec="minutes"), "2026-10-27T22:50+08:00")
+        self.assertEqual(end.isoformat(timespec="minutes"), "2026-10-27T22:51+08:00")
+        self.assertEqual(source_text, "时间：2026-10-27 22:50（UTC+8）")
+
+    def test_valid_explicit_range_is_used_as_a_whole_by_lease_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261024-004 阶段3板级窗口\n"
+                "时间：2026-10-27 22:40–22:50（UTC+8）\n"
+                "阶段3/6板级窗口信息。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE_PRE_RELEASE")
+            self.assertEqual(
+                event["time_range_utc8"],
+                {"start_inclusive": "2026-10-27T22:40+08:00", "end_exclusive": "2026-10-27T22:51+08:00"},
+            )
+
+    def test_lease_snapshot_blocks_invalid_explicit_ranges_instead_of_accepting_start(self) -> None:
+        invalid = (
+            "2026-10-27 22:50–23:60",
+            "2026-10-27 22:50–23:15:60",
+            "2026-10-27 23:50–00:10",
+        )
+        for timestamp in invalid:
+            with self.subTest(timestamp=timestamp), tempfile.TemporaryDirectory() as temp:
+                raw = (
+                    "# DSH-20261024-004 阶段3板级窗口\n"
+                    f"时间：{timestamp}（UTC+8）\n"
+                    "阶段3/6板级窗口信息。\n"
+                )
+                snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+                self.assertFalse(snapshot["valid"])
+                event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+                self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE")
+                self.assertIsNone(event["time_utc8"])
+                self.assertIn("缺少可解析 UTC+8 时间", snapshot["reason"])
+
+    def test_date_only_notice_uses_full_day_interval_without_inventing_time(self) -> None:
+        raw = "日期：2026-10-24（UTC+8）"
+        interval = scan._mail_time_interval(raw)
+        self.assertIsNotNone(interval)
+        assert interval is not None
+        start, end, source_text = interval
+        self.assertEqual(start.isoformat(timespec="minutes"), "2026-10-24T00:00+08:00")
+        self.assertEqual(end.isoformat(timespec="minutes"), "2026-10-25T00:00+08:00")
+        self.assertEqual(source_text, raw)
+        self.assertIsNotNone(scan._mail_time_interval("日期：2026-10-24 UTC+8"))
+
+    def test_date_only_unsupported_timezone_suffixes_fail_closed(self) -> None:
+        for raw in (
+            "日期：2026-10-24（UTC+9）",
+            "日期：2026-10-24 PST",
+            "日期：2026-10-24 UTC-8",
+            "日期：2026-10-24+08:00",
+        ):
+            with self.subTest(raw=raw):
+                self.assertIsNone(scan._mail_time_interval(raw))
+
+    def test_full_time_timezone_suffixes_must_be_complete_and_supported(self) -> None:
+        expected = {
+            "时间：2026-10-27 22:50 UTC+8": "2026-10-27T22:50+08:00",
+            "时间：2026-10-27 22:50+08:00": "2026-10-27T22:50+08:00",
+            "时间：2026-10-27T14:50-08:00": "2026-10-28T06:50+08:00",
+        }
+        for raw, start in expected.items():
+            with self.subTest(raw=raw):
+                interval = scan._mail_time_interval(raw)
+                self.assertIsNotNone(interval)
+                assert interval is not None
+                self.assertEqual(interval[0].isoformat(timespec="minutes"), start)
+                self.assertEqual(interval[2], raw)
+        for raw in (
+            "时间：2026-10-27 22:50 UTC+9",
+            "时间：2026-10-27 22:50 PST",
+            "时间：2026-10-27 22:50 UTC-8",
+            "时间：2026-10-27 22:50+08:00 PST",
+            "时间：2026-10-27 22:50+08:00 UTC+8",
+            "时间：2026-10-27T22:50-08:00 PST",
+        ):
+            with self.subTest(raw=raw):
+                self.assertIsNone(scan._mail_time_interval(raw))
+
+    def test_mail_time_interval_rejects_repeated_or_incompatible_metadata_fields(self) -> None:
+        ambiguous = (
+            "时间：2026-10-27 22:50（UTC+8）\n时间：2026-10-27 23:10（UTC+8）",
+            "日期：2026-10-27（UTC+8）\n日期：2026-10-28（UTC+8）",
+            "时间：2026-10-27 22:30（UTC+8）\n时间：2026-10-27T15:30-08:00",
+            "时间：2026-10-27 22:30（UTC+8）\n日期：2026-10-28T00:00+08:00",
+        )
+        for raw in ambiguous:
+            with self.subTest(raw=raw):
+                self.assertIsNone(scan._mail_time_interval(raw))
+
+    def test_mail_time_interval_accepts_one_authoritative_metadata_field_with_other_header_fields(self) -> None:
+        raw = "- 编号：DSH-20261024-004；时间：2026-10-24 00:50（UTC+8）。"
+        interval = scan._mail_time_interval(raw)
+        self.assertIsNotNone(interval)
+        assert interval is not None
+        self.assertEqual(interval[0].isoformat(timespec="minutes"), "2026-10-24T00:50+08:00")
+        self.assertEqual(interval[2], "时间：2026-10-24 00:50（UTC+8）")
+
+    def test_actual_stage5_metadata_pipe_range_is_a_complete_authoritative_field(self) -> None:
+        raw = "- 记录方：DSH（阶段5 总控）｜时间（UTC+8）：2026-10-27 12:26–12:40｜性质：授权登记（decision）"
+        interval = scan._mail_time_interval(raw)
+        self.assertIsNotNone(interval)
+        assert interval is not None
+        self.assertEqual(interval[0].isoformat(timespec="minutes"), "2026-10-27T12:26+08:00")
+        self.assertEqual(interval[1].isoformat(timespec="minutes"), "2026-10-27T12:41+08:00")
+        self.assertEqual(interval[2], "时间（UTC+8）：2026-10-27 12:26–12:40")
+
+    def test_actual_stage5_metadata_unknown_zone_does_not_fall_back_to_utc8(self) -> None:
+        raw = "- 记录方：DSH（阶段5 总控）｜时间（UTC-8）：2026-10-27 12:26–12:40｜性质：授权登记（decision）"
+        self.assertIsNone(scan._mail_time_interval(raw))
+
+    def test_lease_snapshot_rejects_old_timestamp_followed_by_newer_recall_timestamp(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261024-004 板卡归还通知\n"
+                "- 时间：2026-10-27 22:50（UTC+8）\n"
+                "- 召回时间：2026-10-27T15:10-08:00\n"
+                "请勿继续开启新的阶段6板级会话。\n"
+            )
+            snapshot, _ = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertFalse(snapshot["valid"])
+            self.assertIn("召回/释放记录缺少可解析 UTC+8 时间", snapshot["reason"])
+
+    def test_lease_snapshot_rejects_duplicate_dates_and_cross_zone_time_fields(self) -> None:
+        notices = (
+            "日期：2026-10-27（UTC+8）\n日期：2026-10-28（UTC+8）",
+            "时间：2026-10-27 22:30（UTC+8）\n时间：2026-10-27T15:30-08:00",
+        )
+        for fields in notices:
+            with self.subTest(fields=fields), tempfile.TemporaryDirectory() as temp:
+                raw = (
+                    "# DSH-20261024-004 阶段3板级窗口\n"
+                    f"{fields}\n"
+                    "阶段3/6板级窗口信息。\n"
+                )
+                snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+                self.assertFalse(snapshot["valid"])
+                event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+                self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE")
+                self.assertIsNone(event["time_utc8"])
+                self.assertIsNone(event["timestamp_text"])
+                self.assertIn("缺少可解析 UTC+8 时间", snapshot["reason"])
+
+    def test_lease_snapshot_accepts_one_authoritative_inline_time_field(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261024-004 阶段3板级窗口\n"
+                "- 编号：DSH-20261024-004；时间：2026-10-24 00:50（UTC+8）。\n"
+                "阶段3/6板级窗口信息。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE_PRE_RELEASE")
+            self.assertEqual(event["timestamp_text"], "时间：2026-10-24 00:50（UTC+8）")
+
+    def test_lease_snapshot_accepts_actual_stage5_pipe_range_before_release(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261027-001：阶段5 硬件窗口与实物授权（Wong 授予）\n"
+                "- 记录方：DSH（阶段5 总控）｜时间（UTC+8）：2026-10-27 12:26–12:40｜性质：授权登记（decision）\n"
+                "阶段5板级项目，JTAG 仍需会话交接。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["event"], "OUT_OF_SCOPE_STAGE5_PRE_RELEASE")
+            self.assertEqual(event["timestamp_text"], "时间（UTC+8）：2026-10-27 12:26–12:40")
+
+    def test_lease_snapshot_blocks_actual_stage5_metadata_with_unsupported_zone(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261027-001：阶段5 硬件窗口与实物授权（Wong 授予）\n"
+                "- 记录方：DSH（阶段5 总控）｜时间（UTC-8）：2026-10-27 12:26–12:40｜性质：授权登记（decision）\n"
+                "阶段5板级项目，JTAG 仍需会话交接。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertFalse(snapshot["valid"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE")
+            self.assertIsNone(event["time_utc8"])
+            self.assertIsNone(event["timestamp_text"])
+            self.assertIn("缺少可解析 UTC+8 时间", snapshot["reason"])
+
+    def test_lease_snapshot_rejects_unsupported_timezone_suffixes(self) -> None:
+        timestamp_lines = (
+            "时间：2026-10-27 22:50 UTC-8",
+            "时间：2026-10-27 22:50 PST",
+            "日期：2026-10-27（UTC+9）",
+        )
+        for timestamp_line in timestamp_lines:
+            with self.subTest(timestamp_line=timestamp_line), tempfile.TemporaryDirectory() as temp:
+                raw = (
+                    "# DSH-20261024-004 阶段3板级窗口\n"
+                    f"{timestamp_line}\n"
+                    "阶段3/6板级窗口信息。\n"
+                )
+                snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-28 00:00")
+                self.assertFalse(snapshot["valid"])
+                event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+                self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE")
+                self.assertIsNone(event["time_utc8"])
+                self.assertIn("缺少可解析 UTC+8 时间", snapshot["reason"])
+
+    def test_lease_snapshot_accepts_explicit_utc8_and_iso_offset_controls(self) -> None:
+        cases = (
+            ("时间：2026-10-27 22:50 UTC+8", "2026-10-27 23:00", "2026-10-27T22:50+08:00"),
+            ("时间：2026-10-27T14:50-08:00", "2026-10-28 07:00", "2026-10-28T06:50+08:00"),
+        )
+        for timestamp_line, release_time, expected_start in cases:
+            with self.subTest(timestamp_line=timestamp_line), tempfile.TemporaryDirectory() as temp:
+                raw = (
+                    "# DSH-20261024-004 阶段3板级窗口\n"
+                    f"{timestamp_line}\n"
+                    "阶段3/6板级窗口信息。\n"
+                )
+                snapshot, notice = self._snapshot_for_notice(Path(temp), raw, release_time)
+                self.assertTrue(snapshot["valid"], snapshot["reason"])
+                event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+                self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE_PRE_RELEASE")
+                self.assertEqual(event["time_utc8"], expected_start)
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261024-001 日期型通报\n"
+                "日期：2026-10-27 UTC+8\n"
+                "阶段6板卡状态随通知提供。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-28 00:00")
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["time_range_utc8"], {
+                "start_inclusive": "2026-10-27T00:00+08:00",
+                "end_exclusive": "2026-10-28T00:00+08:00",
+            })
+
+    def test_october_24_partial_time_is_superseded_by_october_27_release_with_hash(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261024-004 阶段3板级窗口\n"
+                "时间：2026-10-24 00:5x（UTC+8）\n"
+                "阶段3将开始单次板级窗口，结束后另行留证；阶段5/6接口后续对接。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE_PRE_RELEASE")
+            self.assertEqual(event["sha256"], hashlib.sha256(notice.read_bytes()).hexdigest())
+            self.assertEqual(event["hash_basis"], "worktree_disk")
+            self.assertEqual(event["timestamp_text"], "时间：2026-10-24 00:5x（UTC+8）")
+            self.assertEqual(
+                event["time_range_utc8"],
+                {"start_inclusive": "2026-10-24T00:50+08:00", "end_exclusive": "2026-10-24T01:00+08:00"},
+            )
+
+    def test_date_only_october_24_notice_is_superseded_without_guessing_clock_time(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            raw = (
+                "# DSH-20261024-001 阶段三方向调整\n"
+                "编号：DSH-20261024-001；日期：2026-10-24（UTC+8）。\n"
+                "阶段6按阶段三彩色实测调整输入方向，板卡状态随记录提供。\n"
+            )
+            snapshot, notice = self._snapshot_for_notice(Path(temp), raw, "2026-10-27 23:00")
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+            event = next(item for item in snapshot["events"] if item["path"] == str(notice))
+            self.assertEqual(event["event"], "UNKNOWN_RELEVANT_NOTICE_PRE_RELEASE")
+            self.assertEqual(event["sha256"], hashlib.sha256(notice.read_bytes()).hexdigest())
+            self.assertEqual(event["timestamp_text"], "日期：2026-10-24（UTC+8）")
+            self.assertEqual(
+                event["time_range_utc8"],
+                {"start_inclusive": "2026-10-24T00:00+08:00", "end_exclusive": "2026-10-25T00:00+08:00"},
+            )
+
+    def test_same_day_overlapping_partial_notice_and_release_blocks(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            snapshot, _ = self._snapshot_for_notice(
+                Path(temp),
+                "# DSH-20261024-004 阶段3板级窗口\n时间：2026-10-27 22:5x（UTC+8）\n"
+                "阶段3/6板级窗口信息。\n",
+                "2026-10-27 22:55",
+            )
+            self.assertFalse(snapshot["valid"])
+            self.assertEqual(snapshot["events"][-1]["event"], "UNKNOWN_RELEVANT_NOTICE")
+            self.assertIn("重叠或更晚", snapshot["reason"])
+
+    def test_partial_notice_ending_at_release_boundary_is_provably_earlier(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            snapshot, _ = self._snapshot_for_notice(
+                Path(temp),
+                "# DSH-20261024-004 阶段3板级窗口\n时间：2026-10-27 22:5x（UTC+8）\n"
+                "阶段3/6板级窗口信息。\n",
+                "2026-10-27 23:00",
+            )
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+
+    def test_cross_day_partial_notice_touching_release_boundary_is_provably_earlier(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            snapshot, _ = self._snapshot_for_notice(
+                Path(temp),
+                "# DSH-20261024-004 阶段3板级窗口\n时间：2026-10-26 23:5x（UTC+8）\n"
+                "阶段3/6板级窗口信息。\n",
+                "2026-10-27 00:00",
+            )
+            self.assertTrue(snapshot["valid"], snapshot["reason"])
+
+    def test_future_or_undated_unknown_notice_blocks_after_release(self) -> None:
+        notice_texts = (
+            "# 后续阶段6板卡状态\n时间：2026-10-28 00:0x（UTC+8）\n阶段6板卡状态待核实。\n",
+            "# 后续阶段6板卡状态\n阶段6板卡状态待核实。\n",
+        )
+        for notice_text in notice_texts:
+            with self.subTest(notice_text=notice_text), tempfile.TemporaryDirectory() as temp:
+                snapshot, _ = self._snapshot_for_notice(Path(temp), notice_text, "2026-10-27 23:00")
+                self.assertFalse(snapshot["valid"])
+                self.assertEqual(snapshot["events"][-1]["event"], "UNKNOWN_RELEVANT_NOTICE")
 
     def test_dsh_recall_blocks_then_explicit_release_reopens_then_new_recall_blocks(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

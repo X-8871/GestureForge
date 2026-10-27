@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-E",
+  "run_id": "s6e_jtag_readonly_timebounds_20261028_r02",
+  "source_commit": "5aa0fd15a6d422141b0619faf5ec909e77f97efc",
+  "evidence_dir": "report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务只验证租用通知时间区间判定，不消费阶段4/5业务冻结契约。",
+  "hash_basis": "worktree_disk",
+  "files": [
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r02/inputs/DSH-20261024-001-stage3-colour-unblocked-direction-update.md",
+      "sha256": "a55bce9a4f7a686ab4dd72406affbba17a080c8d9ad63863ebe75d3e722cb2bc",
+      "role": "input",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "与主目录 DSH mailbox 原始文件逐字节相同的判定输入。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r02/inputs/DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md",
+      "sha256": "b820fcd1dbe8b213056f88f395ad3ac5a3569f153cde490a5816231a4c76510c",
+      "role": "input",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "与主目录 DSH mailbox 原始文件逐字节相同的判定输入。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r02/inputs/DSH-20261027-008-board-lease-stage6.md",
+      "sha256": "519566fb79202689223e0cd52409b04c072b4cc31ca58270605a104102be88cb",
+      "role": "input",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "与主目录 DSH mailbox 原始文件逐字节相同的判定输入。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r02/inputs/DSH-20261027-009-board-return-notice.md",
+      "sha256": "d815e98ad630a63161e493663a3794ce410931d2d9db98a335181205a60b533f",
+      "role": "input",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "与主目录 DSH mailbox 原始文件逐字节相同的判定输入。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r02/inputs/DSH-20261027-010-board-released.md",
+      "sha256": "d0eb3cec5fd8ad0bd5728a8e7aa29b10f1ea5ef957a917870c8634f02a4763b8",
+      "role": "input",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "与主目录 DSH mailbox 原始文件逐字节相同的判定输入。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "dsh_notice_copy_sha256",
+      "status": "PASS",
+      "command": "逐字节复制五条指定 DSH 记录并比较源/副本 SHA-256",
+      "exit_code": 0,
+      "reason": "5/5 输入文件源 SHA、证据副本 SHA 一致；不使用文件 mtime。"
+    }
+  ],
+  "limitations": [
+    "只证明通知输入绑定，不构成硬件授权独立审查或板级结果。"
+  ]
+}

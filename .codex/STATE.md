@@ -1,5 +1,11 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 只读诊断租约时间核验（2026-10-28，UTC+8）
+
+- Wong 将阶段6板卡借用授权延至 10 月 28 日 10:00（UTC+8）；执行前仍须核验最新租约、独占及正式硬件会话 OFFER/CLAIM。`CDX-20261027-002-stage6-jtag-readonly-offer` 已请求交接；当前尚未收到正式交接，不得仅凭授权或无进程开会话。
+- `report/evidence/S6-E/s6e_jtag_readonly_timebounds_20261028_r04/` 的离线修复采用唯一时间或日期元数据字段及保守时间区间，65 项测试通过，独立复审 PASS；该次租约快照可解析 DSH-010。CHECKS_OK 仅表示清单绑定；r01–r03 保留此前失败及审查记录。本节替代下方关于 DSH-20261024-004 时间不可解析的历史状态。
+- 实际只读 JTAG 扫描 NOT_RUN；真实动作执行器/观察接口与阶段4/5真实集成仍未就绪，P/T6-A03 和 6-E 实物保持 NOT_RUN，G3/G4/G5 未通过。恢复时先重新核对最新交接、租约与设备占用；既有未提交 STATE、S6-A 规格和历史证据继续保留。
+
 ## 只读连接诊断准备（2026-10-28，UTC+8）
 
 - `verification/s6e_jtag_readonly_scan.py` 及其测试的离线限定复审 PASS；40/40 模拟测试通过，证据与真实检查器来源见 `report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08/`。旧 checker 不支持 hash_basis 的失败与 r06 初轮测试失败保留；CHECKS_OK 仅说明清单绑定。

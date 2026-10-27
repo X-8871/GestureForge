@@ -83,21 +83,148 @@ def _safe_repo_file(root: Path, relative_text: str, label: str) -> Path:
     return path_real
 
 
-def _mail_timestamp(text: str) -> datetime | None:
-    match = re.search(
-        r"时间(?:\s*[（(]UTC\+8[）)])?\s*[：:]\s*([0-9]{4}-[0-9]{2}-[0-9]{2})[ T]"
-        r"([0-9]{2}:[0-9]{2}(?::[0-9]{2})?)"
-        r"(?:\s*[–—-]\s*([0-9]{2}:[0-9]{2}(?::[0-9]{2})?))?"
-        r"([+-][0-9]{2}:[0-9]{2})?",
-        text,
-    )
-    if not match:
+def _clock_interval(day, clock: str, tzinfo) -> tuple[datetime, datetime] | None:
+    """按原始精度生成闭开时间区间；未知分钟个位只接受 x 标记。"""
+    pieces = clock.split(":")
+    if len(pieces) not in (2, 3):
+        return None
+    hour_text, minute_text = pieces[:2]
+    if not re.fullmatch(r"[0-9]{2}", hour_text):
+        return None
+    if re.fullmatch(r"[0-5][xX]", minute_text) and len(pieces) == 2:
+        hour = int(hour_text)
+        minute = int(minute_text[0]) * 10
+        try:
+            start = datetime(day.year, day.month, day.day, hour, minute, tzinfo=tzinfo)
+        except ValueError:
+            return None
+        return start, start + timedelta(minutes=10)
+    if not re.fullmatch(r"[0-5][0-9]", minute_text):
+        return None
+    second_text = pieces[2] if len(pieces) == 3 else None
+    if second_text is not None and not re.fullmatch(r"[0-5][0-9]", second_text):
         return None
     try:
-        value = datetime.fromisoformat(f"{match.group(1)}T{match.group(3) or match.group(2)}{match.group(4) or ''}")
-        return (value.replace(tzinfo=LOCAL_TZ) if value.tzinfo is None else value.astimezone(LOCAL_TZ))
+        start = datetime(
+            day.year,
+            day.month,
+            day.day,
+            int(hour_text),
+            int(minute_text),
+            int(second_text or "0"),
+            tzinfo=tzinfo,
+        )
     except ValueError:
         return None
+    return start, start + (timedelta(seconds=1) if second_text is not None else timedelta(minutes=1))
+
+
+def _mail_time_interval(text: str) -> tuple[datetime, datetime, str] | None:
+    """只解析唯一明确的通知元数据时间字段，并保留其原始文本。"""
+    clock_pattern = r"[0-9]{2}:(?:[0-5][0-9]|[0-5][xX])(?::[0-5][0-9])?"
+    label_pattern = re.compile(r"(?:时间|日期)(?:[ \t]*[（(]UTC\+8[）)])?[ \t]*[：:]")
+    date_pattern = r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    zone_suffix_pattern = r"(?P<zone_suffix>[ \t]*(?:[（(][A-Za-z][A-Za-z0-9+:-]*[）)]|[A-Za-z][A-Za-z0-9+:-]*))?"
+    labels = list(label_pattern.finditer(text))
+    if len(labels) != 1:
+        return None
+    label = labels[0]
+    line_end = text.find("\n", label.end())
+    if line_end < 0:
+        line_end = len(text)
+    value_end = line_end
+    for delimiter in ("；", ";", "｜", "|"):
+        delimiter_pos = text.find(delimiter, label.end(), line_end)
+        if delimiter_pos >= 0:
+            value_end = min(value_end, delimiter_pos)
+    raw_value = text[label.end():value_end].strip(" \t\r")
+    value = raw_value[:-1].rstrip(" \t\r") if raw_value.endswith(("。", ".")) else raw_value
+    if not value:
+        return None
+    raw_field = text[label.start():value_end].strip(" \t\r")
+    if raw_field.endswith(("。", ".")):
+        raw_field = raw_field[:-1]
+    time_pattern = (
+        r"(?P<date>" + date_pattern + r")(?P<date_time_sep>[ T])(?P<start_clock>"
+        + clock_pattern
+        + r")(?:(?:[ \t]*[–—][ \t]*|[ \t]+-[ \t]*|-[ \t]+)(?P<end_clock>"
+        + clock_pattern
+        + r"))?(?P<offset>[+-][0-9]{2}:[0-9]{2})?"
+        + zone_suffix_pattern
+    )
+    match = re.fullmatch(time_pattern, value)
+    if match is None:
+        date_match = re.fullmatch(r"(?P<date>" + date_pattern + r")" + zone_suffix_pattern, value)
+        if date_match is None or not _supported_mail_zone_suffix(date_match.group("zone_suffix")):
+            return None
+        try:
+            from datetime import date
+
+            day = date.fromisoformat(date_match.group("date"))
+            start = datetime(day.year, day.month, day.day, tzinfo=LOCAL_TZ)
+            return start, start + timedelta(days=1), raw_field
+        except (ValueError, OverflowError):
+            return None
+    if not _supported_mail_zone_suffix(match.group("zone_suffix")):
+        return None
+    if match.group("offset") is not None and match.group("zone_suffix") is not None:
+        return None
+    try:
+        from datetime import date
+
+        day = date.fromisoformat(match.group("date"))
+        offset = match.group("offset") or ""
+        if offset.startswith("-") and match.group("date_time_sep") != "T":
+            return None
+        tzinfo = datetime.fromisoformat(f"2000-01-01T00:00{offset}").tzinfo or LOCAL_TZ
+        first = _clock_interval(day, match.group("start_clock"), tzinfo)
+        if first is None:
+            return None
+        if match.group("end_clock") is None:
+            start, end = first
+        else:
+            last = _clock_interval(day, match.group("end_clock"), tzinfo)
+            if last is None:
+                return None
+            last_start, end = last
+            if last_start <= first[0]:
+                return None
+            if last_start < first[1]:
+                return None
+            start = first[0]
+        return start.astimezone(LOCAL_TZ), end.astimezone(LOCAL_TZ), raw_field
+    except (ValueError, OverflowError):
+        return None
+
+
+def _supported_mail_zone_suffix(suffix: str | None) -> bool:
+    """仅接受完整 UTC+8 后缀；其他显式时区不得退回本地时间。"""
+    if suffix is None:
+        return True
+    token = suffix.strip(" \t")
+    if len(token) >= 2 and token[0] in "（(" and token[-1] in "）)":
+        token = token[1:-1]
+    return token == "UTC+8"
+
+
+def _mail_timestamp(text: str) -> datetime | None:
+    """兼容旧调用者，返回时间区间的最早可能时刻。"""
+    interval = _mail_time_interval(text)
+    return interval[0] if interval is not None else None
+
+
+def _format_utc8(value: datetime) -> str:
+    precision = "seconds" if value.second or value.microsecond else "minutes"
+    return value.astimezone(LOCAL_TZ).isoformat(timespec=precision)
+
+
+def _time_evidence(interval: tuple[datetime, datetime, str]) -> dict:
+    start, end, raw_text = interval
+    return {
+        "time_utc8": _format_utc8(start),
+        "time_range_utc8": {"start_inclusive": _format_utc8(start), "end_exclusive": _format_utc8(end)},
+        "timestamp_text": raw_text,
+    }
 
 
 def lease_snapshot(lease_path: Path = LEASE, mailbox: Path = LEASE_MAILBOX) -> dict:
@@ -132,8 +259,8 @@ def lease_snapshot(lease_path: Path = LEASE, mailbox: Path = LEASE_MAILBOX) -> d
         snapshot["lease_file"]["valid"] = False
         snapshot["reason"] = "DSH mailbox 不可读取，无法核验召回状态"
         return snapshot
-    events: list[tuple[datetime, str, str, str]] = []
-    unknown_events: list[tuple[datetime | None, str, str, bool]] = []
+    events: list[tuple[datetime, datetime, str, str, str, str]] = []
+    unknown_events: list[tuple[tuple[datetime, datetime, str] | None, str, str, bool]] = []
     recall_markers = (
         "板卡归还通知", "板卡归还", "板卡已归还", "暂勿开启新的板级会话", "暂勿开启",
         "不要开启新的板级会话", "租约已收回", "收回本次阶段6租用", "暂停板卡使用", "暂停板级会话",
@@ -153,10 +280,13 @@ def lease_snapshot(lease_path: Path = LEASE, mailbox: Path = LEASE_MAILBOX) -> d
             snapshot["lease_file"]["valid"] = False
             snapshot["reason"] = f"DSH mailbox 记录不可读：{path.name}: {exc}"
             return snapshot
-        stamp = _mail_timestamp(body)
+        stamp = _mail_time_interval(body)
         heading = next((line.strip() for line in body.splitlines() if line.strip()), "")
-        explicit_stage6 = any(marker in body for marker in relevant_markers)
-        stage5_only = "阶段5" in body and not explicit_stage6
+        stage_mentions: set[str] = set()
+        for stage_group in re.findall(r"阶段\s*([0-9]+(?:\s*/\s*[0-9]+)*)", body):
+            stage_mentions.update(re.findall(r"[0-9]+", stage_group))
+        explicit_stage6 = "6" in stage_mentions or any(marker in body for marker in relevant_markers)
+        stage5_only = stage_mentions == {"5"} and not explicit_stage6
         is_recall = any(marker in body for marker in recall_markers) or any(
             marker in heading for marker in ("板卡归还", "阶段6租用召回", "阶段6租用收回")
         )
@@ -174,58 +304,63 @@ def lease_snapshot(lease_path: Path = LEASE, mailbox: Path = LEASE_MAILBOX) -> d
                 snapshot["lease_file"]["valid"] = False
                 snapshot["reason"] = f"召回/释放记录缺少可解析 UTC+8 时间：{path.name}"
                 return snapshot
-            events.append((stamp, "RELEASED" if is_release else "RECALLED", str(path),
-                           hashlib.sha256(event_bytes).hexdigest()))
+            events.append((stamp[0], stamp[1], "RELEASED" if is_release else "RECALLED", str(path),
+                           hashlib.sha256(event_bytes).hexdigest(), stamp[2]))
         elif path.resolve() != lease_path.resolve() and any(marker in body for marker in board_action_markers) and (
             explicit_stage6 or stage5_only or any(marker in body for marker in board_status_markers)
         ):
             unknown_events.append((stamp, str(path), hashlib.sha256(event_bytes).hexdigest(), stage5_only))
-    events.sort(key=lambda item: (item[0], item[2]))
-    snapshot["events"] = [
-        {"event": kind, "path": path, "hash_basis": "worktree_disk", "sha256": digest,
-         "time_utc8": stamp.isoformat(timespec="minutes")}
-        for stamp, kind, path, digest in events
-    ]
-    lease_stamp = _mail_timestamp(text)
-    latest_known_stamp = max((item[0] for item in events), default=lease_stamp)
+    events.sort(key=lambda item: (item[0], item[1], item[3]))
+    snapshot["events"] = []
+    for start, end, kind, path, digest, raw_text in events:
+        item = {"event": kind, "path": path, "hash_basis": "worktree_disk", "sha256": digest}
+        item.update(_time_evidence((start, end, raw_text)))
+        snapshot["events"].append(item)
+    for previous, current in zip(events, events[1:]):
+        if previous[1] > current[0]:
+            snapshot["reason"] = "召回与释放时间区间重叠，无法确认先后"
+            return snapshot
+    lease_stamp = _mail_time_interval(text)
+    latest_known_interval = (events[-1][0], events[-1][1]) if events else (
+        (lease_stamp[0], lease_stamp[1]) if lease_stamp is not None else None
+    )
     for stamp, path, digest, stage5_only in unknown_events:
-        reference_stamp = latest_known_stamp or lease_stamp
-        if stage5_only and stamp is not None and reference_stamp is not None and stamp < reference_stamp:
-            snapshot["events"].append(
-                {"event": "OUT_OF_SCOPE_STAGE5_PRE_RELEASE", "path": path, "hash_basis": "worktree_disk",
-                 "sha256": digest, "time_utc8": stamp.isoformat(timespec="minutes")}
-            )
-            continue
         if stamp is None:
-            snapshot["events"].append(
-                {"event": "UNKNOWN_RELEVANT_NOTICE", "path": path, "hash_basis": "worktree_disk",
-                 "sha256": digest, "time_utc8": None}
-            )
+            item = {"event": "UNKNOWN_RELEVANT_NOTICE", "path": path, "hash_basis": "worktree_disk",
+                    "sha256": digest, "time_utc8": None, "time_range_utc8": None, "timestamp_text": None}
+            snapshot["events"].append(item)
             snapshot["reason"] = f"阶段6相关板卡通知缺少可解析 UTC+8 时间，按未知召回阻断：{Path(path).name}"
             return snapshot
-        if reference_stamp is None or stamp >= reference_stamp:
-            snapshot["events"].append(
-                {"event": "UNKNOWN_RELEVANT_NOTICE", "path": path, "hash_basis": "worktree_disk",
-                 "sha256": digest, "time_utc8": stamp.isoformat(timespec="minutes")}
-            )
-            snapshot["reason"] = f"存在较新或同刻的阶段6相关板卡通知，未能识别其租约语义，按未知召回阻断：{Path(path).name}"
+        reference_start, reference_end = latest_known_interval or (None, None)
+        if reference_start is not None and stamp[1] <= reference_start:
+            kind = "OUT_OF_SCOPE_STAGE5_PRE_RELEASE" if stage5_only else "UNKNOWN_RELEVANT_NOTICE_PRE_RELEASE"
+            item = {"event": kind, "path": path, "hash_basis": "worktree_disk", "sha256": digest}
+            item.update(_time_evidence(stamp))
+            snapshot["events"].append(item)
+            continue
+        if reference_start is None or reference_end is None or stamp[0] < reference_end:
+            item = {"event": "UNKNOWN_RELEVANT_NOTICE", "path": path, "hash_basis": "worktree_disk",
+                    "sha256": digest}
+            item.update(_time_evidence(stamp))
+            snapshot["events"].append(item)
+            snapshot["reason"] = f"阶段6相关板卡通知时间与有效租约边界重叠或更晚，按未知召回阻断：{Path(path).name}"
             return snapshot
+        item = {"event": "UNKNOWN_RELEVANT_NOTICE", "path": path, "hash_basis": "worktree_disk",
+                "sha256": digest}
+        item.update(_time_evidence(stamp))
+        snapshot["events"].append(item)
+        snapshot["reason"] = f"存在较新的阶段6相关板卡通知，未能识别其租约语义，按未知召回阻断：{Path(path).name}"
+        return snapshot
     if not events:
         snapshot["valid"] = True
         snapshot["reason"] = "固定租约有效，未发现后续召回或未知相关通知"
         return snapshot
-    by_time: dict[datetime, set[str]] = {}
-    for stamp, kind, _path, _digest in events:
-        by_time.setdefault(stamp, set()).add(kind)
-    if any(len(kinds) > 1 for kinds in by_time.values()):
-        snapshot["reason"] = "召回与释放时间相同，无法确认先后"
-        return snapshot
     latest = events[-1]
-    if latest[1] != "RELEASED":
-        snapshot["reason"] = f"租约已被后续通知召回，等待 DSH 明确释放：{Path(latest[2]).name}"
+    if latest[2] != "RELEASED":
+        snapshot["reason"] = f"租约已被后续通知召回，等待 DSH 明确释放：{Path(latest[3]).name}"
         return snapshot
     snapshot["valid"] = True
-    snapshot["reason"] = f"最近一条有效通知为释放：{Path(latest[2]).name}"
+    snapshot["reason"] = f"最近一条有效通知为释放：{Path(latest[3]).name}"
     return snapshot
 
 

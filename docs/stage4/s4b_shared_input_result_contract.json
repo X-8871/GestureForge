@@ -28,9 +28,9 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
-      "declared_revision": "r04（BGR888 RAW 格式与通道顺序、byte_order 分层）",
-      "status_note": "地址图仍 `DRAFT_PENDING_REVIEW`；raw_frame/raw_meta 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、enable_required=true）",
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+      "declared_revision": "r05（2026-10-27 D1=A 落盘复核：禁区条目补记缩减算术）",
+      "status_note": "地址图整体 `status=APPROVED`（Wong 2026-10-27 14:15:07 +08:00，approval_history 有记录）；`raw_frame`/`raw_meta` 仍为提案态 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（**非 FROZEN**、`enable_required=true`）；**ENABLE=0 保持**，不据此提升任何关口。",
       "replaces": {
         "sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
         "basis": "worktree_disk_bytes",
@@ -942,6 +942,19 @@
       ],
       "semantics_changed": false,
       "note": "仅绑定 SHA 与 status 相关记录更新；contract_version/contract_id/revision 与全部语义字段未变，故不升 r08、不触发重新复审。此条目按 freeze_record.change_policy 的「必须重绑所有引用 SHA」执行。"
+    },
+    {
+      "at_utc8": "2026-10-27T19:50:00+08:00",
+      "reason": "S4-T30 落盘复核：地址图 `gaps[]` 的禁区条目补记缩减算术（12,615,680 B = raw_frame 12,582,912 B + raw_meta 32,768 B），文件字节 SHA 变化，冻结契约的 `upstream_bindings` 必须重绑。",
+      "changed_bindings": [
+        {
+          "id": "stage4_address_map",
+          "from": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
+          "to": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e"
+        }
+      ],
+      "semantics_changed": false,
+      "note": "仅绑定 SHA + `status_note` 与事实对齐（地址图已由 Wong 2026-10-27 批准为 APPROVED）；contract_version/contract_id/revision 与全部语义字段未变，故不升版本、不触发重新复审；本条目按 `freeze_record.change_policy` 的「必须重绑所有引用 SHA」执行。"
     }
   ]
 }

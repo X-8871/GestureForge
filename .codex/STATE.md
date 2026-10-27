@@ -1,6 +1,10 @@
-# 阶段4 状态（写权：Workbuddy 阶段4总控；离线推理链已冻结，板级项未闭合）
+# 阶段4 状态（写权：DSH 项目总控（Wong 2026-10-27 指令接管）；离线推理链已冻结，板级项未闭合）
 
-**写权：Workbuddy 阶段4总控 受 Wong 2026-10-27 授权独占，覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
+**写权：DSH 项目总控（Wong 2026-10-27 直接指令接管；原 Workbuddy 阶段4总控停写）。覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
+
+- **裁决指针（S4-T30 依据）**：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_optionA_20261027_r01.md`——Wong 2026-10-27 原话「A」：D1 允许缩减禁区、选选项 A（`raw_frame=[0x12000000,0x12C00000)` 12 MiB + `raw_meta=[0x12C00000,0x12C08000)` 32 KiB、109/109、余量 +1,523,712 B）；D2 不接受降覆盖；D3 META 不强制连续；D4 linker 冻结不作前置 ⇒ E 排除。
+- **S4-T30 禁止事项**：`ENABLE=0` 保持；**不 FROZEN**；无板级/位流/烧录；不改 2B 冻结区间（tensor `[0x10000000,0x1007EC00)`、GF8 `[0x10100000,0x106A12FC)`、feature `[0x11000000,0x11ADADB8)`）；不清理/不暂存/不代提交原持有方 **25 项**未提交改动；不 push；不得把「裁决已下」写成「已批准 G0」。
+- **接管核验事实**：项目总控 `handoff_check` = **PASS 7 / FAIL 1**，唯一 FAIL 为检查项 **g（证据入口）**；成因是项目总控证据目录在 **main**、检查器按**工作树**解析相对路径 ⇒ **路径基准差异，非状态缺陷**；据此不改写接管结论。
 
 任务=`S4-B-REAL-02B::s4b_hardware_session_claim` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`431a6831095f8f2825fb17c3605bb1950d7ed04e` | 允许修改范围=`S4B_PS_TENSOR_DIAGNOSTIC` | 未提交改动归属=`main OFFER 引用的未提交改动归属保持原口径；w4 侧仅本轮新增证据归 Workbuddy 阶段4总控` | 让出声明=`CLAIMED` | 心跳(UTC+8)=`2026-10-27T16:51:46+08:00` | 证据入口=`offer_commit=84c840fe9fdfd1344cb9b6f8f3833eaae5916780;offer_blob_oid=80f6340880a64d33924cabcd264ff256c9b7b4cf;offer_sha256=080497fc2ac7d8c735c50ca6edd2a73178fa12f3c0f300ebdb22d1319f991374;offer_source_commit=4f44f15141652a1fd36cb78c4b238fb426fa3931;hardware_run_id=s4b_ps_tensor_hw_20261027_r01;scope=S4B_PS_TENSOR_DIAGNOSTIC` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id <新RunId> --accept-producer-break` | 状态/下一接手方=`CLAIMED Workbuddy 阶段4总控`
 

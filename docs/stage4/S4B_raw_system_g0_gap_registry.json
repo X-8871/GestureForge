@@ -4,7 +4,7 @@
   "stage": "4",
   "created_utc8": "2026-10-24T00:40:00+08:00",
   "owner": "DSH 阶段4 总控（stage4-lead）",
-  "updated_utc8": "2026-10-27T12:27:52+08:00",
+  "updated_utc8": "2026-10-27T19:52:00+08:00",
   "revision_note": "r04（2026-10-25，全离线）：RAW 格式明确为 BGR888/B-G-R，平台 byte_order=little 单独表示多字节字段端序；D2 要求 resize 前先逐像素 BGR→RGB。绑定地址图 r04 与 readiness 更新；新增 G-20 登记当前 C/PL BGR888 支持缺口，状态不得因离线参考通过而关闭。共享契约为 s4-shared-io/1.3.0 r07、DRAFT_PENDING_REVIEW、runtime_support_status=NOT_IMPLEMENTED。",
   "hardware_execution": "NOT_RUN",
   "purpose": "承接 d4f30e3 的未完成 RAW 系统 G0 检查点，把 RAW BGR888（B/G/R）→ D2 前置 BGR→RGB → PL 预处理 → HP0 串行 owner → 冻结网络 → PS 解码/NMS 结果链路的缺口逐项登记；本轮只关闭可离线判定部分。",
@@ -88,8 +88,8 @@
     {
       "id": "address_map",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
-      "role": "区域/空洞/准入禁区与缓存维护方向（r04 BGR888 格式与 fail-closed 状态；仍 DRAFT_PENDING_REVIEW）",
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+      "role": "区域/空洞/准入禁区与缓存维护方向（r05：D1=A 落盘复核补记缩减算术；整体 status=APPROVED，两 region 仍提案态）",
       "byte_basis": "worktree_disk_bytes",
       "replaces_sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced"
     },
@@ -110,7 +110,7 @@
     {
       "id": "shared_input_contract",
       "path": "docs/stage4/s4b_shared_input_result_contract.json",
-      "sha256": "2848ba031a6411e2920f7f8edbd58a3199d3404a2558a867d6c0f245c0796a94",
+      "sha256": "4d8dc0d4b2c5cf650640f3289a24fd76c504952a2621e4339cea14a15ada0448",
       "role": "共享输入/结果契约 s4-shared-io/1.3.0 r07 的机器权威",
       "byte_basis": "worktree_disk_bytes",
       "update_note": "契约复审登记 REVIEWED_OFFLINE_ONLY 后同步"

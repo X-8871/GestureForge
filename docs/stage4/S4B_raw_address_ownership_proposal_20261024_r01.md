@@ -1,6 +1,6 @@
-# ADR-S4B-RAW-ADDR-01（待决提案）：RAW/META 地址与所有权候选方案
+# ADR-S4B-RAW-ADDR-01（已裁决 · 待独立复审）：RAW/META 地址与所有权候选方案
 
-- 状态：**待决（DECISION_REQUESTED）**。日期：2026-10-24（UTC+8）；提出方：DSH 阶段4 总控（本树 `D:\codex-worktrees\w4`，task-21）。
+- 状态：**已裁决、待独立复审（DECIDED_PENDING_G0_REVIEW，2026-10-27）**。裁决 `report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_optionA_20261027_r01.md`（Wong 原话「A」：D1 选 A、D2 不降覆盖、D3 不强制连续、D4 linker 不作前置）。**G-01/G-02 仍未转批准态**（仍 `PARTIALLY_CLOSED_OFFLINE`；须独立复审 + 板级四项实测）。日期：2026-10-24（UTC+8）；提出方：DSH 阶段4 总控（本树 `D:\codex-worktrees\w4`，task-21）。
 - 范围：**规范层面候选方案**——只给出可选区间、所有权登记方式、代价与对 4-D 的影响；**不修改任何实现/地址图/契约**，也不自行扩大既有批准范围。
 - 决策权：本提案涉及**集成与接口语义**（地址准入禁区、物理 owner、输入覆盖范围）。按 `AGENTS.md`，**是否越出既有批准范围由 DSH 项目总控先行裁决；若改变已批准部署/接口边界或输入覆盖口径，须报 Wong**。阶段4 写入方不自行决定。
 - 依据本次算术：`report/evidence/S4-CTRL/t21_raw_address_proposal_20261024_r01/raw_address_options_arithmetic.json`（脚本 `scripts/stage4_s4b/check_raw_address_options.py`，**exit 0**）。本提案不含任何硬件执行。

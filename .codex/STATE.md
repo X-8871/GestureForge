@@ -14,6 +14,11 @@
 - **PASS 边界与记录性局限（维持原口径，不得改称通过）**：不代表 G0/G4/G5 或实物验收；① VDMA 首帧 bit11 根因 `PARTIAL_OPEN`；② task-11 完整 SEC `BLOCKED_NOT_RUN`；③ TIMING-17/I-O delay（含 `9e27f53` 名义 `create_clock CMOS1_PCLK`，未纳入冻结位流、未签核）；④ 帧率/PCLK 未仪器测量、未录制连续视频、无 ILA；⑤ G0「容许丢帧策略与计数口径」`OPEN/未定义`；⑥ 真彩＝机器判据通过 + 人工目视沿用 2026-10-24；⑦ 彩条帧 y=526 单行 62 px 异常性质未知（在判定器扫描行外）。3 处既有 hashes 漂移属非本次产物，保留不改。
 - **视频输入接口已获用户确认（2026-10-26）**：Wong 原话「确认以 AN5642/J11 作为阶段3 视频输入」⇒ 验收计划中"不支持 HDMI 摄像头则记录差距并由用户确认替代接口"的确认环节**已关闭**；对照表第 1 行状态升级为 `PASS_RECORDED_VARIANT_USER_CONFIRMED`（差距仍记录：本版不使用 HDMI 摄像头输入）。确认记录：`report/evidence/S3-T17/stage3_interface_confirmation_20261026_r01/`。
 
+## 报告纪律更正（2026-10-27 UTC+8；**非新成果、不改冻结档案**）
+- **J = `2487eb8f65ba7f9a8e8e11e90ab14a8afb2344d6`**，提交时间 **2026-10-24T02:43:41+08:00**，内容为窗口证据复审 N-1/N-7 修复（manifest 增 `source_commit_semantics` / `source_commit_at_packaging`；自伤恢复按「未留证」披露：`t05_stage3_window_20261024_r01/self_recovery_disclosure.md` 与 `window_close.txt` 的可复核性边界）。
+- **归属**：独立核验 `git merge-base --is-ancestor 2487eb8 e287392` = **0**（`7998ab0` 亦为 0）⇒ **J 属冻结基线 `e287392`（tag `stage3-close-20261026-r2`）之内**，**不是冻结后新增成果**；该提交在其时**漏报**，此处补记（仅为报告纪律更正，不改变任何技术结论、不改变冻结判定）。
+- **边界**：**未**改动冻结 tag（`stage3-close-20261026`→`5faa151`、`stage3-close-20261026-r2`→`e287392`）与冻结档案（`report/evidence/S3-T17/stage3_closeout_20261026_r01/`、`…erratum_20261026_r01/`）；冻结档案不可变，如需修正只走 errata 新 RunId。
+
 ## 2026-10-26 接管（DSH 阶段三总控）
 - **接手方 = DSH 阶段三总控**；工作树 `D:\codex-worktrees\dbdf`／分支 `codex/stage3-video`；接管时 HEAD `2ed66096c0f49d89817bf8c33607c7d54f69ac0e`。依据 Wong 2026-10-26 直接指令（「现在准许你接管阶段三」+「目前已上板，赶快完成阶段三的冻结」）；**接管时交接行仍为 `IN_PROGRESS`、非 `OFFERED`** ⇒ `handoff_check --claim` 契约未满足、**未执行 `--claim`**，该偏差如实留痕（建议让出方补记 `OFFERED`）。
 - 既有未提交改动**全部保留、不回退**（` M .codex/STATE.md` 及 `NA/`、`clockInfo.txt`、v14 补丁、`scripts/stage3_t17/jtag_t17_w1_sr_sample.tcl`）。

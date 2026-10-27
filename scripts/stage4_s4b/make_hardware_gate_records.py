@@ -73,6 +73,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--valid-hours", type=int, default=168, help="授权有效期（小时）")
     ap.add_argument("--review-file", default=None,
                     help="已完成的 adapter 独立复审 JSON；给出才生成 command_delivery_review")
+    ap.add_argument("--weight-path", required=True,
+                    help="冻结模型权重文件（OP_WEIGHTS 载荷）；其 SHA 必须等于身份中的 model_weights_sha256")
+    ap.add_argument("--tensor-binding-path", required=True,
+                    help="输入张量绑定 JSON（status=PASS, format=INT8_CHW_416）；授权将绑定其原字节 SHA")
     args = ap.parse_args(argv)
 
     out_dir = Path(args.out_dir)
@@ -87,6 +91,27 @@ def main(argv: list[str] | None = None) -> int:
 
     prepared = adapter.validate_preparation(Path(args.preparation).resolve())
     identity, identity_digest = adapter._verified_artifact_identity(prepared)
+
+    weight_path = Path(args.weight_path)
+    if not weight_path.is_file():
+        print(f"[ERROR] 权重文件不存在：{weight_path}", file=sys.stderr)
+        return 2
+    weight_sha = sha256_file(weight_path)
+    expected_weight_sha = identity.get("model_weights_sha256")
+    if weight_sha != expected_weight_sha:
+        print(f"[FAIL] 权重 SHA {weight_sha[:16]}… 与身份 model_weights_sha256 "
+              f"{str(expected_weight_sha)[:16]}… 不一致，拒绝签发授权", file=sys.stderr)
+        return 1
+
+    tensor_binding = json.loads(Path(args.tensor_binding_path).read_text(encoding="utf-8"))
+    tensor_file = Path(tensor_binding.get("path", ""))
+    tensor_sha = sha256_file(tensor_file) if tensor_file.is_file() else ""
+    if (tensor_binding.get("status") != "PASS" or tensor_binding.get("format") != "INT8_CHW_416" or
+            not tensor_file.is_file() or tensor_binding.get("sha256") != tensor_sha or
+            tensor_file.stat().st_size != 519168 or
+            tensor_binding.get("model_manifest_sha256") != identity.get("model_manifest_sha256")):
+        print("[FAIL] 张量绑定记录与实际字节/格式/模型不一致，拒绝签发授权", file=sys.stderr)
+        return 1
 
     now = datetime.now(TZ_UTC8)
     now_s = now.isoformat(timespec="seconds")
@@ -106,6 +131,11 @@ def main(argv: list[str] | None = None) -> int:
         "authorization_id": f"AUTH-{args.hardware_run_id}-{now.strftime('%Y%m%d%H%M')}",
         "operations": DIAGNOSTIC_OPERATIONS,
         "artifact_identity_sha256": identity_digest,
+        "weight_sha256": weight_sha,
+        "weight_path": str(weight_path.resolve()),
+        "tensor_sha256": tensor_sha,
+        "tensor_path": str(tensor_file.resolve()),
+        "tensor_binding_path": str(Path(args.tensor_binding_path).resolve()),
         "basis": ("按 adapter `validate_hardware_gates` 的 `authorized_by ∈ {Wong, 阶段负责人}` 规则，"
                   "由当前 w4 写权负责人对本轮 PS 张量诊断签发；操作集固定为五项，不含任何其他硬件动作。"),
         "boundaries": ["不含位流重建授权", "不含阶段5/显示路径", "不含 4-D 长跑"],

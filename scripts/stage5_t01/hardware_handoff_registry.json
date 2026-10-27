@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T13:38:43+08:00",
+  "generated_utc8": "2026-10-27T14:08:47+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -445,6 +445,26 @@
       "declared_by": "DSH 阶段5 总控",
       "note": "第二窗口释放回执；残留进程 0、3121 无监听、未烧 QSPI；像素级叠加仍 UNCONFIRMED（对齐口径待定）",
       "evidence": "report/evidence/S5-T01/s5t02_pixel_overlay_recheck_20261027_r01/"
+    },
+    {
+      "id": "DSH-20261027-006",
+      "file": "dsh_mailbox/DSH-20261027-006-stage5-third-window-pixel-probe.md",
+      "kind": "decision",
+      "order_key": "20261027006",
+      "sha256": "141ecf2aa21c81993bc7f45de1b9cb141465347b04b43be63b7d16b5fb0c2408",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "第三窗口授权（Wong 均可以）：相位探针实证 + 带框回放帧上板；八类门禁 4/8 不得称通过",
+      "evidence": "report/evidence/S5-T01/<新 RunId>/"
+    },
+    {
+      "id": "DSH-20261027-007",
+      "file": "dsh_mailbox/DSH-20261027-007-stage5-third-window-release-blocked.md",
+      "kind": "hardware_release",
+      "order_key": "20261027007",
+      "sha256": "e57aa39e1d4a4f37ecfc2276cc4e3c540d4151e07f48e05a500a5058d6b9799f",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "第三窗口释放：主机端口 bind 失败未上板，板卡状态未改动；残留进程 0",
+      "evidence": "report/evidence/S5-T01/s5t02_phase_probe_blocked_20261027_r01/"
     }
   ]
 }

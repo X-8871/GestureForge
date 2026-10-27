@@ -461,6 +461,17 @@ static void s5_render(u8 *buf, u32 stride, const s5_case_t *c, int draw_boxes)
     s5_st.occ_cur = occ;
     if (occ > s5_st.occ_max) s5_st.occ_max = occ;
     s5_hud_draw(buf, stride, c);     /* HUD 最后绘制（置顶） */
+#if S5_DYNAMIC_MAP
+    {
+        /* 相位探针（S5DM_PHASE_PROBE）：缓冲行 0 起始 8 字节写已知魔数，并在像素 1 写已知颜色。
+         * JTAG 转储若看到 53 35 44 4D 01 02 03 04 ⇒ 字节 0 = 像素 x0，且 3 字节/像素边界可实证定位；
+         * 用于锁定"字(4B)读取 vs 像素(3B)"的对齐口径（离线相位扫描无法定案）。 */
+        static const u8 magic[8] = {0x53, 0x35, 0x44, 0x4D, 0x01, 0x02, 0x03, 0x04};
+        int k;
+        for (k = 0; k < 8; k++) buf[k] = magic[k];
+        buf[3] = 0x11; buf[4] = 0x22; buf[5] = 0x33;   /* 像素 x=1 的 (B,G,R) 已知值 */
+    }
+#endif
 }
 
 static u32 s5_mm2s_sr(void) { return *(volatile u32 *)S5_MM2S_SR_ADDR; }

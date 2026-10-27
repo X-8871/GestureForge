@@ -2,15 +2,20 @@
   "schema_version": "s4_shared_address_map_v2",
   "id": "s4-shared-address-map",
   "revision": "r02",
-  "status": "DRAFT_PENDING_REVIEW",
+  "status": "APPROVED",
   "task_id": "S4-B-REAL-02B",
   "created_utc8": "2026-10-27T14:05:00+08:00",
   "owner": "Workbuddy 阶段4总控（起草）",
   "purpose": "跨阶段共享地址视图：供 PS / PL / host 三方在硬件门禁 g0_approval 中引用同一份已批准的区域边界与所有权。区域 base/length/status 一律照抄源图；凡所有权按路径细分，标注 path_specific，不改变源图既定方向。",
   "derived_from": {
     "path": "docs/stage4/S4B_stage4_address_map.json",
-    "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998",
-    "rule": "本文件不含源图之外的任何地址或长度；数字冲突一律以源图为准"
+    "sha256": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
+    "rule": "本文件不含源图之外的任何地址或长度；数字冲突一律以源图为准",
+    "replaces": {
+      "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998",
+      "basis": "worktree_disk_bytes",
+      "reason": "地址图由 Wong 批准（status→APPROVED），SHA 随之变化；地址/长度/owner 未变"
+    }
   },
   "approval": {
     "status_meaning": "APPROVED 仅表示跨阶段共享视图已获裁决，可作为 g0_approval 的 shared_address_binding 目标；DRAFT_PENDING_REVIEW 一律不可用于硬件执行。",
@@ -32,9 +37,21 @@
       }
     ],
     "blocked_by": [
-      "mailbox 写入方向登记表仍为 DRAFT_PENDING_REVIEW（B 方案：与地址图分开批准）",
-      "stage4 地址图自身仍为 DRAFT_PENDING_REVIEW",
-      "RAW owner 方案仍为 DECISION_REQUESTED"
+      "mailbox 写入方向登记表仍为 DRAFT_PENDING_REVIEW（仅阻断 mailbox/RAW 路径，不阻断 UART/CPU 路径）"
+    ],
+    "approved": true,
+    "approved_by": "Wong",
+    "approved_at_utc8": "2026-10-27T14:15:07+08:00",
+    "approval_scope_note": "批准范围：本图作为 stage4 地址图的忠实投影（owner_from_source、base/len/status 逐字一致）。不解除 ENABLE=0；不替代其余七类硬件门禁；mailbox/RAW 路径另需方向登记表获批。",
+    "history": [
+      {
+        "event": "APPROVED",
+        "by": "Wong",
+        "at_utc8": "2026-10-27T14:15:07+08:00",
+        "reviewed_sha256": "240a1ee835b8a98810a67aaca2d069d98280b5bb99c35c24db51c48ac97a481e",
+        "review_record": "report/evidence/S4-B/s4b_address_approval_review_20261027_r01/approval_review.json",
+        "basis": "B2/B3/B4 已修；B1 由 Wong 选 B 拆分方向；机械核验与源图逐区域一致（diffs=0）"
+      }
     ]
   },
   "address_space": {
@@ -180,5 +197,11 @@
   ],
   "related_registries": {
     "mailbox_direction": "docs/stage4/S4B_mailbox_direction_registry.json"
+  },
+  "approved_by": "Wong",
+  "approved_at_utc8": "2026-10-27T14:15:07+08:00",
+  "review_binding": {
+    "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_address_approval_review_20261027_r01\\approval_review.json",
+    "sha256": "c15dec98252d741246a04b0516dc61c1653a67451cc943c83529c4560ee37426"
   }
 }

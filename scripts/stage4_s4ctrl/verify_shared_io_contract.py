@@ -625,7 +625,7 @@ def address_map_approved_ok(am: dict) -> tuple[bool, str]:
     review_path = Path(binding["path"])
     if not review_path.is_file():
         return False, f"复审记录不存在：{review_path}"
-    if sha256_bytes(review_path.read_bytes()) != binding["sha256"]:
+    if sha256_of(review_path) != binding["sha256"]:
         return False, "复审记录 SHA 不符"
     return True, "approved"
 

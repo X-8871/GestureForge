@@ -146,6 +146,53 @@ OFFER 行模板与逐字段校验要求见 `docs/stage4/s4b_hw_offer_claim_20261
 
 **我的建议是 C 或 B**：当前 adapter 与准备清单就是 UART/CPU 路径（r13），先跑通它；mailbox 那套（G-20/G-05/G-10/G-11）本来也还没实现完。
 
+
+## 8. 地址图批准后的状态（2026-10-27 14:18）
+
+Wong 已批准两份地址文档（`DRAFT_PENDING_REVIEW` → `APPROVED`），§7 的 B1 由「方向按路径拆分」解决。
+
+### 8.1 门禁进度：5/8
+
+| 门禁 | 状态 | 记录 |
+|---|---|---|
+| `operator_authorization` | ✅ 成立 | `s4b_hw_gates_20261027_r03` |
+| `timing_freeze` | ✅ 成立 | 同上 |
+| `range_reservation` | ✅ 成立 | 同上 |
+| `command_delivery_review` | ✅ 成立 | 同上（绑 adapter `463bb429…`） |
+| **`g0_approval`** | ✅ **本轮成立** | 同上（三项文件均 APPROVED） |
+| `hardware_session_handoff` | ❌ 缺 | 需 main OFFER + w4 CLAIM |
+| `exclusive_session` | ❌ 缺 | 执行时现场取证（30 min） |
+| `cold_basis` | ❌ 缺 | 需物理断电 |
+
+机检 `s4b_hw_gate_readiness_20261027_r13`：`BLOCKED / exit 1`，**11 项阻断全部属上述三簇**。
+
+### 8.2 仍需裁决的一件（与 B1 无关，别混淆）
+
+`s4b_raw_address_ownership_proposal_20261024_r01.json` 仍是 `DECISION_REQUESTED`，**未裁决**。
+它的选项集是 **A / C / B / E**，其中 **B 指「4-D 输入降为 107 帧预冻结子集」**，
+与 §7.1 里 Wong 选的「方向按路径拆分（我当时也标作 B）」**不是同一组选项**。
+
+它不阻断 `g0_approval`（adapter 的 g0 判定只校验三份文件，代码内对该提案零引用），
+但它控制两件事：
+
+- `raw_frame` / `raw_meta` 从 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW` 迁移到 `FROZEN_STAGE4`
+  （前置含「板上未被占用与 cache 可见性实测」，当前 `NOT_RUN`）；
+- mailbox/RAW 路径的启用。
+
+待裁决项：D1 禁区让位、D2 4-D 是否降为 107 帧、D3 META 是否必须与 RAW 连续、D4 是否把 4-D linker 冻结提前。
+
+### 8.3 剩余执行顺序（不变）
+
+```
+T-∞  地址图/共享图 APPROVED          ✅ 已完成
+T-∞  g0 / operator / timing / range / command_review  ✅ 已完成
+T-0  Wong 授权硬件窗口（一句话）
+T+0  main 提交 OFFER（心跳=当下，1h 有效）
+T+5m 阶段4 提交 CLAIM
+T+10m 现场取证 exclusive_session；cold_basis 需断电记录
+T+20m 开跑
+```
+
 ## 6. 本轮明确不做
 
 - 未把任何 `status` 改为 `APPROVED`（批准权在 Wong）。

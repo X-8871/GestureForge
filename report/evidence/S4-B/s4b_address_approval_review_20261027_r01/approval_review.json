@@ -1,0 +1,167 @@
+{
+  "schema_version": "s4b_address_approval_review_v1",
+  "task_id": "S4-B-REAL-02B",
+  "run_id": "s4b_address_approval_review_20261027_r01",
+  "generated_utc8": "2026-10-27T14:14:54+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "reviewer": "独立只读 Reviewer（第 1 轮，判 CHANGES_REQUIRED）",
+  "nature": "本记录不是新一轮独立复审 PASS。它记录第 1 轮独立复审所提 6 项阻断的**逐条处置结果**，并附可复跑的机械核验。签署权在 Wong，阶段4 只做处置与核验。",
+  "reviewed_bytes_before_approval": {
+    "stage4_address_map": {
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced"
+    },
+    "shared_address_map": {
+      "path": "docs/stage4/S4B_shared_address_map.json",
+      "sha256": "240a1ee835b8a98810a67aaca2d069d98280b5bb99c35c24db51c48ac97a481e"
+    },
+    "note": "被审字节为 status 变更前的字节；批准提交只改 status/approved_*/review_binding，不改任何地址、长度、owner 或方向语义。"
+  },
+  "round1_blockers_disposition": [
+    {
+      "id": "B1",
+      "summary": "network_input_tensor 写入方方向冲突（UART 路径 PS 写 vs mailbox 路径 PL 写）",
+      "disposition": "由 Wong 2026-10-27 裁决选 B：地址图加 direction_scope=UART_CPU_PATH_ONLY，mailbox 方向另立 docs/stage4/S4B_mailbox_direction_registry.json 单独获批。",
+      "evidence": "S4B_stage4_address_map.json.direction_scope；S4B_mailbox_direction_registry.json（DRAFT）",
+      "status": "CLOSED"
+    },
+    {
+      "id": "B2",
+      "summary": "共享图非忠实投影（自造 producer 事实、自称不含新事实为假）",
+      "disposition": "共享图 r02 改为 owner_from_source 逐字转发源图 owner，不引入新地址/长度/owner；按路径细分处标 path_specific。",
+      "evidence": "机械核验 faithful_projection.diffs == []",
+      "status": "CLOSED"
+    },
+    {
+      "id": "B3",
+      "summary": "『不触达 display_buffer』可被诊断 ELF 布局反驳",
+      "disposition": "改为明写物理重合：.bss=[0x00118100,0x0071E6D0) 覆盖阶段5 buf1 基址 0x00703800，并加『禁止并发加载』与 required_before_use 条目。",
+      "evidence": "S4B_shared_address_map.json.cross_stage_warning / required_before_use",
+      "status": "CLOSED"
+    },
+    {
+      "id": "B4",
+      "summary": "injection_frame_rgb 未标已取代",
+      "disposition": "补 superseded_by=raw_frame 与 must_not_load。",
+      "evidence": "S4B_shared_address_map.json.regions[injection_frame_rgb]",
+      "status": "CLOSED"
+    },
+    {
+      "id": "B5",
+      "summary": "两个离线校验器硬编码要求 DRAFT，翻状态即失败",
+      "disposition": "改为接受 APPROVED，但要求 approved_by / approved_at_utc8 / review_binding{path,sha256}，且复审记录文件必须存在并 SHA 相符。",
+      "evidence": "commit 0acc714；verify_shared_io_contract.py address_map_approved_ok",
+      "status": "CLOSED"
+    },
+    {
+      "id": "B6",
+      "summary": "四处绑定 + 『仍为 DRAFT』表述会因状态变更过期",
+      "disposition": "按依赖顺序重绑：契约 upstream_bindings.stage4_address_map、契约 runtime_support.pl_preprocessor.source_bindings、readiness 两处字面 SHA、注册表 basis_bindings。旧值均记 replaces。",
+      "evidence": "见 approval commit 的 rebound 清单",
+      "status": "CLOSED"
+    }
+  ],
+  "mechanical_verification": {
+    "region_arithmetic": {
+      "all_ok": true,
+      "rows": [
+        {
+          "name": "ps_app_arena",
+          "base": "0x100000",
+          "calc_end": "0x1100000",
+          "declared_end": "0x1100000",
+          "ok": true
+        },
+        {
+          "name": "network_input_tensor",
+          "base": "0x10000000",
+          "calc_end": "0x1007ec00",
+          "declared_end": "0x1007ec00",
+          "ok": true
+        },
+        {
+          "name": "gf8_weight_package",
+          "base": "0x10100000",
+          "calc_end": "0x106a12fc",
+          "declared_end": "0x106a12fc",
+          "ok": true
+        },
+        {
+          "name": "injection_frame_rgb",
+          "base": "0x10700000",
+          "calc_end": "0x10b00000",
+          "declared_end": "0x10b00000",
+          "ok": true
+        },
+        {
+          "name": "raw_frame",
+          "base": "0x12000000",
+          "calc_end": "0x12c00000",
+          "declared_end": "0x12c00000",
+          "ok": true
+        },
+        {
+          "name": "raw_meta",
+          "base": "0x12c00000",
+          "calc_end": "0x12c08000",
+          "declared_end": "0x12c08000",
+          "ok": true
+        },
+        {
+          "name": "feature_envelope",
+          "base": "0x11000000",
+          "calc_end": "0x11adadb8",
+          "declared_end": "0x11adadb8",
+          "ok": true
+        },
+        {
+          "name": "pl_control_csr",
+          "base": "0x43c00000",
+          "calc_end": "0x43c10000",
+          "declared_end": "0x43c10000",
+          "ok": true
+        }
+      ]
+    },
+    "region_overlaps": [],
+    "faithful_projection": {
+      "diffs": [],
+      "missing_regions": [],
+      "total_regions": 8,
+      "conclusion": "共享图为忠实投影"
+    },
+    "pre_approval_offline_suites": {
+      "verify_shared_io_contract": "27 项通过 / 0 失败 / exit 0",
+      "audit_raw_system_g0_gaps": "3 项通过 / 0 失败 / exit 0",
+      "measured_at_utc8": "2026-10-27T14:14:54+08:00"
+    },
+    "unresolved_regions_left_as_is": [
+      "display_buffer",
+      "ps_internal_stack_heap_layout"
+    ]
+  },
+  "approval": {
+    "approved_by": "Wong",
+    "approved_at_utc8": "2026-10-27T14:14:54+08:00",
+    "approval_basis": "Wong 2026-10-27 对话明示『批准』（前一步已裁决 B1 选 B）",
+    "scope": [
+      "docs/stage4/S4B_stage4_address_map.json",
+      "docs/stage4/S4B_shared_address_map.json"
+    ],
+    "not_approved": [
+      "docs/stage4/S4B_mailbox_direction_registry.json 仍为 DRAFT_PENDING_REVIEW"
+    ]
+  },
+  "what_approval_does_not_do": [
+    "不解除 ENABLE=0",
+    "不替代其余七类硬件门禁（handoff / exclusive_session / cold_basis 仍缺）",
+    "不宣称 G0 系统项闭合；RAW 系统 G0 仍有设计/复审缺口",
+    "不授权 mailbox/RAW 路径执行（该路径另需 mailbox 方向登记表获批）",
+    "不代表板上行为、P、4-D 或 G3/G4/G5 任何一项通过"
+  ],
+  "boundaries": [
+    "离线文档签署与机械核验",
+    "未接触硬件",
+    "未改任何地址/长度/owner/方向语义"
+  ]
+}

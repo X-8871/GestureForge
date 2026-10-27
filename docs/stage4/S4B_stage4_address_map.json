@@ -4,9 +4,9 @@
   "stage": "stage4",
   "worktree": "D:\\codex-worktrees\\w4",
   "generated_utc8": "2026-10-24T01:45:00+08:00",
-  "status": "DRAFT_PENDING_REVIEW",
+  "status": "APPROVED",
   "authority": "本图是共享契约 `docs/stage4/s4b_shared_input_result_contract.json` 中 `buffer.region_name` / region 方向语义的权威来源；契约只引用 region 名称，不重复数字。",
-  "revision_note": "r04（2026-10-25，全离线）：按 Wong 明确决定，当前 RAW `raw_frame` 使用 BGR888、像素通道顺序 B/G/R；平台 `byte_order=little` 仍保留并明确只表示多字节标量端序。RAW injection_point 改绑 `raw_frame`，新增 D2 BGR→RGB 前处理要求与 `runtime_support_status=NOT_IMPLEMENTED` 说明。地址区间、owner、ENABLE 与冻结状态不变；`injection_frame_rgb` 仅保留为已取代的旧草案。",
+  "revision_note": "r04（2026-10-25，全离线）：按 Wong 明确决定，当前 RAW `raw_frame` 使用 BGR888、像素通道顺序 B/G/R；平台 `byte_order=little` 仍保留并明确只表示多字节标量端序。RAW injection_point 改绑 `raw_frame`，新增 D2 BGR→RGB 前处理要求与 `runtime_support_status=NOT_IMPLEMENTED` 说明。地址区间、owner、ENABLE 与冻结状态不变；`injection_frame_rgb` 仅保留为已取代的旧草案。 | 2026-10-27：Wong 批准，status DRAFT_PENDING_REVIEW→APPROVED；仅改 status/approved_*/review_binding，地址、长度、owner、方向语义一字未改。",
   "decision_basis": [
     "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_d4_20261024_r01.md",
     "report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_optionA_20261024_r01.md",
@@ -681,5 +681,22 @@
     "statement": "本图内 network_input_tensor 的写入方为 PS（UART/CPU 路径）；不得据此声称 PL 预处理拥有该区域写权限。",
     "mailbox_direction_ref": "docs/stage4/S4B_mailbox_direction_registry.json",
     "consequence": "mailbox 路径在该 registry 获批前不得执行；与 UART 路径互不替代。"
-  }
+  },
+  "approved_by": "Wong",
+  "approved_at_utc8": "2026-10-27T14:15:07+08:00",
+  "review_binding": {
+    "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_address_approval_review_20261027_r01\\approval_review.json",
+    "sha256": "c15dec98252d741246a04b0516dc61c1653a67451cc943c83529c4560ee37426"
+  },
+  "approval_scope_note": "批准范围：本图登记的区域基址/长度/状态与 direction_scope=UART_CPU_PATH_ONLY。不解除 ENABLE=0，不替代其余七类硬件门禁，不授权 mailbox/RAW 路径。",
+  "approval_history": [
+    {
+      "event": "APPROVED",
+      "by": "Wong",
+      "at_utc8": "2026-10-27T14:15:07+08:00",
+      "reviewed_sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
+      "review_record": "report/evidence/S4-B/s4b_address_approval_review_20261027_r01/approval_review.json",
+      "basis": "独立复审第 1 轮 6 项阻断全部处置完毕（B1 由 Wong 选 B）；机械核验算术 8/8、无重叠、共享图忠实投影"
+    }
+  ]
 }

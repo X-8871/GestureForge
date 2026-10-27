@@ -28,13 +28,13 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
+      "sha256": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9",
       "declared_revision": "r04（BGR888 RAW 格式与通道顺序、byte_order 分层）",
       "status_note": "地址图仍 `DRAFT_PENDING_REVIEW`；raw_frame/raw_meta 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、enable_required=true）",
       "replaces": {
-        "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998",
+        "sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
         "basis": "worktree_disk_bytes",
-        "reason": "地址图新增 direction_scope=UART_CPU_PATH_ONLY（Wong 选 B），数字未变"
+        "reason": "Wong 批准地址图（status→APPROVED），地址/长度未变"
       },
       "byte_basis": "worktree_disk_bytes"
     },
@@ -928,5 +928,20 @@
       "真实采集质量"
     ],
     "boundary": "冻结范围仅离线。ENABLE=0；RAW 系统 G0 未闭合；P / 4-D / G3 / G4 / G5 均 NOT_RUN；不得据此声称板上行为、UART 实收或实时采集质量。"
-  }
+  },
+  "post_freeze_rebinds": [
+    {
+      "at_utc8": "2026-10-27T14:17:57+08:00",
+      "reason": "Wong 批准 stage4 地址图（DRAFT_PENDING_REVIEW→APPROVED），其字节 SHA 变化，冻结契约的 upstream_bindings 必须重绑。",
+      "changed_bindings": [
+        {
+          "id": "stage4_address_map",
+          "from": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
+          "to": "c085507831b717f159bb1cf0eac4edda49d378640b20e97d5a62880a382c4df9"
+        }
+      ],
+      "semantics_changed": false,
+      "note": "仅绑定 SHA 与 status 相关记录更新；contract_version/contract_id/revision 与全部语义字段未变，故不升 r08、不触发重新复审。此条目按 freeze_record.change_policy 的「必须重绑所有引用 SHA」执行。"
+    }
+  ]
 }

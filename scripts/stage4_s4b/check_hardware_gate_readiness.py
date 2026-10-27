@@ -175,6 +175,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "address_map": {
             "status": address_map.get("status"),
             "path": "docs/stage4/S4B_stage4_address_map.json",
+            "exists": (worktree / "docs/stage4/S4B_stage4_address_map.json").is_file(),
             "ok": address_map.get("status") == "APPROVED",
             "blocks": ["g0_approval"],
         },
@@ -188,8 +189,15 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "raw_address_ownership": {
             "status": ownership.get("status"),
             "path": "docs/stage4/s4b_raw_address_ownership_proposal_20261024_r01.json",
-            "ok": str(ownership.get("status")) in {"APPROVED", "CLOSED"},
-            "blocks": ["g0_approval"],
+            "ok": str(ownership.get("status")) in {"APPROVED", "CLOSED", "DECIDED"},
+            # 纠错：adapter 的 g0 判定只校验 address_map / shared_address / timebase 三份文件，
+            # 不读本提案（见 adapter 内无 raw_address/ownership 引用）。故本提案不 blocks g0。
+            # 它真正控制的是 raw_frame/raw_meta 的 FROZEN 迁移与 mailbox/RAW 路径启用。
+            "blocks": [],
+            "affects": ["raw_frame/raw_meta 迁移至 FROZEN_STAGE4", "mailbox/RAW 路径启用"],
+            "open_decisions": [d.get("id") for d in (ownership.get("decision_request") or [])],
+            "note": ("仍未裁决（DECISION_REQUESTED）。其选项集为 A/C/B/E，与本轮 Wong 对地址图选的 "
+                     "A/B/C 方向方案**不是同一组**：该提案的 B 指『4-D 输入降为 107 帧预冻结子集』。"),
         },
         "main_offer": {**offer, "ok": offer["present"] and offer.get("unique") is True,
                        "blocks": ["hardware_session_handoff"]},

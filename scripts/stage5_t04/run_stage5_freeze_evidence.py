@@ -314,12 +314,13 @@ def freeze_document(context: dict) -> str:
         "## 5. 从零复跑（恢复入口）",
         "```bash",
         "git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short",
-        "python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5",
-        "python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --selftest tmp/5/S5-T04/frozen_selftest",
+        f"python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5 --frozen-set {context['run_dir_rel']}/frozen_set.json",
+        f"python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --frozen-set {context['run_dir_rel']}/frozen_set.json --selftest tmp/5/S5-T04/frozen_selftest",
         "python -B D:/codex-worktrees/w5/scripts/stage5_t04/build_stage5_frozen_set.py --out <out.json>   # 可复现同一冻结集",
         "python -B D:/codex-worktrees/w5/scripts/stage5_t04/run_stage5_freeze_evidence.py --run-dir report/evidence/S5-T04/<新RunId> --source-commit <提交>",
+        "python -B D:/codex-worktrees/w5/scripts/stage5_t04/run_f6_export_selfcheck.py --commit <冻结提交> --frozen-run-dir " + context['run_dir_rel'],
         "python -B -m unittest " + " ".join(suite["modules"]),
-        "python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/w5 --manifest report/evidence/S5-T04/<RunId>/delivery_manifest.json",
+        f"python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/w5 --manifest {context['run_dir_rel']}/delivery_manifest.json",
         "```",
         "- 离线回归的可视/数值入口（示例）：`python -B scripts/stage5_t03/s5t03_replay_display.py --out report/evidence/S5-T03/<新RunId> --mode mixed --frames 240 --keyframe-max 24 --stage3-binding <binding> --demo-mp4`。",
         "- 在**离开本机**的副本中，`scope=host` 引用可用 `--skip-host-references` 跳过（跳过项会逐条打印，不得当作已验证）。",
@@ -419,6 +420,7 @@ def main(argv: list[str] | None = None) -> int:
         "totals": {"matched": 0, "mismatched": 0, "env_errors": -1}}
 
     selftest_run = run_command([sys.executable, "-B", str(REPO_ROOT / "verification" / "verify_stage5_frozen_set.py"),
+                                "--frozen-set", str(frozen_set_path),
                                 "--selftest", str(scratch / "frozen_selftest"),
                                 "--json-out", str(run_dir / "selftest_injection.json")])
     (run_dir / "console" / "selftest_injection.txt").write_text("\n".join([
@@ -466,7 +468,8 @@ def main(argv: list[str] | None = None) -> int:
 
     # ── 4. 冻结文书 + 结果 ───────────────────────────────────────────────
     context = {
-        "run_id": run_dir.name, "generated_utc8": generated,
+        "run_id": run_dir.name, "run_dir_rel": args.run_dir,
+        "generated_utc8": generated,
         "frozen_set_summary": frozen_summary, "frozen_set_sha256": sha256_file(frozen_set_path),
         "build": build, "verify": verify, "selftest": selftest,
         "suite": {"command": suite_command, "modules": modules,

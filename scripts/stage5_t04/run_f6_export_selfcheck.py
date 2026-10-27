@@ -38,9 +38,7 @@ import run_stage5_freeze_evidence as R          # noqa: E402  （复用命令执
 REPO_ROOT = R.REPO_ROOT
 CHECKER = R.CHECKER
 HANDOFF = pathlib.Path("D:/FPGA_Competition/verification/handoff_check.py")
-FROZEN_RUN_DIR = "report/evidence/S5-T04/s5_freeze_20261027_r01"
-FROZEN_MANIFEST = f"{FROZEN_RUN_DIR}/delivery_manifest.json"
-FROZEN_SET = f"{FROZEN_RUN_DIR}/frozen_set.json"
+# 冻结包 RunId **必须显式给出**（fail-closed）：不得内置默认值，否则换 RunId 后会验证到过期包。
 DEFAULT_RUN_DIR = "report/evidence/S5-T04/s5_freeze_f6export_20261027_r01"
 
 EXTRA_PATHSPECS = (
@@ -49,11 +47,10 @@ EXTRA_PATHSPECS = (
     "scripts/stage5_t04",
     "report/README.md",
     ".codex/STATE.md",
-    FROZEN_RUN_DIR,
 )
 
 
-def pathspecs_from_frozen_set(frozen_set_path: pathlib.Path) -> list[str]:
+def pathspecs_from_frozen_set(frozen_set_path: pathlib.Path, frozen_run_dir: str) -> list[str]:
     """由冻结集成员现场推导提取路径（repo 成员 + 冻结工具 + 本冻结包）。"""
     data = json.loads(frozen_set_path.read_text(encoding="utf-8"))
     specs: list[str] = []
@@ -63,7 +60,7 @@ def pathspecs_from_frozen_set(frozen_set_path: pathlib.Path) -> list[str]:
         path = member["path"]
         if path not in specs:
             specs.append(path)
-    for extra in EXTRA_PATHSPECS:
+    for extra in (frozen_run_dir, *EXTRA_PATHSPECS):
         if extra not in specs:
             specs.append(extra)
     return specs
@@ -131,8 +128,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--commit", required=True)
     parser.add_argument("--branch", default="stage5-display-prep")
+    parser.add_argument("--frozen-run-dir", required=True,
+                        help="冻结包 RunId 目录（如 report/evidence/S5-T04/s5_freeze_20261027_r04）")
     parser.add_argument("--run-dir", default=DEFAULT_RUN_DIR)
     args = parser.parse_args(argv)
+    frozen_run_dir = args.frozen_run_dir.rstrip("/")
+    frozen_manifest = f"{frozen_run_dir}/delivery_manifest.json"
+    frozen_set = f"{frozen_run_dir}/frozen_set.json"
 
     run_dir = REPO_ROOT / args.run_dir
     if run_dir.exists() and any(run_dir.iterdir()):
@@ -140,11 +142,11 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     (run_dir / "console").mkdir(parents=True, exist_ok=True)
 
-    frozen_set_path = REPO_ROOT / FROZEN_SET
+    frozen_set_path = REPO_ROOT / frozen_set
     if not frozen_set_path.is_file():
         print(f"[ENV_ERROR] 冻结集缺失：{frozen_set_path}", file=sys.stderr)
         return 2
-    specs = pathspecs_from_frozen_set(frozen_set_path)
+    specs = pathspecs_from_frozen_set(frozen_set_path, frozen_run_dir)
     (run_dir / "console" / "f6_pathspecs.txt").write_text(
         "\n".join([f"# 由 frozen_set.json 现场推导的提取路径（{len(specs)} 条）", *specs, ""]),
         encoding="utf-8")
@@ -154,7 +156,7 @@ def main(argv: list[str] | None = None) -> int:
     archive = archive_export(args.commit, archive_dir, specs)
     verify_a = R.run_command([sys.executable, "-B", str(archive_dir / "verification" / "verify_stage5_frozen_set.py"),
                               "--root", str(archive_dir),
-                              "--frozen-set", str(archive_dir / FROZEN_SET),
+                              "--frozen-set", str(archive_dir / frozen_set),
                               "--json-out", str(run_dir / "f6a_frozen_set_report.json")])
     (run_dir / "console" / "f6a_archive_and_verify.txt").write_text("\n".join([
         f"archive_command={archive['command']}", f"archive_exit_code={archive['exit_code']}",
@@ -173,11 +175,11 @@ def main(argv: list[str] | None = None) -> int:
     checkout = shared_checkout(args.commit, args.branch, checkout_dir, specs)
     verify_b = R.run_command([sys.executable, "-B", str(checkout_dir / "verification" / "verify_stage5_frozen_set.py"),
                               "--root", str(checkout_dir),
-                              "--frozen-set", str(checkout_dir / FROZEN_SET),
+                              "--frozen-set", str(checkout_dir / frozen_set),
                               "--json-out", str(run_dir / "f6b_frozen_set_report.json")])
     checker_b = R.run_command([sys.executable, "-B", str(CHECKER), "--mode", "evidence",
                                "--project-root", str(checkout_dir),
-                               "--manifest", str(checkout_dir / FROZEN_MANIFEST)])
+                               "--manifest", str(checkout_dir / frozen_manifest)])
     (run_dir / "console" / "f6b_checkout_verify_and_checker.txt").write_text("\n".join([
         f"checkout_command={checkout['command']}", f"clone_exit_code={checkout.get('clone_exit_code')}",
         f"checkout_exit_code={checkout.get('checkout_exit_code')}",

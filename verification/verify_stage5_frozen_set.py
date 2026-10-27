@@ -21,8 +21,10 @@
 用法
 ====
     python -B verification/verify_stage5_frozen_set.py \
-        [--root <repo>] [--frozen-set <json>] [--json-out <path>] [--skip-host-references]
-    python -B verification/verify_stage5_frozen_set.py --selftest <tmpdir> [--selftest-members 3]
+        --frozen-set <冻结集 json>   # **必需**（禁止内置 RunId 默认路径）
+        [--root <repo>] [--json-out <path>] [--skip-host-references]
+    python -B verification/verify_stage5_frozen_set.py \
+        --frozen-set <冻结集 json> --selftest <tmpdir> [--selftest-members 3]
 """
 
 from __future__ import annotations
@@ -37,7 +39,9 @@ import sys
 import tempfile
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
-DEFAULT_FROZEN_SET = ("report/evidence/S5-T04/s5_freeze_20261027_r01/frozen_set.json")
+# 冻结集路径**必须显式给出**（fail-closed）：不得内置某个 RunId 的默认路径，
+# 否则换 RunId 后会静默校验到过期/被取代的冻结包（r03 实测踩坑）。
+DEFAULT_FROZEN_SET = ""
 KINDS = ("file", "dir_digest")
 SCOPES = ("repo", "host")
 EXIT_VERIFIED = 0
@@ -198,14 +202,14 @@ def verify(root: pathlib.Path, frozen_set_path: pathlib.Path,
 
 
 def run_selftest(workdir: pathlib.Path, member_limit: int,
-                 source: pathlib.Path | None = None) -> dict:
+                 source: pathlib.Path) -> dict:
     """注入自测：真实进程级调用本校验器，要求 clean=0 / 篡改=1 / 缺件=2。"""
     workdir = pathlib.Path(workdir)
     if workdir.exists():
         shutil.rmtree(workdir)
     workdir.mkdir(parents=True)
 
-    source = pathlib.Path(source) if source else (REPO_ROOT / DEFAULT_FROZEN_SET)
+    source = pathlib.Path(source)
     data = load_frozen_set(source)
     file_members = [m for m in data["members"]
                     if m.get("kind") == "file" and m.get("scope", "repo") == "repo"]
@@ -274,7 +278,11 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_ENV_ERROR
 
     if args.selftest:
-        source = pathlib.Path(args.frozen_set) if args.frozen_set else root / DEFAULT_FROZEN_SET
+        if not args.frozen_set:
+            print("[ENV_ERROR] --selftest 也必须显式给出 --frozen-set（禁止内置 RunId 默认路径）",
+                  file=sys.stderr)
+            return EXIT_ENV_ERROR
+        source = pathlib.Path(args.frozen_set)
         try:
             result = run_selftest(pathlib.Path(args.selftest), args.selftest_members, source)
         except FrozenSetError as error:
@@ -286,7 +294,11 @@ def main(argv: list[str] | None = None) -> int:
         print(payload)
         return int(result["exit_code"])
 
-    frozen_path = pathlib.Path(args.frozen_set) if args.frozen_set else root / DEFAULT_FROZEN_SET
+    frozen_path = pathlib.Path(args.frozen_set) if args.frozen_set else None
+    if frozen_path is None:
+        print("[ENV_ERROR] 必须显式给出 --frozen-set（禁止内置 RunId 默认路径，避免校验过期包）",
+              file=sys.stderr)
+        return EXIT_ENV_ERROR
     try:
         result = verify(root, frozen_path, skip_host=args.skip_host_references)
     except FrozenSetError as error:

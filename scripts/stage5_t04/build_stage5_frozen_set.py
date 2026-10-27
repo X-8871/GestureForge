@@ -149,12 +149,13 @@ EXTERNAL_REFERENCE_POLICY = (
 )
 
 RESTORE_ENTRYPOINTS = (
-    "python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5",
-    "python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --selftest tmp/5/S5-T04/frozen_selftest",
-    "python -B D:/codex-worktrees/w5/scripts/stage5_t04/run_stage5_freeze_evidence.py",
-    "python -B D:/codex-worktrees/w5/scripts/stage5_t03/s5t03_replay_display.py --out report/evidence/S5-T03/<新RunId> --mode mixed --frames 240 --keyframe-max 24 --stage3-binding <binding> --demo-mp4",
-    "python -B -m unittest <scripts.stage5_t03.test_*>（离线套件；模块清单见冻结文书 console/suite_command.txt）",
-    "python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/w5 --manifest report/evidence/S5-T04/s5_freeze_20261027_r01/delivery_manifest.json",
+    "python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5 --frozen-set <冻结包>/frozen_set.json",
+    "python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --frozen-set <冻结包>/frozen_set.json --selftest tmp/5/S5-T04/frozen_selftest",
+    "python -B D:/codex-worktrees/w5/scripts/stage5_t04/build_stage5_frozen_set.py --out <新路径>/frozen_set.json",
+    "python -B D:/codex-worktrees/w5/scripts/stage5_t04/run_stage5_freeze_evidence.py --run-dir report/evidence/S5-T04/<新RunId> --source-commit <提交>",
+    "python -B D:/codex-worktrees/w5/scripts/stage5_t04/run_f6_export_selfcheck.py --commit <冻结提交> --frozen-run-dir report/evidence/S5-T04/<冻结包RunId>",
+    "python -B -m unittest <scripts.stage5_t03.test_*> <verification.test_s5_display_geometry_reference>",
+    "python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/w5 --manifest <冻结包>/delivery_manifest.json",
 )
 
 

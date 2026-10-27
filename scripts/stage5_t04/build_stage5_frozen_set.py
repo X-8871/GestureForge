@@ -178,6 +178,42 @@ def dir_digest(path: pathlib.Path) -> tuple[str, int]:
     return hashlib.sha256("".join(lines).encode("utf-8")).hexdigest(), count
 
 
+def tracked_files(directory: pathlib.Path) -> list[pathlib.Path]:
+    """该目录下**已纳入 Git** 的文件（相对仓库根的 posix 路径），按路径排序。
+
+    冻结集只登记提交内的字节：未跟踪的生成物（`__pycache__`、构建产物等）不属于冻结范围，
+    否则 F6「单独检出后自检」必然因副本缺少这些文件而误报。构建阶段对未跟踪成员直接 fail-closed。
+    """
+    relative = directory.relative_to(REPO_ROOT).as_posix() if directory.is_absolute() else directory.as_posix()
+    completed = subprocess.run(["git", "-C", str(REPO_ROOT), "ls-files", "-z", "--", relative],
+                               capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if completed.returncode != 0:
+        raise SystemExit(f"[ENV_ERROR] git ls-files 失败：{relative}\n{completed.stderr}")
+    names = [name for name in completed.stdout.split("\0") if name]
+    return sorted(REPO_ROOT / name for name in names)
+
+
+def file_set_member(directory: pathlib.Path, member_id: str, group: str) -> dict:
+    entries = []
+    for path in tracked_files(directory):
+        entries.append({"path": path.relative_to(directory).as_posix(),
+                        "sha256": sha256_file(path), "bytes": path.stat().st_size})
+    if not entries:
+        raise SystemExit(f"[ENV_ERROR] 目录内没有已跟踪文件，无法作为 file_set 冻结：{directory}")
+    return {"id": member_id, "kind": "file_set", "scope": "repo",
+            "path": directory.relative_to(REPO_ROOT).as_posix(), "files": entries,
+            "group": group}
+
+
+def assert_tracked(path: pathlib.Path, label: str) -> None:
+    """单文件成员必须已纳入 Git（否则无法由提交单独复现）。"""
+    relative = path.relative_to(REPO_ROOT).as_posix()
+    completed = subprocess.run(["git", "-C", str(REPO_ROOT), "ls-files", "--error-unmatch", "--", relative],
+                               capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if completed.returncode != 0:
+        raise SystemExit(f"[ENV_ERROR] 冻结成员未纳入 Git（无法由提交复现）：{label} -> {relative}")
+
+
 def head_commit() -> str:
     completed = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "HEAD"],
                                capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -191,6 +227,7 @@ def build() -> dict:
         full = REPO_ROOT / path
         if not full.is_file():
             raise SystemExit(f"[ENV_ERROR] 契约成员缺失：{path}")
+        assert_tracked(full, path)
         members.append({"id": f"contract::{pathlib.Path(path).name}", "kind": "file", "scope": "repo",
                         "path": path, "sha256": sha256_file(full), "bytes": full.stat().st_size,
                         "group": "contracts_and_specs"})
@@ -199,6 +236,7 @@ def build() -> dict:
         full = REPO_ROOT / path
         if not full.is_file():
             raise SystemExit(f"[ENV_ERROR] 离线实现文件缺失：{path}")
+        assert_tracked(full, path)
         members.append({"id": f"impl_file::{path}", "kind": "file", "scope": "repo",
                         "path": path, "sha256": sha256_file(full), "bytes": full.stat().st_size,
                         "group": "offline_implementation"})
@@ -207,10 +245,7 @@ def build() -> dict:
         full = REPO_ROOT / directory
         if not full.is_dir():
             raise SystemExit(f"[ENV_ERROR] 离线实现目录缺失：{directory}")
-        digest, count = dir_digest(full)
-        members.append({"id": f"impl_dir::{directory}", "kind": "dir_digest", "scope": "repo",
-                        "path": directory, "digest_sha256": digest, "file_count": count,
-                        "group": "offline_implementation"})
+        members.append(file_set_member(full, f"impl_dir::{directory}", "offline_implementation"))
 
     for package in OFFLINE_EVIDENCE_PACKAGES:
         full = REPO_ROOT / package
@@ -220,14 +255,12 @@ def build() -> dict:
         for entry in sorted(full.iterdir()):
             relative = f"{package}/{entry.name}"
             if entry.is_file():
+                assert_tracked(entry, relative)
                 members.append({"id": f"evidence_file::{relative}", "kind": "file", "scope": "repo",
                                 "path": relative, "sha256": sha256_file(entry),
                                 "bytes": entry.stat().st_size, "group": group})
             elif entry.is_dir():
-                digest, count = dir_digest(entry)
-                members.append({"id": f"evidence_dir::{relative}", "kind": "dir_digest", "scope": "repo",
-                                "path": relative, "digest_sha256": digest, "file_count": count,
-                                "group": group})
+                members.append(file_set_member(entry, f"evidence_dir::{relative}", group))
             else:
                 raise SystemExit(f"[ENV_ERROR] 证据包内存在非普通条目：{relative}")
 
@@ -253,11 +286,13 @@ def build() -> dict:
         "claims": ["离线契约/规格字节", "离线实现字节", "离线证据包字节", "宿主侧上游引用字节"],
         "non_claims": ["G0/G1/G3/G4/G5", "板级/实物/实时结论", "task-27 完整实现与回归"],
         "external_reference_policy": EXTERNAL_REFERENCE_POLICY,
+        "tracked_only_rule": "冻结集只登记 Git 已跟踪文件；构建时对未跟踪成员 fail-closed（不可由提交单独复现的一律拒收）",
         "restore_entrypoints": list(RESTORE_ENTRYPOINTS),
         "byte_fidelity_note": (
-            "冻结成员一律按**工作树原始字节**登记（`.gitattributes` 已在成员内，S5-A/T01/T03/T04 等目录为 `-text`）。"
-            "F6 导出/检出必须同时携带 `.gitattributes`，否则 `core.autocrlf` 会在导出时把 LF 转成 CRLF、"
-            "导致 44 项哈希不符（r01 实测踩坑，r02 已修）。"),
+            "冻结成员一律按**工作树原始字节**登记，且**只登记已纳入 Git 的文件**（目录成员为 `file_set`，"
+            "逐件列 path/sha256/bytes）：未跟踪的生成物（`__pycache__`、构建产物等）不属于冻结范围，"
+            "否则 F6「单独检出后自检」会因副本缺少这些文件而误报（r01/r04 实测踩坑）。"
+            "`.gitattributes` 本身也是冻结成员并带 `.gitattributes -text` 自规则，保证其字节不经 EOL 转换。"),
         "superseded_runs": [
             {"run_id": "s5_freeze_20261027_r00_runner_crash",
              "reason": "运行器在解析套件摘要时崩溃（未产出清单）；保留不改写"},

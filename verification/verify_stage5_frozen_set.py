@@ -42,7 +42,7 @@ REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 # 冻结集路径**必须显式给出**（fail-closed）：不得内置某个 RunId 的默认路径，
 # 否则换 RunId 后会静默校验到过期/被取代的冻结包（r03 实测踩坑）。
 DEFAULT_FROZEN_SET = ""
-KINDS = ("file", "dir_digest")
+KINDS = ("file", "dir_digest", "file_set")
 SCOPES = ("repo", "host")
 EXIT_VERIFIED = 0
 EXIT_MISMATCH = 1
@@ -154,7 +154,34 @@ def verify(root: pathlib.Path, frozen_set_path: pathlib.Path,
                                   "actual": actual, "scope": scope, "path": str(resolved)})
             else:
                 if not resolved.is_dir():
-                    raise FrozenSetError(f"{member_id}: 登记为 dir_digest 但实际不是目录：{resolved}")
+                    raise FrozenSetError(f"{member_id}: 登记为 {kind} 但实际不是目录：{resolved}")
+                if kind == "file_set":
+                    # 逐件比对**显式登记**的文件（冻结的是提交内的字节；未跟踪的生成物不属于冻结集）
+                    entries = member.get("files")
+                    if not isinstance(entries, list) or not entries:
+                        raise FrozenSetError(f"{member_id}: file_set 必须包含非空 files 数组")
+                    bad: list[str] = []
+                    for entry in entries:
+                        if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+                            raise FrozenSetError(f"{member_id}: files 条目必须是含 path 的对象")
+                        expected = entry.get("sha256")
+                        _require(isinstance(expected, str) and len(expected) == 64,
+                                 f"{member_id}: {entry.get('path')} 的 sha256 必须是 64 位十六进制")
+                        target = resolved / entry["path"]
+                        if not target.is_file():
+                            raise FrozenSetError(f"{member_id}: 登记文件缺失：{target}")
+                        actual = sha256_file(target)
+                        if actual != expected:
+                            bad.append(entry["path"])
+                    if bad:
+                        mismatches.append(member_id)
+                        items.append({"id": member_id, "status": "MISMATCH", "scope": scope,
+                                      "path": str(resolved), "file_count": len(entries),
+                                      "mismatched_files": bad})
+                    else:
+                        items.append({"id": member_id, "status": "MATCH", "scope": scope,
+                                      "path": str(resolved), "file_count": len(entries)})
+                    continue
                 expected_digest = member.get("digest_sha256")
                 _require(isinstance(expected_digest, str) and len(expected_digest) == 64,
                          f"{member_id}: digest_sha256 必须是 64 位十六进制")

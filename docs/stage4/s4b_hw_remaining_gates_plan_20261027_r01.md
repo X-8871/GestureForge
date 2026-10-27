@@ -111,6 +111,41 @@ OFFER 行模板与逐字段校验要求见 `docs/stage4/s4b_hw_offer_claim_20261
 
 第 5–8 步必须在 **1 小时内**全部完成；第 7–8 步必须在 **30 分钟内**完成。
 
+
+## 7. 地址图复审结论（2026-10-27，CHANGES_REQUIRED）
+
+独立复审判 **不可批准**，6 项阻断，其中 3 项已在共享图 r02 修复：
+
+| 编号 | 内容 | 状态 |
+|---|---|---|
+| B2 | 共享图非忠实投影（新增 producer 事实、自述"不含新事实"为假、`ps_app_arena` 措辞矛盾） | ✅ r02 已修：改回源图语义 + `path_specific` |
+| B3 | "不触达 display_buffer"可被 ELF 布局反驳 | ✅ r02 已修：明写 `.bss=[0x00118100,0x0071E6D0)` 覆盖 W5 buf1 `0x00703800`，并加"禁止并发加载" |
+| B4 | `injection_frame_rgb` 未标已取代 | ✅ r02 已修：加 `superseded_by=raw_frame` + `must_not_load` |
+| **B1** | **`network_input_tensor` 写入方方向冲突** | ❌ 待 **Wong 裁决** |
+| B5 | 两个离线校验器硬编码 `DRAFT`，翻状态会让套件失败 | ❌ 待批准时同批改 |
+| B6 | 契约 / readiness / 缺口表四处绑定 + "仍为 DRAFT"表述会过期 | ❌ 待批准时同批重绑 |
+
+### 7.1 B1 是什么（必须你定）
+
+同一个 519,168 B 张量，两条路径的写入方说法互斥：
+
+| 路径 | 写入方 | 出处 |
+|---|---|---|
+| UART / CPU | **PS 写**（memcpy 到 arena），PL 只读 | 地址图 `network_input_tensor`、2B 接口 `:51`、r13 实测 |
+| mailbox / RAW | **PL 预处理写**，网络 master 只读 | readiness `:175/:193/:306`（待批准的 mailbox 设计） |
+
+契约规定"各 region 方向以地址图 `cache_maintenance` 为准"。所以：**按现图批准，等于批准"PL 不得写张量"**，mailbox 路径当场作废。
+
+三个选项：
+
+| 选项 | 做法 | 代价 |
+|---|---|---|
+| A | 地址图内按路径拆方向（`uart_cpu`: PS 写；`mailbox_raw`: PL 写），同步 `cache_maintenance` | 改冻结 2A/2B 区域的所有权表述，需 2B 层级确认 |
+| B | 地址图仅覆盖 UART 路径，mailbox 方向另立新条目并单独获批 | 文件变复杂，但不动已冻结语义 |
+| C | 暂不批地址图，先把 mailbox 路径整体推迟到下一阶段 | 硬件诊断只能走 UART/CPU 路径（即现 r13 单元的能力范围） |
+
+**我的建议是 C 或 B**：当前 adapter 与准备清单就是 UART/CPU 路径（r13），先跑通它；mailbox 那套（G-20/G-05/G-10/G-11）本来也还没实现完。
+
 ## 6. 本轮明确不做
 
 - 未把任何 `status` 改为 `APPROVED`（批准权在 Wong）。

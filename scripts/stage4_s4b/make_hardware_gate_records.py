@@ -151,6 +151,47 @@ def main(argv: list[str] | None = None) -> int:
         "reserved_at_utc8": now_s,
     })
 
+    # ---- g0_approval：三份文件同时成立才生成；否则记录原因，绝不伪造 ----
+    g0_files = {
+        "address_map": worktree / "docs/stage4/S4B_stage4_address_map.json",
+        "shared_address": worktree / "docs/stage4/S4B_shared_address_map.json",
+        "timebase": worktree / "docs/stage4/s4a_stale_age_limit_approval_applied_20261024_r01.json",
+    }
+    g0_problems: list[str] = []
+    for key, path in g0_files.items():
+        if not path.is_file():
+            g0_problems.append(f"{key}:file_absent")
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            g0_problems.append(f"{key}:not_json")
+            continue
+        if key == "timebase":
+            if not payload.get("approved_item"):
+                g0_problems.append("timebase:approved_item_absent")
+        elif str(payload.get("status")) != "APPROVED":
+            g0_problems.append(f"{key}:status_{payload.get('status')}")
+
+    if not g0_problems:
+        generated["g0_approval"] = write_record(out_dir, "g0_approval", {
+            "status": "APPROVED",
+            "task_id": "S4-B-REAL-02B",
+            "hardware_run_id": args.hardware_run_id,
+            "scope": "BOARD_INJECTION",
+            "approval_id": f"G0-{args.hardware_run_id}",
+            "artifact_identity_sha256": identity_digest,
+            "memory_ranges_sha256": identity.get("memory_ranges_sha256"),
+            "address_map_binding": {"path": str(g0_files["address_map"]),
+                                    "sha256": sha256_file(g0_files["address_map"])},
+            "shared_address_binding": {"path": str(g0_files["shared_address"]),
+                                       "sha256": sha256_file(g0_files["shared_address"])},
+            "timebase_binding": {"path": str(g0_files["timebase"]),
+                                 "sha256": sha256_file(g0_files["timebase"])},
+            "approved_at_utc8": now_s,
+            "note": "批准不解除 BLOCKED、ENABLE 仍为 0；三项 status 由 adapter 从文件读取复核。",
+        })
+
     if args.review_file:
         review_path = Path(args.review_file)
         if not review_path.is_file():
@@ -189,7 +230,8 @@ def main(argv: list[str] | None = None) -> int:
         "not_generated_reason": {
             "hardware_session_handoff": "需 main OFFER + w4 CLAIM（见 s4b_hw_offer_claim 文档）",
             "exclusive_session": "执行时现场取证（hw_server 3121 + UART，30 分钟窗口）",
-            "g0_approval": "依赖地址图 APPROVED，当前 DRAFT_PENDING_REVIEW",
+            "g0_approval": (f"三项未同时成立：{g0_problems}" if g0_problems
+                            else "已生成"),
             "cold_basis": "需物理断电重建或等价独立证明（Wong 现场）",
             "command_delivery_review": "需对当前 adapter 字节的独立复审（--review-file）",
         },

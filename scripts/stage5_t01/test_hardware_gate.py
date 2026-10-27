@@ -241,13 +241,21 @@ class GateCase(unittest.TestCase):
     def test_18_real_parity_release_state_and_registry_binding(self) -> None:
         """只读解析真实信箱 + 真实登记表：应判 RELEASED 且 GO（用替身进程/锁，避免误碰硬件）。"""
         self.assertTrue(REAL_REGISTRY.exists())
+        # 期望值**按登记表现算**：最新释放/最新占用按 order_key 决定（新增窗口记录不应打破本测试）。
+        # 2026-10-27 修订：原先硬编码 CDX-20261022-007/006，在新增 DSH 窗口记录后必然漂移。
+        records = json.loads(REAL_REGISTRY.read_text(encoding="utf-8"))["records"]
+        releases = [r for r in records if r.get("kind") == "hardware_release"]
+        occupations = [r for r in records if r.get("kind") == "hardware_occupation"]
+        self.assertTrue(releases and occupations, "真实登记表应含占用与释放记录")
+        newest_release = max(releases, key=lambda r: str(r.get("order_key", "")))
+        newest_occupation = max(occupations, key=lambda r: str(r.get("order_key", "")))
         code, payload = self.run_gate(process="stub-ok", lock="stub-none",
                                       registry=REAL_REGISTRY, use_real_mailbox=True,
-                                      release_id="CDX-20261022-007", out_name="real_parity")
+                                      release_id=newest_release["id"], out_name="real_parity")
         self.assertEqual(code, 0, payload.get("reasons"))
         self.assertEqual(payload["hardware_state"], "RELEASED")
-        self.assertEqual(payload["effective_release"]["id"], "CDX-20261022-007")
-        self.assertEqual(payload["latest_occupation"]["id"], "CDX-20261022-006")
+        self.assertEqual(payload["effective_release"]["id"], newest_release["id"])
+        self.assertEqual(payload["latest_occupation"]["id"], newest_occupation["id"])
         self.assertEqual(payload["registry"]["records_total"], len(json.loads(REAL_REGISTRY.read_text(encoding="utf-8"))["records"]))
 
     def test_19_recursive_self_reference_registry_scan_covers_all_mailbox_files(self) -> None:

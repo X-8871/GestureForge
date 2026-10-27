@@ -1,10 +1,12 @@
 # S5-T01 只读核对：haltt A9 → 读显示通道寄存器 + 送显缓冲内容（BUF0）→ con 恢复。
 # 用法: xsdb jtag_read_overlay_buf.tcl [buf0_hex]
+# **地址须与当轮应用一致**：由 UART 的 S5_P1_BUF0 解析（scripts/stage5_t01/hw_buf_address.py）；
+# 旧版硬编码 0x00114C00 属 10-22 旧应用，读它等于读别的内存。
 # 预期（若 P1 画面已进缓冲）：
 #   - BUF0+0 附近为白色四角标记 0x00FFFFFF（灰度背景条为 0x00VVVVVV）
 #   - 用例5 左边缘框（x=0..77, y=53..425）顶边行 y≈53 上出现 FIST 颜色 0x00FF4040（B=64,G=64,R=255）
 puts "S5_READ_BEGIN"
-set buf0 0x00114C00
+set buf0 0x00138C00
 if {[lindex $argv 0] ne ""} { set buf0 [lindex $argv 0] }
 puts "S5_BUF0=$buf0"
 

@@ -1,0 +1,123 @@
+{
+  "schema_version": "gestureforge_s5t02_pixel_overlay_recheck_v1",
+  "run_id": "s5t02_pixel_overlay_recheck_20261027_r01",
+  "generated_utc8": "2026-10-27T13:38:43+08:00",
+  "task_id": "S5-T02",
+  "goal_reached": "PIXEL_LAYER_ROOT_CAUSE_FIXED__OVERLAY_BYTES_PRESENT__ALIGNMENT_UNCONFIRMED",
+  "authorization": {
+    "by": "Wong",
+    "gate": "report/evidence/S5-T01/hw_gate_20261027_r04/",
+    "record": "dsh_mailbox/DSH-20261027-004-stage5-second-hardware-window-pixel-recheck.md"
+  },
+  "exit_codes": {
+    "jtag_download": 0,
+    "jtag_dump": 0,
+    "verify_overlay_pixels": 1,
+    "offline_tests": 0
+  },
+  "root_causes": [
+    "回读地址硬编码为旧版 0x00114C00（本轮应用为 0x00138C00）",
+    "转储解析器逐行重置 x 基准（8 → 424 像素）",
+    "旧解码器期望早于当前应用修订"
+  ],
+  "fixed_assets": [
+    "scripts/stage5_t01/hw_buf_address.py",
+    "scripts/stage5_t01/verify_overlay_pixels.py",
+    "scripts/stage5_t01/test_overlay_pixels.py",
+    "scripts/stage5_t01/jtag_dump_rows.tcl（地址参数化）",
+    "scripts/stage5_t01/jtag_read_overlay_buf.tcl（地址参数化）"
+  ],
+  "pixel_layer": {
+    "verdict": "UNCONFIRMED",
+    "overlay_bytes_observed": true,
+    "pixels_parsed": 424,
+    "boxes": [
+      {
+        "index": 0,
+        "rect": [
+          0,
+          53,
+          77,
+          425
+        ],
+        "label": "FIST 0.66",
+        "expected_pixels": 1422,
+        "visible_in_dump": 82,
+        "coverage": 0.0577,
+        "matched_color": 2,
+        "order": "RGB",
+        "class_color_bgr": [
+          255,
+          64,
+          64
+        ]
+      },
+      {
+        "index": 1,
+        "rect": [
+          513,
+          0,
+          1026,
+          66
+        ],
+        "label": "PALM 0.62",
+        "expected_pixels": 1801,
+        "visible_in_dump": 87,
+        "coverage": 0.0483,
+        "matched_color": 41,
+        "order": "BGR",
+        "class_color_bgr": [
+          64,
+          255,
+          64
+        ]
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "console/buf_addr.json",
+      "sha256": "f836445ee376fa9210c3df51a648ede98228e0701cc08022ffa0ee7f48d36230",
+      "bytes": 211
+    },
+    {
+      "path": "console/download_case5.txt",
+      "sha256": "ec2160c5aebdc29aec88bdcb970d006de9136bf5a7616cf4ff0f2fe64dc3b444",
+      "bytes": 2620
+    },
+    {
+      "path": "console/inputs_sha.txt",
+      "sha256": "2e20a0a5b1949186204e22c33196f0ece441f8dd1f8c648872a035a2fe775d02",
+      "bytes": 414
+    },
+    {
+      "path": "console/jtag_dump_corrected_addr.txt",
+      "sha256": "efdaf21095c89e380b83dcdbc0b2bd1e25342e84d6b2c4e1c8cd4b47fee8ebc5",
+      "bytes": 8716
+    },
+    {
+      "path": "console/uart_case5.log",
+      "sha256": "7dbd56ae1f3405376b0790e7347b537400581e87141b0590e498a7db06fcc9c2",
+      "bytes": 6714
+    },
+    {
+      "path": "console/verify_corrected.json",
+      "sha256": "504ecc4e0936c543d3df97aa7b7fa71b67f9aebb83b3939441048566759177e1",
+      "bytes": 1354
+    },
+    {
+      "path": "summary.md",
+      "sha256": "aef8dcb1ee9d11a409f46e11c91e6d66ae094223d9eb82f73960c95975fdea33",
+      "bytes": 3066
+    }
+  ],
+  "not_run": [
+    "像素级叠加 PASS（对齐口径待定）",
+    "B5 计数流",
+    "B6 30 分钟长跑",
+    "HDMI 真彩目视/拍照",
+    "T5-10 板上回归",
+    "板上真实回放（八类门禁 0/8）",
+    "§4.5/§7.3 关闭"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T13:05:21+08:00",
+  "generated_utc8": "2026-10-27T13:38:43+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -425,6 +425,26 @@
       "declared_by": "DSH 阶段5 总控",
       "note": "阶段5 S5-T02 窗口 A 释放回执；收尾实测残留进程 0、3121 无监听、未烧 QSPI。窗口内：几何数值对拍 110/110 PASS、过期边界 PASS；像素级叠加未确认、B5/B6/真彩目视 NOT_RUN",
       "evidence": "report/evidence/S5-T01/s5t02_board_dynamic_map_20261027_r01/"
+    },
+    {
+      "id": "DSH-20261027-004",
+      "file": "dsh_mailbox/DSH-20261027-004-stage5-second-hardware-window-pixel-recheck.md",
+      "kind": "decision",
+      "order_key": "20261027004",
+      "sha256": "00b56af39e1a397d428ebd661d9ae2bc97f54497e0449c2f309e6e9d2ac82fdf",
+      "declared_by": "DSH 阶段5 总控（依据 Wong 2026-10-27 直接指示）",
+      "note": "第二个硬件窗口授权：仅用于像素级叠加复核（修正地址来源）；不声明占用",
+      "evidence": "report/evidence/S5-T01/<新 RunId>/"
+    },
+    {
+      "id": "DSH-20261027-005",
+      "file": "dsh_mailbox/DSH-20261027-005-stage5-second-window-release-receipt.md",
+      "kind": "hardware_release",
+      "order_key": "20261027005",
+      "sha256": "73cd18db2c94d50e73e42cceb7907a3a26bea74c92211aedc9d7595f4f44c34f",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "第二窗口释放回执；残留进程 0、3121 无监听、未烧 QSPI；像素级叠加仍 UNCONFIRMED（对齐口径待定）",
+      "evidence": "report/evidence/S5-T01/s5t02_pixel_overlay_recheck_20261027_r01/"
     }
   ]
 }

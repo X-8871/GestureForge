@@ -1,10 +1,17 @@
-# S5-T01 数值核对：只读 dump 送显缓冲的若干行（word 对齐取数）→ con 恢复。
-# 前提：板上运行 s5t01_case5_r02.elf（单用例 5 常显），BUF0=0x00114C00，stride=3840。
+# S5-T01 像素级核对：只读 dump 送显缓冲的若干行（word 对齐取数）→ con 恢复。
+# 用法: xsdb jtag_dump_rows.tcl [buf0_hex]
+#
+# **地址必须与当轮应用一致**（2026-10-27 根因）：旧版本硬编码 0x00114C00，那是 10-22 旧版应用的 BUF0；
+# 当前应用在 UART 上报 S5_P1_BUF0=00138C00（BUF1=00727800、BUF2=00D16400）。
+# 取法：`python -B scripts/stage5_t01/hw_buf_address.py --uart <uart.log>`。
+# 期望（冻结参考给出的用例 5 矩形，见 s5_overlay_cases.h）：仅作锚点，判据一律用
+# `verify_overlay_pixels.py` 现算（不再用本文件里的陈旧期望）。
 # 期望（冻结参考实现给出的用例 5 矩形）：
 #   红 FIST 框 (0,53)-(77,425)；绿 PALM 框 (513,0)-(1025,66)
 # 用法: xsdb jtag_dump_rows.tcl
 puts "S5_DUMP_BEGIN"
-set buf0 0x00114C00
+set buf0 0x00138C00
+if {[lindex $argv 0] ne ""} { set buf0 [lindex $argv 0] }
 set stride 3840
 
 connect

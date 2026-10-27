@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-C",
+  "run_id": "s6c_action_receipt_boundary_20261027_r01",
+  "source_commit": "2cd8bc9a7fa158a86bde35bb60af8f056d134feb",
+  "evidence_dir": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01",
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "所有列出文件按本轮采证时 w6 工作树磁盘字节哈希；新实现未提交，内容以磁盘绑定供审查，不声称属于 source_commit blob。",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务只在阶段6内部消费当前 GestureInteractionCore.note_action_ack 实现；没有消费阶段4/5真实输入。核心源码及行为规格作为输入哈希绑定，但不把尚未冻结的真实 transport、显示回执或跨阶段字段定义成正式接口。",
+  "files": [
+    {
+      "path": "src/stage6/s6_receipts.py",
+      "sha256": "b80149e0d0c05ed5564e19e13e3d508637dfb0eebcb8d6bfbdc9b295e23a7f60",
+      "role": "source",
+      "keep_reason": "本轮阶段6 ACK 边界实现。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "verification/test_s6c_receipt_boundary.py",
+      "sha256": "043e1563c6d58d4cc01cca1b604203fdc37613c294cd1c720e839a4d7b749d3a",
+      "role": "source",
+      "keep_reason": "本轮阶段6 ACK 边界离线回归。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "b75948f504fbf732958b16b14bb892de1865bd4defa97dc704bbb8dbf64ad9bc",
+      "role": "input",
+      "keep_reason": "既有 note_action_ack 消费接口的实现依据；未由本任务修改。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "input",
+      "keep_reason": "实际测试所用 ParamPack 实现。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "测试 ParamPack 载入的阶段6行为参数记录；按工作树字节绑定。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "input",
+      "keep_reason": "S6-A 现行行为边界只读依据；未修改该既有差异。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/interface_boundary.md",
+      "sha256": "6c2e2551073c6ee0da6fa46fb532588ca6c7d036afecc13b56f25613c382bacd",
+      "role": "result",
+      "keep_reason": "本轮内部边界、真实接口阻塞项及适用范围说明。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/execution_record.md",
+      "sha256": "a0185e22059548e3b1de5e5dd7c31384673d4cc9866f83c403efca4bb84c9147",
+      "role": "result",
+      "keep_reason": "命令、退出码、测试覆盖及验收边界记录。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/unit_test.log",
+      "sha256": "1340c457bbf3f348486d6bf1cb4677e99815aad16a04b57158f043ef29fe2c6e",
+      "role": "log",
+      "keep_reason": "最终源码版本加固之前第 3 次的完整 41 项离线回归输出。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/unit_test_final.log",
+      "sha256": "fcfaa0735782c370cf45f22fe670efa9c97553e222e982d77fef8749ee1e59ee",
+      "role": "log",
+      "keep_reason": "最终源码版本第 4 次的完整 41 项离线回归输出，含源码 SHA-256。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/inputs_manifest.json",
+      "sha256": "61dba45c063668f59e9c01fc273c046bdc96405fa8e20c7ce78be05aa7d099eb",
+      "role": "input",
+      "keep_reason": "阶段6内部实现、批准行为输入与测试依赖的哈希清单。",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "checks": [
+    {
+      "name": "阶段6 ACK 边界与阶段6-B 核心回归",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary verification.test_s6b_core_regressions -v",
+      "exit_code": 0,
+      "reason": "共运行 4 次，均 41/41 通过；最终源码版本完整输出已绑定。"
+    },
+    {
+      "name": "check_stage_delivery.py --mode inputs",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --manifest report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "主目录当前检查器对 w6 输入清单的只读检查 CHECKS_OK。"
+    },
+    {
+      "name": "check_stage_delivery.py --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --manifest report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "只读核验 RunId 文件枚举、声明哈希与证据包装；不代表接口或阶段验收通过。"
+    },
+    {
+      "name": "check_manifest_hash_basis.py --mode strict",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6 --paths report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/inputs_manifest.json --paths report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r01/delivery_manifest.json --mode strict --json",
+      "exit_code": 0,
+      "reason": "只读校验所有声明条目均按 worktree_disk 基座匹配本轮实际磁盘字节。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14 (64-bit)",
+    "git": "2.56.0.windows.2",
+    "check_stage_delivery.py": "主目录工作树版本，使用 --project-root 指向 w6",
+    "check_manifest_hash_basis.py": "主目录工作树版本"
+  },
+  "limitations": [
+    "阶段4真实结果/时间契约、阶段5显示回执/观测接口和跨进程 ACK 历史恢复尚未冻结；本包不能解除真实集成阻塞。",
+    "本包使用合成 ACK 做消费者边界测试，不产生硬件结果或真实 ACTION_EFFECTIVE 证据。",
+    "S6-A 规格与参数 JSON 在基线前已有工作树差异；以 worktree_disk 哈希绑定消费内容，未纳入本轮修改。",
+    "本轮未做独立审查、板级 G3、任务 G4 或阶段 G5 验收。"
+  ]
+}

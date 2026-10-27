@@ -1,0 +1,175 @@
+{
+  "schema_version": "gestureforge_s5t02_pixel_phase_probe_v1",
+  "run_id": "s5t02_pixel_phase_probe_20261027_r01",
+  "generated_utc8": "2026-10-27T14:23:35+08:00",
+  "task_id": "S5-T02",
+  "goal_reached": "PIXEL_ALIGNMENT_EMPIRICALLY_LOCKED__COLOR_CLASS_MAPPING_UNRESOLVED",
+  "actual_port": 23121,
+  "port_consistency": {
+    "hw_server": "TCP::23121",
+    "tcl_client": "localhost:23121",
+    "resource_check": "netstat:23121",
+    "all_same": true,
+    "gate_check_note": "门控 v2.4 固定查 3121（排除范围内），另行记录实端口"
+  },
+  "authorization": {
+    "by": "Wong",
+    "gate": "report/evidence/S5-T01/hw_gate_20261027_r07/",
+    "record": "dsh_mailbox/DSH-20261027-008-stage5-window-port-23121.md"
+  },
+  "exit_codes": {
+    "xsdb_download": 0,
+    "jtag_dump": 0
+  },
+  "probe_magic": {
+    "rows": [
+      "138C00:   11443553",
+      "138C04:   04033322"
+    ],
+    "byte_stream": "53 35 44 11 22 33 03 04",
+    "conclusion": "byte0=pixel x0；3 bytes/pixel；phase=0；little-endian words"
+  },
+  "per_box": [
+    {
+      "label": "FIST 0.66",
+      "rect": [
+        0,
+        53,
+        77,
+        425
+      ],
+      "cls": 0,
+      "expected_bgr": [
+        255,
+        64,
+        64
+      ],
+      "visible": 82,
+      "matched": 0,
+      "rate": 0.0,
+      "observed_top": [
+        [
+          [
+            0,
+            0,
+            0
+          ],
+          69
+        ],
+        [
+          [
+            64,
+            255,
+            64
+          ],
+          5
+        ],
+        [
+          [
+            64,
+            64,
+            64
+          ],
+          2
+        ]
+      ]
+    },
+    {
+      "label": "PALM 0.62",
+      "rect": [
+        513,
+        0,
+        1026,
+        66
+      ],
+      "cls": 1,
+      "expected_bgr": [
+        64,
+        255,
+        64
+      ],
+      "visible": 87,
+      "matched": 41,
+      "rate": 0.471,
+      "observed_top": [
+        [
+          [
+            64,
+            255,
+            64
+          ],
+          41
+        ],
+        [
+          [
+            255,
+            64,
+            64
+          ],
+          21
+        ],
+        [
+          [
+            64,
+            64,
+            255
+          ],
+          21
+        ]
+      ]
+    }
+  ],
+  "pixel_layer": {
+    "verdict": "UNCONFIRMED",
+    "alignment": "LOCKED_BY_PROBE",
+    "remaining_defect_hypothesis": "drawn[] 与 boxes[] 索引对齐（颜色取到相邻类）"
+  },
+  "files": [
+    {
+      "path": "console/download_port23121.txt",
+      "sha256": "e1bf95824e93d1c8f27402c4fa5e9d97cd9e06932dae4aa7aece96256b6d5e04",
+      "bytes": 212
+    },
+    {
+      "path": "console/hw_server_23121.log",
+      "sha256": "4d0d72b860c043bc229236c6b4d79abb56995d7d8be27f13a4259fedf790243f",
+      "bytes": 379
+    },
+    {
+      "path": "console/inputs_sha.txt",
+      "sha256": "9db0a530f6871749d706e91f687f64c260fe40d7678c53d039bb308499f4486e",
+      "bytes": 414
+    },
+    {
+      "path": "console/jtag_dump_probe.txt",
+      "sha256": "ce611c900fbbc70602b9ce888f6f0e025fa13700bbf272c6f3624493fa034781",
+      "bytes": 7817
+    },
+    {
+      "path": "console/uart_probe.log",
+      "sha256": "095a15875c9c2a706684739283d2b461530c07590e9ae4cbf068983d04d6985e",
+      "bytes": 6689
+    },
+    {
+      "path": "summary.md",
+      "sha256": "c93170d21cc748e26e5399be8584fac6fdbfe5554713c461d9bc0482bf1c8ef6",
+      "bytes": 3381
+    }
+  ],
+  "not_run": [
+    "像素级叠加 PASS",
+    "带框回放上板显示",
+    "B5 计数流",
+    "B6 30 分钟长跑",
+    "真彩目视/拍照",
+    "T5-10",
+    "板上真实回放（八类门禁 4/8）",
+    "§4.5/§7.3 关闭"
+  ],
+  "cleanup_correction": {
+    "transient_sample_leftover": 5,
+    "final_leftover": 0,
+    "final_netstat_23121_lines": 0,
+    "note": "收尾采样为瞬时值；独立复核后为 0 ⇒ 窗口干净释放"
+  }
+}

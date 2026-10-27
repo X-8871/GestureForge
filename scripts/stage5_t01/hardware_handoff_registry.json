@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T14:08:47+08:00",
+  "generated_utc8": "2026-10-27T14:23:35+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -465,6 +465,27 @@
       "declared_by": "DSH 阶段5 总控",
       "note": "第三窗口释放：主机端口 bind 失败未上板，板卡状态未改动；残留进程 0",
       "evidence": "report/evidence/S5-T01/s5t02_phase_probe_blocked_20261027_r01/"
+    },
+    {
+      "id": "DSH-20261027-008",
+      "file": "dsh_mailbox/DSH-20261027-008-stage5-window-port-23121.md",
+      "kind": "decision",
+      "order_key": "20261027008",
+      "sha256": "69d3470dcb95790813f044c0a1f769784a158bbefcd712d12e79a9c294334ba5",
+      "declared_by": "DSH 阶段5 总控",
+      "scope": "stage5_probe_and_boxed_replay_port23121",
+      "note": "第四窗口授权（decision）：实端口 23121；第四窗口：实端口 23121（3121/3131 在 Windows 排除范围 3096–3195）；hw_server/TCL/资源检查三者同为 23121",
+      "evidence": "report/evidence/S5-T01/<新 RunId>/"
+    },
+    {
+      "id": "DSH-20261027-009",
+      "file": "dsh_mailbox/DSH-20261027-009-stage5-window4-release-port23121.md",
+      "kind": "hardware_release",
+      "order_key": "20261027009",
+      "sha256": "1dc918a0e5ae46411f11977211f74ebe2589635374d66c80c4ed30e8b954c685",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "第四窗口释放（实际端口 23121）；像素对齐已实证锁定，颜色/类别映射仍未决（UNCONFIRMED）",
+      "evidence": "report/evidence/S5-T01/s5t02_pixel_phase_probe_20261027_r01/"
     }
   ]
 }

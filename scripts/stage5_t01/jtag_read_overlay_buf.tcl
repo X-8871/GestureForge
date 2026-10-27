@@ -7,10 +7,13 @@
 #   - 用例5 左边缘框（x=0..77, y=53..425）顶边行 y≈53 上出现 FIST 颜色 0x00FF4040（B=64,G=64,R=255）
 puts "S5_READ_BEGIN"
 set buf0 0x00138C00
+set ::port [lindex $argv 1]
+if {$::port eq ""} { set ::port 23121 }
+# S5DL_PORT_ARG：connect 到与自起 hw_server 相同的端口（默认 23121；3121/3131 在 Windows 排除范围 3096–3195）
+connect -url tcp:localhost:$::port
 if {[lindex $argv 0] ne ""} { set buf0 [lindex $argv 0] }
 puts "S5_BUF0=$buf0"
 
-connect
 targets -set -nocase -filter {name =~ "ARM Cortex-A9 MPCore #0"}
 if {[catch {stop} e]} { puts "S5_HALT_ERR=$e" } else { puts "S5_HALT_OK=1" }
 after 300

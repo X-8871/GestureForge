@@ -11,10 +11,13 @@
 # 用法: xsdb jtag_dump_rows.tcl
 puts "S5_DUMP_BEGIN"
 set buf0 0x00138C00
+set ::port [lindex $argv 1]
+if {$::port eq ""} { set ::port 23121 }
+# S5DL_PORT_ARG：connect 到与自起 hw_server 相同的端口（默认 23121；3121/3131 在 Windows 排除范围 3096–3195）
+connect -url tcp:localhost:$::port
 if {[lindex $argv 0] ne ""} { set buf0 [lindex $argv 0] }
 set stride 3840
 
-connect
 targets -set -nocase -filter {name =~ "ARM Cortex-A9 MPCore #0"}
 if {[catch {stop} e]} { puts "S5_HALT_ERR=$e" } else { puts "S5_HALT_OK=1" }
 after 300

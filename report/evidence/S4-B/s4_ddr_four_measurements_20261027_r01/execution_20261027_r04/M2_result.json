@@ -1,0 +1,16 @@
+{
+  "step": "M2_consumer_check",
+  "status": "PASS",
+  "process_exit_code": 0,
+  "evidence": {
+    "DEVCGF_CTRL": "1308680319 (0x4E00FFFF)",
+    "DEVCGF_STATUS": "1073744432 (0x40000010)",
+    "PCFG_DONE_bit1": 0,
+    "pl_configured": false,
+    "cpu0": "Stopped: (Suspended)",
+    "cpu1": "Stopped: (Suspended)",
+    "second_debug_client": "无（P0 已核，本会话唯一 hw_server）"
+  },
+  "judgement": "构造性排除：PL 未配置（PCFG_DONE=0）+ CPU0/CPU1 均 Suspended + 无第二调试客户端 ⇒ 无其他 DDR consumer",
+  "must_not_say": "不得表述为『测了 DDR 总线』；无总线级探针，本项为构造性证明"
+}

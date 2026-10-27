@@ -1,0 +1,15 @@
+{
+  "step": "M1_cpu1_state",
+  "status": "PASS",
+  "process_exit_code": 0,
+  "evidence": {
+    "cpu1_state": "Stopped: (Suspended)",
+    "pc_1": "ffffff34",
+    "pc_2": "ffffff34",
+    "pc_stable": true,
+    "interval_s": 2.5,
+    "both_cores_after_rst": "#0 (Suspended) / #1 (Suspended)（M2 targets 回显）"
+  },
+  "judgement": "CPU1 保持停止：state=Suspended 且两次 PC 采样一致 ⇒ M1 PASS（只读，未发独立 stop）",
+  "limit_note": "halted 状态来自 rst -system -stop（易失下载流程的一部分），非独立 stop 命令"
+}

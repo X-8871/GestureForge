@@ -1,0 +1,62 @@
+{
+  "task_id": "S4-B/S4-T31",
+  "purpose": "M4-a 最小测量程序（cache 维护/可见性）；**不用于推理**，不含业务功能",
+  "built_utc8": "2026-10-27T20:36:18+08:00",
+  "offline_build": true,
+  "window_time_compilation": "FORBIDDEN（窗口内不得编译）",
+  "toolchain": {
+    "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "gcc_version": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "size_tool": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-size.exe",
+    "size_exit": 0,
+    "size_output": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  27485\t     68\t  67008\t  94561\t  17161\tD:\\codex-worktrees\\w4\\tmp\\4\\S4-T31\\m4a_build\\m4a_cache_probe.elf"
+  },
+  "inputs": {
+    "source": {
+      "path": "scripts/stage4_s4b/m4a_src/m4a_cache_probe.c",
+      "sha256": "fd92216d0fc5a040ef85d7ead951da241e44da7977e09f0bd524b1e61880e219"
+    },
+    "linker_script": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\init\\src\\lscript.ld",
+      "sha256": "508b0c05a5dc0258613e3985c179d24f1ed1f3be571d7c6ad564939113766f4a"
+    },
+    "xilinx_spec": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\Xilinx.spec",
+      "sha256": "b9273e64cea0f2f99dbd79e2cfcfb5b8357b446a6f1e1f1b8da27faf4036d81d"
+    },
+    "bsp": {
+      "include_dir": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\include",
+      "lib_dir": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0\\lib",
+      "libxilstandalone_sha256": "1341903853c1aafcad3ae3ac21f816a59e715dffe46b4b9d126a2c7c6f95cc17",
+      "libxil_sha256": "184cfec64f93594fd79cc05eb1307917fa8de7ea57201befe8d94b7c6a6c1e23",
+      "libxiltimer_sha256": "827c61aac0b6cce641268addbef86a6bb291ad8704897832d6ea9e708e33e36b"
+    }
+  },
+  "commands": {
+    "compile": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe -DSDT -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -MMD -MP -specs=D:/codex-worktrees/w4/tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0/Xilinx.spec -ID:/codex-worktrees/w4/tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0/include -Wall -Wextra -O2 -g3 -std=gnu11 -ffunction-sections -fdata-sections -U__clang__ -o D:\\codex-worktrees\\w4\\tmp\\4\\S4-T31\\m4a_build\\m4a_cache_probe.o -c D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\m4a_src\\m4a_cache_probe.c",
+    "link": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe -DSDT -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -MMD -MP -specs=D:/codex-worktrees/w4/tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0/Xilinx.spec -ID:/codex-worktrees/w4/tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0/include -Wall -Wextra -O2 -g3 -std=gnu11 -ffunction-sections -fdata-sections -U__clang__ -Wl,-Map=D:/codex-worktrees/w4/tmp/4/S4-T31/m4a_build/m4a_cache_probe.map,--cref,--gc-sections D:\\codex-worktrees\\w4\\tmp\\4\\S4-T31\\m4a_build\\m4a_cache_probe.o -o D:\\codex-worktrees\\w4\\tmp\\4\\S4-T31\\m4a_build\\m4a_cache_probe.elf -LD:/codex-worktrees/w4/tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0/lib -Wl,-T -Wl,D:/codex-worktrees/w4/tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/init/src/lscript.ld -Wl,--start-group -lxilstandalone -lxiltimer -lxil -lgcc -lc -lm -Wl,--end-group",
+    "size": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-size.exe --format=berkeley D:\\codex-worktrees\\w4\\tmp\\4\\S4-T31\\m4a_build\\m4a_cache_probe.elf"
+  },
+  "outputs": {
+    "elf": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\m4a_cache_probe.elf",
+      "sha256": "fa8f22e0918dcdb794fe1f05d093bc586e23f34237daf50c81f31477517e13ca",
+      "size_bytes": 178236
+    },
+    "map": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\m4a_cache_probe.map",
+      "sha256": "b16b98a3f2499629a08467c5ed2c65baaf6728690719685fd28a55974db0b01c",
+      "size_bytes": 166199
+    },
+    "object": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T31\\m4a_build\\m4a_cache_probe.o",
+      "sha256": "cfae86bf0d59c91a9911eaf90a1c397917f09e36a3fbb673bf3b60475f59673e"
+    }
+  },
+  "exit_codes": {
+    "compile": 0,
+    "link": 0,
+    "size": 0
+  },
+  "boundary": "离线构建；未连接板卡；不含业务功能；缓存维护按 64 B 向外取整；只在候选区内读写。"
+}

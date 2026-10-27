@@ -2,7 +2,7 @@
   "schema_version": 1,
   "task_id": "S4-B/S4-T31",
   "run_id": "s4_ddr_four_measurements_20261027_r01",
-  "generated_utc8": "2026-10-27T20:31:38+08:00",
+  "generated_utc8": "2026-10-27T20:38:01+08:00",
   "hardware_execution": "NOT_RUN",
   "board_access": "NONE（离线准备；未启动 hw_server/xsdb、未装载、未接触板卡）",
   "authorization": {
@@ -95,11 +95,51 @@
       }
     ],
     "minimal_measurement_elf": {
-      "status": "NOT_BUILT",
-      "needed_for": "M4-a（cache 维护：flush/invalidate 后 PS 回读一致）",
-      "constraints": "保持 CPU1 halted、只对候选区写入-回读、执行 cache 维护并回读、不加业务功能",
-      "build_environment": "Vitis 2026.1（exists）；须离线构建并登记 SHA，窗口内不得编译",
-      "decision": "未构建 ⇒ 本次窗口 M4-a 无载荷 ⇒ M4 整体 NOT_APPLICABLE（见 applicability）"
+      "status": "READY",
+      "purpose": "**M4-a 用，不用于推理**（不含业务功能：只做区间内读/写、cache 维护、CRC）",
+      "elf": {
+        "path": "report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/preparation/payloads/m4a_cache_probe.elf",
+        "absolute_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\m4a_cache_probe.elf",
+        "sha256": "fa8f22e0918dcdb794fe1f05d093bc586e23f34237daf50c81f31477517e13ca",
+        "size_bytes": 178236,
+        "role": "payload_elf",
+        "note": "OCM 装载（0x0/0x4000/0xffff0000），与候选区零重叠 ⇒ 下载不污染被测区"
+      },
+      "map": {
+        "path": "report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/preparation/payloads/m4a_cache_probe.map",
+        "absolute_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\m4a_cache_probe.map",
+        "sha256": "b16b98a3f2499629a08467c5ed2c65baaf6728690719685fd28a55974db0b01c",
+        "size_bytes": 166199,
+        "role": "payload_map",
+        "note": "链接映射"
+      },
+      "build_record": {
+        "path": "report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/preparation/payloads/build_record.json",
+        "absolute_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\build_record.json",
+        "sha256": "40d89081cb346e7804f0ce22cc968409e79c321e5e48c5703a649d58e319f252",
+        "size_bytes": 5185,
+        "role": "build_record",
+        "note": "工具链版本、完整编译/链接命令、源/链接脚本/BSP 库 SHA-256"
+      },
+      "source": {
+        "path": "scripts/stage4_s4b/m4a_src/m4a_cache_probe.c",
+        "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\m4a_src\\m4a_cache_probe.c",
+        "sha256": "fd92216d0fc5a040ef85d7ead951da241e44da7977e09f0bd524b1e61880e219",
+        "size_bytes": 7169,
+        "role": "payload_source",
+        "note": "最小测量程序源码（离线可复现构建）"
+      },
+      "build_script": {
+        "path": "scripts/stage4_s4b/build_m4a_measurement_elf.py",
+        "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\build_m4a_measurement_elf.py",
+        "sha256": "450cd79afe7294e160e44769f3fc6498652dd81270dc739e66d192219c807e2e",
+        "size_bytes": 7107,
+        "role": "build_script",
+        "note": "python -B scripts/stage4_s4b/build_m4a_measurement_elf.py（离线；窗口内禁止编译）"
+      },
+      "toolchain_version": "arm-xilinx-eabi-gcc (GCC) 13.4.0（Vitis 2026.1 aarch32）",
+      "uart_protocol": "COM4 115200 8N1；命令 R/I/F/W/Q；应答行以 M4A 开头；cache 维护按 64 B 向外取整",
+      "constraints_verified": "只在候选区内读写；越界请求拒绝；装载段与候选区零重叠；无 PL/DMA/业务功能"
     }
   },
   "applicability": {
@@ -118,10 +158,19 @@
       "status": "READY_WITH_TIME_RISK",
       "judgment": "先只读快照 → 写-回读 → 回写原字节 → SHA+逐字节双判据差异必须为 0；速率探针外推 >18 min 时降级为分层抽样并标 SAMPLED_PARTIAL"
     },
-    "M4": {
-      "payload": "无可用载荷（既有 r13 诊断件为业务程序，不复用；最小测量 ELF 未构建）",
+    "M4a": {
+      "payload": "init.elf（必需）+ m4a_cache_probe.elf（本轮构建）",
+      "status": "READY",
+      "judgment": "flush/invalidate（64 B 向外取整）后 PS 侧 CRC/回读与 JTAG 侧写入/恢复一致"
+    },
+    "M4b": {
+      "payload": "无（需 PL consumer）",
       "status": "NOT_APPLICABLE",
-      "judgment": "M4-a 缺载荷；M4-b（DMA 可见性）需 PL consumer，属改设计 ⇒ 恒不可测。**后果：本窗口不足以闭合 M4，ENABLE=1 前置不满足，须另裁/另开窗口**"
+      "judgment": "DMA 可见性需 PL master ⇒ 改设计；**并入 4-D bring-up 作为必测项**"
+    },
+    "M4_overall": {
+      "status": "PARTIAL_READY",
+      "note": "M4-a 可测；M4-b NOT_APPLICABLE ⇒ **M4 未闭合 ⇒ ENABLE=1 前置不满足**，本窗口即使 M1/M2/M3/M4-a 全过也不得申请 ENABLE=1/4-D（另裁）"
     }
   },
   "risk_statement": {
@@ -134,9 +183,9 @@
     "R7_identity": "装载前逐项比对本清单 SHA，不符即停"
   },
   "not_done": [
-    "未启动 xsdb / 未连接板卡 / 未装载任何载荷",
-    "未构建最小测量 ELF（M4-a 因此无载荷）",
-    "未生成执行驱动 run_s4_ddr_four_measurements.py（窗口前需就绪）",
+    "未启动 xsdb / 未连接板卡 / 未装载任何载荷（窗口外禁止）",
+    "Tcl 与最小 ELF 均**未在真实 xsdb/板上执行过**（窗口 P1 先 smoke）",
+    "M4-b（DMA 可见性）不在本窗口：NOT_APPLICABLE，并入 4-D bring-up",
     "未开窗（等待 DSH 项目总控指令）"
   ],
   "boundary": "只读离线准备；ENABLE=0；不 FROZEN；无板级访问；不 push；不构成任何关口通过。"

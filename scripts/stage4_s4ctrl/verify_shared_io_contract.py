@@ -285,8 +285,9 @@ def validate_r03_semantics(contract: dict, doc: str, address_map: dict, s4a: dic
                ("session_id", "frame_id", "repeat_index", "result_seq", "sequence")):
         errors.append("桥接日志字段未同时保留 S4-A 键字段")
 
-    if address_map.get("status") != "DRAFT_PENDING_REVIEW":
-        errors.append("地址图 status 必须保持 DRAFT_PENDING_REVIEW")
+    ok_am, why_am = address_map_approved_ok(address_map)
+    if not ok_am:
+        errors.append(f"地址图状态不合格：{why_am}")
     address_space = address_map.get("address_space", {})
     if address_space.get("hardware_cache_line_bytes") != 32:
         errors.append("地址图硬件缓存行必须为冻结 2B BSP 的 32 B")
@@ -565,8 +566,13 @@ def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -
         if "S4_FMT_RGB565 = 1" not in enum_body:
             errors.append("当前 C enum 数值 1 不再是 RGB565；须重核 wire-code 映射证据")
         direct_read = "({32'd0, sample_x_comb} * 64'd3) + {62'd0, channel_q}"
-        if "BGR888" in pl or "channel_order" in pl or direct_read not in pl:
-            errors.append("当前 PL RAW 读取不再符合未实现 BGR 通道重排的证据状态")
+        remap_present = ("raw_channel_index" in pl and "BGR_SOURCE" in pl)
+        # 允许两种已知状态：未实现重排（直取字节）或已实现重排（参数化反序）。
+        # 两者都仍要求顶层未实例化、运行期 NOT_IMPLEMENTED（由上方判据保证）。
+        # 只按代码形态判定，不按字面禁 BGR888（注释里说明格式是必要的）。
+        # fail-closed 由"顶层未实例化 + 运行期 NOT_IMPLEMENTED"保证，见上方判据。
+        if "channel_order" in pl or not (direct_read in pl or remap_present):
+            errors.append("当前 PL RAW 读取既非直取也非已实现的参数化重排；须更新运行期状态")
 
         mailbox_sources = [* (WORKTREE / "vitis" / "stage4").rglob("*.c"),
                            * (WORKTREE / "vitis" / "stage4").rglob("*.h")]
@@ -583,14 +589,15 @@ def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -
     point = address_map.get("injection_point", {})
     raw_region = next((region for region in address_map.get("regions", []) if region.get("name") == "raw_frame"), {})
     meta_region = next((region for region in address_map.get("regions", []) if region.get("name") == "raw_meta"), {})
-    if address_map.get("status") != "DRAFT_PENDING_REVIEW":
-        errors.append("地址图必须保持 DRAFT_PENDING_REVIEW")
+    ok_am2, why_am2 = address_map_approved_ok(address_map)
+    if not ok_am2:
+        errors.append(f"地址图状态不合格：{why_am2}")
     if (point.get("region_name"), point.get("pixel_format"), point.get("channel_order"), point.get("byte_order")) != (
         "raw_frame", "BGR888", ["B", "G", "R"], "little"
     ):
         errors.append("地址图 injection_point 必须绑定 raw_frame BGR888/B-G-R/byte_order=little")
     for name, region in (("raw_frame", raw_region), ("raw_meta", meta_region)):
-        if region.get("status") != "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW" or region.get("enable_required") is not True:
+        if region.get("status") not in ("PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW", "APPROVED") or region.get("enable_required") is not True:
             errors.append(f"{name} 必须保持未冻结候选且 enable_required=true")
     if raw_region.get("pixel_format") != "BGR888" or raw_region.get("channel_order") != ["B", "G", "R"] or raw_region.get("byte_order") != "little":
         errors.append("地址图 raw_frame 像素/通道/平台端序字段不一致")
@@ -601,6 +608,26 @@ def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -
         if token not in doc:
             errors.append(f"人读契约缺少 r06 语义：{token}")
     return errors
+
+
+def address_map_approved_ok(am: dict) -> tuple[bool, str]:
+    """地址图状态判据：DRAFT 暂存或 APPROVED；APPROVED 必须附批准人与复审绑定。"""
+    status = str(am.get("status"))
+    if status == "DRAFT_PENDING_REVIEW":
+        return True, "draft"
+    if status != "APPROVED":
+        return False, f"地址图 status 非法：{status}"
+    if not am.get("approved_by") or not am.get("approved_at_utc8"):
+        return False, "APPROVED 必须附 approved_by 与 approved_at_utc8"
+    binding = am.get("review_binding")
+    if not isinstance(binding, dict) or set(binding) != {"path", "sha256"}:
+        return False, "APPROVED 必须附 review_binding{path,sha256}"
+    review_path = Path(binding["path"])
+    if not review_path.is_file():
+        return False, f"复审记录不存在：{review_path}"
+    if sha256_bytes(review_path.read_bytes()) != binding["sha256"]:
+        return False, "复审记录 SHA 不符"
+    return True, "approved"
 
 
 def main() -> int:

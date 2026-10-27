@@ -28,19 +28,15 @@
       "id": "stage4_address_map",
       "role": "阶段4 缓冲区间/所有者/缓存维护方向/DMA 完成顺序的权威",
       "path": "docs/stage4/S4B_stage4_address_map.json",
-      "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998",
+      "sha256": "8f554d95817e965bcfe78f4504e7181b41cdc760c5130ae9ced5d26e760fdced",
       "declared_revision": "r04（BGR888 RAW 格式与通道顺序、byte_order 分层）",
       "status_note": "地址图仍 `DRAFT_PENDING_REVIEW`；raw_frame/raw_meta 为 `PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW`（非 FROZEN、enable_required=true）",
       "replaces": {
-        "sha256": "399701c8523977713868aad030bb44c0a6a63a541de883b58373f2615fc1b33e",
-        "declared_revision": "r03（复审修复版：N-b/N-c/N-d 文字修正）",
-        "reason": "r04 明确 raw_frame 的 BGR888/channel_order=BGR 与 byte_order=little 分层，并将当前 RAW injection_point 改绑 raw_frame；地址区间与 ENABLE/FROZEN 状态不变。",
-        "history": {
-          "sha256": "af79b38973b69ff14af56879b408db2aaf8c3ba26d093b7dedae3a687c0d94d6",
-          "declared_revision": "r03（D1=A 落盘首版）",
-          "reason": "复审非阻断 N-b/N-c/N-d 修改了地址图文字/计数；上一级取代值 `80104b80…`（r02）保留于旧版本历史"
-        }
-      }
+        "sha256": "52127adcff1c54c2412c79b5edf4521afe8e62199755060f73ca7e03a7b2e998",
+        "basis": "worktree_disk_bytes",
+        "reason": "地址图新增 direction_scope=UART_CPU_PATH_ONLY（Wong 选 B），数字未变"
+      },
+      "byte_basis": "worktree_disk_bytes"
     },
     {
       "id": "frozen_d2_offline_reference",
@@ -407,13 +403,16 @@
       "pl_preprocessor": {
         "status": "UNSUPPORTED",
         "integration_status": "NOT_INSTANTIATED",
-        "evidence": "src/s4b_preproc_frame.sv 以 pixel*3+channel_q 直接读取通道字节；无 BGR888 格式输入或 B/G/R→R/G/B 重排控制，且当前 RTL 源码未找到任何顶层对 s4b_preproc_frame 的实例化。",
+        "evidence": "2026-10-27：src/s4b_preproc_frame.sv 已实现参数化通道重排（BGR_SOURCE，默认 1，输出通道 c 读 RAW 字节偏移 2-c）；xsim 双跑对照证明 ch0 取到 R、关闭参数取到 B。但顶层仍未实例化 s4b_preproc_frame，运行期状态仍为 NOT_IMPLEMENTED / NOT_INSTANTIATED。",
         "source_bindings": [
           {
             "path": "src/s4b_preproc_frame.sv",
-            "sha256": "cec22f92bee4a05724e81ff47bd164d05bcb09b184c722eeb5317b48fa2218f2"
+            "sha256": "1e5fc5eee8ed1d96cf0a1ae20124b6d96f9eb7838ac4b149b9c12d94a2831821",
+            "replaces_sha256": "cec22f92bee4a05724e81ff47bd164d05bcb09b184c722eeb5317b48fa2218f2"
           }
-        ]
+        ],
+        "has_bgr888_remap": true,
+        "remap_note": "2026-10-27：src/s4b_preproc_frame.sv 新增参数 BGR_SOURCE（默认 1），输出通道 c 读 RAW 字节偏移 2-c；xsim 双跑对照已证（ch0=R / 关参数=B）。顶层仍未实例化，运行期仍为 NOT_IMPLEMENTED。"
       },
       "mailbox_ps_driver": {
         "status": "NOT_IMPLEMENTED",

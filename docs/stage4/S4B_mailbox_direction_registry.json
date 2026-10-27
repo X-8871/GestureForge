@@ -1,0 +1,46 @@
+{
+  "schema_version": "s4b_mailbox_direction_registry_v1",
+  "id": "s4b-mailbox-direction",
+  "revision": "r01",
+  "status": "DRAFT_PENDING_REVIEW",
+  "task_id": "S4-B-REAL-02B",
+  "created_utc8": "2026-10-27T14:15:00+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "purpose": "按 Wong 2026-10-27 的 B 方案，把 mailbox/RAW 路径的写入方向从 stage4 地址图中分离出来单独登记与单独批准，避免与已冻结的 2A/2B 所有权表述冲突。",
+  "approved_by": null,
+  "approval_required_from": "Wong",
+  "independent_review_required": true,
+  "scope_of_this_file": "仅声明方向；不含地址与长度（一律引用 stage4 地址图）",
+  "entries": [
+    {
+      "region_name": "network_input_tensor",
+      "address_ref": "docs/stage4/S4B_stage4_address_map.json#regions[network_input_tensor]",
+      "path": "mailbox_raw",
+      "writer": "PL 预处理（s4b_preproc_frame）",
+      "readers": [
+        {
+          "stage": "PL 网络 master",
+          "access": "read_only"
+        }
+      ],
+      "ps_access": "read_after_invalidate",
+      "cache_maintenance": "PL 写前 PS clean+invalidate tensor 并 DSB；写完成后 PS invalidate 并 DSB",
+      "status": "NOT_APPROVED",
+      "blocked_by": [
+        "G-05（HP0 串行 owner 与仲裁/排空证明）",
+        "G-10（START gate 覆盖 preproc owner 持有期）",
+        "G-11（COMMIT 逐字段回显）",
+        "G-20（BGR888→RGB 运行期实现 + PL 顶层实例化）"
+      ],
+      "must_not_use_for": [
+        "UART/CPU 路径的写入方向声明"
+      ]
+    }
+  ],
+  "boundaries": [
+    "本文件未获批前，mailbox 路径不得执行，也不得据此修改任何缓存维护顺序。",
+    "本文件不含任何地址或长度；数字冲突以 stage4 地址图为准。",
+    "本文件获批不改变 ENABLE=0，也不替代其余七类硬件门禁。",
+    "UART/CPU 路径的方向仍以 stage4 地址图为准，本文件不覆盖它。"
+  ]
+}

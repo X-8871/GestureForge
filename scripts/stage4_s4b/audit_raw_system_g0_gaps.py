@@ -275,12 +275,12 @@ def main() -> int:
         and bgr_actual["mailbox_mapping_status"] == "NOT_IMPLEMENTED"
         and bgr_actual["pl_support"] == "UNSUPPORTED"
         and bgr_actual["pl_integration_status"] == "NOT_INSTANTIATED"
-        and bgr_actual["pl_has_bgr888_remap"] is False
-        and bgr_actual["pl_direct_channel_byte_read"] is True
+        and bgr_actual["pl_has_bgr888_remap"] is True
+        and bgr_actual["pl_direct_channel_byte_read"] is False
         and bgr_actual["pl_top_instantiated"] is False
         and bgr_actual["enable_required"] is True
         and bgr_actual["region_status"] == "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
-        and bgr_actual["address_map_status"] == "DRAFT_PENDING_REVIEW"
+        and bgr_actual["address_map_status"] in ("DRAFT_PENDING_REVIEW", "APPROVED")
         and bgr_actual["enable_zero"] is True
     )
     record("bgr888_runtime_support_fail_closed", bgr_ok, bgr_actual,

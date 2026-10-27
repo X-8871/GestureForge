@@ -105,14 +105,22 @@
   "injection_point": {
     "region_name": "raw_frame",
     "pixel_format": "BGR888",
-    "channel_order": ["B", "G", "R"],
+    "channel_order": [
+      "B",
+      "G",
+      "R"
+    ],
     "byte_order": "little",
     "byte_order_semantics": "平台多字节标量端序，与像素通道顺序独立",
     "position": "被验收的 D2 预处理（letterbox/颜色/量化）之前",
     "d2_channel_reorder": {
       "required": true,
       "operation": "逐像素 [B,G,R] → [R,G,B]",
-      "must_precede": ["resize", "normalization", "quantization"]
+      "must_precede": [
+        "resize",
+        "normalization",
+        "quantization"
+      ]
     },
     "runtime_support_status": "NOT_IMPLEMENTED",
     "acceptance_gate": "C 注入描述符与 PL RAW 前处理尚无 BGR888 支持；当前无 mailbox PS 驱动，s4b_preproc_frame 也未实例化到 RTL 顶层。G0 候选 mailbox_pixel_format_code=1 与 C enum 值 1（RGB565）属于不同编码域，当前无显式映射，禁止直接 cast。实现 PS 驱动/映射、实际顶层接入与 D2 逐像素验证完成前不得宣称该注入点已覆盖真实运行链路。",
@@ -208,11 +216,12 @@
       "dma_completion_order": [
         "PL 读取前必须已 flush 完成；PL 不写该区域"
       ],
-      "notes": "INT8_CHW_416 严格限定为 416x416、3 平面 CHW INT8，519,168 B；该 region 是网络+后处理覆盖的落点，不是被验收预处理的覆盖证明点。",
+      "notes": "INT8_CHW_416 严格限定为 416x416、3 平面 CHW INT8，519,168 B；该 region 是网络+后处理覆盖的落点，不是被验收预处理的覆盖证明点。 [B 方案] 本图仅声明 UART/CPU 路径写入方为 PS；mailbox 路径的 PL 写入方向见 docs/stage4/S4B_mailbox_direction_registry.json，未获批前不得使用。",
       "sources": [
         "W2B-INTERFACE",
         "W2B-APP"
-      ]
+      ],
+      "direction_scope": "UART_CPU_PATH_ONLY"
     },
     {
       "name": "gf8_weight_package",
@@ -313,7 +322,11 @@
       "kind": "ddr",
       "category": "input_frame",
       "pixel_format": "BGR888",
-      "channel_order": ["B", "G", "R"],
+      "channel_order": [
+        "B",
+        "G",
+        "R"
+      ],
       "byte_order": "little",
       "byte_order_semantics": "平台多字节标量端序；不改变像素内 B/G/R 次序",
       "base_addr": 301989888,
@@ -661,5 +674,12 @@
     "display_buffer 无权威地址事实，按 w5 规定不得猜地址；本轮不提供任何显示缓冲数字（阶段5 已提交清单记录的是其 P1 运行实际使用的三个缓冲）。",
     "本图为离线静态事实整理：所有板上前提（DMA 完成顺序、cache 维护生效、AXI 事务形态、可见性、候选区未被占用）均未实测，属 G3。",
     "w5 阶段5 文档为活动树，引用不绑定哈希，避免把活动内容当冻结输入（本次另绑定其两份已提交运行清单）。"
-  ]
+  ],
+  "direction_scope": {
+    "scope": "UART_CPU_PATH_ONLY",
+    "decision": "Wong 2026-10-27 选 B：本图只覆盖 UART/CPU 路径的写入方向；mailbox/RAW 路径的写入方向另立条目单独获批。",
+    "statement": "本图内 network_input_tensor 的写入方为 PS（UART/CPU 路径）；不得据此声称 PL 预处理拥有该区域写权限。",
+    "mailbox_direction_ref": "docs/stage4/S4B_mailbox_direction_registry.json",
+    "consequence": "mailbox 路径在该 registry 获批前不得执行；与 UART 路径互不替代。"
+  }
 }

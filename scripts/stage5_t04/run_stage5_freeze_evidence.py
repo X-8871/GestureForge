@@ -370,7 +370,7 @@ def freeze_document(context: dict) -> str:
         "**不属于本卡定义的离线 replay/display 路径**；原始输出见 `console/legacy_suite_known_gap.txt`。"
         "本冻结**不冒称**这些历史模块回归通过；其历史结论仍按各自 RunId 自证。",
         "2. **`task-27` 的板级/实时/实物部分未做（NOT_RUN）**：其**离线部分已交付并纳入本冻结**；"
-        "阶段4 回放结果包已冻结（`replay_only`）且本树有离线消费证据，但该卡整体 NOT_RUN。",
+        "阶段4 回放结果包已冻结（`replay_only`）且本树有离线消费证据；板级/实时/实物部分未做、不主张。",
         "3. **板级 B1–B10 全项**：已随 Wong 拔板暂停；重连后需先过第 0 步（占用/部署身份/运行期回读地址/真彩目视需 Wong 在场）。",
         "4. **端到端真实链窗口**（`end2end_real_chain_window_plan_20261027_r01`）中的 P1=task-27、W-E=B1–B10 均未开工（等待信号）。",
         "5. **阶段5 G0/G1/G3/G4/G5 与实物验收仍未通过**。",

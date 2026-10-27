@@ -1,7 +1,7 @@
 # S5-T04 阶段5 **离线范围冻结**（`OFFLINE_SCOPE_FROZEN`）——冻结文书
 
-> 冻结标识：`S5T04-OFFLINE-SCOPE-FROZEN-20261027-R03`｜RunId：`s5_freeze_20261027_r07`｜生成：2026-10-27T23:08:44+08:00
-> 冻结前基线提交（构建冻结集时的 HEAD）：`d19a66ca0eac239714bd0024295829b561a31ee2`；本轮内容提交见 §6。
+> 冻结标识：`S5T04-OFFLINE-SCOPE-FROZEN-20261027-R03`｜RunId：`s5_freeze_20261027_r07`｜生成：2026-10-27T23:39:12+08:00
+> 冻结前基线提交（构建冻结集时的 HEAD）：`2dbcfaf4edec5cb75bc0a6c592ce8ee74460a15b`；本轮内容提交见 §6。
 > 本冻结**只覆盖离线字节集**：不主张 G0/G1/G3/G4/G5，不主张任何板级/实物/实时结论。
 > 本卡不需要板卡（Wong 2026-10-27 确认）；本轮未连接、未加载位流、未烧录、未占用 JTAG/串口。
 
@@ -15,8 +15,8 @@
 ```json
 {
   "frozen_set_id": "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R03",
-  "baseline_commit": "d19a66ca0eac239714bd0024295829b561a31ee2",
-  "generated_utc8": "2026-10-27T23:08:48+08:00",
+  "baseline_commit": "2dbcfaf4edec5cb75bc0a6c592ce8ee74460a15b",
+  "generated_utc8": "2026-10-27T23:39:15+08:00",
   "members": 93,
   "by_group": {
     "contracts_and_specs": 17,
@@ -47,13 +47,13 @@
 ## 4. 冻结集校验器与真实退出码
 | 步骤 | 命令 | 退出码 | 结论 |
 |---|---|---|---|
-| 冻结集生成 | `python -B scripts/stage5_t04/build_stage5_frozen_set.py --out <冻结包目录>/frozen_set.json`（`--out` 必填） | 0 | 93 个成员，`frozen_set.json` sha256 `4461bbbcd22cf993c4e7bc2985c73f578f16f9996b51e262c6350995c5a8cb4c` |
+| 冻结集生成 | `python -B scripts/stage5_t04/build_stage5_frozen_set.py --out <冻结包目录>/frozen_set.json`（`--out` 必填） | 0 | 93 个成员，`frozen_set.json` sha256 `2792bc24bf3b14f5b8309a88897886dbfd5e776dc5f803d90fd71d4cb97e33f1` |
 | 冻结集校验 | `python -B verification/verify_stage5_frozen_set.py` | **0** | `FROZEN_SET_VERIFIED`（一致 93 / 不一致 0 / 环境错误 0） |
-| 注入自测（必须失败） | `python -B verification/verify_stage5_frozen_set.py --selftest <tmp>` | **0** | `SELFTEST_PASS`：clean=0（期望 0）、篡改一字节=1（期望 1）、删一件=2（期望 2） |
+| 注入自测（必须失败） | `python -B verification/verify_stage5_frozen_set.py --selftest <tmp>` | **0** | `SELFTEST_PASS`：clean=0（期望 0）、tampered_one_byte=1（期望 1）、deleted_one_member=2（期望 2）、path_escape_rejected=2（期望 2） |
 | 离线套件（回归） | `C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B -m unittest scripts.stage5_t03.test_s5t03_frozen_replay scripts.stage5_t03.test_s5t03_hud_occlusion scripts.stage5_t03.test_s5t03_json_contract scripts.stage5_t03.test_s5t03_json_contract_malformed scripts.stage5_t03.test_s5t03_long_run_replay scripts.stage5_t03.test_s5t03_multi_geometry_render scripts.stage5_t03.test_s5t03_replay_colour scripts.stage5_t03.test_s5t03_replay_display scripts.stage5_t03.test_s5t03_skeleton scripts.stage5_t03.test_s5t03_stage4_positive_replay verification.test_s5_display_geometry_reference` | 0 | Ran 159 / failures 0 / errors 0 / skipped 2 |
 | 历史模块探测（**非门禁**） | `python -B -m unittest scripts.stage5_s5b.test_s5b_overlay scripts.stage5_s5c.test_s5c_regression` | 1 | Ran 83 / failures 18 / errors 0 —— **已知缺口**（w4 侧黄金数据漂移），不计入本冻结回归主张，见 §8 |
-| 安静窗口 | `tasklist` 过滤 `vivado.exe, xsdb, hw_server, vitis, xsim` | 0 | QUIET（桥接进程 4 个，已按 DSH-20261027-017 区分） |
-| 工作树已跟踪改动 | `git status --short --untracked-files=no` | 0 | CLEAN；index.lock ABSENT |
+| 安静窗口 | `tasklist` 过滤 `vivado.exe, xsdb, hw_server, vitis, xsim` | 0 | QUIET（桥接进程 5 个，已按 DSH-20261027-017 区分） |
+| 工作树已跟踪改动 | `git status --short --untracked-files=no` | 1 | DIRTY；index.lock ABSENT |
 
 > 包装检查器（`check_stage_delivery --mode evidence`，M1/M2）的真实退出码见 `console/check_evidence_mode_output.txt` 与 `results_freeze.json`；`CHECKS_OK` 只代表清单/绑定检查通过。
 
@@ -72,9 +72,9 @@ python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode eviden
 - 在**离开本机**的副本中，`scope=host` 引用可用 `--skip-host-references` 跳过（跳过项会逐条打印，不得当作已验证）。
 
 ## 6. 提交与 F6 自证
-- 冻结前基线（`frozen_set.json.baseline_commit`）：`d19a66ca0eac239714bd0024295829b561a31ee2`。
+- 冻结前基线（`frozen_set.json.baseline_commit`）：`2dbcfaf4edec5cb75bc0a6c592ce8ee74460a15b`。
 - 本轮内容提交与最终 HEAD：见外部报告（本文件不写自身提交哈希，避免自指）；`git log -1` 为权威。
-- **F6 自证**：本轮内容提交单独 `git archive` 导出（或 `git clone --shared --no-checkout` 部分检出）后，在**副本内**复跑冻结集校验器；`check_stage_delivery --mode evidence` 在**主工作树**上运行（其清单绑定按提交 blob 复算，副本与主树的 `files[]` 字节一致；副本内跑需自带完整依赖，故不作为权威口径，见 F2 更正），原始输出与真实退出码见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r02/`（C1 提交前 handoff 为**信息项，非门禁**；提交后 handoff 见 `…_r02_postcommit_handoff/`）。
+- **F6 自证**：本轮内容提交单独 `git archive` 导出（或 `git clone --shared --no-checkout` 部分检出）后，在**副本内**复跑冻结集校验器；`check_stage_delivery --mode evidence` 在**主工作树**上运行（其清单绑定按提交 blob 复算，副本与主树的 `files[]` 字节一致；副本内跑需自带完整依赖，故不作为权威口径，见 F2 更正），原始输出与真实退出码见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r03/`（C1 提交前 handoff 为**信息项，非门禁**；提交后 handoff 见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r02_postcommit_handoff/`）。
 
 ### 6.1 失败/被取代 RunId 的 `run_id` 残留（F4 标注，不重写失败证据）
 - `report/evidence/S5-T04/s5_freeze_f6export_20261027_r00_crlf_fail/` 与 `…_r00b_tracked_dirs_fail/` 内部 `results_f6export.json.run_id` 仍写着 `…_r01`（修复前驱动硬编码，属历史残留）。
@@ -96,7 +96,7 @@ python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode eviden
 
 ## 8. 未闭合项与未做项（NOT_RUN，如实）
 1. **历史模块已知缺口**：`scripts/stage5_s5a|s5b|s5c`（S5-A/B/C 历史离线准备）探测 1，Ran 83 / failures 18 / errors 0；根因＝其测试依赖 w4 侧黄金数据（`s4c_replay_20261021_r05`、`S4-B/20261021_r13`）上游漂移，**不属于本卡定义的离线 replay/display 路径**；原始输出见 `console/legacy_suite_known_gap.txt`。本冻结**不冒称**这些历史模块回归通过；其历史结论仍按各自 RunId 自证。
-2. **`task-27`（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态显示回归）未按卡交付**：阶段4 回放结果包已冻结（`replay_only`）且本树有离线消费证据，但该卡整体 NOT_RUN。
+2. **`task-27` 的板级/实时/实物部分未做（NOT_RUN）**：其**离线部分已交付并纳入本冻结**；阶段4 回放结果包已冻结（`replay_only`）且本树有离线消费证据；板级/实时/实物部分未做、不主张。
 3. **板级 B1–B10 全项**：已随 Wong 拔板暂停；重连后需先过第 0 步（占用/部署身份/运行期回读地址/真彩目视需 Wong 在场）。
 4. **端到端真实链窗口**（`end2end_real_chain_window_plan_20261027_r01`）中的 P1=task-27、W-E=B1–B10 均未开工（等待信号）。
 5. **阶段5 G0/G1/G3/G4/G5 与实物验收仍未通过**。

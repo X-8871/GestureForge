@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-B/S4-T32",
+  "artifact": "S4D 4-D 离线构建 · 地址与缓冲区分配（Phase 1 冻结候选）",
+  "status": "PROPOSED_PHASE1_FREEZE",
+  "enable": 0,
+  "enable_required": true,
+  "hardware_access": "NOT_ALLOWED（本卡全离线；地址图 RAW/META 仍 BLOCKED）",
+  "basis": {
+    "decision": "D1=A：raw_frame=[0x12000000,0x12C00000)、raw_meta=[0x12C00000,0x12C08000)、禁区=[0x12C08000,0x20000000)",
+    "address_map_sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+    "address_map_status": "APPROVED_WITH_ENABLE_0",
+    "contract_sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+    "adr": "docs/stage4/S4B_pl_preprocess_g0_readiness.md §8.2/§8.3/§8.4"
+  },
+  "regions": [
+    {
+      "name": "raw_frame_slot",
+      "base_hex": "0x12000000",
+      "end_hex_exclusive": "0x12C00000",
+      "length_bytes": 12582912,
+      "alignment_bytes": 8,
+      "pixel_format": "BGR888（逐像素 B/G/R）",
+      "byte_order": "little（平台标量端序；像素字节序独立描述）",
+      "storage_rule": "storage_bytes = align_up(logical_bytes, 8)；逻辑末尾至 storage 末尾由 host 写零，PS 在 COMMIT 校验",
+      "buffering": "首轮单缓冲（每帧独占一个 RAW 缓冲，不做双缓冲）",
+      "max_frame_bytes": 11059200,
+      "margin_bytes": 1523712,
+      "owner": "PS/host 写；PL 只读",
+      "cache_maintenance": "64 B 外对齐；host/PS 写后 flush，PL 读取前按 ADR §8.2 语义",
+      "enable_required": true
+    },
+    {
+      "name": "raw_meta",
+      "base_hex": "0x12C00000",
+      "end_hex_exclusive": "0x12C08000",
+      "length_bytes": 32768,
+      "alignment_bytes": 64,
+      "owner": "PS/host 管理；PL 只读有效几何表",
+      "cache_maintenance": "64 B 外对齐 flush/invalidate + DSB",
+      "enable_required": true,
+      "sub_offsets": [
+        {"name": "HOST_REQ", "offset": "0x0000", "length_bytes": 128, "magic": "S4BR", "record_bytes": 128},
+        {"name": "PS_ACK", "offset": "0x0080", "length_bytes": 64, "magic": "S4BA", "record_bytes": 64},
+        {"name": "PS_GEOM", "offset": "0x00c0", "length_bytes": 64, "magic": "S4BG", "record_bytes": 64},
+        {"name": "PS_RESULT", "offset": "0x0100", "length_bytes": 64, "magic": "S4BS", "record_bytes": 64},
+        {"name": "X_TABLE", "offset": "0x0140", "length_bytes": 9984, "entries": 416, "entry_bytes": 24},
+        {"name": "Y_TABLE", "offset": "0x2840", "length_bytes": 9984, "entries": 416, "entry_bytes": 24},
+        {"name": "JTAG_RAW_RESULT", "offset": "0x4f40", "length_bytes": 12480}
+      ],
+      "sub_offset_sum_bytes": 32768
+    },
+    {
+      "name": "frozen_input_tensor",
+      "base_hex": "0x10000000",
+      "end_hex_exclusive": "0x1007EC00",
+      "length_bytes": 519168,
+      "alignment_bytes": 64,
+      "owner": "PL 只写；网络 master 只读；PS 在 PL 完成前不读写",
+      "role": "READ_ONLY_REFERENCE（2B 冻结对象；本卡不写）",
+      "words_8B": 64896
+    }
+  ],
+  "frozen_2b_objects_must_not_overlap": [
+    {"name": "tensor", "base_hex": "0x10000000", "end_hex_exclusive": "0x1007EC00"},
+    {"name": "gf8", "base_hex": "0x10100000", "end_hex_exclusive": "0x106A12FC"},
+    {"name": "feature", "base_hex": "0x11000000", "end_hex_exclusive": "0x11ADADB8"}
+  ],
+  "forbidden_gap": {"base_hex": "0x12C08000", "end_hex_exclusive": "0x20000000", "length_bytes": 222265344},
+  "checks_expected": {
+    "all_allocations_inside_d1a_regions": true,
+    "pairwise_non_overlap": true,
+    "no_overlap_with_frozen_2b_objects": true,
+    "no_overlap_with_forbidden_gap": true,
+    "mailbox_offsets_match_adr": true,
+    "alignment_ok": true
+  },
+  "note": "本文件为 Phase 1 冻结候选；不构成 G0 通过，也不解除地址图 BLOCKED。物理访问仍须独立 G0 与 bring-up 窗口。"
+}

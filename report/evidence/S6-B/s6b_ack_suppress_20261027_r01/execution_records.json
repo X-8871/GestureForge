@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "run_id": "s6b_ack_suppress_20261027_r01",
+  "timezone": "UTC+8",
+  "attempts": [
+    {
+      "name": "s6b_targeted_and_existing_unit_tests",
+      "command": "python -B -m unittest test_s6b_core_regressions test_s6b_probe test_s6b_build_evidence -v",
+      "cwd": "D:\\codex-worktrees\\w6\\verification",
+      "exit_code": 0,
+      "status": "PASS",
+      "result": "27/27 tests passed; full unittest stdout is unittest_output.txt."
+    },
+    {
+      "name": "freeze_existing_expected_only",
+      "command": "python -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_ack_suppress_20261027_r01 --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261025_r03\\cases\\case_matrix.json --freeze-only",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 0,
+      "status": "PASS",
+      "result": "EXPECTED_FROZEN, 26 cases; only snapshots expected blocks from the existing matrix, without running the implementation or generating expected values."
+    },
+    {
+      "name": "existing_26_case_offline_matrix",
+      "command": "python -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_ack_suppress_20261027_r01 --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261025_r03\\cases\\case_matrix.json",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 0,
+      "status": "PASS",
+      "result": "26 cases PASS, 0 assertions_failed."
+    }
+  ]
+}

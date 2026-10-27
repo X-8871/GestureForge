@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_r07_discrimination_probe",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_bound_20261027_r03",
+  "purpose": "先证明 C12/C7/C14 的断言能捕获缺陷（含 F1 文本统一与 F7 越界完成帧口径），再允许 r07 出 ALL_PASS",
+  "composition": "基线 1 例 + 注入 8 例（共 9 例） + 历史口径对照 2 例（共 11 次运行）",
+  "baseline_verdict": "AS_EXPECTED",
+  "injection_count": 8,
+  "historical_check_count": 2,
+  "total_runs": 11,
+  "results": [
+    {
+      "case_id": "baseline_no_injection",
+      "note": "基线：不注入，必须 ALL_PASS",
+      "injection": "（无注入）",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "expected_check": null,
+      "failed_checks": [],
+      "captured": true,
+      "selfcheck_status": "ALL_PASS",
+      "stdout_file": "probe_baseline_no_injection_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "m5_window_advance_removed",
+      "note": "N-r04-01 回归",
+      "injection": "M5.condition 回退为无窗口推进帧限定",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_m5_window_advance_removed_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "empty_predicates_used",
+      "note": "N-r04-03 回归",
+      "injection": "transitions.M2.predicates_used = []",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_empty_predicates_used_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "b13_predicates_used_added",
+      "note": "N-r04-02 回归",
+      "injection": "behavior_rows.B13.predicates_used = ['TARGET_CONTINUES']",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C12",
+      "failed_checks": [
+        "C12"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_b13_predicates_used_added_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "b07_old_wording",
+      "note": "F1：窗口完成文本统一断言",
+      "injection": "behavior_rows.B07.condition 回退旧措辞「第 N 个 WINDOW_MATCH 结果到达时刻」",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C14",
+      "failed_checks": [
+        "C14"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_b07_old_wording_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "case_timeout_frame_action",
+      "note": "N-r04-01 角落用例判别力",
+      "injection": "HC-30.expected.action_at_gate_open_frame.gate_opens_on_timeout = true（应无动作）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C7"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_case_timeout_frame_action_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "case_span_wrong",
+      "note": "N-r05-04 判别力（旧口径：只按第 T6-S02 个 WINDOW_MATCH 帧取跨度）",
+      "injection": "HC-31 预期改成旧口径（第 6 帧 166.5 ms、m3_fires=false）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C7"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_case_span_wrong_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "case_out_of_sequence_index",
+      "note": "F7：完成帧超出所给序列的报值口径",
+      "injection": "HC-32 预期改成越界外推值（completion_index=7 / window_span_ms=233.1）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C7"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_case_out_of_sequence_index_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "m4_conflict_phrase",
+      "note": "BLK-r07-1：M4 口径统一的全包禁语断言",
+      "injection": "parameter_notes.T6-S04 回退为「M4 不可达…不得计入覆盖声明」",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C16",
+      "failed_checks": [
+        "C16"
+      ],
+      "captured": true,
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_m4_conflict_phrase_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "historical_model_check_r05",
+      "note": "r05 版自检（旧口径/旧键）在 r09 样例上必须失败且 C7 FAIL；首个 C7 失败在 HC-28（新键不可复算），HC-31 的口径差异由 case_span_wrong 直接证明",
+      "injection": "使用 git 1632761b2d60d8c1328aa82be97d53eef30e1072 的 verification/s6_g0_selfcheck.py",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C1",
+        "C4",
+        "C7",
+        "C9",
+        "C16"
+      ],
+      "captured": true,
+      "c7_detail": "HC-23.m4_reachable_under_draft 预期 True 与复算 False 不符",
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_historical_model_check_r05_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "historical_model_check_r06",
+      "note": "r06 版自检（旧口径/旧键）在 r09 样例上必须失败且 C7 FAIL；旧实现把超出所给序列的完成帧报成 7/233.1（F7）",
+      "injection": "使用 git 04ea58e1e363e956b8a46ae5711ec8aecb27bfd4 的 verification/s6_g0_selfcheck.py",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "expected_check": "C7",
+      "failed_checks": [
+        "C1",
+        "C4",
+        "C7",
+        "C9",
+        "C16"
+      ],
+      "captured": true,
+      "c7_detail": "HC-23.m4_reachable_under_draft 预期 True 与复算 False 不符",
+      "selfcheck_status": "FAILED",
+      "stdout_file": "probe_historical_model_check_r06_stdout.txt",
+      "verdict": "AS_EXPECTED"
+    }
+  ],
+  "scope_statement": "探针只证明自检断言有判别力，不代表状态机行为、G0 复评、独立审查或实物验收通过。"
+}

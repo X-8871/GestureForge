@@ -120,6 +120,11 @@ def run_case(case: dict, pack: ParamPack) -> dict:
             ack_log["t_input_ns"] = t_ns
             actions.append(record)
             logs.append({"kind": "action_ack", **ack_log})
+            if record.get("duplicate_ack"):
+                duplicate_ack_log = core.note_action_ack(record)
+                duplicate_ack_log["event_index"] = index
+                duplicate_ack_log["t_input_ns"] = t_ns
+                logs.append({"kind": "action_ack_duplicate", **duplicate_ack_log})
             if record.get("submit_result") == "success" and not record.get("suppression"):
                 submitted_at_frames.append(log.get("frame_id"))
             if ack_log.get("transition"):

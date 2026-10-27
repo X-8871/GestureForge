@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_no_hand_20261027_r03",
+  "status": "BLOCKED",
+  "generated_scope": "offline_replay_only",
+  "stage6_source_commit": "3be42b897003e00680bd554d915939de7dfde08e",
+  "stage6_source_bindings": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "disk_sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "bytes": 70281,
+      "head_blob_sha256": "6abd2c7983731f1773cb1622403f35267c1ba45ee48d6bc59e84cf42bb6fb322",
+      "disk_matches_head_blob": false
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "disk_sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "bytes": 76461,
+      "head_blob_sha256": "c08512225415fd82de4e2f5a0b4ff30da74e8a485b566753cdd88bc182a731db",
+      "disk_matches_head_blob": false
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "disk_sha256": "15d7a9b6075d360e14371f48a110e366e3ab00109e77248ce710db7fe4a13021",
+      "bytes": 40822,
+      "head_blob_sha256": "822365aba9967da3c7b9013fe2598b46dd54810984d62a1f29b21d45bdf71fc6",
+      "disk_matches_head_blob": false
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "disk_sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "bytes": 14302,
+      "head_blob_sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "disk_matches_head_blob": true
+    },
+    {
+      "path": "verification/s6d_replay_preview_preflight.py",
+      "disk_sha256": "fe457df64cefbc2cf8376a16f72f93e06472e2414f7aab17010bae5abb2448ea",
+      "bytes": 35801,
+      "head_blob_sha256": null,
+      "disk_matches_head_blob": null
+    },
+    {
+      "path": "verification/test_s6d_replay_preview_preflight.py",
+      "disk_sha256": "0ca476647df2d76ed57f78b862e524afb6d8c1ec7974c3d538076da2af4d44e6",
+      "bytes": 3674,
+      "head_blob_sha256": null,
+      "disk_matches_head_blob": null
+    },
+    {
+      "path": "verification/run_s6d_replay_preview.py",
+      "disk_sha256": "aeae0917dc41f67018fc746984db8220687cc9f15728703e4aa2760bbdf83e62",
+      "bytes": 9532,
+      "head_blob_sha256": null,
+      "disk_matches_head_blob": null
+    }
+  ],
+  "preserved_initial_attempts": [
+    {
+      "attempt": 1,
+      "command_exit_code": 1,
+      "observed_output": "上游绑定核验失败：ValueError: w4 HEAD 漂移：期望 40b9a8c431d2b9ac884117208288a999b29e309e，实际 b46a012dfb04e7c49fa8fd4296485ac148b20b99",
+      "effect": "在 RunId 目录创建前停止；未生成或覆盖任何证据文件。",
+      "resolution": "改为验证不变回放冻结字节、生成提交/复审提交身份及其可达性；仅记录当前 HEAD。"
+    },
+    {
+      "attempt": 2,
+      "command_exit_code": 1,
+      "observed_output": "上游绑定核验失败：ValueError: w4 契约复审提交不符：期望 5f9a04a045f4aaa7516759513f660f9872cbab61，实际 None",
+      "effect": "在 RunId 目录创建前停止；未生成或覆盖任何证据文件。",
+      "resolution": "复审提交在冻结契约 review_record 与 freeze_record 中交叉绑定；回放冻结记录自身不含 reviewed_commit。"
+    },
+    {
+      "attempt": 3,
+      "command_exit_code": 1,
+      "observed_output": "上游绑定核验失败：ValueError: w5 阳性门禁投影未保持 display_eligible=false 或来源标签不符",
+      "effect": "在 RunId 目录创建前停止；未生成或覆盖任何证据文件。",
+      "resolution": "验证每条投影记录标记为非回放且不可显示，并按冻结产物中的两个实际源引用前缀识别门禁几何框。"
+    }
+  ],
+  "preserved_preflight_attempts": [
+    {
+      "attempt": 1,
+      "command": "python -B verification/s6d_replay_preview_preflight.py --upstream-audit --w4-root D:/codex-worktrees/w4 --w5-root D:/codex-worktrees/w5",
+      "exit_code": 1,
+      "observed_error": "UnicodeEncodeError: console encoding gbk 无法输出 SHA 绑定审计结果中的 U+21D2 字符；在写入 RunId 前停止。",
+      "effect": "只读 CLI 自检失败；未修改上游或 w6 文件，未创建任何预演证据。",
+      "resolution": "所有审计/检查子进程加入 -X utf8，CLI stdout/stderr 显式使用 UTF-8。"
+    }
+  ],
+  "upstream_bindings": {
+    "w4": {
+      "current_head": "43f6b9b45cdfdbdab28fa58042b4b85700b0ffd8",
+      "run_source_commit": "4f4ae8f6d44f95b81e3cad2c17341611b0695485",
+      "reviewed_contract_commit": "5f9a04a045f4aaa7516759513f660f9872cbab61",
+      "contract_path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "contract_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+      "contract_version": "1.3.0",
+      "contract_revision": "r07",
+      "freeze_record_path": "report/evidence/S4-CTRL/s4t27_replay_package_freeze_20261027_r01/replay_package_freeze.json",
+      "freeze_record_sha256": "012f5ea4b6d21cf54b806ec46799bbff967ff41da24a47a52e09a4e9f019dfbd",
+      "freeze_scope": "OFFLINE_ONLY",
+      "package_dir": "report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04",
+      "package_files": [
+        {
+          "path": "task27_replay_result_package.json",
+          "sha256": "de823b2c4262235ed26a45ce17e9ae4a78795497b14675277e87a838e5e66c4c",
+          "bytes": 41664,
+          "status": "PASS"
+        },
+        {
+          "path": "replay_forward_bridge_result.json",
+          "sha256": "dcf3455048252b3c5a52d412aafbb93678d1dfcca381e5a67442d5b93f39d845",
+          "bytes": 161398,
+          "status": "PASS"
+        },
+        {
+          "path": "delivery_manifest.json",
+          "sha256": "297c26676578c7b6f64592e14b53f1ae39fc27e5befee0f9b83e18bcfbe818fc",
+          "bytes": 11937,
+          "status": "PASS"
+        },
+        {
+          "path": "preflight_verification.json",
+          "sha256": "17fe02127a6e40dcc26a6242595efc07d1bb389b6fb1b5544b144162d2ae11e8",
+          "bytes": 16351,
+          "status": "PASS"
+        },
+        {
+          "path": "raw_head_gate_head13_int8.bin",
+          "sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+          "bytes": 5070,
+          "status": "PASS"
+        },
+        {
+          "path": "raw_head_gate_head26_int8.bin",
+          "sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+          "bytes": 20280,
+          "status": "PASS"
+        },
+        {
+          "path": "positive_detection_gate_head13_int8.bin",
+          "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+          "bytes": 5070,
+          "status": "PASS"
+        },
+        {
+          "path": "positive_detection_gate_head26_int8.bin",
+          "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+          "bytes": 20280,
+          "status": "PASS"
+        },
+        {
+          "path": "task25_replay_frame_head13_int8.bin",
+          "sha256": "6a020c118948db5760a094bc9b23b2c130426325d3e7fe4f1fbbf6fc7b24d23d",
+          "bytes": 5070,
+          "status": "PASS"
+        },
+        {
+          "path": "task25_replay_frame_head26_int8.bin",
+          "sha256": "1cea5b6f46f389231ab52ae819be5ea60811c6f44e32fb219aaf95bb00091422",
+          "bytes": 20280,
+          "status": "PASS"
+        }
+      ]
+    },
+    "w5": {
+      "current_head": "869b869b9ba559d145f6bb28831667de07b093f8",
+      "source_commit": "869b869b9ba559d145f6bb28831667de07b093f8",
+      "evidence_dir": "report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04",
+      "manifest_sha256": "3fb5f94c560f92dbcab0deb68afbde3b857b5b6d722364a35dbb5b5a979b472b",
+      "source_count": 7,
+      "source_hashes_match_pinned_commit_blobs": true,
+      "evidence_files": {
+        "freeze_integrity.json": {
+          "sha256": "fb4f7dc0c3c2133d859b9b25931051c7983169bc2a8c55ef7d80e461a48b55a7",
+          "bytes": 19094
+        },
+        "consumer_report.json": {
+          "sha256": "f58d5167d029a5e54623bc69ceb7af92a38985159766eaae417fb3fe2eb573f9",
+          "bytes": 5365
+        },
+        "crosscheck_report.json": {
+          "sha256": "24001aefa7af21fdfeb3589cb7f320a5fc23f751ca3f59c227208d48379cc664",
+          "bytes": 6430
+        },
+        "frames.json": {
+          "sha256": "6f2320cdfe7f0409719c705cb578a20b2869d88a27058325e6ce6ac16bb19536",
+          "bytes": 5703
+        },
+        "frames.jsonl": {
+          "sha256": "1435e5340ecd5e80774eef7183f4d51f8f1b8a08e850e44b8d422d35ef8f6f0d",
+          "bytes": 3582
+        },
+        "five_tuples.jsonl": {
+          "sha256": "c65a94af026cdf956e94de4421575461ecad0f10e18e274c7d96b3bc5bc188ae",
+          "bytes": 1031
+        },
+        "gate_evidence_projection.json": {
+          "sha256": "ad5659becee5cea00166dd0c2f02f146a480c494840ff018fed113995678f22a",
+          "bytes": 11518
+        },
+        "summary.md": {
+          "sha256": "abaf9073b0a59b7404fc2772c6366b427e4ef790b318a43e83123640e42d84bd",
+          "bytes": 5518
+        },
+        "manifest.json": {
+          "sha256": "3fb5f94c560f92dbcab0deb68afbde3b857b5b6d722364a35dbb5b5a979b472b",
+          "bytes": 11444
+        }
+      },
+      "freeze_integrity": {
+        "verdict": "CONSUMABLE_OFFLINE_REPLAY_ONLY",
+        "file_integrity": "10/10 PASS",
+        "upstream_binding_drift": "17/17 PASS"
+      }
+    }
+  },
+  "actual_replay_input": {
+    "session_id": 853466600,
+    "frame_id": 1,
+    "result_seq": 1,
+    "repeat_index": 1,
+    "sequence": 1,
+    "source_kind": "camera",
+    "state": "NO_HAND",
+    "detection_count": 0,
+    "detections": [],
+    "capture_time_ns": 1792776253000000000,
+    "result_time_ns": null,
+    "inference_time_ns": null,
+    "end_to_end_latency_ns": null,
+    "stale": null,
+    "error_code": 0,
+    "timing_basis": {
+      "capture_time_ns": {
+        "value": 1792776253000000000,
+        "defined": true,
+        "basis": "documented_stage3_wallclock_second_unix_epoch",
+        "clock_domain": "replay_documented_wallclock",
+        "precision": "one_second_as_recorded",
+        "text": "2026-10-24T01:24:13+08:00",
+        "is_measured_capture_clock": false,
+        "note": "已文档化的真实抓取时刻（秒级、墙钟口径），不是 PS 单调采集计数"
+      },
+      "result_time_ns": {
+        "value": null,
+        "defined": false,
+        "basis": "UNAVAILABLE_OFFLINE_REPLAY_NO_MONOTONIC_PUBLISH_CLOCK",
+        "note": "冻结包声明 stale_evaluation=NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK"
+      },
+      "inference_time_ns": {
+        "value": null,
+        "defined": false,
+        "basis": "UNAVAILABLE_OFFLINE_HOST_CPU_ELAPSED_IS_NOT_PS_INFERENCE_TIME",
+        "offline_host_elapsed_ms": 5765.306600000031,
+        "note": "offline_host_elapsed_ms 是离线主机 CPU 墙钟耗时，不是 PS 推理时间，不得填作 inference_time_ns"
+      },
+      "end_to_end_latency_ns": {
+        "value": null,
+        "defined": false,
+        "basis": "UNAVAILABLE_NO_PUBLISH_INSTANT_IN_SAME_CLOCK_DOMAIN_AS_CAPTURE",
+        "note": "回放无与采集同域的发布时刻 ⇒ 端到端延迟不可定义"
+      },
+      "injection_start_ns": null,
+      "injection_start_ns_used_as_capture_time": false,
+      "stale_evaluation": "NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK",
+      "age_frame_ns_basis": "UNAVAILABLE: 回放无单调发布时钟，t_overlay_commit 与 t_capture 无可比同域时间；基准声明=documented_stage3_wallclock_second_unix_epoch，绝不使用 injection_start_ns 冒充实测采集时间",
+      "state_for_timing": "NO_HAND"
+    },
+    "field_bases": {
+      "candidate_overflow": "NOT_DECLARED_IN_FROZEN_PACKAGE",
+      "dropped_frames": "NOT_DECLARED_IN_FROZEN_PACKAGE",
+      "stale": "NOT_DECLARED_IN_FROZEN_PACKAGE（冻结包只给 stale_evaluation=NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK）",
+      "error_code": "derived_from_frozen_bridge_run_status（离线回放无 PS error_code）",
+      "inference_time_ns": "UNAVAILABLE_OFFLINE_HOST_CPU_ELAPSED_IS_NOT_PS_INFERENCE_TIME"
+    },
+    "input_kind": "stage4_frozen_replay",
+    "consumption_mode": "replay_only",
+    "evidence_kind": "offline_replay",
+    "buffer_scope": "offline_host",
+    "scope_statement": "离线主机回放；不代表 PL、实物或实时检测输出"
+  },
+  "eligibility": {
+    "status": "BLOCKED",
+    "reasons": [
+      "stale 不是布尔值；阶段6不能把未知状态静默当作 fresh"
+    ],
+    "core_event_constructed": false,
+    "core_step_called": false
+  },
+  "core_execution": {
+    "status": "NOT_RUN",
+    "reason": "输入字段闸门 BLOCKED 时不调用状态机，避免将未知 stale 默认为 fresh。"
+  },
+  "not_applicable": [
+    "阳性检测门禁框不属于回放帧；本轮未读取、未注入，也未生成任何检测框。",
+    "单帧 NO_HAND 不含目标选择、稳定窗口、保持/重获、动作、冷却、去重、未知场景或恢复轨迹。",
+    "capture_time_ns 属 documented replay wall-clock；没有单调发布时刻和帧间周期，未据此构造 t_input_ns。",
+    "T6-A03/P、实时延迟、板级 G3、6-E 实物验收、G4/G5 均未执行。"
+  ],
+  "independent_upstream_audit": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\verification\\s6d_replay_preview_preflight.py --upstream-audit --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5",
+    "exit_code": 0,
+    "output_path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r03/upstream_audit_output.txt",
+    "output_sha256": "f60e750d292b020b6300f59b8c8688c45a9cf7de9446d2df450489aa4094947b"
+  },
+  "runner_process": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\verification\\s6d_replay_preview_preflight.py --project-root D:\\codex-worktrees\\w6 --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --run-dir report/evidence/S6-D/s6d_replay_no_hand_20261027_r03",
+    "cwd": "D:\\codex-worktrees\\w6",
+    "exit_code": 2,
+    "output_path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r03/runner_output.txt",
+    "output_sha256": "df6e2b14fabbb06a3f00bb022e7766aae12ecaeebe5015bc06a18895782a54cd"
+  }
+}

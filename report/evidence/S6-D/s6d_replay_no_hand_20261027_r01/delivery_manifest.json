@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_no_hand_20261027_r01",
+  "source_commit": "3be42b897003e00680bd554d915939de7dfde08e",
+  "evidence_dir": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只读绑定阶段4/5 的跨树 replay-only 文件；没有把离线范围冻结件申报为阶段6 集成接口。",
+  "files": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "阶段6 已批准行为表：NO_HAND 与窗口推进语义依据"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "source",
+      "keep_reason": "阶段6 行为说明与范围约束"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "6992b1c4431b5ca0459d7c02071e8945dec135ab758318978e512022c332036a",
+      "role": "source",
+      "keep_reason": "被评估的阶段6 实际状态机核心；本轮未调用"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "source",
+      "keep_reason": "被评估的阶段6 参数校验层；本轮未装载参数"
+    },
+    {
+      "path": "verification/s6d_replay_preview_preflight.py",
+      "sha256": "aa6544758aeaa8fa7b225f383ea14ec415d8d66a06608f85b118dff863cf82f5",
+      "role": "source",
+      "keep_reason": "本轮回放输入门实现"
+    },
+    {
+      "path": "verification/test_s6d_replay_preview_preflight.py",
+      "sha256": "de23daad98e2a90963b7292b7acd7030324650a91c76b600a2f8a25172af7829",
+      "role": "source",
+      "keep_reason": "本轮回放输入门定向测试"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r01/preflight_result.json",
+      "sha256": "aede529c3b3d360f95dabd9ac77f9d9cd275a2a2f9dd7e4895dd6fa60b2d14e7",
+      "role": "result",
+      "keep_reason": "本轮输入资格与上游绑定结果"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r01/inputs_manifest.json",
+      "sha256": "657a72e6db16a1a04d0ad74d630f06ea3aba76577f37a8fd95a63e1048ed65ec",
+      "role": "result",
+      "keep_reason": "输入清单与实际哈希"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r01/summary.md",
+      "sha256": "1d9bbadc5b126c88b4b1f6368cc9808f933e8c1d572ce535b43fa33f2255d7e1",
+      "role": "result",
+      "keep_reason": "人读范围摘要"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r01/unit_test_output.txt",
+      "sha256": "df6e037049173c974332a7ee2d3a87e562e7fa511a341ff44d5e49a06fcab082",
+      "role": "log",
+      "keep_reason": "定向单测真实输出"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r01/check_inputs_mode_output.txt",
+      "sha256": "36b46a0c249bc25c4f9ae858198d60b841c20bbad39b2ace7f652dd89cc89f71",
+      "role": "log",
+      "keep_reason": "阶段交付输入清单核验真实输出"
+    }
+  ],
+  "checks": [
+    {
+      "name": "replay-only 单帧输入资格",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "实际 stale=null；不可静默映射为 stale=false。"
+    },
+    {
+      "name": "阶段交付 inputs 模式",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r01\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0
+    },
+    {
+      "name": "定向单元测试",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 -m unittest -v verification.test_s6d_replay_preview_preflight",
+      "exit_code": 0
+    },
+    {
+      "name": "阶段交付 evidence 模式",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r01\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "本包只记录 replay-only 单帧输入预检；状态机未调用，阶段6 回放预演未执行。",
+    "阶段4/5 上游 SHA、精确提交及消费范围见 preflight_result.json。",
+    "没有实测时间/帧周期；T6-A03/P 仍 NOT_RUN。",
+    "阳性门禁几何投影 display_eligible=false，未作为回放框消费。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.0.windows.2"
+  }
+}

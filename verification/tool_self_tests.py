@@ -560,6 +560,43 @@ def _state_reference_copy_plan(root: Path) -> tuple[Path, list[tuple[str, Path, 
     return state_source, references
 
 
+def _manifest_external_copy_plan(root: Path, run_rel: str, run_dir: Path) -> list[tuple[str, Path, str]]:
+    """读取并校验交付清单里的根外部绑定，供隔离快照复制实际被测字节。"""
+    manifest_path = _resolve_confined_path(run_dir, "delivery_manifest.json",
+                                           "快照交付清单", must_exist=True)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    files = manifest.get("files")
+    if not isinstance(files, list):
+        raise ValueError("快照 delivery_manifest.files 必须为列表")
+    prefix = f"{Path(run_rel).as_posix().rstrip('/')}/"
+    bindings: dict[str, tuple[str, Path, str]] = {}
+    for item in files:
+        raw = str(item.get("path", "")).replace("\\", "/").strip()
+        if not raw or raw == run_rel or raw.startswith(prefix):
+            continue
+        relative = _safe_relative_path(raw, "清单外部绑定路径").as_posix()
+        source = _resolve_confined_path(root, relative,
+                                        f"清单外部绑定 {relative}", must_exist=True)
+        if not source.is_file():
+            raise ValueError(f"清单外部绑定不是文件：{relative}")
+        data = source.read_bytes()
+        normalized = data.replace(b"\r\n", b"\n")
+        variants = {
+            hashlib.sha256(data).hexdigest(),
+            hashlib.sha256(normalized).hexdigest(),
+            hashlib.sha256(normalized.replace(b"\n", b"\r\n")).hexdigest(),
+        }
+        expected = str(item.get("sha256", "")).casefold()
+        if expected not in {value.casefold() for value in variants}:
+            raise ValueError(f"清单外部绑定哈希与源文件不符：{relative}")
+        entry = (relative, source, "file")
+        previous = bindings.get(relative)
+        if previous and (previous[1].resolve() != source.resolve() or previous[2] != "file"):
+            raise ValueError(f"清单重复绑定路径来源冲突：{relative}")
+        bindings[relative] = entry
+    return [bindings[key] for key in sorted(bindings)]
+
+
 def _validate_source_tree(root: Path, source: Path, label: str) -> None:
     """确认待复制目录中的每个条目都位于源根内且不经过符号链接。"""
     base = root.resolve()
@@ -605,6 +642,8 @@ def prepare_clean_snapshot_fixture(root: Path, s6a_run: str, fixture_parent: Pat
         copy_plan.append((relative, source, "file"))
     copy_plan.append((run_rel, source_run, "tree"))
     copy_plan.append((".codex/STATE.md", state_source, "file"))
+    manifest_external_files = _manifest_external_copy_plan(source_root, run_rel, source_run)
+    copy_plan.extend(manifest_external_files)
 
     for token in re.findall(r"`(report/evidence/[^`]+)`", state_text):
         relative_path = _safe_relative_path(token.rstrip("/\\"), "STATE 证据引用")
@@ -618,6 +657,14 @@ def prepare_clean_snapshot_fixture(root: Path, s6a_run: str, fixture_parent: Pat
         elif source.is_file():
             copy_plan.append((relative, source, "file"))
             copied_state_references.append(relative)
+
+    unique_copy_plan: dict[str, tuple[str, Path, str]] = {}
+    for relative, source, kind in copy_plan:
+        previous = unique_copy_plan.get(relative)
+        if previous and (previous[1].resolve() != source.resolve() or previous[2] != kind):
+            raise ValueError(f"隔离快照重复路径来源冲突：{relative}")
+        unique_copy_plan[relative] = (relative, source, kind)
+    copy_plan = list(unique_copy_plan.values())
 
     fixture_parent = fixture_parent.resolve()
     fixture_root = fixture_parent / "project"
@@ -699,8 +746,61 @@ def prepare_clean_snapshot_fixture(root: Path, s6a_run: str, fixture_parent: Pat
         "fixture_commit": commit.strip(),
         "run_rel": run_rel,
         "state_reference_count": len(copied_state_references),
+        "manifest_external_files": [relative for relative, _source, _kind in manifest_external_files],
         "seeded_placeholder_fixture": seed_report,
         "bound_positive_fixture": package_report,
+    }
+
+
+def u6_02_receipt_binding_scope_regression(root: Path, run_rel: str) -> dict:
+    """确认批准回执有原始字节绑定，且扫描器仍拒绝待批准文本。"""
+    import approved_package_scan
+
+    root = root.resolve()
+    run_rel, run_dir = _resolve_run_dir(root, run_rel, "U6-02 回执绑定自测 RunId")
+    receipt_rel = "report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json"
+    receipt_path = _resolve_confined_path(root, receipt_rel, "U6-02 r07 原始回执", must_exist=True)
+    if not receipt_path.is_file():
+        raise ValueError("U6-02 r07 原始回执不是文件")
+    receipt_bytes = receipt_path.read_bytes()
+    receipt = json.loads(receipt_bytes.decode("utf-8"))
+    receipt_sha = hashlib.sha256(receipt_bytes).hexdigest()
+    inputs_manifest = json.loads((run_dir / "inputs_manifest.json").read_text(encoding="utf-8"))
+    delivery_manifest = json.loads((run_dir / "delivery_manifest.json").read_text(encoding="utf-8"))
+    input_matches = [item for item in inputs_manifest.get("files", [])
+                     if item.get("path") == receipt_rel and item.get("sha256") == receipt_sha
+                     and item.get("role") == "input"]
+    delivery_matches = [item for item in delivery_manifest.get("files", [])
+                        if item.get("path") == receipt_rel and item.get("sha256") == receipt_sha
+                        and item.get("role") == "input"]
+    package_copy_present = (run_dir / "decision_receipt.json").exists()
+    metadata_line_is_rejected = approved_package_scan.line_is_hit('"not_approved_or_not_claimed": [')
+    true_pending_line_is_rejected = approved_package_scan.line_is_hit('"approval_status": "PENDING_APPROVAL"')
+    approved_line_is_clean = not approved_package_scan.line_is_hit(
+        '"decision_status": "APPROVED_20261025"')
+    actual_hits = approved_package_scan.scan(root, run_rel)
+    checks = {
+        "receipt_identity_and_status": (receipt.get("run_id") == "s6a_u6_02_decision_20261025_r07"
+                                         and receipt.get("decision_id") == "U6-02"
+                                         and receipt.get("decision_status") == "APPROVED_20261025"),
+        "inputs_manifest_raw_sha_binding": len(input_matches) == 1,
+        "delivery_manifest_raw_sha_binding": len(delivery_matches) == 1,
+        "no_local_receipt_copy_in_scan_scope": not package_copy_present,
+        "negated_metadata_still_hits_if_scanned": metadata_line_is_rejected,
+        "bad_status_line_still_hits": true_pending_line_is_rejected,
+        "approved_status_remains_clean": approved_line_is_clean,
+        "actual_package_scan_clean": not actual_hits,
+    }
+    return {
+        "case_id": "u6_02_receipt_binding_scope_regression",
+        "exit_code": None,
+        "expected": "原始回执在 inputs/delivery 清单双重绑定；扫描器保留窄口径判定",
+        "kind": "binding_and_scan_scope_regression",
+        "receipt_path": receipt_rel,
+        "receipt_sha256": receipt_sha,
+        "checks": checks,
+        "actual_package_hit_count": len(actual_hits),
+        "verdict": "AS_EXPECTED" if all(checks.values()) else "UNEXPECTED",
     }
 
 
@@ -805,6 +905,17 @@ def main(argv: list[str] | None = None) -> int:
         results.append({"case_id": case_id, "expected_exit": expected_exit, "exit_code": got_exit,
                         "observable": output.strip().splitlines()[-2:], "note": note,
                         "verdict": "AS_EXPECTED" if ok else "UNEXPECTED"})
+
+    if args.package == "s6a":
+        try:
+            receipt_case = u6_02_receipt_binding_scope_regression(root, run_rel)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            receipt_case = {"case_id": "u6_02_receipt_binding_scope_regression",
+                            "exit_code": None,
+                            "expected": "原始回执有双清单绑定，扫描器保留窄口径判定",
+                            "kind": "binding_and_scan_scope_regression",
+                            "error": f"{type(exc).__name__}: {exc}", "verdict": "UNEXPECTED"}
+        results.append(receipt_case)
 
     def proof_argv(extra: list[str]) -> list[str]:
         argv_ = [PY, "-B", "verification/export_selfproof.py", "--project-root", str(root),

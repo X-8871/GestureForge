@@ -1,5 +1,14 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 离线推进（2026-10-27，UTC+8）
+
+- S6-A U6-02 r07 回执绑定包 `report/evidence/S6-A/s6a_u6_02_bound_20261027_r05/`：17/17 自检、9/9 claim、17 项工具自测及 inputs/evidence 通过；独立复审 PASS。被绑定的两份规格和 r07 回执属于本轮开始前未提交内容，提交基线本身不能单独恢复该包；r01–r04 失败或未完成记录保留。
+- S6-D 回放单帧预检 `report/evidence/S6-D/s6d_replay_no_hand_20261027_r03/` 独立复审 PASS；阶段4 离线冻结包 10/10 哈希一致、阶段5 消费产物已绑定。实际单帧 NO_HAND/零框缺有效 stale 与结果时间，预检 BLOCKED、核心 NOT_RUN；该预检不解除真实集成阻塞。
+- S6-B/C M10、重复 ACK 与 B22 业务内容冲突修复：`report/evidence/S6-B/s6b_ack_suppress_20261027_r01/`，定向 27/27、既有矩阵 26/26、清单检查 PASS；独立复审前几轮问题关闭，最终 suppression 定向复审 PASS。ACK 去重集在单一长会话随回执数增长，接口缺 session_id，异步跨会话迟到回执无法消歧。
+- T6-A03 缺实测 P 仍 NOT_RUN；6-E 实物/G3 未执行；真实 6-D、阶段 G0/G4/G5 未闭合。所有工作仅离线，不修改阶段4/5 工作树或操作硬件。
+
+任务=`阶段6离线缺口修复与验收准备` | 负责人=`Codex 阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`3be42b897003e00680bd554d915939de7dfde08e` | 允许修改范围=`阶段6离线源码、测试、新证据及 STATE` | 未提交改动归属=`原有 STATE、两份 S6-A 规格及旧证据继续保留；本轮变更见离线推进段` | 让出声明=`Codex 持有写权；未操作硬件，未向其他方 OFFER` | 心跳(UTC+8)=`2026-10-27 14:22` | 证据入口=`report/evidence/S6-A/s6a_u6_02_bound_20261027_r05/`；`report/evidence/S6-B/s6b_ack_suppress_20261027_r01/`；`report/evidence/S6-D/s6d_replay_no_hand_20261027_r03/` | 恢复命令=`git -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex；离线审查完成，真实集成与阶段验收未闭合`
+
 ## 目标
 阶段6 交互控制：五类动作判定、多框选择/同分排序、目标保持与重获、抖动/稳定窗口、冷却与再触发、
 持续保持只触发一次；产出 G0 行为表 + S6-B/S6-C 实现与确定性证据 + 6-E 验收用例集。硬件（摄像头/板测）不在本轮。

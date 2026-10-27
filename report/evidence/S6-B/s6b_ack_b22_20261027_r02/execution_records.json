@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "run_id": "s6b_ack_b22_20261027_r02",
+  "timezone": "UTC+8",
+  "attempts": [
+    {
+      "name": "unittest_sandbox_denied",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B -m unittest test_s6b_core_regressions test_s6b_probe test_s6b_build_evidence -v",
+      "cwd": "D:\\codex-worktrees\\w6\\verification",
+      "exit_code": 1,
+      "status": "BLOCKED",
+      "output": "PowerShell ResourceUnavailable；底层启动 Python 进程时拒绝访问，测试代码未启动。"
+    },
+    {
+      "name": "targeted_unittest",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B -m unittest test_s6b_core_regressions test_s6b_probe test_s6b_build_evidence -v",
+      "cwd": "D:\\codex-worktrees\\w6\\verification",
+      "exit_code": 0,
+      "status": "PASS",
+      "elapsed_seconds": 0.8456897,
+      "output": "test_action_ack_dedup_scope_resets_with_new_session (test_s6b_core_regressions.S6BCoreRegressionTests.test_action_ack_dedup_scope_resets_with_new_session) ... ok\r\ntest_b22_conflicts_on_stale_state_detection_and_error_content_changes (test_s6b_core_regressions.S6BCoreRegressionTests.test_b22_conflicts_on_stale_state_detection_and_error_content_changes) ... ok\r\ntest_b22_ignores_receive_time_and_transport_context_only (test_s6b_core_regressions.S6BCoreRegressionTests.test_b22_ignores_receive_time_and_transport_context_only) ... ok\r\ntest_duplicate_ack_policy_replays_one_ack_without_double_count (test_s6b_core_regressions.S6BCoreRegressionTests.test_duplicate_ack_policy_replays_one_ack_without_double_count) ... ok\r\ntest_duplicate_fail_ack_does_not_repeat_false_action_or_set_cooldown (test_s6b_core_regressions.S6BCoreRegressionTests.test_duplicate_fail_ack_does_not_repeat_false_action_or_set_cooldown) ... ok\r\ntest_duplicate_success_ack_does_not_repeat_m6_or_move_cooldown_anchor (test_s6b_core_regressions.S6BCoreRegressionTests.test_duplicate_success_ack_does_not_repeat_m6_or_move_cooldown_anchor) ... ok\r\ntest_duplicate_unobserved_ack_counts_once_and_preserves_anchor (test_s6b_core_regressions.S6BCoreRegressionTests.test_duplicate_unobserved_ack_counts_once_and_preserves_anchor) ... ok\r\ntest_idle_target_expires_at_l02_then_reacquires_with_new_id (test_s6b_core_regressions.S6BCoreRegressionTests.test_idle_target_expires_at_l02_then_reacquires_with_new_id) ... ok\r\ntest_opaque_legacy_action_id_is_accepted (test_s6b_core_regressions.S6BCoreRegressionTests.test_opaque_legacy_action_id_is_accepted) ... ok\r\ntest_real_success_and_fail_ack_require_nonempty_string_id (test_s6b_core_regressions.S6BCoreRegressionTests.test_real_success_and_fail_ack_require_nonempty_string_id) ... ok\r\ntest_suppression_without_action_id_is_valid_and_not_deduplicated (test_s6b_core_regressions.S6BCoreRegressionTests.test_suppression_without_action_id_is_valid_and_not_deduplicated) ... ok\r\ntest_main_summary_persists_actual_26_case_baseline (test_s6b_probe.MainFlowTests.test_main_summary_persists_actual_26_case_baseline) ... ok\r\ntest_26_case_baseline_is_reported_from_matrix_and_run (test_s6b_probe.ValidateBaselineTests.test_26_case_baseline_is_reported_from_matrix_and_run) ... ok\r\ntest_different_actual_count_cannot_pass (test_s6b_probe.ValidateBaselineTests.test_different_actual_count_cannot_pass) ... ok\r\ntest_failed_case_cannot_pass_with_zero_driver_exit (test_s6b_probe.ValidateBaselineTests.test_failed_case_cannot_pass_with_zero_driver_exit) ... ok\r\ntest_main_runs_inputs_before_fixpoint_and_binds_final_outputs (test_s6b_build_evidence.S6BBuilderFlowRegression.test_main_runs_inputs_before_fixpoint_and_binds_final_outputs) ... ok\r\ntest_nonzero_closing_check_is_separately_persisted (test_s6b_build_evidence.S6BBuilderFlowRegression.test_nonzero_closing_check_is_separately_persisted) ... ok\r\ntest_nonzero_final_evidence_check_is_persisted_and_stops_builder (test_s6b_build_evidence.S6BBuilderFlowRegression.test_nonzero_final_evidence_check_is_persisted_and_stops_builder) ... ok\r\ntest_nonzero_inputs_check_is_persisted_and_stops_builder (test_s6b_build_evidence.S6BBuilderFlowRegression.test_nonzero_inputs_check_is_persisted_and_stops_builder) ... ok\r\ntest_inputs_placeholder_is_filled_before_check_artifacts_are_bound (test_s6b_build_evidence.S6BEvidenceSummaryRegression.test_inputs_placeholder_is_filled_before_check_artifacts_are_bound) ... ok\r\ntest_iteration_zero_failure_and_final_pass_are_reported_separately (test_s6b_build_evidence.S6BEvidenceSummaryRegression.test_iteration_zero_failure_and_final_pass_are_reported_separately) ... ok\r\n\r\n----------------------------------------------------------------------\r\nRan 21 tests in 0.521s\r\n\r\nOK\r\n"
+    },
+    {
+      "name": "expected_freeze_only",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_ack_b22_20261027_r02 --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261025_r03\\cases\\case_matrix.json --freeze-only",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 0,
+      "status": "PASS",
+      "elapsed_seconds": 0.2238976,
+      "output": "{\"status\": \"EXPECTED_FROZEN\", \"cases\": 26}\r\n",
+      "expected_source": "既有 r03 case_matrix.json 中人工维护的 expected 块；freeze-only 不调用 run_case，不执行状态机。"
+    },
+    {
+      "name": "frozen_matrix_regression",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_ack_b22_20261027_r02 --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_core_20261025_r03\\cases\\case_matrix.json",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 0,
+      "status": "PASS",
+      "elapsed_seconds": 0.2314949,
+      "output": "{\"status\": \"PASS\", \"case_count\": 26, \"assertions_failed\": 0, \"failed_cases\": []}\r\n"
+    },
+    {
+      "name": "evidence_manifest_initial_check",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_ack_b22_20261027_r02\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 1,
+      "status": "FAIL",
+      "failure_diagnosis": "首次清单中文 reason 经原生 stdout 往返后含 U+FFFD，files[3..28] keep_reason 校验失败；以 ASCII 转义重建清单。"
+    },
+    {
+      "name": "evidence_manifest_self_list_check",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_ack_b22_20261027_r02\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 1,
+      "status": "FAIL",
+      "failure_diagnosis": "第二版清单误将 delivery_manifest.json 自身列入 files，触发自列、哈希不匹配、目录枚举差异；随后重建时已排除清单自身。"
+    },
+    {
+      "name": "evidence_manifest_check_before_final_binding",
+      "command": "& \"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-B\\s6b_ack_b22_20261027_r02\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "cwd": "D:\\FPGA_Competition",
+      "exit_code": 0,
+      "status": "PASS",
+      "output_summary": "CHECKS_OK；errors=[]；warnings=[]"
+    }
+  ]
+}

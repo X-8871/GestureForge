@@ -27,6 +27,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from collections import deque
 from typing import Any
@@ -38,6 +40,8 @@ EV_FRAME_RESULT = "E_FRAME_RESULT"
 EV_FRAME_TIMEOUT = "E_FRAME_TIMEOUT"
 EV_FRAME_ERROR = "E_FRAME_ERROR"
 EV_FRAME_DROPPED = "E_FRAME_DROPPED"
+EV_FRAME_DUPLICATE = "E_FRAME_DUPLICATE"
+EV_FRAME_CONFLICT = "E_FRAME_CONFLICT"
 EV_TICK = "E_TICK"
 
 
@@ -45,6 +49,8 @@ SUP_COOLDOWN = "S_COOLDOWN"
 SUP_TARGET_HELD = "S_TARGET_HELD"
 SUP_JITTER = "S_JITTER_TOLERATED"
 SUP_WINDOW_TIMEOUT = "S_WINDOW_TIMEOUT"
+# 动作层 ACK 的 suppression 只允许 ActionLayer 实际输出的 S_DEDUP。
+ACTION_ACK_SUPPRESSIONS = frozenset({"S_DEDUP"})
 
 NON_ADVANCING_KINDS = (EV_FRAME_TIMEOUT, EV_FRAME_ERROR, EV_FRAME_DROPPED)
 
@@ -58,6 +64,53 @@ class CoreInputError(RuntimeError):
 
 def _finite(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+
+
+def _is_ns_timestamp(value: Any) -> bool:
+    """纳秒时间戳按整数解释，拒绝 bool 与浮点近似值。"""
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _stable_json_value(value: Any) -> Any:
+    """把事件值转为类型稳定、键顺序稳定的 JSON 值。"""
+    if isinstance(value, float):
+        return {"$float64": value.hex()}
+    if isinstance(value, dict):
+        if all(isinstance(key, str) for key in value):
+            return {key: _stable_json_value(value[key]) for key in sorted(value)}
+        ordered = sorted(value.items(), key=lambda item: (type(item[0]).__name__, repr(item[0])))
+        return {"$mapping": [[_stable_json_value(key), _stable_json_value(item)]
+                             for key, item in ordered]}
+    if isinstance(value, list):
+        return {"$list": [_stable_json_value(item) for item in value]}
+    if isinstance(value, tuple):
+        return {"$tuple": [_stable_json_value(item) for item in value]}
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    return {"$unsupported_type": f"{type(value).__module__}.{type(value).__qualname__}",
+            "$repr": repr(value)}
+
+
+def _business_frame_digest(event: dict[str, Any]) -> str:
+    """按 B22 计算业务内容身份，并排除已核验不影响重复帧处理的上下文。
+
+    ``session_id``/``frame_id`` 是比较作用域与身份键，不属于同一帧的载荷；
+    ``t_input_ns`` 是接收时刻；年龄字段只写入日志；``dropped_frames`` 仅在
+    新帧的缺帧统计中读取，而重复帧分支先于该统计，因此这些字段不改变重复帧结果。
+    ``kind``、``state``、``stale``、检测内容以及其他事件字段均保留在指纹中。
+    """
+    transport_fields = {
+        "session_id", "frame_id", "t_input_ns", "age_result_ns", "age_frame_ns",
+        "dropped_frames",
+    }
+    business_fields = {key: value for key, value in event.items() if key not in transport_fields}
+    canonical = json.dumps(
+        _stable_json_value(business_fields),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 class GestureInteractionCore:
@@ -81,10 +134,7 @@ class GestureInteractionCore:
         "M12（恢复出口）与目标切换（D3）各 +1；M13 只是恢复态内再入，不结束获取、不递增；"
         "会话/重启复位（RESET）由 _init_state 归零；M1 建立候选不递增。同一获取内 M5 至多触发一次（B11/B15）；"
         "动作记录、逐帧日志与 action_ack 日志都带该 id，可由交付证据逐获取核对。",
-        "D8（N-08/NB-03，按实测改写）：IDLE **会**保留 current_target——单帧选中目标时 M1 未成立（需 T6-C01=2 帧），"
-        "但该帧已按 §8 选定目标，而 IDLE 不在 M10 的求值分支里；实测「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10。"
-        "这是与规格「M10 适用于任意有目标状态」的**已知行为偏差**，已在 limitations_not_executed.json 的 "
-        "open_behavior_deviations 登记：修正前不得声称 M10 全覆盖；修正需在 IDLE 显式求值 M10 并回归全部用例。",
+        "D8（修复前已知偏差）：IDLE 可保留 current_target；M10 修复已在任意有目标状态求值。",
         "D9（N-04/NB-04 登记）：§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现——每帧只输出单一 transition；"
         "相关常量与分支已移除，并已在 limitations_not_executed.json 的 not_implemented 中登记（NB-04）。",
     )
@@ -113,10 +163,12 @@ class GestureInteractionCore:
             "invalid": 0, "error": 0, "dropped": 0, "timeout": 0, "stale": 0, "false_actions": 0,
             "no_hand_frames": 0, "unknown_class_frames": 0, "no_hand_with_detections": 0,
             "ok_frames": 0,
-            "duplicate_frames": 0, "out_of_order_frames": 0, "missing_frames": 0,
+            "duplicate_frames": 0, "conflict_frames": 0,
+            "out_of_order_frames": 0, "missing_frames": 0,
             "action_submitted": 0, "action_effective": 0, "unobserved": 0,
         }
         self.last_frame_id: int | None = None
+        self.last_frame_business_sha256: str | None = None
         self.last_t_ns: int | None = None
         self.current_target: dict[str, Any] | None = None
         self.acquisition_id = 0
@@ -136,6 +188,7 @@ class GestureInteractionCore:
         self.anomaly_history: deque[int] = deque(maxlen=self.th["u00_w"])
         self.result_history: list[str] = []
         self.action_log: list[dict[str, Any]] = []
+        self._seen_action_ack_ids: set[str] = set()
         self.suppressions: list[str] = []
 
     # ------------------------------------------------------------------ 几何
@@ -326,6 +379,7 @@ class GestureInteractionCore:
         frame_id = event.get("frame_id")
         if isinstance(frame_id, bool) or not isinstance(frame_id, int):
             raise CoreInputError(f"frame_id 非法：{frame_id!r}")
+        frame_digest = _business_frame_digest(event)
 
         # frame_id 归类（重复/倒序）——不推进窗口序列
         duplicate = frame_id == self.last_frame_id
@@ -340,10 +394,19 @@ class GestureInteractionCore:
             log["reason"] = f"缺少 {gap} 帧（由后续结果时间戳推进时间，B24）"
 
         if duplicate:
-            self.counters["duplicate_frames"] += 1
-            log["input_state"] = "DUPLICATE"
-            log["reason"] = "重复 frame_id：幂等丢弃，不推进计数与状态（B22）"
-            self._evaluate(t_now_ns, advancing=False, log=log)
+            if frame_digest == self.last_frame_business_sha256:
+                self.counters["duplicate_frames"] += 1
+                log["event_kind"] = EV_FRAME_DUPLICATE
+                log["input_state"] = "DUPLICATE"
+                log["frame_content_sha256"] = frame_digest
+                log["reason"] = "重复 frame_id 且业务内容哈希相同：幂等丢弃，不推进状态机（B22）"
+            else:
+                self.counters["conflict_frames"] += 1
+                log["event_kind"] = EV_FRAME_CONFLICT
+                log["input_state"] = "CONFLICT"
+                log["previous_frame_content_sha256"] = self.last_frame_business_sha256
+                log["received_frame_content_sha256"] = frame_digest
+                log["reason"] = "重复 frame_id 但业务内容哈希不同：作为 E_FRAME_CONFLICT 丢弃（B22）"
             return self._finish(log)
         if out_of_order:
             self.counters["out_of_order_frames"] += 1
@@ -354,6 +417,7 @@ class GestureInteractionCore:
             return self._finish(log)
 
         self.last_frame_id = frame_id
+        self.last_frame_business_sha256 = frame_digest
 
         if kind != EV_FRAME_RESULT:
             # TIMEOUT / ERROR / DROPPED：无动作、推进时间、计异常、不推进窗口与匹配计数（B21/H-4）
@@ -519,7 +583,9 @@ class GestureInteractionCore:
             return
 
         # P2 丢失确认（任何有目标状态）
-        if self.state in ("CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN") and self._loss_confirmed(t_now_ns):
+        if (self.current_target is not None
+                and self.state in ("IDLE", "CANDIDATE", "STABLE", "TRIGGERED", "COOLDOWN")
+                and self._loss_confirmed(t_now_ns)):
             self._transition(log, "M10", "连续推进帧 TARGET_CONTINUES 不成立或距上次成立超时")
             return
 
@@ -673,7 +739,9 @@ class GestureInteractionCore:
 
     # ------------------------------------------------------------------ 动作回执
     def note_action_ack(self, ack: dict[str, Any]) -> dict[str, Any]:
-        """动作层回执：成功提交 → M6 进入 COOLDOWN；被抑制/失败不回退状态。"""
+        """动作层回执：提交 ACK 按非空不透明 ID 幂等；无 ID 抑制回执不去重。"""
+        action_id = ack.get("action_id")
+        suppression = ack.get("suppression")
         log: dict[str, Any] = {
             "session_id": self.session_id,
             "from_state": self.state,
@@ -681,15 +749,65 @@ class GestureInteractionCore:
             "transition": None,
             "reason": None,
             "suppression_events": [],
-            "action_id": ack.get("action_id"),
+            "action_id": action_id,
             "submit_result": ack.get("submit_result"),
             "effective_result": ack.get("effective_result"),
             "t_submit_ns": ack.get("t_submit_ns"),
             "t_effective_ns": ack.get("t_effective_ns"),
             "counters": dict(self.counters),
         }
-        if ack.get("suppression"):
-            log["suppression_events"].append(str(ack["suppression"]))
+        if suppression is not None:
+            if (not isinstance(suppression, str)
+                    or suppression not in ACTION_ACK_SUPPRESSIONS):
+                raise CoreInputError(f"动作回执 suppression 非法：{suppression!r}")
+            if (action_id is not None or ack.get("submit_result") is not None
+                    or ack.get("effective_result") is not None
+                    or ack.get("t_submit_ns") is not None
+                    or ack.get("t_effective_ns") is not None):
+                raise CoreInputError("抑制回执不得包含动作 ID、提交/生效结果或时间戳")
+        else:
+            if not isinstance(action_id, str) or not action_id.strip():
+                raise CoreInputError(f"真实动作回执缺少合法 action_id：{action_id!r}")
+            submit_result = ack.get("submit_result")
+            effective_result = ack.get("effective_result")
+            t_submit_ns = ack.get("t_submit_ns")
+            t_effective_ns = ack.get("t_effective_ns")
+            if submit_result not in ("success", "fail"):
+                raise CoreInputError(f"真实动作回执 submit_result 非法：{submit_result!r}")
+            if not _is_ns_timestamp(t_submit_ns):
+                raise CoreInputError(f"真实动作回执 t_submit_ns 必须为整数纳秒：{t_submit_ns!r}")
+            if submit_result == "success":
+                if effective_result == "observed":
+                    if not _is_ns_timestamp(t_effective_ns):
+                        raise CoreInputError(
+                            f"observed 回执必须带整数 t_effective_ns：{t_effective_ns!r}"
+                        )
+                    if t_effective_ns < t_submit_ns:
+                        raise CoreInputError("observed 回执 t_effective_ns 不得早于 t_submit_ns")
+                elif effective_result == "unobserved":
+                    if t_effective_ns is not None:
+                        raise CoreInputError("unobserved 回执不得带 t_effective_ns")
+                else:
+                    raise CoreInputError(
+                        f"success 回执 effective_result 非法：{effective_result!r}"
+                    )
+            else:
+                if effective_result != "unobserved":
+                    raise CoreInputError("fail 回执必须报告 effective_result=unobserved")
+                if t_effective_ns is not None:
+                    raise CoreInputError("fail 回执不得带 t_effective_ns")
+        if suppression is None and action_id in self._seen_action_ack_ids:
+            log["duplicate_ack_ignored"] = True
+            log["reason"] = "重复 action_id 回执：幂等忽略，不重复计数或迁移状态"
+            self.action_log.append({**ack, "duplicate_ack_ignored": True})
+            return log
+        if suppression is None:
+            if (self.t_last_submit_ns is not None
+                    and ack["t_submit_ns"] < self.t_last_submit_ns):
+                raise CoreInputError("新动作回执 t_submit_ns 早于已记录的冷却锚点")
+            self._seen_action_ack_ids.add(action_id)
+        if suppression is not None:
+            log["suppression_events"].append(suppression)
             log["reason"] = str(ack.get("reason"))
             self.acquisition_triggered = False
             self.state = "STABLE" if self.current_target is not None else "IDLE"

@@ -1,0 +1,330 @@
+{
+  "schema_version": 1,
+  "stage": "stage6",
+  "task_id": "S6-B",
+  "run_id": "s6b_gap_fix_20261027_r01",
+  "source_commit": "3be42b897003e00680bd554d915939de7dfde08e",
+  "evidence_dir": "report/evidence/S6-B/s6b_gap_fix_20261027_r01",
+  "interfaces": [
+    {
+      "name": "S6-A approved behavior table",
+      "version": "S6A-G0-v1.8",
+      "frozen": false,
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7"
+    }
+  ],
+  "files": [
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "6992b1c4431b5ca0459d7c02071e8945dec135ab758318978e512022c332036a",
+      "role": "source",
+      "keep_reason": "本轮 M10 丢失状态与 ACK 回执幂等修复源码"
+    },
+    {
+      "path": "src/stage6/s6_actions.py",
+      "sha256": "0a3d7ad38252a01654ff0e7e92be8e1349317fec856dcea6c80c51b33f2eb8fa",
+      "role": "source",
+      "keep_reason": "S6-B 动作层依赖；绑定当前被测源码"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "source",
+      "keep_reason": "S6-B 参数加载依赖；绑定当前被测源码"
+    },
+    {
+      "path": "verification/s6b_run_cases.py",
+      "sha256": "4e6d0dbb4e7a6f654dfd7ba75cff7cb9c47a7d3517091fec01a39d3c687e016c",
+      "role": "source",
+      "keep_reason": "用例运行器，含重复 ACK 回放"
+    },
+    {
+      "path": "verification/s6b_probe.py",
+      "sha256": "20abf41287754968aa6f4bacb4383fc183b1c023c2b45d17499b94efccf65c18",
+      "role": "source",
+      "keep_reason": "既有 S6-B 探针回归依赖"
+    },
+    {
+      "path": "verification/s6b_build_evidence.py",
+      "sha256": "db9a29ebe6577c258370cb31c8d9525639512891d17d69a882dba0bb473d0c11",
+      "role": "source",
+      "keep_reason": "既有证据构建器回归依赖"
+    },
+    {
+      "path": "verification/test_s6b_core_regressions.py",
+      "sha256": "6493c4860233f1095fb4db8774d452754fad9dceec872bb3c05ae3114367bbf2",
+      "role": "source",
+      "keep_reason": "本轮新增 M10/ACK 判别力测试"
+    },
+    {
+      "path": "verification/test_s6b_probe.py",
+      "sha256": "f8418b8109b9dc1d9319b3d3f9472e9435e2a9a1697a3c0bc30b09580d4d6b83",
+      "role": "source",
+      "keep_reason": "既有探针回归测试"
+    },
+    {
+      "path": "verification/test_s6b_build_evidence.py",
+      "sha256": "3b43f3f72a0412ea4b8ab425fd7839a67f50741d7c67b34b35bab6fccebc59ac",
+      "role": "source",
+      "keep_reason": "既有构建器回归测试"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "d043812712b1faf56f64351f55bac92c4781178fb0f5626c059fcd3948e57bae",
+      "role": "source",
+      "keep_reason": "证据清单只读核验器"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "当前 S6-A 行为表及参数批准状态"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "input",
+      "keep_reason": "当前批准行为语义的人类可读规格"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json",
+      "sha256": "f8b2cde23f11e132b7df62a7e60df6f6a5d560cf4b7d9a4efd464462b2ba7394",
+      "role": "input",
+      "keep_reason": "Wong 对 U6-02 当前语义的批准回执"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_core_20261025_r03/cases/case_matrix.json",
+      "sha256": "3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552",
+      "role": "input",
+      "keep_reason": "既有独立 expected 用例矩阵，作为本轮 26 例输入"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_core_20261025_r03/expected_freeze.json",
+      "sha256": "a68e2839bc2489113a6bb79f0b31c5fe6d969944071ae485e712ddabf04711c3",
+      "role": "input",
+      "keep_reason": "既有 expected 冻结摘要，用于核对本轮预期来源"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/expected_freeze.json",
+      "sha256": "d5edc02b28bae9a6877cef0dfa25f455217593c6c958b8be89ef06b5cd4ab38a",
+      "role": "artifact",
+      "keep_reason": "新 RunId 当前 26 例 expected 哈希绑定"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/run_report.json",
+      "sha256": "08fc984853fe0be515441f30796a50de22ed2b908cc69660e0a88352293e48dc",
+      "role": "result",
+      "keep_reason": "新源码下 26 例状态机实际结果"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/unittest_output.txt",
+      "sha256": "31b3b26b72670afb65f601befbccc0cd1d4f909a4e572c740844c62203b012b9",
+      "role": "log",
+      "keep_reason": "本轮 12 项定向与既有回归原始 stdout"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C1-fist-stable.jsonl",
+      "sha256": "c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C1-one-stable.jsonl",
+      "sha256": "c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C1-palm-stable.jsonl",
+      "sha256": "c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C1-three-stable.jsonl",
+      "sha256": "c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C1-two_up-stable.jsonl",
+      "sha256": "c48b0081b49819ba60671074615c6683aa27a6ec1d806b148f25e594938be7df",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C10-tick-time-advance.jsonl",
+      "sha256": "49c430fd6b0d86c6995f2ed5d13c518a6e6ff9620928ccbf20842f684fadadb5",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C11-fail-then-success.jsonl",
+      "sha256": "175427f969f6293a849048f3e64334fdc7667eaf793454a566cb2dd148431b88",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C11-global-gate-second-acquisition.jsonl",
+      "sha256": "7256f8f4931ddc9d5c139afff788dde69c03248f8d20ce98d6abd360fd8455b4",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C11-unobserved.jsonl",
+      "sha256": "88505c96d7b24b625f1bbe8e4720f5b4859d8977bdb5c0d21f8bdfe53d52d198",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C12-gate-reopen-new-acquisition.jsonl",
+      "sha256": "210f8dcd0994828dae2e4af25c2f07f60e5cb8de6474564e2668c22d2cffc30f",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C12-m2-m12-new-target.jsonl",
+      "sha256": "748ef7eb79eeea7e61c2279be21242be4c7088c1814d64dec955c200ed25c510",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C12-m8-two-acquisitions.jsonl",
+      "sha256": "91834d81199ed1d0ed7559b5a47826f3582c4a878d8c673cd88df43f37d2ec29",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C2-hold-past-cooldown.jsonl",
+      "sha256": "f79e4ac3432cac74b850495bdc65d7e24a1038d316adfbe8c2827873bf2289dc",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C3-lost-then-reappear.jsonl",
+      "sha256": "dc2d9f642968c523dcdc68ac5e651534d59ae9b231b1947189a3d318f986c363",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C4-jitter-reset.jsonl",
+      "sha256": "7d08e8809659eefa279b0bb502a82971d4bde3d790e06eb155eba91e56694378",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C4-quick-switch.jsonl",
+      "sha256": "8620b70699b819c9ed01d2629e59c934871ab67173c9e72a6887ffa66d48db4b",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C5-held-priority.jsonl",
+      "sha256": "72148c1e268e154bf8bee0b7b153fec7a8493325ae124c12bffc2f03b9314e1f",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C5-target-jump.jsonl",
+      "sha256": "47a2f5cf7856e5fd8b9ee81134f6548a049896c859681a5aacf22f743b3d539e",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C5-tie-source-order.jsonl",
+      "sha256": "6a2aa3964661b9850343f93d207f2b651c8046ab4eb6d91a8fc023853f760a7a",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C6-no-hand-unknown-lowscore.jsonl",
+      "sha256": "b4dccc45afb0edbbfd415c935e5e42576dad026595ef746ecf78c0c881fde7c1",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C6b-no-hand-with-detections.jsonl",
+      "sha256": "e05b8054da5195ebf0d6655e2777c73b8c5092baf89fc70d72a0c348eb214805",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C7-timeout-error-dropped-stale.jsonl",
+      "sha256": "cd5360f46ff7bf236bcc93c06c65d81c84f0ebb19c0cdcce5a51c75c3ec6f860",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C8-duplicate-reorder-missing-restart.jsonl",
+      "sha256": "06a8077a3bac7995b02542ae3a728f8f5da55b6705a320095f356f63b1151025",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C9-s01-equal.jsonl",
+      "sha256": "880adbb77931536c8bd907c635e6b3ff628eb35dc5d38833eaf437d8eea91778",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C9-s01-minus-1ns.jsonl",
+      "sha256": "6bb00392fa20a7e9351549a143c0d452478f88a5c9573adc53e980ae339000fc",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/logs/C9c-30fps-later-of.jsonl",
+      "sha256": "a9e14292b3a78289f18c86a366332c56547abe395633f06e15842d185264e0b9",
+      "role": "log",
+      "keep_reason": "新 RunId 的 S6-B 确定性用例逐事件日志"
+    },
+    {
+      "path": "report/evidence/S6-B/s6b_gap_fix_20261027_r01/check_evidence_mode_output.txt",
+      "sha256": "c6594058948173facc380e473cf8972e4310986914e9a0d938b321df413a8db4",
+      "role": "log",
+      "keep_reason": "交付证据清单只读核验器实际 stdout，exit 0"
+    }
+  ],
+  "checks": [
+    {
+      "name": "freeze_only_default_sandbox_attempt",
+      "status": "FAIL",
+      "command": "python.exe -B verification/s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_gap_fix_20261027_r01 --cases report/evidence/S6-B/s6b_core_20261025_r03/cases/case_matrix.json --freeze-only",
+      "exit_code": 1,
+      "reason": "PermissionError 创建新的 expected_freeze.json；目标文件未创建。随后相同命令经 require_escalated 成功，错误与实际退出码保留。"
+    },
+    {
+      "name": "freeze_only_authorized_retry",
+      "status": "PASS",
+      "command": "python.exe -B verification/s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_gap_fix_20261027_r01 --cases report/evidence/S6-B/s6b_core_20261025_r03/cases/case_matrix.json --freeze-only",
+      "exit_code": 0,
+      "reason": "冻结 26 条来自既有 r03 矩阵的 expected 块；freeze-only 未运行状态机，也未生成 expected 值。"
+    },
+    {
+      "name": "s6b_26_case_matrix",
+      "status": "PASS",
+      "command": "python.exe -B verification/s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-B/s6b_gap_fix_20261027_r01 --cases report/evidence/S6-B/s6b_core_20261025_r03/cases/case_matrix.json",
+      "exit_code": 0,
+      "reason": "26 cases PASS，0 assertion failures；期待值来自哈希绑定的既有 case_matrix。"
+    },
+    {
+      "name": "s6b_targeted_and_existing_unit_tests",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest test_s6b_core_regressions test_s6b_probe test_s6b_build_evidence -v",
+      "exit_code": 0,
+      "reason": "Python 3.12.14；12/12 通过，含 M10 IDLE 丢失重获、B28 重复 ACK 以及既有 builder/probe 回归。"
+    }
+  ],
+  "limitations": [
+    "接口记录 frozen=false；本包绑定当前批准行为表字节，但不把 S6-A G0 标为已冻结或已通过。",
+    "B22 payload 内容哈希字段范围未由现有规格定义；实现与测试等待 Wong 决定，当前 26 例不覆盖冲突载荷分支。",
+    "代码尚未提交；source_commit 是起始基线，所有被测源码字节另由 files SHA-256 绑定。",
+    "仅离线输入与虚拟单调时钟；未执行硬件、摄像头、HDMI、G3、6-D 或 6-E 实物验收。",
+    "本轮差异尚未独立审查；check_stage_delivery 的 CHECKS_OK 仅表示证据文件与清单结构/哈希一致。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "2.56.0.windows.2"
+  }
+}

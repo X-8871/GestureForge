@@ -1,0 +1,602 @@
+{
+  "schema_version": 1,
+  "artifact": "tool_self_tests",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_bound_20261027_r02",
+  "package": "s6a",
+  "rule": "每个验证工具必须同时给出**必 PASS**与**必 FAIL**两侧用例；任一侧不符合预期即不得冻结。**跳过（skipped）不得计绿**：存在跳过时总判定为 INCOMPLETE_SKIPPED 且退出码非 0。（教训：合成退出码 / 换行假阴性 / 守门作用域 / 空转 skipped / 缺 --s6a-run 数次工具自身出错，均因只有一侧被验证过。）",
+  "cases": [
+    {
+      "case_id": "delivery_candidate_pairing_regression",
+      "expected": "固定默认已知配对；显式不完整参数不得混入默认包",
+      "exit_code": null,
+      "kind": "selection_regression",
+      "selection_check": {
+        "passed": true,
+        "default": {
+          "tag": "stage6-freeze-20261023-r6",
+          "commit": "2f16d668a14604ad3d4846e29c8a0f10489ac08b",
+          "s6a_run": "report/evidence/S6-A/s6a_g0_20261023_r12",
+          "s6b_run": "report/evidence/S6-B/s6b_core_20261023_r07",
+          "selection": "default_candidate",
+          "explicit": false
+        },
+        "explicit_candidate": {
+          "tag": "stage6-freeze-20261023-r6",
+          "commit": "2f16d668a14604ad3d4846e29c8a0f10489ac08b",
+          "s6a_run": "report/evidence/S6-A/s6a_g0_20261023_r12",
+          "s6b_run": "report/evidence/S6-B/s6b_core_20261023_r07",
+          "selection": "known_candidate",
+          "explicit": true
+        },
+        "unpaired_commit": {
+          "tag": null,
+          "commit": null,
+          "s6a_run": null,
+          "s6b_run": null,
+          "selection": "unpaired_explicit_arguments",
+          "explicit": true
+        },
+        "unpaired_run": {
+          "tag": null,
+          "commit": null,
+          "s6a_run": null,
+          "s6b_run": null,
+          "selection": "unpaired_explicit_arguments",
+          "explicit": true
+        },
+        "explicit_pair": {
+          "tag": null,
+          "commit": "0000000000000000000000000000000000000000",
+          "s6a_run": "report/evidence/S6-A/custom_run",
+          "s6b_run": null,
+          "selection": "explicit_pair",
+          "explicit": true
+        },
+        "mismatched_known_pair": {
+          "tag": null,
+          "commit": "2f16d668a14604ad3d4846e29c8a0f10489ac08b",
+          "s6a_run": "report/evidence/S6-A/s6a_g0_20261023_r11",
+          "s6b_run": null,
+          "selection": "explicit_pair",
+          "explicit": true
+        }
+      },
+      "note": "仅检查自测用例装配规则；实际提交—证据兼容性仍由 export_selfproof 真实验证",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "hash_convention_helper_uses_disposable_root",
+      "expected": "五个语义用例通过，输出仅写入临时项目根；共享输出哈希与修改时间不变",
+      "exit_code": 0,
+      "kind": "filesystem_isolation_regression",
+      "isolation_check": {
+        "passed": true,
+        "exit_code": 0,
+        "disposable_output": "D:\\tmp\\hash_convention_isolation_kiwov2dn\\project_copy\\tmp\\6\\hash_convention_check.json",
+        "disposable_output_exists": true,
+        "semantic_verdict": "ALL_AS_EXPECTED",
+        "semantic_case_count": 5,
+        "shared_output": "D:\\codex-worktrees\\w6\\tmp\\6\\hash_convention_check.json",
+        "shared_output_before": {
+          "exists": true,
+          "size": 2612,
+          "mtime_ns": 1792856908234397800,
+          "sha256": "6f8e478bc99076cb40ba1f8e65331b4750cc0babc486bda8002ae9fbfdd97e9c"
+        },
+        "shared_output_after": {
+          "exists": true,
+          "size": 2612,
+          "mtime_ns": 1792856908234397800,
+          "sha256": "6f8e478bc99076cb40ba1f8e65331b4750cc0babc486bda8002ae9fbfdd97e9c"
+        },
+        "stdout_stderr": "{\"verdict\": \"ALL_AS_EXPECTED\", \"cases\": [[\"case_declared_lf_file_lf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_declared_crlf_file_crlf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_declared_lf_file_crlf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_declared_crlf_file_lf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_negative_content_differs\", \"REJECT\", \"AS_EXPECTED\"]]}"
+      },
+      "note": "子进程输出以 UTF-8 解码；对共享目标仅做前后只读快照",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "guard_no_change_must_pass",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "exit=0"
+      ],
+      "note": "无变化时守门不得报错（真实调用 _guard_check）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "guard_change_must_abort",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "exit=1"
+      ],
+      "note": "受保护文件被改动时守门必须中止（真实调用 _guard_check，exit 1）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "selfproof_delivery_commit_must_pass",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "{\"verdict\": \"ALL_SELF_PROVEN\", \"subjects\": [[\"commit 2f16d668a14604ad3d4846e29c8a0f10489ac08b\", \"SELF_PROVEN\", [0, 0, 0, 0]]]}"
+      ],
+      "note": "交付提交 2f16d668a1 自证应 exit 0（显式 --s6a-run report/evidence/S6-A/s6a_g0_20261023_r12）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "selfproof_worktree_snapshot_must_pass",
+      "expected_exit": 0,
+      "exit_code": 1,
+      "observable": [
+        "[snapshot] 2944 ���ļ������� .git/tmp �뱾���������",
+        "{\"verdict\": \"NOT_ALL_SELF_PROVEN\", \"subjects\": [[\"worktree snapshot���ύǰ���飻���� .git/tmp �뱾���������\", \"NOT_SELF_PROVEN\", [1, 0, 2]]]}"
+      ],
+      "note": "干净临时 Git fixture（当前验证源码 + 已绑定 S6-A 正例包）工作区快照应 exit 0",
+      "verdict": "UNEXPECTED",
+      "snapshot_fixture": {
+        "fixture_only": true,
+        "git_status": "clean",
+        "fixture_commit": "30925b919026f9f8edfc553bc543dc6ba331bb8f",
+        "run_rel": "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02",
+        "state_reference_count": 56,
+        "seeded_placeholder_fixture": {
+          "fixture_only": true,
+          "scope": "仅在新建临时副本中以空占位种子构造正例；不修复或改写源 RunId。",
+          "seeded_placeholder_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copied_source_file_before_seed": {
+            "tool_self_tests.json": {
+              "size": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fresh_selfcheck_pair.json": {
+              "size": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "updated_sha256": {
+            "tool_self_tests.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fresh_selfcheck_pair.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79",
+            "hashes_sha256.txt": "4cdca65d950c240aa27d842314d02f318013d37e7a29c35c2fc61a4db615a8fc"
+          },
+          "validated_sha256": {
+            "tool_self_tests.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fresh_selfcheck_pair.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hashes_sha256.txt": "4cdca65d950c240aa27d842314d02f318013d37e7a29c35c2fc61a4db615a8fc",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79"
+          }
+        },
+        "bound_positive_fixture": {
+          "applicable": true,
+          "fixture_only": true,
+          "scope": "仅隔离副本；不修改真实 RunId 或生成交付自测证据。",
+          "created_files": [
+            "tool_self_tests.json",
+            "fresh_selfcheck_pair.json"
+          ],
+          "fixture_markers": {
+            "tool_self_tests.json": "ISOLATED_CLAIM_VERIFY_POSITIVE_FIXTURE",
+            "fresh_selfcheck_pair.json": "ISOLATED_FRESH_SELFCHECK_POSITIVE_FIXTURE"
+          },
+          "updated_sha256": {
+            "tool_self_tests.json": "6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7",
+            "fresh_selfcheck_pair.json": "4140b7abcd54a1740b38c8d5bea8d005dfa1a3123deffd638f51f5563beaba26",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79",
+            "hashes_sha256.txt": "f80dd23a94980b862b1c72c3bf073a23533c0a2f29e000cd7fdb99e44569e97e"
+          },
+          "validated_sha256": {
+            "tool_self_tests.json": "6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7",
+            "fresh_selfcheck_pair.json": "4140b7abcd54a1740b38c8d5bea8d005dfa1a3123deffd638f51f5563beaba26",
+            "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hashes_sha256.txt": "f80dd23a94980b862b1c72c3bf073a23533c0a2f29e000cd7fdb99e44569e97e",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79"
+          }
+        }
+      }
+    },
+    {
+      "case_id": "selfproof_unresolvable_commit",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "    raise RuntimeError(f\"checkout {rev} ʧ�ܣ�{checkout.stderr.strip()}\")",
+        "RuntimeError: checkout 0000000000000000000000000000000000000000 ʧ�ܣ�fatal: unable to read tree (0000000000000000000000000000000000000000)"
+      ],
+      "note": "不可解析提交必须非 0（不得静默成功）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_positive_fixture_isolated_and_bound",
+      "expected": "marked fixture only in temp copy; both SHA bindings match",
+      "exit_code": null,
+      "kind": "fixture_assembly_regression",
+      "fixture": {
+        "applicable": true,
+        "fixture_only": true,
+        "scope": "仅隔离副本；不修改真实 RunId 或生成交付自测证据。",
+        "created_files": [
+          "tool_self_tests.json",
+          "fresh_selfcheck_pair.json"
+        ],
+        "fixture_markers": {
+          "tool_self_tests.json": "ISOLATED_CLAIM_VERIFY_POSITIVE_FIXTURE",
+          "fresh_selfcheck_pair.json": "ISOLATED_FRESH_SELFCHECK_POSITIVE_FIXTURE"
+        },
+        "updated_sha256": {
+          "tool_self_tests.json": "6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7",
+          "fresh_selfcheck_pair.json": "4140b7abcd54a1740b38c8d5bea8d005dfa1a3123deffd638f51f5563beaba26",
+          "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+          "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79",
+          "hashes_sha256.txt": "f80dd23a94980b862b1c72c3bf073a23533c0a2f29e000cd7fdb99e44569e97e"
+        },
+        "validated_sha256": {
+          "tool_self_tests.json": "6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7",
+          "fresh_selfcheck_pair.json": "4140b7abcd54a1740b38c8d5bea8d005dfa1a3123deffd638f51f5563beaba26",
+          "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hashes_sha256.txt": "f80dd23a94980b862b1c72c3bf073a23533c0a2f29e000cd7fdb99e44569e97e",
+          "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+          "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79"
+        },
+        "seeded_placeholder_fixture": {
+          "fixture_only": true,
+          "scope": "仅在新建临时副本中以空占位种子构造正例；不修复或改写源 RunId。",
+          "seeded_placeholder_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copied_source_file_before_seed": {
+            "tool_self_tests.json": {
+              "size": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fresh_selfcheck_pair.json": {
+              "size": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "updated_sha256": {
+            "tool_self_tests.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fresh_selfcheck_pair.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79",
+            "hashes_sha256.txt": "4cdca65d950c240aa27d842314d02f318013d37e7a29c35c2fc61a4db615a8fc"
+          },
+          "validated_sha256": {
+            "tool_self_tests.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fresh_selfcheck_pair.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hashes_sha256.txt": "4cdca65d950c240aa27d842314d02f318013d37e7a29c35c2fc61a4db615a8fc",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79"
+          }
+        }
+      },
+      "note": "新建隔离副本以空占位种子装配；源 RunId 保持只读，通用夹具装配仍拒绝非空失配输入",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_verify_normal_must_pass",
+      "expected_exit": 0,
+      "exit_code": 1,
+      "observable": [
+        "[RO-TRACE] S6A-C4-selfcheck-all-pass changed=[]",
+        "{\"verdict\": \"NOT_ALL_VERIFIED\", \"claims\": [[\"S6A-C1-m4-residual-regression\", 0, \"VERIFIED\"], [\"S6A-C2-hash-convention-both-directions\", 0, \"VERIFIED\"], [\"S6A-C3-m4-two-representations\", 0, \"VERIFIED\"], [\"S6A-C5-tool-self-tests\", 0, \"VERIFIED\"], [\"S6A-C6-fresh-selfcheck-after-build\", 0, \"VERIFIED\"], [\"S6A-C7-approval-c4-regression\", 0, \"VERIFIED\"], [\"S6A-C8-approved-package-scan\", 1, \"NOT_VERIFIED\"], [\"S6A-C4-selfcheck-all-pass\", 0, \"VERIFIED\"], [\"self_test_false_claim\", 1, \"VERIFIED\"]]}"
+      ],
+      "note": "隔离正例装配下全部声明经真实执行 VERIFIED 时 exit 0（package=s6a；fixture 明确标记且仅在临时副本）",
+      "verdict": "UNEXPECTED",
+      "claims_verified": false,
+      "claim_verification": {
+        "schema_version": 1,
+        "artifact": "claim_verification",
+        "task_id": "S6-A",
+        "run_id": "s6a_u6_02_bound_20261027_r02",
+        "rule": "每条声明的 exit_code 均为**真实 subprocess 退出码**；命令可独立复算（无占位符）；内置 self_test_false_claim 证明本工具对假声明会 FAIL；verdict 由**全部** claim 计算，且 claims 数量必须等于定义数 + 1，空列表/数量不符一律 NOT_ALL_VERIFIED。",
+        "reproduce": "python -B verification/claim_verify.py --package s6a --run-dir report/evidence/S6-A/s6a_u6_02_bound_20261027_r02 --project-root D:\\tmp\\tmpadyqsoyu\\copy",
+        "generated_at_utc8": "2026-10-27 13:36:29",
+        "claims_declared": 8,
+        "claims_recorded": 9,
+        "count_ok": true,
+        "readonly_violations": {},
+        "claims": [
+          {
+            "claim_id": "S6A-C1-m4-residual-regression",
+            "statement": "C16 能捕获评审给出的 3 条真实 M4 残留行（基线 PASS + 逐条注入 FAIL）",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/m4_residual_regression.py --project-root D:\\tmp\\tmpadyqsoyu\\copy --run-dir report/evidence/S6-A/s6a_u6_02_bound_20261027_r02 --out D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\claim_runs\\s6a_u6_02_bound_20261027_r02\\m4_residual_regression.json",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\claim_runs\\s6a_u6_02_bound_20261027_r02\\m4_residual_regression.json",
+            "output_tail": [
+              "{\"verdict\": \"ALL_AS_EXPECTED\", \"results\": [[\"baseline\", \"PASS\", \"AS_EXPECTED\"], [\"R1-limitations-not-run\", \"FAIL\", \"AS_EXPECTED\"], [\"R2-coverage-item4\", \"FAIL\", \"AS_EXPECTED\"], [\"R3-state-line\", \"FAIL\", \"AS_EXPECTED\"]]}"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C2-hash-convention-both-directions",
+            "statement": "O1 换行口径接受器覆盖两个方向（CRLF→LF 与 LF→CRLF），内容不同必须拒绝",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/hash_convention_check.py",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "tmp/6/hash_convention_check.json",
+            "output_tail": [
+              "{\"verdict\": \"ALL_AS_EXPECTED\", \"cases\": [[\"case_declared_lf_file_lf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_declared_crlf_file_crlf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_declared_lf_file_crlf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_declared_crlf_file_lf\", \"ACCEPT\", \"AS_EXPECTED\"], [\"case_negative_content_differs\", \"REJECT\", \"AS_EXPECTED\"]]}"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C3-m4-two-representations",
+            "statement": "transitions[M4].reachability 与 reachability.transitions.M4.status 两个表示一致（NB-r03-10）",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json;d=json.load(open('docs/stage6/s6a_stage6_g0_behavior_v1.json',encoding='utf-8'));tr={e['id']:e for e in d['transitions']};r=d['reachability']['transitions'];bad=[k for k,v in tr.items() if 'reachability' in v and k in r and (('UNREACHABLE' in str(v['reachability']).upper()) != ('UNREACHABLE' in str(r[k]['status']).upper()))];print('conflicts=',bad);assert not bad,bad\"",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "stdout: conflicts=[]",
+            "output_tail": [
+              "conflicts= []"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C5-tool-self-tests",
+            "statement": "四个验证工具的自测两例全部符合预期（**引用套件产物**，不重跑）：守门 不改→静默/改→中止 exit1；export_selfproof 有效提交→0/不可解析→非0；claim_verify 正常→0/假声明→非0；m4_residual_regression 3 条真实残留被捕获→0/目录不存在→拒绝非0",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import hashlib,json,pathlib,sys;p=pathlib.Path(r'report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/tool_self_tests.json');assert p.is_file(),'缺少自测套件产物（应随包入库）';d=json.loads(p.read_text(encoding='utf-8'));bad=[c['case_id'] for c in d['cases'] if c['verdict']!='AS_EXPECTED'];print('sha256=',hashlib.sha256(p.read_bytes()).hexdigest(),'verdict=',d['verdict'],'cases=',len(d['cases']));assert d['verdict']=='ALL_AS_EXPECTED' and not bad,bad\"",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "复算命令：python -B verification/tool_self_tests.py --project-root <abs>；产物随包入库：<run-dir>/tool_self_tests.json（含各例真实退出码）",
+            "output_tail": [
+              "sha256= 6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7 verdict= ALL_AS_EXPECTED cases= 1"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C6-fresh-selfcheck-after-build",
+            "statement": "构建结束后**新鲜自检两次**（间隔 30s）均 ALL_PASS 且 C11 不再报任何被声明文件哈希不符（证明「清单写在被绑定文件之后」的结构问题已修、且构建后无残留写入者）",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/s6a_fresh_selfcheck_twice.py --project-root D:\\tmp\\tmpadyqsoyu\\copy --run-dir report/evidence/S6-A/s6a_u6_02_bound_20261027_r02 --gap-seconds 30 --out report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/fresh_selfcheck_pair.json",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/fresh_selfcheck_pair.json（两次的真实退出码与 C11 状态；产物随包入库）",
+            "output_tail": [
+              "{\"verdict\": \"BOTH_ALL_PASS\", \"first\": [0, \"PASS\"], \"second\": [0, \"PASS\"]}"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C7-approval-c4-regression",
+            "statement": "C4 批准纪律的反向自测：人为把一项参数改回 PENDING_APPROVAL → C4 必须 FAIL；基线（未注入）必须 ALL_PASS。全部操作在临时副本内，不触碰真实证据目录。",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/approval_regression.py --project-root D:\\tmp\\tmpadyqsoyu\\copy --run-dir report/evidence/S6-A/s6a_u6_02_bound_20261027_r02 --out D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\claim_runs\\s6a_u6_02_bound_20261027_r02\\approval_regression.json",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "stdout: baseline [0, PASS] 与 injected [非0, FAIL]；产物 JSON 落盘",
+            "output_tail": [
+              "{\"verdict\": \"AS_EXPECTED\", \"baseline\": [0, \"PASS\"], \"injected\": [1, \"FAIL\"]}"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C8-approved-package-scan",
+            "statement": "已批准版包内**不得出现 PENDING/待批准 陈述**（大小写不敏感机读扫描；逐行机读历史标记/非批准类状态/禁止性规则描述除外；probe_* 与 selfcheck_*failure* 按文件豁免）；并以**两向注入自测**证明判别力：B1..B7 必判失败形态全部命中、C1..C4 必须放行对照全部不命中",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/approved_package_scan.py --project-root D:\\tmp\\tmpadyqsoyu\\copy --run-dir report/evidence/S6-A/s6a_u6_02_bound_20261027_r02 --inject-self-test --out D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\claim_runs\\s6a_u6_02_bound_20261027_r02\\approved_package_scan.json",
+            "exit_code": 1,
+            "expected_exit": 0,
+            "observable": "stdout: verdict=AS_EXPECTED（无命中 + 注入自测命中）",
+            "output_tail": [
+              "{\"verdict\": \"UNEXPECTED\", \"hits\": 1, \"self_test\": \"AS_EXPECTED\", \"missed_forms\": [], \"false_positive_forms\": []}"
+            ],
+            "readonly_violation": [],
+            "verdict": "NOT_VERIFIED"
+          },
+          {
+            "claim_id": "S6A-C4-selfcheck-all-pass",
+            "statement": "S6-A 自检 17 项 ALL_PASS（含 C16 语义扫描与两表示法交叉断言）",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/upstream_bindings.json --out D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\claim_runs\\s6a_u6_02_bound_20261027_r02\\selfcheck_replay.json --project-root D:\\tmp\\tmpadyqsoyu\\copy --evidence-dir D:\\tmp\\tmpadyqsoyu\\copy\\report\\evidence\\S6-A\\s6a_u6_02_bound_20261027_r02 --state .codex/STATE.md",
+            "exit_code": 0,
+            "expected_exit": 0,
+            "observable": "D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\claim_runs\\s6a_u6_02_bound_20261027_r02\\selfcheck_replay.json",
+            "output_tail": [
+              "{\"status\": \"ALL_PASS\", \"errors\": [], \"checks\": [{\"id\": \"C1\", \"name\": \"JSON 身份与必填块\", \"status\": \"PASS\", \"detail\": \"identity ok\"}, {\"id\": \"C2\", \"name\": \"ID 唯一性与最小规模\", \"status\": \"PASS\", \"detail\": \"unique ok\"}, {\"id\": \"C3\", \"name\": \"文档↔JSON 标识集合双向一致\", \"status\": \"PASS\", \"detail\": \"10 不变量 / 14 迁移(含 from/to) / 24 参数(§14 行) / 20 事件 / 7 状态 / 28 行为行 / 2 动作类型 双向一致\"}, {\"id\": \"C4\", \"name\": \"批准纪律（不得存在 PENDING；每项有批准索引）\", \"status\": \"PASS\", \"detail\": \"24 项与动作映射均为 APPROVED_20261023 且批准索引齐全\"}, {\"id\": \"C5\", \"name\": \"五类动作映射一致\", \"status\": \"PASS\", \"detail\": \"5 类映射一致，target 唯一\"}, {\"id\": \"C6\", \"name\": \"硬不变量与唯一触发解释\", \"status\": \"PASS\", \"detail\": \"H-1..H-10 齐全，ONCE_PER_ACQUISITION 唯一\"}, {\"id\": \"C7\", \"name\": \"人工手算样例独立复算\", \"status\": \"PASS\", \"detail\": \"32 个样例全部由输入独立复算一致（HC-16/17/20 手算推导、HC-27 帧时刻序列推导、HC-28/29 逐帧 score/几何序列推导、HC-30 锁存 STABLE + 门在 TIMEOUT 帧开启的角落序列、HC-31 30fps 取较晚完成帧、HC-32 完成帧超出所给序列（序列不足以判定，F7））\"}, {\"id\": \"C8\", \"name\": \"上游只读文件哈希复算\", \"status\": \"PASS\", \"detail\": \"11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d), s5a_stage5_display_g0_fields(af51a4bf)\"}, {\"id\": \"C9\", \"name\": \"文档必备覆盖与章节\", \"status\": \"PASS\", \"detail\": \"关键词与章节齐全\"}, {\"id\": \"C10\", \"name\": \"禁止声明扫描（窄口径）\", \"status\": \"PASS\", \"detail\": \"未发现禁止声明\"}, {\"id\": \"C11\", \"name\": \"证据清单/STATE 声明 vs 实际文件\", \"status\": \"PASS\", \"detail\": \"实际文件 41 个；STATE 声明 0 个文件、22 个目录与 22 个含路径文件全部存在\"}, {\"id\": \"C12\", \"name\": \"谓词拆分一致性（B-05/R3-B01/R3-B02）\", \"status\": \"PASS\", \"detail\": \"谓词定义、引用、禁用标识符与全量双向绑定一致\"}, {\"id\": \"C13\", \"name\": \"冷却全局门一致性（B-03/H-10）\", \"status\": \"PASS\", \"detail\": \"全局门字段与引用一致\"}, {\"id\": \"C14\", \"name\": \"W_min/窗口完成口径（B-04/N-05/F1）\", \"status\": \"PASS\", \"detail\": \"W_min 仅下界；窗口完成按 T6-S03 取较晚，B07/B27/§9 与 JSON 文本一致\"}, {\"id\": \"C15\", \"name\": \"H-4/NO_HAND 一致性（B-02）\", \"status\": \"PASS\", \"detail\": \"NO_HAND 不推进匹配计数、零框不得完成窗口\"}, {\"id\": \"C16\", \"name\": \"迁移可达性与覆盖声明（N-02/N-03/BLK-r07-1/BLK-r08-1）\", \"status\": \"PASS\", \"detail\": \"M4 可达并计入覆盖（M7 构造上不参与覆盖）；11 个交付文件经语义扫描一致\"}, {\"id\": \"C17\", \"name\": \"STABLE 锁存语义一致性（观察项）\", \"status\": \"PASS\", \"detail\": \"STABLE 锁存（WITHIN_ACQUISITION）：退出路径 ['M10', 'M2', 'M5']，无 STABLE→CANDIDATE 迁移，U6-16 待确认\"}]}"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          },
+          {
+            "claim_id": "self_test_false_claim",
+            "statement": "故意为假的声明（assert 1==2）必须得到非 0 退出码——证明本工具会 FAIL",
+            "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"assert 1==2\"",
+            "exit_code": 1,
+            "expected_exit": "非 0",
+            "observable": "self-test",
+            "output_tail": [
+              "AssertionError"
+            ],
+            "readonly_violation": [],
+            "verdict": "VERIFIED"
+          }
+        ],
+        "verdict": "NOT_ALL_VERIFIED",
+        "scope_statement": "本附录只证明这些声明在**本次真实执行**下成立；不代表独立审查或验收通过。"
+      },
+      "fixture_only": true,
+      "positive_fixture": {
+        "applicable": true,
+        "fixture_only": true,
+        "scope": "仅隔离副本；不修改真实 RunId 或生成交付自测证据。",
+        "created_files": [
+          "tool_self_tests.json",
+          "fresh_selfcheck_pair.json"
+        ],
+        "fixture_markers": {
+          "tool_self_tests.json": "ISOLATED_CLAIM_VERIFY_POSITIVE_FIXTURE",
+          "fresh_selfcheck_pair.json": "ISOLATED_FRESH_SELFCHECK_POSITIVE_FIXTURE"
+        },
+        "updated_sha256": {
+          "tool_self_tests.json": "6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7",
+          "fresh_selfcheck_pair.json": "4140b7abcd54a1740b38c8d5bea8d005dfa1a3123deffd638f51f5563beaba26",
+          "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+          "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79",
+          "hashes_sha256.txt": "f80dd23a94980b862b1c72c3bf073a23533c0a2f29e000cd7fdb99e44569e97e"
+        },
+        "validated_sha256": {
+          "tool_self_tests.json": "6a466ff40366d067a0bdcc4044f7e6e70ec0543fa161276591d03e5ac5338ec7",
+          "fresh_selfcheck_pair.json": "4140b7abcd54a1740b38c8d5bea8d005dfa1a3123deffd638f51f5563beaba26",
+          "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hashes_sha256.txt": "f80dd23a94980b862b1c72c3bf073a23533c0a2f29e000cd7fdb99e44569e97e",
+          "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+          "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79"
+        },
+        "seeded_placeholder_fixture": {
+          "fixture_only": true,
+          "scope": "仅在新建临时副本中以空占位种子构造正例；不修复或改写源 RunId。",
+          "seeded_placeholder_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copied_source_file_before_seed": {
+            "tool_self_tests.json": {
+              "size": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fresh_selfcheck_pair.json": {
+              "size": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "updated_sha256": {
+            "tool_self_tests.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fresh_selfcheck_pair.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79",
+            "hashes_sha256.txt": "4cdca65d950c240aa27d842314d02f318013d37e7a29c35c2fc61a4db615a8fc"
+          },
+          "validated_sha256": {
+            "tool_self_tests.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "fresh_selfcheck_pair.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hashes_sha256.txt": "4cdca65d950c240aa27d842314d02f318013d37e7a29c35c2fc61a4db615a8fc",
+            "verification/tool_self_tests.py": "c6ff62a3804e0231e7d752a915a8daf41c65e2299fdcc575890f7874e21a758e",
+            "verification/hash_convention_check.py": "c7c8179ff4dc33211a3835a073efaff8ddbafb1cccb61fec8c3ed5c8de7d6d79"
+          }
+        }
+      },
+      "fresh_selfcheck_pair": {
+        "schema_version": 1,
+        "artifact": "fresh_selfcheck_pair",
+        "rule": "构建后新鲜自检两次（间隔秒数见 gap_seconds）都必须 exit 0 且 C11 无哈希不符",
+        "gap_seconds": 30,
+        "first": {
+          "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/upstream_bindings.json --out D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\fresh_selfcheck_1.json --project-root D:\\tmp\\tmpadyqsoyu\\copy --evidence-dir D:\\tmp\\tmpadyqsoyu\\copy\\report\\evidence\\S6-A\\s6a_u6_02_bound_20261027_r02 --manifest report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/delivery_manifest.json --state .codex/STATE.md",
+          "exit_code": 0,
+          "status": "ALL_PASS",
+          "c11": "PASS",
+          "errors": [],
+          "out": "D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\fresh_selfcheck_1.json"
+        },
+        "second": {
+          "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/s6_g0_selfcheck.py --json docs/stage6/s6a_stage6_g0_behavior_v1.json --doc docs/stage6/S6A_stage6_g0_behavior_spec_v1.md --cases report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/hand_computed_cases.json --upstream report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/upstream_bindings.json --out D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\fresh_selfcheck_2.json --project-root D:\\tmp\\tmpadyqsoyu\\copy --evidence-dir D:\\tmp\\tmpadyqsoyu\\copy\\report\\evidence\\S6-A\\s6a_u6_02_bound_20261027_r02 --manifest report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/delivery_manifest.json --state .codex/STATE.md",
+          "exit_code": 0,
+          "status": "ALL_PASS",
+          "c11": "PASS",
+          "errors": [],
+          "out": "D:\\tmp\\tmpadyqsoyu\\copy\\tmp\\6\\fresh_selfcheck_2.json"
+        },
+        "verdict": "BOTH_ALL_PASS"
+      }
+    },
+    {
+      "case_id": "claim_structurally_valid_failure_must_reject",
+      "expected": "REJECT",
+      "exit_code": null,
+      "kind": "predicate_counterexample",
+      "input": {
+        "count_ok": true,
+        "claims_declared": 1,
+        "claims_recorded": 2,
+        "verdict": "NOT_ALL_VERIFIED",
+        "claims": [
+          {
+            "claim_id": "probe",
+            "verdict": "NOT_VERIFIED",
+            "exit_code": 1,
+            "expected_exit": 0
+          },
+          {
+            "claim_id": "self_test_false_claim",
+            "verdict": "VERIFIED",
+            "exit_code": 1
+          }
+        ]
+      },
+      "rejected": true,
+      "note": "真实退出码 1 与不一致的退出码 0 两种输入均必须拒绝；非 subprocess 用例",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_count_mismatch_must_fail",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "[COUNT-ASSERT] claims ������������¼ 8������ 9������ 8 + 1��",
+        "{\"verdict\": \"NOT_ALL_VERIFIED\", \"claims\": [[\"S6A-C1-m4-residual-regression\", 0, \"VERIFIED\"], [\"S6A-C2-hash-convention-both-directions\", 0, \"VERIFIED\"], [\"S6A-C3-m4-two-representations\", 0, \"VERIFIED\"], [\"S6A-C5-tool-self-tests\", 1, \"NOT_VERIFIED\"], [\"S6A-C6-fresh-selfcheck-after-build\", 0, \"VERIFIED\"], [\"S6A-C7-approval-c4-regression\", 0, \"VERIFIED\"], [\"S6A-C8-approved-package-scan\", 1, \"NOT_VERIFIED\"], [\"S6A-C4-selfcheck-all-pass\", 0, \"VERIFIED\"]]}"
+      ],
+      "note": "人为制造 count_mismatch ⇒ 必须 NOT_ALL_VERIFIED 且 exit 非 0（仅在临时副本内运行）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "empty_claim_list_must_fail",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "[COUNT-ASSERT] claims ������������¼ 0������ 9������ 8 + 1��",
+        "{\"verdict\": \"NOT_ALL_VERIFIED\", \"claims\": []}"
+      ],
+      "note": "人为制造 empty ⇒ 必须 NOT_ALL_VERIFIED 且 exit 非 0（仅在临时副本内运行）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "claim_verify_false_claim_must_fail",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "[\"AssertionError\"]"
+      ],
+      "note": "假声明（assert 1==2）的真实退出码必须非 0",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "regression_residuals_must_be_caught",
+      "expected_exit": 0,
+      "exit_code": 0,
+      "observable": [
+        "{\"verdict\": \"ALL_AS_EXPECTED\", \"results\": [[\"baseline\", \"PASS\", \"AS_EXPECTED\"], [\"R1-limitations-not-run\", \"FAIL\", \"AS_EXPECTED\"], [\"R2-coverage-item4\", \"FAIL\", \"AS_EXPECTED\"], [\"R3-state-line\", \"FAIL\", \"AS_EXPECTED\"]]}"
+      ],
+      "note": "3 条真实残留行注入后 C16 必须 FAIL（脚本判定 ALL_AS_EXPECTED）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "regression_missing_run_must_refuse",
+      "expected_exit": "!= 0",
+      "exit_code": 1,
+      "observable": [
+        "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\tmp\\\\tmpcnf067bd\\\\report\\\\evidence\\\\S6-A\\\\__not_a_run__\\\\limitations_not_executed.json'"
+      ],
+      "note": "run-dir 不存在时必须拒绝运行（fail-closed）",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "case_id": "approval_scan_counterexamples_must_fail",
+      "expected_exit": 0,
+      "exit_code": 1,
+      "observable": [
+        "{\"verdict\": \"UNEXPECTED\", \"hits\": 1, \"self_test\": \"AS_EXPECTED\", \"missed_forms\": [], \"false_positive_forms\": []}"
+      ],
+      "note": "B1..B7 必判失败形态全部被捕获、C1..C4 必须放行对照全部不命中（exit 0 = AS_EXPECTED）",
+      "verdict": "UNEXPECTED"
+    }
+  ],
+  "unexpected": [
+    "selfproof_worktree_snapshot_must_pass",
+    "claim_verify_normal_must_pass",
+    "approval_scan_counterexamples_must_fail"
+  ],
+  "skipped_cases": [],
+  "verdict": "UNEXPECTED"
+}

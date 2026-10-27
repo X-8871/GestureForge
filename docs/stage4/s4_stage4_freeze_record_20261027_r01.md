@@ -50,7 +50,7 @@
 |---|---|---|
 | F-1 | ~~共享 IO 契约 r07 独立复审 PASS 并改状态~~ **已完成（2026-10-27）** | 阶段4 总控 + 独立 Reviewer |
 | F-2 | RAW G0 10 项设计/复审缺口逐项关闭 | 阶段4 总控 |
-| F-3 | 板级 P 实测、4-D 端到端、G3 实物验证 | 需硬件窗口与正式 OFFER |
+| F-3 | 板级 P 实测、4-D 端到端、G3 实物验证 | 板卡已上电（2026-10-27），但 main OFFER / w4 CLAIM / 八类门禁 0/8，仍需正式交接 |
 | F-4 | `ENABLE=0` 解除与候选 region 冻结 | 依赖 F-2/F-3 |
 
 ## 6. 证据索引
@@ -61,6 +61,16 @@
 - 断点决策：`docs/stage4/s4t26_producer_break_decision_20261027_r01.json`
 - 口径登记：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`
 - 身份审计（保留断点事实）：`report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/`（仍 `BLOCKED/1`，属设计如此：它记录“不可复现”这一事实）
+
+## 7.5 硬件会话状态（2026-10-27 12:05）
+
+Wong 告知板卡已上电。只读观测确认线缆与串口存在（FTDI `VID_0403&PID_6014`、`COM4`、`hw_server` 未运行），
+但按 runbook「工作树写权交接与板卡上电报告不能替代 OFFER/CLAIM」，**未开跑**。
+
+- 机检：`report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r03/` → `BLOCKED / exit 1`，13 项阻断。
+- 注入单元离线就绪：`OFFLINE_PREPARATION_VALID`（prepare 与 validate 均 exit 0）。
+- 解除清单：`docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md`（含 main OFFER 模板与 w4 CLAIM 六键）。
+- 仍未做：加载位流、开串口、启动 hw_server/xsdb、复位、读日志；`ENABLE=0` 未变。
 
 ## 7. 本轮复审后的修补（2026-10-27 07:50）
 

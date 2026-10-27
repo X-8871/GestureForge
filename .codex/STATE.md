@@ -1,5 +1,15 @@
 # 阶段4 状态（写权：Workbuddy 阶段4总控；离线推理链已冻结，板级项未闭合）
 
+**写权：Workbuddy 阶段4总控 受 Wong 2026-10-27 授权独占，覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
+
+## 硬件会话状态（2026-10-27 11:55 UTC+8）
+
+- 板卡已由 Wong 上电连接。只读观测：FTDI `VID_0403&PID_6014` 在设备枚举中，串口 `COM4` 存在，`hw_server` 未运行。
+- **上电报告不构成授权**（runbook §「正式硬件交接与门禁」明确：工作树写权交接与板卡上电报告不能替代 OFFER/CLAIM）。当前 `S4-B-REAL-02B` 的 main OFFER 与 w4 CLAIM 均未落库，八类门禁记录 0/8。
+- 机检证据：`report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r03/`（`BLOCKED / exit 1`，13 项阻断，判定权归 `s4b_ps_tensor_adapter.validate_hardware_gates`）。
+- 注入单元离线就绪：`OFFLINE_PREPARATION_VALID`（ELF `bfe88660…`、派生源 `7c3b57a9…`，prepare 与 validate 均 exit 0）。
+- 未做：未加载位流、未打开串口、未启动 hw_server/xsdb、未复位、未读日志、未改 `ENABLE`。
+
 ## 本轮结果（S4-T26-GATE-RERUN + 离线范围冻结，2026-10-27 07:23 UTC+8）
 
 - **task-26 离线门已在当前桥接器字节上通过**：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/`

@@ -43,12 +43,19 @@
       "checker_exit_code": 0,
       "checker_checks_ok": true
     },
-    "C_handoff_check_live_worktree": {
+    "C1_handoff_check_before_commit": {
       "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
-      "exit_code": 1
+      "exit_code": 1,
+      "note": "提交前运行：本包文件尚未纳入 Git，检查项 c（未提交改动归属）必然判 FAIL —— 结构性不可避免，不是工作树被他人写入；原始输出见 console/handoff_live_worktree.txt"
+    },
+    "C2_handoff_check_after_commit": {
+      "command": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json",
+      "exit_code": 0,
+      "status": "HANDOFF_OK",
+      "note": "在 F6 包提交后复跑；原始输出见 console/handoff_after_commit.txt"
     }
   },
-  "verdict": "F6_SELFCHECK_FAIL",
+  "verdict": "F6_SELFCHECK_PASS",
   "limitations": [
     "w5 工作树约 9.4 GB，本机磁盘余量不足以整树复制：提取路径**由 `frozen_set.json` 成员现场推导**（冻结成员 + 冻结工具 + 本冻结包，不含与冻结无关的历史证据）——这正是 F6 要覆盖的对象集合，若有冻结成员不在提交内，校验器会 exit 2 而非静默通过。",
     "`scope=host` 宿主侧引用（阶段3/阶段4/Wong 回执）在本次复跑中仍从本机原路径解析；换机复跑需 `--skip-host-references` 并逐条核对跳过项。",
@@ -68,15 +75,23 @@
       "status": "PASS",
       "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e --manifest D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\delivery_manifest.json",
       "exit_code": 0,
-      "reason": "检出 root=D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_26b743901b4e；verifier=0(FROZEN_SET_VERIFIED)；checker=0；CHECKS_OK 仅代表包装检查通过"
+      "reason": "检出 root=D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_26b743901b4e；verifier exit 0（FROZEN_SET_VERIFIED）；checker exit 0（CHECKS_OK）；CHECKS_OK 仅代表包装检查通过"
     },
     {
-      "name": "C. handoff_check（现工作树；部分检出副本不适用）",
+      "name": "C1. handoff_check（提交前，信息项）",
       "status": "FAIL",
-      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
       "exit_code": 1,
-      "reason": "只读核验；与导出自证分别记录"
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
+      "reason": "提交前本包未纳入 Git ⇒ 检查项 c 必然 FAIL（结构性，非他人写入）；原始输出已保留"
+    },
+    {
+      "name": "C2. handoff_check（提交后，门禁项）",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json",
+      "reason": "HANDOFF_OK；原始输出见 console/handoff_after_commit.txt"
     }
   ],
-  "checker_exit": 0
+  "checker_exit": 0,
+  "verdict_basis": "门禁项＝A（git archive 导出后冻结集校验 FROZEN_SET_VERIFIED / exit 0）＋B（独立 --shared 检出后冻结集校验 FROZEN_SET_VERIFIED 且 check_stage_delivery CHECKS_OK）＋C2（提交后 handoff_check HANDOFF_OK）；C1 为信息项（提交前结构性 FAIL，已如实保留）"
 }

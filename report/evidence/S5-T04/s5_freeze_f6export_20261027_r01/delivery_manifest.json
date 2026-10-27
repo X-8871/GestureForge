@@ -24,6 +24,11 @@
       "sha256": "fc3095de5ce371e763f49ed3185938e1156385273c3b92323b7c059ccb59aa1b"
     },
     {
+      "path": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/console/handoff_after_commit.txt",
+      "role": "log",
+      "sha256": "8f0909ef35f15e5dc224ddec1d83ca8e2f317fea4c2193bf6778c1a50dd060ca"
+    },
+    {
       "path": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/console/handoff_live_worktree.txt",
       "role": "log",
       "sha256": "03bf81cf4f0ce5891dd14ad5a788cc051a02bb66b10ce319c39367b371dd8ba8"
@@ -41,12 +46,12 @@
     {
       "path": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/hashes_sha256.txt",
       "role": "log",
-      "sha256": "9382d38297233603c0a7e7c901f57843a3e52d5b63ad80a1b2cca4baee540f2b"
+      "sha256": "837579affcae12bbad760b5f62c44871ef9427b50598fc0f1395d1e8ac1bbb2a"
     },
     {
       "path": "report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/results_f6export.json",
       "role": "artifact",
-      "sha256": "3ad4e3c5f17bc504bde22d9f6a11af5231965d9131e9c139541d0aa177766e04"
+      "sha256": "ab948b3e328912eebb30fcbf1b937cbee3b81821f13e3729261e68f498f27ae5"
     },
     {
       "path": "verification/verify_stage5_frozen_set.py",
@@ -107,14 +112,21 @@
       "status": "PASS",
       "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e --manifest D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\delivery_manifest.json",
       "exit_code": 0,
-      "reason": "检出 root=D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_26b743901b4e；verifier=0(FROZEN_SET_VERIFIED)；checker=0；CHECKS_OK 仅代表包装检查通过"
+      "reason": "检出 root=D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_26b743901b4e；verifier exit 0（FROZEN_SET_VERIFIED）；checker exit 0（CHECKS_OK）；CHECKS_OK 仅代表包装检查通过"
     },
     {
-      "name": "C. handoff_check（现工作树；部分检出副本不适用）",
+      "name": "C1. handoff_check（提交前，信息项）",
       "status": "FAIL",
-      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
       "exit_code": 1,
-      "reason": "只读核验；与导出自证分别记录"
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
+      "reason": "提交前本包未纳入 Git ⇒ 检查项 c 必然 FAIL（结构性，非他人写入）；原始输出已保留"
+    },
+    {
+      "name": "C2. handoff_check（提交后，门禁项）",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json",
+      "reason": "HANDOFF_OK；原始输出见 console/handoff_after_commit.txt"
     }
   ],
   "limitations": [

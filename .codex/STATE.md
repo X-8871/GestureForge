@@ -1,11 +1,11 @@
 # 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
-## 收尾快照（2026-10-27 18:40 UTC+8；本节优先于下方任何历史陈述）
+## 收尾快照（2026-10-27 19:10 UTC+8；本节优先于下方任何历史陈述）
 
 - **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线范围冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5 或任何板级/实物/实时结论。本卡（`task-29`/`S5-T04`）**不需要板卡**，本轮未连接、未加载位流、未烧录。
-- **冻结前基线**（构建冻结集时 HEAD）：`e9ce52260f142ce4bd15e7679ba3ed092a90571b`；**冻结提交（被审）**：见 §7 与外部报告（`git log -1` 为权威）。
-- **冻结集**：`report/evidence/S5-T04/s5_freeze_20261027_r04/frozen_set.json`，**77 个成员**（契约与字节保真规则含 `.gitattributes` 共 14 / 离线实现 3 / 离线 replay-display 证据 44 / S5-T02 离线 7 / 宿主只读引用 9），sha256 `1147ea45f21566e06562c9e57ecd3b4fdad2c49afe971d4f959609655eabbe7c`。
-- **校验器**：`verification/verify_stage5_frozen_set.py`（只读、fail-closed：0 一致 / 1 不一致 / 2 输入或环境错误）→ 实测 **exit 0 / `FROZEN_SET_VERIFIED`（77/77）**；**注入自测**（必须失败）→ **exit 0 / `SELFTEST_PASS`**：clean=0、改一字节=**1**、删一件=**2**。
+- **冻结前基线**（构建冻结集时 HEAD）：`2a2d2cc01cd31444a1a854115d99a31cbe8499bf`；**冻结提交（被审）**：见 §7 与外部报告（`git log -1` 为权威）。
+- **冻结集**：`report/evidence/S5-T04/s5_freeze_20261027_r05/frozen_set.json`，**77 个成员 / 覆盖 196 个已跟踪文件**（契约与字节保真规则含 `.gitattributes` 共 14 / 离线实现 3 / 离线 replay-display 证据 44 / S5-T02 离线 7 / 宿主只读引用 9；目录成员为 `file_set`，逐件列 path+sha256+bytes），sha256 `109254238e2aede8ab9005ed153e768e611c3ba325a5b1b75b312b415408b1bf`。
+- **校验器**：`verification/verify_stage5_frozen_set.py`（只读、fail-closed：0 一致 / 1 不一致 / 2 输入或环境错误；`--frozen-set` **必须显式给出**，禁止内置 RunId 默认路径）→ 实测 **exit 0 / `FROZEN_SET_VERIFIED`（77/77）**；**注入自测**（必须失败）→ **exit 0 / `SELFTEST_PASS`**：clean=0、改一字节=**1**、删一件=**2**。
 - **离线回归主套件**：10 个模块 **142 项 / 0 失败 / 2 skip / exit 0**（168 s，虚拟长跑 106 573 帧在内）。
 - **包装检查器**：`check_stage_delivery --mode evidence` M1/M2 均 **exit 0 / CHECKS_OK**；运行器 `final_exit=0`。
 - **安静窗口**：0 个 `vivado.exe/xsdb/hw_server/vitis/xsim`；2 个 `vivado-mcp-server-windows` 桥接进程按 `DSH-20261027-017` 只作信息记录（非板级占用）。工作树无已跟踪改动、无 `index.lock`。
@@ -44,12 +44,12 @@
 
 ## 证据与恢复入口
 
-- 冻结文书/冻结集/清单：`report/evidence/S5-T04/s5_freeze_20261027_r04/`（README、`frozen_set.json`、`frozen_set_report.json`、`selftest_injection.json`、`results_freeze.json`、`delivery_manifest.json`、`console/**`）
+- 冻结文书/冻结集/清单：`report/evidence/S5-T04/s5_freeze_20261027_r05/`（README、`frozen_set.json`、`frozen_set_report.json`、`selftest_injection.json`、`results_freeze.json`、`delivery_manifest.json`、`console/**`）
 - F6 自证：`report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`
-- **被取代/失败证据（保留不改写）**：`…_r00_runner_crash`（套件摘要解析崩溃）、`…_r01`（F6 发现导出未带 `.gitattributes` ⇒ 44 项换行所致哈希不符）、`…_r02_incomplete_builder_path`（构建器默认 `--out` 覆盖风险）、`…_r03`（校验器/F6 驱动器硬编码 r01 RunId ⇒ 会验错包）、`s5_freeze_f6export_20261027_r00_crlf_fail`（F6 首轮失败原始输出）
-- 复跑：`python -B verification/verify_stage5_frozen_set.py --root .` → 期望 `FROZEN_SET_VERIFIED` / exit 0；`--selftest tmp/5/S5-T04/selftest` → 期望 0/1/2；`python -B scripts/stage5_t04/run_stage5_freeze_evidence.py --run-dir <新RunId> --source-commit <提交>`。
+- **被取代/失败证据（保留不改写）**：`…_r00_runner_crash`（套件摘要解析崩溃）、`…_r01`（导出未带 `.gitattributes` ⇒ 44 项换行所致哈希不符）、`…_r02_incomplete_builder_path`（构建器默认 `--out` 覆盖风险）、`…_r03`（校验器/F6 驱动器硬编码 r01 RunId ⇒ 会验错包）、`…_r04`（目录摘要被未跟踪的 `__pycache__`/构建产物污染 ⇒ 3 项不符）、`s5_freeze_f6export_20261027_r00_crlf_fail` 与 `…_r00b_tracked_dirs_fail`（F6 前两轮失败原始输出）
+- 复跑：`python -B verification/verify_stage5_frozen_set.py --root . --frozen-set report/evidence/S5-T04/s5_freeze_20261027_r05/frozen_set.json` → 期望 `FROZEN_SET_VERIFIED` / exit 0；加 `--selftest tmp/5/S5-T04/selftest` → 期望 0/1/2。
 - 恢复命令：`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 tag --list "stage5-offline-freeze*"`
 
-## 交接行（11 字段，2026-10-27 18:40 UTC+8）
+## 交接行（11 字段，2026-10-27 19:10 UTC+8）
 
-任务=`S5-T04 阶段5 离线范围冻结（OFFLINE_SCOPE_FROZEN）：冻结集复核 + 冻结文书 + 本地 tag + 送独立复审` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`e9ce52260f142ce4bd15e7679ba3ed092a90571b` | 允许修改范围=`verification/verify_stage5_frozen_set.py、verification/test_s5_display_geometry_reference.py（夹具修复）、scripts/stage5_t04/**、report/evidence/S5-T04/**、.gitattributes、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随冻结提交同批提交；失败/崩溃 RunId 保留不改写` | 让出声明=`本卡为**离线**冻结：未连接/未加载位流/未烧录/未占用 JTAG 串口；固定基线后停写被审对象，等待独立复审；板级项继续暂停` | 心跳(UTC+8)=`2026-10-27 18:40` | 证据入口=`report/evidence/S5-T04/**`、`verification/verify_stage5_frozen_set.py`、`docs/stage5/**` | 恢复命令=`python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5` | 状态/下一接手方=`FROZEN_FOR_REVIEW（离线范围已冻结并自证；待 DSH 项目总控派独立 Reviewer；此后按序：task-27 → 端到端真实链窗口 P1/W-E）/ 本阶段总控`
+任务=`S5-T04 阶段5 离线范围冻结（OFFLINE_SCOPE_FROZEN）：冻结集复核 + 冻结文书 + 本地 tag + 送独立复审` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`2a2d2cc01cd31444a1a854115d99a31cbe8499bf` | 允许修改范围=`verification/verify_stage5_frozen_set.py、verification/test_s5_display_geometry_reference.py（夹具修复）、scripts/stage5_t04/**、report/evidence/S5-T04/**、.gitattributes、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随冻结提交同批提交；失败/崩溃 RunId 保留不改写` | 让出声明=`本卡为**离线**冻结：未连接/未加载位流/未烧录/未占用 JTAG 串口；固定基线后停写被审对象，等待独立复审；板级项继续暂停` | 心跳(UTC+8)=`2026-10-27 19:10` | 证据入口=`report/evidence/S5-T04/**`、`verification/verify_stage5_frozen_set.py`、`docs/stage5/**` | 恢复命令=`python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5` | 状态/下一接手方=`FROZEN_FOR_REVIEW（离线范围已冻结并自证；待 DSH 项目总控派独立 Reviewer；此后按序：task-27 → 端到端真实链窗口 P1/W-E）/ 本阶段总控`

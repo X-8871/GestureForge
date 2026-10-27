@@ -31,3 +31,14 @@ NB-1 改动契约字节 ⇒ 缺口表 `basis_bindings[shared_input_contract]` �
 
 - **本包由提交 d5a86bf 承载**；iles[].sha256 均为该提交的 blob 基座（hash_basis="commit_blob"），并列磁盘值见 hash_basis_recompute.json。
 - 时间戳断言已**真实落地**为脚本 scripts/stage4_s4ctrl/check_evidence_timestamps.py（fail-closed：证据时间戳 > 提交时刻即 FAIL），负向自测以合成未来时刻证明可拒（	imestamp_assertion_selftest.json）；真实退出码见同名 .exit_code.txt。
+
+## manifest schema 归属（如实标注，2026-10-27 r03）
+
+- 本包**不使用** `verification/check_stage_delivery.py` 的 manifest schema（`inputs`/`evidence` 模式）。
+  该项检查器对本清单**实跑 exit 2**：报缺 `evidence_dir`/`interfaces`/`limitations`，并含**未知字段**
+  `boundary`/`card`/`nb_fixes`/`take_over`/`proposal_migration` —— 因本清单是**任务批次自定义格式**，
+  不是交付包装格式。**因此不得**对本包声称 `CHECKS_OK` 或「通过 check_stage_delivery」。
+- 本包实际使用的校验：专用校验器 `scripts/stage4_s4ctrl/verify_d1a_landing.py`（机械核验 A–G）、
+  `scripts/stage4_s4ctrl/verify_shared_io_contract.py`、`scripts/stage4_s4b/audit_raw_system_g0_gaps.py`，
+  以及**新基座门禁** `verification/check_manifest_hash_basis.py`（主仓）。
+- 若后续确需 `check_stage_delivery` 包装，将**另补**一份 schema 合规的 `delivery_manifest.json`（不复用本文件）。

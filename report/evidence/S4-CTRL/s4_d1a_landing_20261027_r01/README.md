@@ -51,3 +51,14 @@
 - 原记录的不符成因：清单曾用 Get-FileHash（工作区字节）生成——文本文件在 core.autocrlf 下为 CRLF、提交 blob 为 LF，且个别项在清单生成后又被同一会话重写（中间值）⇒ 出现 blob/disk/中间值三类偏差。
 - 并列复算表见 hash_basis_recompute.json（提交 blob SHA-256 与当前磁盘 SHA-256 并列，磁盘值不参与校验）。
 - **r01 = 被审提交 39f6de 的 blob 基座快照；r02 = d5a86bf 承载。**
+
+## manifest schema 归属（如实标注，2026-10-27 r03）
+
+- 本包**不使用** `verification/check_stage_delivery.py` 的 manifest schema（`inputs`/`evidence` 模式）。
+  该项检查器对本清单**实跑 exit 2**：报缺 `evidence_dir`/`interfaces`/`limitations`，并含**未知字段**
+  `boundary`/`card`/`nb_fixes`/`take_over`/`proposal_migration` —— 因本清单是**任务批次自定义格式**，
+  不是交付包装格式。**因此不得**对本包声称 `CHECKS_OK` 或「通过 check_stage_delivery」。
+- 本包实际使用的校验：专用校验器 `scripts/stage4_s4ctrl/verify_d1a_landing.py`（机械核验 A–G）、
+  `scripts/stage4_s4ctrl/verify_shared_io_contract.py`、`scripts/stage4_s4b/audit_raw_system_g0_gaps.py`，
+  以及**新基座门禁** `verification/check_manifest_hash_basis.py`（主仓）。
+- 若后续确需 `check_stage_delivery` 包装，将**另补**一份 schema 合规的 `delivery_manifest.json`（不复用本文件）。

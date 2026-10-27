@@ -11,6 +11,7 @@
 - **安静窗口**：0 个 `vivado.exe/xsdb/hw_server/vitis/xsim`；2 个 `vivado-mcp-server-windows` 桥接进程按 `DSH-20261027-017` 只作信息记录（非板级占用）。工作树无已跟踪改动、无 `index.lock`。
 - **F6 自证（PASS）**：冻结提交 `26b743901b4ec76107ca2cd6a010337a5ae40bf2` 单独导出/检出后复跑——A `git archive` 导出（无 Git 元数据）内校验器 **exit 0 / `FROZEN_SET_VERIFIED`**；B 独立 `--shared --no-checkout` 检出内校验器 **exit 0** 且 `check_stage_delivery` **exit 0 / CHECKS_OK**；C2 提交后 `handoff_check` **HANDOFF_OK / exit 0**。记录：`report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`。
 - **tag**：`stage5-offline-freeze-20261027` → 冻结提交 `26b7439`（本地附注 tag，**不 push**）。
+- **冻结后文字纠正**：r05 冻结文书 §1 第 2 项原稿误列 `scripts/stage5_s5a|s5b|s5c/**`（实际不在冻结集内）⇒ **只改 README 文字**并留痕（`console/doc_correction_after_freeze.txt`、README §9）；冻结集成员/哈希、校验器/自检/套件退出码均未变，清单按纠正字节重建后复检 **exit 0**。生成器文案缺陷（属冻结集成员，冻结后不改）登记为下一轮待修。
 
 ## 写权与交接（更正过期陈述）
 

@@ -7,7 +7,8 @@
 
 ## 1. 冻结范围（只此四类）
 1. **离线契约/规格**：`docs/stage5/**` 中列出的显示契约 JSON、输入绑定 JSON、离线参数/用例骨架、JSON 契约、UR-3 决策（stale=200 ms 批准引用）。
-2. **离线实现**：`verification/s5_display_geometry_reference.py`、`scripts/stage5_t03/**`（渲染/回放/长跑/多几何/HUD 遮挡/JSON 契约/阶段4 冻结包消费）、`scripts/stage5_s5a|s5b|s5c/**`。
+2. **离线实现**：`verification/s5_display_geometry_reference.py`、`scripts/stage5_t03/**`（渲染/回放/长跑/多几何/HUD 遮挡/JSON 契约/阶段4 冻结包消费）。
+   - **文字纠正（冻结提交之后）**：本行原稿误列 `scripts/stage5_s5a|s5b|s5c/**`；这三个目录**不在**冻结集内（其测试依赖 w4 侧黄金数据、当前失败，按已知缺口单独探测，见 §8）。纠正只改本文件文字，**冻结集成员与哈希、校验器/自检/套件退出码均未变**，留痕见 `console/doc_correction_after_freeze.txt` 与 §9。
 3. **离线证据包**：见 `frozen_set.json` 的 `offline_evidence_replay_display` 与 `offline_evidence_s5t02` 组（`s5t03_offline_replay_display_20261026_r06`、`…offline_long_run_replay…r04`、`…multi_geometry_render…r02`、`…json_contract…r04`、`…hud_occlusion…r02`、`…stage4_frozen_replay…r04`、`…stage4_positive_replay…r01`、`S5-T01/s5t02_offline_dynamic_map_20261027_r02`）。
 4. **宿主侧只读引用**（`scope=host`）：阶段3 参考帧 `939fce22…` 与回放绑定、阶段4 回放结果包冻结记录/索引/带框包、Wong 批准的 `stale=200 ms` 回执、阶段3/阶段4 局限引用文件。
 
@@ -93,3 +94,11 @@ python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode eviden
 3. **板级 B1–B10 全项**：已随 Wong 拔板暂停；重连后需先过第 0 步（占用/部署身份/运行期回读地址/真彩目视需 Wong 在场）。
 4. **端到端真实链窗口**（`end2end_real_chain_window_plan_20261027_r01`）中的 P1=task-27、W-E=B1–B10 均未开工（等待信号）。
 5. **阶段5 G0/G1/G3/G4/G5 与实物验收仍未通过**。
+
+## 9. 冻结提交之后的文字纠正（不改字节性结论）
+
+- 冻结提交：`26b743901b4ec76107ca2cd6a010337a5ae40bf2`（tag `stage5-offline-freeze-20261027`）。
+- 纠正内容：§1 第 2 项原稿误列 `scripts/stage5_s5a|s5b|s5c/**` 为冻结实现；实际冻结实现为 `scripts/stage5_t03/**` + `verification/s5_display_geometry_reference.py`（见 `frozen_set.json` 的 `offline_implementation` 组：3 个成员）。
+- 纠正范围：**仅本文件文字**。冻结集成员与其哈希、校验器/注入自测/离线套件退出码、清单 checks 均未改变；本包清单已按纠正后字节重建并复检（见 `console/check_evidence_mode_output.txt`）。
+- 工具缺陷登记：冻结文书由 `scripts/stage5_t04/run_stage5_freeze_evidence.py` 生成，其 §1 文案仍含该误列（该工具是冻结集成员，按纪律**未在冻结后修改**）；下一轮需重冻结时一并修正。
+- 留痕：`console/doc_correction_after_freeze.txt`。

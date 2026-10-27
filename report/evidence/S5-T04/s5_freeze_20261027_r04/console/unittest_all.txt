@@ -1,0 +1,30 @@
+command=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B -m unittest scripts.stage5_t03.test_s5t03_frozen_replay scripts.stage5_t03.test_s5t03_hud_occlusion scripts.stage5_t03.test_s5t03_json_contract scripts.stage5_t03.test_s5t03_json_contract_malformed scripts.stage5_t03.test_s5t03_long_run_replay scripts.stage5_t03.test_s5t03_multi_geometry_render scripts.stage5_t03.test_s5t03_replay_display scripts.stage5_t03.test_s5t03_skeleton scripts.stage5_t03.test_s5t03_stage4_positive_replay verification.test_s5_display_geometry_reference
+exit_code=0
+--- stdout ---
+OK   s5t03_offline_replay_display_20261026_r06        kind=replay_display frames=240 errors=[]
+OK   s5t03_offline_long_run_replay_20261026_r04       kind=long_run_replay frames=106573 errors=[]
+OK   s5t03_multi_geometry_render_20261026_r02         kind=multi_geometry_render frames=None errors=[]
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=3 failed=0
+FAIL mg_cli                                           kind=multi_geometry_render frames=None errors=['results[multi_geometry_render] 缺字段 limitations', 'manifest.files[13] 哈希不符：results.json']
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=1 failed=1
+[contract] 环境错误（退出码 2）：未指定任何包（--package / --packages-from）
+[contract] 环境错误（退出码 2）：包目录不存在：D:\tmp\s5t03_contract_jz4kbqpn\no_such_package
+[contract] 环境错误（退出码 2）：--packages-from 文件不存在：D:\tmp\s5t03_contract_jz4kbqpn\no_such_list.txt
+[contract] 环境错误（退出码 2）：未指定任何包（--package / --packages-from）
+[contract] 环境错误（退出码 2）：契约缺 contract_required_keys（无法自证完整性）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 list）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 str）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 int）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 NoneType）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 bool）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 float）
+[contract] 环境错误（退出码 2）：契约 artifact_kinds 必须是非空对象
+[contract] 环境错误（退出码 2）：契约 stability 必须是对象
+FAIL s5t03_offline_replay_display_20261026_r06        kind=replay_display frames=240 errors=["事件日志 events_mixed_240.jsonl 的 sub 记录键集与契约不符：多 ['fid', 'oc', 'pri', 'rb', 'rd', 'ri', 'rr', 'seq', 'sid', 'vf'] / 缺 ['boxes', 'drawn', 'state']", "事件日志中未找到 ['commit'] 记录（t 字段）"]
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=1 failed=1
+--- stderr ---
+s....................................................................................................................s..........................
+----------------------------------------------------------------------
+Ran 142 tests in 165.001s
+
+OK (skipped=2)

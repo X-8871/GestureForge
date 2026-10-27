@@ -1,0 +1,51 @@
+command=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w5\verification\verify_stage5_frozen_set.py --frozen-set D:\codex-worktrees\w5\report\evidence\S5-T04\s5_freeze_20261027_r04\frozen_set.json --selftest D:\codex-worktrees\w5\tmp\5\S5-T04\frozen_selftest --json-out D:\codex-worktrees\w5\report\evidence\S5-T04\s5_freeze_20261027_r04\selftest_injection.json
+exit_code=0
+--- stdout ---
+{
+  "workdir": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\frozen_selftest",
+  "member_limit": 3,
+  "steps": {
+    "clean": {
+      "exit_code": 0,
+      "stdout_tail": [
+        "FROZEN_SET_VERIFIED"
+      ]
+    },
+    "tampered_one_byte": {
+      "exit_code": 1,
+      "stdout_tail": [
+        "FROZEN_SET_MISMATCH"
+      ]
+    },
+    "deleted_one_member": {
+      "exit_code": 2,
+      "stdout_tail": [
+        "FROZEN_SET_ENV_ERROR"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "step": "clean",
+      "expected_exit": 0,
+      "observed_exit": 0,
+      "pass": true
+    },
+    {
+      "step": "tampered_one_byte",
+      "expected_exit": 1,
+      "observed_exit": 1,
+      "pass": true
+    },
+    {
+      "step": "deleted_one_member",
+      "expected_exit": 2,
+      "observed_exit": 2,
+      "pass": true
+    }
+  ],
+  "verdict": "SELFTEST_PASS",
+  "exit_code": 0
+}
+--- stderr ---
+

@@ -84,6 +84,10 @@ def main(argv: list[str] | None = None) -> int:
         channel = sdk.connect(host=args.host, port=args.port, server="hw_server")
         peer = dict(sdk._curchan_obj.remote_peer.attrs)
         print(f"[INFO] peer={peer}", flush=True)
+        # 会话级放行：冻结工具的 PL CSR 快照读取（0x43C0000C 等 M_AXI_GP0 区域）
+        # 需要该参数；与本仓库 ps7_init.tcl 的既有先例一致（只放宽客户端映射检查，不写硬件）。
+        sdk.configparams("force-mem-accesses", 1)
+        print("[INFO] force-mem-accesses=1 已设置", flush=True)
         print(f"[INFO] 打开 {args.uart}（115200/8N1，无流控）…", flush=True)
         stream = serial.Serial(args.uart, baudrate=115200, bytesize=8, parity="N", stopbits=1,
                                timeout=0.1, write_timeout=1.0, rtscts=False, dsrdtr=False)

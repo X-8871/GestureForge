@@ -1,0 +1,130 @@
+{
+  "schema_version": "s4b_hw_gate_readiness_v2",
+  "checker_version": "r02",
+  "checker_sha256": "ddfe836259ced7284fd9d71c9433ad960988226eec4417cb4e72daaa4dc39d57",
+  "task_id": "S4-B-HW-GATE-READINESS",
+  "run_id": "s4b_hw_gates_20261027_r11",
+  "generated_utc8": "2026-10-27T16:56:57+08:00",
+  "scope": "只读门禁就绪机检；不加载位流、不开串口、不启动 hw_server/xsdb",
+  "hardware_run_id_candidate": "s4b_ps_tensor_hw_20261027_r01",
+  "adapter": {
+    "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\s4b_ps_tensor_adapter.py",
+    "sha256": "1ed92f5fce37c4dd63161e6694b98daaf85baf8e32d797cf73758969ba441c6f"
+  },
+  "preparation": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_ps_adapter_g3_20261027_r01\\adapter_preparation.json",
+    "sha256": "cb462d8dc34f4ee4a20dd8830592703f8f99da17a224677ae2e9da2cd35f923d",
+    "artifact_identity_sha256": "f4561dc69f8c24c52e339d39e11c782373522fbfa2ffbd30a1f52529c8cc09a1",
+    "elf_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+    "derived_source_sha256": "7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102"
+  },
+  "dependencies": {
+    "address_map": {
+      "status": "APPROVED",
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "exists": true,
+      "ok": true,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "shared_address_map": {
+      "path": "docs/stage4/S4B_shared_address_map.json",
+      "exists": true,
+      "status": "APPROVED",
+      "ok": true,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "raw_address_ownership": {
+      "status": "DECISION_REQUESTED",
+      "path": "docs/stage4/s4b_raw_address_ownership_proposal_20261024_r01.json",
+      "ok": false,
+      "blocks": [],
+      "affects": [
+        "raw_frame/raw_meta 迁移至 FROZEN_STAGE4",
+        "mailbox/RAW 路径启用"
+      ],
+      "open_decisions": [
+        "D1",
+        "D2",
+        "D3",
+        "D4"
+      ],
+      "note": "仍未裁决（DECISION_REQUESTED）。其选项集为 A/C/B/E，与本轮 Wong 对地址图选的 A/B/C 方向方案**不是同一组**：该提案的 B 指『4-D 输入降为 107 帧预冻结子集』。"
+    },
+    "main_offer": {
+      "present": true,
+      "commit": "84c840fe9fdfd1344cb9b6f8f3833eaae5916780",
+      "state_path": ".codex/STATE.md",
+      "blob_sha256": "080497fc2ac7d8c735c50ca6edd2a73178fa12f3c0f300ebdb22d1319f991374",
+      "line_count": 1,
+      "unique": true,
+      "excerpt": "- 交接行（11 字段·硬件会话，2026-10-27T16:48:52+08:00）：任务=`S4-B-REAL-02B::s4b_hardware_session_handoff` | 负责人=`DSH` | 工作树/分支=`D:\\FPGA_Competition / main` | 起始提交=`4f44f15141652a1fd36cb78c4b238fb426fa3931` | 允许修改范围=`S4B_PS_TENSOR_DIAGNOSTIC` | 未提交改动归属=`main 工作树另有 428 项未提交改动，不属本次 OFFER；OFFER 提交仅新增本行，无需清理` | 让出声明=`OFFERED` | 心跳(UTC+8)=`2026-10-27T16:48:52+08:00` | 证据入口=`hardware_run_id=s4b_ps_tensor_hw_20261027_",
+      "ok": true,
+      "blocks": [
+        "hardware_session_handoff"
+      ]
+    },
+    "w4_claim": {
+      "present": true,
+      "commit": "3b496fbc22026b182674cc98a70443f39059ac8f",
+      "state_path": ".codex/STATE.md",
+      "blob_sha256": "5f548d0378a45798dbbbde0dce1fce9b2470cef12b5492f1573d5c99a491cf53",
+      "line_count": 1,
+      "unique": true,
+      "excerpt": "任务=`S4-B-REAL-02B::s4b_hardware_session_claim` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\\codex-worktrees\\w4 / stage4-infer-prep` | 起始提交=`431a6831095f8f2825fb17c3605bb1950d7ed04e` | 允许修改范围=`S4B_PS_TENSOR_DIAGNOSTIC` | 未提交改动归属=`main OFFER 引用的未提交改动归属保持原口径；w4 侧仅本轮新增证据归 Workbuddy 阶段4总控` | 让出声明=`CLAIMED` | 心跳(UTC+8)=`2026-10-27T16:51:46+08:00` | 证据入口=`offer_commit=84c840fe9fdfd1344cb9b6f8f3833eaae5916780;off",
+      "ok": true,
+      "blocks": [
+        "hardware_session_handoff"
+      ]
+    },
+    "live_session": {
+      "hw_server_running": true,
+      "com_ports": [
+        "COM4"
+      ],
+      "expect_uart": "COM4",
+      "uart_present": true,
+      "ok": false,
+      "blocks": [
+        "exclusive_session"
+      ],
+      "note": "预检只观测当前状态；exclusive_session 需执行时现场核对，30 分钟有效窗口"
+    }
+  },
+  "authoritative_gate_check": {
+    "authority": "s4b_ps_tensor_adapter.validate_hardware_gates",
+    "allowed": true,
+    "missing": [],
+    "gate_files_supplied": [
+      "cold_basis",
+      "command_delivery_review",
+      "exclusive_session",
+      "g0_approval",
+      "hardware_session_handoff",
+      "operator_authorization",
+      "range_reservation",
+      "timing_freeze"
+    ],
+    "dependency_blockers": {
+      "exclusive_session": [
+        "dependency_not_met:live_session"
+      ]
+    }
+  },
+  "blockers": [
+    "dependency_not_met:live_session"
+  ],
+  "verdict": "BLOCKED",
+  "hardware_execution": "NOT_RUN",
+  "next_actions": [
+    "Wong 裁决 s4b_raw_address_ownership_proposal（当前 DECISION_REQUESTED）并落盘"
+  ],
+  "boundaries": [
+    "READY 只表示记录与依赖齐备，仍不等于门内检查项通过；",
+    "板卡上电、工作树写权交接、口头同意均不构成授权；",
+    "本预检不含任何板级结果，不得用于声称 G3/G4/G5。"
+  ]
+}

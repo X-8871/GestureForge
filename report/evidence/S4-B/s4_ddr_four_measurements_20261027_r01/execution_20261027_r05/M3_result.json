@@ -1,0 +1,33 @@
+{
+  "step": "M3_candidate_rw",
+  "status": "FAIL",
+  "snapshot_exit": 0,
+  "snapshot_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+  "candidate_bytes": 12615680,
+  "write_exit": 0,
+  "readback_exit": 0,
+  "restore_exit": 0,
+  "verify_exit": 0,
+  "restored_sha256": "77c929ac4c344c737c40feff1aa75a40ce056188929af40ef3b777ac25c88e67",
+  "diff_bytes": 12615680,
+  "region_byte_equal": false,
+  "write_readback_identical_to_original": false,
+  "root_causes": [
+    "xsdb 2026.1 的 mwr 无 -pattern 选项 ⇒ 写入在首块即中止",
+    "mwr -bin -file 必须显式给出字数 ⇒ 恢复未执行（wrong # of args）",
+    "驱动的 diff_bytes 计算误把全部字节计为差异（已修：仅在 x != y 时计数）"
+  ],
+  "actual_damage": {
+    "changed_bytes": 4,
+    "offset": "0x12000000",
+    "before_hex": "bfbd8604",
+    "after_hex": "00005a5a"
+  },
+  "remediation": {
+    "method": "mwr 0x12000000 0x0486bdbf（= 快照前 4 字节小端）",
+    "byte_equal_after": true,
+    "diff_bytes_after": 0,
+    "evidence": "remediation_restore/remediation_result.json 与 fix_readback16.bin"
+  },
+  "judgement": "M3 FAIL（写入与恢复均未按预期执行）；候选区已按快照精确还原，差异 0"
+}

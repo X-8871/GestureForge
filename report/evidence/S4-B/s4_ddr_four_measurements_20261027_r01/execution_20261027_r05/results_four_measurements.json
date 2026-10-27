@@ -1,0 +1,116 @@
+{
+  "generated_utc8": "2026-10-27T21:13:17+08:00",
+  "run_dir": "report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\execution_20261027_r05",
+  "steps": {
+    "P0_gate": {
+      "status": "PASS",
+      "heavy_processes": [],
+      "index_lock_present": false,
+      "port_3121_free": true,
+      "uart_configured": "COM4",
+      "window_instruction_present": true
+    },
+    "P0b_hw_server": {
+      "status": "PASS",
+      "pid": 15304,
+      "error": ""
+    },
+    "P1_smoke": {
+      "status": "PASS",
+      "exit_code": 0,
+      "steps": {
+        "step1_targets": true,
+        "step2_select": true,
+        "step3_read": true
+      },
+      "failed_step": null,
+      "xsdb_version": "2026.1"
+    },
+    "PRELOAD": {
+      "status": "PASS",
+      "init_elf": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+      "app_elf": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\preparation\\payloads\\m4a_cache_probe.elf",
+      "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+      "app_elf_sha256": "fa8f22e0918dcdb794fe1f05d093bc586e23f34237daf50c81f31477517e13ca",
+      "init_exit": 0,
+      "app_exit": 0,
+      "init_tail": [],
+      "app_tail": []
+    },
+    "M1_cpu1_state": {
+      "status": "PASS",
+      "exit_code": 0,
+      "parsed": {
+        "SELECT": "OK",
+        "CPU1_SELECT": "name =~ \"*#1*\"",
+        "CPU1_STATE": "Stopped: (Suspended)",
+        "CPU1_PC_1": "pc: ffffff34",
+        "CPU1_STATE_2": "Stopped: (Suspended)",
+        "CPU1_PC_2": "pc: ffffff34",
+        "CPU1_PC_STABLE": "1",
+        "RESULT": "PASS"
+      }
+    },
+    "M2_consumer_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "parsed": {
+        "SELECT": "OK",
+        "TARGET[0]": "1",
+        "TARGET[1]": "APU",
+        "TARGET[2]": "2*",
+        "TARGET[3]": "ARM",
+        "TARGET[4]": "Cortex-A9",
+        "TARGET[5]": "MPCore",
+        "TARGET[6]": "#0",
+        "TARGET[7]": "(Suspended)",
+        "TARGET[8]": "3",
+        "TARGET[9]": "ARM",
+        "TARGET[10]": "Cortex-A9",
+        "TARGET[11]": "MPCore",
+        "TARGET[12]": "#1",
+        "TARGET[13]": "(Suspended)",
+        "TARGET[14]": "4",
+        "TARGET[15]": "xc7z020",
+        "DEVCGF_CTRL": "1308680319",
+        "DEVCGF_INT_STS": "2818703370",
+        "DEVCGF_STATUS": "1073744432",
+        "CPU_STATE[0]": "name =~ \"*#0*\"|Stopped: (Suspended)",
+        "CPU_STATE[1]": "name =~ \"*#1*\"|Stopped: (Suspended)",
+        "RESULT": "READ_ONLY_DONE"
+      },
+      "limit": "构造性证明（无总线探针）"
+    },
+    "M3_candidate_rw": {
+      "status": "FAIL",
+      "snapshot_exit": 0,
+      "snapshot_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "candidate_bytes": 12615680,
+      "write_exit": 0,
+      "readback_exit": 0,
+      "restore_exit": 0,
+      "verify_exit": 0,
+      "restored_sha256": "77c929ac4c344c737c40feff1aa75a40ce056188929af40ef3b777ac25c88e67",
+      "diff_bytes": 12615680,
+      "region_byte_equal": false,
+      "write_readback_identical_to_original": false
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "stopped_pids": [
+        15304
+      ],
+      "listening_3121": 0,
+      "residual_processes": [],
+      "time_wait_note": "TIME_WAIT 可接受，不清理"
+    }
+  },
+  "m4b_dma_visibility": {
+    "status": "NOT_APPLICABLE",
+    "reason": "需 PL consumer（改设计）⇒ 并入 4-D bring-up 验收；本窗口不可测",
+    "consequence": "ENABLE=1 前置在 M4-b 未闭合前不满足；本窗口即使全过也不得申请 ENABLE=1/4-D"
+  },
+  "conclusion": "STOPPED_ON_FAILURE",
+  "stop_reason": "M3 失败（恢复校验不通过 ⇒ 立即停、保留现场）",
+  "hardware_execution": "PARTIAL"
+}

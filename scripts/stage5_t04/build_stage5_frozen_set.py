@@ -34,6 +34,7 @@ DEFAULT_OUT = "report/evidence/S5-T04/s5_freeze_20261027_r01/frozen_set.json"
 
 # ── 成员清单（本卡声明的冻结范围）────────────────────────────────────────────
 CONTRACT_FILES = (
+    ".gitattributes",
     "docs/stage5/s5a_stage5_display_g0_fields.json",
     "docs/stage5/S5A_stage5_display_g0_spec_v2.md",
     "docs/stage5/s5t03_input_contract_binding_v1.json",
@@ -251,6 +252,17 @@ def build() -> dict:
         "non_claims": ["G0/G1/G3/G4/G5", "板级/实物/实时结论", "task-27 完整实现与回归"],
         "external_reference_policy": EXTERNAL_REFERENCE_POLICY,
         "restore_entrypoints": list(RESTORE_ENTRYPOINTS),
+        "byte_fidelity_note": (
+            "冻结成员一律按**工作树原始字节**登记（`.gitattributes` 已在成员内，S5-A/T01/T03/T04 等目录为 `-text`）。"
+            "F6 导出/检出必须同时携带 `.gitattributes`，否则 `core.autocrlf` 会在导出时把 LF 转成 CRLF、"
+            "导致 44 项哈希不符（r01 实测踩坑，r02 已修）。"),
+        "superseded_runs": [
+            {"run_id": "s5_freeze_20261027_r00_runner_crash",
+             "reason": "运行器在解析套件摘要时崩溃（未产出清单）；保留不改写"},
+            {"run_id": "s5_freeze_20261027_r01",
+             "reason": "F6 自证发现冻结工具缺陷：导出/检出未携带 `.gitattributes` ⇒ 换行被转换、44 项哈希不符；"
+                       "r02 已修工具并把 `.gitattributes` 纳入冻结集，故 r01 被取代（保留不改写）"},
+        ],
         "not_frozen": list(NOT_FROZEN),
         "members": members,
     }

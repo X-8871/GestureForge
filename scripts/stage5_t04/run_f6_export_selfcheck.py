@@ -44,6 +44,7 @@ FROZEN_SET = f"{FROZEN_RUN_DIR}/frozen_set.json"
 DEFAULT_RUN_DIR = "report/evidence/S5-T04/s5_freeze_f6export_20261027_r01"
 
 EXTRA_PATHSPECS = (
+    ".gitattributes",
     "verification",
     "scripts/stage5_t04",
     "report/README.md",
@@ -105,6 +106,10 @@ def shared_checkout(commit: str, branch: str, target: pathlib.Path, specs: list[
     if cloned.returncode != 0:
         return {"command": " ".join(clone), "exit_code": cloned.returncode,
                 "stdout": cloned.stdout, "stderr": cloned.stderr, "checked_out": 0}
+    # 先取 `.gitattributes`：否则后续 checkout 读不到 `-text` 规则，core.autocrlf 会把 LF 转成 CRLF
+    # （r01 实测：44 项哈希因此不符）。这一步是字节保真的前提。
+    attrs = subprocess.run(["git", "-C", str(target), "checkout", commit, "--", ".gitattributes"],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
     checkout = ["git", "-C", str(target), "checkout", commit, "--", *specs]
     checked = subprocess.run(checkout, capture_output=True, text=True, encoding="utf-8", errors="replace")
     toplevel = subprocess.run(["git", "-C", str(target), "rev-parse", "--show-toplevel"],
@@ -114,10 +119,12 @@ def shared_checkout(commit: str, branch: str, target: pathlib.Path, specs: list[
     return {"command": f"git clone --shared --no-checkout --branch {branch} <w5> <tmp>; "
                        f"git -C <tmp> checkout {commit} -- <{len(specs)} pathspecs>",
             "exit_code": checked.returncode if cloned.returncode == 0 else cloned.returncode,
-            "clone_exit_code": cloned.returncode, "checkout_exit_code": checked.returncode,
+            "clone_exit_code": cloned.returncode,
+            "gitattributes_exit_code": attrs.returncode,
+            "checkout_exit_code": checked.returncode,
             "toplevel": toplevel.stdout.strip(), "commit_object_kind": kind.stdout.strip(),
             "checked_out": len(specs),
-            "stderr": (cloned.stderr + checked.stderr).strip()}
+            "stderr": (cloned.stderr + attrs.stderr + checked.stderr).strip()}
 
 
 def main(argv: list[str] | None = None) -> int:

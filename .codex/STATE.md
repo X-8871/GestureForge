@@ -14,7 +14,15 @@
 - **修复（离线，窗口1 后）**：四个 Tcl 全部改为**先选目标再 mrd/rrd**、`targets` 按结构化元素解析；新增 `p1_smoke.tcl`（三步断言，退出码 11/12/13 指失败步）；驱动加入 P1 三步记录与 PRELOAD 装载流程。
 - **装载流程（不需新授权，落在"允许易失下载"内）**：`dow init.elf → con（PS/DDR 就绪）→ dow 最小 ELF → M1/M2/M3（CPU1 由构造保持 halted）→ M4-a 仅 con CPU0 → UART 交互`；**不执行 `stop`**；若仍需显式 stop，须 Wong 授权。
 - **窗口2（2026-10-27 20:53:28 开窗）结论**：`P0 PASS｜P1 三步 smoke PASS（targets/选目标/只读）｜LOAD FAIL（rst -processor → Invalid reset type，发生在任何 dow 之前 ⇒ 未下载任何载荷）｜M1 FAIL（脚本 info target 非 xsdb 子命令 ⇒ 无 state/PC 证据）｜M2 PARTIAL_INVALID（mrd 返回 ADDR: 空值）｜M3/M4-a NOT_RUN｜P4 清理 PASS（3121 已关、无残留）`。**候选区未被写入、未发 stop、无副作用；非技术结论、不构成任何通过。**
-- **待办**：①离线修三处脚本缺陷（`rst` 复位类型、`info target`、`mrd` 的 `ADDR: VALUE` 解析）并重登 SHA；②修好报 lead 再择时开第三窗口；`M4-b=NOT_APPLICABLE`（并入 4-D 必测）；本次不解锁 `ENABLE=1`。
+## 四项实测最终态（2026-10-27，Wong 方案A 第5窗口后；不再开窗口）
+
+- **M1 = PASS**：CPU1 `Stopped: (Suspended)`，PC `ffffff34` 两次（2.5 s）一致；证据 `report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/execution_20261027_r05/`。
+- **M2 = PASS（构造性排除）**：DevCfg STATUS `0x40000010`（`PCFG_DONE`=0 ⇒ PL 未配置）+ CPU0/CPU1 均 Suspended + 唯一调试客户端；**不是总线测量**。
+- **M3 = NOT_CLOSED**：`mwr` 无 `-pattern`、`mwr -bin -file` 缺字数 ⇒ 写入中止、恢复未执行；实际仅写 4 字节（`0x12000000` `bfbd8604→00005a5a`），已用 **4 字节精确回写**还原并以 16 B 逐字节复核**差异 0**；整区恢复后 dump = `NOT_CAPTURED`（见 `m3_restore_provenance.json`；原 `m3_snapshot_restored.bin` 已正名 `m3_readback_after_write.bin`）。
+- **M4a = NOT_RUN**；**M4b = NOT_APPLICABLE → 并入 4-D bring-up 必测**。
+- **`ENABLE=1` 前置未满足**（M3 未闭合 + M4 未闭合）；本次不解锁。
+- **4-D 必做**：用修好的驱动/脚本**重跑 M3 与 M4-a 并留证** —— `run_s4_ddr_four_measurements.py` SHA-256 `502db86f…`（提交 `69731b9`）、`m3_candidate_rw.tcl` 已改为「图案文件写入 + 带字数恢复」；这些修复**尚未在任何窗口验证**。
+- 未做：不 push、不动 25 项遗留、不改 `ENABLE`、不烧 QSPI。
 
 ## 本轮结果（硬件窗口已授权，等待 main OFFER，2026-10-27 14:55 UTC+8）
 

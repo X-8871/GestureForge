@@ -29,5 +29,35 @@
     "diff_bytes_after": 0,
     "evidence": "remediation_restore/remediation_result.json 与 fix_readback16.bin"
   },
-  "judgement": "M3 FAIL（写入与恢复均未按预期执行）；候选区已按快照精确还原，差异 0"
+  "judgement": "M3 FAIL（写入与恢复均未按预期执行）；候选区已按快照精确还原，差异 0",
+  "restore_method": "4-byte精确回写（mwr 0x12000000 0x0486bdbf = 快照前 4 字节小端 bfbd8604）",
+  "post_restore_readback": "16B（remediation_restore/fix_readback16.bin，覆盖唯一被写字节及邻接 12 B）",
+  "full_region_post_restore_dump": "NOT_CAPTURED",
+  "inference": "仅写过 4 字节且已按快照回填 ⇒ 区域等价于原状；依据 m3_snapshot_orig.bin 与 fix_readback16.bin 前 16 B 逐字节相等",
+  "dumps": {
+    "m3_snapshot_orig.bin": {
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "role": "写入前只读快照（基准）"
+    },
+    "m3_readback_pattern.bin": {
+      "sha256": "77c929ac4c344c737c40feff1aa75a40ce056188929af40ef3b777ac25c88e67",
+      "role": "写入后回读（用于判占用，含 4 字节写入）"
+    },
+    "m3_readback_after_write.bin": {
+      "sha256": "77c929ac4c344c737c40feff1aa75a40ce056188929af40ef3b777ac25c88e67",
+      "role": "写入后回读（原误命名 restored；与上一份逐字节相同）"
+    }
+  },
+  "diff_evidence": {
+    "orig_vs_readback_after_write_diff_bytes": 4,
+    "offsets": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "values": "off 0x0..0x3: orig bf bd 86 04 → 00 00 5a 5a（标记字 0x5A5A0000 小端）",
+    "consistent_with_write_range": true
+  },
+  "naming_fix": "m3_snapshot_restored.bin 原名与内容不符（装入的是写入后回读，非恢复后镜像），已正名为 m3_readback_after_write.bin；恢复证据以 4 字节回写 + 16 B 复核为准"
 }

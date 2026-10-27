@@ -112,5 +112,15 @@
   },
   "conclusion": "STOPPED_ON_FAILURE",
   "stop_reason": "M3 失败（恢复校验不通过 ⇒ 立即停、保留现场）",
-  "hardware_execution": "PARTIAL"
+  "hardware_execution": "PARTIAL",
+  "m3_restore": {
+    "restore_method": "4-byte精确回写（mwr 0x12000000 0x0486bdbf = 快照前 4 字节小端 bfbd8604）",
+    "post_restore_readback": "16B（remediation_restore/fix_readback16.bin，覆盖唯一被写字节及邻接 12 B）",
+    "full_region_post_restore_dump": "NOT_CAPTURED",
+    "inference": "仅写过 4 字节且已按快照回填 ⇒ 区域等价于原状；依据 m3_snapshot_orig.bin 与 fix_readback16.bin 前 16 B 逐字节相等",
+    "diff_bytes_after_restore": 0
+  },
+  "m3_dumps_not_captured": [
+    "整区恢复后 dump（NOT_CAPTURED；默认不补采，Wong 已裁 M3 并入 4-D）"
+  ]
 }

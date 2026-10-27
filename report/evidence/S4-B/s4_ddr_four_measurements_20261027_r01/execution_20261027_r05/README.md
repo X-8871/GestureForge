@@ -27,3 +27,13 @@
 
 ## 边界
 未写候选区外地址；未烧 QSPI；未改 ENABLE；**未发独立 stop**；未 push；未动 25 项遗留；未结束 MCP 进程；M4-b `NOT_APPLICABLE`；**未解锁 ENABLE=1**。
+
+## 证据更正（2026-10-27，按 DSH 项目总控逐字节核验）
+
+- `m3_snapshot_restored.bin` **原命名与内容不符**：它装入的是**写入后回读**，不是恢复后镜像（与 `m3_readback_pattern.bin` 逐字节相同，sha256 `77c929ac…`）。已**正名**为 `m3_readback_after_write.bin`。
+- `restore_method` = **4 字节精确回写**（`mwr 0x12000000 0x0486bdbf`，即快照前 4 字节 `bfbd8604` 小端）；
+  `post_restore_readback` = **16 B**（`remediation_restore/fix_readback16.bin`，覆盖唯一被写字节）；
+  `full_region_post_restore_dump` = **NOT_CAPTURED**；
+  `inference` = **仅写过 4 字节且已按快照回填 ⇒ 区域等价于原状**（依据 `m3_snapshot_orig.bin` 与 `fix_readback16.bin` 前 16 B 逐字节相等）。
+- 差异证据：`orig vs readback_after_write` **恰为 4 字节**，偏移 `0x0–0x3`，值 `bf bd 86 04 → 00 00 5a 5a`，**与写入范围一致**。
+- 详见 `m3_restore_provenance.json`。

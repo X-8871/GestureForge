@@ -1,0 +1,47 @@
+{
+  "schema_version": "s4b_bgr_remap_v1",
+  "task_id": "S4-B-G20-PL-BGR-REMAP",
+  "run_id": "s4b_bgr_remap_20261027_r01",
+  "generated_utc8": "2026-10-27T12:50:27+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "verdict": "PARTIAL_BYTE_CHECK_PASS_FULLFRAME_PENDING",
+  "change": {
+    "file": "src/s4b_preproc_frame.sv",
+    "sha256": "1e5fc5eee8ed1d96cf0a1ae20124b6d96f9eb7838ac4b149b9c12d94a2831821",
+    "summary": "新增参数 BGR_SOURCE（默认 1）：输出通道 c 读取 RAW 字节偏移 2-c，实现 B/G/R→R/G/B 重排；置 0 时保持原直取行为。",
+    "why": "G-20 要求逐像素 B/G/R→R/G/B 且发生在 resize/归一化/量化之前；原 RTL 按 channel_q 直取字节，ch0 拿到 B。"
+  },
+  "simulation": {
+    "tool": "xsim (Vivado 2026.1)",
+    "top_remap_on": "tb_s4b_preproc_bgr",
+    "top_negctrl": "tb_s4b_preproc_bgr_off",
+    "config": {
+      "OUT_WIDTH": 8,
+      "OUT_HEIGHT": 1,
+      "source": "1x1 像素 B=0x11 G=0x22 R=0x33",
+      "geometry": "恒等采样 (0,0)，w0=1.0 / w1=+0.0"
+    },
+    "remap_on": {
+      "sample_ch0": "0x33",
+      "means": "channel 0 取到 R",
+      "byte_check": "PASS"
+    },
+    "remap_off": {
+      "sample_ch0": "0x11",
+      "means": "channel 0 取到 B（直取）",
+      "byte_check": "PASS"
+    },
+    "negative_control_conclusion": "同一测试台翻转参数得到不同通道字节，证明重排由参数真实驱动，非巧合。"
+  },
+  "not_done": [
+    "整帧 D2 逐值对拍未完成：仿真在 ST_PIXEL_WAIT 处停住（像素核握手未完成），未产出张量比对结果",
+    "mailbox_pixel_format_code → C enum 显式映射与 PS driver 未实现（G-20 C 侧）",
+    "s4b_preproc_frame 仍未在 PL 顶层实例化（G-20 集成 / G-07）"
+  ],
+  "status_impact": "G-20 仍为 OPEN_REQUIRES_DESIGN_OR_REVIEW：PL 通道重排组件已完成并验证，但整帧对拍、C 侧映射与顶层集成未完成。",
+  "boundaries": [
+    "未接触板卡/JTAG/COM4",
+    "未改动冻结契约与回放包",
+    "ENABLE=0 未变"
+  ]
+}

@@ -2,7 +2,11 @@
 
 module s4b_preproc_frame #(
     parameter logic [31:0] OUT_WIDTH = 32'd416,
-    parameter logic [31:0] OUT_HEIGHT = 32'd416
+    parameter logic [31:0] OUT_HEIGHT = 32'd416,
+    // RAW 源为 BGR888（内存字节序 B/G/R），模型需要 R/G/B。
+    // BGR_SOURCE=1 时按 2-channel 取字节（ch0→+2 得 R，ch1→+1 得 G，ch2→+0 得 B）；
+    // 置 0 则保持原有"直取字节"行为，供旧路径复用。
+    parameter logic        BGR_SOURCE = 1'b1
 ) (
     input  logic         clk,
     input  logic         rst_n,
@@ -119,6 +123,8 @@ module s4b_preproc_frame #(
     logic [31:0] output_x_q;
     logic [31:0] output_y_q;
     logic [1:0] channel_q;
+    // 输出通道 → 内存字节偏移。BGR888 源下需反序：ch0(R)→+2、ch1(G)→+1、ch2(B)→+0。
+    logic [1:0] raw_channel_index;
     logic [31:0] linear_index_q;
     logic [2:0] pack_count_q;
     logic [63:0] pack_word_q;
@@ -311,10 +317,13 @@ module s4b_preproc_frame #(
         endcase
         raw_byte_address_comb = {32'd0, raw_base_q} +
                                 {32'd0, sample_y_comb} * {32'd0, stride_bytes_q} +
-                                ({32'd0, sample_x_comb} * 64'd3) + {62'd0, channel_q};
+                                ({32'd0, sample_x_comb} * 64'd3) + {62'd0, raw_channel_index};
         append_word_comb = pack_word_q |
                            ({56'd0, append_byte_q} << (pack_count_q * 8));
     end
+
+    // BGR888 源字节序反序映射；BGR_SOURCE=0 时退化为直取，保持旧行为。
+    assign raw_channel_index = BGR_SOURCE ? (2'd2 - channel_q) : channel_q;
 
     s4b_preproc_pixel pixel_core (
         .clk(clk),

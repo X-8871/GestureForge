@@ -698,9 +698,10 @@
         "readiness_doc",
         "address_map"
       ],
-      "offline_action_this_round": "静态核对确认冻结 D2 Python 图像参考会在 resize 前执行 BGR→RGB；现有 C enum 值 1 是 RGB565，而 G0 readiness 中 mailbox_pixel_format_code=1 是独立候选编码映射到 BGR888，当前不得直接 cast。阶段4 现有 C 源无 mailbox PS driver；PL 按 pixel*3+channel_q 直取通道字节且无 BGR 反转控制，当前源码也未发现 s4b_preproc_frame 的 RTL 顶层实例。契约 r07 将 runtime_support_status 保持为 NOT_IMPLEMENTED、mailbox driver 保持为 NOT_IMPLEMENTED、pl_integration_status 保持为 NOT_INSTANTIATED。",
+      "offline_action_this_round": "2026-10-27（Vivado 已由 Wong 放开）：PL 侧通道重排已实现并验证——`src/s4b_preproc_frame.sv` 新增参数 `BGR_SOURCE`（默认 1），输出通道 c 读 RAW 字节偏移 2-c；xsim 双跑对照：BGR_SOURCE=1 时 ch0=0x33(R)，=0 时 ch0=0x11(B)，证明重排由参数驱动（非巧合）。证据 `report/evidence/S4-B/s4b_bgr_remap_20261027_r01/`，verdict=`PARTIAL_BYTE_CHECK_PASS_FULLFRAME_PENDING`。**未完成**：整帧 D2 逐值对拍（仿真在 ST_PIXEL_WAIT 停住，像素核握手未完成）、mailbox_pixel_format_code→C enum 显式映射与 PS driver、`s4b_preproc_frame` 顶层实例化。状态不翻转，仍 OPEN_REQUIRES_DESIGN_OR_REVIEW。",
       "remaining": "需单独实现并审查 mailbox PS driver 与独立 mailbox_pixel_format_code→共享格式字符串/C enum 的显式映射；禁止 code 1 直接 cast（现有 C enum 1=RGB565）。实现 BGR888 输入识别及逐像素 B/G/R→R/G/B 重排，确保发生在 resize/归一化/量化之前；将前处理实际接入 PL 顶层；添加字节级通道反例、整帧 D2 逐值对拍并绑定实现版本后，方可更新运行期支持状态。",
-      "next_owner": "阶段4 Developer + 独立 Reviewer"
+      "next_owner": "阶段4 Developer + 独立 Reviewer",
+      "updated_utc8": "2026-10-27T13:05:00+08:00"
     }
   ],
   "not_applicable": [

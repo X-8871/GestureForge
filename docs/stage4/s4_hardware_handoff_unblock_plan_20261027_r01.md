@@ -46,6 +46,19 @@ D6 执行（validate → 装载 → RUN → one-shot 停泊 → 双读导出 →
 **D1 / D2 是当前最深的两处卡点**：地址图未批准时，`g0_approval` 无论怎么写都只能是
 `DRAFT`，硬写成 `APPROVED` 就是伪造；owner 方案停在 `DECISION_REQUESTED` 需要 Wong 拍板。
 
+**D1 不能由阶段4 单方面关闭**（本轮新查实）：地址图有两条 `UNRESOLVED_DO_NOT_GUESS` 区域，
+owner 不在阶段4 写权范围：
+
+| 未决区域 | owner | 对本次诊断的影响 |
+|---|---|---|
+| `display_buffer` | 阶段3 / 阶段5 | PS 张量诊断**完全不写显示缓冲**，逻辑上不需要该区域 |
+| `ps_internal_stack_heap_layout` | PS 应用（linker） | 与 PS app arena 相关，需 linker 事实核对 |
+
+因此存在一条**范围化批准**路径：只批准本次诊断实际触达的区域（RAW 输入区 + PS app arena），
+把 `display_buffer` 继续留作 `UNRESOLVED_DO_NOT_GUESS`。但这条路必须先改 `g0_approval` 的
+状态语义（当前只认全局 `APPROVED`），属于对门禁定义的放宽，**必须独立复审通过后才能实施**，
+不得由阶段4 自行宣布生效。
+
 **D3 必须由 main 侧签发**，阶段4 不写 main STATE（runbook 明令）。这是唯一一个
 不属于阶段4 动作范围的依赖。
 

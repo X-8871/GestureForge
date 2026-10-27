@@ -25,12 +25,19 @@ import socket
 import subprocess
 import sys
 import time
+import zlib
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+try:
+    import serial  # pyserial：M4-a 的 UART 交互（COM4）
+except Exception:  # pragma: no cover
+    serial = None
 
 CN = timezone(timedelta(hours=8))
 W = Path(r"D:\codex-worktrees\w4")
 XSDBN = Path(r"D:\Xilinx\2026.1\Vitis\bin\xsdb.bat")
+HW_SERVER_BAT = Path(r"D:\Xilinx\2026.1\Vivado\bin\hw_server.bat")
 SCRIPTS = W / "scripts" / "stage4_s4b"
 PREP = W / "report" / "evidence" / "S4-B" / "s4_ddr_four_measurements_20261027_r01" / "preparation"
 CAND_BASE = 0x12000000
@@ -113,6 +120,105 @@ def parse_pairs(text: str, prefix: str) -> dict[str, str]:
     return found
 
 
+def listening_3121() -> int:
+    """返回 3121 上处于 LISTEN 的连接数（TIME_WAIT 不计）。"""
+    try:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command",
+                              "@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue).Count"],
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+        return int(out or "0")
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return -1
+
+
+def start_hw_server(run_dir: Path) -> tuple[int | None, str]:
+    """启动 hw_server 并等待 3121 进入 LISTEN；返回 (PID, 错误)。"""
+    if not HW_SERVER_BAT.is_file():
+        return None, f"hw_server 缺失：{HW_SERVER_BAT}"
+    out_log = (run_dir / "hw_server.stdout.txt").open("w", encoding="utf-8")
+    err_log = (run_dir / "hw_server.stderr.txt").open("w", encoding="utf-8")
+    proc = subprocess.Popen([str(HW_SERVER_BAT), "-s", "tcp::3121"],
+                            stdout=out_log, stderr=err_log,
+                            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    deadline = time.time() + 30
+    while time.time() < deadline:
+        if listening_3121() > 0 and not port_free("127.0.0.1", 3121):
+            return proc.pid, ""
+        time.sleep(0.5)
+    return None, "hw_server 30 s 内未监听 3121"
+
+
+def stop_hw_server(run_dir: Path, pid: int | None) -> dict[str, object]:
+    """停 hw_server（含其派生子进程），并核验 3121 无 LISTEN。"""
+    stopped: list[int] = []
+    if pid:
+        subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True, text=True)
+        stopped.append(pid)
+    # 兜底：结束本机所有 hw_server（本窗口为唯一使用者，P0 已确认无他方进程）
+    try:
+        listing = subprocess.run(["tasklist", "/FI", "IMAGENAME eq hw_server.exe", "/FO", "CSV", "/NH"],
+                                 capture_output=True, text=True, encoding="utf-8", errors="replace").stdout
+        for line in listing.splitlines():
+            if "hw_server.exe" in line:
+                hwid = line.split(",")[1].strip('"')
+                if hwid.isdigit():
+                    subprocess.run(["taskkill", "/PID", hwid, "/T", "/F"], capture_output=True, text=True)
+                    stopped.append(int(hwid))
+    except OSError:
+        pass
+    time.sleep(2)
+    listening = listening_3121()
+    residual = heavy_processes()
+    detail = {"stopped_pids": stopped, "listening_3121": listening,
+              "residual_processes": residual, "time_wait_note": "TIME_WAIT 可接受，不清理"}
+    (run_dir / "P4_teardown_result.json").write_text(
+        json.dumps(detail, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (run_dir / "P4_teardown.exit_code.txt").write_text(f"exit={0 if (listening == 0 and not residual) else 1}\n",
+                                                       encoding="utf-8")
+    return detail
+
+
+def crc32_int(data: bytes) -> int:
+    """标准 CRC-32（与最小 ELF 的按位实现一致）。"""
+    return zlib.crc32(data) & 0xFFFFFFFF
+
+
+def uart_open(timeout: float = 30.0) -> tuple[object | None, str]:
+    """打开 COM4 等待 `M4A READY` 横幅；返回 (serial, 错误)。"""
+    if serial is None:
+        return None, "pyserial 不可用"
+    try:
+        ser = serial.Serial(UART, 115200, timeout=0.5, write_timeout=2)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"打开 {UART} 失败：{exc}"
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        line = ser.readline().decode("utf-8", errors="replace").strip()
+        if line.startswith("M4A READY"):
+            return ser, ""
+    ser.close()
+    return None, f"{timeout}s 内未收到 M4A READY 横幅"
+
+
+def uart_cmd(ser: object, command: str, timeout: float = 15.0) -> tuple[str, str | None]:
+    """发送一条命令并读回应答行；返回 (原始应答, crc 字符串或 None)。"""
+    try:
+        ser.reset_input_buffer()  # type: ignore[attr-defined]
+        ser.write((command + "\r\n").encode())  # type: ignore[attr-defined]
+    except Exception as exc:  # noqa: BLE001
+        return "", f"写串口失败：{exc}"
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        line = ser.readline().decode("utf-8", errors="replace").strip()  # type: ignore[attr-defined]
+        if not line:
+            continue
+        if "crc=" in line:
+            return line, line.split("crc=")[1].split()[0]
+        if "M4A ERR" in line:
+            return line, None
+    return "", "超时无应答"
+
+
 def main() -> int:
     """按序执行四项实测；FAIL 即停。"""
     parser = argparse.ArgumentParser(description="S4-T31 四项板测执行驱动（开窗后使用）")
@@ -152,6 +258,20 @@ def main() -> int:
             json.dumps({**results, "stop_reason": stop_reason}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"[FAIL] {stop_reason}：{p0}")
         return 2
+
+    # ---------------- P0b：启动 hw_server（P0 已确认端口空闲、无他方进程） ----------------
+    hw_pid: int | None = None
+    if stop_reason is None:
+        hw_pid, hw_err = start_hw_server(run_dir)
+        record("P0b_hw_server", "PASS" if hw_pid else "FAIL", {"pid": hw_pid, "error": hw_err})
+        if not hw_pid:
+            stop_reason = f"hw_server 启动失败：{hw_err}"
+            stop_hw_server(run_dir, None)
+            (run_dir / "results_four_measurements.json").write_text(
+                json.dumps({**results, "stop_reason": stop_reason}, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8")
+            print(f"[FAIL] {stop_reason}")
+            return 2
 
     # ---------------- P1 smoke：分步断言（targets → 选目标 → 只读） ----------------
     if stop_reason is None:
@@ -254,19 +374,84 @@ def main() -> int:
             record("M4a_cache_visibility", "NOT_RUN",
                    {"reason": "载荷缺失或显式跳过", "elf": str(elf), "init_elf": str(init_elf)})
         else:
-            # PRELOAD 已下载 init.elf 与最小 ELF；此处只**选 CPU0 并 con**（CPU1 保持 halted 不释放）
+            # PRELOAD 已下载 init.elf 与最小 ELF；此处只 con CPU0（CPU1 保持 suspended）
+            sel = "targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; "
+            base_hex = hex(CAND_BASE)
             code, out = xsdb_step(run_dir, "M4a_run_cpu0",
-                                  ["-eval", f"connect -url {HW_URL}; "
-                                            f"targets -set -filter {{name =~ \"*Cortex-A9*\"}}; con; after 2000; "
-                                            f"puts \"M4A_CPU0_STATE=[state]\"; disconnect; exit"])
-            record("M4a_cache_visibility", "PASS" if code == 0 else "FAIL",
-                   {"run_exit": code,
-                    "elf_sha256": sha256_file(elf), "init_elf_sha256": sha256_file(init_elf),
-                    "uart_protocol": "COM4 115200 8N1；命令 R/I/F/W/Q；应答行以 M4A 开头",
-                    "load_flow": "init.elf（rst -system -stop + con，完成 PS/DDR 初始化）→ dow 最小 ELF → M1/M2/M3 → 此处仅 con CPU0",
-                    "note": "M4-a 的 UART 命令交换须按计划书 §4 执行并落盘原始收发；收尾不 stop（避免改状态）"})
-            if code != 0:
-                stop_reason = "M4-a CPU0 启动失败"
+                                  ["-eval", "connect -url " + HW_URL + "; " + sel +
+                                            "con; after 2000; puts \"M4A_CPU0_STATE=[state]\"; "
+                                            "disconnect; exit"])
+            m4: dict[str, object] = {"run_exit": code, "elf_sha256": sha256_file(elf),
+                                     "init_elf_sha256": sha256_file(init_elf),
+                                     "subrange": {"base": base_hex, "bytes": 1024},
+                                     "uart_protocol": "COM4 115200 8N1；R/I/F/W；应答行 M4A ..."}
+            ok_m4 = code == 0
+            checks: dict[str, object] = {}
+            uart_log: list[str] = []
+
+            def jtag(cmds: str, tag: str) -> int:
+                """跑一段 xsdb -eval（命令内路径必须 as_posix）。"""
+                c, _ = xsdb_step(run_dir, tag,
+                                 ["-eval", "connect -url " + HW_URL + "; " + sel + cmds + " disconnect; exit"])
+                return c
+
+            if ok_m4:
+                orig = run_dir / "m4a_orig_1k.bin"
+                c_o = jtag("mrd -bin -file " + orig.as_posix() + " " + base_hex + " 256; ", "M4a_jtag_read_orig")
+                orig_bytes = orig.read_bytes() if orig.is_file() else b""
+                crc_orig = crc32_int(orig_bytes) if orig_bytes else None
+                checks["jtag_read_exit"] = c_o
+                checks["orig_sha256"] = sha256_file(orig)
+                ser, uerr = (uart_open() if (c_o == 0 and orig_bytes) else (None, "前置失败"))
+                if ser is None:
+                    checks["uart_error"] = uerr
+                    ok_m4 = False
+                else:
+                    try:
+                        import contextlib
+                        with contextlib.closing(ser):
+                            raw, c = uart_cmd(ser, "R " + base_hex + " 1024")
+                            uart_log.append(raw)
+                            checks["R_matches_snapshot"] = (c is not None and crc_orig is not None
+                                                            and c.lower() == ("0x%08x" % crc_orig))
+                            jin = jtag("for {set i 0} {$i < 256} {incr i} { mwr [expr {0x12000000 + $i*4}] 0xA5A5A5A5 }; ",
+                                       "M4a_jtag_write_pattern")
+                            checks["jtag_write_exit"] = jin
+                            raw, c = uart_cmd(ser, "F " + base_hex + " 1024")
+                            uart_log.append(raw)
+                            checks["F_matches_written_pattern"] = (
+                                c is not None and c.lower() == ("0x%08x" % crc32_int(b"\xa5" * 1024)))
+                            rst1 = jtag("mwr -bin -file " + orig.as_posix() + " " + base_hex + "; ",
+                                        "M4a_jtag_restore")
+                            checks["jtag_restore_exit"] = rst1
+                            raw, c = uart_cmd(ser, "I " + base_hex + " 1024")
+                            uart_log.append(raw)
+                            checks["I_matches_restored_snapshot"] = (
+                                c is not None and crc_orig is not None and c.lower() == ("0x%08x" % crc_orig))
+                            raw, c = uart_cmd(ser, "W " + base_hex + " 1024 0xA5A5A5A5")
+                            uart_log.append(raw)
+                            checks["W_matches_ps_written_pattern"] = (
+                                c is not None and c.lower() == ("0x%08x" % crc32_int(b"\xa5" * 1024)))
+                            jtag("mwr -bin -file " + orig.as_posix() + " " + base_hex + "; ", "M4a_jtag_restore2")
+                            chk = run_dir / "m4a_verify_1k.bin"
+                            jtag("mrd -bin -file " + chk.as_posix() + " " + base_hex + " 256; ",
+                                 "M4a_jtag_verify")
+                            checks["restored_byte_equal"] = (chk.read_bytes() == orig_bytes) if chk.is_file() else False
+                    except Exception as exc:  # noqa: BLE001
+                        checks["uart_exception"] = str(exc)
+                        ok_m4 = False
+
+            m4["checks"] = checks
+            m4["uart_exchanges"] = uart_log
+            m4["note"] = "M4-a 只测 cache 维护/可见性；收尾不 stop；W 后已再次恢复并逐字节校验"
+            record("M4a_cache_visibility", "PASS" if (ok_m4 and all(v is not False for v in checks.values())) else "FAIL", m4)
+            if not (ok_m4 and all(v is not False for v in checks.values())):
+                stop_reason = "M4-a 失败（cache 可见性检查未全过）"
+
+    # ---------------- P4：收尾（停 hw_server；核验 3121 无 LISTENING） ----------------
+    teardown = stop_hw_server(run_dir, hw_pid)
+    record("P4_teardown", "PASS" if (teardown["listening_3121"] == 0 and not teardown["residual_processes"]) else "FAIL",
+           teardown)
 
     results["m4b_dma_visibility"] = {
         "status": "NOT_APPLICABLE",

@@ -31,8 +31,10 @@
   目录无 `-text` ⇒ 干净检出 CRLF（15 847 B）使 checker exit 2。已加子目录 `.gitattributes`（`scripts/stage5_t27/`、`report/evidence/S5-T27/`，`* -text`，
   **未动冻结的根 `.gitattributes`**）并**新 RunId `s5t27_replay_colour_20261027_r02`** 重生成；干净检出自证：`report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/`
   （gate `--mode strict` **exit 0**、`check_stage_delivery --mode evidence` **exit 0**）。
-- **哈希基座新规（2026-10-27 Wong 批准）**：r02 清单**逐项声明 `hash_basis=commit_blob`**（含 manifest 级默认），
-  `verification/check_manifest_hash_basis.py --mode strict` **exit 0**、`--mode declared-only` **exit 0**。
+- **哈希基座新规（2026-10-27 Wong 批准）**：采用**双文件**形式（主仓 `check_stage_delivery.py` 尚不接受清单内联 `hash_basis`，实测"未知字段"exit 2）——
+  `hash_basis_manifest.json` 逐项声明 `commit_blob`（18 条；索引/基座表自身因循环引用不入表，由 delivery_manifest 的 strict 条目核验），
+  `delivery_manifest.json` 保持 schema 干净 ⇒ 两套门禁同时满足。实测：`check_manifest_hash_basis --mode strict` **0**、`--mode declared-only` **0**、
+  `check_stage_delivery --mode evidence` **0**（提交 `e69b99e`）。
 - **N2（已修）**：`assert_replay_record` 补齐 `algorithm`/`value`/`length_bytes==stride×height` 三要素；自检 6 类注入、用例 17 项全 OK。
 - **N3（已修）**：本文件第 62 行旧句改为"离线部分已交付；板级/实时未做"。
 - **N4（仅登记）**：冻结 `file_set` 目录 `scripts/stage5_t03/` 新增 3 个跟踪文件（25→28）；冻结成员未变、校验器仍 77/77；**下次重冻结纳入**。

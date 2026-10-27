@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-T27",
+  "run_id": "s5t27_clean_checkout_20261027_r02",
+  "source_commit": "76c74fe0156c676b0c4771fcb312c5cedc51be80",
+  "evidence_dir": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包为**干净检出自证 r02**（只读副本内复跑门禁，针对 r02 内联基座清单）：输入为已提交的 r02 证据包与源码绑定，无 role=input 的本地输入文件；上游接口非本卡可冻结对象，故 inputs 模式不适用。",
+  "files": [
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/console/checker_evidence.txt",
+      "role": "log",
+      "sha256": "6858be9cb810e3ac345836ef8b8940ddabbd2aede2b7d85abbc0d0ab404b8d30"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/console/clean_checkout.txt",
+      "role": "log",
+      "sha256": "78a8e2d0c81f6909f0c0837ae03b50006af5b6a5099320b24da9ca8c8e994925"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/console/gate_declared_basis.txt",
+      "role": "log",
+      "sha256": "843453619beea76e37506f12e2685d4e5737d8658d2612e658c4dc935d33b880"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/console/gate_declared_delivery.txt",
+      "role": "log",
+      "sha256": "843453619beea76e37506f12e2685d4e5737d8658d2612e658c4dc935d33b880"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/console/gate_strict_basis.txt",
+      "role": "log",
+      "sha256": "1abfcd6f4ccdc88085015f63535779ad790bc755bc785fac221fb0e14edbe1d3"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/console/gate_strict_delivery.txt",
+      "role": "log",
+      "sha256": "1abfcd6f4ccdc88085015f63535779ad790bc755bc785fac221fb0e14edbe1d3"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/results_clean_checkout.json",
+      "role": "result",
+      "sha256": "0e54db1fadbcf0581900b2501831d8477d6f984184b5fa93971937f7631b77ab"
+    },
+    {
+      "path": "scripts/stage5_t27/run_clean_checkout_proof.py",
+      "role": "source",
+      "sha256": "eeadaea2c2e3e2b3b12ac2f91b200e544ee74344478ce792cf50d739d8dc3688"
+    },
+    {
+      "path": "scripts/stage5_t27/inline_manifest_basis.py",
+      "role": "source",
+      "sha256": "d0049116748899aeb94a15c56ab0f306563ef27e87658d0531937c82f6518fa6"
+    },
+    {
+      "path": "report/evidence/S5-T27/.gitattributes",
+      "role": "source",
+      "sha256": "4c1ff83394fe59317035b9799c11a6e4aa4f4e94b142d7b391d996513e43ca3e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "干净检出内 check_manifest_hash_basis --mode strict",
+      "status": "PASS",
+      "command": "check_manifest_hash_basis.py --repo <clone> --commit 76c74fe --mode strict",
+      "exit_code": 0,
+      "reason": "verdict OK（r02 内联基座清单，0 不符）"
+    },
+    {
+      "name": "干净检出内 check_manifest_hash_basis --mode declared-only",
+      "status": "PASS",
+      "command": "… --mode declared-only",
+      "exit_code": 0,
+      "reason": "OK"
+    },
+    {
+      "name": "干净检出内 check_stage_delivery --mode evidence",
+      "status": "PASS",
+      "command": "check_stage_delivery.py --mode evidence --project-root <clone>",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；仅代表包装检查通过"
+    }
+  ],
+  "limitations": [
+    "本包只证明**干净检出**下基座与包装门禁一致，不代表语义正确、独立审查通过或任何关口通过。",
+    "副本为部分检出（r02 证据包 + 源码绑定 + .gitattributes），不含与自证无关的历史证据。",
+    "被检提交 = 76c74fe（C8，r02 内联基座清单）；clone 以 --shared 读取同一对象库，未写 w5 的 .git。",
+    "r01 自证包（针对 e69b99e、双文件基座形式）保留为历史；r02 与当前内联形式一致。"
+  ],
+  "tool_versions": {
+    "python": "3.12",
+    "check_manifest_hash_basis": "main 2872851",
+    "check_stage_delivery": "main HL-T79（支持内联 hash_basis）"
+  }
+}

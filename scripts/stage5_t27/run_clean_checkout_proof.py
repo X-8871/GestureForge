@@ -92,7 +92,6 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8")
 
     manifest = f"{RUN_DIR}/delivery_manifest.json"
-    basis = f"{RUN_DIR}/hash_basis_manifest.json"
     results: dict[str, dict] = {}
     for name, cmd in (
             ("gate_strict_delivery", [sys.executable, "-B", str(GATE), "--repo", str(clone_dir),
@@ -101,9 +100,9 @@ def main(argv: list[str] | None = None) -> int:
                                         "--commit", commit, "--paths", manifest,
                                         "--mode", "declared-only", "--json"]),
             ("gate_strict_basis", [sys.executable, "-B", str(GATE), "--repo", str(clone_dir),
-                                   "--commit", commit, "--paths", basis, "--mode", "strict", "--json"]),
+                                   "--commit", commit, "--paths", manifest, "--mode", "strict", "--json"]),
             ("gate_declared_basis", [sys.executable, "-B", str(GATE), "--repo", str(clone_dir),
-                                     "--commit", commit, "--paths", basis,
+                                     "--commit", commit, "--paths", manifest,
                                      "--mode", "declared-only", "--json"]),
             ("checker_evidence", [sys.executable, "-B", str(CHECKER), "--mode", "evidence",
                                   "--project-root", str(clone_dir),

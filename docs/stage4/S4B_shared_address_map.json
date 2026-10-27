@@ -1,0 +1,143 @@
+{
+  "schema_version": "s4_shared_address_map_v1",
+  "id": "s4-shared-address-map",
+  "revision": "r01",
+  "status": "DRAFT_PENDING_REVIEW",
+  "task_id": "S4-B-REAL-02B",
+  "created_utc8": "2026-10-27T14:00:00+08:00",
+  "owner": "Workbuddy 阶段4总控（起草）",
+  "purpose": "跨阶段共享地址视图：供 PS / PL / host 三方在硬件门禁 g0_approval 中引用同一份已批准的区域边界与所有权。本文件只做投影，不新增或改动任何地址。",
+  "derived_from": {
+    "path": "docs/stage4/S4B_stage4_address_map.json",
+    "sha256_note": "由 g0_approval 的 address_map_binding 独立绑定；本文件不重复其数字，只在冲突时以该文件为准"
+  },
+  "approval": {
+    "status_meaning": "APPROVED 表示跨阶段共享视图已被裁决人批准，可作为 g0_approval 的 shared_address_binding 目标；DRAFT_PENDING_REVIEW 一律不可用于硬件执行。",
+    "approval_authority": "Wong",
+    "independent_review_required": true,
+    "independent_review_basis": "复用 g0_approval 的 address_map 结构；本文件仅为投影，不含新地址事实",
+    "blocked_by": [
+      "stage4 地址图仍为 DRAFT_PENDING_REVIEW",
+      "RAW owner 方案仍为 DECISION_REQUESTED",
+      "display_buffer 由阶段3/阶段5 持有未决事实"
+    ]
+  },
+  "address_space": {
+    "half_open": true,
+    "byte_order": "little",
+    "hardware_cache_line_bytes": 32,
+    "maintenance_alignment_bytes": 64,
+    "outward_floor": true,
+    "note": "byte_order 只表示多字节标量的端序，不表示像素通道顺序；RAW 像素通道为 B/G/R。"
+  },
+  "regions": [
+    {
+      "name": "ps_app_arena",
+      "base_addr_hex": "0x00100000",
+      "length_bytes": 16777216,
+      "producer": "PS 应用（linker 声明的 code/data/bss/heap/stack）",
+      "consumers": [{"stage": "PS", "access": "read_write"}],
+      "status": "FROZEN_2B_CANDIDATE",
+      "stage4_use": "PS 张量诊断应用的运行期内存；阶段4 不写该区域内容以外的任何地址"
+    },
+    {
+      "name": "network_input_tensor",
+      "base_addr_hex": "0x10000000",
+      "length_bytes": 519168,
+      "producer": "PL HP0 预处理写出（[1,3,416,416] CHW INT8）",
+      "consumers": [{"stage": "PS", "access": "read_after_invalidate"}, {"stage": "PL", "access": "read_only"}],
+      "status": "FROZEN_2A_2B",
+      "stage4_use": "D2 前处理输出；PS 在 invalidate+DSB 后逐字节对拍"
+    },
+    {
+      "name": "gf8_weight_package",
+      "base_addr_hex": "0x10100000",
+      "length_bytes": 5903100,
+      "producer": "host 装载 GFINT8W1 参数包",
+      "consumers": [{"stage": "PL", "access": "read_only"}],
+      "status": "FROZEN_2A_2B",
+      "stage4_use": "冻结权重包；阶段4 只读引用，不重写"
+    },
+    {
+      "name": "feature_envelope",
+      "base_addr_hex": "0x11000000",
+      "length_bytes": 11382200,
+      "producer": "PL HP0 逐张量写入（白名单）",
+      "consumers": [{"stage": "PL", "access": "read_write"}, {"stage": "PS", "access": "forbidden_during_run"}],
+      "status": "FROZEN_2A_2B",
+      "stage4_use": "网络中间特征；PS 在 RUN/ARMING/RECOVERING/FAULT 期间禁止访问"
+    },
+    {
+      "name": "injection_frame_rgb",
+      "base_addr_hex": "0x10700000",
+      "length_bytes": 4194304,
+      "producer": "阶段4 注入器",
+      "consumers": [{"stage": "阶段4 D2 预处理", "access": "read"}],
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_G0",
+      "stage4_use": "RGB 注入帧缓冲；本诊断单元当前不使用（走 RAW 路径）"
+    },
+    {
+      "name": "raw_frame",
+      "base_addr_hex": "0x12000000",
+      "length_bytes": 12582912,
+      "producer": "阶段4 host / JTAG 注入（写 RAW）",
+      "consumers": [{"stage": "阶段4 D2 预处理", "access": "read"}],
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "cache_maintenance": "producer flush → consumer invalidate，64 B 向外取整",
+      "stage4_use": "RAW BGR888 源帧；通道顺序 B/G/R，需在 resize/归一化/量化前重排为 R/G/B"
+    },
+    {
+      "name": "raw_meta",
+      "base_addr_hex": "0x12C00000",
+      "length_bytes": 32768,
+      "producer": "阶段4 host（描述符与几何表）/ PS（ACK、GEOM、RESULT）",
+      "consumers": [{"stage": "PL 预处理", "access": "read_only_geometry_table"}, {"stage": "PS", "access": "read_write_cacheable"}],
+      "status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+      "internal_layout": {
+        "HOST_REQ": "+0x0000..+0x007f (128 B)",
+        "PS_ACK": "+0x0080..+0x00bf (64 B)",
+        "PS_GEOM": "+0x00c0..+0x00ff (64 B)",
+        "PS_RESULT": "+0x0100..+0x013f (64 B)",
+        "X_geometry_table": "+0x0140..+0x283f (9,984 B)",
+        "Y_geometry_table": "+0x2840..+0x4f3f (9,984 B)",
+        "JTAG_RAW_result": "+0x4f40..+0x7fff (12,480 B)"
+      },
+      "cache_maintenance": "READY 阶段只维护 mailbox 32 KiB；RAW 在 COMMIT 接受后按 storage_bytes invalidate",
+      "stage4_use": "mailbox 与几何表；布局权威见 S4B_pl_preprocess_g0_readiness.md §8.2/§8.3"
+    },
+    {
+      "name": "pl_control_csr",
+      "base_addr_hex": "0x43C00000",
+      "length_bytes": 65536,
+      "producer": "PS CPU0 单核标量 32-bit Device 访问",
+      "consumers": [{"stage": "PL", "access": "axi4_lite_slave"}],
+      "status": "FROZEN_2B",
+      "stage4_use": "旧 START/ABORT/ACK 在 0x008；S4B 新块占 0x200..0x27c"
+    }
+  ],
+  "unresolved_regions": [
+    {
+      "name": "display_buffer",
+      "status": "UNRESOLVED_DO_NOT_GUESS",
+      "owner": "阶段3/阶段5（不在阶段4 写权范围）",
+      "reason": "阶段5 要求 PS 软件叠框前必须先只读核对送显缓冲的布局、地址与所有权；阶段3 未提供权威事实。",
+      "consequence_for_stage4": "阶段4 不写显示缓冲，只提供结果记录与 PS 侧日志；显示由阶段5 只读消费。",
+      "blocks_full_approval": false,
+      "note": "本诊断单元不触达该区域，故其未决不阻断 g0_approval 的诊断范围；但若要做完整 Phase-4 显示链则必须先解。"
+    },
+    {
+      "name": "ps_internal_stack_heap_layout",
+      "status": "UNRESOLVED_DO_NOT_GUESS",
+      "owner": "PS 应用（linker）",
+      "reason": "需以 linker 输出的实际 .map 为准，不得凭经验假设。",
+      "evidence_available": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/memory_ranges.json 与 .map 已冻结",
+      "blocks_full_approval": false
+    }
+  ],
+  "boundaries": [
+    "本文件不是访问许可：即使 status=APPROVED，ENABLE 仍为 0，真实访问仍需八类硬件门禁全部成立。",
+    "本文件不得引入源地址图之外的任何地址或长度；任何数字冲突以 S4B_stage4_address_map.json 为准。",
+    "本文件不改变阶段5/阶段6 的语义，也不替代 shared_input_result_contract 的字段定义。",
+    "批准本文件不等于批准 display_buffer 或 PS heap/stack 布局。"
+  ]
+}

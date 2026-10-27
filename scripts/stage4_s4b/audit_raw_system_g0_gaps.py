@@ -253,7 +253,7 @@ def main() -> int:
     }
     bgr_ok = (
         bgr_actual["contract_version"] == "1.3.0"
-        and bgr_actual["contract_status"] in ("DRAFT_PENDING_REVIEW", "REVIEWED_OFFLINE_ONLY")
+        and bgr_actual["contract_status"] in ("DRAFT_PENDING_REVIEW", "REVIEWED_OFFLINE_ONLY", "FROZEN_OFFLINE_ONLY")
         and bgr_actual["runtime_support_status"] == "NOT_IMPLEMENTED"
         and bgr_actual["pixel_format"] == "BGR888"
         and bgr_actual["channel_order"] == ["B", "G", "R"]

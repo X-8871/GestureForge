@@ -2,7 +2,7 @@
   "schema_version": "gestureforge_s4_shared_io_contract_v2",
   "contract_id": "s4-shared-io",
   "contract_version": "1.3.0",
-  "status": "REVIEWED_OFFLINE_ONLY",
+  "status": "FROZEN_OFFLINE_ONLY",
   "revision": "r07",
   "created_utc8": "2026-10-22T19:20:00+08:00",
   "revision_note": "r07：按契约自身重绑规则处理两处过期绑定（语义未变）。① 桥接器 `s4_offline_raw_replay_bridge` 由 06c9ab8 的 blob `ad71cae0…` 重绑到 r12 现行**原始字节** `c6117bb4…`（旧值按 git_blob 口径登记在 replaces，并附 raw 值 `0c9e09d7…`）；② `stage5_display_g0_fields` 因 w5 在 b6d11d4 后两次改动，重绑到 `af51a4bf…`（a54f09f）。③ 补 `byte_basis_pointer`，说明 `worktree_disk_bytes` 与 `git_blob_content` **不等价**，定义见口径登记表。",
@@ -897,7 +897,7 @@
     "`camera_live_colour`/`camera_capture_replay_colour` 只是范围标签：写入本契约不代表真实彩色采集、回放或板级联调已执行；`capture_clock` 仍 `PENDING_MEASUREMENT`",
     "upstream_bindings 记的是本次修订时点的实际 SHA；权威变更时绑定必须显式更新并登记取代关系（自检会 FAIL 直到更新）"
   ],
-  "updated_utc8": "2026-10-27T07:40:00+08:00",
+  "updated_utc8": "2026-10-27T12:27:52+08:00",
   "review_record": {
     "reviewed_commit": "5f9a04a045f4aaa7516759513f660f9872cbab61",
     "json_sha256": "8beea2c55053be879ad810308b11cf63ea1e0cd7bc1a229fda5715a9255e5147",
@@ -907,5 +907,27 @@
     "verdict": "PASS",
     "scope": "内容可接受，允许阶段4 以仅改 status 的提交登记 REVIEWED_OFFLINE_ONLY；不构成 G3/G4/G5 或板级通过",
     "note": "被审 SHA 为 status 变更前的字节；本提交仅改 status 与 review_record，未改任何语义字段"
+  },
+  "freeze_record": {
+    "frozen_revision": "r07",
+    "frozen_contract_version": "1.3.0",
+    "freeze_scope": "OFFLINE_ONLY",
+    "based_on_reviewed_json_sha256": "8beea2c55053be879ad810308b11cf63ea1e0cd7bc1a229fda5715a9255e5147",
+    "based_on_reviewed_md_sha256": "07ded4db9bfbc467be360a949f1ba2223bd0cd4d971492ec4d4ff9c73f1baab2",
+    "reviewed_commit": "5f9a04a045f4aaa7516759513f660f9872cbab61",
+    "frozen_at_utc8": "2026-10-27T12:27:52+08:00",
+    "frozen_by": "Workbuddy 阶段4总控（Wong 2026-10-27 授权）",
+    "change_policy": "冻结后任何语义字段改动必须升 r08、重新独立复审并在全链重绑；仅状态/措辞/注释的改动可由阶段4 以单独提交登记，但必须重绑所有引用 SHA。",
+    "allowed_consumers": [
+      "阶段5：显示字段与结果语义只读消费",
+      "阶段6：P / 延迟口径只读消费",
+      "阶段4：task-27 回放结果包与离线回归"
+    ],
+    "forbidden_claims": [
+      "板上行为",
+      "UART 实收",
+      "真实采集质量"
+    ],
+    "boundary": "冻结范围仅离线。ENABLE=0；RAW 系统 G0 未闭合；P / 4-D / G3 / G4 / G5 均 NOT_RUN；不得据此声称板上行为、UART 实收或实时采集质量。"
   }
 }

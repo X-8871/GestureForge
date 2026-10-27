@@ -1,0 +1,207 @@
+{
+  "task_id": "S4-CTRL/S4-T21",
+  "checker": "audit_raw_system_g0_gaps",
+  "checker_version": "r03",
+  "status": "PASS",
+  "generated_at_utc8": "2026-10-27T12:11:42+08:00",
+  "command": "C:\\Users\\22061\\.workbuddy\\binaries\\python\\versions\\3.13.12\\python.exe scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir report/evidence/S4-CTRL/s4t26_gap_audit_20261027_r06",
+  "exit_code": 0,
+  "cwd": "D:\\codex-worktrees\\w4",
+  "python_version": "3.13.14 (main, Jun 11 2026, 04:04:46) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "artifact_sha256": {
+    "registry": "f41426ad84c0b6b0ba7e38cdbdd0802b58bc210ecc8ff1cd8d76ef976f41fe9c",
+    "checker_script": "e968c5fd48a24ee5cab39ab9399b431d5daee02eda54e57a51d351880c5e22dc"
+  },
+  "checks": {
+    "bgr888_runtime_support_fail_closed": {
+      "status": "PASS",
+      "actual": {
+        "contract_version": "1.3.0",
+        "contract_status": "REVIEWED_OFFLINE_ONLY",
+        "runtime_support_status": "NOT_IMPLEMENTED",
+        "pixel_format": "BGR888",
+        "channel_order": [
+          "B",
+          "G",
+          "R"
+        ],
+        "byte_order": "little",
+        "d2_reorder_before": [
+          "resize",
+          "normalization",
+          "quantization"
+        ],
+        "legacy_stage3_mapping_ok": true,
+        "ur1_evidence_side_only": true,
+        "d2_reorder_source_order_ok": true,
+        "offline_raw_bridge_order_ok": true,
+        "c_api_support": "UNSUPPORTED",
+        "c_enum_has_bgr888": false,
+        "c_enum_value_1": "RGB565",
+        "mailbox_ps_driver_status": "NOT_IMPLEMENTED",
+        "mailbox_driver_present": false,
+        "mailbox_pixel_format_code_field": "mailbox_pixel_format_code",
+        "mailbox_pixel_format_code_candidate": 1,
+        "mailbox_code_maps_to": "BGR888",
+        "mailbox_code_direct_cast_allowed": false,
+        "mailbox_mapping_status": "NOT_IMPLEMENTED",
+        "pl_support": "UNSUPPORTED",
+        "pl_integration_status": "NOT_INSTANTIATED",
+        "pl_has_bgr888_remap": false,
+        "pl_direct_channel_byte_read": true,
+        "pl_top_instantiated": false,
+        "enable_required": true,
+        "region_status": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+        "address_map_status": "DRAFT_PENDING_REVIEW",
+        "enable_zero": true
+      },
+      "note": "离线 Python 转换路径不代表真实 C/PL 运行期支持"
+    },
+    "redundant_facts_consistent": {
+      "status": "PASS",
+      "actual": {
+        "errors": []
+      },
+      "note": ""
+    },
+    "raw_region_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "raw_bytes": 12582912,
+        "expected_raw_bytes": 12582912,
+        "max_frame_bytes": 11059200,
+        "storage_bytes": 11059200,
+        "storage_equals_logical": true,
+        "margin_bytes": 1523712,
+        "end_minus_start": 12582912
+      },
+      "note": ""
+    },
+    "tensor_geometry_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "tensor_bytes": 519168,
+        "word8_count": 64896
+      },
+      "note": ""
+    },
+    "geometry_table_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "geometry_bytes": 19968,
+        "x_start": 320,
+        "x_end": 10304,
+        "y_start": 10304,
+        "y_end": 20288
+      },
+      "note": ""
+    },
+    "mailbox_layout_arithmetic": {
+      "status": "PASS",
+      "actual": {
+        "meta_bytes": 32768,
+        "result_start": 20288,
+        "result_end": 32768,
+        "result_region_bytes": 12480,
+        "max_result_block_bytes": 760
+      },
+      "note": ""
+    },
+    "input_scope_consistency": {
+      "status": "PASS",
+      "actual": {
+        "sample_count": 109,
+        "min_bytes": 519168,
+        "max_bytes": 11059200,
+        "over_4mib_count": 97,
+        "over_4mib_consistent": 97,
+        "over_8mib_count": 2,
+        "over_8mib_consistent": 2
+      },
+      "note": "每项 bytes 必须等于 width×height×3"
+    },
+    "candidate_outside_shrunk_forbidden_gap": {
+      "status": "PASS",
+      "actual": {
+        "forbidden_range": [
+          314605568,
+          536870912
+        ],
+        "forbidden_bytes": 222265344,
+        "candidate": [
+          301989888,
+          314605568
+        ],
+        "candidate_fully_inside": false
+      },
+      "note": ""
+    },
+    "approved_regions_registered": {
+      "status": "PASS",
+      "actual": {
+        "raw_frame": [
+          301989888,
+          314572800,
+          "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+        ],
+        "raw_meta": [
+          314572800,
+          314605568,
+          "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+        ]
+      },
+      "note": ""
+    },
+    "stage3_owner_fact_bound": {
+      "status": "PASS",
+      "actual": {
+        "stage3_observed_max_hex": "0x114c00",
+        "candidate_start_hex": "0x12000000",
+        "fact_file_present": true
+      },
+      "note": ""
+    },
+    "no_overlap_with_known_owners": {
+      "status": "PASS",
+      "actual": {
+        "overlaps_with_r13": [],
+        "overlaps_with_historical": [],
+        "adjacent_to_tensor_arena": true
+      },
+      "note": ""
+    },
+    "draft_4mib_insufficient": {
+      "status": "PASS",
+      "actual": {
+        "draft_bytes": 4194304,
+        "max_frame_bytes": 11059200,
+        "insufficient": true
+      },
+      "note": ""
+    },
+    "basis_hash_match": {
+      "status": "PASS",
+      "actual": {
+        "mismatches": 0
+      },
+      "note": ""
+    }
+  },
+  "passes": [
+    "缺口状态纪律通过：无被禁状态、需要硬件的缺口保持 NOT_RUN/BLOCKED、CLOSED_OFFLINE 有本轮 PASS 检查支持",
+    "依据件现场复算一致（17/17 项）",
+    "离线算术复算一致（13/13 项）"
+  ],
+  "failures": [],
+  "details": {
+    "basis_checks": {
+      "checked": 17,
+      "total": 17,
+      "bad": []
+    },
+    "status_discipline_errors": []
+  },
+  "hardware_execution": "NOT_RUN",
+  "boundary": "只读离线复算与状态纪律检查；不代表 G0/G4/G5、独立审查或实物验收。"
+}

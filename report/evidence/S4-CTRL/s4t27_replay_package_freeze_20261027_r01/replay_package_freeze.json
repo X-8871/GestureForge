@@ -1,0 +1,117 @@
+{
+  "schema_version": "s4t27_replay_package_freeze_v1",
+  "task_id": "S4-T27-REPLAY-PACKAGE-FREEZE",
+  "run_id": "s4t27_replay_package_freeze_20261027_r01",
+  "generated_utc8": "2026-10-27T12:28:07+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "purpose": "真实回放接入的前置：把 task-27 回放结果包与其门禁证据固定成可消费、可校验的冻结集",
+  "consumption_mode": "replay_only",
+  "source_run": {
+    "run_id": "s4t26_gate_rerun_20261027_r04",
+    "status": "PASS",
+    "exit_code": 0,
+    "task27_package_generated": true,
+    "bridge_source_sha256": null
+  },
+  "package_identity": {
+    "task_id": "S4-T26-GOLDEN-REBIND",
+    "frame_id": 1,
+    "result_seq": 1,
+    "contract_result_key": {
+      "session_id": 853466600,
+      "frame_id": 1,
+      "result_seq": 1
+    },
+    "marking": {
+      "replay_only": true,
+      "evidence_kind": "offline_replay",
+      "buffer_scope": "offline_host",
+      "statement": "离线主机回放；不代表 PL、实物或实时检测输出"
+    }
+  },
+  "contract_binding": {
+    "contract_id": "s4-shared-io",
+    "contract_version": "1.3.0",
+    "revision": "r07",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "json_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "md_sha256": "e839f7a0d30f83816b63aedf14047420091dcb84ac75b3d168e87831718b11fd",
+    "freeze_scope": "OFFLINE_ONLY"
+  },
+  "files": [
+    {
+      "path": "task27_replay_result_package.json",
+      "bytes": 41664,
+      "sha256": "de823b2c4262235ed26a45ce17e9ae4a78795497b14675277e87a838e5e66c4c"
+    },
+    {
+      "path": "replay_forward_bridge_result.json",
+      "bytes": 161398,
+      "sha256": "dcf3455048252b3c5a52d412aafbb93678d1dfcca381e5a67442d5b93f39d845"
+    },
+    {
+      "path": "delivery_manifest.json",
+      "bytes": 11937,
+      "sha256": "297c26676578c7b6f64592e14b53f1ae39fc27e5befee0f9b83e18bcfbe818fc"
+    },
+    {
+      "path": "preflight_verification.json",
+      "bytes": 16351,
+      "sha256": "17fe02127a6e40dcc26a6242595efc07d1bb389b6fb1b5544b144162d2ae11e8"
+    },
+    {
+      "path": "raw_head_gate_head13_int8.bin",
+      "bytes": 5070,
+      "sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d"
+    },
+    {
+      "path": "raw_head_gate_head26_int8.bin",
+      "bytes": 20280,
+      "sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2"
+    },
+    {
+      "path": "positive_detection_gate_head13_int8.bin",
+      "bytes": 5070,
+      "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+    },
+    {
+      "path": "positive_detection_gate_head26_int8.bin",
+      "bytes": 20280,
+      "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+    },
+    {
+      "path": "task25_replay_frame_head13_int8.bin",
+      "bytes": 5070,
+      "sha256": "6a020c118948db5760a094bc9b23b2c130426325d3e7fe4f1fbbf6fc7b24d23d"
+    },
+    {
+      "path": "task25_replay_frame_head26_int8.bin",
+      "bytes": 20280,
+      "sha256": "1cea5b6f46f389231ab52ae819be5ea60811c6f44e32fb219aaf95bb00091422"
+    }
+  ],
+  "missing_files": [],
+  "integrity_rule": "消费方必须先按本清单逐文件复算 sha256 与 bytes；任一不符即拒绝消费，不得只校验 package.json。",
+  "allowed_claims": [
+    "冻结输入与参考的数值一致性（离线回放口径）",
+    "回放链路的工具与判据有效性（含反例）",
+    "task-27 结果包在离线回放口径下可被下游消费"
+  ],
+  "forbidden_claims": [
+    "板上行为 / PL 真实运行",
+    "UART 实收 / S2BU 真帧",
+    "真实摄像头采集质量或颜色",
+    "P / 4-D / G3 / G4 / G5 任一项通过",
+    "把回放结果当实时结果"
+  ],
+  "preconditions_for_real_replay": [
+    "共享结果契约 FROZEN_OFFLINE_ONLY（已完成）",
+    "task-26 权威门在当前桥接器字节上 PASS（已完成：s4t26_gate_rerun_20261027_r04）",
+    "真实回放接入仍需硬件 OFFER/CLAIM 与八类门禁（当前 0/8，未做）"
+  ],
+  "boundaries": [
+    "ENABLE=0 未变",
+    "本冻结只覆盖离线回放；不含任何板级证据",
+    "不得以本清单替代硬件门禁"
+  ]
+}

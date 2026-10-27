@@ -1,4 +1,4 @@
-# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.3.0` | `REVIEWED_OFFLINE_ONLY`（r07，仅离线范围）
+# 阶段4↔阶段5 共享输入/结果契约 | `s4-shared-io/1.3.0` | `FROZEN_OFFLINE_ONLY`（r07，仅离线范围，2026-10-27 冻结）
 
 - 日期：2026-10-25（UTC+8）；实施方：阶段4（本树 `D:\codex-worktrees\w4`，DSH 阶段4 总控）；消费方：阶段5（**只读**消费冻结交付）。
 - 机器可读：[`s4b_shared_input_result_contract.json`](s4b_shared_input_result_contract.json)。

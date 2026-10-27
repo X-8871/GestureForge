@@ -1,0 +1,214 @@
+{
+  "schema_version": "s4b_f2_gap_matrix_v1",
+  "task_id": "S4-B-F2-GAP-MATRIX",
+  "run_id": "s4b_f2_gap_matrix_20261027_r01",
+  "generated_utc8": "2026-10-27T12:35:00+08:00",
+  "owner": "Workbuddy 阶段4总控",
+  "scope": "F-2 十项设计/复审缺口的关闭路径评估；只做评估与索引，不改任何缺口状态",
+  "basis_docs": [
+    "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+    "docs/stage4/S4B_pl_preprocess_g0_readiness.md",
+    "docs/stage4/S4B_ps_tensor_injection_runbook.md",
+    "docs/stage4/S4B_stage4_address_map.json"
+  ],
+  "dependency_chain": [
+    "G-15（接口独立审查）",
+    "G-08 / G-09 / G-13（PS 侧实现，离线可编）",
+    "G-05 / G-10 / G-11 / G-20（PL 侧实现 + 仿真）",
+    "G-07（BD/XSA 新版本 + 独立审查）",
+    "G-14（实现后资源与布线后时序）",
+    "F-3 硬件：D1 地址图 / D2 owner 裁决 / D3 OFFER / D4 CLAIM / D5 六类记录 / D6 执行"
+  ],
+  "gaps": [
+    {
+      "id": "G-15",
+      "title": "mailbox/几何二进制接口未独立 G0 审查",
+      "close_criteria": [
+        "对 S4B_pl_preprocess_g0_readiness.md §8.2/§8.3 的偏移/magic/CRC/字段语义做独立只读复审",
+        "复审须逐条核对 HOST_REQ/PS_ACK/PS_GEOM/PS_RESULT 四种 record 与几何表编码",
+        "复审须核对 mailbox_pixel_format_code 与 C enum 编码域分离（禁止直接 cast）"
+      ],
+      "work_items": ["委托独立 Reviewer 只读复审", "复审 PASS 后更新缺口状态并绑定被审 SHA"],
+      "needs_vivado": false,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": [],
+      "effort_class": "S",
+      "closable_offline_by_stage4": true,
+      "note": "规格已存在且足够详细，缺的只是独立审查这一动作"
+    },
+    {
+      "id": "G-09",
+      "title": "u32 session 跨启动唯一分配来源未定义",
+      "close_criteria": [
+        "界定跨启动唯一来源（boot_seed 的存放位置与不变量），并证明 session_id 仍为 u32、不与 seed 拼接",
+        "实现 u32 耗尽即拒绝、禁止回绕，并有可复现回归",
+        "跨重启不重复的证明方式写成可机检条目"
+      ],
+      "work_items": ["设计文档（分配代数与不变量）", "PS C 实现", "host 侧回归"],
+      "needs_vivado": false,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": [],
+      "effort_class": "M",
+      "closable_offline_by_stage4": true,
+      "note": "runbook §8.3 已定 session_id 为 u32 且 frame_id 回绕前拒绝；缺的是跨启动来源的实现与证明"
+    },
+    {
+      "id": "G-13",
+      "title": "injection_start_ns 缺 PS 域来源/可用性策略",
+      "close_criteria": [
+        "定义 PS 域时间来源（global timer ticks）与换算口径，禁止用 host/墙钟代替",
+        "定义不可用时的取值与注解（capture_time_available / capture_time_ns 语义）",
+        "绑定到旁路日志字段并有机检项"
+      ],
+      "work_items": ["设计文档", "日志字段绑定实现", "机检项"],
+      "needs_vivado": false,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": [],
+      "effort_class": "M",
+      "closable_offline_by_stage4": true
+    },
+    {
+      "id": "G-08",
+      "title": "PS RAW task 入口与旧 memcpy 冲突",
+      "close_criteria": [
+        "新 PS 应用版本存在且构建可复现（ELF/map/派生源 SHA 绑定）",
+        "RAW 任务不调用冻结 RUN 的 memcpy(arena, staging+8, INPUT_BYTES)",
+        "原 CPU INT8 RUN 的 UART 请求/响应流程逐字节不变（有回归）",
+        "独立审查 PASS"
+      ],
+      "work_items": ["派生 app 补丁", "构建", "UART 流程回归", "独立审查"],
+      "needs_vivado": false,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-15"],
+      "effort_class": "L",
+      "closable_offline_by_stage4": true,
+      "note": "AArch32 工具链与冻结恢复包在库，构建属离线动作"
+    },
+    {
+      "id": "G-20",
+      "title": "RAW BGR888→RGB D2 前处理未实现（C/PL 运行期缺口）",
+      "close_criteria": [
+        "mailbox PS driver 实现 mailbox_pixel_format_code → 共享格式字符串/C enum 的显式映射，禁止 code 1 直接 cast",
+        "逐像素 B/G/R→R/G/B 重排，且在 resize/归一化/量化之前发生",
+        "前处理实际接入 PL 顶层（s4b_preproc_frame 实例化）",
+        "字节级通道反例 + 整帧 D2 逐值对拍，绑定实现版本后更新运行期支持状态"
+      ],
+      "work_items": ["PS driver", "PL 顶层接入", "反例与整帧对拍", "独立审查"],
+      "needs_vivado": true,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-15"],
+      "effort_class": "L",
+      "closable_offline_by_stage4": "partially",
+      "note": "C 侧可离线完成；PL 顶层接入与实现需 Vivado，且此前 stance 为不操作 Vivado，需 Wong 明确放开"
+    },
+    {
+      "id": "G-05",
+      "title": "HP0 串行 owner 与仲裁/排空证明缺失",
+      "close_criteria": [
+        "新 master/owner mux 实现存在",
+        "仲裁与排空（drain）证明：同一时刻唯一 owner，切换前无在途事务",
+        "旧网络安全结论不得沿用为新系统结论（需重新论证）"
+      ],
+      "work_items": ["RTL 实现", "形式/仿真证明", "独立审查"],
+      "needs_vivado": true,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-15"],
+      "effort_class": "L",
+      "closable_offline_by_stage4": "partially",
+      "note": "需 Vivado 实现与仿真；属 PL 设计工作量最大项之一"
+    },
+    {
+      "id": "G-10",
+      "title": "旧 START gate 未覆盖整个 preproc owner 持有期",
+      "close_criteria": [
+        "RTL 显式生成该谓词并同步采样",
+        "START 被接受的同周期锁存 NET owner（有仿真波形/断言）",
+        "反例：谓词不成立时 START 必须被拒且不改变 owner"
+      ],
+      "work_items": ["RTL 修改", "断言/仿真", "独立审查"],
+      "needs_vivado": true,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-05"],
+      "effort_class": "M",
+      "closable_offline_by_stage4": "partially"
+    },
+    {
+      "id": "G-11",
+      "title": "COMMIT 未要求逐字段精确回显 RAW_BEGIN",
+      "close_criteria": [
+        "实现逐字段回显比对",
+        "反例测试：任一字段错误回显必须 REJECTED 且不启动 HP0",
+        "被拒请求不改变 owner/token"
+      ],
+      "work_items": ["AXI4-Lite 从机逻辑", "反例 testbench", "独立审查"],
+      "needs_vivado": true,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-10"],
+      "effort_class": "M",
+      "closable_offline_by_stage4": "partially"
+    },
+    {
+      "id": "G-07",
+      "title": "平台集成（BD/XSA/PS 应用新版本）未建立",
+      "close_criteria": [
+        "派生 BD 脚本（地址映射、clock/reset 拓扑）可复现",
+        "新 XSA 生成并与冻结基线的差异项逐一说明",
+        "独立审查 PASS"
+      ],
+      "work_items": ["BD 脚本", "XSA 构建", "差异说明", "独立审查"],
+      "needs_vivado": true,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-05", "G-10", "G-11", "G-15", "G-20"],
+      "effort_class": "L",
+      "closable_offline_by_stage4": "partially",
+      "note": "依赖几乎全部 PL 侧工作完成，属关键路径末端"
+    },
+    {
+      "id": "G-14",
+      "title": "增量资源与布线后时序预算未完成",
+      "close_criteria": [
+        "新增 LUT/FF/DSP/BRAM 增量报告",
+        "DDR 事务量与最坏背压分析",
+        "时钟/复位/CDC 检查与布线后时序（WNS/WHS）报告",
+        "不得由 HP0 名义线速推实际带宽"
+      ],
+      "work_items": ["实现运行", "时序报告", "背压分析"],
+      "needs_vivado": true,
+      "needs_hardware": false,
+      "needs_other_window": [],
+      "deps": ["G-07"],
+      "effort_class": "M",
+      "closable_offline_by_stage4": "partially",
+      "note": "只能在 G-07 落地后有意义的实现；当前无法提前完成"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "review_only_closable_now": ["G-15"],
+    "offline_code_closable": ["G-09", "G-13", "G-08"],
+    "requires_vivado_and_stage4_design": ["G-20", "G-05", "G-10", "G-11", "G-07", "G-14"],
+    "requires_other_window": [],
+    "requires_wong_decision": [
+      "放开 Vivado 实现/仿真操作（G-05/G-10/G-11/G-20 PL 侧/G-07/G-14 均依赖）",
+      "D2：RAW owner 方案裁决（DECISION_REQUESTED）"
+    ],
+    "requires_main": ["D3 硬件 OFFER 与 main STATE 写权行"],
+    "requires_stage3_or_stage5": [
+      "display_buffer 布局/地址/所有权事实（地址图 UNRESOLVED_DO_NOT_GUESS）"
+    ]
+  },
+  "boundaries": [
+    "本矩阵只评估关闭路径，不改变任何缺口状态",
+    "needs_vivado=true 不等于允许现在执行 Vivado；此前 stance 为不操作 Vivado，需 Wong 明确放开",
+    "任何缺口的状态翻转都必须有对应证据与独立审查，不得以本矩阵为依据"
+  ]
+}

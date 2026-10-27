@@ -2,6 +2,24 @@
 
 **写权：Workbuddy 阶段4总控 受 Wong 2026-10-27 授权独占，覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
 
+## 本轮结果（结果契约冻结 + 回放包冻结，2026-10-27 12:28 UTC+8）
+
+- **共享结果契约已冻结**：`docs/stage4/s4b_shared_input_result_contract.json` 状态
+  `REVIEWED_OFFLINE_ONLY` → **`FROZEN_OFFLINE_ONLY`**（`s4-shared-io/1.3.0` r07）。
+  新增 `freeze_record`：绑定被审字节（json `8beea2c5…` / md `07ded4db…`）与复审提交 `5f9a04a`，
+  `freeze_scope=OFFLINE_ONLY`，写明允许消费方、禁止声明与变更策略。
+  `verify_shared_io_contract.py` 27/27 PASS（新状态须附完整 `freeze_record` 才放行）。
+- **task-27 回放结果包已冻结**：`report/evidence/S4-CTRL/s4t27_replay_package_freeze_20261027_r01/`
+  —— 10 个文件逐一绑定 SHA/字节（结果包、门结果、交付清单、预检、6 份 head/回放 bin），
+  标 `replay_only`，并绑定契约版本与冻结状态；`missing_files=[]`。
+  消费规则：必须逐文件复算，不得只校验 package.json。
+- **F-2 执行矩阵**：`docs/stage4/s4b_f2_gap_matrix_20261027_r01.json` —— 10 项缺口按
+  「复审可关 / 离线可编 / 需 Vivado / 需其他窗口」分类，含依赖链与需 Wong 决策项。
+- **G-15（mailbox 接口复审）中途停放**：已做 3 轮独立复审，D1（`result_seq` 语义冲突）已关闭，
+  剩余 2 项阻断未关闭（失败行 `result_seq=0` 与 S4-A 主键冲突；`0x274 RESULT_SEQ` 标 RO 却由 PS 发布）。
+  **未翻转 G-15 状态**，仍 `OPEN_REQUIRES_DESIGN_OR_REVIEW`；按 Wong「减少复查」指示暂不继续开轮次。
+- 回归：缺口审计 13/13、3/3 PASS；契约自检 27/27 PASS。`ENABLE=0` 未变，未接触硬件。
+
 ## 硬件会话状态（2026-10-27 11:55 UTC+8）
 
 - 板卡已由 Wong 上电连接。只读观测：FTDI `VID_0403&PID_6014` 在设备枚举中，串口 `COM4` 存在，`hw_server` 未运行。
@@ -54,7 +72,7 @@
 
 ## 当前交接行（11字段，2026-10-27 08:12 UTC+8）
 
-任务=`S4-B-HW-PRECHECK：板卡上电后的硬件门禁就绪机检与解除清单（未开跑）` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:/codex-worktrees/w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r30、gate_reconcile_r06..r15、gate_rerun_r01..r04、contract_verify_r01..r02、gap_audit_r01..r02、basis_sync_r01..r03 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 11:55` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r36/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r18/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md；report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r04/gate_readiness.json；docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`OFFLINE_SCOPE_FROZEN + 硬件门禁 0/8（板卡已上电，未授权开跑）；下一步 D1 地址图 APPROVED / D2 owner 方案裁决（Wong），D3 main OFFER 由 main 签发，之后 w4 写 CLAIM 并补齐六类记录`
+任务=`S4-RESULT-CONTRACT-FREEZE + task-27 回放包冻结（真实回放接入前置）` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:/codex-worktrees/w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r30、gate_reconcile_r06..r15、gate_rerun_r01..r04、contract_verify_r01..r02、gap_audit_r01..r02、basis_sync_r01..r03 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 12:28` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r36/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r18/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md；report/evidence/S4-CTRL/s4t27_replay_package_freeze_20261027_r01/replay_package_freeze.json；docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`结果契约 FROZEN_OFFLINE_ONLY（1.3.0 r07）+ 回放包 FROZEN_REPLAY_ONLY；硬件门禁仍 0/8（板卡已上电、未授权开跑）；F-2 十项按矩阵推进，需 Wong 放开 Vivado 与裁决 owner 方案，需 main 发 OFFER`
 
 ## 历史交接（2026-10-27 00:29；已由上方本轮接管取代）
 

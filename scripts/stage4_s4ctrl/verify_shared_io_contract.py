@@ -391,10 +391,23 @@ def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -
     errors: list[str] = []
     if contract.get("contract_version") != "1.3.0" or contract.get("revision") != "r07":
         errors.append("契约必须为 s4-shared-io/1.3.0 r07")
-    allowed_status = {"DRAFT_PENDING_REVIEW", "REVIEWED_OFFLINE_ONLY"}
+    allowed_status = {"DRAFT_PENDING_REVIEW", "REVIEWED_OFFLINE_ONLY", "FROZEN_OFFLINE_ONLY"}
     if contract.get("status") not in allowed_status:
         errors.append(f"契约 status 必须为 {sorted(allowed_status)} 之一")
-    if contract.get("status") == "REVIEWED_OFFLINE_ONLY":
+    if contract.get("status") == "FROZEN_OFFLINE_ONLY":
+        # 冻结必须能追溯到已复审字节与冻结范围；缺任一即拒绝
+        fr = contract.get("freeze_record") or {}
+        need = ("frozen_revision", "freeze_scope", "based_on_reviewed_json_sha256",
+                "based_on_reviewed_md_sha256", "reviewed_commit", "frozen_at_utc8")
+        for key in need:
+            if not fr.get(key):
+                errors.append(f"FROZEN_OFFLINE_ONLY 缺少 freeze_record.{key}")
+        rr = contract.get("review_record") or {}
+        if fr and rr and fr.get("based_on_reviewed_json_sha256") != rr.get("json_sha256"):
+            errors.append("freeze_record 的 based_on_reviewed_json_sha256 与 review_record.json_sha256 不一致")
+        if fr.get("freeze_scope") != "OFFLINE_ONLY":
+            errors.append("freeze_scope 必须是 OFFLINE_ONLY")
+    if contract.get("status") in {"REVIEWED_OFFLINE_ONLY", "FROZEN_OFFLINE_ONLY"}:
         # 已复审状态必须能追溯到复审基线：reviewed_commit + 两份被审 SHA 与实际字节一致
         rec = contract.get("review_record") or {}
         if not rec.get("reviewed_commit") or not rec.get("json_sha256") or not rec.get("md_sha256"):

@@ -24,7 +24,7 @@ S2BU/1.1 字节协议保持原样。`OP_WEIGHTS` 权重响应与 `OP_RUN` 推理
 
 关联字段按各自用途解释：
 
-- PS 日志主键：`(session_id, result_seq)`。`result_seq` 在本 session 内从 1 开始，并等于 `repeat_index + 1`。
+- PS 日志主键：`(session_id, result_seq)`。**本 UART 诊断路径**的 `result_seq` 在本 session 内从 1 开始，并等于 `repeat_index + 1`（单帧/单 RUN 场景）。**mailbox 路径不适用该等式**：其 `result_seq` 按 `S4B_pl_preprocess_g0_readiness.md` §8.3 定义为「mailbox session 内每发布一条 PS_RESULT 递增 1、从 1 起、拒绝回绕」，与 `repeat_index + 1` 是两个不同的量；不得把 UART 计数器直接用于 mailbox 帧。
 - S4-A 结果 join 键：`(session_id, frame_id, repeat_index)`。
 - UART 可观测键：`(frame_id, repeat_index, sequence)`；UART request `sequence` 只用于一致性核对。S2BU/1.1 字节协议不携带 `session_id` 或 `result_seq`。
 

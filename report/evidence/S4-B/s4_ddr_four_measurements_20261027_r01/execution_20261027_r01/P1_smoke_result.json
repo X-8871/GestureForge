@@ -1,0 +1,21 @@
+{
+  "step": "P1_smoke",
+  "status": "FAIL",
+  "exit_code": "exit=0",
+  "xsdb_version": "2026.1",
+  "target_count_tokens": 16,
+  "targets_observed": [
+    "APU/ARM Cortex-A9 MPCore #0 (Running)",
+    "APU/ARM Cortex-A9 MPCore #1 (Running)",
+    "xc7z020"
+  ],
+  "failure": "只读 mrd 0xF8007014 报 Invalid target：未先选择目标（脚本缺陷，非环境缺陷）",
+  "rule_followed": "窗口硬规则：P1 smoke 失败 ⇒ 立即收窗、不改脚本、不现场调、保全输出后上报",
+  "not_run": [
+    "M1",
+    "M2",
+    "M3",
+    "M4a"
+  ],
+  "notable_fact": "收窗时观察到 CPU1 = Running（非 halted）⇒ 即使修复 mrd 语法，M1『CPU1 保持停止』前置在当板状态下不满足；halting CPU1 属改状态、超出本窗口授权（计划书 §1 明确不尝试 halt）"
+}

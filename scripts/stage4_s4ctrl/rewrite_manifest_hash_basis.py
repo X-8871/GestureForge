@@ -28,11 +28,15 @@ WORKTREE = Path(__file__).resolve().parents[2]
 
 
 def git_blob(commit: str, rel: str) -> tuple[str | None, str | None]:
-    """取 `<commit>:<rel>` 的 blob 内容字节；返回 (sha256, error)。"""
-    proc = subprocess.run(["git", "-C", str(WORKTREE), "cat-file", "blob", f"{commit}:{rel}"],
+    """取 `<commit>:<rel>` 的 blob 内容字节；返回 (sha256, error)。
+
+    `commit` 传 `:index:` 表示取**暂存区**内容（等价于即将写入提交的 blob）。
+    """
+    spec = f":{rel}" if commit == ":index:" else f"{commit}:{rel}"
+    proc = subprocess.run(["git", "-C", str(WORKTREE), "cat-file", "blob", spec],
                           capture_output=True)
     if proc.returncode != 0:
-        return None, f"cat-file blob {commit}:{rel} 退出 {proc.returncode}"
+        return None, f"cat-file blob {spec} 退出 {proc.returncode}"
     return hashlib.sha256(proc.stdout).hexdigest(), None
 
 
@@ -46,7 +50,10 @@ def main() -> int:
     """执行重算。"""
     parser = argparse.ArgumentParser(description="证据清单 hash basis 重算（提交 blob 基座）")
     parser.add_argument("--manifest", required=True, type=Path)
-    parser.add_argument("--commit", required=True)
+    parser.add_argument("--commit", required=True,
+                        help="commit_blob 基座所用提交；传 :index: 表示暂存区（即将写入的提交）")
+    parser.add_argument("--baseline-commit", default="",
+                        help="可选：被审基线提交，复算表中并列其 blob SHA（仅历史参考）")
     parser.add_argument("--verify-only", action="store_true")
     args = parser.parse_args()
 
@@ -65,7 +72,10 @@ def main() -> int:
     for entry in files:
         rel = str(entry["path"]).replace("\\", "/")
         blob, error = git_blob(args.commit, rel)
+        baseline_blob = git_blob(args.baseline_commit, rel)[0] if args.baseline_commit else None
         record = {"path": rel, "commit_blob_sha256": blob, "disk_sha256": disk_sha(rel),
+                  "baseline_commit": args.baseline_commit or None,
+                  "baseline_blob_sha256": baseline_blob,
                   "previous_recorded_sha256": entry.get("sha256"), "error": error}
         if blob is None:
             failures.append(rel)
@@ -76,15 +86,18 @@ def main() -> int:
             if not args.verify_only:
                 entry["sha256"] = blob
                 entry["hash_basis"] = "commit_blob"
-                entry["source_commit"] = args.commit
+                if args.commit != ":index:":
+                    entry["source_commit"] = args.commit
         table.append(record)
 
     if not args.verify_only:
         manifest["hash_basis"] = "commit_blob"
         manifest["hash_basis_note"] = (
-            "全部 files[].sha256 均取自 `git cat-file blob <source_commit>:<path>` 的**提交内容**"
-            "（= 仓库内容权威）；工作区字节（CRLF）仅作为并列参考写入 hash_basis_recompute.json，不参与校验。")
-        manifest["source_commit"] = args.commit
+            "全部 files[].sha256 取自 `git cat-file blob <承载提交>:<path>` 的**提交内容**"
+            "（仓库内容权威）；工作区字节（`core.autocrlf` 下为 CRLF）与可选的被审基线 blob 仅写入 "
+            "hash_basis_recompute.json 并列参考，不参与校验。")
+        manifest["hash_basis_commit"] = ("HEAD（承载本清单的提交）" if args.commit == ":index:"
+                                         else args.commit)
         args.manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     out_dir = args.manifest.parent
@@ -92,6 +105,8 @@ def main() -> int:
         json.dumps({"manifest": args.manifest.name, "source_commit": args.commit,
                     "hash_basis": "commit_blob", "entries": len(table),
                     "previous_mismatch_count": changed,
+                    "baseline_commit": args.baseline_commit or None,
+                    "columns": ["commit_blob_sha256", "baseline_blob_sha256", "disk_sha256"],
                     "table": table, "failures": failures},
                    ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

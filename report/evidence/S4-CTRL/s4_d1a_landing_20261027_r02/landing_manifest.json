@@ -84,7 +84,7 @@
     },
     {
       "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/README.md",
-      "sha256": "072a1aebd13afc08c9342d3a6240502aad76431f51809d2e6ea83230015877fb",
+      "sha256": "fefa38c59fbab045729f6a83ec4994fe439d5012baf2e39bda6076a11e036c02",
       "role": "source",
       "keep_reason": "NB-3：28 对（含 21+7 分解）；NB-4 路径名更正说明",
       "hash_basis": "commit_blob",
@@ -92,7 +92,7 @@
     },
     {
       "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/landing_manifest.json",
-      "sha256": "59f8c77d175fcd8cf0a477ebefcd3455264cb2c1ad2a40cf9204e1772066918e",
+      "sha256": "62cc862610684636bdb92a4e9db42c93ae3cd522e4d08d404a42c34113f2ea96",
       "role": "source",
       "keep_reason": "NB-3/NB-4：checks 文案与 files[].path 统一 / 分隔 + nb_fixes_r02",
       "hash_basis": "commit_blob",
@@ -192,6 +192,7 @@
   ],
   "boundary": "只写 w4；ENABLE=0；不 FROZEN；无板级访问；不 push；25 项未提交改动未动",
   "hash_basis": "commit_blob",
-  "hash_basis_note": "全部 files[].sha256 均取自 `git cat-file blob <source_commit>:<path>` 的**提交内容**（= 仓库内容权威）；工作区字节（CRLF）仅作为并列参考写入 hash_basis_recompute.json，不参与校验。",
-  "source_commit": "d5a86bffa1c5217076efcacb494b37f0c980d6a9"
+  "hash_basis_note": "全部 files[].sha256 取自 `git cat-file blob <承载提交>:<path>` 的**提交内容**（仓库内容权威）；工作区字节（`core.autocrlf` 下为 CRLF）与可选的被审基线 blob 仅写入 hash_basis_recompute.json 并列参考，不参与校验。",
+  "source_commit": "d5a86bffa1c5217076efcacb494b37f0c980d6a9",
+  "hash_basis_commit": "HEAD（承载本清单的提交）"
 }

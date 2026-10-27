@@ -307,8 +307,8 @@ def freeze_document(context: dict) -> str:
         "| 注入自测（必须失败） | `python -B verification/verify_stage5_frozen_set.py --selftest <tmp>` | "
         f"**{selftest['exit_code']}** | `{selftest['verdict']}`："
         + "、".join(
-            f"{name}={item['exit_code']}（期望 {item['expected_exit']}）"
-            for name, item in selftest.get("steps", {}).items())
+            f"{item['step']}={item['observed_exit']}（期望 {item['expected_exit']}）"
+            for item in (selftest.get("checks") or selftest.get("steps") or []))
         + " |",
         f"| 离线套件（回归） | `{' '.join(suite['command'])}` | {suite['exit_code']} | "
         f"Ran {suite['summary']['ran']} / failures {suite['summary']['failures']} / errors {suite['summary']['errors']} / "

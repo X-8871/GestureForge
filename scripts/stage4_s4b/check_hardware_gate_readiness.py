@@ -178,6 +178,13 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "ok": address_map.get("status") == "APPROVED",
             "blocks": ["g0_approval"],
         },
+        "shared_address_map": (lambda q: {
+            "path": "docs/stage4/S4B_shared_address_map.json",
+            "exists": q.is_file(),
+            "status": (load_json(q).get("status") if q.is_file() else "FILE_ABSENT"),
+            "ok": q.is_file() and str(load_json(q).get("status")) == "APPROVED",
+            "blocks": ["g0_approval"],
+        })(worktree / "docs/stage4/S4B_shared_address_map.json"),
         "raw_address_ownership": {
             "status": ownership.get("status"),
             "path": "docs/stage4/s4b_raw_address_ownership_proposal_20261024_r01.json",

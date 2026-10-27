@@ -1,0 +1,152 @@
+{
+  "schema_version": "s4b_hw_gate_readiness_v2",
+  "checker_version": "r02",
+  "checker_sha256": "08315453e2e9c7f776ac975e2cbee0a89739c0cda7e0bc276781956ccd65d224",
+  "task_id": "S4-B-HW-GATE-READINESS",
+  "run_id": "s4b_hw_gate_readiness_20261027_r07",
+  "generated_utc8": "2026-10-27T13:51:46+08:00",
+  "scope": "只读门禁就绪机检；不加载位流、不开串口、不启动 hw_server/xsdb",
+  "hardware_run_id_candidate": "s4b_ps_tensor_hw_20261027_r01",
+  "adapter": {
+    "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\s4b_ps_tensor_adapter.py",
+    "sha256": "463bb429f9bb8242f6229873b1321df5d60acac1f4c0aa1caf4f069a07d78c8e"
+  },
+  "preparation": {
+    "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-02B\\s4b_ps_adapter_g3_20261027_r01\\adapter_preparation.json",
+    "sha256": "cb462d8dc34f4ee4a20dd8830592703f8f99da17a224677ae2e9da2cd35f923d",
+    "artifact_identity_sha256": "f4561dc69f8c24c52e339d39e11c782373522fbfa2ffbd30a1f52529c8cc09a1",
+    "elf_sha256": "bfe88660a7c9b16b4d4360ccf33a7540ee215b7d2ae940408b24bdf83c15ec07",
+    "derived_source_sha256": "7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102"
+  },
+  "dependencies": {
+    "address_map": {
+      "status": "DRAFT_PENDING_REVIEW",
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "ok": false,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "shared_address_map": {
+      "path": "docs/stage4/S4B_shared_address_map.json",
+      "exists": false,
+      "status": "FILE_ABSENT",
+      "ok": false,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "raw_address_ownership": {
+      "status": "DECISION_REQUESTED",
+      "path": "docs/stage4/s4b_raw_address_ownership_proposal_20261024_r01.json",
+      "ok": false,
+      "blocks": [
+        "g0_approval"
+      ]
+    },
+    "main_offer": {
+      "present": false,
+      "commit": "bdb7a360916641382a04f018c668774543e45b8e",
+      "reason": "bdb7a360916641382a04f018c668774543e45b8e:.codex/STATE.md 中没有 S4-B-REAL-02B::s4b_hardware_session_handoff",
+      "ok": false,
+      "blocks": [
+        "hardware_session_handoff"
+      ]
+    },
+    "w4_claim": {
+      "present": false,
+      "commit": "b46a012dfb04e7c49fa8fd4296485ac148b20b99",
+      "reason": "b46a012dfb04e7c49fa8fd4296485ac148b20b99:.codex/STATE.md 中没有 S4-B-REAL-02B::s4b_hardware_session_claim",
+      "ok": false,
+      "blocks": [
+        "hardware_session_handoff"
+      ]
+    },
+    "live_session": {
+      "hw_server_running": false,
+      "com_ports": [
+        "COM4"
+      ],
+      "expect_uart": "COM4",
+      "uart_present": true,
+      "ok": false,
+      "blocks": [
+        "exclusive_session"
+      ],
+      "note": "预检只观测当前状态；exclusive_session 需执行时现场核对，30 分钟有效窗口"
+    }
+  },
+  "authoritative_gate_check": {
+    "authority": "s4b_ps_tensor_adapter.validate_hardware_gates",
+    "allowed": false,
+    "missing": [
+      "hardware_session_handoff:record_missing",
+      "exclusive_session:record_missing",
+      "g0_approval:record_missing",
+      "cold_basis:record_missing",
+      "hardware_session_handoff:authoritative_record_invalid:handoff缺少由main当前历史可达的原OFFER blob指针",
+      "hardware_session_handoff:artifact_identity_sha256_mismatch",
+      "hardware_session_handoff:sdk_target_binding_invalid",
+      "exclusive_session:peer_or_live_exclusivity_not_proven",
+      "g0_approval:header_fields,memory_ranges,address_map:binding_not_path_sha256,shared_address:binding_not_path_sha256,timebase:binding_not_path_sha256",
+      "cold_basis:old_AXI_lifecycle_not_independently_proven"
+    ],
+    "gate_files_supplied": [
+      "command_delivery_review",
+      "operator_authorization",
+      "range_reservation",
+      "timing_freeze"
+    ],
+    "dependency_blockers": {
+      "hardware_session_handoff": [
+        "dependency_not_met:main_offer",
+        "dependency_not_met:w4_claim"
+      ],
+      "exclusive_session": [
+        "dependency_not_met:live_session"
+      ],
+      "g0_approval": [
+        "dependency_not_met:address_map",
+        "dependency_not_met:shared_address_map",
+        "dependency_not_met:raw_address_ownership"
+      ]
+    }
+  },
+  "blockers": [
+    "hardware_session_handoff:record_missing",
+    "exclusive_session:record_missing",
+    "g0_approval:record_missing",
+    "cold_basis:record_missing",
+    "hardware_session_handoff:authoritative_record_invalid:handoff缺少由main当前历史可达的原OFFER blob指针",
+    "hardware_session_handoff:artifact_identity_sha256_mismatch",
+    "hardware_session_handoff:sdk_target_binding_invalid",
+    "exclusive_session:peer_or_live_exclusivity_not_proven",
+    "g0_approval:header_fields,memory_ranges,address_map:binding_not_path_sha256,shared_address:binding_not_path_sha256,timebase:binding_not_path_sha256",
+    "cold_basis:old_AXI_lifecycle_not_independently_proven",
+    "dependency_not_met:address_map",
+    "dependency_not_met:live_session",
+    "dependency_not_met:main_offer",
+    "dependency_not_met:raw_address_ownership",
+    "dependency_not_met:shared_address_map",
+    "dependency_not_met:w4_claim"
+  ],
+  "verdict": "BLOCKED",
+  "hardware_execution": "NOT_RUN",
+  "next_actions": [
+    "关闭 G-01：S4B_stage4_address_map.json 由 DRAFT_PENDING_REVIEW 推进到 APPROVED（需独立复审引用被审 SHA），否则 g0_approval 结构上不可能通过",
+    "Wong 裁决 s4b_raw_address_ownership_proposal（当前 DECISION_REQUESTED）并落盘",
+    "main 发正式 OFFER：S4-B-REAL-02B::s4b_hardware_session_handoff；scope=S4B_PS_TENSOR_DIAGNOSTIC；证据入口 hardware_run_id=<完整RunId>",
+    "OFFER 落库后由 w4 写 CLAIM（六键：offer_commit/offer_blob_oid/offer_sha256/offer_source_commit/hardware_run_id/scope）",
+    "补 exclusive_session（须绑定本轮 artifact_identity 与硬件 RunId）",
+    "补 g0_approval（须绑定本轮 artifact_identity 与硬件 RunId）",
+    "补 cold_basis（物理断电重建或等价的冷生命周期独立证明）",
+    "补 exclusive_session（须绑定本轮 artifact_identity 与硬件 RunId）",
+    "补 g0_approval（须绑定本轮 artifact_identity 与硬件 RunId）",
+    "补 cold_basis（物理断电重建或等价的冷生命周期独立证明）"
+  ],
+  "boundaries": [
+    "READY 只表示记录与依赖齐备，仍不等于门内检查项通过；",
+    "板卡上电、工作树写权交接、口头同意均不构成授权；",
+    "本预检不含任何板级结果，不得用于声称 G3/G4/G5。"
+  ]
+}

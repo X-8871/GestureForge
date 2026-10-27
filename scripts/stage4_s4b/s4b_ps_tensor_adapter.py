@@ -1553,6 +1553,45 @@ def _exact_diagnostic_operations(value: Any) -> bool:
             all(type(item) is str for item in value) and set(value) == DIAGNOSTIC_OPERATIONS)
 
 
+def _pinned_binding_ok(value: Any, canonical_rel: str, root: Path,
+                       accept_status: tuple[str, ...] = ("APPROVED",),
+                       require_key: str | None = None) -> tuple[bool, str]:
+    """核验绑定指向固定仓库路径、字节 SHA 一致，且文件内容满足批准判据。
+
+    路径必须精确等于 canonical_rel（防止指向自造 JSON），status 一律从文件读取，
+    不采信记录内字符串。
+    """
+    if type(value) is not dict or set(value) != {"path", "sha256"}:
+        return False, "binding_not_path_sha256"
+    try:
+        path = exact_path(value["path"])
+    except (AdapterError, OSError, TypeError, ValueError):
+        return False, "path_invalid"
+    expected = (root / canonical_rel).resolve()
+    try:
+        actual = path.resolve()
+    except OSError:
+        return False, "path_invalid"
+    if actual != expected:
+        return False, f"path_not_canonical:{actual.name}"
+    if not actual.is_file():
+        return False, "file_missing"
+    if sha256_file(actual) != value.get("sha256"):
+        return False, "sha_mismatch"
+    try:
+        payload = json.loads(actual.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False, "not_json"
+    if type(payload) is not dict:
+        return False, "not_object"
+    status = str(payload.get("status", ""))
+    if status not in accept_status:
+        return False, f"status_{status or 'ABSENT'}"
+    if require_key and not payload.get(require_key):
+        return False, f"missing_{require_key}"
+    return True, status
+
+
 def validate_hardware_gates(prepared: PreparedRun, hardware_run_id: str,
                             gate_files: Mapping[str, Any] | None) -> GateCheck:
     """只读核验真实授权、交接、独占、G0、review、时间、范围和冷依据记录。"""
@@ -1622,16 +1661,32 @@ def validate_hardware_gates(prepared: PreparedRun, hardware_run_id: str,
             missing.append("exclusive_session:peer_or_live_exclusivity_not_proven")
 
         g0 = records.get("g0_approval", {})
+        # 结构化核验：三项都必须绑定固定仓库路径、复算字节 SHA，并从文件读取批准状态；
+        # 不接受记录内自报的 *_status 字符串，也不接受指向自造 JSON 的绑定。
+        g0_problems: list[str] = []
         if (g0.get("status") != "APPROVED" or g0.get("task_id") != "S4-B-REAL-02B" or
                 g0.get("hardware_run_id") != hardware_run_id or g0.get("scope") != "BOARD_INJECTION" or
-                g0.get("address_map_status") != "APPROVED" or
-                g0.get("address_map_sha256") != identity.get("map_sha256") or
-                g0.get("memory_ranges_sha256") != identity.get("memory_ranges_sha256") or
-                g0.get("artifact_identity_sha256") != identity_digest or
-                g0.get("shared_address_status") != "APPROVED" or
-                not re.fullmatch(r"[0-9a-f]{64}", str(g0.get("shared_address_map_sha256", ""))) or
-                g0.get("timebase_status") != "APPROVED" or not g0.get("approval_id")):
-            missing.append("g0_approval:address_map_shared_address_or_timebase_not_approved")
+                not g0.get("approval_id") or
+                g0.get("artifact_identity_sha256") != identity_digest):
+            g0_problems.append("header_fields")
+        if g0.get("memory_ranges_sha256") != identity.get("memory_ranges_sha256"):
+            g0_problems.append("memory_ranges")
+        ok_addr, why_addr = _pinned_binding_ok(
+            g0.get("address_map_binding"), "docs/stage4/S4B_stage4_address_map.json", project_root)
+        if not ok_addr:
+            g0_problems.append(f"address_map:{why_addr}")
+        ok_shared, why_shared = _pinned_binding_ok(
+            g0.get("shared_address_binding"), "docs/stage4/S4B_shared_address_map.json", project_root)
+        if not ok_shared:
+            g0_problems.append(f"shared_address:{why_shared}")
+        ok_time, why_time = _pinned_binding_ok(
+            g0.get("timebase_binding"),
+            "docs/stage4/s4a_stale_age_limit_approval_applied_20261024_r01.json",
+            project_root, accept_status=("APPROVED", ""), require_key="approved_item")
+        if not ok_time:
+            g0_problems.append(f"timebase:{why_time}")
+        if g0_problems:
+            missing.append("g0_approval:" + ",".join(g0_problems))
 
         review = records.get("command_delivery_review", {})
         if (review.get("status") != "PASS" or review.get("task_id") != "S4-B-REAL-02B" or

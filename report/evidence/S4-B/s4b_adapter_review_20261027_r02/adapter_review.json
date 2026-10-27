@@ -1,0 +1,42 @@
+{
+  "schema_version": "s4b_adapter_review_v1",
+  "task_id": "S4-B-REAL-02B",
+  "run_id": "s4b_adapter_review_20261027_r02",
+  "verdict": "PASS",
+  "reviewed_adapter_sha256": "463bb429f9bb8242f6229873b1321df5d60acac1f4c0aa1caf4f069a07d78c8e",
+  "reviewed_at_utc8": "2026-10-27T13:51:02+08:00",
+  "reviewer": "独立只读 Reviewer（第 2 轮收口，针对 g0_approval 修复）",
+  "scope": "adapter 命令交付与八类门禁链路；本轮聚焦 g0_approval 结构化绑定修复",
+  "round1_blocker": {
+    "id": "D1",
+    "summary": "g0_approval.address_map_sha256 实际比较链接 map（4a0f9cf8…）而非被审地址图（52127adc…）；shared_address 仅 64-hex 形状检查；timebase 仅字符串。填链接 map SHA 可通过、填真实地址图 SHA 反被拒。",
+    "status": "CLOSED"
+  },
+  "fix_summary": "新增 _pinned_binding_ok：绑定必须为 {path,sha256}、路径 resolve 后精确等于仓库固定相对路径、复算字节 SHA、从文件读取 status。g0 三项改为结构化绑定，address_map 固定 docs/stage4/S4B_stage4_address_map.json、shared_address 固定 docs/stage4/S4B_shared_address_map.json、timebase 固定 stale 批准回执并要求 approved_item。",
+  "verification": {
+    "sha_match": true,
+    "counterexamples_rejected": [
+      "A_status_DRAFT",
+      "B_link_map_sha",
+      "C_sha_mismatch",
+      "D_forged_approved_json_path_not_canonical",
+      "E_memory_ranges"
+    ],
+    "path_bypass_matrix": "18 例（相对/大小写/UNC/设备前缀/尾点/点分量/硬链接/junction/同字节副本 等）全部拒绝",
+    "regression": "另七类门禁判定表达式逐行未变；_pinned_binding_ok 仅 g0 使用"
+  },
+  "residual_suggestions": [
+    "S1 _pinned_binding_ok 用裸 json.loads，重复键 last-wins；建议改用 read_json（需伪造者有写规范路径权限才可利用）",
+    "S2 S4B_shared_address_map.json 无生产者/schema，且 readiness 依赖表未列；建议登记",
+    "S3 先算 SHA 后读文本，存在 TOCTOU 窗口；建议一次读入同一 buffer",
+    "S4 timebase 的 status 语义被稀释（accept_status 含空串）；建议固定 approved_item.decision==APPROVED",
+    "S5 工作树 LF→CRLF 造成 diff 噪声（.gitattributes 已 -text，SHA 仍可复现）",
+    "S6 缺文件表现为 path_invalid 而非 file_missing（exact_path 先抛）"
+  ],
+  "sign_off": "可据本结论签发 command_delivery_review；reviewed_adapter_sha256 必须写本记录值。",
+  "boundaries": [
+    "不含板上行为",
+    "不含位流/BD/XSA 变更",
+    "不含阶段5/显示路径"
+  ]
+}

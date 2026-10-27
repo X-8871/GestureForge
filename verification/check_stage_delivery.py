@@ -35,9 +35,10 @@ BASE_FIELDS = {
     "checks",
     "limitations",
 }
-TOP_LEVEL_FIELDS = BASE_FIELDS | {"tool_versions", "interfaces_not_applicable_reason"}
+TOP_LEVEL_FIELDS = BASE_FIELDS | {"tool_versions", "interfaces_not_applicable_reason",
+                   "hash_basis", "hash_basis_note", "hash_basis_commit"}
 INTERFACE_FIELDS = {"name", "version", "frozen", "path", "sha256"}
-FILE_FIELDS = {"path", "sha256", "role", "keep_reason"}
+FILE_FIELDS = {"path", "sha256", "role", "keep_reason", "hash_basis", "hash_basis_note"}
 CHECK_FIELDS = {"name", "status", "command", "exit_code", "reason"}
 CACHE_DIR_NAMES = {
     "build",
@@ -386,6 +387,34 @@ def verify_hash(
         )
 
 
+def _valid_hash_basis(
+    container: dict[str, Any],
+    label: str,
+    errors: list[str],
+    *,
+    allow_commit_field: bool = False,
+) -> None:
+    """校验哈希基座声明（项目规则：证据哈希必须声明 commit_blob 或 worktree_disk）。
+
+    - hash_basis：commit_blob（推荐，按 git cat-file blob <commit>:<path> 计算）或 worktree_disk；
+    - hash_basis_note：可选说明；
+    - hash_basis_commit（仅清单级）：必须是 40 位小写十六进制 commit SHA，禁止 HEAD 等符号引用。
+    """
+    basis = container.get("hash_basis")
+    if basis is not None and (not isinstance(basis, str) or basis not in {"commit_blob", "worktree_disk"}):
+        errors.append(f"{label}.hash_basis 必须是 commit_blob 或 worktree_disk")
+    note = container.get("hash_basis_note")
+    if note is not None and (not isinstance(note, str) or not note.strip()):
+        errors.append(f"{label}.hash_basis_note 必须是非空字符串")
+    if allow_commit_field:
+        commit = container.get("hash_basis_commit")
+        if commit is not None:
+            if not isinstance(commit, str) or not SHA1_RE.fullmatch(commit):
+                errors.append(
+                    f"{label}.hash_basis_commit 必须是 40 位小写十六进制 commit SHA（不得写 HEAD 等符号引用）"
+                )
+
+
 def _required_keys(
     item: dict[str, Any],
     required: set[str],
@@ -551,6 +580,7 @@ def validate_files(
             errors.append(f"{label}必须是对象")
             continue
         _required_keys(item, {"path", "sha256", "role"}, FILE_FIELDS, label, errors)
+        _valid_hash_basis(item, label, errors)
         role = item.get("role")
         if not isinstance(role, str) or role not in ROLES:
             errors.append(f"{label}.role 必须是 {', '.join(sorted(ROLES))} 之一")
@@ -739,6 +769,7 @@ def validate_manifest(
     if not isinstance(data, dict):
         return ["清单 JSON 顶层必须是对象"], warnings, check_statuses
     _required_keys(data, BASE_FIELDS, TOP_LEVEL_FIELDS, "清单", errors)
+    _valid_hash_basis(data, "清单", errors, allow_commit_field=True)
     schema_version = data.get("schema_version")
     if type(schema_version) is not int or schema_version != SCHEMA_VERSION:
         errors.append(f"schema_version 必须是整数 {SCHEMA_VERSION}")

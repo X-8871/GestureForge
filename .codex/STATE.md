@@ -8,6 +8,13 @@
 
 任务=`S4-T30::d1a_address_landing` | 负责人=`DSH 项目总控（Wong 2026-10-27 直接指令接管）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`83c9284ad2296b9b2c836250cee615e255533615` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、report/evidence/S4-CTRL/、.codex/STATE.md` | 未提交改动归属=`原持有方 Workbuddy 的 25 项未提交改动：不清理/不暂存/不回退/不代提交` | 让出声明=`无书面 OFFERED 行（原持有方未出 OFFERED）；本次接管依据为 Wong 2026-10-27 直接指令，属直接指令接管，非 OFFER 交接` | 心跳(UTC+8)=`2026-10-27T20:00:09+08:00` | 证据入口=`report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/（复审 PASS）；修 4 项非阻断后见 s4_d1a_landing_20261027_r02/` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; python -B scripts/stage4_s4ctrl/verify_d1a_landing.py --run-dir <新RunId>` | 状态/下一接手方=`IN_PROGRESS DSH 项目总控（4 项非阻断已修，待同 Reviewer 增量核对）`
 
+## 本轮结果（四项实测窗口；P1 smoke 失败已收窗，2026-10-27 20:44 UTC+8）
+
+- **窗口结论（lead 指定写入）**：`开窗 20:43:36 → 收窗 20:44:29（53 s）｜P0 PASS｜P1 smoke FAIL（脚本未选目标即 mrd）｜M1–M4a NOT_RUN｜未写 DDR、无副作用｜会话清理 PASS`。**不是 M1–M4 的技术结论，不构成任何通过。**
+- **修复（离线，窗口1 后）**：四个 Tcl 全部改为**先选目标再 mrd/rrd**、`targets` 按结构化元素解析；新增 `p1_smoke.tcl`（三步断言，退出码 11/12/13 指失败步）；驱动加入 P1 三步记录与 PRELOAD 装载流程。
+- **装载流程（不需新授权，落在"允许易失下载"内）**：`dow init.elf → con（PS/DDR 就绪）→ dow 最小 ELF → M1/M2/M3（CPU1 由构造保持 halted）→ M4-a 仅 con CPU0 → UART 交互`；**不执行 `stop`**；若仍需显式 stop，须 Wong 授权。
+- **待办**：Wong 对 CPU1 口径回话后，重开第二窗口；`M4-b=NOT_APPLICABLE`（并入 4-D 必测）；本次不解锁 `ENABLE=1`。
+
 ## 本轮结果（硬件窗口已授权，等待 main OFFER，2026-10-27 14:55 UTC+8）
 
 - **Wong 已授权硬件窗口（R-1 完成）**。R-2 仍需 main 提交 OFFER —— 阶段4 不写 main。

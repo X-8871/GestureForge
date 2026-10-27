@@ -2,7 +2,7 @@
   "schema_version": 1,
   "task_id": "S4-B/S4-T31",
   "run_id": "s4_ddr_four_measurements_20261027_r01",
-  "generated_utc8": "2026-10-27T20:38:33+08:00",
+  "generated_utc8": "2026-10-27T20:50:02+08:00",
   "hardware_execution": "NOT_RUN",
   "board_access": "NONE（离线准备；未启动 hw_server/xsdb、未装载、未接触板卡）",
   "authorization": {
@@ -19,7 +19,7 @@
       "id": "xsdb",
       "path": "D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat",
       "exists": true,
-      "version": "PENDING_SMOKE（离线期禁止启动 xsdb，版本在窗口 P1 smoke 记录）",
+      "version": "2026.1（窗口1 P1 smoke 实测记录，替代 PENDING_SMOKE）",
       "note": "xsdb Python 包路径 D:/Xilinx/2026.1/Vitis/scripts/xsdb 与 cli/python-packages/site-packages（既有 runner 文档记录）"
     },
     {
@@ -45,35 +45,43 @@
     "driver": {
       "path": "scripts/stage4_s4b/run_s4_ddr_four_measurements.py",
       "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_s4_ddr_four_measurements.py",
-      "sha256": "de7c84933f0d8dc7c6524e3ce40aa37aff8ed781230ccc04f8d4c3f0347b195d",
-      "size_bytes": 12750,
+      "sha256": "b499b973f358396c5f2217a9171f4597a78ce8953208c29d46811f0addd04ffa",
+      "size_bytes": 15756,
       "role": "driver",
       "note": "四项实测执行驱动（P0 门禁 → M1/M2/M3/M4a；逐步真实退出码；FAIL 即停；不得重试写 DDR）"
     },
     "tcl_scripts": [
       {
+        "path": "scripts/stage4_s4b/p1_smoke.tcl",
+        "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\p1_smoke.tcl",
+        "sha256": "394acc4b1f48157033c56078652dd61cdd8fb2ccf27aa341c24661b1e8bcd951",
+        "size_bytes": 1594,
+        "role": "payload_tcl",
+        "note": "窗口1 后修复版：先选目标再 mrd/rrd；targets 按结构化元素解析"
+      },
+      {
         "path": "scripts/stage4_s4b/m1_cpu1_state.tcl",
         "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\m1_cpu1_state.tcl",
-        "sha256": "6c4069c6dced7f8d62bc5cc6d9c813a0c9380179847c9c89763c6321b174633b",
-        "size_bytes": 1288,
+        "sha256": "8260b802da2f9a77c368366e8c76e330277554c4d03f19c72c9764dbb81353ef",
+        "size_bytes": 2260,
         "role": "payload_tcl",
-        "note": "离线新增；未经真实 xsdb 执行（窗口 P1 先 smoke）"
+        "note": "窗口1 后修复版：先选目标再 mrd/rrd；targets 按结构化元素解析"
       },
       {
         "path": "scripts/stage4_s4b/m2_consumer_check.tcl",
         "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\m2_consumer_check.tcl",
-        "sha256": "4f9d205d4654a74579a2684e78f1eca43e8be818f4a8a7dd04612f6afb9b129c",
-        "size_bytes": 1359,
+        "sha256": "68fa0ac520c377df34d188121d8a02a60864bbff86901ae3bb377a721f1c03d5",
+        "size_bytes": 1788,
         "role": "payload_tcl",
-        "note": "离线新增；未经真实 xsdb 执行（窗口 P1 先 smoke）"
+        "note": "窗口1 后修复版：先选目标再 mrd/rrd；targets 按结构化元素解析"
       },
       {
         "path": "scripts/stage4_s4b/m3_candidate_rw.tcl",
         "absolute_path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\m3_candidate_rw.tcl",
-        "sha256": "1d6bf1af76e4a59132e4bf3d5320a1eca50667840a76096cf0aafdc57393bf9d",
-        "size_bytes": 2547,
+        "sha256": "bd79b0181e1443a64614d2f233f354425823f9f011d3bae7aeffb57e31266809",
+        "size_bytes": 2741,
         "role": "payload_tcl",
-        "note": "离线新增；未经真实 xsdb 执行（窗口 P1 先 smoke）"
+        "note": "窗口1 后修复版：先选目标再 mrd/rrd；targets 按结构化元素解析"
       }
     ],
     "existing_not_used": [
@@ -151,10 +159,26 @@
     }
   },
   "applicability": {
+    "P1_smoke": {
+      "payload": "p1_smoke.tcl",
+      "status": "READY_FIXED",
+      "judgment": "三步各自断言：targets 成功(exit 11) → 选目标成功(12) → 一次只读成功(13)；失败即停并指出失败步"
+    },
+    "load_flow": {
+      "status": "DEFINED",
+      "steps": [
+        "① rst -processor + dow init.elf（ps7_init，配置 PS/DDR）→ con，等待 ~6 s",
+        "② dow m4a_cache_probe.elf（dow 自带停止所选核；此后**不再 con app**）",
+        "③ M1/M2/M3（此时 CPU1 由构造保持 halted；**不使用 stop 命令**）",
+        "④ M4-a：仅对 CPU0 con 启动最小 ELF，UART 交互；收尾不 stop"
+      ],
+      "cpu1_expected": "halted（步骤②后由构造保证）",
+      "note": "dow 对所选核的停止属易失下载固有行为；如仍需显式 stop 须 Wong 授权"
+    },
     "M1": {
       "payload": "none（纯 JTAG 目标/寄存器查询）",
       "status": "READY",
-      "judgment": "CPU1 state=halted 且间隔 2 s 两次 PC 不变"
+      "judgment": "CPU1 state=halted 且间隔 ≥2.5 s 两次 PC 采样不推进"
     },
     "M2": {
       "payload": "none（targets + DevCfg STATUS 只读）",

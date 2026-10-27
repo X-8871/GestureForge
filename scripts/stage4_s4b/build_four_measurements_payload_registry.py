@@ -47,7 +47,7 @@ def main() -> int:
 
     plan = W / "docs" / "stage4" / "S4B_ddr_four_measurements_execution_plan_20261027_r01.md"
     tcl = {name: W / "scripts" / "stage4_s4b" / name
-           for name in ("m1_cpu1_state.tcl", "m2_consumer_check.tcl", "m3_candidate_rw.tcl")}
+           for name in ("p1_smoke.tcl", "m1_cpu1_state.tcl", "m2_consumer_check.tcl", "m3_candidate_rw.tcl")}
 
     # 既有载荷（r13 诊断件）：仅登记身份，本轮不装载
     r13 = W / "report" / "evidence" / "S4-B" / "s4b_ps_tensor_20261023_r13"
@@ -73,7 +73,7 @@ def main() -> int:
         "toolchain": [
             {"id": "xsdb", "path": r"D:\Xilinx\2026.1\Vitis\bin\xsdb.bat",
              "exists": Path(r"D:\Xilinx\2026.1\Vitis\bin\xsdb.bat").is_file(),
-             "version": "PENDING_SMOKE（离线期禁止启动 xsdb，版本在窗口 P1 smoke 记录）",
+             "version": "2026.1（窗口1 P1 smoke 实测记录，替代 PENDING_SMOKE）",
              "note": "xsdb Python 包路径 D:/Xilinx/2026.1/Vitis/scripts/xsdb 与 cli/python-packages/site-packages（既有 runner 文档记录）"},
             {"id": "vitis_install", "path": r"D:\Xilinx\2026.1\Vitis", "exists": Path(r"D:\Xilinx\2026.1\Vitis").is_dir()},
             {"id": "vivado_install", "path": r"D:\Xilinx\2026.1\Vivado", "exists": Path(r"D:\Xilinx\2026.1\Vivado").is_dir()},
@@ -82,7 +82,8 @@ def main() -> int:
             "plan_document": entry(plan, "plan", "M1–M4 执行计划书（含恢复算法、判定阈值、停止条件、45 min 预算）"),
             "driver": entry(W / "scripts" / "stage4_s4b" / "run_s4_ddr_four_measurements.py", "driver",
                             "四项实测执行驱动（P0 门禁 → M1/M2/M3/M4a；逐步真实退出码；FAIL 即停；不得重试写 DDR）"),
-            "tcl_scripts": [entry(p, "payload_tcl", "离线新增；未经真实 xsdb 执行（窗口 P1 先 smoke）")
+            "tcl_scripts": [entry(p, "payload_tcl",
+                                  "窗口1 后修复版：先选目标再 mrd/rrd；targets 按结构化元素解析")
                             for p in tcl.values()],
             "existing_not_used": existing,
             "minimal_measurement_elf": {
@@ -103,8 +104,18 @@ def main() -> int:
             },
         },
         "applicability": {
+            "P1_smoke": {"payload": "p1_smoke.tcl", "status": "READY_FIXED",
+                         "judgment": "三步各自断言：targets 成功(exit 11) → 选目标成功(12) → 一次只读成功(13)；"
+                                     "失败即停并指出失败步"},
+            "load_flow": {"status": "DEFINED",
+                          "steps": ["① rst -processor + dow init.elf（ps7_init，配置 PS/DDR）→ con，等待 ~6 s",
+                                    "② dow m4a_cache_probe.elf（dow 自带停止所选核；此后**不再 con app**）",
+                                    "③ M1/M2/M3（此时 CPU1 由构造保持 halted；**不使用 stop 命令**）",
+                                    "④ M4-a：仅对 CPU0 con 启动最小 ELF，UART 交互；收尾不 stop"],
+                          "cpu1_expected": "halted（步骤②后由构造保证）",
+                          "note": "dow 对所选核的停止属易失下载固有行为；如仍需显式 stop 须 Wong 授权"},
             "M1": {"payload": "none（纯 JTAG 目标/寄存器查询）", "status": "READY",
-                   "judgment": "CPU1 state=halted 且间隔 2 s 两次 PC 不变"},
+                   "judgment": "CPU1 state=halted 且间隔 ≥2.5 s 两次 PC 采样不推进"},
             "M2": {"payload": "none（targets + DevCfg STATUS 只读）", "status": "READY_WITH_CONSTRUCTIVE_LIMIT",
                    "judgment": "无第二调试客户端 + PL 未配置（PCAP STATUS）+ CPU1 halted；"
                                "总线级 DDR 活动无探针 ⇒ 以构造性证明替代，证据须显式标注"},

@@ -153,6 +153,45 @@ def main() -> int:
         print(f"[FAIL] {stop_reason}：{p0}")
         return 2
 
+    # ---------------- P1 smoke：分步断言（targets → 选目标 → 只读） ----------------
+    if stop_reason is None:
+        code, out = xsdb_step(run_dir, "P1_smoke", [str(SCRIPTS / "p1_smoke.tcl")], timeout=300)
+        steps = {"step1_targets": "P1_STEP1=OK" in out,
+                 "step2_select": "P1_STEP2=OK" in out,
+                 "step3_read": "P1_STEP3=OK" in out}
+        failed_step = {11: "step1_targets", 12: "step2_select", 13: "step3_read"}.get(code)
+        record("P1_smoke", "PASS" if (code == 0 and all(steps.values())) else "FAIL",
+               {"exit_code": code, "steps": steps, "failed_step": failed_step,
+                "xsdb_version": parse_pairs(out, "P1_").get("XSDB_VERSION")})
+        if not (code == 0 and all(steps.values())):
+            stop_reason = f"P1 smoke 失败（失败步={failed_step or code}）"
+
+    # ---------------- PRELOAD：易失下载 init.elf → 运行 → 下载最小 ELF（不 con app） ----------------
+    if stop_reason is None:
+        init_elf = W / "report" / "evidence" / "S4-B" / "s4b_ps_tensor_20261023_r13" / "verified_payload" / "init.elf"
+        elf = PREP / "payloads" / "m4a_cache_probe.elf"
+        pre: dict[str, object] = {"init_elf": str(init_elf), "app_elf": str(elf),
+                                  "init_elf_sha256": sha256_file(init_elf), "app_elf_sha256": sha256_file(elf)}
+        if not init_elf.is_file() or not elf.is_file():
+            record("PRELOAD", "FAIL", {**pre, "reason": "载荷缺失"})
+            stop_reason = "PRELOAD 载荷缺失"
+        else:
+            code_i, out_i = xsdb_step(run_dir, "PRELOAD_init",
+                                      ["-eval", f"connect -url {HW_URL}; "
+                                                f"targets -set -filter {{name =~ \"*#0*\"}}; "
+                                                f"rst -processor; dow -file {init_elf.as_posix()}; con; after 6000; disconnect; exit"],
+                                      timeout=600)
+            code_a, out_a = xsdb_step(run_dir, "PRELOAD_app",
+                                      ["-eval", f"connect -url {HW_URL}; "
+                                                f"targets -set -filter {{name =~ \"*#0*\"}}; "
+                                                f"dow -file {elf.as_posix()}; disconnect; exit"],
+                                      timeout=600)
+            pre.update({"init_exit": code_i, "app_exit": code_a,
+                        "init_tail": out_i.strip().splitlines()[-3:], "app_tail": out_a.strip().splitlines()[-3:]})
+            record("PRELOAD", "PASS" if (code_i == 0 and code_a == 0) else "FAIL", pre)
+            if not (code_i == 0 and code_a == 0):
+                stop_reason = "PRELOAD 失败（init.elf 运行或最小 ELF 下载）"
+
     # ---------------- M1：CPU1 保持停止 ----------------
     code, out = xsdb_step(run_dir, "M1_cpu1_state", [str(SCRIPTS / "m1_cpu1_state.tcl")])
     m1 = {"exit_code": code, "parsed": parse_pairs(out, "M1_")}
@@ -214,17 +253,19 @@ def main() -> int:
             record("M4a_cache_visibility", "NOT_RUN",
                    {"reason": "载荷缺失或显式跳过", "elf": str(elf), "init_elf": str(init_elf)})
         else:
-            # 通过 xsdb 下载 init + 最小 ELF 并运行；随后用 UART 交互（由调用者在窗口内执行）
-            code, out = xsdb_step(run_dir, "M4a_download",
-                                  ["-eval", f"connect -url {HW_URL}; targets; dow -file {init_elf.as_posix()}; "
-                                            f"dow -file {elf.as_posix()}; con; after 3000; disconnect; exit"])
+            # PRELOAD 已下载 init.elf 与最小 ELF；此处只**选 CPU0 并 con**（CPU1 保持 halted 不释放）
+            code, out = xsdb_step(run_dir, "M4a_run_cpu0",
+                                  ["-eval", f"connect -url {HW_URL}; "
+                                            f"targets -set -filter {{name =~ \"*#0*\"}}; con; after 2000; "
+                                            f"puts \"M4A_CPU0_STATE=[state]\"; disconnect; exit"])
             record("M4a_cache_visibility", "PASS" if code == 0 else "FAIL",
-                   {"download_exit": code,
+                   {"run_exit": code,
                     "elf_sha256": sha256_file(elf), "init_elf_sha256": sha256_file(init_elf),
                     "uart_protocol": "COM4 115200 8N1；命令 R/I/F/W/Q；应答行以 M4A 开头",
-                    "note": "M4-a 的 UART 命令交换须在窗口内按计划书 §4 执行并落盘原始收发"})
+                    "load_flow": "init.elf（rst -processor + con，完成 PS/DDR 初始化）→ 下载最小 ELF → M1/M2/M3 → 此处仅 con CPU0",
+                    "note": "M4-a 的 UART 命令交换须按计划书 §4 执行并落盘原始收发；收尾不 stop（避免改状态）"})
             if code != 0:
-                stop_reason = "M4-a 下载/启动失败"
+                stop_reason = "M4-a CPU0 启动失败"
 
     results["m4b_dma_visibility"] = {
         "status": "NOT_APPLICABLE",

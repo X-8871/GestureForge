@@ -391,10 +391,27 @@ def validate_r06_bgr888_semantics(contract: dict, doc: str, address_map: dict) -
     errors: list[str] = []
     if contract.get("contract_version") != "1.3.0" or contract.get("revision") != "r07":
         errors.append("契约必须为 s4-shared-io/1.3.0 r07")
-    if contract.get("status") != "DRAFT_PENDING_REVIEW":
-        errors.append("契约必须保持 DRAFT_PENDING_REVIEW，待独立复审")
+    allowed_status = {"DRAFT_PENDING_REVIEW", "REVIEWED_OFFLINE_ONLY"}
+    if contract.get("status") not in allowed_status:
+        errors.append(f"契约 status 必须为 {sorted(allowed_status)} 之一")
+    if contract.get("status") == "REVIEWED_OFFLINE_ONLY":
+        # 已复审状态必须能追溯到复审基线：reviewed_commit + 两份被审 SHA 与实际字节一致
+        rec = contract.get("review_record") or {}
+        if not rec.get("reviewed_commit") or not rec.get("json_sha256") or not rec.get("md_sha256"):
+            errors.append("REVIEWED_OFFLINE_ONLY 必须附 review_record(commit/json_sha256/md_sha256)")
+        else:
+            # 复审记录必须能由 Git 对象复算：被审 commit 下这两条路径的 blob SHA 必须等于记录值
+            commit = str(rec["reviewed_commit"])
+            for rel, key in (("docs/stage4/s4b_shared_input_result_contract.json", "json_sha256"),
+                             ("docs/stage4/S4B_shared_input_result_contract.md", "md_sha256")):
+                proc = subprocess.run(["git", "--no-optional-locks", "-C", str(WORKTREE),
+                                       "show", f"{commit}:{rel}"], capture_output=True)
+                if proc.returncode != 0:
+                    errors.append(f"复审记录 commit 无法解析该路径：{commit}:{rel}")
+                elif hashlib.sha256(proc.stdout).hexdigest() != str(rec[key]):
+                    errors.append(f"复审记录的 {key} 与 {commit} 的 blob 不一致")
     if "s4-shared-io/1.3.0" not in doc or "（r07）" not in doc:
-        errors.append("人读契约版本必须与机器契约 r06 一致")
+        errors.append("人读契约版本必须与机器契约 r07 一致")
 
     profiles = contract.get("input_source_profiles", {})
     raw_format = profiles.get("raw_frame_format", {})

@@ -12,6 +12,8 @@
 - **清单哈希基座**：`delivery_manifest.json` **内联** `hash_basis="commit_blob"` + `hash_basis_commit`（r06 包=`f53f009`…、handoff 包=`4742dbc`…）；权威运行方式=显式 `--commit <hash_basis_commit>`。实测 checker / gate strict / declared-only 均 **0**。
 - **S5-T04 复审 F1–F5 处置**：F1 校验器补 repo 路径包含性检查（绝对路径/`..`/逃逸 ⇒ exit 2）+ 负例；F2 README §6 措辞改准（校验器在副本内跑、checker 在主树跑为权威）；F3 `superseded_runs` 补全 r00–r05 及关系 + `re_freeze` 段；F4 失败件 `run_id` 残留**标注不重写**（r06 README §6.1）；F5 构建器 docstring 与 `file_set` 行为对齐。
 - **未做/不主张**：板级 B1–B10、真彩目视、HUD 屏上视觉、真实 30 分钟、T5-10、G0/G1/G3/G4/G5 全未做未主张；**冻结 ≠ 验收通过，不构成 G5**。
+- **冻结提交与 tag（最终口径）**：新 tag `stage5-offline-freeze-20261027-r2` 指向 **本收尾提交**（`frozen_set.json` 与其全部成员字节自 `92b2c9d` 起未变，sha 见上）；`delivery_manifest.json` 在收尾时**刷新了 1 条源码绑定**（`run_f6_export_selfcheck.py`：F6 门禁分段补丁在冻结提交之后），并据此把 `hash_basis_commit` 指向承载全部当前字节的 `067cf23`；此为**包装清单绑定刷新**，不涉及任何冻结成员、不改 `frozen_set.json`。
+- **收尾校验（HEAD）**：冻结集校验器 **0（93/93）**；r06 包 `check_stage_delivery --mode evidence` **0**、`check_manifest_hash_basis --mode strict` **0（24 条目）**、`--mode declared-only` **0**；F6 包与 handoff 包 checker 均 **0**。
 
 ## 收尾快照（2026-10-27 19:55 UTC+8；本节优先于下方任何历史陈述）
 

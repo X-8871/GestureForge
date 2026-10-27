@@ -202,9 +202,17 @@ def tracked_files(directory: pathlib.Path) -> list[pathlib.Path]:
     return sorted(REPO_ROOT / name for name in names)
 
 
-def file_set_member(directory: pathlib.Path, member_id: str, group: str) -> dict:
+def file_set_member(directory: pathlib.Path, member_id: str, group: str,
+                    skip_absolute: set[pathlib.Path] | None = None) -> dict:
+    """目录成员：逐件登记**已跟踪文件**；`skip_absolute` 内已由更具体成员登记的路径不再重复列入。
+
+    M3（r07 修）：同一路径只登记一次（契约/单文件成员优先），保证"成员 id 唯一 + 文件路径唯一、
+    计数可复算"；被跳过的路径仍由更具体成员冻结，不丢覆盖。
+    """
     entries = []
     for path in tracked_files(directory):
+        if skip_absolute and path.resolve() in skip_absolute:
+            continue
         entries.append({"path": path.relative_to(directory).as_posix(),
                         "sha256": sha256_file(path), "bytes": path.stat().st_size})
     if not entries:
@@ -231,15 +239,17 @@ def head_commit() -> str:
 
 def build() -> dict:
     members: list[dict] = []
+    registered: set[pathlib.Path] = set()
 
     for path in CONTRACT_FILES:
         full = REPO_ROOT / path
         if not full.is_file():
             raise SystemExit(f"[ENV_ERROR] 契约成员缺失：{path}")
         assert_tracked(full, path)
-        members.append({"id": f"contract::{pathlib.Path(path).name}", "kind": "file", "scope": "repo",
+        members.append({"id": f"contract::{path}", "kind": "file", "scope": "repo",
                         "path": path, "sha256": sha256_file(full), "bytes": full.stat().st_size,
                         "group": "contracts_and_specs"})
+        registered.add(full.resolve())
 
     for path in OFFLINE_IMPLEMENTATION_FILES:
         full = REPO_ROOT / path
@@ -249,12 +259,13 @@ def build() -> dict:
         members.append({"id": f"impl_file::{path}", "kind": "file", "scope": "repo",
                         "path": path, "sha256": sha256_file(full), "bytes": full.stat().st_size,
                         "group": "offline_implementation"})
+        registered.add(full.resolve())
 
     for directory in OFFLINE_IMPLEMENTATION_DIRS:
         full = REPO_ROOT / directory
         if not full.is_dir():
             raise SystemExit(f"[ENV_ERROR] 离线实现目录缺失：{directory}")
-        members.append(file_set_member(full, f"impl_dir::{directory}", "offline_implementation"))
+        members.append(file_set_member(full, f"impl_dir::{directory}", "offline_implementation", registered))
 
     for package in OFFLINE_EVIDENCE_PACKAGES:
         full = REPO_ROOT / package
@@ -268,8 +279,9 @@ def build() -> dict:
                 members.append({"id": f"evidence_file::{relative}", "kind": "file", "scope": "repo",
                                 "path": relative, "sha256": sha256_file(entry),
                                 "bytes": entry.stat().st_size, "group": group})
+                registered.add(entry.resolve())
             elif entry.is_dir():
-                members.append(file_set_member(entry, f"evidence_dir::{relative}", group))
+                members.append(file_set_member(entry, f"evidence_dir::{relative}", group, registered))
             else:
                 raise SystemExit(f"[ENV_ERROR] 证据包内存在非普通条目：{relative}")
 
@@ -282,9 +294,36 @@ def build() -> dict:
                         "bytes": full.stat().st_size, "group": "host_upstream_references",
                         "role": reference["role"], "note": reference["note"]})
 
+    # M3：唯一性与覆盖计数（可复算；不一致直接 fail-closed）
+    ids = [m["id"] for m in members]
+    duplicate_ids = sorted({i for i in ids if ids.count(i) > 1})
+    repo_paths = [m["path"] for m in members if m.get("kind") == "file" and m.get("scope", "repo") == "repo"]
+    for member in members:
+        if member.get("kind") == "file_set":
+            base = member["path"]
+            repo_paths.extend(f"{base}/{f['path']}" for f in member["files"])
+    duplicate_paths = sorted({x for x in repo_paths if repo_paths.count(x) > 1})
+    if duplicate_ids:
+        raise SystemExit(f"[ENV_ERROR] 成员 id 不唯一：{duplicate_ids}")
+    if duplicate_paths:
+        raise SystemExit(f"[ENV_ERROR] repo 文件路径重复登记：{duplicate_paths}")
+    coverage = {
+        "members": len(members),
+        "unique_member_ids": len(set(ids)),
+        "by_group": {},
+        "repo_file_registrations": len(repo_paths),
+        "repo_unique_paths": len(set(repo_paths)),
+        "host_references": sum(1 for m in members if m.get("scope") == "host"),
+        "note": ("成员 id 由路径派生（唯一）；同一路径只登记一次（契约/单文件成员优先，file_set 跳过已登记路径）。"
+                 "repo_file_registrations 与 repo_unique_paths 必须相等，否则构建器 fail-closed。"),
+    }
+    for member in members:
+        coverage["by_group"][member["group"]] = coverage["by_group"].get(member["group"], 0) + 1
+
     return {
+        "coverage": coverage,
         "schema_version": "gestureforge_s5t04_frozen_set_v1",
-        "frozen_set_id": "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R02",
+        "frozen_set_id": "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R03",
         "task_id": "S5-T04",
         "stage": 5,
         "freeze_kind": "OFFLINE_SCOPE_FROZEN",
@@ -313,6 +352,10 @@ def build() -> dict:
              "reason": "校验器/F6 驱动硬编码 r01 RunId ⇒ 改为强制显式 --frozen-set/--frozen-run-dir，r03 被取代"},
             {"run_id": "s5_freeze_20261027_r04",
              "reason": "3 项不符：__pycache__/未跟踪产物污染目录摘要、.gitattributes 自身换行不稳定 ⇒ 改为 file_set（仅 Git 已跟踪文件）+ .gitattributes -text 自规则，r04 被取代"},
+            {"run_id": "s5_freeze_20261027_r06",
+             "reason": "首版再冻结（93 成员、tag r2）；独立复审 CHANGES_REQUIRED：M1 文书范围误报（s5a/b/c、8 包、F6 r01 路径）、"
+                       "M2 范围自相矛盾（not_frozen 称 task-27 NOT_RUN）、M3 成员 id 非唯一 + 重复路径登记。"
+                       "r07 修模板重建冻结集（唯一 id/去重/覆盖计数），故 r06 被取代；r06 包与 tag r2 保留不改"},
             {"run_id": "s5_freeze_20261027_r05",
              "reason": "上一轮正式冻结（tag stage5-offline-freeze-20261027 → 26b7439；77 成员）；本 r06 为再冻结：纳入 task-27 增量与 N1 修复并清 5 项非阻断（F1–F5），故 r05 被 r06 取代。r05 字节与 tag 均不改不删（保留为历史）"},
         ],
@@ -330,7 +373,7 @@ def build() -> dict:
                 "离线证据包 +3：S5-T27 r02 主包 / clean_checkout r02 自证包 / hash_basis_authoritative r01",
                 "冻结工具 +2：inline_manifest_basis.py、run_clean_checkout_proof.py",
             ],
-            "carried_forward_rule": "旧 77 成员身份（path/sha256/bytes）逐项保留，本轮不改其字节（独立复审核 0 改动）。",
+            "carried_forward_rule": "旧 77 成员的**路径与成员内既有文件字节**保留；唯一变化是 `impl_dir::scripts/stage5_t03` file_set 追加 3 个文件（已在 delta_members 披露），其余成员的 path/sha256/bytes 未变。",
         },
         "not_frozen": list(NOT_FROZEN),
         "members": members,

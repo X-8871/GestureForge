@@ -267,11 +267,10 @@ def freeze_document(context: dict) -> str:
         "",
         "## 1. 冻结范围（只此四类）",
         "1. **离线契约/规格**：`docs/stage5/**` 中列出的显示契约 JSON、输入绑定 JSON、离线参数/用例骨架、JSON 契约、UR-3 决策（stale=200 ms 批准引用）。",
-        "2. **离线实现**：`verification/s5_display_geometry_reference.py`、`scripts/stage5_t03/**`（渲染/回放/长跑/多几何/HUD 遮挡/JSON 契约/阶段4 冻结包消费）、`scripts/stage5_s5a|s5b|s5c/**`。",
-        "3. **离线证据包**：见 `frozen_set.json` 的 `offline_evidence_replay_display` 与 `offline_evidence_s5t02` 组"
-        "（`s5t03_offline_replay_display_20261026_r06`、`…offline_long_run_replay…r04`、`…multi_geometry_render…r02`、"
-        "`…json_contract…r04`、`…hud_occlusion…r02`、`…stage4_frozen_replay…r04`、`…stage4_positive_replay…r01`、"
-        "`S5-T01/s5t02_offline_dynamic_map_20261027_r02`）。",
+        "2. **离线实现**：`verification/s5_display_geometry_reference.py`（+几何参考测试）、`scripts/stage5_t03/**`（渲染/回放/长跑/多几何/HUD 遮挡/JSON 契约/阶段4 冻结包消费；含 task-27 的 replay/colour 三件套）、`scripts/stage5_t27/**`（冻结证据运行器/基座定稿/干净检出自证）。**注意**：`scripts/stage5_s5a|s5b|s5c/**` **不在**本冻结集内（见 `not_frozen`，其测试依赖 w4 黄金数据、上游漂移后失败）。",
+        "3. **离线证据包**（现场从 `frozen_set.json` 枚举，共 "
+        + str(len(context.get("evidence_packages", []))) + " 个，避免文书漏列）："
+        + "、".join(f"`{x}`" for x in context.get("evidence_packages", [])) + "。",
         "4. **宿主侧只读引用**（`scope=host`）：阶段3 参考帧 `939fce22…` 与回放绑定、阶段4 回放结果包冻结记录/索引/带框包、"
         "Wong 批准的 `stale=200 ms` 回执、阶段3/阶段4 局限引用文件。",
         "",
@@ -279,8 +278,9 @@ def freeze_document(context: dict) -> str:
         f"```json\n{json.dumps(frozen, ensure_ascii=False, indent=2)}\n```",
         "",
         "## 2. 明确不主张（逐条写死）",
-        "1. **真实回放接入**（板上/实时）：不主张。阶段4 回放结果包已冻结（`replay_only`）且本树有**离线**消费证据，"
-        "但 `task-27` 整体 **NOT_RUN**。",
+        "1. **真实回放接入**（板上/实时）与 **task-27 的板级/实时/实物部分**：不主张（未做）。"
+        "**task-27 的离线部分已交付并纳入本冻结**（`impl_dir::scripts/stage5_t27`、`scripts/stage5_t03` 追加 3 文件、"
+        "3 个 S5-T27 证据包），离线结论不代表板上/实时结论。",
         "2. **板上动态映射/绘制**：不主张（S5-T02 板级 §4.5/§7.3 未关闭）。",
         "3. **摄像头真实采集**：不主张。",
         "4. **真实集成 30 分钟**：不主张（仅有离线虚拟长跑）。",
@@ -344,7 +344,7 @@ def freeze_document(context: dict) -> str:
         "- **F6 自证**：本轮内容提交单独 `git archive` 导出（或 `git clone --shared --no-checkout` 部分检出）后，"
         "在**副本内**复跑冻结集校验器；`check_stage_delivery --mode evidence` 在**主工作树**上运行"
         "（其清单绑定按提交 blob 复算，副本与主树的 `files[]` 字节一致；副本内跑需自带完整依赖，故不作为权威口径，见 F2 更正），"
-        "原始输出与真实退出码见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`。",
+        "原始输出与真实退出码见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r02/`（C1 提交前 handoff 为**信息项，非门禁**；提交后 handoff 见 `…_r02_postcommit_handoff/`）。",
         "",
         "### 6.1 失败/被取代 RunId 的 `run_id` 残留（F4 标注，不重写失败证据）",
         "- `report/evidence/S5-T04/s5_freeze_f6export_20261027_r00_crlf_fail/` 与 `…_r00b_tracked_dirs_fail/` 内部 "
@@ -494,8 +494,20 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8")
 
     # ── 4. 冻结文书 + 结果 ───────────────────────────────────────────────
+    # M1-②：从 frozen_set 实际成员枚举证据包（避免文书漏列/多列），供 README §1.3 使用
+    evidence_packages: list[str] = []
+    for member in json.loads(frozen_set_path.read_text(encoding="utf-8")).get("members", []):
+        if member.get("group") not in ("offline_evidence_replay_display", "offline_evidence_s5t02"):
+            continue
+        parts = member["path"].split("/")
+        if len(parts) >= 4:
+            package = "/".join(parts[:4])
+            if package not in evidence_packages:
+                evidence_packages.append(package)
+
     context = {
         "run_id": run_dir.name, "run_dir_rel": args.run_dir,
+        "evidence_packages": sorted(evidence_packages),
         "generated_utc8": generated,
         "frozen_set_summary": frozen_summary, "frozen_set_sha256": sha256_file(frozen_set_path),
         "build": build, "verify": verify, "selftest": selftest,
@@ -537,7 +549,7 @@ def main(argv: list[str] | None = None) -> int:
                          "verdict": "QUIET" if quiet["quiet_ok"] else "BUSY"},
         "worktree": {"branch": git["branch"], "head": git["head"],
                      "tracked_dirty": bool(git["tracked_status"]), "index_lock": git["lock_present"]},
-        "not_run": ["task-27（回放/彩色输入路径实现 + 离线动态回归）",
+        "not_run": ["task-27 的板级/实时/实物部分（离线部分已交付并纳入本冻结）",
                     "板级 B1–B10（需重连 + Wong 开工信号）",
                     "端到端真实链窗口 P1/W-E",
                     "G0/G1/G3/G4/G5 与实物验收"],

@@ -211,6 +211,10 @@ def main(argv: list[str] | None = None) -> int:
 
     # C1 为**提交前**运行：包尚未入库时 handoff 必然 FAIL，属预期，只作信息记录（不门禁）。
 
+    # 判定门禁：A/B 两路（独立导出/检出后的校验器与检查器）+ C2（提交后 handoff）。
+
+    # C1 为**提交前**运行：包尚未入库时 handoff 必然 FAIL，属预期，只作信息记录（不门禁）。
+
     final_ok = (a_ok and b_ok and checker_b['exit_code'] == 0)
     results = {
         "task_id": R.TASK_ID, "run_id": run_dir.name,
@@ -237,6 +241,7 @@ def main(argv: list[str] | None = None) -> int:
         },
         "verdict": "F6_SELFCHECK_PASS" if final_ok else "F6_SELFCHECK_FAIL",
         "gating": "A_export_verify + B_checkout_verify + B_checker（C1 提交前 handoff 仅信息；C2 提交后 handoff 另见 *_postcommit_handoff 证据）",
+        "gating": "A_export_verify + B_checkout_verify + B_checker（C1 提交前 handoff 仅信息；C2 提交后 handoff 另见 *_postcommit_handoff 证据）",
         "limitations": [
             "w5 工作树约 9.4 GB，本机磁盘余量不足以整树复制：提取路径**由 `frozen_set.json` 成员现场推导**"
             "（冻结成员 + 冻结工具 + 本冻结包，不含与冻结无关的历史证据）——这正是 F6 要覆盖的对象集合，"
@@ -260,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
          "command": checker_b["command"], "exit_code": checker_b["exit_code"],
          "reason": f"检出 root={checkout.get('toplevel')}；verifier={verify_b['exit_code']}"
                    f"({report_b.get('status')})；checker={checker_b['exit_code']}；CHECKS_OK 仅代表包装检查通过"},
-        {"name": "C. handoff_check（现工作树；部分检出副本不适用）",
+        {"name": "C. handoff_check（现工作树；部分检出副本不适用；**C1 提交前=信息项，非门禁**）",
          "status": "PASS" if c_ok else "FAIL",
          "command": handoff_run["command"], "exit_code": handoff_run["exit_code"],
          "reason": "只读核验；与导出自证分别记录"},

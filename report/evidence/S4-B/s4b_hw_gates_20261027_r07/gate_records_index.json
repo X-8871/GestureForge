@@ -1,0 +1,42 @@
+{
+  "schema_version": "s4b_hw_gate_records_index_v1",
+  "hardware_run_id": "s4b_ps_tensor_hw_20261027_r01",
+  "gate_dir": "report/evidence/S4-B/s4b_hw_gates_20261027_r07",
+  "generated_utc8": "2026-10-27T16:10:06+08:00",
+  "adapter_sha256": "1ed92f5fce37c4dd63161e6694b98daaf85baf8e32d797cf73758969ba441c6f",
+  "records": [
+    "cold_basis.json",
+    "command_delivery_review.json",
+    "exclusive_session.json",
+    "g0_approval.json",
+    "hardware_session_handoff.json",
+    "operator_authorization.json",
+    "range_reservation.json",
+    "timing_freeze.json"
+  ],
+  "record_count": 8,
+  "session_endpoint": {
+    "host": "127.0.0.1",
+    "port": "23121",
+    "reason": "本机 Windows TCP 排除区间 3096-3195 / 3196-3295 使 hw_server 默认 3121 与备选 3131 不可绑定（bind EACCES）；实测唯一可用端点 23121",
+    "hw_server_pid": 19572,
+    "hw_server_cmd": "hw_server.bat -s tcp:127.0.0.1:23121",
+    "launch_evidence": "report/evidence/S4-B/s4b_hw_session_live_20261027_r01/"
+  },
+  "gate_sources": {
+    "operator_authorization": "make_hardware_gate_records.py 本轮生成",
+    "timing_freeze": "make_hardware_gate_records.py 本轮生成",
+    "range_reservation": "make_hardware_gate_records.py 本轮生成",
+    "g0_approval": "make_hardware_gate_records.py 本轮生成（三份文件均 APPROVED）",
+    "command_delivery_review": "make_hardware_gate_records.py + s4b_adapter_review_20261027_r03（同窗口自审，非独立复审）",
+    "hardware_session_handoff": "复用 s4b_hw_handoff_20261027_r04（OFFER 7f8ed5b / CLAIM a414e66）",
+    "cold_basis": "复用 s4b_hw_gates_20261027_r06（等价冷生命周期，会话建立前生成）",
+    "exclusive_session": "make_runtime_gate_records.py --role exclusive_session 现场取证（30 分钟窗口）"
+  },
+  "not_generated": [],
+  "verdict": "8_OF_8_GATES_ALLOWED",
+  "honesty_note": {
+    "command_delivery_review": "本轮 adapter 改动（会话端口闭集）由本窗口自审签发，独立级别低于 r02 的独立复审；已在复审记录中显式标注。",
+    "cold_basis": "等价证明（零 JTAG 会话）而非物理断电记录；hw_server 建立后其等价前提已用尽，不得再引用为“当前无会话”的证据。"
+  }
+}

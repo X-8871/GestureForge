@@ -108,6 +108,14 @@ REQUIRED_GATE_RECORDS = (
     "cold_basis",
 )
 
+# 会话端点闭集。本机 TCP 排除区间 3096–3195 与 3196–3295 由 Hyper-V / winnat 保留，
+# hw_server 默认端口 3121、备选 3131 均在内核层拒绝绑定（bind → EACCES / errno 13），
+# 实测唯一可用且已核验的端点为本机回环 127.0.0.1:23121。
+# 本常量只做「闭集 + 本机回环」校验，不放宽任何其他门禁语义。
+HW_SESSION_HOSTS = ("localhost", "127.0.0.1")
+HW_SESSION_PORTS = ("23121", "3121")
+HW_SESSION_DEFAULT_PORT = "23121"
+
 
 class AdapterError(RuntimeError):
     """表示离线来源绑定、门禁或诊断流程失败。"""
@@ -1650,12 +1658,14 @@ def validate_hardware_gates(prepared: PreparedRun, hardware_run_id: str,
             missing.append("hardware_session_handoff:sdk_target_binding_invalid")
 
         exclusive = records.get("exclusive_session", {})
+        peer = exclusive.get("xsdb_peer")
+        peer_ok = (isinstance(peer, dict) and peer.get("Host") in HW_SESSION_HOSTS and
+                   peer.get("Port") in HW_SESSION_PORTS)
         if (exclusive.get("status") != "PASS" or exclusive.get("exclusive") is not True or
                 exclusive.get("hardware_run_id") != hardware_run_id or
                 exclusive.get("artifact_identity_sha256") != identity_digest or
                 type(exclusive.get("hw_server_pid")) is not int or exclusive.get("hw_server_pid") <= 0 or
-                exclusive.get("xsdb_peer") not in ({"Host": "localhost", "Port": "3121"},
-                                                     {"Host": "127.0.0.1", "Port": "3121"}) or
+                not peer_ok or
                 not isinstance(exclusive.get("uart_port"), str) or not exclusive.get("uart_port") or
                 not _recent_time(exclusive.get("verified_at_utc8"), maximum_age_seconds=1800)):
             missing.append("exclusive_session:peer_or_live_exclusivity_not_proven")

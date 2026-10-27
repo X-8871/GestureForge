@@ -1,0 +1,52 @@
+{
+  "schema_version": "s4b_hw_session_port_probe_v1",
+  "probe_run_id": "s4b_hw_port_endpoint_20261027_r01",
+  "generated_utc8": "2026-10-27T16:15:30+08:00",
+  "host_facts": {
+    "excludedportranges_tcp": ["3096-3195", "3196-3295", "3337-3436", "3437-3536", "3537-3636", "3730-3829", "3830-3929", "4018-4117", "20192", "20882", "50000-50059(管理)"],
+    "owner": "Hyper-V/winnat 动态端口保留；无管理员权限不可删除"
+  },
+  "bind_probe": {
+    "127.0.0.1:3121": "FAIL errno=13 EACCES",
+    "127.0.0.1:3131": "FAIL errno=13 EACCES",
+    "127.0.0.2:3121": "FAIL errno=13 EACCES",
+    "[::1]:3121": "FAIL errno=13 EACCES",
+    "127.0.0.1:23121": "OK（当前由 hw_server PID 19572 持有，二次绑定 10048 WSAEADDRINUSE 为预期）"
+  },
+  "third_party_occupancy": {
+    "hw_server_before_launch": 0,
+    "listeners_3121_3131_23121_before_launch": 0,
+    "vivado_mcp_server_processes": "5 个 stdio 桥接进程（PID 27604/28448/4300/19328/10164），无 hw_server/xsdb/vivado 子进程，未占 JTAG"
+  },
+  "session": {
+    "hw_server_pid": 19572,
+    "command": "hw_server.bat -s tcp:127.0.0.1:23121",
+    "binding": "127.0.0.1:23121（仅回环）",
+    "launched_utc8": "2026-10-27T16:07:50+08:00",
+    "xsdb_client_probe": {
+      "command": "connect -url tcp:127.0.0.1:23121（probe_chain.tcl）",
+      "result": "TARGET_COUNT=16；arm_dap + 2×Cortex-A9(Running) + xc7z020 可见；日志 xsdb_chain_scan.log"
+    },
+    "tcl_client_port": "23121",
+    "resource_check_port": "23121（make_runtime_gate_records 实测 connect_ex 成功后才发证）"
+  },
+  "port_decision": {
+    "canonical_hw_port": "23121",
+    "recorded_in": "s4b_ps_tensor_adapter.py HW_SESSION_PORTS（闭集 {23121,3121}）、exclusive_session 记录 xsdb_peer、r07 gate_records_index.session_endpoint"
+  },
+  "structural_blocker": {
+    "finding": "冻结 2B 工具 verification/s2b_board_jtag.py 的 JtagController.__init__ 硬性要求所借会话 peer Port==\"3121\"（require '必须借用总控连接的localhost:3121会话'）",
+    "consequence": "即使会话建立在 23121 且八道门禁 8/8，execute_prepared → JtagController 在 peer 校验处必拒 ⇒ 冻结链路的端到端 PS 张量诊断在本机当前网络状态下不可达",
+    "why_not_patch_frozen_tool": "s2b_board_jtag.py 属 2B 冻结交付（stage2b_freeze_20261022_r02 delivery_manifest 绑定 SHA），阶段4 不得改写；重绑需 2B 侧批准",
+    "unblock_options": [
+      "A（推荐，不改冻结件）：管理员执行 net stop winnat（释放 3096-3195/3196-3295 排除区间）→ 停 23121 hw_server → 以默认端口重启 hw_server（3121）→ 重新取证 exclusive_session → 按原冻结流程执行；结束后 net start winnat",
+      "A'（永久）：管理员 netsh int ipv4 set dynamicport tcp start=20000 num=10000 且 ipv6 同步，再重启 winnat，之后 3121 常年可用",
+      "B（改冻结件，慢）：由 2B 所有者把 s2b_board_jtag.py 的 3121 判定改为可配置端点并重签 delivery_manifest——本窗口不采用"
+    ]
+  },
+  "boundaries": [
+    "本目录只证端口事实、会话建立与 JTAG 链可见性",
+    "未 program、未烧录、未写任何板级寄存器、未打开 COM4",
+    "exclusive_session 记录（r07）30 分钟有效，过期须重新取证"
+  ]
+}

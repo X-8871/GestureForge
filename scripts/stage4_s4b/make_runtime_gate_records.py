@@ -88,17 +88,17 @@ def com_ports() -> list[str]:
     return sorted(ports)
 
 
-def jtag_session_active() -> tuple[bool, dict]:
-    """实时探测 JTAG 会话：hw_server 进程或 3121 监听任一成立即为活跃（只读，不启动服务）。"""
+def jtag_session_active(port: int) -> tuple[bool, dict]:
+    """实时探测 JTAG 会话：hw_server 进程或指定端口监听任一成立即为活跃（只读，不启动服务）。"""
     pids = hw_server_pids()
     listening = False
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(0.4)
-            listening = sock.connect_ex(("127.0.0.1", 3121)) == 0
+            listening = sock.connect_ex(("127.0.0.1", port)) == 0
     except OSError:
         listening = False
-    detail = {"hw_server_pids": pids, "hw_server_count": len(pids), "port_3121_listening": listening}
+    detail = {"hw_server_pids": pids, "hw_server_count": len(pids), f"port_{port}_listening": listening}
     return (len(pids) > 0 or listening), detail
 
 
@@ -110,7 +110,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--expect-uart", default="COM4")
     ap.add_argument("--xsdb-host", default="localhost")
-    ap.add_argument("--xsdb-port", default="3121")
+    ap.add_argument("--xsdb-port", default="23121",
+                    help="hw_server 监听端口；本机 3121/3131 位于 Windows TCP 排除区间，实际用 23121")
     ap.add_argument("--power-cycle-at", default=None, help="断电→上电时刻（YYYY-MM-DD HH:MM，UTC+8）")
     ap.add_argument("--evidence", default=None, help="断电证据文件路径")
     ap.add_argument("--attestation", default=None, help="操作者确认语句")
@@ -141,10 +142,19 @@ def main(argv: list[str] | None = None) -> int:
             problems.append(f"hw_server 进程数为 {len(pids)}（必须恰好 1）")
         if args.expect_uart not in ports:
             problems.append(f"串口 {args.expect_uart} 不在枚举中：{ports}")
-        if args.xsdb_port != "3121":
-            problems.append("xsdb 端口必须为 3121")
-        if args.xsdb_host not in ("localhost", "127.0.0.1"):
-            problems.append("xsdb peer 必须是 localhost 或 127.0.0.1")
+        if args.xsdb_port not in adapter.HW_SESSION_PORTS:
+            problems.append(f"xsdb 端口 {args.xsdb_port} 不在闭集 {adapter.HW_SESSION_PORTS} 内")
+        if args.xsdb_host not in adapter.HW_SESSION_HOSTS:
+            problems.append(f"xsdb peer 必须是 {adapter.HW_SESSION_HOSTS} 之一")
+        listening = False
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                sock.settimeout(0.5)
+                listening = sock.connect_ex((args.xsdb_host, int(args.xsdb_port))) == 0
+        except (OSError, ValueError):
+            listening = False
+        if not listening:
+            problems.append(f"{args.xsdb_host}:{args.xsdb_port} 未在监听，会话未真正建立")
         if problems:
             print("[FAIL] 现场条件不满足，拒绝生成 exclusive_session：", file=sys.stderr)
             for p in problems:
@@ -160,8 +170,13 @@ def main(argv: list[str] | None = None) -> int:
             "uart_port": args.expect_uart,
             "verified_at_utc8": now.isoformat(timespec="seconds"),
             "validity_seconds": 1800,
-            "observed": {"com_ports": ports, "hw_server_pids": pids},
-            "boundaries": ["本记录只证独占与环境可见性，不证板上行为", "未启动/未重启任何服务"],
+            "observed": {"com_ports": ports, "hw_server_pids": pids,
+                         "session_port_listening": listening,
+                         "port_choice_reason": ("3121/3131 位于 Windows TCP 排除区间 3096–3195 / 3196–3295，"
+                                                "内核拒绝绑定（EACCES）；实际端点 23121")},
+            "boundaries": ["本记录只证独占与环境可见性，不证板上行为",
+                           "记录生成本身不启动/不重启任何服务；会话服务由持有方在本记录生成前建立，"
+                           "其启动命令、端口与日志须另存于独立证据目录（s4b_hw_session_live_*）"],
         }
         name = "exclusive_session.json"
     else:
@@ -188,7 +203,7 @@ def main(argv: list[str] | None = None) -> int:
             extra = {"power_cycle_at_utc8": cycle_at.isoformat(timespec="seconds"),
                      "attestation": args.attestation}
         else:
-            active, live = jtag_session_active()
+            active, live = jtag_session_active(int(args.xsdb_port))
             if active:
                 print(f"[FAIL] 检测到活跃 JTAG 会话，不能以零事务作冷启动等价证明：{live}", file=sys.stderr)
                 return 1

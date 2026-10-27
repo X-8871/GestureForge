@@ -229,7 +229,8 @@ def main(argv: list[str] | None = None) -> int:
         "not_generated": skipped,
         "not_generated_reason": {
             "hardware_session_handoff": "需 main OFFER + w4 CLAIM（见 s4b_hw_offer_claim 文档）",
-            "exclusive_session": "执行时现场取证（hw_server 3121 + UART，30 分钟窗口）",
+            "exclusive_session": (f"执行时现场取证（hw_server {adapter.HW_SESSION_DEFAULT_PORT} + UART，30 分钟窗口；"
+                                  "本机 3121/3131 位于 Windows TCP 排除区间不可绑定）"),
             "g0_approval": (f"三项未同时成立：{g0_problems}" if g0_problems
                             else "已生成"),
             "cold_basis": "需物理断电重建或等价独立证明（Wong 现场）",

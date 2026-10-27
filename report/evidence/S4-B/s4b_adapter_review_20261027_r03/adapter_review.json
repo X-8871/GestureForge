@@ -1,0 +1,70 @@
+{
+  "schema_version": "s4b_adapter_review_v1",
+  "task_id": "S4-B-REAL-02B",
+  "run_id": "s4b_adapter_review_20261027_r03",
+  "verdict": "PASS",
+  "reviewed_adapter_sha256": "1ed92f5fce37c4dd63161e6694b98daaf85baf8e32d797cf73758969ba441c6f",
+  "reviewed_at_utc8": "2026-10-27T16:05:00+08:00",
+  "reviewer": "Workbuddy 阶段4总控（本窗口自审，非独立第三方；r02 独立复审仍是对门禁逻辑的最后一次独立结论）",
+  "independence_note": "本轮改动仅涉及会话端点闭集常量，时间窗内无第二个审阅方可调度；故如实标注为本窗口自审，不冒充独立复审。若需独立复核，应以本记录 scope 重新指派。",
+  "scope": "仅会话端点（hw_server/xsdb peer）端口从硬编码 3121 改为闭集 {23121,3121} + 宿主闭集 {localhost,127.0.0.1}；不放宽任何其他门禁语义",
+  "trigger": {
+    "fact": "本机 `netsh int ipv4 show excludedportrange protocol=tcp` 显示 3096–3195 与 3196–3295 两段被 Hyper-V/winnat 保留",
+    "measured": "bind 3121 / 3131 均返回 errno 13 (EACCES)；bind 23121 成功；127.0.0.1:23121 已由 Codex 与本地 Python 双向验证可监听",
+    "consequence": "hw_server 默认端口 3121 在本机结构上不可绑定，原硬编码使 exclusive_session 门禁不可达（非取舍、非降级）"
+  },
+  "change_summary": {
+    "adapter": [
+      "新增常量 HW_SESSION_HOSTS=(\"localhost\",\"127.0.0.1\")、HW_SESSION_PORTS=(\"23121\",\"3121\")、HW_SESSION_DEFAULT_PORT=\"23121\"",
+      "exclusive_session 的 xsdb_peer 判定由「等于 3121 的两个字面 dict」改为「Host ∈ HW_SESSION_HOSTS 且 Port ∈ HW_SESSION_PORTS」",
+      "其余七类门禁判定表达式逐字符未变（git diff 见 evidence）"
+    ],
+    "make_runtime_gate_records": [
+      "--xsdb-port 默认改为 23121；校验改为闭集成员检查（原为 `!= \"3121\"` 硬等）",
+      "新增：生成记录前必须实测 connect_ex(xsdb_host, xsdb_port) 成功，否则 exit 1 拒绝生成",
+      "jtag_session_active() 由无参（内部硬编码 3121）改为显式传入端口"
+    ],
+    "make_hardware_gate_records": [
+      "not_generated_reason 文案由 `hw_server 3121` 改为引用 adapter.HW_SESSION_DEFAULT_PORT 并注明排除区间"
+    ]
+  },
+  "verification": {
+    "self_check": "python -m py_compile 通过；三个改动文件均无语法/导入错误",
+    "closed_set_control": {
+      "script": "report/evidence/S4-B/s4b_hw_port_endpoint_20261027_r01/probe_port_closed_set.py",
+      "output": "report/evidence/S4-B/s4b_hw_port_endpoint_20261027_r01/port_closed_set_probe.json",
+      "method": "以 r05 七类真实记录为基底，向临时副本注入合成 exclusive_session，调用真实 validate_hardware_gates",
+      "cases": [
+        {"xsdb_peer": {"Host": "127.0.0.1", "Port": "23121"}, "expect_ok": true, "peer_gate": "PASS"},
+        {"xsdb_peer": {"Host": "localhost", "Port": "23121"}, "expect_ok": true, "peer_gate": "PASS"},
+        {"xsdb_peer": {"Host": "127.0.0.1", "Port": "9999"}, "expect_ok": false, "peer_gate": "REJECT peer_or_live_exclusivity_not_proven"},
+        {"xsdb_peer": {"Host": "192.168.1.5", "Port": "23121"}, "expect_ok": false, "peer_gate": "REJECT peer_or_live_exclusivity_not_proven"},
+        {"xsdb_peer": {"Host": "127.0.0.1", "Port": "3121"}, "expect_ok": true, "peer_gate": "PASS"}
+      ],
+      "note": "本轮控制只证明 peer 子判定按预期收/放；探针整体 allowed 仍受 handoff 与 review 两项独立事实影响（二者在本轮前后各自修复），故不以整体 allowed 作为 peer 结论。"
+    },
+    "unit_baseline": {
+      "command": "S4B_ADAPTER_TEST_PREPARATION=…r01 S4B_ADAPTER_TEST_EVIDENCE_DIR=…r13 PYTHONPATH=. python verification/test_s4b_ps_tensor_adapter.py",
+      "with_change": "Ran 22 tests, failures=1 errors=2",
+      "baseline_git_head_adapter": "Ran 22 tests, failures=1 errors=2（同样三条）",
+      "conclusion": "19/22 通过；3 条失败在改动前后完全一致，源于 main HEAD 已前进到 4f44f15 后 fixtures 与 handoff 期望漂移，与本次端口改动无因果关系"
+    },
+    "no_weakening": [
+      "端口仍为闭集（2 个值），未改成「任意整数」；宿主仍限本机回环",
+      "exclusive_session 仍要求 status=PASS / exclusive=true / pid 为正整数 / uart_port 非空 / 30 分钟内",
+      "新增「必须实测监听成功」一条，属收紧"
+    ]
+  },
+  "residual_suggestions": [
+    "S1 3121 留在闭集内属历史兼容；本机已结构不可绑定，实际记录只可能写 23121。若追求纯闭集可后续单独收敛为单值。",
+    "S2 端口选择理由已写入记录 observed.port_choice_reason，但 adapter 不校验该字段；如需强制可在下一轮加入。",
+    "S3 未新增 peer 专项单测（现有单测无 exclusive_session 用例），本轮以闭集探针替代；建议后续补 test_exclusive_session_peer_closed_set。"
+  ],
+  "sign_off": "可据本结论签发 command_delivery_review；reviewed_adapter_sha256 必须写本记录值。本记录自标注为同窗口自审，独立级别低于 r02。",
+  "boundaries": [
+    "不含板上行为",
+    "不含位流/BD/XSA 变更",
+    "不含阶段5/显示路径",
+    "不覆盖 r02 对 g0_approval 结构化绑定的独立结论"
+  ]
+}

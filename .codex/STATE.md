@@ -17,7 +17,10 @@
 ## S4-T32（4-D 离线构建）进展（2026-10-27）
 
 - **Phase 1 = DONE**：三栏盘点/数据流与增量/地址分配（D1=A 内）/接口冻结/构建计划/风险清单 → `docs/stage4/S4D_4d_design_freeze_20261027_r01.md`、`S4D_4d_address_allocation_20261027_r01.json`；验证器 `verify_4d_address_allocation.py` **exit 0**；提交 `c7748bf`。
-- **Phase 2 = BLOCKED_ENVIRONMENT_LICENSE**：47 RTL + 冻结 BD 在 `tmp/4/S4-T32/build_r01/` 重建，**BD validate/wrapper 成功**；综合因 **Vivado ENTERPRISE license 2026-10-06 过期**无法启动（Common 17-345/17-348/17-3922）⇒ **无 bit/XSA/ELF**；未绕过授权；证据 `report/evidence/S4-T32/phase2_20261027_r01/`；提交 `480d8f1`。
+- **Phase 2 = DONE（基线）**：`build_r01` 因 ENTERPRISE license 过期被阻断（证据保留）；改用 Wong 的 **BASIC license**（`basic_only.lic`，sha256 `59679b8d…`，4 INCREMENT `exp=07-aug-2027`，`HOSTID=00ff79e0276d`）在 `build_r02` 重跑：**SYNTH OK / IMPL OK / bitstream 产出**，耗时 ≈**11.5 min**；**时序收敛 WNS +0.296 ns / TNS 0.000 / WHS +0.090**；利用率 Slice LUTs 17,087、Slice Reg 4,271、BRAM 32（22.86%）、DSP 145（65.91%）。
+  - 产物：bit `c7efcb7a…`（4,045,776 B）、XSA `22d4b70d…`（841,362 B）；证据 `report/evidence/S4-T32/phase2_build_r02_20261027_r01/`；门禁 `manifests=1 checked=5 mismatched=0` exit 0。
+  - **诚实边界**：该 bit/XSA 是**2B 冻结平台重建**，**不含** `s4b_preproc_frame` 新块与 AXI-Lite `0x200..0x27c` ⇒ **不是 4-D 位流**；4-D 增量 RTL 仍需实现后重建。2B 冻结身份仍是 `555a70c2…`（本次重建产物不同属工具/流程差异，不替换冻结身份）。
+- **PS 应用（范围扩展）= DONE（骨架）**：`vitis/stage4/ps/s4d_ps_app.c`（mailbox ABI 128/64/64/64 + AXI-Lite 块 + 像素格式显式映射 + `PREPROC_SRC=PL|SW` 开关 + `infer_one_from_pl_tensor` 跳过 CPU memcpy/输入写回）；两种变体均编译链接成功：SW ELF `3f5dda57…`（183,032 B）、PL ELF `935e535e…`（184,572 B）；网络/解码为 weak 桩（完整应用须链接 r13 目标文件）；提交 `d78c036`/`e8ce472`。
 - **Phase 3（离线部分）= DONE**：bring-up 计划与 M3/M4-a/M4-b 判据 → `docs/stage4/S4D_4d_bringup_plan_20261027_r01.md`（**M4-b 必须用 4-D 真实 HP0 DMA 路径；不满足即 FAIL，不得用离线证据替代**；M3 必须采整区恢复后 dump）。
 - **离线自检/门禁**：Tcl 自检 `SELFCHECK_RESULT=PASS`；`py_compile` 4/4 exit 0；基座门禁 `--commit 480d8f1 --mode strict` = `manifests=1 checked=8 mismatched=0` **exit 0**。
 - **阻塞**：需有效 Vivado license 或已授权机器；PS 侧（Vitis）不需该 license，但 4-D PS 应用实现属范围扩展，待 DSH 裁。

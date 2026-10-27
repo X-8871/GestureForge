@@ -141,6 +141,9 @@ def main(argv: list[str] | None = None) -> int:
     write_hashes(run_dir)
     hashes_rel = (run_dir / "hashes_sha256.txt").relative_to(REPO_ROOT).as_posix()
     hashes_sha = sha256_bytes((run_dir / "hashes_sha256.txt").read_bytes())
+    if hashes_rel not in {str(e["path"]).replace("\\", "/") for e in entries}:
+        entries.append({"path": hashes_rel, "role": "artifact", "sha256": hashes_sha,
+                        "keep_reason": "运行目录逐文件哈希索引（finalize 生成）"})
     for entry in entries:
         if entry["path"] == hashes_rel:
             entry["sha256"] = hashes_sha

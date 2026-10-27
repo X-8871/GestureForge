@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_clock_repair_history",
+  "run_id": "s6b_session_clock_20261027_r06",
+  "reviewed_prior_run": "s6b_session_clock_20261027_r05",
+  "repair": {
+    "finding": "B25 隐式会话切换调用 _init_state() 时，jitter_exhausted 没有全量复位；显式 reset_session() 复用同一初始化路径，也可能保留 True。",
+    "basis": "docs/stage6/s6a_stage6_g0_behavior_v1.json B25：全量复位到 IDLE，清除目标与证据；阶段6交互状态应开启新会话计数。",
+    "disposition": "仅在 _init_state() 将 jitter_exhausted 显式初始化为 False，不改变 M4 判定或 reset API。",
+    "tests": [
+      "由真实 4 帧序列先建立 CANDIDATE，再以两帧低于 T6-P02 的结果耗尽 jitter 容忍，确认 reset 前 jitter_exhausted=True 且尚未达到 M4 dwell 门。",
+      "分别执行显式 reset_session() 与 step() 的 session_id 切换，比较目标、窗口、计数、结果历史及 jitter 状态快照。"
+    ]
+  },
+  "unresolved_interface_question": {
+    "item": "公开 reset_session(session_id) 的 B25 RESET 可观察日志方式",
+    "disposition": "仍无正式返回值/日志通道契约；本轮按总控指示只修复状态复位，不扩展 API。"
+  },
+  "unit_test": {
+    "command": "python -B -m unittest verification.test_s6b_core_regressions -v",
+    "exit_code": 0,
+    "test_count": 28,
+    "output": "session_reset_unittest_output.txt"
+  }
+}

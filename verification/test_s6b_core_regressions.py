@@ -1,5 +1,6 @@
 """阶段6核心状态与动作回执缺口的隔离回归。"""
 
+import copy
 import sys
 import unittest
 from pathlib import Path
@@ -15,6 +16,7 @@ from src.stage6.s6_core import (
     CoreInputError,
     GestureInteractionCore,
 )
+from src.stage6.s6_actions import ActionLayer, SUP_DEDUP
 from src.stage6.s6_params import ParamPack
 from verification.s6b_run_cases import run_case
 
@@ -30,10 +32,10 @@ class S6BCoreRegressionTests(unittest.TestCase):
         )
 
     @staticmethod
-    def _target_event(frame_id, timestamp):
+    def _target_event(frame_id, timestamp, session_id="regression-session"):
         return {
             "kind": EV_FRAME_RESULT,
-            "session_id": "regression-session",
+            "session_id": session_id,
             "frame_id": frame_id,
             "state": "OK",
             "t_input_ns": timestamp,
@@ -497,7 +499,7 @@ class S6BCoreRegressionTests(unittest.TestCase):
         self.assertEqual(core.counters["unobserved"], 1)
         self.assertEqual(core.counters["false_actions"], 1)
 
-    def test_action_ack_dedup_scope_resets_with_new_session(self):
+    def test_action_ack_dedup_persists_within_action_layer_lifetime(self):
         core = self._ack_core()
         ack = {
             "action_id": "reused-by-new-session",
@@ -513,15 +515,417 @@ class S6BCoreRegressionTests(unittest.TestCase):
             "t_input_ns": 1,
         })
         self.assertEqual(reset["log"]["transition"], "RESET")
+        self.assertEqual(reset["log"]["session_id"], "next-session")
+        self.assertEqual(reset["log"]["acquisition_id"], 0)
+        self.assertEqual(reset["log"]["counters"]["action_submitted"], 0)
+        self.assertEqual(reset["log"]["timers"]["t_last_submit_ns"], 1)
+        self.assertEqual(core.t_last_submit_ns, 1)
+        self.assertEqual(core.last_t_ns, 1)
+        self.assertEqual(core.state, "IDLE")
+        self.assertIsNone(core.current_target)
+
+        duplicate = core.note_action_ack(ack)
+        self.assertTrue(duplicate["duplicate_ack_ignored"])
+        self.assertEqual(core.counters["action_submitted"], 0)
+
         core.state = "TRIGGERED"
         core.current_target = {"class_id": 0}
 
-        next_session = core.note_action_ack({**ack, "t_submit_ns": 2, "t_effective_ns": 2})
+        next_session = core.note_action_ack({
+            **ack,
+            "action_id": "new-session-action",
+            "t_submit_ns": 2,
+            "t_effective_ns": 2,
+        })
 
         self.assertNotIn("duplicate_ack_ignored", next_session)
         self.assertEqual(core.session_id, "next-session")
         self.assertEqual(core.counters["action_submitted"], 1)
         self.assertEqual(core.t_last_submit_ns, 2)
+
+    def test_first_session_and_explicit_reset_preserve_global_time_anchors(self):
+        core = GestureInteractionCore(self.pack)
+        first = core.step(self._target_event(1, 100, "first-session"))
+        self.assertIsNone(first["log"]["transition"])
+        self.assertEqual(core.session_id, "first-session")
+        self.assertEqual(core.last_t_ns, 100)
+
+        core.state = "TRIGGERED"
+        core.note_action_ack({
+            "action_id": "first-session-action",
+            "submit_result": "success",
+            "effective_result": "observed",
+            "t_submit_ns": 100,
+            "t_effective_ns": 100,
+        })
+        core.reset_session("explicit-second-session")
+
+        self.assertEqual(core.session_id, "explicit-second-session")
+        self.assertEqual(core.state, "IDLE")
+        self.assertIsNone(core.current_target)
+        self.assertEqual(core.last_t_ns, 100)
+        self.assertEqual(core.t_last_submit_ns, 100)
+        self.assertEqual(core.counters["action_submitted"], 0)
+        self.assertEqual(core._seen_action_ack_ids, {"first-session-action"})
+
+        equal_time = core.step(self._target_event(1, 100, "explicit-second-session"))
+        self.assertIsNone(equal_time["log"]["transition"])
+        self.assertEqual(core.last_t_ns, 100)
+
+    def test_session_reset_reacquisition_obeys_global_cooldown_and_equal_boundary(self):
+        core = GestureInteractionCore(self.pack)
+        core.step(self._target_event(1, 0, "first-session"))
+        core.state = "TRIGGERED"
+        core.note_action_ack({
+            "action_id": "cooldown-anchor-action",
+            "submit_result": "success",
+            "effective_result": "observed",
+            "t_submit_ns": 0,
+            "t_effective_ns": 0,
+        })
+
+        reset = core.step({
+            "kind": EV_TICK,
+            "session_id": "second-session",
+            "t_input_ns": 1,
+        })
+        self.assertEqual(reset["log"]["transition"], "RESET")
+        self.assertEqual(core.t_last_submit_ns, 0)
+
+        k01_ns = self.pack.threshold_bundle()["k01_ns"]
+        interval_ns = 50_000_000
+        before_boundary = None
+        frame_id = 1
+        timestamp = 2
+        while timestamp < k01_ns:
+            before_boundary = core.step(
+                self._target_event(frame_id, timestamp, "second-session")
+            )
+            frame_id += 1
+            timestamp = 2 + (frame_id - 1) * interval_ns
+
+        self.assertEqual(core.state, "STABLE")
+        self.assertIsNotNone(before_boundary)
+        self.assertIn("S_COOLDOWN", before_boundary["log"]["suppression_events"])
+        self.assertIsNone(before_boundary["action_request"])
+        self.assertLess(core.last_t_ns, k01_ns)
+
+        at_boundary = core.step(
+            self._target_event(frame_id, k01_ns, "second-session")
+        )
+        self.assertEqual(at_boundary["log"]["transition"], "M5")
+        self.assertEqual(core.state, "TRIGGERED")
+        self.assertIsNotNone(at_boundary["action_request"])
+        self.assertEqual(at_boundary["log"]["timers"]["t_last_submit_ns"], 0)
+
+    def test_backwards_time_on_session_change_is_transactional(self):
+        core = GestureInteractionCore(self.pack)
+        core.step(self._target_event(1, 100, "first-session"))
+        core.state = "TRIGGERED"
+        core.note_action_ack({
+            "action_id": "transaction-anchor",
+            "submit_result": "success",
+            "effective_result": "observed",
+            "t_submit_ns": 100,
+            "t_effective_ns": 100,
+        })
+        before = (
+            core.session_id,
+            core.state,
+            dict(core.counters),
+            core.last_t_ns,
+            core.t_last_submit_ns,
+            None if core.current_target is None else dict(core.current_target),
+            core.last_frame_id,
+            core.last_frame_business_sha256,
+            core.acquisition_id,
+            core.window_match_count,
+            core.window_start_ns,
+            set(core._seen_action_ack_ids),
+            list(core.action_log),
+        )
+
+        with self.assertRaisesRegex(CoreInputError, "单调时钟倒退"):
+            core.step({
+                "kind": EV_TICK,
+                "session_id": "backwards-session",
+                "t_input_ns": 99,
+            })
+
+        after = (
+            core.session_id,
+            core.state,
+            dict(core.counters),
+            core.last_t_ns,
+            core.t_last_submit_ns,
+            None if core.current_target is None else dict(core.current_target),
+            core.last_frame_id,
+            core.last_frame_business_sha256,
+            core.acquisition_id,
+            core.window_match_count,
+            core.window_start_ns,
+            set(core._seen_action_ack_ids),
+            list(core.action_log),
+        )
+        self.assertEqual(after, before)
+
+    def test_action_layer_dedup_scope_survives_core_session_reset(self):
+        core = GestureInteractionCore(self.pack)
+        layer = ActionLayer(self.pack)
+        request = {
+            "action_type": "A_SWITCH_UI",
+            "target_id": "MAIN",
+            "class_id": 0,
+            "class_name": "class-0",
+            "source_frame_id": 1,
+            "trigger_frame_id": 1,
+            "t_trigger_ns": 100,
+        }
+        first = layer.submit(request, 100)
+        self.assertEqual(first["submit_result"], "success")
+
+        core.reset_session("next-session")
+        a02_ns = self.pack.threshold_bundle()["a02_ns"]
+        before_boundary = layer.submit(request, 100 + a02_ns - 1)
+        at_boundary = layer.submit(request, 100 + a02_ns)
+
+        self.assertEqual(before_boundary["suppression"], SUP_DEDUP)
+        self.assertEqual(at_boundary["submit_result"], "success")
+        self.assertEqual(at_boundary["action_id"], "ACT-0002")
+
+    @staticmethod
+    def _step_snapshot(core):
+        return (
+            core.session_id,
+            core.state,
+            dict(core.counters),
+            core.last_t_ns,
+            core.t_last_submit_ns,
+            copy.deepcopy(core.current_target),
+            core.last_frame_id,
+            core.last_frame_business_sha256,
+            core.acquisition_id,
+            core.acquisition_triggered,
+            core.candidate_streak,
+            core.window_match_count,
+            core.window_start_ns,
+            core.jitter_frames,
+            core.jitter_exhausted,
+            core.window_complete_ns,
+            tuple(core.anomaly_history),
+            list(core.result_history),
+            list(core.action_log),
+            set(core._seen_action_ack_ids),
+            core.step_anomaly,
+        )
+
+    def test_jitter_exhaustion_is_cleared_by_explicit_and_implicit_session_reset(self):
+        for reset_mode in ("explicit", "implicit"):
+            with self.subTest(reset_mode=reset_mode):
+                core = GestureInteractionCore(self.pack)
+                for frame_id, score in ((1, 0.9), (2, 0.9), (3, 0.28), (4, 0.28)):
+                    event = self._target_event(
+                        frame_id,
+                        (frame_id - 1) * 10_000_000,
+                        "jitter-session",
+                    )
+                    event["detections"][0]["score"] = score
+                    result = core.step(event)
+
+                self.assertEqual(core.state, "CANDIDATE")
+                self.assertTrue(core.jitter_exhausted)
+                self.assertIsNone(result["log"]["transition"])
+                self.assertTrue(core.result_history)
+
+                if reset_mode == "explicit":
+                    core.reset_session("explicit-reset-session")
+                    expected_last_t_ns = 30_000_000
+                    expected_session_id = "explicit-reset-session"
+                else:
+                    reset = core.step({
+                        "kind": EV_TICK,
+                        "session_id": "implicit-reset-session",
+                        "t_input_ns": 40_000_000,
+                    })
+                    self.assertEqual(reset["log"]["transition"], "RESET")
+                    expected_last_t_ns = 40_000_000
+                    expected_session_id = "implicit-reset-session"
+
+                self.assertEqual(
+                    {
+                        "session_id": core.session_id,
+                        "state": core.state,
+                        "current_target": core.current_target,
+                        "last_frame_id": core.last_frame_id,
+                        "acquisition_id": core.acquisition_id,
+                        "acquisition_triggered": core.acquisition_triggered,
+                        "candidate_streak": core.candidate_streak,
+                        "candidate_dwell_start_ns": core.candidate_dwell_start_ns,
+                        "window_match_count": core.window_match_count,
+                        "window_start_ns": core.window_start_ns,
+                        "window_last_match_center": core.window_last_match_center,
+                        "jitter_frames": core.jitter_frames,
+                        "jitter_exhausted": core.jitter_exhausted,
+                        "window_complete_ns": core.window_complete_ns,
+                        "result_history": core.result_history,
+                        "anomaly_history": tuple(core.anomaly_history),
+                        "last_t_ns": core.last_t_ns,
+                    },
+                    {
+                        "session_id": expected_session_id,
+                        "state": "IDLE",
+                        "current_target": None,
+                        "last_frame_id": None,
+                        "acquisition_id": 0,
+                        "acquisition_triggered": False,
+                        "candidate_streak": 0,
+                        "candidate_dwell_start_ns": None,
+                        "window_match_count": 0,
+                        "window_start_ns": None,
+                        "window_last_match_center": None,
+                        "jitter_frames": 0,
+                        "jitter_exhausted": False,
+                        "window_complete_ns": None,
+                        "result_history": [],
+                        "anomaly_history": (),
+                        "last_t_ns": expected_last_t_ns,
+                    },
+                )
+
+    def test_unknown_kind_is_transactional_for_same_and_new_session(self):
+        for session_id in ("current-session", "new-session"):
+            with self.subTest(session_id=session_id):
+                core = GestureInteractionCore(self.pack)
+                core.step(self._target_event(1, 100, "current-session"))
+                core.state = "STABLE"
+                core.window_match_count = 4
+                core.step_anomaly = True
+                before = self._step_snapshot(core)
+
+                with self.assertRaisesRegex(CoreInputError, "未知事件类型"):
+                    core.step({
+                        "kind": "E_UNRECOGNIZED",
+                        "session_id": session_id,
+                        "t_input_ns": 101,
+                    })
+
+                self.assertEqual(self._step_snapshot(core), before)
+
+    def test_malformed_step_envelopes_are_transactional_before_session_reset(self):
+        malformed_events = (
+            ("boolean frame_id", {
+                "kind": EV_FRAME_RESULT, "frame_id": True, "state": "OK",
+                "detections": [], "stale": False,
+            }),
+            ("unknown result state", {
+                "kind": EV_FRAME_RESULT, "frame_id": 2, "state": "BROKEN",
+                "detections": [], "stale": False,
+            }),
+            ("nonboolean stale", {
+                "kind": EV_FRAME_RESULT, "frame_id": 2, "state": "OK",
+                "detections": [], "stale": "false",
+            }),
+            ("nonlist detections", {
+                "kind": EV_FRAME_RESULT, "frame_id": 2, "state": "OK",
+                "detections": {}, "stale": False,
+            }),
+            ("unconvertible dropped_frames", {
+                "kind": EV_FRAME_ERROR, "frame_id": 2,
+                "dropped_frames": "unknown",
+            }),
+            ("boolean monotonic timestamp", {
+                "kind": EV_TICK, "t_input_ns": True,
+            }),
+        )
+        for label, malformed in malformed_events:
+            for session_id in ("current-session", "new-session"):
+                with self.subTest(case=label, session_id=session_id):
+                    core = GestureInteractionCore(self.pack)
+                    core.step(self._target_event(1, 100, "current-session"))
+                    core.state = "STABLE"
+                    core.window_match_count = 4
+                    core.step_anomaly = True
+                    before = self._step_snapshot(core)
+                    event = {**malformed, "session_id": session_id}
+                    if "t_input_ns" not in event:
+                        event["t_input_ns"] = 101
+
+                    with self.assertRaises(CoreInputError):
+                        core.step(event)
+
+                    self.assertEqual(self._step_snapshot(core), before)
+
+    def test_nonmapping_step_input_is_rejected_without_state_change(self):
+        core = GestureInteractionCore(self.pack)
+        core.step(self._target_event(1, 100, "current-session"))
+        core.step_anomaly = True
+        before = self._step_snapshot(core)
+
+        with self.assertRaisesRegex(CoreInputError, "事件必须为对象"):
+            core.step(None)
+
+        self.assertEqual(self._step_snapshot(core), before)
+
+    def test_invalid_detection_scalars_are_counted_without_throwing(self):
+        events = (
+            ("unrepresentably large score", lambda event: event["detections"][0].update(score=10 ** 5000)),
+            ("unconvertible source_order", lambda event: event["detections"][0].update(source_order="unknown")),
+        )
+        for label, mutate in events:
+            with self.subTest(field=label):
+                core = GestureInteractionCore(self.pack)
+                event = self._target_event(1, 100, "current-session")
+                mutate(event)
+
+                result = core.step(event)
+
+                self.assertEqual(result["log"]["input_state"], "INVALID")
+                self.assertEqual(core.counters["invalid"], 1)
+                self.assertIsNone(core.current_target)
+
+    def test_source_order_enforces_nonnegative_int32_domain(self):
+        for source_order in (0, 0x7FFFFFFF):
+            with self.subTest(source_order=source_order):
+                core = GestureInteractionCore(self.pack)
+                event = self._target_event(1, 100, "current-session")
+                event["detections"][0]["source_order"] = source_order
+
+                result = core.step(event)
+
+                self.assertEqual(result["log"]["input_state"], "OK")
+                self.assertEqual(core.counters["invalid"], 0)
+
+        for label, source_order in (
+            ("boolean", True),
+            ("float", 1.0),
+            ("string", "1"),
+            ("negative", -1),
+            ("past signed int32 maximum", 0x80000000),
+            ("large integer", 10 ** 5000),
+        ):
+            with self.subTest(case=label):
+                core = GestureInteractionCore(self.pack)
+                event = self._target_event(1, 100, "current-session")
+                event["detections"][0]["source_order"] = source_order
+
+                result = core.step(event)
+
+                self.assertEqual(result["log"]["input_state"], "INVALID")
+                self.assertEqual(core.counters["invalid"], 1)
+                self.assertIsNone(core.current_target)
+
+    def test_huge_score_duplicate_still_uses_b22_conflict_classification(self):
+        core = GestureInteractionCore(self.pack)
+        first = self._target_event(1, 100, "current-session")
+        core.step(first)
+
+        conflicting_duplicate = self._target_event(1, 101, "current-session")
+        conflicting_duplicate["detections"][0]["score"] = 10 ** 5000
+        result = core.step(conflicting_duplicate)
+
+        self.assertEqual(result["log"]["event_kind"], "E_FRAME_CONFLICT")
+        self.assertEqual(core.counters["conflict_frames"], 1)
+        self.assertEqual(core.counters["invalid"], 0)
 
 
 if __name__ == "__main__":

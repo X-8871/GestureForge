@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_reset_validation",
+  "run_id": "s6b_session_clock_20261027_r05",
+  "created_at_utc8": "2026-10-27T15:52:50+08:00",
+  "source_commit_before_changes": "b50736e6688a4a384f4f2f484872f9e5e59b690a",
+  "contract_version": "S6A-G0-v1.8",
+  "tool": {
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "python_version": "Python 3.12.14"
+  },
+  "verification": {
+    "status": "PASS",
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6b_core_regressions -v",
+    "exit_code": 0,
+    "test_count": 27,
+    "output_file": "session_reset_unittest_output.txt",
+    "output_sha256": "27d7af4a3496f14edcfa32945cea68970b7162ae00b853731144b60923a8d70d"
+  },
+  "source_and_input_sha256": {
+    "src/stage6/s6_core.py": "93379e572157aea9b7f17d4a4e4daff19c7fb0b7b661e4b74264893330b039e6",
+    "src/stage6/s6_actions.py": "0a3d7ad38252a01654ff0e7e92be8e1349317fec856dcea6c80c51b33f2eb8fa",
+    "verification/test_s6b_core_regressions.py": "f9d7251e5bfbee6b84cfd3364962d933967c801e731418615d7f16db3dcc2981",
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+    "cases/case_matrix.json": "3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552"
+  },
+  "scenarios": [
+    "same-session/new-session unknown kind rejection is transactional",
+    "same-session/new-session malformed frame_id, state, stale, detections container, dropped_frames, and timestamp rejection is transactional",
+    "non-object events are rejected transactionally",
+    "session reset retains monotonic clock and global cooldown anchor",
+    "early reacquisition is suppressed until T6-K01 equality boundary",
+    "ActionLayer A02 de-duplication and ACK idempotence span core session reset",
+    "score=10**5000 reaches B19 INVALID without JSON digit-limit exception",
+    "source_order accepts only native nonnegative signed-int32 values",
+    "a same-frame huge-score payload change remains B22 E_FRAME_CONFLICT"
+  ],
+  "unresolved_interface_question": "公开 reset_session(session_id) 仍无正式定义的 RESET 日志返回值或日志通道；本轮未新增 API。step() 事件路径的 session_id 变化按 B25 显式输出 E_SESSION_RESET_SUSPECTED 与新 session_id。",
+  "limitations": [
+    "离线虚拟时间与合成检测输入；不代表真实集成或板级结果",
+    "ActionLayer ACK 接口没有 session_id，无法对进程重建后的 action_id 冲突或任意跨会话迟到回执做来源消歧",
+    "T6-A03 仍 NOT_RUN；真实 6-D/6-E 与 G3/G4/G5 不在本次验证范围"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_reset_repair_history",
+  "run_id": "s6b_session_clock_20261027_r03",
+  "attempts": [
+    {
+      "attempt": 1,
+      "run_id": null,
+      "command": "python -B -m unittest verification.test_s6b_core_regressions -v",
+      "exit_code": 1,
+      "status": "FAILED_BEFORE_FIX",
+      "failure": "B22 same-session duplicate whose state changed was rejected as an invalid state before conflict classification",
+      "disposition": "Fixed by deferring result-field validation for same-session duplicate/out-of-order frame IDs."
+    },
+    {
+      "attempt": 2,
+      "run_id": "s6b_session_clock_20261027_r02",
+      "unit_test_exit": 0,
+      "matrix_exit": 0,
+      "status": "PASS_BUT_SUPERSEDED",
+      "finding": "Final diff review identified non-convertible source_order could raise in _select after time/frame counters advanced.",
+      "disposition": "Added validation mapping the malformed field to E_FRAME_INVALID; r02 remains unchanged and its source/input hashes remain valid for that earlier code version."
+    },
+    {
+      "attempt": 3,
+      "run_id": "s6b_session_clock_20261027_r03",
+      "unit_test_exit": 0,
+      "unit_test_count": 25,
+      "status": "PASS",
+      "disposition": "Current fixed source version; full matrix and package checks run by standard builder."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_reset_validation",
+  "run_id": "s6b_session_clock_20261027_r06",
+  "created_at_utc8": "2026-10-27T16:01:05+08:00",
+  "source_commit_before_changes": "b50736e6688a4a384f4f2f484872f9e5e59b690a",
+  "contract_version": "S6A-G0-v1.8",
+  "tool": {
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "python_version": "Python 3.12.14"
+  },
+  "verification": {
+    "status": "PASS",
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6b_core_regressions -v",
+    "exit_code": 0,
+    "test_count": 28,
+    "output_file": "session_reset_unittest_output.txt",
+    "output_sha256": "f407d9e045adaa5d2dfb98ef083d0d5593951970da1a0afcff42b315a12fc6f6"
+  },
+  "source_and_input_sha256": {
+    "src/stage6/s6_core.py": "d4b91515b912873f4df8745d65f6b3fff8c9568e73f9625fe996dfbf1172d2ed",
+    "src/stage6/s6_actions.py": "0a3d7ad38252a01654ff0e7e92be8e1349317fec856dcea6c80c51b33f2eb8fa",
+    "verification/test_s6b_core_regressions.py": "a99f544d95d1b3bf90765bae257f80336b17f369d746602c6f373e37c6c1aa44",
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+    "cases/case_matrix.json": "3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552"
+  },
+  "scenarios": [
+    "真实的 candidate + jitter 事件序列建立 jitter_exhausted=True",
+    "显式 reset_session() 后目标、计数、窗口、jitter 状态均清零",
+    "隐式 session_id 切换产生 RESET 并清除同一状态快照",
+    "reset 保留全局单调时钟与冷却锚的既有验证",
+    "source_order 非负 int32 边界与超大 score 的 B19/B22 验证"
+  ],
+  "unresolved_interface_question": "公开 reset_session(session_id) 仍无正式定义的 RESET 日志返回值或日志通道；本轮按总控指示未新增 API。",
+  "limitations": [
+    "离线虚拟时间与合成检测输入；不代表真实集成或板级结果",
+    "ActionLayer ACK 接口没有 session_id，无法对进程重建后的 action_id 冲突或任意跨会话迟到回执做来源消歧",
+    "T6-A03 仍 NOT_RUN；真实 6-D/6-E 与 G3/G4/G5 不在本次验证范围"
+  ]
+}

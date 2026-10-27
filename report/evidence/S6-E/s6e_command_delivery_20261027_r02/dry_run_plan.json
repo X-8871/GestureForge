@@ -1,0 +1,784 @@
+{
+  "schema_version": 1,
+  "artifact": "s6e_command_delivery_dry_run",
+  "artifact_version": "S6E-CMD-DRYRUN-v1",
+  "task_id": "S6-E",
+  "run_id": "s6e_command_delivery_20261027_r02",
+  "source": {
+    "path": "docs/stage6/s6e_stage6_acceptance_cases_v1.json",
+    "sha256": "7fc733c94104526ebe5ca9628a9db9ffec804f46e819ed2c12e653fdcf216123",
+    "artifact_version": "S6E-ACC-v1"
+  },
+  "mode": "DRY_RUN_ONLY",
+  "execution_status": "NOT_RUN",
+  "commands_issued": false,
+  "hardware_touched": false,
+  "acceptance_claim": false,
+  "board_window_gates": [
+    {
+      "gate": "operator_authorization",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "hardware_session_handoff",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "exclusive_session",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "g0_approval",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "command_delivery_review",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "timing_freeze",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "range_reservation",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    },
+    {
+      "gate": "cold_basis",
+      "status": "NOT_ASSESSED_BY_OFFLINE_PLAN"
+    }
+  ],
+  "scope_note": "仅预览冻结用例的证据类别、预期与判定条件。正式材料没有规定阶段6硬件执行命令或真实结果记录接口，因此不生成可执行命令，不伪造授权、板级结果或 command_delivery_review 通过结论。",
+  "cases": [
+    {
+      "case_id": "ACT-01",
+      "title": "fist 稳定输入触发 A_SWITCH_UI/UI_MENU",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头采集；单一 fist 目标连续稳定（满足 T6-C01/S01/S02/S03 与 T6-P01/P02），无其他竞争框；每个预定义试验为一次独立呈现。",
+      "synthetic_substitution_allowed": false,
+      "expected": "恰好一次 ACTION_SUBMITTED，动作为 (A_SWITCH_UI, UI_MENU)，并有可观察 ACTION_EFFECTIVE（HUD active_display_state=UI_MENU）。",
+      "decision_rule": "该试验计入 T6-01 分子当且仅当动作已提交**且**生效可观察（显示侧五元组/HUD 证据）；未观察不得算成功。",
+      "binds_parameters": [
+        "T6-C01",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-P01",
+        "T6-P02",
+        "T6-01"
+      ],
+      "timeout_s": 30,
+      "failure_preservation": "保留原始结果流、状态/动作日志与连续视频；失败不剔除、不重录覆盖。",
+      "samples": {
+        "min": 10,
+        "recommended": 20,
+        "unit": "fist 预定义试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-02",
+      "title": "palm 稳定输入触发 A_SWITCH_UI/UI_STATS",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "同 ACT-01，类别为 palm。",
+      "synthetic_substitution_allowed": false,
+      "expected": "恰好一次 ACTION_SUBMITTED，动作为 (A_SWITCH_UI, UI_STATS)，生效可观察。",
+      "decision_rule": "同 ACT-01。",
+      "binds_parameters": [
+        "T6-C01",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-P01",
+        "T6-P02",
+        "T6-01"
+      ],
+      "timeout_s": 30,
+      "failure_preservation": "同 ACT-01。",
+      "samples": {
+        "min": 10,
+        "recommended": 20,
+        "unit": "palm 预定义试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-03",
+      "title": "one 稳定输入触发 A_SWITCH_CHANNEL/CH_1",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "同 ACT-01，类别为 one。",
+      "synthetic_substitution_allowed": false,
+      "expected": "恰好一次 ACTION_SUBMITTED，动作为 (A_SWITCH_CHANNEL, CH_1)，生效可观察。",
+      "decision_rule": "同 ACT-01。",
+      "binds_parameters": [
+        "T6-C01",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-P01",
+        "T6-P02",
+        "T6-01"
+      ],
+      "timeout_s": 30,
+      "failure_preservation": "同 ACT-01。",
+      "samples": {
+        "min": 10,
+        "recommended": 20,
+        "unit": "one 预定义试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-04",
+      "title": "two_up 稳定输入触发 A_SWITCH_CHANNEL/CH_2",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "同 ACT-01，类别为 two_up。",
+      "synthetic_substitution_allowed": false,
+      "expected": "恰好一次 ACTION_SUBMITTED，动作为 (A_SWITCH_CHANNEL, CH_2)，生效可观察。",
+      "decision_rule": "同 ACT-01。",
+      "binds_parameters": [
+        "T6-C01",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-P01",
+        "T6-P02",
+        "T6-01"
+      ],
+      "timeout_s": 30,
+      "failure_preservation": "同 ACT-01。",
+      "samples": {
+        "min": 10,
+        "recommended": 20,
+        "unit": "two_up 预定义试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-05",
+      "title": "three 稳定输入触发 A_SWITCH_CHANNEL/CH_3",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "同 ACT-01，类别为 three。",
+      "synthetic_substitution_allowed": false,
+      "expected": "恰好一次 ACTION_SUBMITTED，动作为 (A_SWITCH_CHANNEL, CH_3)，生效可观察。",
+      "decision_rule": "同 ACT-01。",
+      "binds_parameters": [
+        "T6-C01",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-P01",
+        "T6-P02",
+        "T6-01"
+      ],
+      "timeout_s": 30,
+      "failure_preservation": "同 ACT-01。",
+      "samples": {
+        "min": 10,
+        "recommended": 20,
+        "unit": "three 预定义试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-06",
+      "title": "持续保持只触发一次",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头；目标持续稳定保持远超 T6-K01（≥ 2×K01）且中途不离开视野、不切换目标。",
+      "synthetic_substitution_allowed": false,
+      "expected": "同一获取内 ACTION_SUBMITTED **恰好一次**；保持期内及冷却结束后不再提交（H-10 全局冷却门 + 本次获取内锁存）。",
+      "decision_rule": "统计该保持段的 ACTION_SUBMITTED 次数；> 1 即判 B15 违反（不计入 T6-01 分子，计失败）。",
+      "binds_parameters": [
+        "T6-K01",
+        "T6-A02",
+        "T6-S01",
+        "T6-S02"
+      ],
+      "timeout_s": 180,
+      "failure_preservation": "保留保持段完整日志与视频（不得截断）。",
+      "samples": {
+        "min": 10,
+        "unit": "保持段试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-07",
+      "title": "冷却为全局门（含冷却后保持与其他目标）",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头；一次成功触发后，在 t_last_submit + T6-K01 内出现①同一目标继续稳定 ②另一合法目标 ③目标丢失后重获三种情形。",
+      "synthetic_substitution_allowed": false,
+      "expected": "冷却期内**任意目标/任意获取**均不得提交动作（含其他目标、含丢失后重获）；冷却结束后按 B14 三分支只决定展示状态出口。",
+      "decision_rule": "冷却窗口内出现任何 ACTION_SUBMITTED 即判 B13/H-10 违反。",
+      "binds_parameters": [
+        "T6-K01",
+        "T6-S01",
+        "T6-S02",
+        "T6-L01",
+        "T6-L02"
+      ],
+      "timeout_s": 180,
+      "failure_preservation": "保留冷却段逐帧日志与剩余时间记录。",
+      "samples": {
+        "min": 10,
+        "unit": "冷却段试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-08",
+      "title": "手离开再出现：重获后再次触发一次",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头；目标稳定触发后完全离开（达到 T6-L01/L02 判 LOST），冷却结束后同类目标重新出现并满足窗口。",
+      "synthetic_substitution_allowed": false,
+      "expected": "LOST→IDLE 后重获视为**新的独立获取**（新 acquisition_id），可再触发一次；不得跨丢失延续旧窗口证据。",
+      "decision_rule": "重获后第二次 ACTION_SUBMITTED 必须带新的 acquisition_id；未产生第二次触发或延续旧获取均判失败。",
+      "binds_parameters": [
+        "T6-L01",
+        "T6-L02",
+        "T6-K01",
+        "T6-S01",
+        "T6-S02"
+      ],
+      "timeout_s": 180,
+      "failure_preservation": "保留两次获取的完整日志与 acquisition_id 记录。",
+      "samples": {
+        "min": 10,
+        "unit": "离开-重获试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-09",
+      "title": "两类快速切换/短暂抖动未达条件不触发",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头；两类别在 < T6-S01 内交替出现，或窗口内中断恰为 T6-J01 与 T6-J01+1 帧。",
+      "synthetic_substitution_allowed": false,
+      "expected": "中断 ≤ T6-J01 帧不重置；`= T6-J01+1` 立即重置；未达稳定条件不提交任何动作。",
+      "decision_rule": "该段内 ACTION_SUBMITTED 必须为 0；状态转换可由日志独立复算。",
+      "binds_parameters": [
+        "T6-J01",
+        "T6-S01",
+        "T6-S02",
+        "T6-C01"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留逐帧抖动序列与重置原因日志。",
+      "samples": {
+        "min": 10,
+        "unit": "切换/抖动试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-10",
+      "title": "多目标/同分/目标跳变的选择确定性",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头；同时存在多框（含类别不同且分更高者）、分数完全相等的两框、以及目标突然跳变。",
+      "synthetic_substitution_allowed": false,
+      "expected": "维持优先（TARGET_CONTINUES）不受更高分他框影响；同分按 2A 冻结稳定顺序（source_order 权威）；跳变按目标切换路径且新目标重新满足窗口；不得跨目标拼稳定窗口。",
+      "decision_rule": "每个预定义试验的选择结果必须与按行为表 §8 独立推导的结果逐项一致；出现未定义启发式重排即判失败。",
+      "binds_parameters": [
+        "T6-P01",
+        "T6-P02",
+        "T6-P03",
+        "T6-P04",
+        "T6-P05"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留两条候选信息（S_TARGET_HELD）与选择依据日志。",
+      "samples": {
+        "min": 10,
+        "unit": "多目标/同分试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "ACT-11",
+      "title": "动作失败/未观察/重复回执不虚报成功",
+      "group": "动作",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头 + 真实执行层；构造执行失败、未观察与重复 ACK 三种情形（例如显示侧未生效或回执重复）。",
+      "synthetic_substitution_allowed": false,
+      "expected": "`fail` 计失败；`unobserved` 单列按 NOT_RUN 处理，既不计成功也不从分母剔除；重复 ACK 不得产生第二次生效或第二次提交。",
+      "decision_rule": "compare ACTION_SUBMITTED 与 ACTION_EFFECTIVE 计数；任何虚报成功（未观察却计成功）即判失败。",
+      "binds_parameters": [
+        "T6-A01",
+        "T6-A02",
+        "T6-01"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留 ACTION_FAILED/ACTION_UNOBSERVED 原始日志与回执序列。",
+      "samples": {
+        "min": 10,
+        "unit": "失败/未观察试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "UNK-01",
+      "title": "≥200 独立未知输入误接受率 ≤5%",
+      "group": "未知场景",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头采集的 ≥200 个**独立**未知输入（按人/场景/会话区分；不得用相邻帧凑数），且未知手势在模型侧未被判为已知类。",
+      "synthetic_substitution_allowed": false,
+      "expected": "样本级误接受率 ≤ 0.05；一个样本出现任意已提交动作即计误接受；指标 T6-02。",
+      "decision_rule": "不得用脚本直接喂 OK/NO_HAND 或合成结果代替真实推理（该做法不能支撑摄像头下的未知误接受率）。分母 = 全部预定义独立未知样本。",
+      "binds_parameters": [
+        "T6-02",
+        "T6-P01",
+        "T6-P02",
+        "T6-STALE_LIMIT"
+      ],
+      "timeout_s": 60,
+      "failure_preservation": "保留每个未知样本的输入、模型输出与动作日志；不得只保留失败片段。",
+      "samples": {
+        "min": 200,
+        "unit": "独立未知样本"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "UNK-02",
+      "title": "NO_HAND 与未知分开计数；零框不掩盖未知误识别",
+      "group": "未知场景",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实摄像头；分别构造无手（零框）与未知手势被判为已知类两种场景，并含低分框场景。",
+      "synthetic_substitution_allowed": false,
+      "expected": "`state=NO_HAND` 为合法零框、**不推进匹配计数**、不得完成稳定窗口；未知（合法类别但场景未知）单独计数；零框不得掩盖未知误识别。",
+      "decision_rule": "分别报告 no_hand 计数与未知样本计数；用零框解释未知动作即判失败。",
+      "binds_parameters": [
+        "T6-P01",
+        "T6-P02",
+        "T6-02"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留两类场景的独立计数与逐帧日志。",
+      "samples": {
+        "min": 100,
+        "unit": "含无手与未知的混合试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "UNK-03",
+      "title": "非法结果/未知类别被拒且不改写为 NO_HAND",
+      "group": "未知场景",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实链路上出现非法结果（`class_id ∉ 0..4`、非 finite、框数 >15、字段不自洽）。",
+      "synthetic_substitution_allowed": false,
+      "expected": "丢弃该帧证据、计入异常并保留**原始类别值**；不得改写为 `NO_HAND`；不得触发动作。",
+      "decision_rule": "E_FRAME_INVALID 计数 > 0 且原始值可查；出现任何动作或 NO_HAND 改写即判失败。",
+      "binds_parameters": [
+        "T6-U00_W",
+        "T6-U00_N",
+        "T6-U01"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留非法帧原始字段与异常分类日志。",
+      "samples": {
+        "min": 10,
+        "unit": "非法结果试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-01",
+      "title": "TIMEOUT/ERROR/DROPPED 无动作且计时照常推进",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实链路；构造推理超时、执行错误与丢帧三种情形（含连续出现）。",
+      "synthetic_substitution_allowed": false,
+      "expected": "无任何动作；推进时间、不推进匹配计数；计入异常；达阈值进入 UNKNOWN_RECOVER 并可恢复。",
+      "decision_rule": "该段 ACTION_SUBMITTED 必须为 0；超时/失踪计时必须按单调时钟推进（防止停帧永久保持候选）。",
+      "binds_parameters": [
+        "T6-U00_W",
+        "T6-U00_N",
+        "T6-U01",
+        "T6-S04"
+      ],
+      "timeout_s": 180,
+      "failure_preservation": "保留各自 error_code 与计数、完整时段日志。",
+      "samples": {
+        "min": 10,
+        "unit": "异常试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-02",
+      "title": "过期结果（age > 200 ms）不触发且显式标年龄",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实采集与推理链路；构造 age_result 明显 > 200 ms 的帧（含 = 200 ms 与 200 ms + 1 ns 边界，见 REC-05）。",
+      "synthetic_substitution_allowed": false,
+      "expected": "`stale=true` 的帧**不得触发**；可作非窗口推进帧推进时间；必须显式记录 age 与 stale_cleared。",
+      "decision_rule": "过期帧导致任何动作即判失败；`age = 200 ms` 不得判过期（严格 `>`）。跨阶段常量必须为 200 ms 且与阶段4/5 同源。",
+      "binds_parameters": [
+        "T6-STALE_LIMIT",
+        "T6-S01",
+        "T6-S02"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留 E_FRAME_STALE 与 age 记录。",
+      "samples": {
+        "min": 10,
+        "unit": "过期帧试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-03",
+      "title": "重复/倒序/缺帧/回绕不重复计票、不错误延续",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实链路；出现重复 frame_id、倒序 frame_id、跳号缺帧与 frame_id 回绕（0xFFFFFFFE）。",
+      "synthetic_substitution_allowed": false,
+      "expected": "重复幂等丢弃且内容不同判冲突；倒序不推进窗口并计异常；缺帧由后续时间戳推进且每帧只计一次；回绕不得自然溢出。",
+      "decision_rule": "计数与状态不得被重复/倒序推进；倒序必须记录 E_FRAME_OUT_OF_ORDER 且不得延续旧会话状态。",
+      "binds_parameters": [
+        "T6-U00_W",
+        "T6-U00_N",
+        "T6-L02"
+      ],
+      "timeout_s": 180,
+      "failure_preservation": "保留重复/倒序/缺帧/回绕各自的计数与事件日志。",
+      "samples": {
+        "min": 10,
+        "unit": "帧序异常试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-04",
+      "title": "会话切换/重启复位",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实链路；`session_id` 变化或同会话 frame_id 大幅回退。",
+      "synthetic_substitution_allowed": false,
+      "expected": "全量复位到 IDLE（清目标与证据）并显式标记；**禁止**静默续用旧状态。",
+      "decision_rule": "复位后计数归零且旧目标不再参与判定；出现旧会话状态延续即判失败。",
+      "binds_parameters": [
+        "T6-C01",
+        "T6-S01"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留 E_SESSION_RESET_SUSPECTED 与新 session_id 记录。",
+      "samples": {
+        "min": 10,
+        "unit": "会话切换试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-05",
+      "title": "时间边界（=200 ms 与 +1 ns）在真实流上的观测",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实流；`age_result` 恰为 200 ms（不判过期）与 200 ms + 1 ns（判过期）；另含时间类阈值 ±1 ns 与帧类阈值 ±1 条结果的边界。",
+      "synthetic_substitution_allowed": false,
+      "expected": "过期用严格 `>`；其余时间类与帧类阈值用 `≥`；边界两侧判定与行为表 §12 一致。",
+      "decision_rule": "每条边界的实测判定必须与按 §12 独立推导一致；任何方向不符即判失败。",
+      "binds_parameters": [
+        "T6-STALE_LIMIT",
+        "T6-S01",
+        "T6-L02",
+        "T6-K01",
+        "T6-S04"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留边界两侧的原始时间戳与判定结果。",
+      "samples": {
+        "min": 10,
+        "unit": "边界试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-06",
+      "title": "无新结果但时间持续前进时失踪/超时生效",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实链路；停止产生新结果（或长时间零框）但单调时钟持续前进超过 T6-L02 / T6-S04。",
+      "synthetic_substitution_allowed": false,
+      "expected": "失踪确认（M10）与候选超时（M4）按单调时钟正常生效；不得因停帧永久保持候选状态。",
+      "decision_rule": "达到时间阈值后状态必须离开 CANDIDATE/STABLE 到规定出口；仍停在原状态即判失败。",
+      "binds_parameters": [
+        "T6-L02",
+        "T6-S04",
+        "T6-U00_W"
+      ],
+      "timeout_s": 180,
+      "failure_preservation": "保留停止期间的时钟推进与状态日志。",
+      "samples": {
+        "min": 10,
+        "unit": "停帧试验"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-07",
+      "title": "无有效手势连续 ≥30 分钟误动作 ≤1 次",
+      "group": "恢复",
+      "evidence_class": "REAL_CAPTURE_REQUIRED",
+      "input_conditions": "真实摄像头**连续真实时间** ≥30 分钟，现场无有效手势（可含运动背景、旁人走动等干扰）。",
+      "synthetic_substitution_allowed": false,
+      "expected": "误动作 ≤ 1 次（按动作**提交**计数）；指标 T6-03。",
+      "decision_rule": "记录完整时段，不得裁剪成功片段；加速回放不得冒充物理运行；中途复位/死锁保留失败证据并以新 RunId 重测。",
+      "binds_parameters": [
+        "T6-03",
+        "T6-L01",
+        "T6-L02",
+        "T6-K01",
+        "T6-STALE_LIMIT"
+      ],
+      "timeout_s": 2100,
+      "failure_preservation": "保留 30 分钟完整连续视频、逐帧日志与全部失败记录。",
+      "samples": {
+        "min": 1,
+        "unit": "≥1800 s 连续段"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "REC-08",
+      "title": "异常停止与安全恢复",
+      "group": "恢复",
+      "evidence_class": "REAL_INFERENCE_REQUIRED",
+      "input_conditions": "真实运行中出现以下任一：无有效输入却连续动作、状态机卡死（无进度）、无法解释的旧帧触发、日志丢失。",
+      "synthetic_substitution_allowed": false,
+      "expected": "立即停止本次验收并保全证据；按已冻结的动作安全状态恢复；不继续计作成功运行。",
+      "decision_rule": "停止与恢复步骤必须留真实命令与退出码；恢复后以新 RunId 重测，不得就地续跑。",
+      "binds_parameters": [
+        "T6-A01",
+        "T6-K01",
+        "T6-STALE_LIMIT"
+      ],
+      "timeout_s": 300,
+      "failure_preservation": "保全原始日志、视频与板卡最终状态；恢复只由当前硬件持有者执行。",
+      "samples": {
+        "min": 1,
+        "unit": "异常处置记录"
+      },
+      "disposition": "BLOCKED_REAL_EVIDENCE_REQUIRED",
+      "reason": "用例要求真实推理或真实采集；离线计划不派发该用例。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "OFS-01",
+      "title": "状态机确定性用例（S6-B 26 例 / 11 类）",
+      "group": "离线自检",
+      "evidence_class": "OFFLINE_SELFCHECK",
+      "input_conditions": "注入输入 + 虚拟单调时钟；S6-B 驱动与冻结预期。",
+      "synthetic_substitution_allowed": true,
+      "expected": "26 条用例 PASS、4 项判别力探针 PASS、expected 运行前冻结。",
+      "decision_rule": "离线通过只称「状态机确定性测试 PASS」，**不构成 6-E 验收**。",
+      "binds_parameters": [
+        "T6-S03",
+        "T6-S02"
+      ],
+      "timeout_s": 600,
+      "failure_preservation": "保留驱动 stdout、run_report.json 与全部用例日志。",
+      "samples": {
+        "min": 26,
+        "unit": "确定性用例"
+      },
+      "disposition": "LOCAL_CHECK_NOT_EXECUTED",
+      "reason": "仅允许后续运行对应离线自检；本计划没有执行自检或声明验收通过。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "OFS-02",
+      "title": "阈值与批准状态机读一致性",
+      "group": "离线自检",
+      "evidence_class": "OFFLINE_SELFCHECK",
+      "input_conditions": "行为表 JSON + 规格文档 + 批准记录索引。",
+      "synthetic_substitution_allowed": true,
+      "expected": "24 项均有 approval_status=APPROVED_20261023 与 approval_ref；包内无「仍待批准」陈述。",
+      "decision_rule": "由 S6-A 自检 C4/C8 与 approved_package_scan 两向自测判定。",
+      "binds_parameters": [
+        "T6-A01",
+        "T6-A02",
+        "T6-A03",
+        "T6-C01",
+        "T6-S01",
+        "T6-S02",
+        "T6-S03",
+        "T6-S04",
+        "T6-L01",
+        "T6-L02",
+        "T6-K01",
+        "T6-J01",
+        "T6-U00_W",
+        "T6-U00_N",
+        "T6-U01",
+        "T6-P01",
+        "T6-P02",
+        "T6-P03",
+        "T6-P04",
+        "T6-P05",
+        "T6-STALE_LIMIT",
+        "T6-01",
+        "T6-02",
+        "T6-03"
+      ],
+      "timeout_s": 600,
+      "failure_preservation": "保留自检 JSON 与扫描器 JSON。",
+      "samples": {
+        "min": 24,
+        "unit": "参数项"
+      },
+      "disposition": "LOCAL_CHECK_NOT_EXECUTED",
+      "reason": "仅允许后续运行对应离线自检；本计划没有执行自检或声明验收通过。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "OFS-03",
+      "title": "stale=200 ms 跨阶段同源常量与边界算术",
+      "group": "离线自检",
+      "evidence_class": "OFFLINE_SELFCHECK",
+      "input_conditions": "本用例集、行为表 T6-STALE_LIMIT、阶段4/5 契约中的同一常量。",
+      "synthetic_substitution_allowed": true,
+      "expected": "三处必须为同一常量 200 ms；比较符严格 `>`；数值不得被本地改写。",
+      "decision_rule": "由 s6e_acceptance_check.py 的常量一致性断言判定（不一致即 FAIL）。",
+      "binds_parameters": [
+        "T6-STALE_LIMIT"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留检查器 JSON 与各文件中的常量取值。",
+      "samples": {
+        "min": 1,
+        "unit": "常量一致性检查"
+      },
+      "disposition": "LOCAL_CHECK_NOT_EXECUTED",
+      "reason": "仅允许后续运行对应离线自检；本计划没有执行自检或声明验收通过。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    },
+    {
+      "case_id": "OFS-04",
+      "title": "T6-A03 数值必须保持 NOT_RUN（防填造）",
+      "group": "离线自检",
+      "evidence_class": "OFFLINE_SELFCHECK",
+      "input_conditions": "本用例集与行为表中的 T6-A03 记录。",
+      "synthetic_substitution_allowed": true,
+      "expected": "T6-A03 的 value 必须为 NOT_RUN 且不含任何数值；口径已批准而数值待阶段4 实测 P。",
+      "decision_rule": "出现任何数值即判失败（由检查器断言）。",
+      "binds_parameters": [
+        "T6-A03"
+      ],
+      "timeout_s": 120,
+      "failure_preservation": "保留检查器 JSON 与实际取值。",
+      "samples": {
+        "min": 1,
+        "unit": "开放项检查"
+      },
+      "disposition": "LOCAL_CHECK_NOT_EXECUTED",
+      "reason": "仅允许后续运行对应离线自检；本计划没有执行自检或声明验收通过。",
+      "execution_status": "NOT_RUN",
+      "command": null,
+      "result": null
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_limitations_not_executed",
+  "task_id": "S6-B",
+  "run_id": "s6b_session_clock_20261027_r04",
+  "not_run": [
+    {
+      "item": "6-D 一级/二级联调（PS 状态机 → HDMI）",
+      "status": "NOT_RUN",
+      "reason": "无硬件授权；阶段4/阶段5 接口未冻结，集成验收依赖 BLOCKED。"
+    },
+    {
+      "item": "6-E 真摄像头验收与 T6-01/02/03 统计",
+      "status": "BLOCKED",
+      "reason": "摄像头不可用；指标已于 2026-10-23 批准（值仍为草案值），且本轮为纯离线注入输入。"
+    },
+    {
+      "item": "≥30 分钟真实时间回放稳定性",
+      "status": "NOT_RUN",
+      "reason": "本轮只跑虚拟单调时钟的确定性用例；未做长时间回放。"
+    },
+    {
+      "item": "板上时序/资源/功耗验证",
+      "status": "NOT_APPLICABLE",
+      "reason": "本任务为离线状态机实现与测试，不含 PL/PS 实现。"
+    }
+  ],
+  "reachability_not_counted_as_coverage": [
+    "B16 S_DEDUP（A02<K01，草案值下不可达）",
+    "M7（构造上不可达）"
+  ],
+  "reachability_counted": [
+    "M4（TARGET_CONTINUES 不含 score ≥ T6-P02 → M10 不先命中；用例 C4-jitter-reset）"
+  ],
+  "known_limitations": [
+    "工具自测套件的 selfproof_valid_commit 曾用 --commit HEAD；现已固定指向交付提交，解析不到时跳过并标注",
+    "上一轮 G（1e2a66c）自身快照自证不绿（STATE 以文件形式声明 report/evidence 路径而 C11 曾按目录判定）；本轮已修为区分文件/目录，G2 全绿"
+  ],
+  "known_costs": [
+    "工具自测套件（tool_self_tests.py）约 20 分钟/次；冻结时由项目总控与增量复核方各跑一次",
+    "附录引用自测产物而不重跑；套件内守门两侧为同逻辑探针副本（构建器内真实守门另有独立实测）"
+  ],
+  "not_implemented": [
+    "§4 的 transition_candidates / S_CONFLICT_RESOLVED 未实现：每帧只输出单一 transition；相关常量与分支已从代码移除（NB-04 登记）。"
+  ],
+  "open_behavior_deviations": [
+    "M10 在 IDLE 有目标时不求值（D8/NB-03）：单帧选中目标后 IDLE 保留 current_target，「1 帧选中 + 4×E_TICK」到 800 ms 仍未判 M10，与规格「M10 适用于任意有目标状态」存在偏差；修正前不得声称 M10 全覆盖（登记为 U6 开放项；修正需在 IDLE 显式求值 M10 并回归全部用例）。"
+  ],
+  "expected_corrections": [
+    "C3：初版把 t_last_target_continues 误判为第 7 帧值（未计入第 8 帧 OK 的刷新），并误把第 12 帧当作 NO_HAND；按 §9/§13 重新推演后改为 M10@f11、M11@f12、第二次触发@f19、no_hand_frames=3、action_effective=2。",
+    "C4：初版未计入 M4 需要「容忍已耗尽」标志在窗口清空后仍然可见；实现改为先清空窗口、再置位 jitter_exhausted（置位在清空之后），用例维持 M4@f7 不变。",
+    "C8：会话切换会按 B25/§13 清空计数，故改为断言 counter_highs（过程峰值）与复位后的零值，而不是复位前的累计值。",
+    "N-r05-04（S6-A r06 同步）：核心原先把 window_complete_ns 写在「第 T6-S02 个 WINDOW_MATCH 帧」，未体现 T6-S03「取较晚」；现改为在 M3 成立帧（计数与时长同时满足的第一帧）写入，新增 30fps 用例 C9c-30fps-later-of 断言 window_complete_ns=233100000（P=33.3 ms 时旧逻辑会给 166.5 ms 帧）。"
+  ],
+  "parameter_discipline": "全部阈值来自行为表 JSON（APPROVED_20261023，值仍为草案值），实现与用例均未写死、未调参。",
+  "replay_scope": "全部结论只对注入输入 + 虚拟单调时钟有效，不代表摄像头/板上行为。"
+}

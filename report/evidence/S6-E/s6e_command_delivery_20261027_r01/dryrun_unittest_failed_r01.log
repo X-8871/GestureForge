@@ -1,0 +1,27 @@
+test_action_and_recovery_results_are_rejected_in_dry_run (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_action_and_recovery_results_are_rejected_in_dry_run) ... ok
+test_gate_status_cannot_be_claimed_from_offline_plan (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_gate_status_cannot_be_claimed_from_offline_plan) ... ok
+test_missing_case_and_unknown_case_are_rejected (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_missing_case_and_unknown_case_are_rejected) ... ERROR
+test_missing_or_forged_fields_fail_closed (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_missing_or_forged_fields_fail_closed) ... ok
+test_missing_source_field_and_command_dispatch_are_rejected (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_missing_source_field_and_command_dispatch_are_rejected) ... ok
+test_plan_covers_frozen_cases_without_dispatch (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_plan_covers_frozen_cases_without_dispatch) ... ok
+test_plan_rejects_modified_source_digest (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_plan_rejects_modified_source_digest) ... ok
+test_real_inference_and_capture_cases_are_blocked (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_real_inference_and_capture_cases_are_blocked) ... ok
+test_replay_cannot_replace_real_evidence_or_claim_acceptance (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_replay_cannot_replace_real_evidence_or_claim_acceptance) ... ok
+test_synthetic_substitution_cannot_be_enabled (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_synthetic_substitution_cannot_be_enabled) ... ok
+
+======================================================================
+ERROR: test_missing_case_and_unknown_case_are_rejected (test_s6e_command_delivery_dryrun.S6ECommandDeliveryDryRunTests.test_missing_case_and_unknown_case_are_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w6\verification\test_s6e_command_delivery_dryrun.py", line 62, in test_missing_case_and_unknown_case_are_rejected
+    self.assertTrue(any("case_id" in error for error in validate_dry_run_plan(ROOT, malformed_id)))
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w6\verification\s6e_command_delivery_dryrun.py", line 211, in validate_dry_run_plan
+    source_case = expected_by_id.get(case_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unhashable type: 'list'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.016s
+
+FAILED (errors=1)

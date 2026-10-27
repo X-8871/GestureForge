@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_reset_repair_history",
+  "run_id": "s6b_session_clock_20261027_r02",
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "python -B -m unittest verification.test_s6b_core_regressions -v",
+      "exit_code": 1,
+      "status": "FAILED_BEFORE_FIX",
+      "failure": "test_b22_conflicts_on_stale_state_detection_and_error_content_changes subtest state=ERROR raised CoreInputError before same-session duplicate/conflict classification",
+      "cause": "Initial preflight validated result state before honoring B22 duplicate/out-of-order precedence",
+      "disposition": "Preflight now defers semantic result-field checks for same-session duplicate/out-of-order frame IDs; rerun in this RunId is the final 25-test PASS recorded above."
+    }
+  ]
+}

@@ -63,7 +63,12 @@ class CoreInputError(RuntimeError):
 
 
 def _finite(value: Any) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except (OverflowError, TypeError, ValueError):
+        return False
 
 
 def _is_ns_timestamp(value: Any) -> bool:
@@ -71,20 +76,28 @@ def _is_ns_timestamp(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
-def _stable_json_value(value: Any) -> Any:
+def _stable_json_value(value: Any, *, integers_as_hex: bool = False) -> Any:
     """把事件值转为类型稳定、键顺序稳定的 JSON 值。"""
     if isinstance(value, float):
         return {"$float64": value.hex()}
     if isinstance(value, dict):
         if all(isinstance(key, str) for key in value):
-            return {key: _stable_json_value(value[key]) for key in sorted(value)}
+            return {
+                key: _stable_json_value(value[key], integers_as_hex=integers_as_hex)
+                for key in sorted(value)
+            }
         ordered = sorted(value.items(), key=lambda item: (type(item[0]).__name__, repr(item[0])))
-        return {"$mapping": [[_stable_json_value(key), _stable_json_value(item)]
+        return {"$mapping": [[_stable_json_value(key, integers_as_hex=integers_as_hex),
+                              _stable_json_value(item, integers_as_hex=integers_as_hex)]
                              for key, item in ordered]}
     if isinstance(value, list):
-        return {"$list": [_stable_json_value(item) for item in value]}
+        return {"$list": [_stable_json_value(item, integers_as_hex=integers_as_hex)
+                           for item in value]}
     if isinstance(value, tuple):
-        return {"$tuple": [_stable_json_value(item) for item in value]}
+        return {"$tuple": [_stable_json_value(item, integers_as_hex=integers_as_hex)
+                            for item in value]}
+    if isinstance(value, int) and not isinstance(value, bool) and integers_as_hex:
+        return {"$int_hex": format(value, "x")}
     if value is None or isinstance(value, (str, bool, int)):
         return value
     return {"$unsupported_type": f"{type(value).__module__}.{type(value).__qualname__}",
@@ -104,13 +117,34 @@ def _business_frame_digest(event: dict[str, Any]) -> str:
         "dropped_frames",
     }
     business_fields = {key: value for key, value in event.items() if key not in transport_fields}
-    canonical = json.dumps(
-        _stable_json_value(business_fields),
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
+    canonical_value = _stable_json_value(business_fields)
+    try:
+        canonical = json.dumps(
+            canonical_value,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    except ValueError:
+        # 大整数的十进制转换可能超过 Python JSON 的位数上限；用十六进制重试，
+        # 保证 B22 仍能区分原始业务内容，再由 B19 将非法分数计为 INVALID。
+        canonical = json.dumps(
+            _stable_json_value(business_fields, integers_as_hex=True),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _safe_repr(value: Any) -> str:
+    """为异常输入生成不会因超大整数而再次失败的简短描述。"""
+    try:
+        return repr(value)
+    except Exception:  # noqa: BLE001
+        if isinstance(value, int) and not isinstance(value, bool):
+            return f"<int:{value.bit_length()} bits>"
+        return f"<{type(value).__module__}.{type(value).__qualname__}>"
 
 
 class GestureInteractionCore:
@@ -152,12 +186,15 @@ class GestureInteractionCore:
 
     # ------------------------------------------------------------------ 会话与内部状态
     def reset_session(self, session_id: str) -> None:
-        """全量复位到新会话（B25）：清目标与证据、开启新会话计数。"""
+        """全量复位到新会话，保留全局单调时钟与冷却锚点（B25/H-3/H-10）。"""
         self._init_state()
         self.session_id = session_id
 
     def _init_state(self) -> None:
-        """初始化内部状态（不改变 session_id）。"""
+        """初始化会话状态，保留全局时间锚、冷却锚与 ACK 幂等记录。"""
+        last_t_ns = getattr(self, "last_t_ns", None)
+        t_last_submit_ns = getattr(self, "t_last_submit_ns", None)
+        seen_action_ack_ids = getattr(self, "_seen_action_ack_ids", set()).copy()
         self.state = "IDLE"
         self.counters = {
             "invalid": 0, "error": 0, "dropped": 0, "timeout": 0, "stale": 0, "false_actions": 0,
@@ -169,11 +206,11 @@ class GestureInteractionCore:
         }
         self.last_frame_id: int | None = None
         self.last_frame_business_sha256: str | None = None
-        self.last_t_ns: int | None = None
+        self.last_t_ns: int | None = last_t_ns
         self.current_target: dict[str, Any] | None = None
         self.acquisition_id = 0
         self.acquisition_triggered = False
-        self.t_last_submit_ns: int | None = None
+        self.t_last_submit_ns: int | None = t_last_submit_ns
         self.t_last_target_continues_ns: int | None = None
         self.continues_false_streak = 0
         self.candidate_streak = 0
@@ -182,13 +219,14 @@ class GestureInteractionCore:
         self.window_start_ns: int | None = None
         self.window_last_match_center: tuple[float, float] | None = None
         self.jitter_frames = 0
+        self.jitter_exhausted = False
         self.window_complete_ns: int | None = None
         self.legal_streak = 0
         self.step_anomaly = False
         self.anomaly_history: deque[int] = deque(maxlen=self.th["u00_w"])
         self.result_history: list[str] = []
         self.action_log: list[dict[str, Any]] = []
-        self._seen_action_ack_ids: set[str] = set()
+        self._seen_action_ack_ids: set[str] = seen_action_ack_ids
         self.suppressions: list[str] = []
 
     # ------------------------------------------------------------------ 几何
@@ -244,7 +282,12 @@ class GestureInteractionCore:
             if class_id not in self.th["class_ids"]:
                 return f"class_id 越界：{class_id}"
             if not _finite(det.get("score")):
-                return f"score 非 finite：{det.get('score')!r}"
+                return f"score 非 finite：{_safe_repr(det.get('score'))}"
+            if "source_order" in det:
+                source_order = det["source_order"]
+                if (type(source_order) is not int
+                        or not 0 <= source_order <= 0x7FFFFFFF):
+                    return f"source_order 非法：{_safe_repr(source_order)}"
             box = det.get("xyxy")
             if not isinstance(box, (list, tuple)) or len(box) != 4 or not all(_finite(v) for v in box):
                 return f"xyxy 非法：{box!r}"
@@ -324,10 +367,56 @@ class GestureInteractionCore:
     # ------------------------------------------------------------------ 主入口
     def step(self, event: dict[str, Any]) -> dict[str, Any]:
         """处理一条事件，返回 ``{"log": ..., "action_request": ...}``。"""
+        if not isinstance(event, dict):
+            raise CoreInputError(f"事件必须为对象：{type(event).__name__}")
+
+        t_now_ns = event.get("t_input_ns")
+        if isinstance(t_now_ns, bool) or not isinstance(t_now_ns, int):
+            raise CoreInputError(f"缺少显式单调时间 t_input_ns：{t_now_ns!r}")
+        if self.last_t_ns is not None and t_now_ns < self.last_t_ns:
+            raise CoreInputError(f"单调时钟倒退：{t_now_ns} < {self.last_t_ns}")
+
+        kind = event.get("kind")
+        if kind not in (EV_FRAME_RESULT, *NON_ADVANCING_KINDS, EV_TICK):
+            raise CoreInputError(f"未知事件类型：{kind!r}")
+
+        session_id = event.get("session_id", self.session_id)
+        frame_id = None
+        frame_digest = None
+        dropped_frames = 0
+        if kind != EV_TICK:
+            frame_id = event.get("frame_id")
+            if isinstance(frame_id, bool) or not isinstance(frame_id, int):
+                raise CoreInputError(f"frame_id 非法：{frame_id!r}")
+            try:
+                dropped_frames = int(event.get("dropped_frames", 0))
+            except (TypeError, ValueError, OverflowError) as exc:
+                raise CoreInputError(
+                    f"dropped_frames 非法：{event.get('dropped_frames')!r}"
+                ) from exc
+            replayed_frame = (
+                self.session_id is not None
+                and session_id == self.session_id
+                and self.last_frame_id is not None
+                and frame_id <= self.last_frame_id
+            )
+            if kind == EV_FRAME_RESULT and not replayed_frame:
+                state_value = event.get("state")
+                if state_value not in ("OK", "NO_HAND"):
+                    raise CoreInputError(f"结果状态非法：{state_value!r}")
+                if "stale" in event and not isinstance(event["stale"], bool):
+                    raise CoreInputError(f"stale 必须为布尔值：{event['stale']!r}")
+                if "detections" in event and not isinstance(event["detections"], list):
+                    raise CoreInputError("detections 必须为列表")
+            try:
+                frame_digest = _business_frame_digest(event)
+            except Exception as exc:  # noqa: BLE001
+                raise CoreInputError(f"事件业务字段无法建立稳定指纹：{exc}") from exc
+
         log: dict[str, Any] = {
-            "session_id": event.get("session_id", self.session_id),
+            "session_id": session_id,
             "frame_id": event.get("frame_id"),
-            "event_kind": event.get("kind"),
+            "event_kind": kind,
             "input_state": event.get("state"),
             "age_result_ns": event.get("age_result_ns"),
             "age_frame_ns": event.get("age_frame_ns"),
@@ -346,14 +435,8 @@ class GestureInteractionCore:
             "warmup": False,
         }
         self.step_anomaly = False
-        t_now_ns = event.get("t_input_ns")
-        if isinstance(t_now_ns, bool) or not isinstance(t_now_ns, int):
-            raise CoreInputError(f"缺少显式单调时间 t_input_ns：{t_now_ns!r}")
-        if self.last_t_ns is not None and t_now_ns < self.last_t_ns:
-            raise CoreInputError(f"单调时钟倒退：{t_now_ns} < {self.last_t_ns}")
         self.last_t_ns = t_now_ns
 
-        session_id = event.get("session_id", self.session_id)
         if self.session_id is None:
             # 首个事件只建立会话，不视为会话切换
             self.session_id = session_id
@@ -365,28 +448,20 @@ class GestureInteractionCore:
             log["reason"] = "会话切换：全量复位到 IDLE（B25）"
             log["to_state"] = self.state
             log["transition"] = "RESET"
-            return {"log": log, "action_request": None}
-
-        kind = event.get("kind")
-        if kind not in (EV_FRAME_RESULT, *NON_ADVANCING_KINDS, EV_TICK):
-            raise CoreInputError(f"未知事件类型：{kind!r}")
+            log["timers"] = {"t_last_submit_ns": self.t_last_submit_ns}
+            return self._finish(log)
 
         if kind == EV_TICK:
             log["reason"] = "时钟推进（无新结果）"
             self._evaluate(t_now_ns, advancing=False, log=log)
             return self._finish(log)
 
-        frame_id = event.get("frame_id")
-        if isinstance(frame_id, bool) or not isinstance(frame_id, int):
-            raise CoreInputError(f"frame_id 非法：{frame_id!r}")
-        frame_digest = _business_frame_digest(event)
-
         # frame_id 归类（重复/倒序）——不推进窗口序列
         duplicate = frame_id == self.last_frame_id
         out_of_order = self.last_frame_id is not None and frame_id < self.last_frame_id
         missing = (
             self.last_frame_id is not None and frame_id > self.last_frame_id + 1
-            and int(event.get("dropped_frames", 0)) == 0
+            and dropped_frames == 0
         )
         if missing:
             gap = frame_id - self.last_frame_id - 1
@@ -430,8 +505,6 @@ class GestureInteractionCore:
 
         # E_FRAME_RESULT
         state_value = event.get("state")
-        if state_value not in ("OK", "NO_HAND"):
-            raise CoreInputError(f"结果状态非法：{state_value!r}")
         stale = bool(event.get("stale", False))
         # N-07：state=NO_HAND 却携带 detections 属非法输入（§11.3），计非法并丢弃该帧证据，
         # 不静默忽略（与 class_id 越界同一处理路径）。

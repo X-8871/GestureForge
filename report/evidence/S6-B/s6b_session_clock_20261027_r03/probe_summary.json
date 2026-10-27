@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_discrimination_probe",
+  "task_id": "S6-B",
+  "run_id": "s6b_session_clock_20261027_r03",
+  "purpose": "证明预期冻结（H-7）、断言判别力与阈值参数化（不写死）三者可被实测验证",
+  "results": [
+    {
+      "probe_id": "baseline",
+      "note": "基线：矩阵 26 例，报告 26 例；基线用例数量与状态均符合预期",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout_tail": "{\"status\": \"PASS\", \"case_count\": 26, \"assertions_failed\": 0, \"failed_cases\": []}",
+      "verdict": "AS_EXPECTED",
+      "validation": {
+        "passed": true,
+        "expected_case_count": 26,
+        "actual_case_count": 26,
+        "reported_case_count": 26,
+        "failed_case_ids": [],
+        "reason": "基线用例数量与状态均符合预期"
+      }
+    },
+    {
+      "probe_id": "expected_tampered",
+      "note": "冻结后修改 expected：必须拒绝运行",
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "stdout_tail": "用例文件在冻结后被修改：expected_freeze.json.cases_file_sha256 与当前不一致——拒绝运行",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "probe_id": "wrong_semantics_expected",
+      "note": "错误预期（NO_HAND 完成窗口）：必须断言失败",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout_tail": "{\"status\": \"FAIL\", \"case_count\": 2, \"assertions_failed\": 3, \"failed_cases\": [\"X-wrong-nohand-window\"]}",
+      "verdict": "AS_EXPECTED"
+    },
+    {
+      "probe_id": "threshold_tampered",
+      "note": "T6-S01 篡改为 900 ms：用例必须失败（阈值确实来自 JSON）",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout_tail": "{\"status\": \"FAIL\", \"case_count\": 26, \"assertions_failed\": 142, \"failed_cases\": [\"C1-fist-stable\", \"C1-palm-stable\", \"C1-one-stable\", \"C1-two_up-stable\", \"C1-three-stable\", \"C2-hold-past-cooldown\", \"C3-lost-then-reappear\", \"C5-tie-source-order\", \"C5-held-priority\", \"C5-target-jump\", \"C9c-30fps-later-of\", \"C9-s01-equal\", \"C9-s01-minus-1ns\", \"C11-fail-then-success\", \"C11-unobserved\", \"C11-global-gate-second-acquisition\", \"C12-m8-two-acquisitions\", \"C12-m2-m12-new-target\", \"C12-gate-reopen-new-acquisition\"]}",
+      "verdict": "AS_EXPECTED"
+    }
+  ],
+  "scope_statement": "探针只证明测试机制有判别力，不代表状态机行为正确、独立审查或实物验收通过。"
+}

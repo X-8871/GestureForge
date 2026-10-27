@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_reset_validation",
+  "run_id": "s6b_session_clock_20261027_r01",
+  "created_at_utc8": "2026-10-27T15:26:05+08:00",
+  "source_commit_before_changes": "b50736e6688a4a384f4f2f484872f9e5e59b690a",
+  "tool": {
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "python_version": "Python 3.12.14"
+  },
+  "verification": {
+    "status": "PASS",
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6b_core_regressions -v",
+    "exit_code": 0,
+    "test_count": 21,
+    "output_file": "session_reset_unittest_output.txt",
+    "output_sha256": "394230ca7d682281023b6e0112db832ee8e175895eff03279dd3b2f0c121e403"
+  },
+  "source_and_input_sha256": {
+    "src/stage6/s6_core.py": "0e4ce6ad52c51c12b332c86ecadb5c605be51bb2021373be9aa1817ea654db50",
+    "src/stage6/s6_actions.py": "0a3d7ad38252a01654ff0e7e92be8e1349317fec856dcea6c80c51b33f2eb8fa",
+    "verification/test_s6b_core_regressions.py": "4ea297d73770a232ada4e719c55d0f9c0de0f323b2413c135e3d8f5bb4ea665e",
+    "docs/stage6/s6a_stage6_g0_behavior_v1.json": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+    "cases/case_matrix.json": "3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552"
+  },
+  "scenarios": [
+    "首次 session 建立不产生 RESET",
+    "显式 reset 清理会话状态但保留全局单调时间与冷却锚",
+    "session 变化清理目标/窗口/计数并产出新 session RESET 日志",
+    "同 session 全局冷却期间重获不提交",
+    "T6-K01 等号边界允许触发",
+    "跨 session 输入时间倒退事务性拒绝",
+    "ActionLayer 实例的 A02 去重锚跨 Core session reset 保持",
+    "旧 action_id 的迟到 ACK 跨 reset 仍幂等忽略"
+  ],
+  "limitations": [
+    "离线虚拟时间与合成检测输入；不代表真实集成或板级结果",
+    "ActionLayer ACK 接口没有 session_id，无法对进程重建后的 action_id 冲突或任意跨会话迟到回执做来源消歧",
+    "T6-A03 仍 NOT_RUN；真实 6-D/6-E 与 G3/G4/G5 不在本次验证范围"
+  ]
+}

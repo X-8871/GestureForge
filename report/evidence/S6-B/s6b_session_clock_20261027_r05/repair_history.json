@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_session_clock_repair_history",
+  "run_id": "s6b_session_clock_20261027_r05",
+  "reviewed_prior_run": "s6b_session_clock_20261027_r03",
+  "attempts": [
+    {
+      "run_id": "s6b_session_clock_20261027_r04",
+      "status": "SUPERSEDED_AFTER_CLOSING",
+      "finding": "回归与 26 例矩阵构建成功；随后才补写绑定回归源码哈希的 session_reset_validation.json。",
+      "disposition": "保留 r04 原包，不再修改；因验证摘要晚于 closing，改在 r05 重新封包。"
+    }
+  ],
+  "repairs": [
+    {
+      "finding": "source_order 接受 bool、float、负数及超出有符号 int32 的值，与 2A 离散顺序契约不符。",
+      "basis": [
+        "verification/s2a_decode_nms_reference.py:471 要求 type(source_order) is int 且 source_order >= 0",
+        "verification/test_s2a_ps_decode_nms_c.py:52 将 C ABI 字段定义为 ctypes.c_int32"
+      ],
+      "disposition": "只接受 0..0x7fffffff 的原生 int；省略 source_order 时沿用既有默认顺序。",
+      "tests": [
+        "验证 0 与 0x7fffffff 接受",
+        "验证 bool、float、字符串、负数、0x80000000 与超大整数按 E_FRAME_INVALID 计数"
+      ]
+    },
+    {
+      "finding": "超出 Python 十进制整数转换位数上限的 score 在 B22 指纹 JSON 序列化阶段抛出异常，未到达 B19 INVALID 处理。",
+      "basis": [
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json:B19 要求非法/非 finite 结果丢弃并计入异常",
+        "docs/stage6/s6a_stage6_g0_behavior_v1.json:B22 要求重复帧内容变化分类为 E_FRAME_CONFLICT"
+      ],
+      "disposition": "正常整数指纹编码不变；JSON 十进制转换失败时以带类型标签的十六进制整数编码重试；非法 score 由 B19 计为 INVALID。",
+      "tests": [
+        "新帧 score=10**5000 不抛异常且按 INVALID 计数",
+        "相同 frame_id 的超大 score 内容差异仍优先分类为 E_FRAME_CONFLICT"
+      ]
+    }
+  ],
+  "unresolved_interface_question": {
+    "item": "公开 reset_session(session_id) 的 B25 RESET 可观察日志方式",
+    "basis": "B25 要求会话切换显式标记 E_SESSION_RESET_SUSPECTED 与新 session_id；当前公开方法返回 None，正式契约未定义其返回值或日志通道。",
+    "disposition": "未新增 API 或日志通道；等待接口决策。step() 事件路径上的会话切换仍按现有 RESET 日志实现。"
+  },
+  "unit_test": {
+    "command": "python -B -m unittest verification.test_s6b_core_regressions -v",
+    "exit_code": 0,
+    "test_count": 27,
+    "output": "session_reset_unittest_output.txt"
+  }
+}

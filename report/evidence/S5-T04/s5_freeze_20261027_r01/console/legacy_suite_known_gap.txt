@@ -1,0 +1,16 @@
+# S5-A/B/C 历史离线准备模块（scripts/stage5_s5a|s5b|s5c）——**已知缺口**，非本冻结回归门禁
+# 原因：其测试依赖 w4 侧黄金数据（s4c_replay_20261021_r05、S4-B/20261021_r13），上游漂移后失败；
+# 它们不属于本卡定义的离线 replay/display 路径，其历史结论按各自 RunId 自证。
+command=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B -m unittest scripts.stage5_s5b.test_s5b_overlay scripts.stage5_s5c.test_s5c_regression
+exit_code=1
+summary={"ran": 83, "failures": 18, "errors": 0, "skipped": 0, "ok": false}
+--- stdout tail ---
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+--- stderr tail ---
+----------------------------------------------------------------------
+Ran 83 tests in 10.531s
+
+FAILED (failures=18)

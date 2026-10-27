@@ -1,98 +1,55 @@
-# 阶段5 状态（HDMI 结果显示：离线准备 + S5-T01 合成源 bring-up + S5-T03 真彩契约改绑与用例骨架）
+# 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
-## 收尾快照（2026-10-26 18:03 UTC+8；优先于旧交接行）
+## 收尾快照（2026-10-27 18:40 UTC+8；本节优先于下方任何历史陈述）
 
-- **阶段5未验收，G0/G1/G3/G4/G5 未通过。** 当前 HEAD `673d371cae8a9775e31b9e3a911fe9646dcac658`，盘点前工作树干净。task-24 r06 代码审查 PASS、40/40 离线测试通过；对应证据构建器曾因 quiet-window 发现 PID 24196 而最终 exit 1，未触碰该进程，不能把该轮表述为完整证据包装通过。
-- **未闭合阻碍**：camera/replay 运行时未实现；阶段4 UR-1 回放字段扩展确认与结果包未就绪；动态坐标映射、实时 stale 过期、HUD 视觉、真实注入长跑、T5-10 板上回归、capture_fps 和显示延迟物理测量均 `NOT_RUN`。UR-3 显示侧规格决策已完成，200 ms stale 上限已批准，但实测仍未做。
-- 旧 `SUSPENDED_BOARD_DETACHED` 是此前快照。Wong 现在报告已现场断电重启且 JTAG/A9 恢复；本轮未连接验证，也没有阶段5板测窗口授权，因此只记为用户报告，不能恢复板测结论。阶段5实物项仍暂停。
-- 本轮只更新本状态文档，无代码、证据或硬件操作。Codex 仍持本树写权；Wong 表示稍后交接给 DSH，当前没有正式 `OFFERED/CLAIMED`。
+- **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线范围冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5 或任何板级/实物/实时结论。本卡（`task-29`/`S5-T04`）**不需要板卡**，本轮未连接、未加载位流、未烧录。
+- **冻结前基线**（构建冻结集时 HEAD）：`5fcbe9eaf6c4fc949d98c761536cc1c3f6d34d5c`；**冻结提交（被审）**：见 §7 与外部报告（`git log -1` 为权威）。
+- **冻结集**：`report/evidence/S5-T04/s5_freeze_20261027_r01/frozen_set.json`，**76 个成员**（契约 13 / 离线实现 3 / 离线 replay-display 证据 44 / S5-T02 离线 7 / 宿主只读引用 9），sha256 `7d593bb6289d991e8348100ec7916e500bcac1c56d5be5964724991c4332b1e1`。
+- **校验器**：`verification/verify_stage5_frozen_set.py`（只读、fail-closed：0 一致 / 1 不一致 / 2 输入或环境错误）→ 实测 **exit 0 / `FROZEN_SET_VERIFIED`（76/76）**；**注入自测**（必须失败）→ **exit 0 / `SELFTEST_PASS`**：clean=0、改一字节=**1**、删一件=**2**。
+- **离线回归主套件**：10 个模块 **142 项 / 0 失败 / 2 skip / exit 0**（168 s，虚拟长跑 106 573 帧在内）。
+- **包装检查器**：`check_stage_delivery --mode evidence` M1/M2 均 **exit 0 / CHECKS_OK**；运行器 `final_exit=0`。
+- **安静窗口**：0 个 `vivado.exe/xsdb/hw_server/vitis/xsim`；2 个 `vivado-mcp-server-windows` 桥接进程按 `DSH-20261027-017` 只作信息记录（非板级占用）。工作树无已跟踪改动、无 `index.lock`。
+- **F6 自证**：冻结提交 `git archive` 导出（无 Git 元数据）+ `--shared --no-checkout` 独立检出两种形态下复跑校验器/检查器，见 `report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`。
+- **tag**：`stage5-offline-freeze-20261027`（本地附注 tag，**不 push**）。
 
-## 当前交接行（11字段，2026-10-26 18:03 UTC+8）
-任务=`阶段5状态收尾：暂停开发/硬件活动，更新未验收状态与跨阶段阻碍，准备后续 DSH 交接` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`673d371cae8a9775e31b9e3a911fe9646dcac658` | 允许修改范围=`本轮仅 .codex/STATE.md；不改业务代码、证据或硬件` | 未提交改动归属=`盘点前本树干净；本轮 STATE 收尾摘要归当前 Codex` | 让出声明=`已按 Wong 指令停止活动；无本轮板卡/显示测试；用户报告 JTAG/A9 恢复但未独立验证；阶段5 G0/G1/G3/G4/G5 未通过；当前尚未正式向 DSH OFFER` | 心跳(UTC+8)=`2026-10-26 18:03` | 证据入口=`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/；docs/stage5/s5a_g0_ur3_decision_20261025_r01.md；report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/` | 恢复命令=`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（离线 replay/display 骨架已交付并多轮独立复审：短跑 240 帧 0 失败；长跑 106573 帧 / 虚拟 1800.001 s / 不变量全真；多几何 4/4 逐像素一致；**JSON 契约 v1.0.4**（含 .md↔.json 键位一致、事件日志键位核对、文件哈希实测、畸形契约 fail-closed exit 2）；**HUD 遮挡量化**（差分栅格化：面板下 76%–100%、远端恰 0，阈值为离线告警口径）；七模块套件 **116 项 OK**；第 1–7 轮复审：第 4/6 轮阻断项均已闭环，**第 7 轮 PASS**；真实回放接入 / 板上动态映射 / 摄像头路径仍 NOT_RUN；G0/G1/G3/G4/G5 均未通过）/ 本阶段独控`
+## 写权与交接（更正过期陈述）
 
-更新：2026-10-25 20:04（UTC+8）。工作树 `D:\codex-worktrees\w5`／分支 `stage5-display-prep`；规则见 `D:\FPGA_Competition\AGENTS.md`。
-当前：Codex 依据主仓 `DSH-20261024-006` 接管。task-24 r06 的独立复审 **PASS**，关闭拒绝原因日志、repeat 上下文、u32 join-key 和状态不变性问题；完整离线测试 40/40。证据构建器最终退出 1，仅因 quiet-window 检出 PID 24196；未触碰进程。Wong 于 2026-10-25 委托 Codex 项目总控确定 UR-3，并确认跨阶段 stale 常量为 200 ms；阶段5显示侧决策已落盘，引用阶段4活动契约中 `APPROVED_BY_WONG` 的同源常量。实际实时 stale 测量仍 `NOT_RUN`；决策只关闭 UR-3，不代表阶段 G0/G1/G3/G4/G5 通过。
-当前证据：`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（manifest SHA256 `2131101579d295da22dd934a8880e313f6ac934dcce5030c7bf07543c6366249`）；r04/r05 失败包和此前 r01-r03 全部保留。相机/回放运行时仍 `UNIMPLEMENTED`，板级验证 `SUSPENDED_BOARD_DETACHED`。
-任务：`task-22`（r02 复审 PASS）→ `task-24`（r06 修复复审 PASS；quiet-window 仍 FAIL）。阶段5 **未验收**：G0/G1/G3/G4/G5 未通过；
-合成源/离线骨架结论一律不得升级为真实集成结论；**实现层 camera/回放路径尚未实现**（NB-5）。
-**全局事实（2026-10-24 10:29）**：Wong 已重连板卡与摄像头；须重新核验部署身份、运行期地址及真彩目视后才能按授权窗口执行。本轮只做离线修复，未操作硬件。
+- 旧 STATEMENT「Codex 仍持本树写权」**已过期**：本树写权自 **2026-10-26 21:21** 起由 **DSH 阶段5 总控**持有（`handoff_check --claim` = `HANDOFF_OK` PASS 9 / 0）。
+- 本卡执行方＝DSH 阶段5 总控；复审由 DSH 项目总控另派 Reviewer；**复审期间停写被审对象**。
 
-历史交接（2026-10-24 20:39；由上方收尾快照取代）: 任务=`task-24 join-key fail-closed 与拒绝日志修复；代码/证据复审 PASS，证据构建被 quiet-window 阻断` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w5 / stage5-display-prep` | 起始提交=`30147ab1f958c0dad2795da8e4b1c073ac39adaa` | 允许修改范围=`本轮 docs/stage5、scripts/stage5_t03、verification/s5_display_geometry_reference.py、report/evidence/S5-T03/r04-r06、STATE` | 未提交改动归属=`r04-r06 修复差异及 STATE 归当前 Codex 阶段5任务；此前提交与旧 RunId 不改写` | 让出声明=`DSH-20261024-006 正式 OFFERED；阶段5 Developer 已停写，独立 Reviewer PASS；总控复核/提交中；板级验证仍暂停` | 心跳(UTC+8)=`2026-10-24 20:39` | 证据入口=`report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/`（r04/r05 为失败记录） | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD` | 状态/下一接手方=`IN_PROGRESS（task-24 修复复审 PASS；quiet-window FAIL 因 PID 24196；G0/G1/G3/G4/G5 未通过；摄像头/回放运行时 UNIMPLEMENTED；板级 SUSPENDED_BOARD_DETACHED）/ 下一接手方=Codex 总控做精确差异核验与提交`
+## 冻结范围（只此四类）
 
-## 目标与范围
-- 已完成：S5-A 契约/G0、S5-B 离线渲染叠框自测、S5-C 与阶段4 数值链回归、S5-D 阶段6 建议；S5-T01 合成源（PS 合成图）板上 bring-up。
-- 本轮（S5-T03 v3，全离线）：契约改绑真实彩色（对齐阶段4 r04）+ 坐标映射/帧关联/顺序规则/异常/长跑**用例骨架** + 板级待验清单（已标 `SUSPENDED_BOARD_DETACHED`）。
-- 明确不做：CNN 改动、改 2A 冻结规格或 2B 接口正文、改 w4/dbdf/w2b/main、写两个 mailbox、**动硬件**。
+1. **离线契约/规格**（`docs/stage5/**`）：显示契约 JSON、输入绑定 JSON、离线参数/用例骨架、JSON 契约、`stale=200 ms` 的 UR-3 决策（引用 Wong 批准回执）。
+2. **离线实现**：`scripts/stage5_t03/**`（渲染/回放/长跑/多几何/HUD 遮挡/JSON 契约/阶段4 冻结包消费）＋ `verification/s5_display_geometry_reference.py`。
+3. **离线证据包**：`s5t03_offline_replay_display_…_r06`、`…offline_long_run_replay…_r04`、`…multi_geometry_render…_r02`、`…json_contract…_r04`、`…hud_occlusion…_r02`、`…stage4_frozen_replay…_r04`、`…stage4_positive_replay…_r01`、`S5-T01/s5t02_offline_dynamic_map_20261027_r02`。
+4. **宿主只读引用**（`scope=host`）：阶段3 参考帧 `939fce22…` 与回放绑定、阶段4 回放结果包冻结记录/索引/带框包、Wong `stale=200 ms` 回执、阶段3/阶段4 局限引用。
 
-## 上游事实（只读核对）
-- 阶段3（dbdf）：新模块曾实测恢复真彩色（`S3-T05/t05_new_module_reverify_20261023_r01`）。部署身份**本树独立重算**：
-  无补偿 bit `7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710`、XSA `1f5b138e…cb0e3`、
-  应用 `an5642_j11cmos2_v10_read.elf` `1457cda4…6073`（bit/ELF 全哈希一致、XSA 前缀一致且全哈希与 dbdf 原部署清单一致）。
-  **该真彩目视记录只对当次连接下的部署有效**，换板/换模块/换端口/部署变更后须重做。J10 半屏黑＝Wong 2026-10-24 **范围外**（J11/CMOS2）。
-  `UR-2` **RESOLVED**（dbdf README 2026-10-24T01:14:18 更正为 `v10_read`，sha256 `e60bab01…`）。
-- 阶段4（w4）：已由 DSH 认领；**r04 `7a9507a`（00:52:29）**＝现行输入契约权威（committed-not-frozen）：
-  两个彩色标签都 `maps_to_source_kind=camera`、`capture_time_available=true`（回放以 `timing_claim_scope=replay_only` 区分）；
-  `frame_sequence_rules`：重复/`frame_id` 回退/乱序/回绕/等价 `frame_id` 未声明**一律拒绝并记 FAIL 且须记原因**；`capture_clock=PENDING_MEASUREMENT`。
-- 硬件：**板卡已拔下**；本轮 0 个 vivado/xsdb/hw_server/vitis/xsim、3121 未监听（安静窗口实跑，见 r03 证据）。
+## 明确不主张（逐条）
 
-## 本轮交付（S5-T03 v3：NB-1..NB-5）
-- **NB-1**：等价 `frame_id` 改 **fail-closed**（未显式声明即拒绝并记 FAIL，新增计数 `duplicate_frame_id_results`；放行只看 `repeat_declared`/`repeat_index` 递增）；
-  含 3 条定向用例 + **判别力对照**（复刻 r02 语义时断言变红）+ `equiv` 流 40 帧；**未削弱 B-2**。
-- **NB-2**：漂移登记改为**扫描判据**（`scripts/stage5_t03/scan_hash_drift.py`：`report/evidence/**/*manifest*.json` 命中集合 == 登记集合，双向相等）；
-  登记 **19 个清单文件 / 10 个包目录**；**未改写任何旧包**。
-- **NB-3**：计数单位 JSON↔流水线**逐字相等**（JSON 15 键＝14 计数＋`definition`；流水线 14 键）；清单由 JSON 生成完整 14 条。
-- **NB-4**：`revised/generated_utc8` 改为本文件最后写入的分钟值 `2026-10-24T02:34:00+08:00`（容差 ≤60 s），实测 mtime 02:34:00/02:34:17/02:34:30 记于 r03 证据。
-- **NB-5**：T01 补绑定断言（回放 `capture_time_ns` 非零要求、`carry_fields` 10 字段、`implementation_status`）+ 文档明写**实现层未实现**。
-- 文档：`docs/stage5/s5t03_input_contract_binding_v1.json`（v3 内容）+ `S5T03_input_contract_binding_colour_v1.md`（§9b/§11）、
-  `s5t03_offline_skeleton_params_v1.json`、`S5T03_offline_case_skeleton_v1.md`、`S5T03_board_verification_pending_v1.md`（v3）。
-- 证据：`report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/`、`…/s5t03_takeover_20261024_r03/`。
+真实回放接入（板上/实时）｜板上动态映射/绘制｜摄像头真实采集｜真实集成 30 分钟｜T5-10 板上回归｜HUD 屏上视觉确认｜真彩目视｜任何 G0/G1/G3/G4/G5 通过｜真实采集质量/颜色｜端到端延迟实测（时钟 `PENDING_MEASUREMENT`）。
+`task-27`（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态回归）**整体 NOT_RUN**；本冻结只覆盖既有离线骨架与离线消费。
 
-## 实测（本轮离线，合成动态流）
-- 用例骨架 **34 项 / 0 失败 / 0 错误**（115.4 s，Python 3.12.10，种子 20261024）：
-  坐标手算、越界/零面积、2 px 偶数线宽、120 帧五元组、四类拒绝（重复键/`frame_id` 回退/`result_seq` 回退/**等价 `frame_id` 未声明**）、
-  等价帧**声明放行**、过期三边界、零框≠过期、超时/错误/丢帧/无效分列、HUD13、长跑、计数单位逐字一致、**漂移登记覆盖扫描**、落盘日志独立复算。
-- 240 帧 mixed：绘制 177 帧/467 框、stale_cleared 7、dup 8、**out_of_order 8（全拒绝+FAIL）**、`duplicate_frame_id_results=0`（等价帧由定向用例与 `equiv` 流覆盖）、
-  zero_hand 7、timeout 14、error 7、drop 7、invalid 7、zero_area 89；长跑 106 573 帧、区间数 106 572 × 16.89 ms＝1 800 001 080 000 ns（余量 +1.08 ms）。
-- 独立复算器两日志 **exit 0**；漂移扫描 **COVERED / exit 0**；安静窗口 **QUIET**；两个 r03 包交付检查器 **CHECKS_OK / exit 0**。
-- 既有合成源证据未被改写：`git diff --name-only 654c72e -- report/evidence/S5-A|S5-B|S5-C|S5-T01` 为空（r03 证据实跑记录）。
+## 继承的上游局限（引用不改写）
 
-## 未决与风险
-- `UR-1`（对 r04 重发）：阶段4 确认显示侧回放扩展字段命名（`replay_source_*`/`stage3_capture_evidence_entry` 等）并入契约。
-- `UR-3`：**已由 Wong 委托 Codex 项目总控于 2026-10-25 作出阶段5显示侧决定**，见 `docs/stage5/s5a_g0_ur3_decision_20261025_r01.md`。成品 `age_frame` 上限 200 ms、类别 RGB 色表、字号缩放、stale 域均已定义；阶段4活动共享契约的 `stale_age_limit_ns=200000000` 已为 `APPROVED_BY_WONG`，S4-A r06 的 DRAFT 标签是历史快照；实际运行 stale 测量仍 `NOT_RUN`。阶段6 `T6-A03` 仍是另一指标且 `NOT_RUN`。camera/replay 实现、真实渲染和硬件验收仍未完成。
-- `UR-4`：Wong 于 2026-10-25 报告板卡已接上；本机只读检查未枚举 COM/USB 设备且 3121 无监听，故目前只能记为**用户报告重连、主机连接未确认**。尚未获本轮阶段级板测授权或窗口 OFFER；不操作硬件。获授权后先重做真彩目视/部署身份核对，再按 `CDX-20261023-018` §3 走窗口流程。
-- 哈希轨迹（S5A-G0-v2 JSON，仅措辞/来源说明类修订）：`8eac7007…` → `10d24a39…`（N-1）→ `e3347c4e…` → **`af51a4bf…`**（NB-4）；阈值/几何/语义自 N-1 后未再变。
-- 限制：实现层 camera/回放路径、板上动态映射/过期边界/HUD 视觉、真实注入长跑、T5-10 板上回归、`capture_fps` 实测、显示延迟物理测量 —— 一律 **NOT_RUN**；
-  P1 现行「宿主预计算框」不得当作板上动态映射；无 ILA 不免除适用标准。
+- 阶段3：VDMA 首帧 bit11 `PARTIAL_OPEN`、task-11 `BLOCKED_NOT_RUN`、`TIMING-17`/I-O delay 未签核（`dbdf/…/S3-T17/stage3_closeout_20261026_r01/manifest.json`）。
+- 阶段4：`complete_stage4_or_RGB_preprocess=NOT_CLAIMED`（`w4/docs/stage4/s4_stage4_freeze_supplement_hardware_20261027_r01.md`）。
 
-## 证据入口
-- `report/evidence/S5-T03/s5t03_offline_skeleton_20261024_r03/`（`summary.md`、`results_skeleton.json`、`console/{unittest,impact_scan,quiet_window,file_mtimes,recompute_from_log,not_modification_check}.*`、`logs/**`、`delivery_manifest.json`）
-- `report/evidence/S5-T03/s5t03_takeover_20261024_r03/`（安静窗口/接管核对、部署身份只读重算、板卡拔下记录）
-- 历史：`S5-T03/…_r01|_r02`（被取代，保留不改写）、`S5-A|S5-B|S5-C|S5-CTRL|S5-T01/**`（合成源结论原样保留）
-- 本轮提交：内容 `a465b48` + `5fd3336`（NB 轮最终基线）；证据与 STATE 同批提交（见 `git log -1`）。
+## 未闭合项
 
-## 交接行（11 字段，2026-10-24 02:40）
-任务=`task-24 阶段5 NB 轮（NB-1 fail-closed / NB-2 扫描式漂移登记 / NB-3 逐字一致 / NB-4 时间戳 / NB-5 绑定断言+实现状态）完成，固定新基线待复审` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`654c72e` | 允许修改范围=`docs/stage5/**`、`scripts/stage5_t03/**`、`report/evidence/S5-T03/**`、`tmp/5/**`、`.gitattributes`、`.codex/STATE.md` | 未提交改动归属=`本树全部为本轮产物，与 STATE 同批提交（tmp/ 忽略项；无他人改动混入）` | 让出声明=`**板卡已被 Wong 拔下 ⇒ 板级工作暂停**；本轮 0 个硬件进程、3121 未监听、未加载位流/未烧录；工作树写权仍由本阶段总控独占；**本轮固定基线后不再写，等待复审**` | 心跳(UTC+8)=`2026-10-24 02:40` | 证据入口=`report/evidence/S5-T03/**`、`docs/stage5/S5T03_*`、`docs/stage5/s5t03_*` | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short` | 状态/下一接手方=`IN_PROGRESS（S5-T03 v3 已交付并固定基线；待 DSH 项目总控派独立复审；下一轮按无板卡工作流用阶段4 回放结果包实现回放路径并做离线动态显示回归）/ 本阶段总控`
+1. **历史模块已知缺口**：`scripts/stage5_s5a|s5b|s5c` 探测 83 项 / **18 失败**（根因：其测试依赖 w4 侧黄金数据 `s4c_replay_20261021_r05`、`S4-B/20261021_r13` 上游漂移）；不在冻结集、不计入本冻结回归主张，原始输出见冻结包 `console/legacy_suite_known_gap.txt`。
+2. `task-27` NOT_RUN（阶段4 回放包已冻结、本树有离线消费，但该卡未交付）。
+3. 板级 B1–B10 全项暂停：Wong 拔板后未重连复验；重连后需先过第 0 步（占用/部署身份/运行期回读地址/**真彩目视需 Wong 在场**），再按 `CDX-20261023-018` §3 发单次窗口。
+4. 端到端真实链窗口（`end2end_real_chain_window_plan_20261027_r01`）：P1=task-27、W-E=B1–B10 均待开工信号。
+5. 阶段5 G0/G1/G3/G4/G5 与实物验收仍未通过；`UR-1`（阶段4 回放扩展字段命名并入共享契约）仍待阶段4 确认。
 
-## 正式 OFFERED 交接行（2026-10-26 21:07 UTC+8；优先于以上历史交接及写权陈述）
+## 证据与恢复入口
 
-任务=阶段5正式写权交接 | 负责人=Codex 项目总控 | 工作树/分支=D:\codex-worktrees\w5 / stage5-display-prep | 起始提交=673d371cae8a9775e31b9e3a911fe9646dcac658（交接前基线；正式 OFFER 版本为包含本行的提交） | 允许修改范围=本次仅 .codex/STATE.md 的交接记录与提交；后续阶段5业务修改按接手任务及既有授权执行 | 未提交改动归属=本次开始时仅有1项 .codex/STATE.md 差异，原有收尾快照及历史交接调整完整保留，与本正式交接行同批提交；未混入其他文件 | 让出声明=Wong 已明确授权本次交接；Codex 项目总控在本行及原有 STATE 差异提交完成后立即停止写 w5，不再暂存或提交；核验时无 index.lock，未发现 Git/Vivado/XSDB/hw_server/Vitis/XSCT/XSim 进程；本行不构成硬件窗口授权或阶段验收通过 | 心跳(UTC+8)=2026-10-26 21:07 | 证据入口=.codex/STATE.md（本行所在提交）；report/evidence/S5-T03/s5t03_repeat_validation_fix_20261024_r06/delivery_manifest.json；docs/stage5/s5a_g0_ur3_decision_20261025_r01.md | 恢复命令=git -C D:/codex-worktrees/w5 log -1 --format=%H -- .codex/STATE.md; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 rev-parse HEAD | 状态/下一接手方=OFFERED / DSH 项目总控
+- 冻结文书/冻结集/清单：`report/evidence/S5-T04/s5_freeze_20261027_r01/`（README、`frozen_set.json`、`frozen_set_report.json`、`selftest_injection.json`、`results_freeze.json`、`delivery_manifest.json`、`console/**`）
+- F6 自证：`report/evidence/S5-T04/s5_freeze_f6export_20261027_r01/`
+- 首次运行器崩溃（保留不覆盖）：`report/evidence/S5-T04/s5_freeze_20261027_r00_runner_crash/`
+- 复跑：`python -B verification/verify_stage5_frozen_set.py --root .` → 期望 `FROZEN_SET_VERIFIED` / exit 0；`--selftest tmp/5/S5-T04/selftest` → 期望 0/1/2；`python -B scripts/stage5_t04/run_stage5_freeze_evidence.py --run-dir <新RunId> --source-commit <提交>`。
+- 恢复命令：`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 tag --list "stage5-offline-freeze*"`
 
-本行是正式让出记录；DSH 项目总控须以提交后的实际 HEAD 重新核验并明确 CLAIMED，方可推进认领状态。此前阶段5未验收及未执行项继续按原文保留。
+## 交接行（11 字段，2026-10-27 18:40 UTC+8）
 
-## 接管交接行（11 字段，2026-10-26 21:21 UTC+8；**优先于以上全部**，已 CLAIMED）
-
-任务=`S5-T03 阶段5 写权接管（handoff_check --claim 通过）与「离线 replay/display 骨架」交付；本轮不接板卡、不宣称任何关口通过` | 负责人=`DSH 阶段5 总控` | 工作树/分支=`D:\codex-worktrees\w5`/`stage5-display-prep` | 起始提交=`c2deb2f10bdc1a92858295ffe6818cf871a5df5f`（含 OFFERED 行的 OFFER 提交；`git log -1 --format=%H -- .codex/STATE.md` 实测） | 允许修改范围=`.codex/STATE.md`、`scripts/stage5_t03/**`、`docs/stage5/**`、`report/evidence/S5-T03/**`、`tmp/5/**` | 未提交改动归属=`接管证据 + 渲染/replay/长跑/多几何实现与测试 + 全部 S5-T03 RunId，均归 DSH 阶段5 总控并与本轮提交同批；无他人改动混入` | 让出声明=`**未让出：本阶段总控独占 w5 写权（CLAIMED→IN_PROGRESS）**；本轮不接板卡：未加载位流/ELF、未占用 JTAG/COM4、未启动 hw_server、未烧录；板级工作维持 SUSPENDED_BOARD_DETACHED` | 心跳(UTC+8)=`2026-10-27 15:45` | 证据入口=`report/evidence/S5-T03/s5t03_takeover_20261026_r01/`（接管）；`…/s5t03_offline_replay_display_20261026_r06/`（短跑 240 帧）；`…/s5t03_offline_long_run_replay_20261026_r04/`（**长跑 106573 帧 / 虚拟 1800.001 s**）；`…/s5t03_multi_geometry_render_20261026_r02/`（**多几何逐像素**：1280×720 / 720×1280 / 683×384 / 683×384→1920×1080 k=2）；`…/s5t03_json_contract_20261026_r04/`（**JSON 契约 v1.0.3** 校验：含 .md↔.json 键位一致、事件日志键位核对、文件哈希实测、畸形契约 fail-closed）；`…/s5t03_hud_occlusion_20261026_r02/`（**HUD 遮挡量化**，当前代码基线重跑）；`…/S5-T01/s5t02_offline_dynamic_map_20261027_r02/`（**S5-T02 离线部分**：C 实现 + 宿主隔离构建 + 合成流 + 与冻结参考逐像素对拍）（S5-T02 离线部分 r02 = 复审修复版：B1 套件判据已按「只对既有文件 M/D/R 判违反」裁决并留痕、B2 状态悬挂指针、B3 reason=both、B4 placement 组合覆盖、B5 HUD 逐项、B6 零面积、B7 NO_HAND 非过期；137 帧全 pixel_exact，130 项套件在冻结提交 exit 0；**§4.5/§7.3 仍未关闭**）；`…/S5-T01/hw_gate_20261027_r03/`（**硬件门 GO**：凭 Wong 原文授权）、`…/S5-T01/hw_probe_20261027_r01/`（**只读 JTAG 探测**：Digilent 210512180081 + arm_dap_0 + xc7z020_1）；`…/S5-T01/s5t02_board_dynamic_map_20261027_r01/`（**板上动态映射**：几何 ⇄ 冻结参考 6 用例 22 框 110/110 PASS；过期边界 PASS；**像素级叠加未确认**）、`…/S5-T03/s5t03_stage4_frozen_replay_20261027_r04/`（**阶段4 冻结包离线消费**：完整性 10/10、漂移 17/17、对拍 PASS；回放帧为 1 帧 NO_HAND 零框）；`…/S5-T03/s5t03_stage4_positive_replay_20261027_r01/`（**带框**阶段4 冻结回放包离线消费：完整性 3/3、1 框 `xyxy_px={317,267,445,314}`、包内交叉核对 PASS、`age_*=null` 如实标注）、`…/S5-T01/s5t02_pixel_overlay_recheck_20261027_r01/`（**像素级根因**：回读地址硬编码旧值 0x00114C00 → 实为 0x00138C00；解析器逐行重置 x 基准；两处已修 + 9 项判别力测试；**叠加字节已在缓冲中出现，但对齐口径未证明 ⇒ 像素级仍 UNCONFIRMED**）；（**离线**按当前用例表生成转储行/列：边判据 8/8，含负控测试）；`…/S5-T01/s5t02_pixel_phase_probe_20261027_r01/`；`…/S5-T01/s5t02_diag_cls_rgb_20261027_r01/`；`…/S5-T01/hw_gate_20261027_r07|r08/`；**让位待命**：Wong「先有阶段四进行上板，你先等着」⇒ 阶段5 板卡已释放（0 进程/无端口），期间不启动任何硬件动作 | 恢复命令=`git -C D:/codex-worktrees/w5 log --oneline -3; git -C D:/codex-worktrees/w5 status --short; python -B D:/FPGA_Competition/verification/handoff_check.py --worktree D:/codex-worktrees/w5 --json` | 状态/下一接手方=`IN_PROGRESS（**S5-T02 板上动态映射**：C 核心接入 P1 应用（可选开关，默认路径逐字节不变），板上几何 ⇄ 冻结参考 **6 用例 22 框 110/110 PASS**、过期边界 PASS；**像素级叠加 UNCONFIRMED**——两个成因已定位并关闭其一：①对齐口径已由**相位探针实证**锁定（字节0=像素x0、3 字节/像素、相位0、字内小端），②转储行/列按旧版矩形选择（覆盖率仅 ~5%）⇒ 已交付 `gen_dump_rows.py`（按当前用例表生成、边判据 8/8、含负控测试）；应用自报 cls/rgb 地面真值正确（box0 255,64,64 / box1 64,255,64）。**阶段4 冻结**：契约 `s4-shared-io` v1.3.0 与回放包 10/10、上游绑定 17/17 曾独立核验通过；**带框正样本包**（1 框）已离线消费并对拍 PASS；但**契约已漂移**（登记 `7228f513…` ≠ 现状 `2848ba03…`）⇒ 消费链按设计 **fail-closed 拒收**，已发 `DSH-20261027-012` 请阶段4 重新冻结/绑定。硬件：五次窗口均按六键登记与释放（末两次用**实端口 23121**；3121/3131 在 Windows 排除范围 3096–3195），收尾 0 进程。套件 **183 项 OK（2 项上游漂移感知 SKIP）**。**§4.5/§7.3 未关闭**；八类门禁 **4/8**；带框回放上板显示/B5 计数流/B6 ≥30 分钟/真彩目视(需人工拍照)/T5-10/板上真实回放仍 **NOT_RUN**；G0/G1/G3/G4/G5 判定不归本阶段）`manifest.files[]` 全部回填；三包套件日志各自独立（75 项 OK，SHA 互异）；第 5 轮定向复核 PASS（第 4 轮阻断项闭环）；**JSON 契约已迭代至 v1.0.2**（v1.0.1 关闭 B1–B6；v1.0.2 关闭 BL-1 事件日志键位漂移 + BL-2 畸形契约 fail-closed，并让校验器核对事件日志键位与文件哈希）；**HUD 遮挡量化**已交付（差分栅格化，面板下 76%–100%、远端恰 0，阈值仅为离线告警口径）；第 6 轮定向核验判 CHANGES_REQUIRED（R-1 契约 `.md` §6 键位未同步、R-2 HUD 摘要陈旧行）已闭环，并修 N-1…N-4（legend 指针、全部事件日志受检、缺日志即违约、说明键入必填）；**JSON 契约 v1.0.1**（含复审 B1–B6 闭环：schema 值守卫/哈希实测/passed=true/契约 fail-closed/退出码语义/stable 子集）与 **HUD 遮挡量化**（差分栅格化，面板下 76%–100%、远端恰 0）（`docs/stage5/s5t03_json_contract_v1.{json,md}` + 只读校验器 `scripts/stage5_t03/validate_s5t03_json.py`，三最终包校验 exit 0，13 项契约测试含负向判别，**112 项套件 OK**，证据 `…/s5t03_json_contract_20261026_r03/`（v1.0.2））；真实回放/板上/摄像头项仍 NOT_RUN；G0/G1/G3/G4/G5 均未通过）/ 本阶段总控`
-
-接管事实（`handoff_check --claim`，真实退出码）：
-- 原文记录：exit 1，`PASS 7 / FAIL 2`（a 起始提交、g 证据入口）——原样留证于 `console/claim_verbatim.json`。
-- **更正后记录：exit 0，`HANDOFF_OK`，`PASS 9 / FAIL 0`**（`console/claim_corrected.json`）。
-- 两处更正经 Wong 2026-10-26 批准，依据与影响见接管证据 `summary.md` §3：①`base_commit` 由"交接前基线 673d371"改为**含 OFFERED 行的 OFFER 提交 c2deb2f**（OFFERED 行自注"正式 OFFER 版本为包含本行的提交"）；②证据入口改为本接管证据目录（含 checker 要求的 `manifest.json`，非删除/绕过校验）。Codex 的 OFFERED 行与历史交接行**原样保留，未覆盖、未删除**。
-- 核验现场：无 `index.lock`、未提交改动 0 项、无重型进程、心跳未超时、`status=OFFERED` 允许接管。
-
-本轮已交付（离线 replay/display 骨架渲染路径；详见 `s5t03_offline_replay_display_20261026_r03/summary.md`）：
-- 新增 `scripts/stage5_t03/s5t03_render.py`（栅格化：边框像素**只取** `R.border_pixel_sets`；UR-3 类别色与字号；标签越界翻转/安全区；HUD 13 行 `UNAVAILABLE`→`NA`）与 `s5t03_replay_display.py`（合成流→管线→渲染→**三层产物**；阶段3 输入帧绑定装载；三例过期边界；关键帧有界选择；demo 生成），新增 13 项测试。
-- 证据 `…_r03`：`results.json`（权威）+ `frame_assertions.jsonl`（240 行）+ `keyframes/`（14 张）+ `demo.mp4`（`demo_only`）+ `manifest.json` + `console/`；**240 帧 0 失败**、`recompute_matches_online=true`、14 项计数与既有骨架 r03 基线**逐项相同**；边界 `==limit` 不过期 / `limit+1` 过期 / 显式 `stale_flag` 过期三例 PASS。
-- 输入帧：阶段3 `frame_full.bin`（BGR888 1280×720 stride 3840）SHA `939fce22…` **实测与绑定一致**，仅作**输入帧**；**推理结果为合成流** ⇒ 真实回放接入仍 `NOT_RUN`。
-- 测试：`test_s5t03_skeleton` + `test_s5t03_replay_display` → **Ran 53 tests, OK, exit 0**。
-- 未做（NOT_RUN，不得冒充）：真实回放接入（无阶段4 冻结回放结果包）、板上动态映射/绘制、摄像头真实采集、真实集成 30 分钟与 T5-10 板上回归、HUD 屏上视觉确认。
-- 历史 RunId 保留不删：`…_r01`（ffmpeg 构建不支持 glob 的 demo 失败记录）、`…_r02`（最终代码前版本）。
+任务=`S5-T04 阶段5 离线范围冻结（OFFLINE_SCOPE_FROZEN）：冻结集复核 + 冻结文书 + 本地 tag + 送独立复审` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`5fcbe9eaf6c4fc949d98c761536cc1c3f6d34d5c` | 允许修改范围=`verification/verify_stage5_frozen_set.py、verification/test_s5_display_geometry_reference.py（夹具修复）、scripts/stage5_t04/**、report/evidence/S5-T04/**、.gitattributes、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随冻结提交同批提交；失败/崩溃 RunId 保留不改写` | 让出声明=`本卡为**离线**冻结：未连接/未加载位流/未烧录/未占用 JTAG 串口；固定基线后停写被审对象，等待独立复审；板级项继续暂停` | 心跳(UTC+8)=`2026-10-27 18:40` | 证据入口=`report/evidence/S5-T04/**`、`verification/verify_stage5_frozen_set.py`、`docs/stage5/**` | 恢复命令=`python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5` | 状态/下一接手方=`FROZEN_FOR_REVIEW（离线范围已冻结并自证；待 DSH 项目总控派独立 Reviewer；此后按序：task-27 → 端到端真实链窗口 P1/W-E）/ 本阶段总控`

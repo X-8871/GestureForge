@@ -1,0 +1,527 @@
+command=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B -m unittest scripts.stage5_t03.test_s5t03_frozen_replay scripts.stage5_t03.test_s5t03_hud_occlusion scripts.stage5_t03.test_s5t03_json_contract scripts.stage5_t03.test_s5t03_json_contract_malformed scripts.stage5_t03.test_s5t03_long_run_replay scripts.stage5_t03.test_s5t03_multi_geometry_render scripts.stage5_t03.test_s5t03_replay_display scripts.stage5_t03.test_s5t03_skeleton scripts.stage5_t03.test_s5t03_stage4_positive_replay scripts.stage5_s5b.test_s5b_overlay scripts.stage5_s5c.test_s5c_regression verification.test_s5_display_geometry_reference
+exit_code=1
+--- stdout ---
+OK   s5t03_offline_replay_display_20261026_r06        kind=replay_display frames=240 errors=[]
+OK   s5t03_offline_long_run_replay_20261026_r04       kind=long_run_replay frames=106573 errors=[]
+OK   s5t03_multi_geometry_render_20261026_r02         kind=multi_geometry_render frames=None errors=[]
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=3 failed=0
+FAIL mg_cli                                           kind=multi_geometry_render frames=None errors=['results[multi_geometry_render] 缺字段 limitations', 'manifest.files[13] 哈希不符：results.json']
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=1 failed=1
+[contract] 环境错误（退出码 2）：未指定任何包（--package / --packages-from）
+[contract] 环境错误（退出码 2）：包目录不存在：D:\tmp\s5t03_contract_lwvy75nk\no_such_package
+[contract] 环境错误（退出码 2）：--packages-from 文件不存在：D:\tmp\s5t03_contract_lwvy75nk\no_such_list.txt
+[contract] 环境错误（退出码 2）：未指定任何包（--package / --packages-from）
+[contract] 环境错误（退出码 2）：契约缺 contract_required_keys（无法自证完整性）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 list）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 str）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 int）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 NoneType）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 bool）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 float）
+[contract] 环境错误（退出码 2）：契约 artifact_kinds 必须是非空对象
+[contract] 环境错误（退出码 2）：契约 stability 必须是对象
+FAIL s5t03_offline_replay_display_20261026_r06        kind=replay_display frames=240 errors=["事件日志 events_mixed_240.jsonl 的 sub 记录键集与契约不符：多 ['fid', 'oc', 'pri', 'rb', 'rd', 'ri', 'rr', 'seq', 'sid', 'vf'] / 缺 ['boxes', 'drawn', 'state']", "事件日志中未找到 ['commit'] 记录（t 字段）"]
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=1 failed=1
+[S5-B][driver] 双 pass 渲染：run_a=drv_ut_a run_b=drv_ut_b seed=20261021
+[S5-B][driver] pass A 真实退出码 1；pass B 真实退出码 1
+[S5-B][driver] 单元测试：按 --skip-unittest 跳过（如实记为 SKIPPED，不计入 PASS）
+[S5-B][driver] determinism=PASS png_files=3 json_files=3
+[S5-B][driver] final_exit=1 reasons=['cli_exit_nonzero(a=1,b=1)', 'unittest_SKIPPED_BY_FLAG']
+[S5-B][driver] primary_run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\drv_ut_a
+[S5-B][driver] replica_run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\drv_ut_b
+[S5-B][driver] exit_code=1 primary=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\drv_ut_a
+[S5-B] run_id=ut_degenerate out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_degenerate seed=20261021 cases=t5_02_degenerate_new_w_1
+[S5-B] cases=1 assertions=44 failed=1 errors=0 exit=1
+[S5-B][FAIL] t5_02_degenerate_new_w_1.record_contract_valid
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_degenerate
+[S5-B] png_set_digest=21a767085d2ce87e37ed2b9821d809d0da7ef60e11eea30187320395e179c1a7
+[S5-B] json_stats_digest=13002e40c3e9f0d3b305728245c795dc64671c49123e22d7ee2954c4aa977152
+[S5-B] run_id=ut_det_a out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_det_a seed=20261021 cases=T5-01,T5-04
+[S5-B] cases=11 assertions=289 failed=12 errors=0 exit=1
+[S5-B][FAIL] t5_01_landscape_1280x720.record_contract_valid
+[S5-B][FAIL] t5_01_portrait_720x1280.record_contract_valid
+[S5-B][FAIL] t5_01_oddw_683x384.record_contract_valid
+[S5-B][FAIL] t5_01_square_640x640_no_pad.record_contract_valid
+[S5-B][FAIL] t5_01_canvas_683x384_k2_1920x1080.record_contract_valid
+[S5-B][FAIL] t5_01_canvas_1280x720_k1_1920x1080.record_contract_valid
+[S5-B][FAIL] t5_04_age_equal_limit.record_contract_valid
+[S5-B][FAIL] t5_04_age_limit_plus_1.record_contract_valid
+[S5-B][FAIL] t5_04_stale_flag_small_age.record_contract_valid
+[S5-B][FAIL] t5_04_stale_both.record_contract_valid
+[S5-B][FAIL] t5_01_s4b_palm_1440x1920.upstream_record_contract_valid
+[S5-B][FAIL] t5_01_s4b_palm_1440x1920.record_contract_valid
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_det_a
+[S5-B] png_set_digest=68e2f7de919799ff306c5416c6c3a5d2a3da9f3187fb93c2f2b8d8896d1bbfea
+[S5-B] json_stats_digest=4f8b176324c884b1acec4c1637284bff277d3746f7bd125c673b1ad43daa9b1b
+[S5-B] run_id=ut_det_b out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_det_b seed=20261021 cases=T5-01,T5-04
+[S5-B] cases=11 assertions=289 failed=12 errors=0 exit=1
+[S5-B][FAIL] t5_01_landscape_1280x720.record_contract_valid
+[S5-B][FAIL] t5_01_portrait_720x1280.record_contract_valid
+[S5-B][FAIL] t5_01_oddw_683x384.record_contract_valid
+[S5-B][FAIL] t5_01_square_640x640_no_pad.record_contract_valid
+[S5-B][FAIL] t5_01_canvas_683x384_k2_1920x1080.record_contract_valid
+[S5-B][FAIL] t5_01_canvas_1280x720_k1_1920x1080.record_contract_valid
+[S5-B][FAIL] t5_04_age_equal_limit.record_contract_valid
+[S5-B][FAIL] t5_04_age_limit_plus_1.record_contract_valid
+[S5-B][FAIL] t5_04_stale_flag_small_age.record_contract_valid
+[S5-B][FAIL] t5_04_stale_both.record_contract_valid
+[S5-B][FAIL] t5_01_s4b_palm_1440x1920.upstream_record_contract_valid
+[S5-B][FAIL] t5_01_s4b_palm_1440x1920.record_contract_valid
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_det_b
+[S5-B] png_set_digest=68e2f7de919799ff306c5416c6c3a5d2a3da9f3187fb93c2f2b8d8896d1bbfea
+[S5-B] json_stats_digest=4f8b176324c884b1acec4c1637284bff277d3746f7bd125c673b1ad43daa9b1b
+[S5-B][driver][ERROR] RunId 目录已存在且非空：D:\codex-worktrees\w5\tmp\5\S5-B\unittest\drv_guard_a（不覆盖他人 RunId；如需覆盖请显式 --force）
+[S5-B][driver] exit_code=2 primary=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\drv_guard_a
+[S5-B] run_id=ut_env out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_env seed=20261021 cases=t5_05_s4c_golden109_frame_ledger
+[ERROR] 未预期异常：KeyError: 'hud'
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\render_s5b_overlay.py", line 2264, in run_main
+    exit_code = render_run(args, run_dir)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\render_s5b_overlay.py", line 2118, in render_run
+    result = run_pipeline(args, run_dir)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\render_s5b_overlay.py", line 2073, in run_pipeline
+    globals_result = global_checks(reference, logs, run_dir, rec)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\render_s5b_overlay.py", line 1616, in global_checks
+    if tuple(row["hud"].keys()) != REQUIRED_HUD_FIELDS:
+             ~~~^^^^^^^
+KeyError: 'hud'
+[S5-B] run_id=ut_guard out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_guard seed=20261021 cases=T5-04
+[S5-B] cases=4 assertions=103 failed=4 errors=0 exit=1
+[S5-B][FAIL] t5_04_age_equal_limit.record_contract_valid
+[S5-B][FAIL] t5_04_age_limit_plus_1.record_contract_valid
+[S5-B][FAIL] t5_04_stale_flag_small_age.record_contract_valid
+[S5-B][FAIL] t5_04_stale_both.record_contract_valid
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_guard
+[S5-B] png_set_digest=63a6b7c69b7bf1da1d7a990d39073ea93505138865307f63dd24d8d492f2304d
+[S5-B] json_stats_digest=93e485808eaceb596c3e1aace02042147c10a2db6a420898943668a48502ed92
+[S5-B][selfcheck] assertions=46 failed=0
+[S5-B] run_id=ut_a out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_a seed=20261021 cases=T5-01
+[S5-B] cases=7 assertions=211 failed=8 errors=0 exit=1
+[S5-B][FAIL] t5_01_landscape_1280x720.record_contract_valid
+[S5-B][FAIL] t5_01_portrait_720x1280.record_contract_valid
+[S5-B][FAIL] t5_01_oddw_683x384.record_contract_valid
+[S5-B][FAIL] t5_01_square_640x640_no_pad.record_contract_valid
+[S5-B][FAIL] t5_01_canvas_683x384_k2_1920x1080.record_contract_valid
+[S5-B][FAIL] t5_01_canvas_1280x720_k1_1920x1080.record_contract_valid
+[S5-B][FAIL] t5_01_s4b_palm_1440x1920.upstream_record_contract_valid
+[S5-B][FAIL] t5_01_s4b_palm_1440x1920.record_contract_valid
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_a
+[S5-B] png_set_digest=dff35fe04e5fef337565608b9263fc57663c3db9b8385fc1680dcd64755cc0a1
+[S5-B] json_stats_digest=788b5256b0db42b527b68b59a234b033866335e340fbacda46305234ae9c2301
+[S5-B] run_id=ut_tamper out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_tamper seed=20261021 cases=T5-04
+[S5-B] cases=4 assertions=103 failed=5 errors=0 exit=1
+[S5-B][FAIL] t5_04_age_equal_limit.record_contract_valid
+[S5-B][FAIL] t5_04_age_limit_plus_1.record_contract_valid
+[S5-B][FAIL] t5_04_stale_flag_small_age.record_contract_valid
+[S5-B][FAIL] t5_04_stale_both.record_contract_valid
+[S5-B][FAIL] global.border_pixels_vs_hand
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_tamper
+[S5-B] png_set_digest=63a6b7c69b7bf1da1d7a990d39073ea93505138865307f63dd24d8d492f2304d
+[S5-B] json_stats_digest=93e485808eaceb596c3e1aace02042147c10a2db6a420898943668a48502ed92
+[S5-B] run_id=ut_words out=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_words seed=20261021 cases=T5-03
+[S5-B] cases=3 assertions=124 failed=4 errors=0 exit=1
+[S5-B][FAIL] t5_03_multi_15.record_contract_valid
+[S5-B][FAIL] t5_03_no_hand_zero.record_contract_valid
+[S5-B][FAIL] t5_03_no_hand_s4b_640x963.upstream_record_contract_valid
+[S5-B][FAIL] t5_03_no_hand_s4b_640x963.record_contract_valid
+[S5-B] run_dir=D:\codex-worktrees\w5\tmp\5\S5-B\unittest\ut_words
+[S5-B] png_set_digest=23168a5ee96cfe1123db7135143c4a6d04c46b0d6498f52ffe992174b8953ee8
+[S5-B] json_stats_digest=41849b04b1273071dda2dd289dce3822c7e8867b3d0ce994eea522b41c20dbe7
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C5] S4-B 记录 3 条；勾连一致=False；SKIP 1；D9 追溯链完整=True（T29 SHA256 匹配=True）→ FAIL
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C1] 样本 109，框 104，字段值比较 1159，mismatch 0（其中位型 Gate D 0），别名违规 0，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C2] 常量一致=True accepted≡阶段4=True 禁用 token 命中=[] 解码/NMS 模块=0 → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C4] 框 104；最大像素往返误差 0.499058 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C1] 样本 8，框 8，字段值比较 88，mismatch 0（其中位型 Gate D 0），别名违规 0，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C2] 常量一致=True accepted≡阶段4=True 禁用 token 命中=[] 解码/NMS 模块=0 → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+[C1] 样本 8，框 8，字段值比较 88，mismatch 0（其中位型 Gate D 0），别名违规 0，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C2] 常量一致=True accepted≡阶段4=True 禁用 token 命中=[] 解码/NMS 模块=0 → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+[C1] 样本 8，框 8，字段值比较 88，mismatch 0（其中位型 Gate D 0），别名违规 0，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C2] 常量一致=True accepted≡阶段4=True 禁用 token 命中=[] 解码/NMS 模块=0 → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C1] 样本 8，框 8，字段值比较 88，mismatch 0（其中位型 Gate D 0），别名违规 0，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C2] 常量一致=True accepted≡阶段4=True 禁用 token 命中=[] 解码/NMS 模块=0 → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C1] 样本 8，框 8，字段值比较 88，mismatch 2（其中位型 Gate D 1），别名违规 8，最大 score 误差 2.000e-06，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 score_tol：检出=True 违规=2 命中门槛=['A', 'D'] 篡改前=0.9952200161925364 篡改后=0.9952220161925364 → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 2（其中位型 Gate D 1），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 2.000e-06 → FAIL
+[C6] 探针 xyxy_tol：检出=True 违规=2 命中门槛=['A', 'D'] 篡改前=[0.0671341069084445, 0.2792558469272399, 0.5064832517000888, 0.5305099429663835] 篡改后=[0.0671341069084445, 0.2792558469272399, 0.5064832517000888, 0.5305119429663835] → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 1（其中位型 Gate D 0），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 frame_id：检出=True 违规=1 命中门槛=['discrete'] 篡改前=1 篡改后=2 → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 0（其中位型 Gate D 0），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 identity_rebuild：检出=True 违规=0 命中门槛=[] 篡改前={'detections_aliased': False, 'values_equal': True} 篡改后={'detections_aliased': False, 'values_equal': True} → 期望退出码 1
+[C1] 样本 8，框 7，字段值比较 79，mismatch 1（其中位型 Gate D 0），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 box_count：检出=True 违规=1 命中门槛=['discrete'] 篡改前={'display_box_count': 1, 'authority_box_count': 1} 篡改后={'display_box_count': 0, 'authority_box_count': 1} → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 1（其中位型 Gate D 1），别名违规 8，最大 score 误差 1.110e-16，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 score_ulp：检出=True 违规=1 命中门槛=['D'] 篡改前=0.9952200161925364 篡改后=0.9952200161925365 → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 1（其中位型 Gate D 1），别名违规 8，最大 score 误差 1.110e-16，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 score_ulp：检出=True 违规=1 命中门槛=['D'] 篡改前=0.9952200161925364 篡改后=0.9952200161925365 → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 1（其中位型 Gate D 1），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 1.388e-17 → FAIL
+[C6] 探针 xyxy_ulp：检出=True 违规=1 命中门槛=['D'] 篡改前=[0.0671341069084445, 0.2792558469272399, 0.5064832517000888, 0.5305099429663835] 篡改后=[0.06713410690844451, 0.2792558469272399, 0.5064832517000888, 0.5305099429663835] → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 1（其中位型 Gate D 0），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 source_order：检出=True 违规=1 命中门槛=['discrete'] 篡改前=1035 篡改后=1036 → 期望退出码 1
+[C1] 样本 8，框 7，字段值比较 79，mismatch 1（其中位型 Gate D 0），别名违规 8，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 box_count：检出=True 违规=1 命中门槛=['discrete'] 篡改前={'display_box_count': 1, 'authority_box_count': 1} 篡改后={'display_box_count': 0, 'authority_box_count': 1} → 期望退出码 1
+[C1] 样本 8，框 8，字段值比较 88，mismatch 2（其中位型 Gate D 1），别名违规 8，最大 score 误差 2.000e-06，最大坐标误差 0.000e+00 → FAIL
+[C6] 探针 score_tol：检出=True 违规=2 命中门槛=['A', 'D'] 篡改前=0.9952200161925364 篡改后=0.9952220161925364 → 期望退出码 1
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+--- stderr ---
+s....................................................................................................................sFFF..F.F................................F...........FFFFFFFF..F..F....F..........F...............................F..
+======================================================================
+FAIL: test_driver_end_to_end_subset (scripts.stage5_s5b.test_s5b_overlay.TestEvidenceDriver.test_driver_end_to_end_subset)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 705, in test_driver_end_to_end_subset
+    self.assertEqual((dir_a / "console" / "run_a_exit_code.txt").read_text(
+AssertionError: '1' != '0'
+- 1
++ 0
+
+
+======================================================================
+FAIL: test_degenerate_case_renders_and_passes (scripts.stage5_s5b.test_s5b_overlay.TestRendererEndToEnd.test_degenerate_case_renders_and_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 621, in test_degenerate_case_renders_and_passes
+    self.assertEqual(code, R.EXIT_PASS)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_double_pass_byte_identical (scripts.stage5_s5b.test_s5b_overlay.TestRendererEndToEnd.test_double_pass_byte_identical)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 609, in test_double_pass_byte_identical
+    self.assertEqual((first, second), (R.EXIT_PASS, R.EXIT_PASS))
+AssertionError: Tuples differ: (1, 1) != (0, 0)
+
+First differing element 0:
+1
+0
+
+- (1, 1)
++ (0, 0)
+
+======================================================================
+FAIL: test_run_id_protection_refuses_overwrite (scripts.stage5_s5b.test_s5b_overlay.TestRendererEndToEnd.test_run_id_protection_refuses_overwrite)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 629, in test_run_id_protection_refuses_overwrite
+    self.assertEqual(self._render("ut_guard", "T5-04"), R.EXIT_PASS)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_subset_render_passes_and_semantics (scripts.stage5_s5b.test_s5b_overlay.TestRendererEndToEnd.test_subset_render_passes_and_semantics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 580, in test_subset_render_passes_and_semantics
+    self.assertEqual(code, R.EXIT_PASS)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_no_hand_record_is_valid_and_zero_box (scripts.stage5_s5b.test_s5b_overlay.TestT5_03MultiAndZeroBox.test_no_hand_record_is_valid_and_zero_box)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 336, in test_no_hand_record_is_valid_and_zero_box
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='test_three_085')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='approved_no_hand_001')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='approved_no_hand_002')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='approved_no_hand_003')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='synthetic_black')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='synthetic_white')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='synthetic_checkerboard')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_zero_box_samples_exist_and_use_no_hand (scripts.stage5_s5b.test_s5b_overlay.TestT5_05GoldenLedger.test_zero_box_samples_exist_and_use_no_hand) (sample='synthetic_xorshift32')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 459, in test_zero_box_samples_exist_and_use_no_hand
+    self.assertEqual(REFERENCE.validate_result_record(record), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+======================================================================
+FAIL: test_score_is_the_only_score_field_name (scripts.stage5_s5b.test_s5b_overlay.TestWordingDiscipline.test_score_is_the_only_score_field_name)
+产物内分数一律以 `score` 命名；无框用例不出现任何分数称谓字段。
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5b\test_s5b_overlay.py", line 737, in test_score_is_the_only_score_field_name
+    self.assertEqual(R.run_main(["--out", str(TMP_ROOT), "--run-id", "ut_words",
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_pristine_cli_exit_zero (scripts.stage5_s5c.test_s5c_regression.TestCliExitCodes.test_pristine_cli_exit_zero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5c\test_s5c_regression.py", line 327, in test_pristine_cli_exit_zero
+    out_dir, completed = self._run_cli(
+                         ^^^^^^^^^^^^^^
+  File "D:\codex-worktrees\w5\scripts\stage5_s5c\test_s5c_regression.py", line 322, in _run_cli
+    self.assertEqual(completed.returncode, expect,
+AssertionError: 1 != 0 : pristine_subset 退出码 1 != 0
+[S5-C] run_id=pristine_subset tamper=none limit=8 seed=20261021
+[S5-C] 证据目录 D:\codex-worktrees\w5\tmp\5\S5-C\unittest\pristine_subset-z6uxj1hx
+[输入] 黄金对拍输入 D:\codex-worktrees\w4\report\evidence\S4-C\s4c_replay_20261021_r05\replay_golden_109.json
+[输入] S4-B PS 记录 test_one_056 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_one_056.json
+[输入] S4-B PS 记录 test_palm_036 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_test_palm_036.json
+[输入] S4-B PS 记录 approved_no_hand_001 D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r13\host_result_approved_no_hand_001.json
+[抽样] rule=seeded_random_subset limit=8 seed=20261021 选中 8 样本
+[C1] 样本 8，框 8，字段值比较 88，mismatch 0（其中位型 Gate D 0），别名违规 0，最大 score 误差 0.000e+00，最大坐标误差 0.000e+00 → FAIL
+[C2] 常量一致=True accepted≡阶段4=True 禁用 token 命中=[] 解码/NMS 模块=0 → PASS
+[C3] S4-B test_one_056 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B test_palm_036 1440x1920 → new=(312,416) off=(52,0) 与记录一致=True
+[C3] S4-B approved_no_hand_001 640x963 → new=(276,416) off=(70,0) 与记录一致=True
+[C3] S4-B 3/3 一致=True；样本集内 21 种几何三方一致=True；非对称补边 5 种；683x384 补充用例=True；退化守卫达标=True → PASS
+[C4] 框 8；最大像素往返误差 0.452705 px（门槛 1.0）；边框展开不一致 0；反推无解 0；零面积探针 4/4 → PASS
+[C5] S4-B 记录 3 条；勾连一致=True；SKIP 0；D9 追溯链完整=True（T29 SHA256 匹配=True）→ PASS
+[C7] 扫描文件 90（跳过 20）；禁用用词出现 49 处，声明类 49，无依据 0 → PASS
+[S5-C] 总体状态 FAIL（tamper=none，检出=NA）；退出码 1
+
+
+======================================================================
+FAIL: test_full_109_dataset_passes (scripts.stage5_s5c.test_s5c_regression.TestFullDataset.test_full_109_dataset_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5c\test_s5c_regression.py", line 83, in test_full_109_dataset_passes
+    self.assertEqual(report["status"], "PASS", json.dumps(report["failures"], ensure_ascii=False))
+AssertionError: 'FAIL' != 'PASS'
+- FAIL
++ PASS
+ : [{"check": "C1_field_consistency", "status": "FAIL"}]
+
+======================================================================
+FAIL: test_manifest_binds_hashes (scripts.stage5_s5c.test_s5c_regression.TestSelectionAndManifest.test_manifest_binds_hashes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\scripts\stage5_s5c\test_s5c_regression.py", line 310, in test_manifest_binds_hashes
+    self.assertEqual(manifest["exit_code"], 0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_valid_record_passes (verification.test_s5_display_geometry_reference.TestRecordValidation.test_valid_record_passes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\codex-worktrees\w5\verification\test_s5_display_geometry_reference.py", line 262, in test_valid_record_passes
+    self.assertEqual(R.validate_result_record(self._record()), [])
+AssertionError: Lists differ: ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index'] != []
+
+First list contains 3 additional elements.
+First extra element 0:
+'缺少必需字段 session_id'
+
+- ['缺少必需字段 session_id', '缺少必需字段 result_seq', '缺少必需字段 repeat_index']
++ []
+
+----------------------------------------------------------------------
+Ran 225 tests in 180.469s
+
+FAILED (failures=19, skipped=2)

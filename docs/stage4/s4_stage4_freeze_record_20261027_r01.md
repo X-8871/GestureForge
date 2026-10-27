@@ -18,8 +18,8 @@
 |---|---|---|
 | 离线推理门（task-26） | **PASS（离线）** | `s4t26_gate_rerun_20261027_r04`：status PASS / exit 0，6/6 检查 PASS，两样本四个 head 与材料化黄金逐字节一致，单字节负控与 PNG 检查 PASS，task-25 回放帧 PASS。r02 为上一版桥接器字节的同类通过，保留；r01 为失败留档 |
 | task-27 回放结果包 | **已生成（replay_only）** | 同 RunId `task27_replay_result_package.json`；只能按回放口径消费，不得当实时结果 |
-| task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r30`（exit 0，`accept_producer_break=true` 已写入 command/字段）；同一字节无开关的 `r29` 仍 `BLOCKED/2`，证明默认 fail-closed |
-| 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r15`（exit 0，0 项未闭合；记录 `g0.run_id=r30` / `selection_mode=explicit_run_id`） |
+| task-26 G0 输入 | **CLOSED_WITH_ACCEPTED_BREAK** | `s4t26_g0_inputs_20261026_r34`（exit 0，`accept_producer_break=true` 已写入 command/字段）；同一字节无开关的 `r33` 仍 `BLOCKED/2`，证明默认 fail-closed |
+| 门禁证据对齐 | **PASS** | `s4t26_gate_reconcile_20261027_r17`（exit 0，0 项未闭合；记录 `g0.run_id=r34` / `selection_mode=explicit_run_id`） |
 | 绑定字节口径 | **已登记** | `docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`（4/4 声明值复算一致）；契约内已有 `binding_byte_basis` 声明 |
 | 共享 IO 契约 | **r07 已按规则重绑两处过期绑定，仍 `DRAFT_PENDING_REVIEW`** | 重绑：桥接器 `ad71cae0…`(06c9ab8) → `c6117bb4…`(r12 现行 raw)；w5 显示字段 `10d24a39…`(b6d11d4) → `af51a4bf…`(a54f09f)。冻结前仍需独立复审并引用被审 SHA |
 | RAW 系统 G0 | **未闭合** | `docs/stage4/S4B_raw_system_g0_gap_registry.json`：OPEN_REQUIRES_DESIGN_OR_REVIEW 10、PARTIALLY_CLOSED_OFFLINE 4、NOT_RUN_HARDWARE_REQUIRED 4、BLOCKED_PENDING_HARDWARE 1、CLOSED_OFFLINE 1 |
@@ -56,8 +56,8 @@
 ## 6. 证据索引
 
 - 门：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/`（含 `task27_replay_result_package.json`）
-- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r30/`（含 r29 无开关对照）
-- 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r15/`
+- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r34/`（含 r29 无开关对照）
+- 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r17/`
 - 断点决策：`docs/stage4/s4t26_producer_break_decision_20261027_r01.json`
 - 口径登记：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`
 - 身份审计（保留断点事实）：`report/evidence/S4-CTRL/s4t26_producer_audit_20261027_r04/`（仍 `BLOCKED/1`，属设计如此：它记录“不可复现”这一事实）

@@ -802,6 +802,7 @@ def main() -> int:
         "report/evidence/S4-CTRL/",
         "docs/stage4/",
         "scripts/stage4_s4ctrl/",
+        "scripts/stage4_s4b/",
         "verification/",
     )
     observed_preexisting = {

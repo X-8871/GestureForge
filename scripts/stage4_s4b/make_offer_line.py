@@ -92,8 +92,9 @@ def main() -> int:
         "工作树/分支": f"{MAIN_ROOT} / main",
         "起始提交": head,
         "允许修改范围": SCOPE,
-        "未提交改动归属": "无（main 工作树干净，OFFER 提交仅新增本行）" if not dirty_lines
-                          else f"存在 {len(dirty_lines)} 项未提交改动，提交 OFFER 前须先清理或登记归属",
+        "未提交改动归属": "无（main 工作树干净）" if not dirty_lines
+                          else f"main 工作树另有 {len(dirty_lines)} 项未提交改动，不属本次 OFFER；"
+                               f"OFFER 提交仅新增本行，无需清理",
         "让出声明": "OFFERED",
         "心跳(UTC+8)": heartbeat,
         "证据入口": f"hardware_run_id={args.run_id}",

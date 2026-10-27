@@ -122,10 +122,8 @@ def emit_tcl(plan: list[dict], case_id: int, path: pathlib.Path) -> None:
         words = WINDOW_PX * 3 // WORD_ALIGN
         lines.append(f"# {item['why']}")
         lines.append(f"puts \"S5_ROW_BEGIN row={row} x={x0}\"")
-        lines.append(f'for {{set i 0}} {{$i < {words}}} {{incr i}} {{')
-        lines.append(f'    set addr [expr {{$::buf0 + {row} * $::stride + {x0 * 3} + $i * {WORD_ALIGN}}}]')
-        lines.append('    puts [format "  %06X:   %08X" $addr [mrd -force $addr]]')
-        lines.append('}')
+        # xsdb 的 mrd 直接返回 "  ADDR:   WORDS" 字符串；用 `mrd -force <addr> <N>` 一次读 N 个 32 位字
+        lines.append(f'puts [mrd -force [expr {{$::buf0 + {row} * $::stride + {x0 * 3}}}] {words}]')
     lines += ['con', 'disconnect', 'puts "S5_DUMP_DONE=1"', '']
     path.write_text("\n".join(lines), encoding="utf-8", newline="\n")
 

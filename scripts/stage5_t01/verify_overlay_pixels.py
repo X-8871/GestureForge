@@ -150,6 +150,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--header", default=str(REPO_ROOT / "tmp/5/S5-T01/p1_app/build/s5_overlay_cases.h"))
     parser.add_argument("--source", default=str(REPO_ROOT / "scripts/stage5_t01/p1_app/s5_overlay.c"))
     parser.add_argument("--json", dest="json_out", default=None)
+    parser.add_argument("--hud-rect", default=None,
+                        help="HUD 面板矩形 x1,y1,x2,y2（最后绘制会覆盖边框）；如 14,14,318,296")
     parser.add_argument("--buf0", default="0x00138C00",
                         help="显示缓冲基地址（须与当轮应用 S5_P1_BUF0 一致）")
     parser.add_argument("--stride", type=int, default=3840, help="行字节跨度（1280*3）")
@@ -163,6 +165,11 @@ def main(argv: list[str] | None = None) -> int:
         cases = parse_case_table(pathlib.Path(args.header))
         colors = parse_class_colors(pathlib.Path(args.source))
         hud = parse_hud_rect(pathlib.Path(args.source))
+        if args.hud_rect:
+            parts = [int(v) for v in args.hud_rect.split(",")]
+            if len(parts) != 4:
+                raise InputError("--hud-rect 需 x1,y1,x2,y2 四个整数")
+            hud = tuple(parts)
         if args.mode == "address":
             pixels = parse_dump_by_address(pathlib.Path(args.dump), int(args.buf0, 16), int(args.stride))
         else:

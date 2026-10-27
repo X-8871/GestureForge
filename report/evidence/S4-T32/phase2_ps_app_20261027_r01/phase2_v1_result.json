@@ -1,0 +1,57 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "phase": "v1 PS 软件 letterbox + M4-b 自检模式（离线）",
+  "status": "SW_LETTERBOX_HOST_TEST_PASS / M4B_MODE_COMPILE_ONLY",
+  "geometry": {
+    "header": "vitis/stage4/ps/s4d_geometry.h",
+    "sha256": "0ff69e5fe444aebc7e6627348f2863a344eba58f0e6b0985ba60263089fa4cf6",
+    "params": {
+      "in": "640x480 BGR888",
+      "out": "416x416 INT8 RGB",
+      "new_w": 416,
+      "new_h": 312,
+      "pad_l": 0,
+      "pad_t": 52,
+      "ratio": "13/20",
+      "src_x": "(x*20)/13",
+      "src_y": "((y-52)*20)/13",
+      "out_bytes": 519168
+    }
+  },
+  "sw_letterbox_host_test": {
+    "source": "verification/test_s4d_letterbox.c",
+    "sha256": "366d97e168e95315f20568e41658b73ac2d00f15cb9c8c485207b6e98e261798",
+    "compiler": "d:\\mingw64\\bin\\gcc.exe",
+    "compile_exit": 0,
+    "run_exit": 0,
+    "verdict": "PASS",
+    "line": "[PASS] s4d_letterbox：尺寸/pad/最近邻角点/无混色/INT8 饱和 全部通过"
+  },
+  "app": {
+    "source": "vitis/stage4/ps/s4d_ps_app.c",
+    "sha256": "aab6975a8bc9d02992f09b8d4fcb0c795e30a0435bc67ee35df42740de057f37",
+    "variants": {
+      "sw_v1": {
+        "elf": "s4d_ps_app_sw_v1.elf",
+        "sha256": "a21ad9ad51ccb70d5295f1c0e9b00dd19f881cf29399a0c4549a785802c0d233"
+      },
+      "m4b_selfcheck": {
+        "elf": "s4d_ps_app_m4b.elf",
+        "sha256": "c674d41e810956bd0f168370f0e8ad3a410db97deb15661b3e240fcf84076026"
+      }
+    }
+  },
+  "m4b_selfcheck": {
+    "entry": "s4d_m4b_selfcheck()（-DS4D_M4B_SELFCHECK=1 独立入口，不依赖网络/解码 weak 桩）",
+    "sequence": [
+      "陈旧检测：触发前 tensor 与 RAW 区参考不同才可判新旧",
+      "PS 写 xorshift32 确定性图案 → 64B 外对齐 flush + DSB",
+      "Xil_Out32(0x43C00008,1) 触发 2B CSR START（真实 HP0 DMA 路径）",
+      "完成序门控：就绪前必须观察到 BUSY，提前读不得当有效",
+      "invalidate 后全量 519,168 B 与 RAW 参考逐字节比对；diff_bytes 必须 0，报首个差异偏移"
+    ],
+    "offline_test_limitation": "该流程依赖真实 DDR/PL，**无法离线单测**；当前仅编译验证（exit 0）+ 序列代码审查；其正确性必须在窗口内实测，不得用离线证据替代",
+    "output": "UART 结构化行：M4B RESULT={\"m4b_pass\":..,\"diff_bytes\":..,\"first_diff\":..,\"stale_detected\":..,\"premature_blocked\":..}"
+  },
+  "boundary": "离线；未接触板卡；ENABLE=0；未 FROZEN；未 push；不动 25 项遗留；不构成任何关口通过。"
+}

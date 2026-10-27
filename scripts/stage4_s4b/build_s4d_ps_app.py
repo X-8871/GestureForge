@@ -50,6 +50,7 @@ def main() -> int:
     """构建。"""
     ap = argparse.ArgumentParser()
     ap.add_argument("--preproc-src", type=int, default=0, choices=[0, 1])
+    ap.add_argument("--define", action="append", default=[], help="额外 -D 宏，如 S4D_M4B_SELFCHECK=1")
     args = ap.parse_args()
     if not GCC.is_file():
         print(f"[FAIL] 交叉编译器缺失：{GCC}")
@@ -67,7 +68,7 @@ def main() -> int:
     log = BUILD / "build.log"
     if log.exists():
         log.unlink()
-    common = ["-DSDT", f"-DPREPROC_SRC={args.preproc_src}", "-mcpu=cortex-a9", "-mfpu=vfpv3",
+    common = ["-DSDT", f"-DPREPROC_SRC={args.preproc_src}"] + [f"-D{d}" for d in args.define] + ["-mcpu=cortex-a9", "-mfpu=vfpv3",
               "-mfloat-abi=hard", "-MMD", "-MP", f"-specs={spec.as_posix()}",
               f"-I{include.as_posix()}", "-Wall", "-Wextra", "-O2", "-g3", "-std=gnu11",
               "-ffunction-sections", "-fdata-sections", "-U__clang__"]

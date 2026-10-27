@@ -22,6 +22,8 @@
 #include "xil_printf.h"
 #include "xparameters.h"
 
+#include "s4d_geometry.h"   /* 唯一几何参数表 + 最近邻 letterbox（PL/SW 共用，禁止另写字面量） */
+
 /* ---------------- 地址与 ABI 常量（冻结，ADR §8.2/§8.4） ---------------- */
 #define S4D_RAW_BASE      0x12000000u
 #define S4D_RAW_BYTES     12582912u
@@ -240,26 +242,103 @@ static int s4d_preproc_pl(const s4d_host_req_t *req)
 }
 #endif
 
-/* PS 软件路径（兜底）：BGR→RGB + INT8 打包；几何 resize/pad 未实现（S4D_SW_GEOM_TODO） */
+/* PS 软件路径（v1 关键路径）：与 PL 版**同一参数表**的最近邻 letterbox + BGR→RGB + INT8 打包 */
 __attribute__((unused)) static int s4d_preproc_sw(const s4d_host_req_t *req)
 {
     if (s4d_pixfmt_from_code(req->pixfmt_code) != S4D_PIXFMT_BGR888) {
         return -4;   /* 未知像素格式：拒绝，不猜 */
     }
     if (req->logical_bytes > S4D_RAW_BYTES) { return -5; }
-    const uint8_t *raw = (const uint8_t *)(uintptr_t)S4D_RAW_BASE;
-    int8_t *tensor = (int8_t *)(uintptr_t)S4D_TENSOR_BASE;
-    uint32_t pixels = req->logical_bytes / 3u;
-    s4d_region_invalidate(S4D_RAW_BASE, req->logical_bytes);
-    if (pixels > S4D_TENSOR_BYTES) { pixels = S4D_TENSOR_BYTES; }   /* 最小路径：不实现缩放 */
-    for (uint32_t i = 0; i < pixels; i++) {
-        /* BGR 存储顺序 → RGB 逻辑顺序，再偏移到 INT8 值域 */
-        tensor[i * 3 + 0] = (int8_t)((int)raw[i * 3 + 2] - 128);
-        tensor[i * 3 + 1] = (int8_t)((int)raw[i * 3 + 1] - 128);
-        tensor[i * 3 + 2] = (int8_t)((int)raw[i * 3 + 0] - 128);
+    s4d_region_invalidate(S4D_RAW_BASE, req->logical_bytes > 0 ? req->logical_bytes : S4D_RAW_BYTES);
+    if (s4d_letterbox_pack((const uint8_t *)(uintptr_t)S4D_RAW_BASE,
+                           (int8_t *)(uintptr_t)S4D_TENSOR_BASE) != 0) {
+        return -6;
     }
     s4d_region_flush(S4D_TENSOR_BASE, S4D_TENSOR_BYTES);
     return 0;
+}
+
+/* ================= M4-b 自检模式（独立入口，不依赖网络/解码 weak 桩） =================
+ * 顺序（判据见 bring-up 计划 §4）：
+ *   1) 陈旧检测：触发前 tensor 与"主机预置参考"不同才算可判新旧；
+ *   2) PS 写确定性图案 → 64 B 外对齐 flush + DSB；
+ *   3) 触发 PL 真实 HP0 DMA 路径（2B CSR START @0x43C00008）；
+ *   4) 完成序门控：PL 就绪前必须观察到 BUSY（提前读不得被当有效）；
+ *   5) invalidate 后**全量 519,168 B** 与 RAW 区参考逐字节比对：diff_bytes 必须 0。
+ * 参考张量由 host 在窗口内预置到 RAW 区；本模式只读 RAW，不写候选区外地址。
+ */
+#define S2B_CSR_START   0x43C00008u
+#define S2B_CSR_STATUS  0x43C0000Cu
+#define S2B_ST_BUSY     (1u << 0)
+
+static uint32_t s4d_prbs32(uint32_t s)
+{
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;   /* xorshift32，主机可复算 */
+    return s;
+}
+
+int s4d_m4b_selfcheck(void)
+{
+    const int8_t *tensor = (const int8_t *)(uintptr_t)S4D_TENSOR_BASE;
+    const int8_t *expected = (const int8_t *)(uintptr_t)S4D_RAW_BASE;   /* host 预置参考 */
+    int32_t *wr = (int32_t *)(uintptr_t)S4D_TENSOR_BASE;
+    uint32_t seed = 0x12345678u;
+    const uint32_t bytes = S4D_TENSOR_BYTES;
+    const uint32_t words = bytes / 4u;
+    uint32_t i, diff_bytes = 0, first_diff = 0xFFFFFFFFu;
+    int stale_detected, premature_blocked = 0;
+
+    s4d_region_invalidate(S4D_TENSOR_BASE, 64);
+    s4d_region_invalidate(S4D_RAW_BASE, 64);
+    stale_detected = (tensor[0] != expected[0] || tensor[1] != expected[1]) ? 1 : 0;
+
+    for (i = 0; i < words; i++) {
+        seed = s4d_prbs32(seed);
+        wr[i] = (int32_t)seed;
+    }
+    s4d_region_flush(S4D_TENSOR_BASE, bytes);
+    xil_printf("M4B STAGE=wrote_pattern\r\n");
+
+    Xil_Out32(S2B_CSR_START, 1u);
+    xil_printf("M4B STAGE=start_sent\r\n");
+
+    if ((Xil_In32(S2B_CSR_STATUS) & S2B_ST_BUSY) != 0u) {
+        premature_blocked = 1;
+        xil_printf("M4B GATE=busy_before_ready\r\n");
+    }
+
+    {
+        uint32_t spin = 0, st = 0;
+        for (spin = 0; spin < 20000000u; spin++) {
+            st = Xil_In32(S2B_CSR_STATUS);
+            if ((st & S2B_ST_BUSY) == 0u) { break; }
+        }
+        if (spin >= 20000000u) {
+            xil_printf("M4B RESULT={\"m4b_pass\":0,\"reason\":\"timeout\"}\r\n");
+            return -1;
+        }
+    }
+
+    s4d_region_invalidate(S4D_TENSOR_BASE, bytes);
+    {
+        const uint8_t *t = (const uint8_t *)tensor;
+        const uint8_t *e = (const uint8_t *)expected;
+        for (i = 0; i < bytes; i++) {
+            if (t[i] != e[i]) {
+                if (diff_bytes == 0) { first_diff = i; }
+                diff_bytes++;
+            }
+        }
+    }
+
+    xil_printf("M4B RESULT={\"m4b_pass\":%d,\"diff_bytes\":%u,\"first_diff\":%d,"
+               "\"stale_detected\":%d,\"premature_blocked\":%d,\"geom\":\"%s\","
+               "\"tensor_bytes\":%u}\r\n",
+               (diff_bytes == 0 && stale_detected && premature_blocked) ? 1 : 0,
+               (unsigned)diff_bytes,
+               (diff_bytes == 0) ? -1 : (int)first_diff,
+               stale_detected, premature_blocked, S4D_GEOM.name, (unsigned)bytes);
+    return (diff_bytes == 0 && stale_detected && premature_blocked) ? 0 : -2;
 }
 
 /* ---------------- infer_one_from_pl_tensor：跳过 CPU memcpy / 输入写回 ---------------- */
@@ -280,6 +359,11 @@ int infer_one_from_pl_tensor(const s4d_host_req_t *req)
 int main(void)
 {
     xil_printf("\r\nS4D PS APP: PREPROC_SRC=%d ABI=%u\r\n", PREPROC_SRC, S4D_ABI_VERSION);
+#if defined(S4D_M4B_SELFCHECK) && S4D_M4B_SELFCHECK
+    xil_printf("S4D MODE=M4B_SELFCHECK geom=%s\r\n", S4D_GEOM.name);
+    (void)s4d_m4b_selfcheck();
+    for (;;) { }
+#endif
     uint32_t last_frame = 0xFFFFFFFFu;
     uint32_t result_seq = 0;
 

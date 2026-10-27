@@ -1,0 +1,81 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "run_id": "bringup_checklist_20261027_r01",
+  "generated_utc8": "2026-10-27T23:05:00+08:00",
+  "purpose": "4-D bring-up 单窗口执行清单定稿（60 min 分段、证据格式、停止条件、恢复入口）",
+  "segments": [
+    {
+      "id": "S1",
+      "name": "bisect",
+      "budget_min": [
+        6,
+        8
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "ddr_bit_test",
+      "budget_min": [
+        5,
+        8
+      ],
+      "region": [
+        "0x11ae0000",
+        "0x11b00000"
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "M4-a",
+      "budget_min": [
+        6,
+        6
+      ]
+    },
+    {
+      "id": "S4",
+      "name": "M4-b",
+      "budget_min": [
+        10,
+        10
+      ]
+    },
+    {
+      "id": "S5",
+      "name": "M3_recheck",
+      "budget_min": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "S6",
+      "name": "teardown",
+      "budget_min": [
+        5,
+        5
+      ]
+    }
+  ],
+  "total_budget_min": [
+    44,
+    49
+  ],
+  "readiness": {
+    "four_d_bit": "MISSING",
+    "driver_v3": "MISSING",
+    "ddr_region": "READY",
+    "m3_reference": "READY",
+    "board": "RELEASED_TO_STAGE6"
+  },
+  "stop_conditions": [
+    "任一步 exit≠0",
+    "M3/恢复 diff≠0",
+    "两次 dump 互不相同(READ_UNSTABLE)",
+    "DDR 单 bit 差异(DDR_BIT_ERROR_SUSPECTED)",
+    "时间到 60 min",
+    "外部 session 干扰"
+  ],
+  "recovery": "不重跑已完成段；不重复写 DDR（只允许按快照恢复+diff=0）；脚本不得现场修改",
+  "boundary": "离线清单；未接触板卡；ENABLE=0；未 FROZEN；M3/M2 未写成通过。"
+}

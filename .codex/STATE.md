@@ -1,5 +1,18 @@
 # 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
+## 收尾快照：**再冻结 r06（2026-10-27 22:5x UTC+8；本节优先于下方任何历史陈述）**
+
+- **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线再冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5、板级 B1–B10 或任何实时/实物结论。本轮未连接、未加载位流、未烧录、未占用 JTAG（`ENABLE=0`；`hw_server.exe` 为外部 Agent 会话，未结束/未干扰）。
+- **冻结提交（被审）**：`92b2c9db978a776f6b429b6cb7067ab71cc6b66a`；**新 tag**：`stage5-offline-freeze-20261027-r2`（annotated，指向该提交）；旧 tag `stage5-offline-freeze-20261027` 仍指 `26b7439`，**不改不删**；`r05` 包字节未动（保留历史）。
+- **冻结集**：`report/evidence/S5-T04/s5_freeze_20261027_r06/frozen_set.json`，**93 成员（77→93）**：契约/规格 14→17、离线实现 3→4（`scripts/stage5_t03` 25→28 文件、新增 `scripts/stage5_t27` file_set）、离线 replay-display 证据 44→56（+S5-T27 r02 主包/自证 r02/权威运行 r01）、S5-T02 7、宿主只读引用 9；旧 77 成员身份逐项保留（复审核 0 改动）。
+- **校验器** → **exit 0 / `FROZEN_SET_VERIFIED`（93/93）**；**注入自测 → `SELFTEST_PASS` 4/4**：clean=0、改一字节=1、删一件=2、**路径逃逸=2（F1 新增负例）**。
+- **再冻结运行器**（`run_stage5_freeze_evidence.py`）→ **final_exit=0**：build=0、verify=0、selftest=0、离线套件 **159 OK**、安静窗口=OK（自有重型工具缺席）、工作树干净、`check_stage_delivery --mode evidence` **M1/M2 = 0/0**。
+- **F6 自证**（`s5_freeze_f6export_20261027_r02`）：`git archive` 导出与 `--shared` 部分检出（先检 `.gitattributes`）两路 **`FROZEN_SET_VERIFIED` exit 0**，副本内 checker **exit 0**；判定门禁 A+B（C1 提交前 handoff 仅信息）。
+- **提交后 handoff**（`…_r02_postcommit_handoff`）：**HANDOFF_OK / exit 0**（a/b/c/d PASS，e–i SKIP）。另一时刻 d 曾因外部 `hw_server.exe` FAIL，已在该包内如实记录为环境项。
+- **清单哈希基座**：`delivery_manifest.json` **内联** `hash_basis="commit_blob"` + `hash_basis_commit`（r06 包=`f53f009`…、handoff 包=`4742dbc`…）；权威运行方式=显式 `--commit <hash_basis_commit>`。实测 checker / gate strict / declared-only 均 **0**。
+- **S5-T04 复审 F1–F5 处置**：F1 校验器补 repo 路径包含性检查（绝对路径/`..`/逃逸 ⇒ exit 2）+ 负例；F2 README §6 措辞改准（校验器在副本内跑、checker 在主树跑为权威）；F3 `superseded_runs` 补全 r00–r05 及关系 + `re_freeze` 段；F4 失败件 `run_id` 残留**标注不重写**（r06 README §6.1）；F5 构建器 docstring 与 `file_set` 行为对齐。
+- **未做/不主张**：板级 B1–B10、真彩目视、HUD 屏上视觉、真实 30 分钟、T5-10、G0/G1/G3/G4/G5 全未做未主张；**冻结 ≠ 验收通过，不构成 G5**。
+
 ## 收尾快照（2026-10-27 19:55 UTC+8；本节优先于下方任何历史陈述）
 
 - **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线范围冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5 或任何板级/实物/实时结论。本卡（`task-29`/`S5-T04`）**不需要板卡**，本轮未连接、未加载位流、未烧录。

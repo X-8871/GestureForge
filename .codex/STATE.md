@@ -1,5 +1,16 @@
 # 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
+## 收尾快照：**再冻结 r07（2026-10-27 23:1x UTC+8；复审 CHANGES_REQUIRED 修正后；本节优先）**
+
+- **口径不变**：`OFFLINE_SCOPE_FROZEN` 离线字节冻结；不主张 G0/G1/G3/G4/G5、板级 B1–B10 或任何实时/实物/板级结论；未连接/未加载位流/未烧录/未占用 JTAG（`ENABLE=0`）。
+- **r07 因独立复审（对 r06 `6f95743`）CHANGES_REQUIRED 而重建**：冻结身份（`frozen_set.json` 字节）改变 ⇒ 新 tag `stage5-offline-freeze-20261027-r3`；**r2 tag 与 r06 包保留不删**（历史），r06 已登记入 `superseded_runs`。
+- **M1（文书谎报范围）**：README §1.2 删去未冻结的 `stage5_s5a|s5b|s5c` 并注明排除；§1.3 证据包改为**从 `frozen_set` 动态枚举（11 个，含 3 个 S5-T27 包）**；§6 F6 路径改 `…f6export_20261027_r02`（r07 自证为 `…_r03`）；均改**生成器模板**（非手改产物）。
+- **M2（范围自相矛盾）**：`not_frozen`、README §2.1/§7、`results_freeze.not_run` 统一为“**task-27 离线部分已交付并纳入本冻结；板级/实时/实物未做**”。
+- **M3（成员标识/计数）**：成员 `id` 改**路径派生唯一**（`contract::<path>` 等）；重复路径去重（`scripts/stage5_t27/.gitattributes` 仅作契约成员，file_set 跳过）；新增 `coverage` 块：**93 成员 / 93 唯一 id / 221 登记 = 221 唯一文件 / 宿主 9**，并加构建器 fail-closed 断言。
+- **m1–m6**：README §4 补 `--out` 与第 4 项自测（路径逃逸=2）；`carried_forward_rule` 改“旧 77 路径与成员内既有字节保留，仅 `stage5_t03` file_set 追加 3 文件”；r05 diff 口径更正（r06/r07 未改 r05，6 文件差异属 `2797cc3` 已披露纠正）；`not_run` 随 M2；attempt1 NOTE 补 `final_exit=1` 推导说明；F6 的 C 项标注“C1 信息项，非门禁”。
+- **真实退出码（r07）**：runner `final_exit=0`（build/verify/selftest/suite/quiet/clean/checker 全 0；套件 159 OK）；verifier `FROZEN_SET_VERIFIED` **0（93/93）**；自测 `SELFTEST_PASS` **4/4**；F6 `s5_freeze_f6export_20261027_r03`：A 导出校验 **0**、B 部分检出校验 **0**、副本内 checker **0**（C1 提交前 handoff 仅信息）；r07 清单 checker **0**、gate strict **0**（24 条目）、declared-only **0**。
+- **未做/不主张**：板级 B1–B10、真彩目视、HUD 屏上视觉、真实 30 分钟、T5-10、G0–G5 全未做未主张；**冻结 ≠ 验收通过，不构成 G5**。
+
 ## 收尾快照：**再冻结 r06（2026-10-27 22:5x UTC+8；本节优先于下方任何历史陈述）**
 
 - **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线再冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5、板级 B1–B10 或任何实时/实物结论。本轮未连接、未加载位流、未烧录、未占用 JTAG（`ENABLE=0`；`hw_server.exe` 为外部 Agent 会话，未结束/未干扰）。

@@ -1,0 +1,569 @@
+{
+  "schema_version": "gestureforge_s5t27_replay_colour_regression_v1",
+  "task_id": "S5-T27",
+  "stage": 5,
+  "run_id": "s5t27_replay_colour_20261027_r01",
+  "generated_utc8": "2026-10-27T19:42:28+08:00",
+  "verdict": "REPLAY_OFFLINE_REGRESSION_PASS",
+  "input_scope_label": "camera_capture_replay_colour",
+  "input_kind": "stage3_fixed_frame_replay",
+  "conclusion_scope": "回放/离线（replay_local_logical 逻辑时基；非实测、非板级、非实时）",
+  "replay_source": {
+    "input_scope_label": "camera_capture_replay_colour",
+    "input_kind": "stage3_fixed_frame_replay",
+    "input_id": "stage3_reference_frame_939fce22",
+    "binding_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_replay_binding_20261025_r01\\replay_input_binding.json",
+    "source_frame_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\frame_full.bin",
+    "source_frame_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+    "source_frame_size_bytes": 2764800,
+    "source_frame_id": 1,
+    "geometry": {
+      "width": 1280,
+      "height": 720
+    },
+    "stride_bytes": 3840,
+    "pixel_format": "BGR888",
+    "byte_order": "BGR",
+    "coordinate_origin": "top_left",
+    "capture_time_ns": 1792776253000000000,
+    "clock_domain": "replay_documented_wallclock",
+    "timing_claim_scope": "replay_only",
+    "replay_not_live": true,
+    "source_commit": "0ad2000cbc4af7b29f299c2277465bba608a8129",
+    "timestamp_source": {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/reference_frame_set.md",
+      "epoch_note": "UTC Unix epoch; derived from the documented UTC+8 wall-clock second, not a PS monotonic counter",
+      "additional_precision_claimed": false
+    }
+  },
+  "frozen_replay_package": {
+    "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_positive_20261027_r01\\task27_replay_result_package_positive.json",
+    "sha256": "988f2cae79cc4bfb306ccf4ef2601fcb52f6f3c34cfd906ddb6589e686d89986",
+    "freeze_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_positive_20261027_r01\\freeze_index.json",
+    "freeze_record_sha256": "a193fca16550b0ac2c2355cdac3c95dfaad3fce654c8d52390a685060719ccc6",
+    "contract_result_key": {
+      "session_id": 1396854863,
+      "frame_id": 1,
+      "result_seq": 1
+    },
+    "detection_count": 1,
+    "replay_content_origin": {
+      "frame_id": 1,
+      "result_seq": 1,
+      "note": "冻结包仅含 1 帧结果内容；回归将其**逐帧重复回放**，不是新推理"
+    }
+  },
+  "replay_timebase": {
+    "basis": "replay_local_logical",
+    "period_ns": 16890000,
+    "result_offset_ns": 1000000,
+    "note": "仅验证过期/年龄规则，不代表实测延迟"
+  },
+  "coordinates_px": [
+    {
+      "x1": 317,
+      "y1": 267,
+      "x2": 445,
+      "y2": 314
+    }
+  ],
+  "boundary_cases": [
+    {
+      "case": "age_equals_limit_not_stale",
+      "requested_age_ns": 200000000,
+      "age_frame_ns": 200000000,
+      "stale_flag": false,
+      "stale_effective": false,
+      "stale_reason": "none",
+      "pass": true
+    },
+    {
+      "case": "age_limit_plus_1ns_stale",
+      "requested_age_ns": 200000001,
+      "age_frame_ns": 200000001,
+      "stale_flag": false,
+      "stale_effective": true,
+      "stale_reason": "age_frame_exceeds_limit",
+      "pass": true
+    },
+    {
+      "case": "explicit_stale_flag",
+      "requested_age_ns": 1,
+      "age_frame_ns": 1000001,
+      "stale_flag": true,
+      "stale_effective": true,
+      "stale_reason": "stale_flag",
+      "pass": true
+    }
+  ],
+  "exception_frames": [
+    {
+      "state": "TIMEOUT",
+      "outcome": "accepted",
+      "drawn": false,
+      "boxes": 0,
+      "stale_effective": false,
+      "zero_area_dropped": 0,
+      "counters": {
+        "timeouts": 1,
+        "error_results": 0,
+        "dropped_frames": 0,
+        "zero_hand_frames": 0,
+        "zero_area_dropped": 0
+      }
+    },
+    {
+      "state": "ERROR",
+      "outcome": "accepted",
+      "drawn": false,
+      "boxes": 0,
+      "stale_effective": false,
+      "zero_area_dropped": 0,
+      "counters": {
+        "timeouts": 0,
+        "error_results": 1,
+        "dropped_frames": 0,
+        "zero_hand_frames": 0,
+        "zero_area_dropped": 0
+      }
+    },
+    {
+      "state": "DROPPED",
+      "outcome": "accepted",
+      "drawn": false,
+      "boxes": 0,
+      "stale_effective": false,
+      "zero_area_dropped": 0,
+      "counters": {
+        "timeouts": 0,
+        "error_results": 0,
+        "dropped_frames": 1,
+        "zero_hand_frames": 0,
+        "zero_area_dropped": 0
+      }
+    },
+    {
+      "state": "NO_HAND",
+      "outcome": "accepted",
+      "drawn": false,
+      "boxes": 0,
+      "stale_effective": false,
+      "zero_area_dropped": 0,
+      "counters": {
+        "timeouts": 0,
+        "error_results": 0,
+        "dropped_frames": 0,
+        "zero_hand_frames": 1,
+        "zero_area_dropped": 0
+      }
+    },
+    {
+      "state": "OK",
+      "outcome": "accepted",
+      "drawn": false,
+      "boxes": 0,
+      "stale_effective": false,
+      "zero_area_dropped": 1,
+      "counters": {
+        "timeouts": 0,
+        "error_results": 0,
+        "dropped_frames": 0,
+        "zero_hand_frames": 0,
+        "zero_area_dropped": 1
+      }
+    }
+  ],
+  "mixed_counters": {
+    "frames_committed": 240,
+    "overlay_drawn_frames": 240,
+    "boxes_drawn": 240,
+    "warmup_frames": 0,
+    "dropped_frames": 0,
+    "timeouts": 0,
+    "error_results": 0,
+    "invalid_records": 0,
+    "stale_cleared": 0,
+    "duplicate_results": 0,
+    "duplicate_frame_id_results": 0,
+    "out_of_order_results": 0,
+    "zero_hand_frames": 0,
+    "zero_area_dropped": 0
+  },
+  "long_run": {
+    "frames": 106573,
+    "interval_count": 106572,
+    "elapsed_ns": 1800001080000,
+    "counters": {
+      "frames_committed": 106573,
+      "overlay_drawn_frames": 106573,
+      "boxes_drawn": 106573,
+      "warmup_frames": 0,
+      "dropped_frames": 0,
+      "timeouts": 0,
+      "error_results": 0,
+      "invalid_records": 0,
+      "stale_cleared": 0,
+      "duplicate_results": 0,
+      "duplicate_frame_id_results": 0,
+      "out_of_order_results": 0,
+      "zero_hand_frames": 0,
+      "zero_area_dropped": 0
+    }
+  },
+  "assertions": [
+    {
+      "name": "replay_source_capture_time_nonzero",
+      "pass": true,
+      "detail": 1792776253000000000
+    },
+    {
+      "name": "replay_source_bytes_verified",
+      "pass": true,
+      "detail": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0"
+    },
+    {
+      "name": "frozen_package_bytes_verified",
+      "pass": true,
+      "detail": "988f2cae79cc4bfb306ccf4ef2601fcb52f6f3c34cfd906ddb6589e686d89986"
+    },
+    {
+      "name": "detection_count_from_frozen_package",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "name": "px_positive_area[0]",
+      "pass": true,
+      "detail": {
+        "x1": 317,
+        "y1": 267,
+        "x2": 445,
+        "y2": 314
+      }
+    },
+    {
+      "name": "px_inside_canvas[0]",
+      "pass": true,
+      "detail": {
+        "x1": 317,
+        "y1": 267,
+        "x2": 445,
+        "y2": 314
+      }
+    },
+    {
+      "name": "clip_idempotent[0]",
+      "pass": true,
+      "detail": {
+        "xyxy": [
+          0.2481297045148163,
+          0.3713942307692308,
+          0.34786113088325127,
+          0.4362980769230769
+        ],
+        "clipped": false,
+        "zero_area": false
+      }
+    },
+    {
+      "name": "one_commit_event_per_displayed_frame",
+      "pass": true,
+      "detail": 240
+    },
+    {
+      "name": "association_pairs_equal",
+      "pass": true,
+      "detail": 240
+    },
+    {
+      "name": "display_semantics_unique_B",
+      "pass": true
+    },
+    {
+      "name": "drawn_boxes_match_frozen_detection",
+      "pass": true
+    },
+    {
+      "name": "stale_boundary::age_equals_limit_not_stale",
+      "pass": true,
+      "detail": {
+        "case": "age_equals_limit_not_stale",
+        "requested_age_ns": 200000000,
+        "age_frame_ns": 200000000,
+        "stale_flag": false,
+        "stale_effective": false,
+        "stale_reason": "none",
+        "pass": true
+      }
+    },
+    {
+      "name": "stale_boundary::age_limit_plus_1ns_stale",
+      "pass": true,
+      "detail": {
+        "case": "age_limit_plus_1ns_stale",
+        "requested_age_ns": 200000001,
+        "age_frame_ns": 200000001,
+        "stale_flag": false,
+        "stale_effective": true,
+        "stale_reason": "age_frame_exceeds_limit",
+        "pass": true
+      }
+    },
+    {
+      "name": "stale_boundary::explicit_stale_flag",
+      "pass": true,
+      "detail": {
+        "case": "explicit_stale_flag",
+        "requested_age_ns": 1,
+        "age_frame_ns": 1000001,
+        "stale_flag": true,
+        "stale_effective": true,
+        "stale_reason": "stale_flag",
+        "pass": true
+      }
+    },
+    {
+      "name": "duplicate_result_key_rejected",
+      "pass": true,
+      "detail": "duplicate"
+    },
+    {
+      "name": "regressed_frame_id_rejected",
+      "pass": true,
+      "detail": "out_of_order"
+    },
+    {
+      "name": "equivalent_frame_id_undeclared_rejected",
+      "pass": true,
+      "detail": "duplicate_frame_id"
+    },
+    {
+      "name": "equivalent_frame_id_declared_accepted",
+      "pass": true,
+      "detail": "accepted"
+    },
+    {
+      "name": "skip_then_stale_cleared",
+      "pass": true,
+      "detail": "age_frame_exceeds_limit"
+    },
+    {
+      "name": "timeout_counted_not_drawn",
+      "pass": true,
+      "detail": {
+        "state": "TIMEOUT",
+        "outcome": "accepted",
+        "drawn": false,
+        "boxes": 0,
+        "stale_effective": false,
+        "zero_area_dropped": 0,
+        "counters": {
+          "timeouts": 1,
+          "error_results": 0,
+          "dropped_frames": 0,
+          "zero_hand_frames": 0,
+          "zero_area_dropped": 0
+        }
+      }
+    },
+    {
+      "name": "error_counted_not_drawn",
+      "pass": true,
+      "detail": {
+        "state": "ERROR",
+        "outcome": "accepted",
+        "drawn": false,
+        "boxes": 0,
+        "stale_effective": false,
+        "zero_area_dropped": 0,
+        "counters": {
+          "timeouts": 0,
+          "error_results": 1,
+          "dropped_frames": 0,
+          "zero_hand_frames": 0,
+          "zero_area_dropped": 0
+        }
+      }
+    },
+    {
+      "name": "dropped_counted_not_drawn",
+      "pass": true,
+      "detail": {
+        "state": "DROPPED",
+        "outcome": "accepted",
+        "drawn": false,
+        "boxes": 0,
+        "stale_effective": false,
+        "zero_area_dropped": 0,
+        "counters": {
+          "timeouts": 0,
+          "error_results": 0,
+          "dropped_frames": 1,
+          "zero_hand_frames": 0,
+          "zero_area_dropped": 0
+        }
+      }
+    },
+    {
+      "name": "no_hand_zero_box_legit_not_stale",
+      "pass": true,
+      "detail": {
+        "state": "NO_HAND",
+        "outcome": "accepted",
+        "drawn": false,
+        "boxes": 0,
+        "stale_effective": false,
+        "zero_area_dropped": 0,
+        "counters": {
+          "timeouts": 0,
+          "error_results": 0,
+          "dropped_frames": 0,
+          "zero_hand_frames": 1,
+          "zero_area_dropped": 0
+        }
+      }
+    },
+    {
+      "name": "zero_area_after_clip_dropped_not_drawn",
+      "pass": true,
+      "detail": {
+        "state": "OK",
+        "outcome": "accepted",
+        "drawn": false,
+        "boxes": 0,
+        "stale_effective": false,
+        "zero_area_dropped": 1,
+        "counters": {
+          "timeouts": 0,
+          "error_results": 0,
+          "dropped_frames": 0,
+          "zero_hand_frames": 0,
+          "zero_area_dropped": 1
+        }
+      }
+    },
+    {
+      "name": "exceptions_not_rendered_as_stale",
+      "pass": true
+    },
+    {
+      "name": "long_run_frames",
+      "pass": true,
+      "detail": 106573
+    },
+    {
+      "name": "long_run_timestamps_monotonic",
+      "pass": true
+    },
+    {
+      "name": "long_run_interval_arithmetic",
+      "pass": true,
+      "detail": 1800001080000
+    },
+    {
+      "name": "long_run_counters_recomputable",
+      "pass": true,
+      "detail": {
+        "online": {
+          "frames_committed": 106573,
+          "overlay_drawn_frames": 106573,
+          "boxes_drawn": 106573,
+          "warmup_frames": 0,
+          "dropped_frames": 0,
+          "timeouts": 0,
+          "error_results": 0,
+          "invalid_records": 0,
+          "stale_cleared": 0,
+          "duplicate_results": 0,
+          "duplicate_frame_id_results": 0,
+          "out_of_order_results": 0,
+          "zero_hand_frames": 0,
+          "zero_area_dropped": 0
+        },
+        "recomputed": {
+          "frames_committed": 106573,
+          "overlay_drawn_frames": 106573,
+          "boxes_drawn": 106573,
+          "warmup_frames": 0,
+          "dropped_frames": 0,
+          "timeouts": 0,
+          "error_results": 0,
+          "invalid_records": 0,
+          "stale_cleared": 0,
+          "duplicate_results": 0,
+          "duplicate_frame_id_results": 0,
+          "out_of_order_results": 0,
+          "zero_hand_frames": 0,
+          "zero_area_dropped": 0
+        }
+      }
+    },
+    {
+      "name": "long_run_no_duplicate_or_out_of_order",
+      "pass": true,
+      "detail": {
+        "duplicate_results": 0,
+        "out_of_order_results": 0,
+        "duplicate_frame_id_results": 0
+      }
+    }
+  ],
+  "failed_assertions": [],
+  "limitations": [
+    "回放/离线：冻结包只含 1 帧结果内容，逐帧重复回放；不是新推理、不是真实采集、不是板上运行。",
+    "replay-local 逻辑时基只验证过期与年龄**规则**；capture_time_ns 为阶段3 已文档化的真实抓取时刻（非零）。",
+    "不主张：板上回放/PL 实跑、UART 实收、摄像头质量与颜色、端到端延迟、G0–G5、T5-10、B1–B10 任一通过。",
+    "长跑为虚拟逻辑时基（1 800 001 080 000 ns），不是板上耐久。"
+  ],
+  "checks": [
+    {
+      "name": "回放输入路径实现自检（逐帧完整性/replay_source_*/非零 capture/replay_not_live + 必失败注入）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w5\\scripts\\stage5_t03\\s5t03_replay_colour_input.py --binding D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_replay_binding_20261025_r01\\replay_input_binding.json --json-out D:\\codex-worktrees\\w5\\report\\evidence\\S5-T27\\s5t27_replay_colour_20261027_r01\\replay_input_selftest.json",
+      "exit_code": 0,
+      "reason": "REPLAY_INPUT_SELFTEST_PASS；4 类注入（replay_not_live=false / capture=0 / 缺 replay_source 字段 / frame_integrity 不符）均被拒收"
+    },
+    {
+      "name": "离线动态显示回归（回放/离线）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w5\\scripts\\stage5_t03\\s5t03_replay_colour_regression.py --out D:\\codex-worktrees\\w5\\report\\evidence\\S5-T27\\s5t27_replay_colour_20261027_r01 --binding D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_replay_binding_20261025_r01\\replay_input_binding.json --package D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_positive_20261027_r01\\task27_replay_result_package_positive.json --freeze-record D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_positive_20261027_r01\\freeze_index.json",
+      "exit_code": 0,
+      "reason": "REPLAY_OFFLINE_REGRESSION_PASS；断言 30 项、失败 0 项；长跑 106573 帧 / 1800001080000 ns"
+    },
+    {
+      "name": "相关用例套件",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -m unittest scripts.stage5_t03.test_s5t03_replay_colour scripts.stage5_t03.test_s5t03_frozen_replay scripts.stage5_t03.test_s5t03_stage4_positive_replay",
+      "exit_code": 0,
+      "reason": "Ran 14 / failures 0 / errors 0 / skipped 2"
+    },
+    {
+      "name": "安静窗口（无 vivado.exe/xsdb/hw_server/vitis/xsim）",
+      "status": "PASS",
+      "command": "tasklist 过滤 vivado.exe|xsdb|hw_server|vitis|xsim",
+      "exit_code": 0,
+      "reason": "heavy=(none)；桥接进程 3 个只作信息记录"
+    },
+    {
+      "name": "工作树基线（无已跟踪改动、无 index.lock）",
+      "status": "PASS",
+      "command": "git status --short --untracked-files=no; git rev-parse --git-path index.lock",
+      "exit_code": 0,
+      "reason": "tracked_dirty=False lock=False"
+    },
+    {
+      "name": "check_stage_delivery --mode inputs",
+      "status": "NOT_APPLICABLE",
+      "command": "python -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --project-root <w5> --manifest <本清单>",
+      "exit_code": null,
+      "reason": "无 role=input 本地输入（输入为跨树只读引用），不伪造冻结字段"
+    },
+    {
+      "name": "check_stage_delivery --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w5 --manifest D:\\codex-worktrees\\w5\\report\\evidence\\S5-T27\\s5t27_replay_colour_20261027_r01\\delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "对 M1 运行（M2 只新增本 check 与 console 一个文件）；CHECKS_OK 仅代表包装检查通过"
+    }
+  ]
+}

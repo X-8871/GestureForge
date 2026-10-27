@@ -1,0 +1,91 @@
+{
+  "status": "REPLAY_INPUT_SELFTEST_PASS",
+  "source": {
+    "input_scope_label": "camera_capture_replay_colour",
+    "input_kind": "stage3_fixed_frame_replay",
+    "input_id": "stage3_reference_frame_939fce22",
+    "binding_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_replay_binding_20261025_r01\\replay_input_binding.json",
+    "source_frame_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T05\\t05_stage3_window_20261024_r01\\frame_full.bin",
+    "source_frame_sha256": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+    "source_frame_size_bytes": 2764800,
+    "source_frame_id": 1,
+    "geometry": {
+      "width": 1280,
+      "height": 720
+    },
+    "stride_bytes": 3840,
+    "pixel_format": "BGR888",
+    "byte_order": "BGR",
+    "coordinate_origin": "top_left",
+    "capture_time_ns": 1792776253000000000,
+    "clock_domain": "replay_documented_wallclock",
+    "timing_claim_scope": "replay_only",
+    "replay_not_live": true,
+    "source_commit": "0ad2000cbc4af7b29f299c2277465bba608a8129",
+    "timestamp_source": {
+      "path": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/reference_frame_set.md",
+      "epoch_note": "UTC Unix epoch; derived from the documented UTC+8 wall-clock second, not a PS monotonic counter",
+      "additional_precision_claimed": false
+    }
+  },
+  "record_keys": [
+    "capture_time_ns",
+    "clock_domain",
+    "detection_count",
+    "detections",
+    "dropped_frames",
+    "end_to_end_latency_ns",
+    "error_code",
+    "frame_id",
+    "frame_integrity",
+    "geometry",
+    "inference_time_ns",
+    "input_kind",
+    "input_scope_label",
+    "repeat_index",
+    "replay_not_live",
+    "replay_source_byte_order",
+    "replay_source_file_sha256",
+    "replay_source_height",
+    "replay_source_path",
+    "replay_source_pixel_format",
+    "replay_source_stride_bytes",
+    "replay_source_width",
+    "result_seq",
+    "result_time_ns",
+    "session_id",
+    "source_capture_time_ns",
+    "source_frame_id",
+    "stage3_capture_evidence_entry",
+    "stale",
+    "state",
+    "timing_claim_scope"
+  ],
+  "frame_integrity": {
+    "algorithm": "sha256",
+    "value": "939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0",
+    "length_bytes": 2764800
+  },
+  "must_fail_injections": [
+    {
+      "injection": "replay_not_live_false",
+      "rejected": true,
+      "reason": "replay_not_live 必须为 true（回放不得冒充实时）"
+    },
+    {
+      "injection": "capture_time_zero",
+      "rejected": true,
+      "reason": "capture_time_ns 必须非零（不得 0 哨兵/unavailable）"
+    },
+    {
+      "injection": "drop_replay_source_field",
+      "rejected": true,
+      "reason": "结果记录缺少 replay_source_* 字段：['replay_source_file_sha256']"
+    },
+    {
+      "injection": "frame_integrity_mismatch",
+      "rejected": true,
+      "reason": "frame_integrity.value 必须与 replay_source_file_sha256 一致"
+    }
+  ]
+}

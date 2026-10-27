@@ -1,6 +1,6 @@
 # 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
-## 收尾快照（2026-10-27 19:35 UTC+8；本节优先于下方任何历史陈述）
+## 收尾快照（2026-10-27 19:55 UTC+8；本节优先于下方任何历史陈述）
 
 - **冻结口径 `OFFLINE_SCOPE_FROZEN`（离线范围冻结）**：只冻结离线契约/实现/证据字节集；**不主张** G0/G1/G3/G4/G5 或任何板级/实物/实时结论。本卡（`task-29`/`S5-T04`）**不需要板卡**，本轮未连接、未加载位流、未烧录。
 - **冻结前基线**（构建冻结集时 HEAD）：`2a2d2cc01cd31444a1a854115d99a31cbe8499bf`；**冻结提交（被审）**：`26b743901b4ec76107ca2cd6a010337a5ae40bf2`（tag `stage5-offline-freeze-20261027`；本文件所在的收尾提交为其后置补记）。
@@ -23,6 +23,26 @@
   - **F3**：`frozen_set.json.superseded_runs` 只登记 r00/r01，r02/r03/r04 的取代原因仅在 STATE/tag/提交消息 ⇒ 下轮补齐。
   - **F4**：两个 F6 失败目录内部 `run_id` 仍为 `…_r01`（修复前硬编码残留）；**不重写失败证据**，下轮加指认说明。
   - **F5**：构建器 docstring 写 `dir_digest`，实为 `file_set`（该分支本次未用）⇒ 下轮修注释。
+
+## task-27（回放/彩色输入路径 + 离线动态回归）：已交付（2026-10-27 19:55）
+
+- **实现层**（新文件，**未改 S5-T04 冻结成员**）：`scripts/stage5_t03/s5t03_replay_colour_input.py` —— 装载即**现场重算**源帧 sha256/字节数；
+  逐帧 `frame_integrity`（algorithm/value/length_bytes 三者全等）；每条记录携带 10 项 `replay_source_*`；
+  **非零** `capture_time_ns`（证据模式＝阶段3 文档化真实抓取时刻 `1792776253000000000`）；`replay_not_live=true`；
+  对每条记录跑阶段4 输入契约 `validate_result_record`。自检 `REPLAY_INPUT_SELFTEST_PASS`，**4 类必失败注入全部被拒收**
+  （`replay_not_live=false` / `capture=0` / 缺 `replay_source_*` / `frame_integrity` 不符）。
+- **离线动态回归**（`s5t03_replay_colour_regression.py`；输入＝阶段4 **已冻结**带框回放包 `988f2cae…` + 阶段3 固定帧）：
+  `results.json` 判定 **`REPLAY_OFFLINE_REGRESSION_PASS`（30 项断言 / 0 失败）**，结论标注 **回放/离线**；
+  覆盖坐标（冻结框→像素逐值、正面积、画布内、裁剪幂等）、帧关联（240 帧成对、语义唯一 B、每帧恰一次提交）、
+  过期边界（`==200 ms` 不过期 / `+1 ns` 过期 / 显式 flag 过期）、顺序规则（重复键/回退/等价未声明拒绝、声明放行、跳帧致过期）、
+  异常分支（TIMEOUT/ERROR/DROPPED/NO_HAND/裁剪零面积分列且不绘制）、长跑（**106 573 帧 / 1 800 001 080 000 ns**、时间戳单调、计数可复算）；
+  判别力：篡改冻结包字节 ⇒ 驱动 **exit 2**（用例固化）。
+- 用例：`scripts/stage5_t03/test_s5t03_replay_colour.py` **14 项 OK**（含 5 类拒收负例 + 1 项回归判别力负例）。
+- 证据：`report/evidence/S5-T27/s5t27_replay_colour_20261027_r01/`（`results.json`、`frame_assertions.jsonl` 240 行、
+  `replay_input_selftest.json`、`summary.md`、`console/**`、清单+哈希）；运行器 `final_exit=0`（自检/回归/套件/安静窗口/检查器 M1/M2 全 0）。
+- 板级对齐：`docs/stage5/S5T27_replay_colour_input_path_v1.md` §3 —— B1–B10 逐项标"离线已获前置证据 / 必须上板"
+  （B3/B5/B6/B8 部分前置已获；B2/B7/B9/B10 必须上板）；R1 冻结原文不改写，本节为增量对齐。
+- **未做**：板上/实时回放、摄像头真实采集、真彩目视、HUD 屏上视觉、真实 30 分钟、T5-10、B1–B10 全项、G0–G5（均未主张）。
 
 ## 写权与交接（更正过期陈述）
 
@@ -62,6 +82,6 @@
 - 复跑：`python -B verification/verify_stage5_frozen_set.py --root . --frozen-set report/evidence/S5-T04/s5_freeze_20261027_r05/frozen_set.json` → 期望 `FROZEN_SET_VERIFIED` / exit 0；加 `--selftest tmp/5/S5-T04/selftest` → 期望 0/1/2。
 - 恢复命令：`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 tag --list "stage5-offline-freeze*"`
 
-## 交接行（11 字段，2026-10-27 19:35 UTC+8）
+## 交接行（11 字段，2026-10-27 19:55 UTC+8）
 
-任务=`S5-T04 离线范围冻结（已完成、复审 PASS）→ 现执行 task-27（阶段5 回放/彩色输入路径实现 + 离线动态显示回归）` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`2a2d2cc01cd31444a1a854115d99a31cbe8499bf` | 允许修改范围=`verification/verify_stage5_frozen_set.py、verification/test_s5_display_geometry_reference.py（夹具修复）、scripts/stage5_t04/**、report/evidence/S5-T04/**、.gitattributes、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随冻结/自证提交同批提交；失败/崩溃/被取代 RunId 保留不改写` | 让出声明=`本卡为**离线**冻结：未连接/未加载位流/未烧录/未占用 JTAG 串口；固定基线后停写被审对象，等待独立复审；板级项继续暂停` | 心跳(UTC+8)=`2026-10-27 19:35` | 证据入口=`report/evidence/S5-T04/**`、`verification/verify_stage5_frozen_set.py`、`docs/stage5/**` | 恢复命令=`python -B D:/codex-worktrees/w5/verification/verify_stage5_frozen_set.py --root D:/codex-worktrees/w5` | 状态/下一接手方=`REVIEW_PASSED_OFFLINE_FREEZE（复审 PASS 0 阻断，主仓 d4e835c 入库；5 项非阻断留待重冻结）→ **已 claim task-27**（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态回归 + B1–B10 对齐）/ 本阶段总控`
+任务=`task-27 阶段5 回放/彩色输入路径实现 + 离线动态显示回归（已交付 r01；S5-T04 离线冻结复审 PASS 保持）` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`2a2d2cc01cd31444a1a854115d99a31cbe8499bf` | 允许修改范围=`scripts/stage5_t03/s5t03_replay_colour_input.py、s5t03_replay_colour_regression.py、test_s5t03_replay_colour.py、scripts/stage5_t27/**、docs/stage5/S5T27_*、report/evidence/S5-T27/**、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随后续提交同批入库；S5-T04 冻结成员未改` | 让出声明=`本卡为**离线回放**：未连接/未加载位流/未烧录/未占用 JTAG 串口；板级 B1–B10 仍暂停（需 Wong 开工信号 + 第 0 步，真彩目视需 Wong 在场）` | 心跳(UTC+8)=`2026-10-27 19:55` | 证据入口=`report/evidence/S5-T27/s5t27_replay_colour_20261027_r01/`、`docs/stage5/S5T27_replay_colour_input_path_v1.md`、`report/evidence/S5-T04/s5_freeze_20261027_r05/` | 恢复命令=`python -B D:/codex-worktrees/w5/scripts/stage5_t03/s5t03_replay_colour_input.py --binding D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_replay_binding_20261025_r01/replay_input_binding.json` | 状态/下一接手方=`TASK27_DELIVERED（实现层＋离线回归 PASS：30 断言/0 失败、长跑 106 573 帧、B1–B10 对齐已交；待 DSH 项目总控核收/派审）→ 下一步：W-E 板级窗口待 Wong 信号；重冻结时一并修 S5-T04 复审 F1–F5 / 本阶段总控`

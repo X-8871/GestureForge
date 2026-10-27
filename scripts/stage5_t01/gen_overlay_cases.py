@@ -140,7 +140,8 @@ def emit_c(cases: list[dict], path: pathlib.Path) -> None:
                    | {ch for meta in cases for box in meta["drawn"] for ch in box["label"]})
     lines = ["/* 自动生成（scripts/stage5_t01/gen_overlay_cases.py）：勿手改。",
              " * 几何来自 verification/s5_display_geometry_reference.py（S5A-G0-v2 冻结实现）；",
-             " * C 侧只绘制预计算的像素矩形与笔画，不做任何逆映射/取整。 */",
+             " * C 侧默认只绘制预计算的像素矩形与笔画（不做逆映射/取整）；\n"
+             " * 另附原图归一化 xyxy（nx1..ny2）供 -DS5_DYNAMIC_MAP=1 的板上动态映射路径使用。 */",
              "#ifndef S5_OVERLAY_CASES_H", "#define S5_OVERLAY_CASES_H", "",
              f"#define S5_CANVAS_W {CANVAS_W}", f"#define S5_CANVAS_H {CANVAS_H}",
              f"#define S5_LINE_W {LINE_W}", f"#define S5_LABEL_SCALE {LABEL_SCALE}",
@@ -148,7 +149,8 @@ def emit_c(cases: list[dict], path: pathlib.Path) -> None:
              f"#define S5_GLYPH_W {GLYPH_W}", f"#define S5_GLYPH_H {GLYPH_H}", f"#define S5_GLYPH_ADV {GLYPH_ADV}",
              f"#define S5_STALE_LIMIT_NS {STALE_AGE_LIMIT_NS}U", "",
              "typedef struct { char ch; unsigned char nseg; signed char seg[12][4]; } s5_glyph_t;",
-             "typedef struct { short x1, y1, x2, y2; unsigned char cls; const char *label; } s5_box_t;",
+             "typedef struct { short x1, y1, x2, y2; unsigned char cls; const char *label;",
+             "                 float nx1, ny1, nx2, ny2; } s5_box_t;  /* nx1..ny2 = 原图归一化（板上动态映射输入） */",
              "typedef struct { unsigned char id; unsigned char nbox; unsigned char stale;",
              "                 const char *name; const s5_box_t *boxes; const char *hud[4]; } s5_case_t;", "",
              "static const s5_glyph_t S5_GLYPHS[] = {"]
@@ -169,8 +171,10 @@ def emit_c(cases: list[dict], path: pathlib.Path) -> None:
     for case in cases:
         for box in case["drawn"]:
             px = box["px"]
-            lines.append('    {%d, %d, %d, %d, %d, "%s"},' % (px["x1"], px["y1"], px["x2"], px["y2"],
-                                                              box["cls"], box["label"]))
+            ny = box["xyxy"]
+            lines.append('    {%d, %d, %d, %d, %d, "%s", %.6ff, %.6ff, %.6ff, %.6ff},'
+                         % (px["x1"], px["y1"], px["x2"], px["y2"], box["cls"], box["label"],
+                            ny[0], ny[1], ny[2], ny[3]))
     lines += ["};", "", "static const s5_case_t S5_CASES[] = {"]
     offset = 0
     for case, meta in zip(CASES, cases):

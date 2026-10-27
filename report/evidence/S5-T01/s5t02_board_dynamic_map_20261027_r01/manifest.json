@@ -1,0 +1,103 @@
+{
+  "schema_version": "gestureforge_s5t02_board_dynamic_map_v1",
+  "run_id": "s5t02_board_dynamic_map_20261027_r01",
+  "task_id": "S5-T02",
+  "generated_utc8": "2026-10-27T13:04:37+08:00",
+  "source_commit": "38adca0246839a9a8ebab695ce567f2b98278f0c",
+  "authorization": {
+    "by": "Wong",
+    "gate": "report/evidence/S5-T01/hw_gate_20261027_r03/",
+    "quote": "阶段四还未完成，但是硬件窗口和实物授权可以给你",
+    "occupation_record": "dsh_mailbox/DSH-20261027-002-stage5-hardware-occupation.md"
+  },
+  "goal_reached": "S5T02_BOARD_DYNAMIC_MAPPING_GEOMETRY_MATCHES_FROZEN_REFERENCE__PIXEL_LAYER_UNCONFIRMED",
+  "board_verify": {
+    "cases_compared": 6,
+    "boxes_compared": 22,
+    "checks_passed": 110,
+    "checks_total": 110,
+    "failures": [],
+    "passed": true
+  },
+  "exit_codes": {
+    "build_default": 0,
+    "build_dynmap": 0,
+    "build_case5": 0,
+    "jtag_download_v2": 0,
+    "jtag_download_case5": 0,
+    "jtag_read_buffer": 0,
+    "jtag_dump_rows": 0,
+    "legacy_decoder": 1
+  },
+  "input_bindings": {
+    "bit_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "xsa_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+    "reference_sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645",
+    "span": "volatile JTAG download; QSPI NOT burned"
+  },
+  "elfs": {
+    "s5t01_overlay_case5.elf": {
+      "sha256": "ef8ae3e6c0382c74c09b4499073fd8d52d3d0ba9f66acd384a58c05c28d09158",
+      "bytes": 356420
+    },
+    "s5t01_overlay_dynmap.elf": {
+      "sha256": "a2dacf189a5c2ef2a9701364730d251424305c0dd3ce31ecc6309c53588541ca",
+      "bytes": 356420
+    }
+  },
+  "files": [
+    {
+      "path": "board_verify.json",
+      "sha256": "c16b67a64b45afb2d6f1c71c46c6247806bd9bf4a21b39dca2953d735a2292d8",
+      "bytes": 22551
+    },
+    {
+      "path": "console/logs/decode_case5.json",
+      "sha256": "4c81a80e3c198ae988a9d00f47192915fe38ffeb20a54e78ac9ed9ef45865e05",
+      "bytes": 2563
+    },
+    {
+      "path": "console/logs/jtag_dump_case5.txt",
+      "sha256": "86735e29cb8783329ea40bee2566a1138e7c296870c6a969cad1bb2329299666",
+      "bytes": 8701
+    },
+    {
+      "path": "console/logs/jtag_read_overlay_buf.txt",
+      "sha256": "a375c94d92162b153e343ec412f80f56b0c2237e063a09d8a9275260ee48ea28",
+      "bytes": 2799
+    },
+    {
+      "path": "console/logs/uart_dynmap_v1.log",
+      "sha256": "772ff03cf1885d15a26210fa9d4bfbcb4a589abf291c776a34a627cbe75e60cc",
+      "bytes": 14238
+    },
+    {
+      "path": "console/logs/uart_dynmap_v2.log",
+      "sha256": "8f4fcb71d1e314242d1c11c8c10d8c3df77332bc86fb9fcbe7393e25f57ababc",
+      "bytes": 14709
+    },
+    {
+      "path": "summary.md",
+      "sha256": "f1a2e216136fd8f0b9f51890dce9a42ff6b69508975e7d022bd5b613c66ea98a",
+      "bytes": 3729
+    }
+  ],
+  "limitations": [
+    "板上时钟为固定虚拟基准（capture/result/commit），非实测采集/推理时间",
+    "标签尺寸口径为**应用侧指标**（与离线对拍器的渲染层字体口径不同，故两者 anchor 不可直接混比）",
+    "本对拍证明几何/边框/锚点数值一致；**像素级画面**需显示缓冲回读或 HDMI 目视（另行）",
+    "像素级叠加**未确认**：期望边框列取到背景值；既有 decode_mrd_rows.py 期望早于当前应用修订，不可作本版本判据。",
+    "受连接判据（部署身份逐字符核对、真彩目视）**未重做**；HDMI 照片需人工。",
+    "板上时钟为固定虚拟基准，非实测采集/推理时间。"
+  ],
+  "not_run": [
+    "像素级叠加/画面确认",
+    "HDMI 真彩目视与拍照",
+    "B5 计数流(120 帧)",
+    "B6 30 分钟板上长跑",
+    "T5-10 板上回归",
+    "真实回放上板链路（阶段4 冻结仅允许离线消费；八类门禁 0/8）",
+    "摄像头采集路径",
+    "§4.5/§7.3 关闭"
+  ]
+}

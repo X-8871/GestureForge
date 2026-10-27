@@ -31,6 +31,68 @@
 #include <string.h>
 #include "s5_overlay_cases.h"
 
+/* S5-T02 板上动态映射（可选；默认 0 = 既有验收路径逐字节不变）。
+ * 开启后几何不再来自宿主预计算：裁剪/像素索引/2px 居中边框/标签锚点全部由 C 核心计算；
+ * 核心与 verification/s5_display_geometry_reference.py（S5A-G0-v2）逐字镜像。 */
+#ifndef S5_DYNAMIC_MAP
+#define S5_DYNAMIC_MAP 0
+#endif
+
+#if S5_DYNAMIC_MAP
+#include "s5_dynamic_map.h"
+static s5d_frame_result s5dm_res;
+static s5d_counters s5dm_ctr;
+static u32 s5dm_last_case = 0xFFFFFFFFu;
+
+static void s5dm_run_case(const s5_case_t *c)
+{
+    s5d_frame f;
+    const char *texts[S5D_MAX_BOXES];
+    int tw[S5D_MAX_BOXES], th[S5D_MAX_BOXES];
+    int i;
+    memset(&f, 0, sizeof(f));
+    f.frame_id = c->id;
+    f.displayed_frame_id = c->id;
+    f.result_seq = c->id;
+    f.state = "OK";
+    f.stale_flag = c->stale ? 1 : 0;
+    /* 时钟口径：板上无真实采集/推理时间，用固定虚拟基准并在产物中显式声明（不得当实测） */
+    f.capture_time_ns = 1000000000LL;
+    f.result_time_ns = f.capture_time_ns + 500000LL;
+    f.overlay_commit_ns = f.result_time_ns + 1000000LL;
+    f.nbox = (int)c->nbox;
+    for (i = 0; i < f.nbox; i++) {
+        f.boxes[i].class_id = c->boxes[i].cls;
+        f.boxes[i].score = 0.5;
+        f.boxes[i].xyxy.x1 = (double)c->boxes[i].nx1;
+        f.boxes[i].xyxy.y1 = (double)c->boxes[i].ny1;
+        f.boxes[i].xyxy.x2 = (double)c->boxes[i].nx2;
+        f.boxes[i].xyxy.y2 = (double)c->boxes[i].ny2;
+        texts[i] = c->boxes[i].label;
+        tw[i] = S5_GLYPH_ADV * S5_LABEL_SCALE * (int)strlen(c->boxes[i].label);
+        th[i] = S5_GLYPH_H * S5_LABEL_SCALE;
+    }
+    if (s5d_process_frame(&f, S5_CANVAS_W, S5_CANVAS_H, texts, tw, th, f.nbox,
+                          &s5dm_res, &s5dm_ctr) != S5D_OK) {
+        xil_printf("S5DM_ERR id=%u\r\n", (unsigned)c->id);
+        return;
+    }
+    if (c->id != s5dm_last_case) {
+        xil_printf("S5DM id=%u nbox=%d stale=%d reason=%s age_frame_ns=%d zero_area=%u\r\n",
+                   (unsigned)c->id, s5dm_res.nbox_drawn, (int)s5dm_res.stale.stale_effective,
+                   s5dm_res.stale.reason, (int)s5dm_res.stale.age_frame_ns,
+                   (unsigned)s5dm_res.zero_area_dropped);
+        for (i = 0; i < s5dm_res.nbox_drawn; i++) {
+            s5d_drawn_box *d = &s5dm_res.drawn[i];
+            xil_printf("S5DM_B id=%u i=%d rect=%d,%d,%d,%d px=%d anchor=%d,%d pl=%s\r\n",
+                       (unsigned)c->id, i, d->rect.x1, d->rect.y1, d->rect.x2, d->rect.y2,
+                       d->border_pixels, d->label_x, d->label_y, d->label_placement);
+        }
+        s5dm_last_case = c->id;
+    }
+}
+#endif
+
 #define S5_MM2S_CR_ADDR 0x43000000U
 #define S5_MM2S_SR_ADDR 0x43000004U
 #define S5_MM2S_FRMCNT_BIT 0x00001000U
@@ -358,6 +420,25 @@ static void s5_render(u8 *buf, u32 stride, const s5_case_t *c, int draw_boxes)
     u32 occ = 0;
     s5_background(buf, stride);
     s5_hud_rect(&hx1, &hy1, &hx2, &hy2);
+#if S5_DYNAMIC_MAP
+    /* 无条件计算：过期/NO_HAND 帧也必须如实上报状态与计数（B2/B4 证据口径） */
+    s5dm_run_case(c);
+    if (draw_boxes) {
+        for (i = 0; i < s5dm_res.nbox_drawn; i++) {
+            s5d_drawn_box *d = &s5dm_res.drawn[i];
+            s5_box_t bb;
+            const u8 *rgb;
+            bb.x1 = (short)d->rect.x1; bb.y1 = (short)d->rect.y1;
+            bb.x2 = (short)d->rect.x2; bb.y2 = (short)d->rect.y2;
+            bb.cls = (unsigned char)c->boxes[i].cls; bb.label = c->boxes[i].label;
+            rgb = S5_CLASS_COLOR[bb.cls % 5];
+            occ += s5_box_occluded(&bb, hx1, hy1, hx2, hy2);
+            s5_box_border(buf, stride, bb.x1, bb.y1, bb.x2, bb.y2, rgb);
+            /* 标签锚点用核心（=冻结参考 label_anchor），不再用本文件历史经验规则 */
+            s5_text_plate(buf, stride, d->label_x, d->label_y, bb.label, S5_LABEL_SCALE, rgb);
+        }
+    }
+#else
     if (draw_boxes) {
         for (i = 0; i < c->nbox; i++) {
             const s5_box_t *b = &c->boxes[i];
@@ -376,6 +457,7 @@ static void s5_render(u8 *buf, u32 stride, const s5_case_t *c, int draw_boxes)
             s5_text_plate(buf, stride, lx, ly, b->label, S5_LABEL_SCALE, rgb);
         }
     }
+#endif
     s5_st.occ_cur = occ;
     if (occ > s5_st.occ_max) s5_st.occ_max = occ;
     s5_hud_draw(buf, stride, c);     /* HUD 最后绘制（置顶） */

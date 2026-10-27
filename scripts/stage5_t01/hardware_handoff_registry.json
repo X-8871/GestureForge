@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T12:36:26+08:00",
+  "generated_utc8": "2026-10-27T13:05:21+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -415,6 +415,16 @@
       "note": "阶段5 硬件窗口开工：Vivado TCL 会话 vivado-20261027-123420-1f6f557a（PID 7436），已 connect_hw_server 并 open_hw_target（只读探测）；窗口 2026-10-27 12:34 起，单次≤3h；释放条件：跑完/阻断/超时后关闭会话并回执",
       "evidence": "report/evidence/S5-T01/hw_probe_20261027_r01/probe.json",
       "sha256": "e7339e2bf28b125f9b740f44976ad9f59f45bc3ecdd1d33cdcdbf34e59c428b3"
+    },
+    {
+      "id": "DSH-20261027-003",
+      "file": "dsh_mailbox/DSH-20261027-003-stage5-hardware-release-receipt.md",
+      "kind": "hardware_release",
+      "order_key": "20261027003",
+      "sha256": "4e4dee32a14169ea87a09e6f63c7eda47fd99bf7c2bd628aae3ab8036cc59653",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "阶段5 S5-T02 窗口 A 释放回执；收尾实测残留进程 0、3121 无监听、未烧 QSPI。窗口内：几何数值对拍 110/110 PASS、过期边界 PASS；像素级叠加未确认、B5/B6/真彩目视 NOT_RUN",
+      "evidence": "report/evidence/S5-T01/s5t02_board_dynamic_map_20261027_r01/"
     }
   ]
 }

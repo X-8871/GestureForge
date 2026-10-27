@@ -1,0 +1,251 @@
+$ C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B -m unittest -v scripts.stage5_t03.test_s5t03_json_contract_malformed scripts.stage5_t03.test_s5t03_hud_occlusion scripts.stage5_t03.test_s5t03_json_contract scripts.stage5_t03.test_s5t03_multi_geometry_render scripts.stage5_t03.test_s5t03_long_run_replay scripts.stage5_t03.test_s5t03_replay_display scripts.stage5_t03.test_s5t03_skeleton scripts.stage5_t03.test_s5t03_frozen_replay
+[exit code: 0]
+--- stdout ---
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 list）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 str）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 int）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 NoneType）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 bool）
+[contract] 环境错误（退出码 2）：契约根必须是 JSON 对象（实为 float）
+[contract] 环境错误（退出码 2）：契约 artifact_kinds 必须是非空对象
+[contract] 环境错误（退出码 2）：契约 stability 必须是对象
+FAIL s5t03_offline_replay_display_20261026_r06        kind=replay_display frames=240 errors=["事件日志 events_mixed_240.jsonl 的 sub 记录键集与契约不符：多 ['fid', 'oc', 'pri', 'rb', 'rd', 'ri', 'rr', 'seq', 'sid', 'vf'] / 缺 ['boxes', 'drawn', 'state']", "事件日志中未找到 ['commit'] 记录（t 字段）"]
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=1 failed=1
+OK   s5t03_offline_replay_display_20261026_r06        kind=replay_display frames=240 errors=[]
+OK   s5t03_offline_long_run_replay_20261026_r04       kind=long_run_replay frames=106573 errors=[]
+OK   s5t03_multi_geometry_render_20261026_r02         kind=multi_geometry_render frames=None errors=[]
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=3 failed=0
+FAIL mg_cli                                           kind=multi_geometry_render frames=None errors=['results[multi_geometry_render] 缺字段 limitations', 'manifest.files[13] 哈希不符：results.json']
+contract=gestureforge_s5t03_json_contract v1.0.3 packages=1 failed=1
+[contract] 环境错误（退出码 2）：未指定任何包（--package / --packages-from）
+[contract] 环境错误（退出码 2）：包目录不存在：D:\tmp\s5t03_contract_xoacp12e\no_such_package
+[contract] 环境错误（退出码 2）：--packages-from 文件不存在：D:\tmp\s5t03_contract_xoacp12e\no_such_list.txt
+[contract] 环境错误（退出码 2）：未指定任何包（--package / --packages-from）
+[contract] 环境错误（退出码 2）：契约缺 contract_required_keys（无法自证完整性）
+
+--- stderr ---
+test_01_non_object_contracts_are_environment_errors (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_01_non_object_contracts_are_environment_errors) ... ok
+test_02_self_declared_short_required_list_is_caught (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_02_self_declared_short_required_list_is_caught)
+自声明短 required 列表 + 缺 artifact_kinds ⇒ 必须 exit 2，不得 KeyError（崩成 1）。 ... ok
+test_03_missing_section_removed_from_required_is_caught (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_03_missing_section_removed_from_required_is_caught)
+删 stability 且同步从 required 列表移除 ⇒ 仍需 exit 2（不得静默放过）。 ... ok
+test_04_artifact_kinds_wrong_type_is_caught (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_04_artifact_kinds_wrong_type_is_caught) ... ok
+test_05_declared_event_log_keys_match_reality (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_05_declared_event_log_keys_match_reality)
+契约声明的事件日志键集必须等于实物首条记录键集（短跑与长跑都查）。 ... ok
+test_06_wrong_declared_keys_fail_validation (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_06_wrong_declared_keys_fail_validation)
+把契约键位改错（模拟 BL-1 的漂移）⇒ 校验器必须 exit 1。 ... ok
+test_07_only_package_root_manifest_is_exempt (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_07_only_package_root_manifest_is_exempt)
+子目录里的同名 manifest.json 是**多余文件**，必须被抓住（只豁免包根那份）。 ... ok
+test_08_real_packages_still_pass (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_08_real_packages_still_pass) ... ok
+test_09_markdown_section6_matches_json_keys (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_09_markdown_section6_matches_json_keys)
+**R-1/N-7 永久防线**：契约 `.md` §6 的键位清单必须与 `.json` 的 `event_log_fields` 逐字一致。 ... ok
+test_10_missing_event_log_is_an_error_for_replay_kinds (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_10_missing_event_log_is_an_error_for_replay_kinds)
+N-3：要求可复算日志的种类，缺 `logs/events_*` 必须违约。 ... ok
+test_11_all_event_logs_are_checked (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_11_all_event_logs_are_checked)
+N-2：包内**多个** `logs/events_*` 都要检——第二个文件键位错也必须被抓。 ... ok
+test_12_contract_json_version_and_keys_are_consistent (scripts.stage5_t03.test_s5t03_json_contract_malformed.T_ContractMalformed.test_12_contract_json_version_and_keys_are_consistent)
+契约自洽：版本 ≥1.0.3、必填键含说明键、legend_ref 指向真实层级。 ... ok
+test_01_exit_and_case_count (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_01_exit_and_case_count) ... ok
+test_02_boxes_are_actually_drawn (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_02_boxes_are_actually_drawn)
+回归：手写检测字典会被管线拒收（曾导致 total=0 的假通过），必须有真实框线像素。 ... ok
+test_03_under_hud_occlusion_is_detected (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_03_under_hud_occlusion_is_detected)
+判别力核心：面板下的框遮挡必须 >0（用 `A\B` 的错误口径会被算成 ~0）。 ... ok
+test_04_far_box_has_zero_occlusion (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_04_far_box_has_zero_occlusion)
+远端框不得虚报遮挡。 ... ok
+test_05_panel_and_pixel_methods_agree (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_05_panel_and_pixel_methods_agree)
+两种独立口径（逐像素差 vs 面板矩形）必须一致；HUD 像素集非空。 ... ok
+test_06_threshold_verdict_is_live (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_06_threshold_verdict_is_live)
+阈值必须真正参与判定：把 limit 收到 0 后，同布局必须全部 EXCEEDS_LIMIT。 ... ok
+test_07_artifacts_and_binding (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_07_artifacts_and_binding) ... ok
+test_08_honest_labels (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_08_honest_labels)
+诚实标注：阈值是离线口径（非验收指标）；真实回放/板上 NOT_RUN；PNG 非权威。 ... ok
+test_09_missing_pillow_is_failure (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_09_missing_pillow_is_failure) ... ok
+test_10_no_hardware_dependency (scripts.stage5_t03.test_s5t03_hud_occlusion.T_HudOcclusion.test_10_no_hardware_dependency) ... ok
+test_01_real_packages_pass (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_01_real_packages_pass)
+三个真实最终包必须通过，且种类判定正确、帧数与产物一致。 ... ok
+test_02_kind_inference_is_not_guessing (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_02_kind_inference_is_not_guessing)
+种类判定依据固定字段；无法判定必须抛错（不得默认成某一类）。 ... ok
+test_03_contract_self_consistency (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_03_contract_self_consistency)
+契约自洽：三类种类齐全、计数键 14 个、逐帧/manifest 必需字段非空、稳定集非空。 ... ok
+test_10_missing_required_field_fails (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_10_missing_required_field_fails) ... ok
+test_11_wrong_status_label_fails (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_11_wrong_status_label_fails) ... ok
+test_12_missing_counter_key_fails (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_12_missing_counter_key_fails) ... ok
+test_13_long_run_missing_invariant_fails (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_13_long_run_missing_invariant_fails) ... ok
+test_14_missing_frame_assertions_fails_for_replay (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_14_missing_frame_assertions_fails_for_replay) ... ok
+test_15_manifest_missing_files_entry_field_fails (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_15_manifest_missing_files_entry_field_fails) ... ok
+test_16_duplicated_frame_assertion_key_compression_is_ok (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_16_duplicated_frame_assertion_key_compression_is_ok)
+`.jsonl.gz` 与 `.jsonl` 都必须可校验（长跑用 gzip + compact）。 ... ok
+test_17_broken_contract_fails_closed (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_17_broken_contract_fails_closed)
+契约缺必需键/缺文件 ⇒ 必须 ContractError（退出码 2，fail-closed）。 ... ok
+test_18_cli_exit_codes (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_18_cli_exit_codes)
+CLI：全通过 0；违约 1；未指定包 2。 ... ok
+test_19_no_hardware_dependency (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_19_no_hardware_dependency) ... ok
+test_20_schema_version_value_is_guarded (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_20_schema_version_value_is_guarded)
+B2：schema_version 值错（乱填/升版）必须违约。 ... ok
+test_21_file_hash_drift_is_detected (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_21_file_hash_drift_is_detected)
+B3：篡改包内文件内容（清单未同步）必须违约。 ... ok
+test_22_checks_passed_false_is_rejected (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_22_checks_passed_false_is_rejected)
+B4：checks.passed=False（失败运行）不得作为交付证据。 ... ok
+test_23_frame_stable_subset_is_checked (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_23_frame_stable_subset_is_checked)
+B1：逐帧 stable 必需字段缺失必须违约（不能只查 frame_assertion_required）。 ... ok
+test_24_exit_code_semantics (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_24_exit_code_semantics)
+B6：2=输入/环境错误（契约缺键、包目录不存在、packages-from 文件不存在、无参数）。 ... ok
+test_25_event_log_reject_reason_key_documented (scripts.stage5_t03.test_s5t03_json_contract.T_Contract.test_25_event_log_reject_reason_key_documented)
+契约必须如实登记事件日志的拒绝原因键为 `rr`（复审第 6 项：文档曾写不存在的 `reason`）。 ... ok
+test_01_exit_and_all_geometries_pixel_exact (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_01_exit_and_all_geometries_pixel_exact)
+四种几何都必须 exit 0 且**逐像素**与参考一致（missing/extra 均为 0）。 ... ok
+test_02_frozen_geometry_numbers (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_02_frozen_geometry_numbers)
+奇数补边与整数倍画布的冻结数值（与参考函数逐值一致）。 ... ok
+test_03_canvas_fit_mapping_is_not_exact_mapping (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_03_canvas_fit_mapping_is_not_exact_mapping)
+画布-fit 必须用 `original_norm_to_canvas_px`（误用 exact 映射 → 像素不同）。 ... ok
+test_04_pixel_sets_recomputed_independently (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_04_pixel_sets_recomputed_independently)
+独立复算：每个几何的渲染像素集合 == `R.border_pixel_sets` 并集（不信 results 自述）。 ... ok
+test_05_artifacts_binding_and_honesty (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_05_artifacts_binding_and_honesty)
+产物齐全、工具哈希一致、诚实标注齐备。 ... ok
+test_06_no_hardware_dependency (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_06_no_hardware_dependency) ... ok
+test_07_missing_pillow_is_failure (scripts.stage5_t03.test_s5t03_multi_geometry_render.T_MultiGeometry.test_07_missing_pillow_is_failure)
+fail-open 关闭：缺 Pillow ⇒ `exit 1` + `passed=false`。 ... ok
+test_01_exit_and_artifacts (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_01_exit_and_artifacts)
+小样本必须 exit 0 且产物齐全。 ... ok
+test_02_hard_invariants (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_02_hard_invariants)
+硬不变量：每帧一次提交、时间戳单调、可复算、无死锁。 ... ok
+test_03_smoke_does_not_claim_30min (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_03_smoke_does_not_claim_30min)
+诚实标注：小样本不得声称 ≥30 分钟；软判据应为 null 或 false（不得为假阳性 true）。 ... ok
+test_04_canonical_arithmetic (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_04_canonical_arithmetic)
+规范帧数的判据算术（纯计算，不跑 10 万帧）。 ... ok
+test_05_gz_assertions_cover_all_frames (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_05_gz_assertions_cover_all_frames)
+`frame_assertions.jsonl.gz` 必须覆盖全部帧，且事件日志行数 ≥ 帧数。 ... ok
+test_06_boundary_cases_pass (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_06_boundary_cases_pass)
+过期边界三例（渲染路径）必须 PASS 且语义正确。 ... ok
+test_07_demo_not_requested_is_explicit (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_07_demo_not_requested_is_explicit)
+未请求 demo ⇒ 显式 NOT_RUN 且 demo_only。 ... ok
+test_08_honest_labels_and_tools (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_08_honest_labels_and_tools)
+诚实标注与工具绑定：合成流/PRELIMINARY/NOT_RUN 清单/参考契约哈希。 ... ok
+test_09_no_hardware_dependency (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_09_no_hardware_dependency)
+长跑模块不得引入串口/硬件会话依赖。 ... ok
+test_10_missing_pillow_reported_as_failure (scripts.stage5_t03.test_s5t03_long_run_replay.T_LongRun.test_10_missing_pillow_reported_as_failure)
+同一口径覆盖长跑模块：缺 Pillow ⇒ `passed=false` 且退出码 1。 ... ok
+test_30_no_board_or_serial_dependency (scripts.stage5_t03.test_s5t03_replay_display.T_NoHardwareDependency.test_30_no_board_or_serial_dependency)
+渲染/驱动源码不得**引入**串口或硬件会话依赖（注释里提到板卡不算依赖）。 ... ok
+test_01_render_is_deterministic (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_01_render_is_deterministic)
+同一决策两次渲染 → PNG 字节与 SHA 完全一致。 ... ok
+test_02_border_pixels_single_source (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_02_border_pixels_single_source)
+渲染的边框像素集必须与冻结参考逐框一致（流水线 border_pixels 亦同源）。 ... ok
+test_02b_rendered_pixels_exactly_equal_reference_border_sets (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_02b_rendered_pixels_exactly_equal_reference_border_sets)
+**像素级**单源断言：只画边框时，非背景像素集合必须**恰好等于** `R.border_pixel_sets`。 ... ok
+test_03_render_stats_match_decision (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_03_render_stats_match_decision)
+渲染统计必须与决策一致：框数、HUD 行数、类色表命中 UR-3。 ... ok
+test_03b_font_identity_is_honest (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_03b_font_identity_is_honest)
+字体诚实标注（N1 判别力）：可用字体 ⇒ `scaled=true` 且尺寸正确；**无字体 ⇒ 必须 scaled=false**。 ... ok
+test_04_stale_and_zero_hand_invariants (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_04_stale_and_zero_hand_invariants)
+过期 ⇒ 不画框；NO_HAND ⇒ 零框且非过期（不得把 NO_HAND 当过期）。 ... ok
+test_05_boundary_cases (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_05_boundary_cases)
+三例过期边界：`==limit` 不过期、`limit+1` 过期、显式标志过期。 ... ok
+test_06_label_anchor_rules (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_06_label_anchor_rules)
+标签锚点：正常在框外上方；顶部越界翻到框内；再越界钳入安全区。 ... ok
+test_07_keyframe_selection_bounded (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_07_keyframe_selection_bounded)
+关键帧选择有界且必含首末帧。 ... ok
+test_08_five_tuple_and_semantics (scripts.stage5_t03.test_s5t03_replay_display.T_Render.test_08_five_tuple_and_semantics)
+五元组齐全、语义唯一 B、displayed 与 result 可不同（如实记录）。 ... ok
+test_10_end_to_end_artifacts_and_labels (scripts.stage5_t03.test_s5t03_replay_display.T_ReplayArtifacts.test_10_end_to_end_artifacts_and_labels)
+端到端小跑：产物齐全、JSON 为权威、诚实标注（合成/初稿/真实回放 NOT_RUN）。 ... ok
+test_11_demo_is_marked_demo_only_or_not_run (scripts.stage5_t03.test_s5t03_replay_display.T_ReplayArtifacts.test_11_demo_is_marked_demo_only_or_not_run)
+未请求 demo 时必须显式 NOT_RUN 且标 demo_only（不得静默缺失）。 ... ok
+test_12_reject_tags_match_actual_outcomes (scripts.stage5_t03.test_s5t03_replay_display.T_ReplayArtifacts.test_12_reject_tags_match_actual_outcomes)
+N2 判别力（端到端）：关键帧文件名里的 `rejected_<kind>` 必须对应**实际发生**的 FAIL 类型。 ... ok
+test_13_event_log_written_and_reject_reason_present (scripts.stage5_t03.test_s5t03_replay_display.T_ReplayArtifacts.test_13_event_log_written_and_reject_reason_present)
+N3：帧级事件日志必须落盘；FAIL 提交必须带非空 `reject_reason`（管线来源或显式标注派生）。 ... ok
+test_14_missing_pillow_is_reported_as_failure (scripts.stage5_t03.test_s5t03_replay_display.T_ReplayArtifacts.test_14_missing_pillow_is_reported_as_failure)
+复审观察 1（fail-open 关闭）：缺渲染依赖时**不得**报 `passed=true`。 ... ok
+test_20_binding_hash_mismatch_raises (scripts.stage5_t03.test_s5t03_replay_display.T_Stage3Binding.test_20_binding_hash_mismatch_raises)
+绑定 JSON 的固定帧哈希不符 ⇒ 必须抛错（不得静默用错帧）。 ... ok
+test_21_binding_loads_expected_frame (scripts.stage5_t03.test_s5t03_replay_display.T_Stage3Binding.test_21_binding_loads_expected_frame)
+正常绑定：装载出的图像尺寸与像素格式按绑定声明，且哈希与声明一致。 ... ok
+test_binding_json_declares_scope_labels (scripts.stage5_t03.test_s5t03_skeleton.T01_ContractIntegrity.test_binding_json_declares_scope_labels) ... ok
+test_drift_registration_covers_old_hash_bindings (scripts.stage5_t03.test_s5t03_skeleton.T01_ContractIntegrity.test_drift_registration_covers_old_hash_bindings)
+NB-2：凡在清单里以旧哈希绑定 S5A-G0-v2 JSON 的包都必须被登记（扫描即判据）。 ... ok
+test_existing_synthetic_evidence_untouched (scripts.stage5_t03.test_s5t03_skeleton.T01_ContractIntegrity.test_existing_synthetic_evidence_untouched)
+不得**改动/删除/改名**既有合成源证据；在此目录下**新增**证据包（新 RunId）不算违反。 ... ok
+test_g0_contract_matches_registered_hash (scripts.stage5_t03.test_s5t03_skeleton.T01_ContractIntegrity.test_g0_contract_matches_registered_hash) ... ok
+test_geometry_reference_not_forked (scripts.stage5_t03.test_s5t03_skeleton.T01_ContractIntegrity.test_geometry_reference_not_forked) ... ok
+test_inherited_thresholds_match_contract (scripts.stage5_t03.test_s5t03_skeleton.T01_ContractIntegrity.test_inherited_thresholds_match_contract) ... ok
+test_border_line_width_semantics (scripts.stage5_t03.test_s5t03_skeleton.T02_CoordinateMapping.test_border_line_width_semantics) ... ok
+test_edge_and_degenerate_cases (scripts.stage5_t03.test_s5t03_skeleton.T02_CoordinateMapping.test_edge_and_degenerate_cases) ... ok
+test_geometry_resolutions_and_odd_padding (scripts.stage5_t03.test_s5t03_skeleton.T02_CoordinateMapping.test_geometry_resolutions_and_odd_padding) ... ok
+test_hand_computed_cases_match_reference (scripts.stage5_t03.test_s5t03_skeleton.T02_CoordinateMapping.test_hand_computed_cases_match_reference) ... ok
+test_pipeline_uses_reference_mapping (scripts.stage5_t03.test_s5t03_skeleton.T02_CoordinateMapping.test_pipeline_uses_reference_mapping) ... ok
+test_zero_area_box_not_drawn_but_counted (scripts.stage5_t03.test_s5t03_skeleton.T02_CoordinateMapping.test_zero_area_box_not_drawn_but_counted) ... ok
+test_compact_log_persists_rejection_reasons_and_repeat_context (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_compact_log_persists_rejection_reasons_and_repeat_context)
+N-4：落盘拒绝原因与重复声明上下文必须可审计、可由独立复算器读取。 ... ok
+test_declared_lower_repeat_preserves_historical_maximum (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_declared_lower_repeat_preserves_historical_maximum)
+较小显式重放不得使后续未声明编号绕过历史最大值。 ... ok
+test_duplicate_and_out_of_order_counted (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_duplicate_and_out_of_order_counted) ... ok
+test_duplicate_does_not_update_latest_result (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_duplicate_does_not_update_latest_result)
+重复结果不更新最新结果：重复帧的绘制内容必须与前一帧完全相同。 ... ok
+test_equiv_stream_mode_covers_rule (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_equiv_stream_mode_covers_rule)
+NB-1 覆盖：`equiv` 流既有未声明必拒，也有声明放行。 ... ok
+test_equivalent_frame_id_with_declared_repeat_accepted (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_equivalent_frame_id_with_declared_repeat_accepted)
+NB-1 二阶：显式声明（repeat_index 递增 / repeat_declared）才放行。 ... ok
+test_equivalent_frame_id_without_declaration_rejected (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_equivalent_frame_id_without_declaration_rejected)
+NB-1：同 session 等价 frame_id + 新 result_seq 且未声明 ⇒ 拒绝并记 FAIL。 ... ok
+test_frame_id_regression_rejected_with_fail (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_frame_id_regression_rejected_with_fail)
+B-2：frame_id 回退必须拒绝并记 FAIL（阶段4 r04 frame_sequence_rules）。 ... ok
+test_late_results_recorded_truthfully (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_late_results_recorded_truthfully) ... ok
+test_malformed_join_keys_leave_state_untouched_and_are_logged (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_malformed_join_keys_leave_state_untouched_and_are_logged)
+超范围 repeat_index 与字符串 session_id 都按 schema 拒绝并持久化原因。 ... ok
+test_malformed_repeat_is_rejected_before_accepted_state_mutation (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_malformed_repeat_is_rejected_before_accepted_state_mutation)
+浮点/非数值重复编号按 schema 拒绝，不触碰已接受状态或抛出转换异常。 ... ok
+test_nb1_discriminating_power_legacy_accept_would_fail (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_nb1_discriminating_power_legacy_accept_would_fail)
+判别力对照：复刻 r02 语义（无等价 frame_id 记忆）时该判据会变红。 ... ok
+test_out_of_order_rejected_and_does_not_update_latest (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_out_of_order_rejected_and_does_not_update_latest)
+B-2：乱序帧不得改变叠加内容（其框必须与前一帧逐值相同），且不进入已接受集合。 ... ok
+test_repeat_fields_require_strict_domain (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_repeat_fields_require_strict_domain)
+repeat_index 必须是严格正整数；声明字段如存在必须是布尔值。 ... ok
+test_result_key_fields_require_uint32_before_lookup (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_result_key_fields_require_uint32_before_lookup)
+会话键与阶段4关联键必须是精确整数并落在声明的 uint32 域内。 ... ok
+test_result_seq_regression_rejected_with_fail (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_result_seq_regression_rejected_with_fail)
+B-2：同一 session 的 result_seq 回退同样必须拒绝并记 FAIL。 ... ok
+test_sequential_120_frames (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_sequential_120_frames) ... ok
+test_skip_mode_ages_grow_and_stale_occurs (scripts.stage5_t03.test_s5t03_skeleton.T03_FrameAssociation.test_skip_mode_ages_grow_and_stale_occurs) ... ok
+test_age_equals_limit_not_stale (scripts.stage5_t03.test_s5t03_skeleton.T04_StaleAndExceptions.test_age_equals_limit_not_stale) ... ok
+test_age_limit_plus_one_stale_and_counted_once (scripts.stage5_t03.test_s5t03_skeleton.T04_StaleAndExceptions.test_age_limit_plus_one_stale_and_counted_once) ... ok
+test_explicit_stale_flag_with_small_age (scripts.stage5_t03.test_s5t03_skeleton.T04_StaleAndExceptions.test_explicit_stale_flag_with_small_age) ... ok
+test_hud_thirteen_fields_and_unavailable_marked (scripts.stage5_t03.test_s5t03_skeleton.T04_StaleAndExceptions.test_hud_thirteen_fields_and_unavailable_marked) ... ok
+test_mixed_stream_exception_counters (scripts.stage5_t03.test_s5t03_skeleton.T04_StaleAndExceptions.test_mixed_stream_exception_counters) ... ok
+test_counter_units_declared (scripts.stage5_t03.test_s5t03_skeleton.T05_LongRunVirtual.test_counter_units_declared)
+N-3 / NB-3：JSON 14 键（14 计数 + definition）与流水线 14 条**逐字相等**。 ... ok
+test_disk_event_log_recomputable_independently (scripts.stage5_t03.test_s5t03_skeleton.T05_LongRunVirtual.test_disk_event_log_recomputable_independently)
+N-4：落盘日志必须能被**独立**复算器复算出与在线计数逐项相同的计数。 ... ok
+test_long_run_virtual_30min_no_deadlock (scripts.stage5_t03.test_s5t03_skeleton.T05_LongRunVirtual.test_long_run_virtual_30min_no_deadlock) ... ok
+test_all_modes_conform_except_injected_invalid (scripts.stage5_t03.test_s5t03_skeleton.T06_StreamSchema.test_all_modes_conform_except_injected_invalid) ... ok
+test_stream_is_deterministic_for_seed (scripts.stage5_t03.test_s5t03_skeleton.T06_StreamSchema.test_stream_is_deterministic_for_seed) ... ok
+test_five_tuple_declares_age_basis (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_five_tuple_declares_age_basis) ... ok
+test_gate_box_px_matches_hand_computed_values (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_gate_box_px_matches_hand_computed_values) ... ok
+test_gate_evidence_is_not_attributed_to_replay_frame (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_gate_evidence_is_not_attributed_to_replay_frame) ... ok
+test_governance_boundary_text_present (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_governance_boundary_text_present) ... ok
+test_injection_start_as_capture_is_refused (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_injection_start_as_capture_is_refused) ... ok
+test_injection_zero_sentinel_makes_latency_undefined (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_injection_zero_sentinel_makes_latency_undefined) ... ok
+test_labels_are_real_replay_not_synthetic (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_labels_are_real_replay_not_synthetic) ... ok
+test_replay_frame_record_is_zero_box_no_hand (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_replay_frame_record_is_zero_box_no_hand) ... ok
+test_timing_fields_are_not_fabricated (scripts.stage5_t03.test_s5t03_frozen_replay.ConsumerArtifactTests.test_timing_fields_are_not_fabricated) ... ok
+test_canvas_declared_by_artifact_is_not_trusted (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_canvas_declared_by_artifact_is_not_trusted)
+检查器从冻结包重解析画布：篡改产物画布声明不得影响像素重算结果。 ... ok
+test_end_to_end_latency_injection_guard (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_end_to_end_latency_injection_guard) ... ok
+test_full_crosscheck_passes_with_integrity (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_full_crosscheck_passes_with_integrity) ... ok
+test_injection_start_as_capture_is_flagged_by_checker (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_injection_start_as_capture_is_flagged_by_checker) ... ok
+test_synthetic_relabel_is_detected (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_synthetic_relabel_is_detected) ... ok
+test_tampered_xyxy_px_is_detected (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_tampered_xyxy_px_is_detected) ... ok
+test_tampered_xyxy_source_value_is_detected (scripts.stage5_t03.test_s5t03_frozen_replay.CrosscheckTests.test_tampered_xyxy_source_value_is_detected) ... ok
+test_all_frozen_files_recompute_pass (scripts.stage5_t03.test_s5t03_frozen_replay.FreezeIntegrityTests.test_all_frozen_files_recompute_pass) ... ok
+test_contract_binding_matches_frozen_reference (scripts.stage5_t03.test_s5t03_frozen_replay.FreezeIntegrityTests.test_contract_binding_matches_frozen_reference) ... ok
+test_cross_tree_blob_read_in_wrong_tree_fails_loudly (scripts.stage5_t03.test_s5t03_frozen_replay.FreezeIntegrityTests.test_cross_tree_blob_read_in_wrong_tree_fails_loudly)
+已知陷阱：在别的树取 blob 会得到空输入哈希——本器必须判 FAIL 而非误报 PASS。 ... ok
+test_missing_file_in_package_is_rejected (scripts.stage5_t03.test_s5t03_frozen_replay.FreezeIntegrityTests.test_missing_file_in_package_is_rejected) ... ok
+test_tampered_byte_in_package_is_rejected (scripts.stage5_t03.test_s5t03_frozen_replay.FreezeIntegrityTests.test_tampered_byte_in_package_is_rejected) ... ok
+test_upstream_binding_drift_all_pass (scripts.stage5_t03.test_s5t03_frozen_replay.FreezeIntegrityTests.test_upstream_binding_drift_all_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 138 tests in 269.899s
+
+OK
+

@@ -1,0 +1,281 @@
+{
+  "schema_version": "gestureforge_s5t03_frozen_replay_evidence_v1",
+  "run_id": "s5t03_stage4_frozen_replay_20261027_r04",
+  "task_id": "S5-T03",
+  "generated_utc8": "2026-10-27T13:23:53+08:00",
+  "goal": "阶段4 冻结回放包 → 阶段5 显示路径的离线消费（可机检）",
+  "input_kind": "stage4_frozen_replay",
+  "consumption_mode": "replay_only",
+  "evidence_kind": "offline_replay",
+  "scope_statement": "离线主机回放；不代表 PL、实物或实时检测输出",
+  "verdict": {
+    "file_integrity": "10/10 PASS",
+    "contract_binding": true,
+    "upstream_binding_drift": "17/17 PASS",
+    "consumer": "PASS",
+    "crosscheck": "PASS",
+    "regression_suite_exit_code": 0,
+    "regression_suite_tests_ran": 139,
+    "regression_suite_ok": true
+  },
+  "commands": {
+    "freeze_integrity": {
+      "cmd": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/stage5_t03/s5t03_freeze_integrity.py",
+        "--freeze-record",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_package_freeze_20261027_r01\\replay_package_freeze.json",
+        "--package-dir",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04",
+        "--contract",
+        "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json",
+        "--out",
+        "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T03\\s5t03_stage4_frozen_replay_20261027_r04\\freeze_integrity_cli.json"
+      ],
+      "exit_code": 0,
+      "log": "freeze_integrity.txt",
+      "elapsed_s": 0.251
+    },
+    "consumer": {
+      "cmd": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/stage5_t03/s5t03_stage4_frozen_replay.py",
+        "--out",
+        "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_stage4_frozen_replay_20261027_r04",
+        "--package-dir",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04",
+        "--freeze-record",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_package_freeze_20261027_r01\\replay_package_freeze.json",
+        "--contract",
+        "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json"
+      ],
+      "exit_code": 0,
+      "log": "consumer.txt",
+      "elapsed_s": 0.283
+    },
+    "crosscheck": {
+      "cmd": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "scripts/stage5_t03/check_s5t03_frozen_replay.py",
+        "--artifacts",
+        "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_stage4_frozen_replay_20261027_r04",
+        "--package-dir",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04",
+        "--freeze-record",
+        "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_package_freeze_20261027_r01\\replay_package_freeze.json",
+        "--contract",
+        "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json",
+        "--out",
+        "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T03\\s5t03_stage4_frozen_replay_20261027_r04\\crosscheck_report.json"
+      ],
+      "exit_code": 0,
+      "log": "crosscheck.txt",
+      "elapsed_s": 0.282
+    },
+    "unittest": {
+      "cmd": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "-v",
+        "scripts.stage5_t03.test_s5t03_json_contract_malformed",
+        "scripts.stage5_t03.test_s5t03_hud_occlusion",
+        "scripts.stage5_t03.test_s5t03_json_contract",
+        "scripts.stage5_t03.test_s5t03_multi_geometry_render",
+        "scripts.stage5_t03.test_s5t03_long_run_replay",
+        "scripts.stage5_t03.test_s5t03_replay_display",
+        "scripts.stage5_t03.test_s5t03_skeleton",
+        "scripts.stage5_t03.test_s5t03_frozen_replay"
+      ],
+      "exit_code": 0,
+      "log": "unittest_all.txt",
+      "elapsed_s": 205.976
+    }
+  },
+  "sources": [
+    {
+      "path": "scripts/stage5_t03/s5t03_freeze_integrity.py",
+      "sha256": "da880ffea3de892c947e80c1f87c114783013abaaaedf23a395f74407dc940f1"
+    },
+    {
+      "path": "scripts/stage5_t03/s5t03_stage4_frozen_replay.py",
+      "sha256": "ebd304782f77ed35961e2e1fa6960c7d907f7b2bbdb6c2ce28f828a93021b7c2"
+    },
+    {
+      "path": "scripts/stage5_t03/check_s5t03_frozen_replay.py",
+      "sha256": "f39084e66e9ba78cae65d6a8d95cb40573f4ea00c5d98e8184a5b614aad58015"
+    },
+    {
+      "path": "scripts/stage5_t03/run_s5t03_frozen_replay_evidence.py",
+      "sha256": "674ea17d3683420e3895d8a94a4c714c4c7edbee4c8ef9e41c8a6691a5c7f4c2"
+    },
+    {
+      "path": "scripts/stage5_t03/test_s5t03_frozen_replay.py",
+      "sha256": "e95098ba42535dd1e5411af95eedc1e801f6dede03bbec29c2844696e27ad146"
+    },
+    {
+      "path": "verification/s5_display_geometry_reference.py",
+      "sha256": "dfca9adf9f065746d0a5fd4154b0fbd551ef48214f612f981733df9af5787645"
+    },
+    {
+      "path": "docs/stage5/S5T03_stage4_frozen_replay_consumption_v1.md",
+      "sha256": "a4d51cc70b8d669e8638386b2fe2282108b48069c69e599048833121b063788d"
+    }
+  ],
+  "frozen_inputs": {
+    "package_dir": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04",
+    "freeze_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_package_freeze_20261027_r01\\replay_package_freeze.json",
+    "freeze_record_sha256": "012f5ea4b6d21cf54b806ec46799bbff967ff41da24a47a52e09a4e9f019dfbd",
+    "contract": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json",
+    "contract_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "files": [
+      {
+        "path": "task27_replay_result_package.json",
+        "sha256": "de823b2c4262235ed26a45ce17e9ae4a78795497b14675277e87a838e5e66c4c",
+        "bytes": 41664,
+        "verdict": "PASS"
+      },
+      {
+        "path": "replay_forward_bridge_result.json",
+        "sha256": "dcf3455048252b3c5a52d412aafbb93678d1dfcca381e5a67442d5b93f39d845",
+        "bytes": 161398,
+        "verdict": "PASS"
+      },
+      {
+        "path": "delivery_manifest.json",
+        "sha256": "297c26676578c7b6f64592e14b53f1ae39fc27e5befee0f9b83e18bcfbe818fc",
+        "bytes": 11937,
+        "verdict": "PASS"
+      },
+      {
+        "path": "preflight_verification.json",
+        "sha256": "17fe02127a6e40dcc26a6242595efc07d1bb389b6fb1b5544b144162d2ae11e8",
+        "bytes": 16351,
+        "verdict": "PASS"
+      },
+      {
+        "path": "raw_head_gate_head13_int8.bin",
+        "sha256": "902bb209b285cf46b5adb17e8051035aae0bcc3cca88ee9a7fe650737330ea6d",
+        "bytes": 5070,
+        "verdict": "PASS"
+      },
+      {
+        "path": "raw_head_gate_head26_int8.bin",
+        "sha256": "f96cca6678114df8e997847bfeb244664a9cb583ebf120990774cb680277e1c2",
+        "bytes": 20280,
+        "verdict": "PASS"
+      },
+      {
+        "path": "positive_detection_gate_head13_int8.bin",
+        "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+        "bytes": 5070,
+        "verdict": "PASS"
+      },
+      {
+        "path": "positive_detection_gate_head26_int8.bin",
+        "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+        "bytes": 20280,
+        "verdict": "PASS"
+      },
+      {
+        "path": "task25_replay_frame_head13_int8.bin",
+        "sha256": "6a020c118948db5760a094bc9b23b2c130426325d3e7fe4f1fbbf6fc7b24d23d",
+        "bytes": 5070,
+        "verdict": "PASS"
+      },
+      {
+        "path": "task25_replay_frame_head26_int8.bin",
+        "sha256": "1cea5b6f46f389231ab52ae819be5ea60811c6f44e32fb219aaf95bb00091422",
+        "bytes": 20280,
+        "verdict": "PASS"
+      }
+    ]
+  },
+  "derived_numbers": {
+    "file_integrity_ok": 10,
+    "file_integrity_checked": 10,
+    "contract_json_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "contract_binding_all_pass": true,
+    "drift_ok": 17,
+    "drift_checked": 17,
+    "frames": 1,
+    "frame_detections": 0,
+    "frame_states": {
+      "NO_HAND": 1
+    },
+    "five_tuples": 1,
+    "gate_boxes": 2,
+    "boxes_checked": 2,
+    "axes_checked": 8,
+    "box_mismatches": 0,
+    "labels": {
+      "input_kind": "stage4_frozen_replay",
+      "consumption_mode": "replay_only",
+      "evidence_kind": "offline_replay"
+    },
+    "crosscheck_verdict": "PASS",
+    "suite_exit_code": 0,
+    "suite_parse": {
+      "tests_ran": 139,
+      "tail": "OK",
+      "ok": true,
+      "failed": false
+    }
+  },
+  "supersedes": {
+    "run_id": "s5t03_stage4_frozen_replay_20261027_r03",
+    "reason": "r01: unittest -v 详细输出走 stderr 被误解析为 Ran None（已修）；r02/r03: 数字正确但源码哈希绑定早于文档定稿（r03 时文档硬编码用例数 138 已过时），现文档改为不复制数字并指向最终 RunId。三个目录均保留不改写，消费入口以 r04 为准",
+    "note": "被取代 RunId 目录保留不改写（失败证据），不得作为消费入口"
+  },
+  "tools": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe"
+  },
+  "limitations": [
+    "只允许离线回放口径的数值一致性结论；不代表板上行为、UART 实收或实时检测。",
+    "回放帧本体无候选（raw_candidate_count=0 ⇒ NO_HAND 零框）；阳性检测门禁样本不属于回放帧，仅用于 xyxy→像素换算对拍，display_eligible=false。",
+    "时间字段一律不可定义（无单调发布时钟）；若阶段4 补发布时刻，需重绑后重跑。",
+    "输入为非连续单帧；无真实帧周期证据。",
+    "G0/G1/G3/G4/G5 均未通过；P/4-D NOT_RUN。"
+  ],
+  "not_run": [
+    "板上真实回放接入（需硬件 OFFER/CLAIM + 八类门禁；当前记录 0/8）",
+    "真实采集路径（摄像头未到货）与真实连续帧周期",
+    "PS 单调发布时刻 / 结果年龄 / 端到端延迟（冻结包声明 stale_evaluation=NOT_RUN）",
+    "P / 4-D / G3 / G4 / G5 关口判定（不归本任务）"
+  ],
+  "forbidden_claims": [
+    "板上行为 / PL 真实运行",
+    "UART 实收 / S2BU 真帧",
+    "真实摄像头采集质量或颜色",
+    "P / 4-D / G3 / G4 / G5 任一项通过",
+    "把回放结果当实时结果"
+  ],
+  "hardware_boundary": "板上真实回放接入仍需硬件 OFFER/CLAIM + 八类门禁（当前记录 0/8）；本次离线接入不构成板上真实回放通过的证据。",
+  "exit_codes": {
+    "freeze_integrity": 0,
+    "consumer": 0,
+    "crosscheck": 0,
+    "unittest": 0
+  },
+  "artifacts": [
+    "console/consumer.txt",
+    "console/crosscheck.txt",
+    "console/freeze_integrity.txt",
+    "console/suite_command.txt",
+    "console/unittest_all.txt",
+    "consumer_report.json",
+    "crosscheck_report.json",
+    "five_tuples.jsonl",
+    "frames.json",
+    "frames.jsonl",
+    "freeze_integrity.json",
+    "gate_evidence_projection.json",
+    "summary.md"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": "gestureforge_s5t03_stage4_frozen_replay_v1",
+  "run_kind": "stage4_frozen_replay_consumption",
+  "input_kind": "stage4_frozen_replay",
+  "consumption_mode": "replay_only",
+  "evidence_kind": "offline_replay",
+  "buffer_scope": "offline_host",
+  "scope_statement": "离线主机回放；不代表 PL、实物或实时检测输出",
+  "not_real_time_statement": "本流为离线主机回放产物；不代表实时检测输出。",
+  "forbidden_claims": [
+    "板上行为 / PL 真实运行",
+    "UART 实收 / S2BU 真帧",
+    "真实摄像头采集质量或颜色",
+    "P / 4-D / G3 / G4 / G5 任一项通过",
+    "把回放结果当实时结果"
+  ],
+  "source_package": {
+    "package_dir": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04",
+    "task_id": "S4-T26-GOLDEN-REBIND",
+    "contract_result_key": {
+      "session_id": 853466600,
+      "frame_id": 1,
+      "result_seq": 1
+    },
+    "marking": {
+      "replay_only": true,
+      "evidence_kind": "offline_replay",
+      "buffer_scope": "offline_host",
+      "statement": "离线主机回放；不代表 PL、实物或实时检测输出"
+    }
+  },
+  "frames": [
+    {
+      "session_id": 853466600,
+      "frame_id": 1,
+      "result_seq": 1,
+      "repeat_index": 1,
+      "sequence": 1,
+      "source_kind": "camera",
+      "geometry": {
+        "width": 1280,
+        "height": 720,
+        "stride_bytes": 3840,
+        "stride_bytes_basis": "replay_frame.stride_bytes",
+        "pixel_format": "BGR888",
+        "byte_order": "BGR",
+        "coordinate_origin": "top_left",
+        "source_ref": "replay_frame.d9.decoded_predictions",
+        "display_canvas": [
+          1280,
+          720
+        ],
+        "display_fit": "exact",
+        "mapping_function": "R.original_norm_to_display_px (fit=exact)",
+        "rounding_rule": "round_half_up_to_nearest_pixel_index"
+      },
+      "state": "NO_HAND",
+      "detection_count": 0,
+      "detections": [],
+      "candidate_count": 0,
+      "candidate_count_pre_threshold": 0,
+      "candidate_overflow": null,
+      "capture_time_ns": 1792776253000000000,
+      "result_time_ns": null,
+      "inference_time_ns": null,
+      "end_to_end_latency_ns": null,
+      "dropped_frames": null,
+      "stale": null,
+      "error_code": 0,
+      "input_kind": "stage4_frozen_replay",
+      "consumption_mode": "replay_only",
+      "evidence_kind": "offline_replay",
+      "buffer_scope": "offline_host",
+      "scope_statement": "离线主机回放；不代表 PL、实物或实时检测输出",
+      "forbidden_claims": [
+        "板上行为 / PL 真实运行",
+        "UART 实收 / S2BU 真帧",
+        "真实摄像头采集质量或颜色",
+        "P / 4-D / G3 / G4 / G5 任一项通过",
+        "把回放结果当实时结果"
+      ],
+      "timing_available": false,
+      "timing_basis": {
+        "capture_time_ns": {
+          "value": 1792776253000000000,
+          "defined": true,
+          "basis": "documented_stage3_wallclock_second_unix_epoch",
+          "clock_domain": "replay_documented_wallclock",
+          "precision": "one_second_as_recorded",
+          "text": "2026-10-24T01:24:13+08:00",
+          "is_measured_capture_clock": false,
+          "note": "已文档化的真实抓取时刻（秒级、墙钟口径），不是 PS 单调采集计数"
+        },
+        "result_time_ns": {
+          "value": null,
+          "defined": false,
+          "basis": "UNAVAILABLE_OFFLINE_REPLAY_NO_MONOTONIC_PUBLISH_CLOCK",
+          "note": "冻结包声明 stale_evaluation=NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK"
+        },
+        "inference_time_ns": {
+          "value": null,
+          "defined": false,
+          "basis": "UNAVAILABLE_OFFLINE_HOST_CPU_ELAPSED_IS_NOT_PS_INFERENCE_TIME",
+          "offline_host_elapsed_ms": 5765.306600000031,
+          "note": "offline_host_elapsed_ms 是离线主机 CPU 墙钟耗时，不是 PS 推理时间，不得填作 inference_time_ns"
+        },
+        "end_to_end_latency_ns": {
+          "value": null,
+          "defined": false,
+          "basis": "UNAVAILABLE_NO_PUBLISH_INSTANT_IN_SAME_CLOCK_DOMAIN_AS_CAPTURE",
+          "note": "回放无与采集同域的发布时刻 ⇒ 端到端延迟不可定义"
+        },
+        "injection_start_ns": null,
+        "injection_start_ns_used_as_capture_time": false,
+        "stale_evaluation": "NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK",
+        "age_frame_ns_basis": "UNAVAILABLE: 回放无单调发布时钟，t_overlay_commit 与 t_capture 无可比同域时间；基准声明=documented_stage3_wallclock_second_unix_epoch，绝不使用 injection_start_ns 冒充实测采集时间",
+        "state_for_timing": "NO_HAND"
+      },
+      "field_bases": {
+        "candidate_overflow": "NOT_DECLARED_IN_FROZEN_PACKAGE",
+        "dropped_frames": "NOT_DECLARED_IN_FROZEN_PACKAGE",
+        "stale": "NOT_DECLARED_IN_FROZEN_PACKAGE（冻结包只给 stale_evaluation=NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK）",
+        "error_code": "derived_from_frozen_bridge_run_status（离线回放无 PS error_code）",
+        "inference_time_ns": "UNAVAILABLE_OFFLINE_HOST_CPU_ELAPSED_IS_NOT_PS_INFERENCE_TIME"
+      },
+      "attribution": "frozen_replay_frame_result",
+      "is_replay_frame": true,
+      "display_eligible": true,
+      "sample_id": null,
+      "attribution_note": "冻结回放帧本体（dbdf 阶段3 frame_full.bin 的离线回放结果）；无候选 ⇒ 合法 NO_HAND 零框"
+    }
+  ],
+  "frame_count": 1
+}

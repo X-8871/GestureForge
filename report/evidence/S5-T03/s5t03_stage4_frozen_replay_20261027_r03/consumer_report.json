@@ -1,0 +1,105 @@
+{
+  "schema_version": "gestureforge_s5t03_stage4_frozen_replay_v1",
+  "run_kind": "stage4_frozen_replay_consumption",
+  "input_kind": "stage4_frozen_replay",
+  "consumption_mode": "replay_only",
+  "evidence_kind": "offline_replay",
+  "buffer_scope": "offline_host",
+  "scope_statement": "离线主机回放；不代表 PL、实物或实时检测输出",
+  "statement": "离线主机回放；不代表 PL、实物或实时检测输出",
+  "forbidden_claims": [
+    "板上行为 / PL 真实运行",
+    "UART 实收 / S2BU 真帧",
+    "真实摄像头采集质量或颜色",
+    "P / 4-D / G3 / G4 / G5 任一项通过",
+    "把回放结果当实时结果"
+  ],
+  "source": {
+    "package_dir": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_gate_rerun_20261027_r04",
+    "freeze_record_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_package_freeze_20261027_r01\\replay_package_freeze.json",
+    "freeze_record_run_id": "s4t27_replay_package_freeze_20261027_r01",
+    "contract_json_path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json",
+    "contract_sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "contract_id": "s4-shared-io",
+    "contract_version": "1.3.0",
+    "contract_status": "FROZEN_OFFLINE_ONLY",
+    "contract_result_key": {
+      "session_id": 853466600,
+      "frame_id": 1,
+      "result_seq": 1
+    },
+    "package_marking": {
+      "replay_only": true,
+      "evidence_kind": "offline_replay",
+      "buffer_scope": "offline_host",
+      "statement": "离线主机回放；不代表 PL、实物或实时检测输出"
+    },
+    "frozen_bridge_run": {
+      "checker": "replay_forward_bridge",
+      "checker_version": "r12",
+      "status": "PASS",
+      "exit_code": 0,
+      "hardware_execution": "NOT_RUN",
+      "generated_utc8": "2026-10-27T07:45:49+08:00"
+    }
+  },
+  "preconditions": {
+    "file_integrity_all_pass": true,
+    "file_integrity_ok": "10/10",
+    "contract_binding_all_pass": true,
+    "upstream_binding_drift_all_pass": true,
+    "upstream_binding_drift_ok": "17/17"
+  },
+  "counts": {
+    "frames": 1,
+    "detections_total": 0,
+    "boxes_with_px": 0,
+    "five_tuples": 1,
+    "gate_projection_records": 2,
+    "gate_projection_boxes": 2,
+    "gate_projection_axes": 8
+  },
+  "labels": {
+    "previous_label": "synthetic_replay (既有骨架)",
+    "input_kind": "stage4_frozen_replay",
+    "consumption_mode": "replay_only",
+    "evidence_kind": "offline_replay",
+    "reason": "本产物消费阶段4 冻结回放结果包，必须按真实回放口径标注，不得沿用合成流标签"
+  },
+  "timing": {
+    "capture_time_ns_basis": "documented_stage3_wallclock_second_unix_epoch",
+    "result_time_ns_defined": false,
+    "end_to_end_latency_ns_defined": false,
+    "age_defined": false,
+    "stale_evaluation": "NOT_RUN_OFFLINE_REPLAY_HAS_NO_MONOTONIC_PUBLISH_CLOCK",
+    "injection_start_ns_used_as_capture_time": false,
+    "note": "冻结包无 PS 单调发布时钟；不伪造年龄/延迟，不以 injection_start_ns 冒充采集时间"
+  },
+  "geometry": {
+    "rule_source": "verification/s5_display_geometry_reference.py",
+    "rounding_rule": "round_half_up_to_nearest_pixel_index",
+    "fit": "exact（画布=源帧分辨率）",
+    "crosscheck_target": "detections[].xyxy_px（由消费者按冻结参考派生）"
+  },
+  "display_path_compatibility": {
+    "contract_fields": "PASS（逐帧记录通过冻结参考 validate_result_record）",
+    "geometry_fit_exact": "PASS（clip_unit_box → original_norm_to_display_px → border_pixel_sets）",
+    "frame_linkage_fields": "PASS（session_id/frame_id/result_seq/repeat_index 与五元组字段齐备）",
+    "timing_dependent_paths": "REQUIRES_MONOTONIC_PUBLISH_INSTANT_NOT_PRESENT_IN_FROZEN_PACKAGE（age_result_ns / age_frame_ns / stale 判定 = NOT_RUN）",
+    "note": "既有 DisplayPipeline 的年龄/过期路径需要 result_time_ns；本包按冻结件口径置 null（不伪造时间戳），故未用其跑年龄/stale —— 不另立替代口径；若阶段4 补 PS 单调发布时刻，须重绑契约后重跑。"
+  },
+  "limitations": [
+    "只允许离线回放口径的数值一致性结论；不代表板上行为、UART 实收或实时检测。",
+    "回放帧本体无候选（raw_candidate_count=0 ⇒ NO_HAND 零框）；阳性检测门禁样本不属于回放帧，仅用于 xyxy→像素换算对拍，display_eligible=false。",
+    "时间字段一律不可定义（无单调发布时钟）；若阶段4 补发布时刻，需重绑后重跑。",
+    "输入为非连续单帧；无真实帧周期证据。",
+    "G0/G1/G3/G4/G5 均未通过；P/4-D NOT_RUN。"
+  ],
+  "not_run": [
+    "板上真实回放接入（需硬件 OFFER/CLAIM + 八类门禁；当前记录 0/8）",
+    "真实采集路径（摄像头未到货）与真实连续帧周期",
+    "PS 单调发布时刻 / 结果年龄 / 端到端延迟（冻结包声明 stale_evaluation=NOT_RUN）",
+    "P / 4-D / G3 / G4 / G5 关口判定（不归本任务）"
+  ],
+  "hardware_boundary": "板上真实回放接入仍需硬件 OFFER/CLAIM + 八类门禁（当前记录 0/8）；本次离线接入不构成板上真实回放通过的证据。"
+}

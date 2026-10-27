@@ -7,7 +7,7 @@ set url [expr {[info exists env(S4_HW_URL)] ? $env(S4_HW_URL) : "tcp:127.0.0.1:3
 connect -url $url
 
 # 先选 CPU0 核建立有效句柄（`APU*` 为集群，不可用于寄存器操作）
-if {[catch {targets -set -filter {name =~ "*Cortex-A9*"}} err]} {
+if {[catch {targets -set -filter {name =~ "*Cortex-A9*#0*"}} err]} {
     puts "M1_SELECT=FAIL $err"
     disconnect
     exit 5

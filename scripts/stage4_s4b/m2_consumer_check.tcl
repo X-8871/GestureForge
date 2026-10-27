@@ -8,7 +8,7 @@
 set url [expr {[info exists env(S4_HW_URL)] ? $env(S4_HW_URL) : "tcp:127.0.0.1:3121"}]
 connect -url $url
 
-if {[catch {targets -set -filter {name =~ "*Cortex-A9*"}} err]} {
+if {[catch {targets -set -filter {name =~ "*Cortex-A9*#0*"}} err]} {
     puts "M2_SELECT=FAIL $err"
     disconnect
     exit 5

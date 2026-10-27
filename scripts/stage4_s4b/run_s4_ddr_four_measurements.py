@@ -179,13 +179,13 @@ def main() -> int:
             code_i, out_i = xsdb_step(run_dir, "PRELOAD_init",
                                       ["-eval", f"connect -url {HW_URL}; "
                                                 f"targets -set -filter {{name =~ \"*Cortex-A9*#0*\"}}; "
-                                                f"rst -system -stop; dow -file {init_elf.as_posix()}; "
+                                                f"rst -system -stop; dow {init_elf.as_posix()}; "
                                                 f"con; after 6000; disconnect; exit"],
                                       timeout=600)
             code_a, out_a = xsdb_step(run_dir, "PRELOAD_app",
                                       ["-eval", f"connect -url {HW_URL}; "
                                                 f"targets -set -filter {{name =~ \"*Cortex-A9*#0*\"}}; "
-                                                f"dow -file {elf.as_posix()}; disconnect; exit"],
+                                                f"dow {elf.as_posix()}; disconnect; exit"],
                                       timeout=600)
             pre.update({"init_exit": code_i, "app_exit": code_a,
                         "init_tail": out_i.strip().splitlines()[-3:], "app_tail": out_a.strip().splitlines()[-3:]})
@@ -263,7 +263,7 @@ def main() -> int:
                    {"run_exit": code,
                     "elf_sha256": sha256_file(elf), "init_elf_sha256": sha256_file(init_elf),
                     "uart_protocol": "COM4 115200 8N1；命令 R/I/F/W/Q；应答行以 M4A 开头",
-                    "load_flow": "init.elf（rst -processor + con，完成 PS/DDR 初始化）→ 下载最小 ELF → M1/M2/M3 → 此处仅 con CPU0",
+                    "load_flow": "init.elf（rst -system -stop + con，完成 PS/DDR 初始化）→ dow 最小 ELF → M1/M2/M3 → 此处仅 con CPU0",
                     "note": "M4-a 的 UART 命令交换须按计划书 §4 执行并落盘原始收发；收尾不 stop（避免改状态）"})
             if code != 0:
                 stop_reason = "M4-a CPU0 启动失败"

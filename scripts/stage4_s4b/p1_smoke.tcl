@@ -26,7 +26,7 @@ foreach t $all {
 
 # ---------- 步骤 2：选目标（必须是处理器核；`APU*` 是集群，不能用于 rst/寄存器操作） ----------
 set selected {}
-foreach filt {{name =~ "*Cortex-A9*"} {name =~ "*#0*"}} {
+foreach filt {{name =~ "*Cortex-A9*#0*"} {name =~ "*#0*"}} {
     if {![catch {targets -set -filter $filt} err]} { set selected $filt; break }
 }
 if {$selected eq {}} {

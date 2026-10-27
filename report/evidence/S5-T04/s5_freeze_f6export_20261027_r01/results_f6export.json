@@ -1,0 +1,82 @@
+{
+  "task_id": "S5-T04",
+  "run_id": "s5_freeze_f6export_20261027_r01",
+  "purpose": "F6 自证性：冻结提交单独导出/检出后复跑自检与检查器",
+  "generated_utc8": "2026-10-27T19:08:41+08:00",
+  "exported_commit": "26b743901b4ec76107ca2cd6a010337a5ae40bf2",
+  "branch": "stage5-display-prep",
+  "pathspec_count": 73,
+  "steps": {
+    "A_archive_export_and_verify": {
+      "command": "git archive --format=tar 26b743901b4ec76107ca2cd6a010337a5ae40bf2 -- <73 pathspecs>",
+      "exit_code": 0,
+      "extracted_files": 362,
+      "export_dir": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e",
+      "verify_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e\\verification\\verify_stage5_frozen_set.py --root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e --frozen-set D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json --json-out D:\\codex-worktrees\\w5\\report\\evidence\\S5-T04\\s5_freeze_f6export_20261027_r01\\f6a_frozen_set_report.json",
+      "verify_exit_code": 0,
+      "verify_status": "FROZEN_SET_VERIFIED",
+      "verify_totals": {
+        "members": 77,
+        "matched": 77,
+        "mismatched": 0,
+        "env_errors": 0,
+        "skipped_host": 0
+      }
+    },
+    "B_shared_checkout_verify_and_checker": {
+      "command": "git clone --shared --no-checkout --branch stage5-display-prep <w5> <tmp>; git -C <tmp> checkout 26b743901b4ec76107ca2cd6a010337a5ae40bf2 -- <73 pathspecs>",
+      "clone_exit_code": 0,
+      "checkout_exit_code": 0,
+      "toplevel": "D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_26b743901b4e",
+      "checkout_dir": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e",
+      "verify_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e\\verification\\verify_stage5_frozen_set.py --root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e --frozen-set D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json --json-out D:\\codex-worktrees\\w5\\report\\evidence\\S5-T04\\s5_freeze_f6export_20261027_r01\\f6b_frozen_set_report.json",
+      "verify_exit_code": 0,
+      "verify_status": "FROZEN_SET_VERIFIED",
+      "verify_totals": {
+        "members": 77,
+        "matched": 77,
+        "mismatched": 0,
+        "env_errors": 0,
+        "skipped_host": 0
+      },
+      "checker_command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e --manifest D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\delivery_manifest.json",
+      "checker_exit_code": 0,
+      "checker_checks_ok": true
+    },
+    "C_handoff_check_live_worktree": {
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
+      "exit_code": 1
+    }
+  },
+  "verdict": "F6_SELFCHECK_FAIL",
+  "limitations": [
+    "w5 工作树约 9.4 GB，本机磁盘余量不足以整树复制：提取路径**由 `frozen_set.json` 成员现场推导**（冻结成员 + 冻结工具 + 本冻结包，不含与冻结无关的历史证据）——这正是 F6 要覆盖的对象集合，若有冻结成员不在提交内，校验器会 exit 2 而非静默通过。",
+    "`scope=host` 宿主侧引用（阶段3/阶段4/Wong 回执）在本次复跑中仍从本机原路径解析；换机复跑需 `--skip-host-references` 并逐条核对跳过项。",
+    "检出副本是**部分检出**（未检出与冻结无关的路径），故 `handoff_check` 不在副本内执行，而在现工作树单独执行并如实标注；不得把两者混为一项。",
+    "本自证只证明**离线冻结集字节可复现**，不代表 G0/G1/G3/G4/G5、板级或实物验收；`CHECKS_OK` 只代表包装/绑定检查通过。"
+  ],
+  "checks": [
+    {
+      "name": "A. git archive 导出后冻结集校验（无 Git 元数据）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e\\verification\\verify_stage5_frozen_set.py --root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e --frozen-set D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_archive_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\frozen_set.json --json-out D:\\codex-worktrees\\w5\\report\\evidence\\S5-T04\\s5_freeze_f6export_20261027_r01\\f6a_frozen_set_report.json",
+      "exit_code": 0,
+      "reason": "导出 362 个文件；FROZEN_SET_VERIFIED；totals={\"members\": 77, \"matched\": 77, \"mismatched\": 0, \"env_errors\": 0, \"skipped_host\": 0}"
+    },
+    {
+      "name": "B. 独立检出后冻结集校验 + check_stage_delivery --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e --manifest D:\\codex-worktrees\\w5\\tmp\\5\\S5-T04\\f6_checkout_26b743901b4e\\report\\evidence\\S5-T04\\s5_freeze_20261027_r05\\delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "检出 root=D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_26b743901b4e；verifier=0(FROZEN_SET_VERIFIED)；checker=0；CHECKS_OK 仅代表包装检查通过"
+    },
+    {
+      "name": "C. handoff_check（现工作树；部分检出副本不适用）",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\handoff_check.py --worktree D:\\codex-worktrees\\w5 --json",
+      "exit_code": 1,
+      "reason": "只读核验；与导出自证分别记录"
+    }
+  ],
+  "checker_exit": 0
+}

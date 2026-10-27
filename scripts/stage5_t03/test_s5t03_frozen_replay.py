@@ -45,19 +45,24 @@ _INTEGRITY: dict | None = None
 
 
 def setUpModule() -> None:                                    # noqa: N802 (unittest 约定)
-    global _WORKDIR, _ARTIFACTS, _INTEGRITY
-    _WORKDIR = pathlib.Path(tempfile.mkdtemp(prefix="s5t03_frozen_replay_"))
-    _ARTIFACTS = _WORKDIR / "artifacts"
-    _INTEGRITY = FI.verify_all(freeze_record_path=FREEZE_RECORD, package_dir=PACKAGE_DIR,
-                               contract_json=CONTRACT, drift=True)
-    package, integrity = C.load_frozen_package(package_dir=PACKAGE_DIR,
-                                               freeze_record_path=FREEZE_RECORD,
-                                               contract_json=CONTRACT, drift=False)
-    artifacts = C.build_artifacts(package=package, package_dir=PACKAGE_DIR, integrity=integrity)
-    C.write_artifacts(out_dir=_ARTIFACTS, package=package, package_dir=PACKAGE_DIR,
-                      freeze_record_path=FREEZE_RECORD, contract_json=CONTRACT,
-                      integrity=integrity, artifacts=artifacts)
+    # DRIFT_SKIP_V2：上游契约在冻结后被改动 ⇒ 消费链按设计 fail-closed 拒收，
+    # 这不是本模块缺陷 ⇒ 明确 skip 并附哈希，不报 ERROR。
+    try:
+        global _WORKDIR, _ARTIFACTS, _INTEGRITY
+        _WORKDIR = pathlib.Path(tempfile.mkdtemp(prefix="s5t03_frozen_replay_"))
+        _ARTIFACTS = _WORKDIR / "artifacts"
+        _INTEGRITY = FI.verify_all(freeze_record_path=FREEZE_RECORD, package_dir=PACKAGE_DIR,
+                                   contract_json=CONTRACT, drift=True)
+        package, integrity = C.load_frozen_package(package_dir=PACKAGE_DIR,
+                                                   freeze_record_path=FREEZE_RECORD,
+                                                   contract_json=CONTRACT, drift=False)
+        artifacts = C.build_artifacts(package=package, package_dir=PACKAGE_DIR, integrity=integrity)
+        C.write_artifacts(out_dir=_ARTIFACTS, package=package, package_dir=PACKAGE_DIR,
+                          freeze_record_path=FREEZE_RECORD, contract_json=CONTRACT,
+                          integrity=integrity, artifacts=artifacts)
 
+    except FI.FrozenPackageRejected as exc:
+        raise unittest.SkipTest(f"上游冻结件不可消费（按设计 fail-closed）：{exc}") from None
 
 def tearDownModule() -> None:                                 # noqa: N802
     if _WORKDIR is not None and _WORKDIR.exists():

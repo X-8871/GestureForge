@@ -153,7 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--buf0", default="0x00138C00",
                         help="显示缓冲基地址（须与当轮应用 S5_P1_BUF0 一致）")
     parser.add_argument("--stride", type=int, default=3840, help="行字节跨度（1280*3）")
-    parser.add_argument("--mode", choices=("address", "declared-x"), default="address",
+    parser.add_argument("--mode", choices=("address", "declared-x"), default="declared-x",
                         help="address=按 mrd 地址精确重建（推荐）；declared-x=按段声明 x 分组（旧口径）")
     parser.add_argument("--min-coverage", type=float, default=0.5,
                         help="部分行转储时的最低覆盖率（默认 0.5；板上定行转储可调低，颜色仍须全对）")

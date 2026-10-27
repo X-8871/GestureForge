@@ -24,6 +24,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import uuid
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -186,7 +187,8 @@ class T_DynamicMap(unittest.TestCase):
     # ── 变异判别力 ─────────────────────────────────────────────────────────
     def _mutated_verify(self, mutate) -> subprocess.CompletedProcess:
         """在隔离副本上注入变异（可同时改 .c 与 .h），再用**未修改的**对拍器检验必须失败。"""
-        src = pathlib.Path(self.tmp.name) / "mut_src"
+        tag = uuid.uuid4().hex[:8]          # 每次唯一：避免 Windows 上共享路径的文件占用抖动
+        src = pathlib.Path(self.tmp.name) / f"mut_src_{tag}"
         shutil.rmtree(src, ignore_errors=True)
         shutil.copytree(P1_APP, src)
         changed = 0
@@ -198,10 +200,10 @@ class T_DynamicMap(unittest.TestCase):
                 path.write_text(mutated, encoding="utf-8", newline="\n")
                 changed += 1
         self.assertGreater(changed, 0, "变异未生效（锚点不匹配）")
-        binary = pathlib.Path(self.tmp.name) / "mut_bin"
+        binary = pathlib.Path(self.tmp.name) / f"mut_bin_{tag}"
         build = _compile(src, binary)
         self.assertEqual(build.returncode, 0, build.stderr[-500:])
-        jsonl = pathlib.Path(self.tmp.name) / "mut.jsonl"
+        jsonl = pathlib.Path(self.tmp.name) / f"mut_{tag}.jsonl"
         run = subprocess.run([str(binary), str(self.run_dir / "all.tsv"), str(jsonl)],
                              capture_output=True, text=True, encoding="utf-8", errors="replace")
         if run.returncode != 0:
@@ -209,7 +211,7 @@ class T_DynamicMap(unittest.TestCase):
         return subprocess.run(
             [sys.executable, "-B", str(VERIFY), "--cases", str(self.run_dir / "cases.tsv"),
              "--stream", str(self.run_dir / "stream_120.tsv"), "--jsonl", str(jsonl),
-             "--json", str(pathlib.Path(self.tmp.name) / "mut_verify.json")],
+             "--json", str(pathlib.Path(self.tmp.name) / f"mut_verify_{tag}.json")],
             capture_output=True, text=True, encoding="utf-8", errors="replace")
 
     def test_10_mutation_span_off_by_one_is_caught(self) -> None:

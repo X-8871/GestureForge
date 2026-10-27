@@ -1,0 +1,54 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "phase": "M4-b 门控返工（r13 源码 + w2b RTL 双源核对）",
+  "status": "M4B_REWORKED_BUILT",
+  "authority": {
+    "r13_source": "report/evidence/S4-CTRL/s4_ps_adapter_closure_20261023_r01/inputs/r13_build_text/derived_app_source.c",
+    "r13_source_sha256": "7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102",
+    "w2b_rtl": "D:/FPGA_Competition/w2b/src/s2b_control_csr.sv",
+    "w2b_rtl_sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+    "semantics_doc": "docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md",
+    "semantics_doc_sha256": "0fdb4824bf7591a18d38fe2de18b7f947f649555439648392287d65afc062d86"
+  },
+  "rtl_facts": {
+    "write_whitelist": "0x008 | 0x014..0x02C | 0x05C | 0x060 (L110-L112)",
+    "read_whitelist": "<0x074 except 0x008; 0x100..0x13C (L101-L103)",
+    "commands": {
+      "1": "START (L173-L174)",
+      "2": "ABORT (L113-L115)",
+      "4": "ACK commit (L180-L184)"
+    },
+    "ack_preconditions": "q_safe & ack_epoch==epoch & status_shadow[2:1]==0 & ledger_empty & !isolated & !protocol_isolated & !fault_event_valid & visibility_confirmed (L180-L184)",
+    "status_bits": "[2:0] state; bit8 owner; bit9 head; bit10 safe_reuse; bit11 terminal; bit12 !ledger_empty_next; bit13 first_pending (L359-L363)",
+    "read_map": "0x014 frame; 0x018 input_addr; 0x01C input_bytes; 0x020 weight_addr; 0x024 weight_bytes; 0x028 core_timeout (L364-L374)"
+  },
+  "m4b_sequence": [
+    "is_idle() 判据（state==0 && safe_reuse && owner|head|terminal|pending 全 0）",
+    "陈旧检测：运行前 head13 与参考不同",
+    "flush 输入(arena+0,519168B)/权重(arena+0x100000,5903100B) + DSB",
+    "configure：0x014=frame, 0x018=input_addr=0, 0x01C=input_bytes, 0x020=weight_addr=0x100000, 0x024=weight_bytes, 0x028/0x02C=timeout → 0x008=1 START",
+    "门控：START 后首拍须见 state∈{1,2} 且 owner=1、head/terminal/safe_reuse=0；若已 DONE 记 INCONCLUSIVE",
+    "等 safe：state∈{4,5} && (safe_reuse|terminal) && owner|pending=0；DONE 须 head=1 && error=0",
+    "invalidate head13(0x01A46100,5070B)/head26(0x01AD5E80,20280B) 后与 RAW 参考逐字节比对",
+    "ACK：0x05C/0x060=epoch lo/hi → 0x008=4 → 必须 is_idle()"
+  ],
+  "assumed_unverified": [
+    "A1 0x018 语义（r13 写 0，RTL 读为 input_addr，一致）",
+    "A6 0x058 frame 读（RTL 读映射未列，改用 0x014）",
+    "A7 visibility_confirmed 来源与时机（RTL 引用未展开）",
+    "A4 core/drain timeout 取值（用 400）"
+  ],
+  "elf": {
+    "m4b_v2": {
+      "file": "s4d_ps_app_m4b_v2.elf",
+      "sha256": "dabaf67aae1be96f5ddc32525c520de448edfc9ac92bccbf3397e75c8867a55b",
+      "bytes": 190720
+    },
+    "sw_v2": {
+      "file": "s4d_ps_app_sw_v2.elf",
+      "sha256": "3de1efb73f9df07af3556974aaf9ce500c1101f15a60cd47f26a138003d27db7",
+      "bytes": 196652
+    }
+  },
+  "boundary": "离线编译；未接触板卡；ENABLE=0；未 FROZEN；M4-b 只能窗口实测判 PASS。"
+}

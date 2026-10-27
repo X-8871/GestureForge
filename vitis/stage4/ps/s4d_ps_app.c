@@ -258,87 +258,203 @@ __attribute__((unused)) static int s4d_preproc_sw(const s4d_host_req_t *req)
     return 0;
 }
 
-/* ================= M4-b 自检模式（独立入口，不依赖网络/解码 weak 桩） =================
- * 顺序（判据见 bring-up 计划 §4）：
- *   1) 陈旧检测：触发前 tensor 与"主机预置参考"不同才算可判新旧；
- *   2) PS 写确定性图案 → 64 B 外对齐 flush + DSB；
- *   3) 触发 PL 真实 HP0 DMA 路径（2B CSR START @0x43C00008）；
- *   4) 完成序门控：PL 就绪前必须观察到 BUSY（提前读不得被当有效）；
- *   5) invalidate 后**全量 519,168 B** 与 RAW 区参考逐字节比对：diff_bytes 必须 0。
- * 参考张量由 host 在窗口内预置到 RAW 区；本模式只读 RAW，不写候选区外地址。
+/* ================= M4-b 自检模式（语义全部取自 r13 应用源码） =================
+ * 见 docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md（逐项标出处行号）。
+ * 关键点：0x008 是命令编码（1=START、4=ACK）；状态在 0x00C[2:0]（0 IDLE/1 ARMING/2 RUN/
+ * 4 DONE_SAFE/5 ERROR_SAFE/6 FAULT_ISOLATED），另 bit8 OWNER_PL、bit9 HEAD_VALID、
+ * bit10 SAFE_REUSE、bit11 TERMINAL、bit12 AXI_PENDING、bit13 FIRST_PENDING；
+ * epoch 由 0x050/0x054 双读校验；ACK 写 0x05C/0x060 后再写 0x008=4。
+ * 参考数据（host 预置到 RAW 区）：head13 期望在 RAW+0x0000（5,070 B），
+ * head26 期望在 RAW+0x2000（20,280 B）。
  */
-#define S2B_CSR_START   0x43C00008u
-#define S2B_CSR_STATUS  0x43C0000Cu
-#define S2B_ST_BUSY     (1u << 0)
+#define S4D_CR(off)   (S4D_CSR_BASE + (off))
+#define S4D_CSR_ID          S4D_CR(0x000u)
+#define S4D_CSR_VER         S4D_CR(0x004u)
+#define S4D_CSR_CMD         S4D_CR(0x008u)
+#define S4D_CSR_STATUS      S4D_CR(0x00Cu)
+#define S4D_CSR_ERROR       S4D_CR(0x010u)
+#define S4D_CSR_FRAME_W     S4D_CR(0x014u)
+#define S4D_CSR_INADDR_W    S4D_CR(0x018u)   /* input_addr（r13 写 0 = arena+0） */
+#define S4D_CSR_INBYTES_W   S4D_CR(0x01Cu)
+#define S4D_CSR_WADDR_W     S4D_CR(0x020u)   /* weight_addr（r13 写 0x00100000） */
+#define S4D_CSR_WBYTES_W    S4D_CR(0x024u)
+#define S4D_CSR_CORETO_W    S4D_CR(0x028u)
+#define S4D_CSR_DRAINTO_W   S4D_CR(0x02Cu)
+#define S4D_CSR_EPOCH_LO    S4D_CR(0x050u)
+#define S4D_CSR_EPOCH_HI    S4D_CR(0x054u)
+#define S4D_CSR_FRAME_R     S4D_CR(0x014u)   /* RTL 读映射：0x014=frame */
+#define S4D_CSR_ACKLO_W     S4D_CR(0x05Cu)
+#define S4D_CSR_ACKHI_W     S4D_CR(0x060u)
+#define S4D_CSR_REJECT_R    S4D_CR(0x064u)
 
-static uint32_t s4d_prbs32(uint32_t s)
+#define S4D_CMD_START  1u
+#define S4D_CMD_ACK    4u
+#define S4D_ST_IDLE    0u
+#define S4D_ST_ARMING  1u
+#define S4D_ST_RUN     2u
+#define S4D_ST_DONE    4u
+#define S4D_ST_ERROR   5u
+#define S4D_ST_FAULT   6u
+#define S4D_OWNER_PL   (1u << 8)
+#define S4D_HEAD_VALID (1u << 9)
+#define S4D_SAFE_REUSE (1u << 10)
+#define S4D_TERMINAL   (1u << 11)
+#define S4D_AXI_PEND   (1u << 12)
+#define S4D_FIRST_PEND (1u << 13)
+
+#define S4D_INPUT_BYTES   519168u
+#define S4D_WEIGHT_BYTES  5903100u
+#define S4D_HEAD13_OFF    0x01A46100u
+#define S4D_HEAD13_BYTES  5070u
+#define S4D_HEAD26_OFF    0x01AD5E80u
+#define S4D_HEAD26_BYTES  20280u
+#define S4D_INPUT_BASE    0x00100000u
+
+static inline uint32_t s4d_rd(uint32_t addr) { return Xil_In32(addr); }
+static inline void s4d_wr(uint32_t addr, uint32_t v)
 {
-    s ^= s << 13; s ^= s >> 17; s ^= s << 5;   /* xorshift32，主机可复算 */
-    return s;
+    Xil_Out32(addr, v);
+    __asm__ volatile("dsb sy" ::: "memory");
+}
+static inline void s4d_dsb(void) { __asm__ volatile("dsb sy" ::: "memory"); }
+
+static int s4d_read_epoch(uint64_t *epoch)
+{
+    unsigned int r;
+    for (r = 0; r < 8u; r++) {
+        uint32_t hi = s4d_rd(S4D_CSR_EPOCH_HI), lo = s4d_rd(S4D_CSR_EPOCH_LO);
+        if (hi == s4d_rd(S4D_CSR_EPOCH_HI)) {
+            *epoch = ((uint64_t)hi << 32) | lo;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int s4d_is_idle(void)
+{
+    uint32_t st = s4d_rd(S4D_CSR_STATUS);
+    return ((st & 7u) == S4D_ST_IDLE) && ((st & S4D_SAFE_REUSE) != 0u) &&
+           ((st & (S4D_OWNER_PL | S4D_AXI_PEND | S4D_HEAD_VALID | S4D_TERMINAL | S4D_FIRST_PEND)) == 0u);
+}
+
+static int s4d_safe_done(uint32_t *status_out, uint32_t *error_out)
+{
+    uint32_t st = s4d_rd(S4D_CSR_STATUS);
+    uint32_t state = st & 7u;
+    uint32_t err = s4d_rd(S4D_CSR_ERROR);
+    if ((state != S4D_ST_DONE && state != S4D_ST_ERROR) ||
+        (st & (S4D_SAFE_REUSE | S4D_TERMINAL)) != (S4D_SAFE_REUSE | S4D_TERMINAL) ||
+        (st & (S4D_OWNER_PL | S4D_AXI_PEND | S4D_FIRST_PEND)) != 0u) {
+        if (status_out) *status_out = st;
+        return 0;
+    }
+    if (status_out) *status_out = st;
+    if (error_out) *error_out = err;
+    if (state == S4D_ST_DONE) return ((st & S4D_HEAD_VALID) != 0u && err == 0u) ? 1 : 0;
+    return ((st & S4D_HEAD_VALID) == 0u && err != 0u) ? 2 : 0;   /* 2 = 合法 ERROR_SAFE */
+}
+
+static uint32_t s4d_count_diff(const uint8_t *a, const uint8_t *b, uint32_t n, uint32_t *first)
+{
+    uint32_t i, d = 0;
+    for (i = 0; i < n; i++) {
+        if (a[i] != b[i]) { if (d == 0u && first) { *first = i; } d++; }
+    }
+    return d;
 }
 
 int s4d_m4b_selfcheck(void)
 {
-    const int8_t *tensor = (const int8_t *)(uintptr_t)S4D_TENSOR_BASE;
-    const int8_t *expected = (const int8_t *)(uintptr_t)S4D_RAW_BASE;   /* host 预置参考 */
-    int32_t *wr = (int32_t *)(uintptr_t)S4D_TENSOR_BASE;
-    uint32_t seed = 0x12345678u;
-    const uint32_t bytes = S4D_TENSOR_BYTES;
-    const uint32_t words = bytes / 4u;
-    uint32_t i, diff_bytes = 0, first_diff = 0xFFFFFFFFu;
-    int stale_detected, premature_blocked = 0;
+    const uint8_t *arena = (const uint8_t *)(uintptr_t)S4D_TENSOR_BASE;   /* 0x10000000 */
+    const uint8_t *ref = (const uint8_t *)(uintptr_t)S4D_RAW_BASE;        /* host 预置参考 */
+    uint64_t epoch_before = 0, epoch = 0;
+    uint32_t st = 0, err = 0, spin = 0;
+    int stale = 0, gate = 0, done = 0, idle_after_ack = 0;
+    uint32_t d13 = 0, d26 = 0, f13 = 0xFFFFFFFFu, f26 = 0xFFFFFFFFu;
+    uint32_t frame = 1u;
 
-    s4d_region_invalidate(S4D_TENSOR_BASE, 64);
-    s4d_region_invalidate(S4D_RAW_BASE, 64);
-    stale_detected = (tensor[0] != expected[0] || tensor[1] != expected[1]) ? 1 : 0;
+    xil_printf("M4B CSR id=0x%08x ver=0x%08x\r\n",
+               (unsigned)s4d_rd(S4D_CSR_ID), (unsigned)s4d_rd(S4D_CSR_VER));
 
-    for (i = 0; i < words; i++) {
-        seed = s4d_prbs32(seed);
-        wr[i] = (int32_t)seed;
-    }
-    s4d_region_flush(S4D_TENSOR_BASE, bytes);
-    xil_printf("M4B STAGE=wrote_pattern\r\n");
-
-    Xil_Out32(S2B_CSR_START, 1u);
-    xil_printf("M4B STAGE=start_sent\r\n");
-
-    if ((Xil_In32(S2B_CSR_STATUS) & S2B_ST_BUSY) != 0u) {
-        premature_blocked = 1;
-        xil_printf("M4B GATE=busy_before_ready\r\n");
+    if (!s4d_is_idle()) {
+        xil_printf("M4B RESULT={\"pass\":0,\"reason\":\"not_idle\",\"status\":%u}\r\n",
+                   (unsigned)s4d_rd(S4D_CSR_STATUS));
+        return -1;
     }
 
-    {
-        uint32_t spin = 0, st = 0;
-        for (spin = 0; spin < 20000000u; spin++) {
-            st = Xil_In32(S2B_CSR_STATUS);
-            if ((st & S2B_ST_BUSY) == 0u) { break; }
+    /* 陈旧检测：运行前 head13 与参考不同才可判新旧 */
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, 64);
+    stale = (arena[S4D_HEAD13_OFF] != ref[0] || arena[S4D_HEAD13_OFF + 1] != ref[1]) ? 1 : 0;
+
+    if (!s4d_read_epoch(&epoch_before)) { xil_printf("M4B RESULT={\"pass\":0,\"reason\":\"epoch_read_fail\"}\r\n"); return -1; }
+    epoch = epoch_before + 1u;
+
+    /* prepare_cache：输入/权重 flush（64 B 外对齐），前后 DSB */
+    s4d_region_flush(S4D_TENSOR_BASE, S4D_INPUT_BYTES);
+    s4d_region_flush(S4D_TENSOR_BASE + S4D_INPUT_BASE, S4D_WEIGHT_BYTES);
+    s4d_dsb();
+
+    /* configure_start（r13 顺序与偏移） */
+    s4d_wr(S4D_CSR_FRAME_W, frame);
+    s4d_wr(S4D_CSR_INADDR_W, 0u);
+    s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
+    s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
+    s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
+    s4d_wr(S4D_CSR_CORETO_W, 400u);
+    s4d_wr(S4D_CSR_DRAINTO_W, 400u);
+    s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
+
+    /* 完成序门控：START 后第一拍快照 */
+    st = s4d_rd(S4D_CSR_STATUS);
+    if (((st & 7u) == S4D_ST_ARMING || (st & 7u) == S4D_ST_RUN) &&
+        (st & S4D_OWNER_PL) != 0u && (st & (S4D_HEAD_VALID | S4D_TERMINAL | S4D_SAFE_REUSE)) == 0u) {
+        gate = 1;   /* BLOCKED：可观测到"运行中、结果未有效" */
+    } else if ((st & 7u) == S4D_ST_DONE) {
+        gate = 2;   /* INCONCLUSIVE：首拍已 DONE，无法证明门控 */
+    }
+
+    /* 等待安全终态（超时即 FAIL，不重试） */
+    for (spin = 0; spin < 50000000u; spin++) {
+        int r = s4d_safe_done(&st, &err);
+        if (r == 1) { done = 1; break; }
+        if (r == 2) { done = 2; break; }
+        if ((st & 7u) == S4D_ST_FAULT) break;
+    }
+
+    /* PL→PS 可见性：invalidate 后逐字节比对 head13/head26 */
+    if (done == 1) {
+        s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
+        s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
+        d13 = s4d_count_diff(arena + S4D_HEAD13_OFF, ref, S4D_HEAD13_BYTES, &f13);
+        d26 = s4d_count_diff(arena + S4D_HEAD26_OFF, ref + 0x2000u, S4D_HEAD26_BYTES, &f26);
+        xil_printf("M4B HEADS diff13=%u first13=%d diff26=%u first26=%d\r\n",
+                   (unsigned)d13, (d13 == 0u) ? -1 : (int)f13,
+                   (unsigned)d26, (d26 == 0u) ? -1 : (int)f26);
+    }
+
+    /* ACK 收尾：safe snapshot 匹配 → 0x05C/0x060 → 0x008=4 → is_idle */
+    if (done == 1) {
+        uint64_t e2 = 0;
+        uint32_t st2 = s4d_rd(S4D_CSR_STATUS);
+        if (s4d_read_epoch(&e2) && e2 == epoch && s4d_rd(S4D_CSR_FRAME_R) == frame) {
+            s4d_wr(S4D_CSR_ACKLO_W, (uint32_t)epoch);
+            s4d_wr(S4D_CSR_ACKHI_W, (uint32_t)(epoch >> 32));
+            s4d_wr(S4D_CSR_CMD, S4D_CMD_ACK);
+            idle_after_ack = s4d_is_idle();
         }
-        if (spin >= 20000000u) {
-            xil_printf("M4B RESULT={\"m4b_pass\":0,\"reason\":\"timeout\"}\r\n");
-            return -1;
-        }
+        (void)st2;
     }
 
-    s4d_region_invalidate(S4D_TENSOR_BASE, bytes);
-    {
-        const uint8_t *t = (const uint8_t *)tensor;
-        const uint8_t *e = (const uint8_t *)expected;
-        for (i = 0; i < bytes; i++) {
-            if (t[i] != e[i]) {
-                if (diff_bytes == 0) { first_diff = i; }
-                diff_bytes++;
-            }
-        }
-    }
-
-    xil_printf("M4B RESULT={\"m4b_pass\":%d,\"diff_bytes\":%u,\"first_diff\":%d,"
-               "\"stale_detected\":%d,\"premature_blocked\":%d,\"geom\":\"%s\","
-               "\"tensor_bytes\":%u}\r\n",
-               (diff_bytes == 0 && stale_detected && premature_blocked) ? 1 : 0,
-               (unsigned)diff_bytes,
-               (diff_bytes == 0) ? -1 : (int)first_diff,
-               stale_detected, premature_blocked, S4D_GEOM.name, (unsigned)bytes);
-    return (diff_bytes == 0 && stale_detected && premature_blocked) ? 0 : -2;
+    xil_printf("M4B RESULT={\"pass\":%d,\"done\":%d,\"diff13\":%u,\"diff26\":%u,"
+               "\"first13\":%d,\"first26\":%d,\"stale\":%d,\"gate\":%d,"
+               "\"ack_idle\":%d,\"epoch\":%u,\"status\":%u,\"error\":%u}\r\n",
+               (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 1 : 0,
+               done, (unsigned)d13, (unsigned)d26,
+               (d13 == 0u) ? -1 : (int)f13, (d26 == 0u) ? -1 : (int)f26,
+               stale, gate, idle_after_ack,
+               (unsigned)(uint32_t)epoch, (unsigned)st, (unsigned)err);
+    return (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 0 : -2;
 }
 
 /* ---------------- infer_one_from_pl_tensor：跳过 CPU memcpy / 输入写回 ---------------- */

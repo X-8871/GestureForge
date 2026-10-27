@@ -1,0 +1,119 @@
+{
+  "task_id": "S4-CTRL/S4B-contract",
+  "checker": "verify_shared_io_contract",
+  "checker_version": "r08",
+  "status": "PASS",
+  "generated_at_utc8": "2026-10-27T20:00:26+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts\\stage4_s4ctrl\\verify_shared_io_contract.py --evidence-dir D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4_d1a_landing_20261027_r02\\contract_selfcheck",
+  "exit_code": 0,
+  "cwd": "D:\\codex-worktrees\\w4",
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "artifact_sha256": {
+    "contract_json": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+    "contract_md": "e839f7a0d30f83816b63aedf14047420091dcb84ac75b3d168e87831718b11fd",
+    "address_map": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+    "s4a_md_mirror": "75278f8dcad0fdacbec9946f59e1841061698c0237a090b1410b293be0460f84",
+    "injection_runbook": "f272cec095f84ffeb625a2cccd66f7b9c7ba5252efa71fdc17a61343bc43b5bb",
+    "checker_script": "e1589ad9f3d901dba9627b00218b593491d57626aaf22c0b14c51127b44bb99b"
+  },
+  "passes": [
+    "运行书摘要/缓存说明/板上模板的输入与 heads 输出维护顺序一致",
+    "运行书 PL done/输出 invalidate 反序变异 1/1 被拒绝",
+    "契约 JSON 可解析且必需顶层键齐全",
+    "upstream_bindings 现场复算一致（17/17 项）",
+    "cdx_015 r02→r03 绑定取代关系已登记",
+    "绑定字节口径声明齐全（默认磁盘字节；blob 口径 4 项）+ 2/2 负向对照被拒绝",
+    "r03 session/source/time/key/cache 语义与 S4-A、地址图一致",
+    "S4-A 人读镜像 SHA 与当前 r06 文件一致",
+    "r03 检查器变异反例 5/5 均被拒绝",
+    "输入帧契约字段齐全（17 项）",
+    "capture_time 语义与 S4-A 一致（0 哨兵 + 注解；注入起点不得冒充）",
+    "measurement_scope 键集合与 S4-A 一致（8 个）",
+    "pl_timing/uart_transport/board_pl 取值域与 S4-A 一致（无自造枚举）",
+    "source_kind 取值域声明与 S4-A 一致（含跨命名映射）",
+    "事件顺序 8 步齐全且次序正确",
+    "帧序列规则含重复/回退/乱序处理（N5）",
+    "人读契约覆盖全部输入字段名",
+    "结果字段 16 项与检测字段 6 项与 S4-A 逐一相同",
+    "显示关联五元组齐全（5 项）",
+    "display_semantics 取值等于阶段5 G0 已决值（B_latest_result_overlay）",
+    "hud_field_sources 键集合恰等于 13 个 HUD 字段",
+    "PS 侧日志唯一映射键 = (session_id, frame_id, result_seq)",
+    "stale 已批准态：批准记录绑定 + 200000000 ns 与阶段5 同源 + 4/4 负向对照被拒绝",
+    "真实彩色改绑齐全（标签/部署绑定/三层语义/几何/采集时钟/源帧哈希）+ 4/4 负向对照被拒绝",
+    "r06 BGR888/byte_order 分层、D2 顺序、UR-1 元数据、wire/C enum 分域与运行期 fail-closed 通过；10/10 负向对照被拒绝",
+    "三种范围均有 allowed 与 forbidden",
+    "消费边界声明阶段5 只读 + 版本化 + 变更流程"
+  ],
+  "failures": [],
+  "details": {
+    "runbook_cache_order_errors": [],
+    "runbook_negative_controls": {
+      "output_invalidate_before_pl_done": {
+        "mutated": true,
+        "detected": true,
+        "errors": [
+          "运行书板上模板的 done/invalidate/读 heads/停止确认/释放顺序错误"
+        ]
+      }
+    },
+    "upstream_binding_checks": {
+      "checked": 17,
+      "total": 17,
+      "bad": []
+    },
+    "binding_byte_basis": {
+      "blob_entries": [
+        "stage3_colour_reverify_hashes",
+        "stage3_colour_reverify_readme",
+        "stage3_window_address_facts",
+        "stage5_display_g0_fields"
+      ],
+      "negative_controls": {
+        "wrong_sha_under_blob_basis": true,
+        "unknown_byte_basis": true
+      }
+    },
+    "r03_negative_controls": {
+      "session_id_type": true,
+      "extra_source_mapping": true,
+      "synthetic_capture_truth": true,
+      "invalidate_after_read": true,
+      "address_map_frozen": true
+    },
+    "input_field_count": 17,
+    "source_kind_map_entries": [
+      "camera",
+      "file_injection",
+      "synthetic"
+    ],
+    "md_uncovered_input_fields": [],
+    "stage5_display_semantics_value": "B_latest_result_overlay",
+    "stage5_stale_age_limit_ns": 200000000,
+    "stale_negative_controls": {
+      "reverted_to_draft_status": true,
+      "wrong_limit_value": true,
+      "forged_receipt_sha256": true,
+      "missing_approval_reference": true
+    },
+    "colour_profile_negative_controls": {
+      "replay_claimed_as_live": true,
+      "wrong_ddr_byte_order": true,
+      "fabricated_capture_clock": true,
+      "forged_elf_binding": true
+    },
+    "bgr888_negative_controls": {
+      "wrong_raw_pixel_format": true,
+      "channel_order_used_as_byte_order": true,
+      "wrong_channel_order": true,
+      "runtime_claimed_implemented": true,
+      "reorder_after_resize": true,
+      "missing_ur1_source_hash": true,
+      "legacy_bgr_mapped_to_endian": true,
+      "address_map_frozen": true,
+      "mailbox_code_direct_cast": true,
+      "mailbox_driver_falsely_implemented": true
+    }
+  }
+}

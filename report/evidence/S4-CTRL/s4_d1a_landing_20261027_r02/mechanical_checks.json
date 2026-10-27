@@ -1,0 +1,255 @@
+{
+  "task_id": "S4-CTRL/S4-T30",
+  "checker": "verify_d1a_landing",
+  "checker_version": "r01",
+  "status": "PASS",
+  "generated_utc8": "2026-10-27T20:00:25+08:00",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts\\stage4_s4ctrl\\verify_d1a_landing.py --run-dir D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4_d1a_landing_20261027_r02",
+  "worktree": "D:\\codex-worktrees\\w4",
+  "branch": "stage4-infer-prep",
+  "hardware_execution": "NOT_RUN",
+  "identity": {
+    "source_map": {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_stage4_address_map.json",
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e"
+    },
+    "shared_map": {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\S4B_shared_address_map.json",
+      "sha256": "f16e9a7c6c447fbf689fb831b0282eb846d1ccefe8cd985559d56d509a069848"
+    },
+    "contract": {
+      "path": "D:\\codex-worktrees\\w4\\docs\\stage4\\s4b_shared_input_result_contract.json",
+      "sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+      "revision": "r07",
+      "status": "FROZEN_OFFLINE_ONLY"
+    },
+    "checker": {
+      "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4ctrl\\verify_d1a_landing.py",
+      "sha256": "986040d6f1f1488a7cd1e2f2b63c465b5d9c15eeca4d032681b25ad5c55d12a2"
+    }
+  },
+  "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "checks": {
+    "A_region_arithmetic": {
+      "status": "PASS",
+      "detail": {
+        "region_count": 8,
+        "regions": [
+          {
+            "name": "ps_app_arena",
+            "ok": true,
+            "base": 1048576,
+            "length": 16777216,
+            "end": 17825792
+          },
+          {
+            "name": "network_input_tensor",
+            "ok": true,
+            "base": 268435456,
+            "length": 519168,
+            "end": 268954624
+          },
+          {
+            "name": "gf8_weight_package",
+            "ok": true,
+            "base": 269484032,
+            "length": 5903100,
+            "end": 275387132
+          },
+          {
+            "name": "injection_frame_rgb",
+            "ok": true,
+            "base": 275775488,
+            "length": 4194304,
+            "end": 279969792
+          },
+          {
+            "name": "raw_frame",
+            "ok": true,
+            "base": 301989888,
+            "length": 12582912,
+            "end": 314572800
+          },
+          {
+            "name": "raw_meta",
+            "ok": true,
+            "base": 314572800,
+            "length": 32768,
+            "end": 314605568
+          },
+          {
+            "name": "feature_envelope",
+            "ok": true,
+            "base": 285212672,
+            "length": 11382200,
+            "end": 296594872
+          },
+          {
+            "name": "pl_control_csr",
+            "ok": true,
+            "base": 1136656384,
+            "length": 65536,
+            "end": 1136721920
+          }
+        ]
+      },
+      "note": ""
+    },
+    "B_zero_overlap": {
+      "status": "PASS",
+      "detail": {
+        "regions_checked": 8,
+        "pairs": 28,
+        "overlaps": []
+      },
+      "note": ""
+    },
+    "C_shared_vs_source_fidelity": {
+      "status": "PASS",
+      "detail": {
+        "regions_compared": 8,
+        "diffs": []
+      },
+      "note": "共享图是源图的忠实投影；差集必须为 0"
+    },
+    "D_disjoint_from_2b_frozen_objects": {
+      "status": "PASS",
+      "detail": {
+        "detail": [
+          {
+            "new_region": "raw_frame",
+            "frozen_object": "network_input_tensor",
+            "frozen_interval": [
+              "0x10000000",
+              "0x1007ec00"
+            ],
+            "hit_literal": false,
+            "hit_map_region": false
+          },
+          {
+            "new_region": "raw_frame",
+            "frozen_object": "gf8_weight_package",
+            "frozen_interval": [
+              "0x10100000",
+              "0x106a12fc"
+            ],
+            "hit_literal": false,
+            "hit_map_region": false
+          },
+          {
+            "new_region": "raw_frame",
+            "frozen_object": "feature_envelope",
+            "frozen_interval": [
+              "0x11000000",
+              "0x11adadb8"
+            ],
+            "hit_literal": false,
+            "hit_map_region": false
+          },
+          {
+            "new_region": "raw_meta",
+            "frozen_object": "network_input_tensor",
+            "frozen_interval": [
+              "0x10000000",
+              "0x1007ec00"
+            ],
+            "hit_literal": false,
+            "hit_map_region": false
+          },
+          {
+            "new_region": "raw_meta",
+            "frozen_object": "gf8_weight_package",
+            "frozen_interval": [
+              "0x10100000",
+              "0x106a12fc"
+            ],
+            "hit_literal": false,
+            "hit_map_region": false
+          },
+          {
+            "new_region": "raw_meta",
+            "frozen_object": "feature_envelope",
+            "frozen_interval": [
+              "0x11000000",
+              "0x11adadb8"
+            ],
+            "hit_literal": false,
+            "hit_map_region": false
+          }
+        ]
+      },
+      "note": ""
+    },
+    "E_forbidden_gap_precise_shrink": {
+      "status": "PASS",
+      "detail": {
+        "gap_count_current": 9,
+        "gap_count_baseline": 9,
+        "shrunk_gap_present": true,
+        "old_gap_absent": true,
+        "shrink_bytes": 12615680,
+        "shrink_bytes_expected": 12615680,
+        "shrink_equals_raw_plus_meta": true,
+        "other_gaps_unchanged": true,
+        "baseline_ref": "d29ef5f^",
+        "baseline_error": null,
+        "changed_entries": [
+          {
+            "removed": [
+              "0x12000000",
+              "0x20000000"
+            ]
+          },
+          [
+            {
+              "added": [
+                "0x12c08000",
+                "0x20000000"
+              ]
+            }
+          ]
+        ]
+      },
+      "note": ""
+    },
+    "F_status_discipline": {
+      "status": "PASS",
+      "detail": {
+        "new_region_status": {
+          "raw_frame": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW",
+          "raw_meta": "PROPOSED_STAGE4_OWNED_PENDING_APPROVAL_AND_REVIEW"
+        },
+        "proposal_state_not_frozen": true,
+        "shared_enable_status": 0,
+        "source_map_status": "APPROVED",
+        "approval_history_events": [
+          "APPROVED"
+        ],
+        "note": "地图整体 APPROVED 为 Wong 2026-10-27 事实登记；不据此提升任何关口（G0 仍开放）"
+      },
+      "note": ""
+    },
+    "G_contract_rebind": {
+      "status": "PASS",
+      "detail": {
+        "map_sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+        "contract_bound_sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+        "rebind_entries_for_current_sha": 1,
+        "rebind_count": 2,
+        "semantics_changed_flags": [
+          false,
+          false
+        ]
+      },
+      "note": ""
+    }
+  },
+  "failures": [],
+  "boundary": "只读机械核验；不代表 G0/G1/G3/G4/G5，不代表板级实测，不改变 ENABLE=0。",
+  "not_done": [
+    "板级四项实测（CPU1 停止/无其他 DDR consumer/候选区未被占用/cache 可见性）",
+    "独立复审（由项目总控另派 Reviewer）",
+    "ENABLE=1 与 4-D 构建（须先满足裁决 §3 全部前置）"
+  ]
+}

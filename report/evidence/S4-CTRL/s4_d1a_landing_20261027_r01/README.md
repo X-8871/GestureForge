@@ -19,7 +19,7 @@
 | 缺口审计 | `python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir <本目录>/gap_audit_r02` | **0**（13/13、17/17） |
 
 - A：8 区域 `base + length_bytes == end_addr_exclusive` 且 hex/整数一致。
-- B：8 区域两两 **21 对零重叠**。
+- B：8 区域两两 **28 对零重叠**（=C(8,2)；分解：ddr 内 7 个 region 两两 **21 对** + 跨 ddr↔pl_mmio **7 对**）。
 - C：共享图与源图 8 区域 `base_addr_hex`/`length_bytes`/`status`/`owner_from_source` **差异 0**。
 - D：`raw_frame`/`raw_meta` 与 2B 冻结对象 tensor `[0x10000000,0x1007EC00)`、GF8 `[0x10100000,0x106A12FC)`、feature `[0x11000000,0x11ADADB8)` **不相交**（字面区间 + 图中 region 双路核对）。
 - E：存在禁区 `[0x12C08000,0x20000000)`、不存在 `[0x12000000,…)`；缩减量 **12,615,680 B**；**其余 8 条禁区相对基线 `d29ef5f^` 逐条不变**。
@@ -34,3 +34,13 @@
 4. 真实链窗口 W-C（等地址复审 PASS + 实测 + 4-D + P1）。
 
 **边界**：仅写 w4；未动硬件；未 push；`ENABLE=0` 保持；未 FROZEN；本记录**不构成**任何关口（G0/G1/G3/G4/G5）通过。
+
+## 非阻断修订说明（2026-10-27 r02，增量核对用）
+
+- **NB-1 时间戳**：契约 ``post_freeze_rebinds[1].at_utc8`` 与缺口表 ``updated_utc8`` 原先手填 19:50:00 / 19:52:00，**晚于提交时刻 19:46:50**（笔误）。已改为**文件系统真实 mtime**：契约 ``2026-10-27T19:44:56+08:00``、缺口表 ``2026-10-27T19:45:21+08:00``，并新增 ``timestamp_source``/``updated_utc8_source`` 说明来源与被更正值。
+- **NB-3 重叠对数**：原写「21 对」，实际核验为 **28 对**（``C(8,2)``；ddr 内 7 region 21 对 + 跨 ddr↔pl_mmio 7 对）。核验器输出 ``pairs: 28`` 未变。
+- **NB-4 路径名**：派单卡所列 ``docs/stage4/s4_shared_io_contract.json`` 等为派单笔误（派单方已认）；**实际对象与路径**为：
+  ``docs/stage4/s4b_shared_input_result_contract.json``、``docs/stage4/S4B_raw_system_g0_gap_registry.json``、
+  ``docs/stage4/S4B_raw_address_ownership_proposal_20261024_r01.md``、``report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/landing_manifest.json``。
+  **OID 与对象身份不变，仅路径名更正**；本清单 ``files[].path`` 已统一为 ``/`` 分隔。
+- 本文件为**复审基线的原文更正**；修后复跑证据见 ``s4_d1a_landing_20261027_r02/``。

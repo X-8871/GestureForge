@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-CTRL",
+  "run_id": "s4_d1a_landing_20261027_r02",
+  "card": "task-30",
+  "purpose": "复审 PASS 后的 4 项非阻断（NB-1..NB-4）修复复核；不改被审语义",
+  "reviewed_baseline": {
+    "commit": "e39f6de6f83fc06783ee9b97e86afabef0170e89",
+    "review": "PASS（0 阻断 / 4 非阻断），主仓 report/evidence/CTRL-DSH-HANDOFF/reviews/S4_T30_20261027_r01/，main 提交 c5d6928"
+  },
+  "nb_fixes": [
+    {
+      "id": "NB-1",
+      "issue": "时间戳晚于提交",
+      "cause": "手填 at_utc8/updated_utc8 为笔误（19:50:00/19:52:00 > 提交 19:46:50）",
+      "fix": "改用文件系统真实 mtime：契约 19:44:56、缺口表 19:45:21（均 ≤ 提交时刻），并加 timestamp_source/updated_utc8_source 说明来源",
+      "evidence": "docs/stage4/s4b_shared_input_result_contract.json 的 post_freeze_rebinds[1]；docs/stage4/S4B_raw_system_g0_gap_registry.json 的 updated_utc8"
+    },
+    {
+      "id": "NB-2",
+      "issue": "STATE 11 字段交接行仍 Workbuddy",
+      "cause": "仅改了顶部写权行，漏改交接行",
+      "fix": "交接行改为 DSH 接管；如实写明依据为 Wong 直接指令、原持有方无书面 OFFERED 行；心跳=真实时刻",
+      "evidence": ".codex/STATE.md 交接行"
+    },
+    {
+      "id": "NB-3",
+      "issue": "证据写 21 对零重叠，实际 28 对",
+      "cause": "按 ddr 内对数（21）表述，漏计跨空间 7 对",
+      "fix": "改为 28 对并注明分解（C(8,2)=21 同空间 + 7 跨空间）；核验器本身输出 pairs=28 未变",
+      "evidence": "r01 README/landing_manifest + 本 r02"
+    },
+    {
+      "id": "NB-4",
+      "issue": "路径名与派单卡不符",
+      "cause": "派单卡列出 docs/stage4/s4_shared_io_contract.json 等不存在的名字（派单方已认）",
+      "fix": "证据中写入真实路径并统一 / 分隔；OID 与对象身份不变，仅路径名更正",
+      "evidence": "r01 README 非阻断修订说明 + landing_manifest.files[].path"
+    }
+  ],
+  "identity": {
+    "map": {
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+      "path": "docs/stage4/S4B_stage4_address_map.json"
+    },
+    "state": {
+      "sha256": "040daf7bcac065eb2eefea5acc8d3f2c2249ee39b5b81006bf26baad7bab20a5",
+      "path": ".codex/STATE.md"
+    },
+    "contract": {
+      "sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+      "path": "docs/stage4/s4b_shared_input_result_contract.json"
+    },
+    "gap_registry": {
+      "sha256": "0bdcbba257e6460367683ff13fcf984ff3ad4e4ee27a8b5b92583af629e8b914",
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json"
+    }
+  },
+  "files": [
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "sha256": "25bc30d519da3c0d886a9edfaf0b79364d2e8162cac41678e8581575d2450679",
+      "role": "source",
+      "keep_reason": "NB-1：post_freeze_rebinds[1].at_utc8 改真实 mtime + timestamp_source"
+    },
+    {
+      "path": "docs/stage4/S4B_raw_system_g0_gap_registry.json",
+      "sha256": "0bdcbba257e6460367683ff13fcf984ff3ad4e4ee27a8b5b92583af629e8b914",
+      "role": "source",
+      "keep_reason": "NB-1：updated_utc8 改真实 mtime；shared_input_contract basis 随契约重绑"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "sha256": "040daf7bcac065eb2eefea5acc8d3f2c2249ee39b5b81006bf26baad7bab20a5",
+      "role": "source",
+      "keep_reason": "NB-2：11 字段交接行改 DSH 接管 + 直接指令依据 + 真实心跳"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/README.md",
+      "sha256": "7f70ade0fbd668bc8d0701dc9a7f169d2a0b371e898c0edbb3b6e67feab1e7d7",
+      "role": "source",
+      "keep_reason": "NB-3：28 对（含 21+7 分解）；NB-4 路径名更正说明"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/landing_manifest.json",
+      "sha256": "e3637713ff1a4f369247544810dbffccf55579347ea440ad98649bddd7682b53",
+      "role": "source",
+      "keep_reason": "NB-3/NB-4：checks 文案与 files[].path 统一 / 分隔 + nb_fixes_r02"
+    },
+    {
+      "path": "docs/stage4/S4B_stage4_address_map.json",
+      "sha256": "7c20ac89a35e66c9dc4559fd66a7c9be8150d1bb532e59cf27036d12b9ead29e",
+      "role": "input",
+      "keep_reason": "本次未改（复跑核验用）"
+    },
+    {
+      "path": "docs/stage4/S4B_shared_address_map.json",
+      "sha256": "f16e9a7c6c447fbf689fb831b0282eb846d1ccefe8cd985559d56d509a069848",
+      "role": "input",
+      "keep_reason": "本次未改（C 项比对用）"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/verify_d1a_landing.py",
+      "sha256": "986040d6f1f1488a7cd1e2f2b63c465b5d9c15eeca4d032681b25ad5c55d12a2",
+      "role": "input",
+      "keep_reason": "本次未改（复跑核验器）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r02/mechanical_checks.json",
+      "sha256": "fc816bd8e9183f1e552fca3bf91d63e7f3261456b67401fb2e444ffd59e09cbf",
+      "role": "result",
+      "keep_reason": "复跑机械核验 7/7 PASS"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r02/contract_selfcheck/verify_shared_io_contract_result.json",
+      "sha256": "b7c0edff4eee87ed7ea6f044be8a942a3cc0ae1103bada4c1379ca0c02061506",
+      "role": "result",
+      "keep_reason": "复跑契约自检 27/0 PASS"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r02/gap_audit/raw_system_g0_gap_audit_result.json",
+      "sha256": "c86cca132fc1b11f292707c94a34a16f4898b1a8523390758c3dbef3c0a916e8",
+      "role": "result",
+      "keep_reason": "复跑缺口审计 13/13 PASS"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4_d1a_landing_20261027_r02/exits.txt",
+      "sha256": "c03401c822d5b0eb2530d8014a4ef73c58624bbac973d10763d53730487df2c0",
+      "role": "log",
+      "keep_reason": "三项真实退出码"
+    }
+  ],
+  "checks": [
+    {
+      "name": "复跑机械核验 A–G",
+      "command": "python -B scripts/stage4_s4ctrl/verify_d1a_landing.py --run-dir report/evidence/S4-CTRL/s4_d1a_landing_20261027_r02",
+      "exit_code": 0,
+      "status": "PASS",
+      "reason": "7/7；B 项 pairs=28（C(8,2)）"
+    },
+    {
+      "name": "复跑契约自检",
+      "command": "python -B scripts/stage4_s4ctrl/verify_shared_io_contract.py --evidence-dir .../s4_d1a_landing_20261027_r02/contract_selfcheck",
+      "exit_code": 0,
+      "status": "PASS",
+      "reason": "27 项通过、0 项失败"
+    },
+    {
+      "name": "复跑缺口审计",
+      "command": "python -B scripts/stage4_s4b/audit_raw_system_g0_gaps.py --evidence-dir .../s4_d1a_landing_20261027_r02/gap_audit",
+      "exit_code": 0,
+      "status": "PASS",
+      "reason": "13/13 算术、依据件复算一致、状态纪律通过"
+    },
+    {
+      "name": "增量核对",
+      "command": null,
+      "exit_code": null,
+      "status": "NOT_RUN",
+      "reason": "由项目总控请同一 Reviewer 做增量核对（只看 NB-1..NB-4 是否真修、有无新问题）"
+    }
+  ],
+  "not_done": [
+    "板级四项实测",
+    "ENABLE=1 / 4-D 构建",
+    "真实链窗口 W-C"
+  ],
+  "boundary": "只写 w4；ENABLE=0；不 FROZEN；无板级访问；不 push；25 项未提交改动未动"
+}

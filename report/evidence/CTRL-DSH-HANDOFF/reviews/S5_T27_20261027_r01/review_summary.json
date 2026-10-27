@@ -1,0 +1,66 @@
+{
+  "reviewer": "rev-s5 (DSH independent Reviewer, read-only)",
+  "task": "S5-T27 task-27 delivery review + S5-T04 freeze-archive post-freeze modification red flag",
+  "worktree": "D:\\codex-worktrees\\w5",
+  "branch": "stage5-display-prep",
+  "content_commit": "286ae4a2e2070bff7aa3b905687c856c4e78ca4b",
+  "evidence_head": "a4c254264ff3b3512efa3cd6f1cbb3488d90f08c",
+  "previous_review_object": "2797cc3e072a8dfa1287f3e54cd606b46de16f99",
+  "freeze_commit_tag": "26b7439 (tag stage5-offline-freeze-20261027, unchanged)",
+  "verdict": "PASS",
+  "blocking_findings": [],
+  "red_flag_verdict": {
+    "frozen_member_modified": false,
+    "changed_paths_total": 16,
+    "changed_paths_that_are_frozen_members": 0,
+    "repo_scope_frozen_members_checked": 187,
+    "repo_scope_frozen_members_changed": 0,
+    "frozen_set_json_blob": "11e1aeb60e03 (same at 26b7439/2797cc3/a4c2542)",
+    "disclosed": true,
+    "disclosure_artifact": "console/doc_correction_after_freeze.txt + README §9 + results_freeze.doc_correction_after_freeze",
+    "pre_fixed_F2": false,
+    "F1_F5_fixed": false,
+    "archive_self_consistent_at_head": true,
+    "checker_evidence_exit_w5": 0,
+    "verifier_exit_w5": 0,
+    "drift_after_reviewed_object": "none (2797cc3..a4c2542 diff for report/evidence/S5-T04 is empty)",
+    "needs_rereview_or_rollback": false,
+    "premise_correction": "the 16 listed changes are in commits 521e7f9/3575dc3/2797cc3, i.e. BEFORE the reviewed object 2797cc3 (diff base was freeze commit 26b7439)"
+  },
+  "task27_findings_non_blocking": [
+    "N1: committed delivery_manifest binds LF bytes of scripts/stage5_t27/run_s5t27_evidence.py (eeee8529..., 15578B = blob bytes); fresh checkout with autocrlf=true produces CRLF (15847B, f6f1c2c6...) => check_stage_delivery --mode evidence exits 2 in an independent checkout (w5 exits 0). Proof: CRLF->LF normalized hash equals declared; regenerated evidence in checkout gives M1/M2=0. Fix: subdir .gitattributes '* -text' for scripts/stage5_t27/ and report/evidence/S5-T27/, regenerate in new RunId. Must fix before freeze/handoff.",
+    "N2: assert_replay_record does not enforce frame_integrity.length_bytes/algorithm (my mutations accepted) and does not re-hash; loader/build path does enforce triple equality (verified).",
+    "N3: STATE.md line 62 still says task-27 overall NOT_RUN, contradicting lines 27-45 (delivered).",
+    "N4: 3 new tracked files inside frozen file_set dir scripts/stage5_t03 (25->28); frozen members unchanged, verifier 77/77; register at next re-freeze.",
+    "N5: suite skipped=2 are upstream modules test_s5t03_frozen_replay (setUpModule) and test_s5t03_stage4_positive_replay (setUpClass, stage4 contract 7228f513... vs 4d8dc0d4...); task-27's own 14 tests all ok."
+  ],
+  "task27_key_results": {
+    "implementation_layer_real": true,
+    "source_frame_rehash": "sha256+size recomputed at load; tamper/truncate rejected",
+    "frame_integrity_triple": "algorithm+value+length all-equal enforced by validate_frame_integrity (length/alg/value mismatches rejected)",
+    "replay_source_fields": "10/10 present",
+    "replay_not_live_forced": true,
+    "stage4_validate_result_record_called": true,
+    "reviewer_injections": {"total": 32, "as_expected": 30, "gaps": ["record length+1 accepted by guard", "record algorithm=md5 accepted by guard"]},
+    "capture_time_ns": {"value": "1792776253000000000", "utc8": "2026-10-24T01:24:13+08:00", "source": "dbdf S3-T05 reference_frame_set.md line 3 + replay_input_binding.json (precision one_second_as_recorded, replay_documented_wallclock, not PS monotonic, no added precision)", "derivable": true},
+    "regression": {"verdict": "REPLAY_OFFLINE_REGRESSION_PASS", "assertions": 30, "failed": 0, "frame_assertions_lines": 240, "long_run_frames": 106573, "interval_count": 106572, "period_ns": 16890000, "elapsed_ns": 1800001080000, "stale_operator": "strict greater-than (age==200ms not stale, +1ns stale)", "tamper_discrimination_exit": 2, "one_frame_repeated_240x_labelled": true},
+    "suite": {"module_alone": "Ran 14 OK", "three_modules": "Ran 14 OK (skipped=2)", "skips_reason": "upstream modules skipped (see N5)"},
+    "checker_w5": {"evidence": 0, "inputs": 2},
+    "evidence_runner_replay_in_checkout": {"exit": 0, "M1": 0, "M2": 0, "verdict": "REPLAY_OFFLINE_REGRESSION_PASS", "assertions": 30}
+  },
+  "boundary_honesty": {
+    "no_board_physical_realtime_positive_claims": true,
+    "capture_clock_pending_measurement_consistent": true,
+    "evidence_mode_time_fields_null": true,
+    "B1_B10_not_claimed_passed": true,
+    "not_run_listed": true
+  },
+  "push_status": "remote not verifiable this round (git ls-remote timed out rc=124); locally no upstream branch and new commits are local-only; tag still points to 26b7439",
+  "w5_written_by_reviewer": false,
+  "hardware_touched": false,
+  "artifacts": {
+    "report": "D:\\tmp\\review\\S5_T27_20261027_r01\\S5_T27_REVIEW_REPORT.md",
+    "logs": "D:\\tmp\\review\\S5_T27_20261027_r01\\logs\\",
+    "clone": "D:\\tmp\\review\\S5_T27_20261027_r01\\work\\clone"
+  }
+}

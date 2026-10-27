@@ -1,0 +1,230 @@
+{
+  "total": 32,
+  "passed": 30,
+  "results": [
+    {
+      "case": "baseline_record_accepted",
+      "rejected": false,
+      "expected_rejected": false,
+      "pass": true,
+      "detail": "构建的记录通过守卫"
+    },
+    {
+      "case": "record replay_not_live=False",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "replay_not_live 必须为 true（回放不得冒充实时）"
+    },
+    {
+      "case": "record capture_time_ns=0",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "capture_time_ns 必须非零（不得 0 哨兵/unavailable）"
+    },
+    {
+      "case": "record drop replay_source_path",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_path']"
+    },
+    {
+      "case": "record drop replay_source_file_sha256",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_file_sha256']"
+    },
+    {
+      "case": "record drop replay_source_width",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_width']"
+    },
+    {
+      "case": "record drop replay_source_height",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_height']"
+    },
+    {
+      "case": "record drop replay_source_stride_bytes",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_stride_bytes']"
+    },
+    {
+      "case": "record drop replay_source_byte_order",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_byte_order']"
+    },
+    {
+      "case": "record drop replay_source_pixel_format",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['replay_source_pixel_format']"
+    },
+    {
+      "case": "record drop stage3_capture_evidence_entry",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['stage3_capture_evidence_entry']"
+    },
+    {
+      "case": "record drop source_frame_id",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['source_frame_id']"
+    },
+    {
+      "case": "record drop source_capture_time_ns",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "结果记录缺少 replay_source_* 字段：['source_capture_time_ns']"
+    },
+    {
+      "case": "record frame_integrity.value=0*64",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "frame_integrity.value 必须与 replay_source_file_sha256 一致"
+    },
+    {
+      "case": "record frame_integrity.length+1",
+      "rejected": false,
+      "expected_rejected": true,
+      "pass": false,
+      "detail": "未被拒收（缺陷）"
+    },
+    {
+      "case": "record frame_integrity.algorithm=md5",
+      "rejected": false,
+      "expected_rejected": true,
+      "pass": false,
+      "detail": "未被拒收（缺陷）"
+    },
+    {
+      "case": "record evidence-mode result_time_ns set",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放无单调发布时钟：result_time_ns/inference_time_ns 必须为 null（不得伪造）"
+    },
+    {
+      "case": "guard self-consistent forged sha accepted (no re-hash at guard)",
+      "rejected": false,
+      "expected_rejected": false,
+      "pass": true,
+      "detail": "守卫只做记录内一致性 + 阶段4 契约，不重读源字节"
+    },
+    {
+      "case": "binding capture_time_ns=0",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放源 capture_time_ns 必须是**非零**整数（实际 0）"
+    },
+    {
+      "case": "binding capture_time_available=False",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放源必须声明 capture_time_available=true（不得用 unavailable 哨兵）"
+    },
+    {
+      "case": "binding source_kind=synthetic",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放源 kind 必须是 camera（实际 'synthetic'）"
+    },
+    {
+      "case": "binding mode=live",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放 mode 必须是 offline_replay（实际 'live'）"
+    },
+    {
+      "case": "binding timing_claim_scope=live",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放 timing_claim_scope 必须是 replay_only（不得继承实时结论）"
+    },
+    {
+      "case": "binding frame_integrity.value mismatch",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "frame_integrity.value 必须等于 source_frame_sha256"
+    },
+    {
+      "case": "binding frame_integrity.length_bytes mismatch",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "frame_integrity.length_bytes 必须等于 source_frame_size_bytes"
+    },
+    {
+      "case": "binding frame_integrity.algorithm=md5",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "frame_integrity.algorithm 必须是 sha256"
+    },
+    {
+      "case": "binding drop required field source_frame_sha256",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放绑定缺少必需字段：['source_frame_sha256']"
+    },
+    {
+      "case": "frame_tamper_one_byte",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放源帧字节与绑定不符：声明 939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0，实测 491271be12b5e0eddbe4aced06918aadbde82d420182b163c147bab3f"
+    },
+    {
+      "case": "frame_truncated",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "回放源帧字节与绑定不符：声明 939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0，实测 d1ed0f73ab4506d36e6e091ca56b428daef33127551f801377ea5c7db"
+    },
+    {
+      "case": "CLI selftest real binding exit0",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "case": "CLI selftest real binding verdict",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "4 injections rejected"
+    },
+    {
+      "case": "CLI tampered-frame binding exit2",
+      "rejected": true,
+      "expected_rejected": true,
+      "pass": true,
+      "detail": "rc=2"
+    }
+  ]
+}

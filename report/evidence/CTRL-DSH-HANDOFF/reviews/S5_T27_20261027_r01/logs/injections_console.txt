@@ -1,0 +1,35 @@
+source: 939fce22b7e86aa6 2764800 1792776253000000000
+[PASS] baseline_record_accepted: rejected=False (expect False) 构建的记录通过守卫
+[PASS] record replay_not_live=False: rejected=True (expect True) replay_not_live 必须为 true（回放不得冒充实时）
+[PASS] record capture_time_ns=0: rejected=True (expect True) capture_time_ns 必须非零（不得 0 哨兵/unavailable）
+[PASS] record drop replay_source_path: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_path']
+[PASS] record drop replay_source_file_sha256: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_file_sha256']
+[PASS] record drop replay_source_width: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_width']
+[PASS] record drop replay_source_height: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_height']
+[PASS] record drop replay_source_stride_bytes: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_stride_bytes']
+[PASS] record drop replay_source_byte_order: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_byte_order']
+[PASS] record drop replay_source_pixel_format: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['replay_source_pixel_format']
+[PASS] record drop stage3_capture_evidence_entry: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['stage3_capture_evidence_entry']
+[PASS] record drop source_frame_id: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['source_frame_id']
+[PASS] record drop source_capture_time_ns: rejected=True (expect True) 结果记录缺少 replay_source_* 字段：['source_capture_time_ns']
+[PASS] record frame_integrity.value=0*64: rejected=True (expect True) frame_integrity.value 必须与 replay_source_file_sha256 一致
+[FAIL] record frame_integrity.length+1: rejected=False (expect True) 未被拒收（缺陷）
+[FAIL] record frame_integrity.algorithm=md5: rejected=False (expect True) 未被拒收（缺陷）
+[PASS] record evidence-mode result_time_ns set: rejected=True (expect True) 回放无单调发布时钟：result_time_ns/inference_time_ns 必须为 null（不得伪造）
+[PASS] guard self-consistent forged sha accepted (no re-hash at guard): rejected=False (expect False) 守卫只做记录内一致性 + 阶段4 契约，不重读源字节
+[PASS] binding capture_time_ns=0: rejected=True (expect True) 回放源 capture_time_ns 必须是**非零**整数（实际 0）
+[PASS] binding capture_time_available=False: rejected=True (expect True) 回放源必须声明 capture_time_available=true（不得用 unavailable 哨兵）
+[PASS] binding source_kind=synthetic: rejected=True (expect True) 回放源 kind 必须是 camera（实际 'synthetic'）
+[PASS] binding mode=live: rejected=True (expect True) 回放 mode 必须是 offline_replay（实际 'live'）
+[PASS] binding timing_claim_scope=live: rejected=True (expect True) 回放 timing_claim_scope 必须是 replay_only（不得继承实时结论）
+[PASS] binding frame_integrity.value mismatch: rejected=True (expect True) frame_integrity.value 必须等于 source_frame_sha256
+[PASS] binding frame_integrity.length_bytes mismatch: rejected=True (expect True) frame_integrity.length_bytes 必须等于 source_frame_size_bytes
+[PASS] binding frame_integrity.algorithm=md5: rejected=True (expect True) frame_integrity.algorithm 必须是 sha256
+[PASS] binding drop required field source_frame_sha256: rejected=True (expect True) 回放绑定缺少必需字段：['source_frame_sha256']
+[PASS] frame_tamper_one_byte: rejected=True (expect True) 回放源帧字节与绑定不符：声明 939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0，实测 491271be12b5e0edd
+[PASS] frame_truncated: rejected=True (expect True) 回放源帧字节与绑定不符：声明 939fce22b7e86aa6356dc80d977626dcfe34ce8e9def8964ff03122d956752f0，实测 d1ed0f73ab4506d36
+[PASS] CLI selftest real binding exit0: rejected=True (expect True) rc=0
+[PASS] CLI selftest real binding verdict: rejected=True (expect True) 4 injections rejected
+[PASS] CLI tampered-frame binding exit2: rejected=True (expect True) rc=2
+
+SUMMARY 30/32 as expected

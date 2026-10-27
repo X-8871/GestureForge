@@ -1,0 +1,19 @@
+{
+  "task_id": "S5-T27",
+  "run_id": "s5t27_hash_basis_authoritative_20261027_r01",
+  "purpose": "记录哈希基座门禁的**权威运行方式**：--commit <hash_basis_commit>（而非默认 HEAD）",
+  "generated_utc8": "2026-10-27T20:33:18+08:00",
+  "basis_commit": "f9755f6e6411670675c9ca92e242cd2a84fd4fdc",
+  "manifest_under_test": "report/evidence/S5-T27/s5t27_replay_colour_20261027_r02/delivery_manifest.json",
+  "authority_note": "hash_basis_commit 语义＝承载 files[] 全部字节的提交。门禁的权威运行方式是显式传 `--commit f9755f6e6411670675c9ca92e242cd2a84fd4fdc`；默认 HEAD 仅在该提交之后 files[] 字节未变时等价。本条与 S5-T04 复审 F2 的教训一致：不得用模糊的『默认值/最新』代替冻结提交。",
+  "exit_codes": {
+    "gate_strict_commit_basis": 0,
+    "gate_declared_only_commit_basis": 0,
+    "checker_evidence": 0
+  },
+  "verdict": "AUTHORITATIVE_GATES_PASS",
+  "limitations": [
+    "本包只记录门禁在权威提交下的真实退出码；不代表语义正确、独立审查通过或任何关口通过。",
+    "r02 证据包字节未改；本包为新增 RunId（不覆盖、不改写）。"
+  ]
+}

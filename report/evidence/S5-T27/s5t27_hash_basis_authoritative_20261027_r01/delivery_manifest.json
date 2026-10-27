@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-T27",
+  "run_id": "s5t27_hash_basis_authoritative_20261027_r01",
+  "source_commit": "f9755f6e6411670675c9ca92e242cd2a84fd4fdc",
+  "evidence_dir": "report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包只记录门禁在指定提交下的真实输出：输入为已提交的 r02 证据包与工具，无 role=input 本地输入文件；上游接口非本卡可冻结对象，inputs 模式不适用。",
+  "files": [
+    {
+      "path": "report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01/console/checker_evidence.txt",
+      "role": "log",
+      "sha256": "f6f7016e4fb7401c7ce00de788c0d375b058c98975b3ced8b0bfb10dc932d6ad"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01/console/gate_declared_only_commit_basis.txt",
+      "role": "log",
+      "sha256": "d0535638f9deb7404e9a97531bf1eae47006b9323e0e7e1f36b2f09123b93888"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01/console/gate_strict_commit_basis.txt",
+      "role": "log",
+      "sha256": "9484aa9af155bab536b71b18b202009bfe69926ca8f77a407ec452d4599988e9"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_hash_basis_authoritative_20261027_r01/results_authoritative_gates.json",
+      "role": "result",
+      "sha256": "e6235f52a9b547c5d3b797493fdd8b7b9f1843850da4664bd80a555f0358ec4c"
+    },
+    {
+      "path": "scripts/stage5_t27/inline_manifest_basis.py",
+      "role": "source",
+      "sha256": "d0049116748899aeb94a15c56ab0f306563ef27e87658d0531937c82f6518fa6"
+    },
+    {
+      "path": "report/evidence/S5-T27/.gitattributes",
+      "role": "source",
+      "sha256": "4c1ff83394fe59317035b9799c11a6e4aa4f4e94b142d7b391d996513e43ca3e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "check_manifest_hash_basis --mode strict（--commit hash_basis_commit）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w5 --commit f9755f6e6411670675c9ca92e242cd2a84fd4fdc --paths report/evidence/S5-T27/s5t27_replay_colour_20261027_r02/delivery_manifest.json --mode strict --json",
+      "exit_code": 0,
+      "reason": "权威运行方式，实测 exit 0"
+    },
+    {
+      "name": "check_manifest_hash_basis --mode declared-only（--commit hash_basis_commit）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w5 --commit f9755f6e6411670675c9ca92e242cd2a84fd4fdc --paths report/evidence/S5-T27/s5t27_replay_colour_20261027_r02/delivery_manifest.json --mode declared-only --json",
+      "exit_code": 0,
+      "reason": "实测 exit 0"
+    },
+    {
+      "name": "check_stage_delivery --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w5 --manifest D:\\codex-worktrees\\w5\\report\\evidence\\S5-T27\\s5t27_replay_colour_20261027_r02\\delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；仅代表包装检查通过"
+    }
+  ],
+  "limitations": [
+    "本包只记录门禁在权威提交下的真实退出码；不代表语义正确、独立审查通过或任何关口通过。",
+    "r02 证据包字节未改；本包为新增 RunId（不覆盖、不改写）。",
+    "本包清单的基座随后内联（hash_basis_commit 指向承载本包 files[] 的提交）。"
+  ],
+  "tool_versions": {
+    "python": "3.12",
+    "check_manifest_hash_basis": "main 2872851",
+    "check_stage_delivery": "main HL-T79"
+  }
+}

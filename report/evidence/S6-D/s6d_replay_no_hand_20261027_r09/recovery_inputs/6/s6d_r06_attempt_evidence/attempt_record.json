@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "attempt_id": "S6D-r06-upstream-audit-abort",
+  "occurred_date_utc8": "2026-10-27",
+  "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\tmp\\6\\s6d_r06_runtime\\runner_runtime.py --project-root D:\\codex-worktrees\\w6 --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --run-dir report/evidence/S6-D/s6d_replay_no_hand_20261027_r06",
+  "observed_tool_exit_code": 1,
+  "observed_output": "上游绑定核验失败：ValueError: w5 消费脚本与固定源码提交 blob 不匹配：scripts/stage5_t03/test_s5t03_frozen_replay.py",
+  "stop_point": "阶段4/5只读审计失败；在创建 report/evidence/S6-D/s6d_replay_no_hand_20261027_r06 目录前退出。",
+  "diagnosis": {
+    "current_w5_head": "b588c33106c955077cd1b7edd5e058e21f4e2785",
+    "pinned_w5_source_commit": "869b869b9ba559d145f6bb28831667de07b093f8",
+    "manifest_source_sha256": "e95098ba42535dd1e5411af95eedc1e801f6dede03bbec29c2844696e27ad146",
+    "pinned_commit_blob_sha256": "e95098ba42535dd1e5411af95eedc1e801f6dede03bbec29c2844696e27ad146",
+    "current_worktree_disk_sha256": "4ce000194dcaa2b28eadde0fb6297b9384a6d77aee16cb559aa3468498114c3e",
+    "interpretation": "冻结提交中的 consumer test blob 与 S5 清单匹配；当前 W5 HEAD 后续改变该文件，r04 执行副本同时要求当前磁盘 SHA 等于旧冻结 blob，因而误阻断。r07 只按冻结提交 blob 复核并另行记录当前磁盘哈希，不修改 W5。"
+  },
+  "effect": "阶段6核心未调用；w4/w5 未修改；r06 没有生成结果目录或文件，保留为失败尝试记录，不重用。"
+}

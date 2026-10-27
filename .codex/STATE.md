@@ -2,9 +2,11 @@
 
 ## 离线准备续办（2026-10-27，UTC+8）
 
+- S6-D 对提交 `15a26c1` 的核心重绑定：`report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/` 上游审计及清单检查通过并经独立复审；NO_HAND 与 PRESENT 两帧均缺有效时间/stale，资格 BLOCKED、核心 NOT_RUN。R08 引用的 9 个缓存输入已在 `report/evidence/S6-D/s6d_replay_no_hand_20261027_r10/` 原字节保全并映射；该恢复包独立复审 PASS，无 tmp 的隔离副本 verify-local 通过；重跑 R08 原 checker 仍须先按映射恢复缓存文件。R05/R07/R09 失败轨迹保留，R06 失败材料由 R10 保全。
+
 - S6-B 会话切换修复 `report/evidence/S6-B/s6b_session_clock_20261027_r06/`：保留全局冷却、单调时钟和已见 ACK 身份，重置会话窗口/目标/计数；非法输入先校验，补 source_order、超大数和抖动耗尽复位边界。28/28 单测、26/26 矩阵、4/4 探针及 inputs/evidence/closing 通过，独立复审 PASS。公开 `reset_session()` 的外部日志接口尚无正式定义，保持待决；ACK 接口缺 session_id，重启后的 ID 冲突及跨会话迟到来源无法消歧。
 - S6-E 纯离线计划 `report/evidence/S6-E/s6e_command_delivery_20261027_r05/`：26 条均 NOT_RUN；24/24 测试及清单检查通过，独立复审 PASS。路径覆盖、重复 JSON 键、非有限数及伪造验收声明均有拒绝测试；真实 Windows 符号链接创建因 WinError 1314 未执行，模拟拒绝分支通过。此结果不关闭正式 `command_delivery_review`，不授予硬件窗口。
-- S6-D r04 绑定上一版核心 `80080866…`，当前核心已变，r04 对当前代码的哈希检查过期，保留历史；须按最终源码重建新 RunId 后才能宣称当前绑定的离线预检通过。T6-A03 缺实测 P 仍 NOT_RUN；6-E 实物/G3 未执行；真实 6-D 及阶段 G0/G4/G5 未闭合。
+- S6-D r04 绑定上一版核心 `80080866…`，对当前核心的哈希检查已过期，保留历史；当前有效绑定与阻塞范围见本节上方 R08/R10。T6-A03 缺实测 P 仍 NOT_RUN；6-E 实物/G3 未执行；真实 6-D 及阶段 G0/G4/G5 未闭合。
 
 ## 离线推进（2026-10-27，UTC+8）
 

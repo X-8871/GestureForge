@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_no_hand_20261027_r07",
+  "source_commit": "15a26c1f0a26aa03b49dcbdd37872d3827c77f1d",
+  "evidence_dir": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本次只读绑定阶段4/5 的跨树 replay-only 文件；没有把离线范围冻结件申报为阶段6 集成接口。",
+  "files": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "阶段6 已批准行为表：NO_HAND 与窗口推进语义依据"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "source",
+      "keep_reason": "阶段6 行为说明与范围约束"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "d4b91515b912873f4df8745d65f6b3fff8c9568e73f9625fe996dfbf1172d2ed",
+      "role": "source",
+      "keep_reason": "被评估的阶段6 实际状态机核心；本轮未调用"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "source",
+      "keep_reason": "被评估的阶段6 参数校验层；本轮未装载参数"
+    },
+    {
+      "path": "verification/s6d_replay_preview_preflight.py",
+      "sha256": "fe457df64cefbc2cf8376a16f72f93e06472e2414f7aab17010bae5abb2448ea",
+      "role": "source",
+      "keep_reason": "本轮回放输入门实现"
+    },
+    {
+      "path": "verification/test_s6d_replay_preview_preflight.py",
+      "sha256": "0ca476647df2d76ed57f78b862e524afb6d8c1ec7974c3d538076da2af4d44e6",
+      "role": "source",
+      "keep_reason": "本轮回放输入门定向测试"
+    },
+    {
+      "path": "verification/run_s6d_replay_preview.py",
+      "sha256": "aeae0917dc41f67018fc746984db8220687cc9f15728703e4aa2760bbdf83e62",
+      "role": "source",
+      "keep_reason": "负责捕获主预检 runner 实际退出码并固定最终清单的本轮包装器"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/preflight_result.json",
+      "sha256": "68b3bb69d95f206410d6ebc5956e7c788ce3ba64c2fc682480a41d76796fab81",
+      "role": "result",
+      "keep_reason": "本轮输入资格与上游绑定结果"
+    },
+    {
+      "path": "tmp/6/s6d_r07_runtime/preflight_runtime.py",
+      "sha256": "ac544df6cdf4822566810a530eb67b790d02661b205db8bff9ae79f99882424e",
+      "role": "source",
+      "keep_reason": "由 r04 执行副本复制并固定到 r07 的只读预检器"
+    },
+    {
+      "path": "tmp/6/s6d_r07_runtime/runner_runtime.py",
+      "sha256": "87ecdca12835de2f8c6eb43969de6afd5d9bd6d21ed4f5c478428650e4924fb3",
+      "role": "source",
+      "keep_reason": "r07 实际执行器及真实退出码收集逻辑"
+    },
+    {
+      "path": "tmp/6/s6d_r07_runtime/positive_replay_audit.py",
+      "sha256": "db313721f09ad3ef3f7a3e47e949289deb6f68292f693a981e47cd78244b9d64",
+      "role": "source",
+      "keep_reason": "只读绑定新增 W4/W5 阳性回放字节与时间字段闸门"
+    },
+    {
+      "path": "tmp/6/s6d_r05_attempt_evidence/prior_attempt_record.json",
+      "sha256": "c465ea90c1564b181567cbbb213341a7108c0e5163e6a1955d3f0eebf70452b5",
+      "role": "input",
+      "keep_reason": "保全的 r05 执行器启动失败真实命令/退出码/输出；不作为阶段6结果证据"
+    },
+    {
+      "path": "tmp/6/s6d_r06_attempt_evidence/attempt_record.json",
+      "sha256": "3d4924c4a45497e64797edcbad06047395ecce99e873e14fba639794791b5be1",
+      "role": "input",
+      "keep_reason": "保全的 r05 执行器启动失败真实命令/退出码/输出；不作为阶段6结果证据"
+    },
+    {
+      "path": "tmp/6/s6d_r05_attempt_evidence/runner_output.txt",
+      "sha256": "1c0d0b1e204a0347178c55c8a2c83d183423c80f6c2e1722a8885aaa547dc6b1",
+      "role": "input",
+      "keep_reason": "保全的 r05 执行器启动失败真实命令/退出码/输出；不作为阶段6结果证据"
+    },
+    {
+      "path": "tmp/6/s6d_r05_attempt_evidence/runner_exit_code.txt",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b",
+      "role": "input",
+      "keep_reason": "保全的 r05 执行器启动失败真实命令/退出码/输出；不作为阶段6结果证据"
+    },
+    {
+      "path": "tmp/6/s6d_r05_attempt_evidence/positive_replay_audit_output.txt",
+      "sha256": "7b7ce4ae1430056421d67cad0d595525f21879098296255acb6d05b1601bb879",
+      "role": "input",
+      "keep_reason": "保全的 r05 执行器启动失败真实命令/退出码/输出；不作为阶段6结果证据"
+    },
+    {
+      "path": "tmp/6/s6d_r05_attempt_evidence/positive_replay_audit_exit_code.txt",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b",
+      "role": "input",
+      "keep_reason": "保全的 r05 执行器启动失败真实命令/退出码/输出；不作为阶段6结果证据"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/positive_replay_input_audit.json",
+      "sha256": "59d2674a3aa8db26f1af3e7148f6709a8f91317de02c80243d21f5e41ea10a77",
+      "role": "input",
+      "keep_reason": "新增阶段4/5阳性 replay-only 输入的精确上游绑定及 BLOCKED 原因"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/summary.md",
+      "role": "result",
+      "keep_reason": "同时说明原 NO_HAND 与新增 PRESENT 回放各自适用范围",
+      "sha256": "c923c3b7608bf7454e204888aceece70451ee67fc19bb31dd6156055270bd8ba"
+    }
+  ],
+  "checks": [
+    {
+      "name": "阶段4/5 独立只读绑定复算",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\tmp\\6\\s6d_r07_runtime\\preflight_runtime.py --upstream-audit --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5",
+      "exit_code": 0
+    },
+    {
+      "name": "最新阶段4/5阳性 replay-only 输入绑定审计",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\tmp\\6\\s6d_r07_runtime\\positive_replay_audit.py --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --output D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r07\\positive_replay_input_audit.json",
+      "exit_code": 0
+    },
+    {
+      "name": "r05/r06 前序失败证据保全绑定",
+      "status": "PASS",
+      "command": null,
+      "exit_code": 0,
+      "reason": "原始 r05 保持不变；r05/r06 独立失败记录与日志已纳入清单。"
+    }
+  ],
+  "limitations": [
+    "上游独立复算命令、stdout、stderr 与退出码均收录；逐文件 SHA 和 pinned commit 记录在 preflight_result.json。",
+    "输入资格 BLOCKED 属于本次结果，不代表结构/哈希检查失败。",
+    "新增阳性回放虽通过文件绑定，但 capture_time_ns 为 0 哨兵、result_time_ns/stale 不可用；状态机未调用。"
+  ]
+}

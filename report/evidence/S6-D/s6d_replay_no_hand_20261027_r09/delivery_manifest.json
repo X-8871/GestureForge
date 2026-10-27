@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_no_hand_20261027_r09",
+  "source_commit": "15a26c1f0a26aa03b49dcbdd37872d3827c77f1d",
+  "evidence_dir": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本项仅恢复 R08 tmp 输入字节的持久引用，不构成阶段4/5接口或阶段6集成验证。",
+  "files": [
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recover_r08_tmp_inputs.py",
+      "sha256": "83053778661dd76933d3d0ba5fe517f6ae73a8e1d98c370fd69b93bf76c288ac",
+      "bytes": 34591,
+      "role": "source",
+      "keep_reason": "R09 证据恢复包构建和只读本地映射验证脚本。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_manifest.json",
+      "sha256": "f91068a14e9d8eff02045594a867f683ac10b907a71fb571471bd3161c7ae71c",
+      "bytes": 34995,
+      "role": "result",
+      "keep_reason": "R08 原始 SHA 到 R09 持久副本的可恢复映射及限制。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/summary.md",
+      "sha256": "ddcae4c8eae7d70b194eacaeb6be1522463f891e33f105d3c09021e578fbfd46",
+      "bytes": 1112,
+      "role": "result",
+      "keep_reason": "R09 恢复补充包范围和人工恢复步骤摘要。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r05_attempt_evidence/positive_replay_audit_exit_code.txt",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b",
+      "bytes": 3,
+      "role": "input",
+      "keep_reason": "R05 初版阳性审计实际退出码 2；原因见同轮 stderr，不能作为上游文件损坏结论。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r05_attempt_evidence/positive_replay_audit_output.txt",
+      "sha256": "7b7ce4ae1430056421d67cad0d595525f21879098296255acb6d05b1601bb879",
+      "bytes": 116,
+      "role": "input",
+      "keep_reason": "R05 初版阳性审计 stderr：当时把 CRLF 工作树字节 SHA 与 Git raw blob SHA 直接比较而误报；后续 R08 采用双哈希口径复核通过，此日志仅保留失败历史。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r05_attempt_evidence/prior_attempt_record.json",
+      "sha256": "c465ea90c1564b181567cbbb213341a7108c0e5163e6a1955d3f0eebf70452b5",
+      "bytes": 1588,
+      "role": "input",
+      "keep_reason": "R05 启动尝试记录：执行器副本占用了目标证据目录，预检拒绝既有 RunId；外层退出 1、子进程退出 2，核心未调用。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r05_attempt_evidence/runner_exit_code.txt",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b",
+      "bytes": 3,
+      "role": "input",
+      "keep_reason": "R05 预检子进程实际退出码 2；不是阶段6核心执行结果。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r05_attempt_evidence/runner_output.txt",
+      "sha256": "1c0d0b1e204a0347178c55c8a2c83d183423c80f6c2e1722a8885aaa547dc6b1",
+      "bytes": 109,
+      "role": "input",
+      "keep_reason": "R05 预检子进程原始 stdout：记录 RunId 已存在并拒绝覆盖。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r06_attempt_evidence/attempt_record.json",
+      "sha256": "3d4924c4a45497e64797edcbad06047395ecce99e873e14fba639794791b5be1",
+      "bytes": 1681,
+      "role": "input",
+      "keep_reason": "R06 上游审计失败记录：旧检查器把当前 W5 磁盘测试文件与 pinned commit blob 要求相等；固定提交 blob 实际与 S5 清单一致，R06 在创建证据目录前退出，核心未调用。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r08_runtime/positive_replay_audit.py",
+      "sha256": "db313721f09ad3ef3f7a3e47e949289deb6f68292f693a981e47cd78244b9d64",
+      "bytes": 15888,
+      "role": "input",
+      "keep_reason": "R08 实际只读阳性回放绑定审计器字节；用于复核 W4/W5 哈希和阳性帧时间资格判定。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r08_runtime/preflight_runtime.py",
+      "sha256": "3cea41b7d408ae55cc164a2453fa0da4630561f51061c2bbbecfe919a5e0803d",
+      "bytes": 37459,
+      "role": "input",
+      "keep_reason": "R08 实际预检器字节；用于复核 R08 上游绑定命令、冻结源文件哈希和 fail-closed 逻辑。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_inputs/6/s6d_r08_runtime/runner_runtime.py",
+      "sha256": "686ed18d8707c57ff57fd72a7641abb73674ad50782ef31e19374e177558c8e7",
+      "bytes": 20458,
+      "role": "input",
+      "keep_reason": "R08 实际运行包装器字节；用于复核执行命令、子进程退出码收集和清单生成。"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "bytes": 76461,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：S6A_stage6_g0_behavior_spec_v1.md；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "bytes": 70281,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：s6a_stage6_g0_behavior_v1.json；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/check_evidence_mode_output.txt",
+      "sha256": "487bc2f319f95bb62857624eb31e6f83f2f87758ec00a22a654497fdbab44be4",
+      "bytes": 1562,
+      "role": "input",
+      "keep_reason": "R07 evidence checker 原始输出：记录 inputs FAIL 缺 reason 及前序 PASS 缺 command 的结构错误。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/check_inputs_mode_output.txt",
+      "sha256": "f1a3030b13db85751f874e4a40a0505de3b54a6b51946e0332a2d3c594287f2d",
+      "bytes": 810,
+      "role": "input",
+      "keep_reason": "R07 inputs checker 原始输出：记录 checks[2] 为 PASS 时 command 为空的结构错误。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/delivery_manifest.json",
+      "sha256": "63d318ae158d268d9f7f6229870c2eccabf6c77a6123b97843044553a8e28d9f",
+      "bytes": 12158,
+      "role": "input",
+      "keep_reason": "R07 交付清单原件：该轮最终 checker 曾因 FAIL 缺 reason、PASS 缺 command 字段而失败；原件保留供追溯。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/inputs_manifest.json",
+      "sha256": "8103ebe7f51dd73d163d62cc8eee2905909cf8da4121c1e8c524fdf54f287f37",
+      "bytes": 7436,
+      "role": "input",
+      "keep_reason": "R07 输入清单原件：该轮最终 inputs checker 曾因 PASS 检查缺 command 字段而失败；原件保留供追溯。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/preflight_result.json",
+      "sha256": "68b3bb69d95f206410d6ebc5956e7c788ce3ba64c2fc682480a41d76796fab81",
+      "bytes": 21878,
+      "role": "input",
+      "keep_reason": "R07 预检结果：上游绑定与定向单测通过；NO_HAND stale=null 使输入 BLOCKED，核心 NOT_RUN。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/runner_exit_code.txt",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b",
+      "bytes": 3,
+      "role": "input",
+      "keep_reason": "R07 预检子进程实际退出码 2（因 stale=null fail-closed）；外层清单封装失败另见 checker 输出。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r07/runner_output.txt",
+      "sha256": "4b2da2e8500dec3743921487922c6e9cc6014d64506923bb1e3fc345b86e95cc",
+      "bytes": 295,
+      "role": "input",
+      "keep_reason": "R07 预检子进程 stdout：记录上游审计、单测及初始清单检查结果；不等同于外层最终 checker 结果。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/check_evidence_mode_output.txt",
+      "sha256": "4f95d8c3d5d240c9ccf892a2c61d6b6d556d8db010ae021bee87bf1fcba3d953",
+      "bytes": 1263,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/check_inputs_mode_output.txt",
+      "sha256": "fbe8f3e51c51e8258170e7d7c43a11e1d9ffe611b99da10095a305567a251ab8",
+      "bytes": 604,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/inputs_manifest.json",
+      "sha256": "49dfd02098d3df0c7af52796acaa618f192ddf639c54eb7770e6f8c2da933c20",
+      "bytes": 9563,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/positive_replay_audit_exit_code.txt",
+      "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "bytes": 3,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/positive_replay_audit_output.txt",
+      "sha256": "95ad0899a462b7a18d99aa87aba569cf0074cfa40d512942ed5c34b064736077",
+      "bytes": 435,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/positive_replay_input_audit.json",
+      "sha256": "7827c2185d9cebc4d86707ffbcecd270d5543faa2d83fba7c18b9f13dfe42b64",
+      "bytes": 11845,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/preflight_result.json",
+      "sha256": "e04d4d4d99dffae46c907321e97638e81853cc443a690660838c863627315e35",
+      "bytes": 22671,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/runner_exit_code.txt",
+      "sha256": "df4e26a04a444901b95afef44e4a96cfae34690fff2ad2c66389c70079cdff2b",
+      "bytes": 3,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/runner_output.txt",
+      "sha256": "0a280c637ab9e8a00b9c5e271c23a2022a4966498c45ac4e74f15d5a93bc2f5e",
+      "bytes": 295,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/summary.md",
+      "sha256": "7c2de2f67a5d99974aced9fd83fe0cb655038d54cf0e27a37c992913966204e5",
+      "bytes": 1829,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/unit_test_output.txt",
+      "sha256": "a2c3cb54aafece4f0f6f1c8e285a5e7df31d70e1f9565f864fb80d983d2401e5",
+      "bytes": 1181,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/upstream_audit_output.txt",
+      "sha256": "3b9090ec1af259fd39fe9c4be61785d93fcba7e579f70b16c8cbf1c2ffdec542",
+      "bytes": 12482,
+      "role": "input",
+      "keep_reason": "R08 正式证据原件；其状态和哈希由 R08 原始清单绑定，本 R09 仅提供恢复副本和映射。"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "d4b91515b912873f4df8745d65f6b3fff8c9568e73f9625fe996dfbf1172d2ed",
+      "bytes": 46748,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：s6_core.py；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "bytes": 14302,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：s6_params.py；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "verification/run_s6d_replay_preview.py",
+      "sha256": "aeae0917dc41f67018fc746984db8220687cc9f15728703e4aa2760bbdf83e62",
+      "bytes": 9532,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：run_s6d_replay_preview.py；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "verification/s6d_replay_preview_preflight.py",
+      "sha256": "fe457df64cefbc2cf8376a16f72f93e06472e2414f7aab17010bae5abb2448ea",
+      "bytes": 35801,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：s6d_replay_preview_preflight.py；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "verification/test_s6d_replay_preview_preflight.py",
+      "sha256": "0ca476647df2d76ed57f78b862e524afb6d8c1ec7974c3d538076da2af4d44e6",
+      "bytes": 3674,
+      "role": "input",
+      "keep_reason": "R08 清单所引用的原始输入：test_s6d_replay_preview_preflight.py；保持原 SHA，并由 R09 recovery_manifest.json 映射。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/delivery_manifest.json",
+      "sha256": "60c60548b4a8ff84111b20ea34c0641b303484141e57d205b2c62ee3ee307190",
+      "bytes": 14009,
+      "role": "input",
+      "keep_reason": "R08 原始结果/清单/退出码 sidecar；恢复包来源。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/inputs_manifest.json",
+      "sha256": "548e02a7d4f3a55ff5abcbb74c7b5ca13e203c17ba42206517da8a8a484d31a7",
+      "bytes": 16058,
+      "role": "log",
+      "keep_reason": "R09 inputs mode 使用的原始输入清单。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/recovery_verify_output.txt",
+      "sha256": "71fe34be84a05ada0e24a4e081d9f3626545ca22d037c9019a220ab58c136635",
+      "bytes": 3220,
+      "role": "log",
+      "keep_reason": "R09 本地只读恢复映射与文件 SHA 自检真实 stdout/stderr。"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_no_hand_20261027_r09/check_inputs_mode_output.txt",
+      "sha256": "d292de1fd450458d861627756789e4414d5b85aa1da3783c69890de5bc11e2ed",
+      "bytes": 1876,
+      "role": "log",
+      "keep_reason": "R09 inputs checker 真实 stdout/stderr。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "R08 原始回放输入资格",
+      "status": "BLOCKED",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\tmp\\6\\s6d_r08_runtime\\preflight_runtime.py --project-root D:\\codex-worktrees\\w6 --w4-root D:\\codex-worktrees\\w4 --w5-root D:\\codex-worktrees\\w5 --run-dir report/evidence/S6-D/s6d_replay_no_hand_20261027_r08",
+      "exit_code": null,
+      "reason": "该行原样反映 R08 BLOCKED：stale=null，core NOT_RUN；真实子进程退出码 2 记录在 R08 result 与 sidecar。"
+    },
+    {
+      "name": "R08 tmp 引用持久副本与映射自检",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r09\\recover_r08_tmp_inputs.py --verify-local --project-root D:\\codex-worktrees\\w6 --r09-rel report/evidence/S6-D/s6d_replay_no_hand_20261027_r09",
+      "exit_code": 0
+    },
+    {
+      "name": "R09 inputs mode",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r09\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 2,
+      "reason": "R09 inputs 模式失败，见 check_inputs_mode_output.txt"
+    },
+    {
+      "name": "R09 evidence mode",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_no_hand_20261027_r09\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 2,
+      "reason": "R09 最终 delivery_manifest 自检失败；真实 stdout/stderr 由本次构建进程输出返回。"
+    }
+  ],
+  "limitations": [
+    "仅检查 R09 保存副本与映射；未恢复 tmp、未重跑 R08 原 checker、未调用阶段6核心。",
+    "R08 输入资格仍 BLOCKED；R09 清单结构检查通过不提升该结论。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.0.windows.2"
+  }
+}

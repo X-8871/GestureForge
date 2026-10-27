@@ -350,8 +350,20 @@ def assert_replay_record(record: Mapping[str, Any]) -> None:
                  "回放无单调发布时钟：result_time_ns/inference_time_ns 必须为 null（不得伪造）")
     integrity = record.get("frame_integrity")
     _require(isinstance(integrity, Mapping), "结果记录必须携带 frame_integrity")
+    # N2：三要素都要查（只查 value 可被手搓记录绕过）
+    _require(integrity.get("algorithm") == INTEGRITY_ALGORITHM,
+             f"frame_integrity.algorithm 必须是 {INTEGRITY_ALGORITHM}"
+             f"（实际 {integrity.get('algorithm')!r}）")
     _require(integrity.get("value") == record.get("replay_source_file_sha256"),
              "frame_integrity.value 必须与 replay_source_file_sha256 一致")
+    stride = record.get("replay_source_stride_bytes")
+    height = record.get("replay_source_height")
+    _require(type(stride) is int and type(height) is int and stride > 0 and height > 0,
+             "replay_source_stride_bytes/height 必须是正整数（用于复算 length_bytes）")
+    length = integrity.get("length_bytes")
+    _require(type(length) is int and length > 0, "frame_integrity.length_bytes 必须是正整数")
+    _require(length == stride * height,
+             f"frame_integrity.length_bytes 必须等于 stride×height（{length} vs {stride * height}）")
     problems = R.validate_result_record(record)
     _require(not problems, f"结果记录不满足阶段4 输入契约：{problems}")
 
@@ -379,6 +391,11 @@ def selftest(binding_path: str | pathlib.Path) -> dict[str, Any]:
     expect_reject("capture_time_zero", lambda rec: rec.__setitem__("capture_time_ns", 0))
     expect_reject("drop_replay_source_field", lambda rec: rec.pop("replay_source_file_sha256", None))
     expect_reject("frame_integrity_mismatch", lambda rec: rec["frame_integrity"].__setitem__("value", "0" * 64))
+    expect_reject("frame_integrity_algorithm_wrong",
+                  lambda rec: rec["frame_integrity"].__setitem__("algorithm", "md5"))
+    expect_reject("frame_integrity_length_wrong",
+                  lambda rec: rec["frame_integrity"].__setitem__("length_bytes",
+                                                                rec["frame_integrity"]["length_bytes"] + 1))
     result = {
         "status": "REPLAY_INPUT_SELFTEST_PASS" if all(item["rejected"] for item in negatives)
                   else "REPLAY_INPUT_SELFTEST_FAIL",

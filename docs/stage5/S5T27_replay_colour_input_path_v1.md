@@ -77,3 +77,15 @@
   `s5t03_replay_colour_regression.py`、`test_s5t03_replay_colour.py`、`scripts/stage5_t27/`、本文件、新证据 RunId），
   **未修改** S5-T04 冻结集的任何成员；冻结集校验器仍应 `FROZEN_SET_VERIFIED`。
 - 若后续要求把本卡实现纳入冻结，按 S5-T04 复审 F1–F5 一并修正后**重冻结**（新 RunId、新 tag）。
+
+## 6. 复审后修（N1–N5，2026-10-27）
+
+| 编号 | 问题 | 处置 | 验收 |
+|---|---|---|---|
+| **N1**（阻断） | `r01` 清单以**工作树 LF 字节**绑定 `scripts/stage5_t27/run_s5t27_evidence.py`（`eeee8529…`、15 578 B），而该目录无 `-text` 规则 ⇒ 干净检出（`autocrlf=true`）变 CRLF 15 847 B，checker 在干净检出 **exit 2** | 在 `scripts/stage5_t27/` 与 `report/evidence/S5-T27/` 各加**子目录** `.gitattributes`（`* -text`；**未动**冻结的根 `.gitattributes`），并以**新 RunId** `s5t27_replay_colour_20261027_r02` 重生成证据 | 干净检出自证包 `report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/`：独立检出内 checker **exit 0** |
+| **N2** | `assert_replay_record` 只查 `frame_integrity.value`，不查 `algorithm`/`length_bytes`（手搓记录可绕过） | 守卫补齐三要素：`algorithm=="sha256"`、`value==replay_source_file_sha256`、`length_bytes==replay_source_stride_bytes×replay_source_height`；自检注入增 2 例、用例增 3 例 | algorithm/length 篡改均被判拒收 |
+| **N3** | w5 STATE 仍有"task-27 整体 NOT_RUN"旧句，与"已交付"矛盾 | 改为"离线部分已交付；板级/实时未做" | STATE 自洽 |
+| **N4** | 冻结 `file_set` 目录 `scripts/stage5_t03/` 新增 3 个跟踪文件（25→28） | 冻结成员未变（`file_set` 只绑定登记的 25 个）、校验器仍 77/77；**本轮仅登记，不改冻结集**，下次重冻结纳入 | 冻结集校验器 exit 0 |
+| **N5** | 2 项 skip 易被误读为本卡缺陷 | 属**上游**：阶段4 契约冻结后被改（登记 `7228f513…` ≠ 现状 `25bc30d5…`），消费链按设计 fail-closed ⇒ 在 `summary.md`/limitations 注明"非本卡缺陷" | 本卡 14 项用例全 OK |
+
+> N1 口径：`r02` 是**新 RunId**（不改写 `r01`）；`r01` 保留为"字节保真缺陷"的原始记录。

@@ -374,6 +374,7 @@ def run(*, out_dir: pathlib.Path, binding_path: pathlib.Path, package_path: path
             "replay-local 逻辑时基只验证过期与年龄**规则**；capture_time_ns 为阶段3 已文档化的真实抓取时刻（非零）。",
             "不主张：板上回放/PL 实跑、UART 实收、摄像头质量与颜色、端到端延迟、G0–G5、T5-10、B1–B10 任一通过。",
             "长跑为虚拟逻辑时基（1 800 001 080 000 ns），不是板上耐久。",
+            "相关套件 2 项 skip 属上游阶段4 契约漂移（登记 7228f513… ≠ 现状 25bc30d5…），非本卡缺陷（N5）。",
         ],
     }
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -402,6 +403,8 @@ def run(*, out_dir: pathlib.Path, binding_path: pathlib.Path, package_path: path
         "- 异常分支：TIMEOUT/ERROR/DROPPED/NO_HAND/零面积框分列且不冒充零框或过期",
         f"- 长跑：{LONG_RUN_FRAMES} 帧、区间 {interval_count} × {PERIOD_NS} ns = {elapsed_ns} ns；"
         "每帧恰一次提交、时间戳单调、计数可复算、无重复/乱序叠加",
+        "- 相关套件：本卡用例 **14 项全 OK**；另有 **2 项 skip 属上游**（阶段4 契约冻结后被改动：登记 "
+        "`7228f513…` ≠ 现状 `25bc30d5…`，消费链按设计 fail-closed 而 skip），**不是本卡缺陷**（N5）",
         "",
         "## 不得外推（NOT_CLAIMED）",
         *[f"- {item}" for item in results["limitations"]],

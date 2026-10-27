@@ -123,6 +123,30 @@ class T01_ReplayInputPath(unittest.TestCase):
         with self.assertRaises(RI.ReplayInputError):
             RI.assert_replay_record(record)
 
+    def test_frame_integrity_algorithm_guard(self):
+        """N2：守卫必须查 algorithm（手搓记录不能只靠 value 蒙过）。"""
+        record = RI.build_replay_record(self.source, session_id=7, frame_id=1, result_seq=1,
+                                        detections=[DETECTION])
+        record["frame_integrity"]["algorithm"] = "md5"
+        with self.assertRaises(RI.ReplayInputError):
+            RI.assert_replay_record(record)
+
+    def test_frame_integrity_length_guard(self):
+        """N2：守卫必须查 length_bytes（且等于 stride×height）。"""
+        record = RI.build_replay_record(self.source, session_id=7, frame_id=1, result_seq=1,
+                                        detections=[DETECTION])
+        record["frame_integrity"]["length_bytes"] = record["replay_source_stride_bytes"] * 719
+        with self.assertRaises(RI.ReplayInputError):
+            RI.assert_replay_record(record)
+
+    def test_frame_integrity_length_must_equal_stride_times_height(self):
+        """N2：length_bytes 与自报 stride×height 不一致 ⇒ 拒收（防几何与长度自相矛盾）。"""
+        record = RI.build_replay_record(self.source, session_id=7, frame_id=1, result_seq=1,
+                                        detections=[DETECTION])
+        record["replay_source_height"] = 719
+        with self.assertRaises(RI.ReplayInputError):
+            RI.assert_replay_record(record)
+
     def test_tampered_source_bytes_rejected(self):
         """篡改源帧字节（换工作树指向临时副本）⇒ 装载即拒收（逐帧完整性不是声明值）。"""
         with tempfile.TemporaryDirectory() as tmp:

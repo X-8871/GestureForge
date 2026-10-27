@@ -42,11 +42,13 @@ INPUT_MODULE = REPO_ROOT / "scripts" / "stage5_t03" / "s5t03_replay_colour_input
 REGRESSION = REPO_ROOT / "scripts" / "stage5_t03" / "s5t03_replay_colour_regression.py"
 
 SOURCE_BINDINGS = (
+    "scripts/stage5_t27/.gitattributes",
     "scripts/stage5_t03/s5t03_replay_colour_input.py",
     "scripts/stage5_t03/s5t03_replay_colour_regression.py",
     "scripts/stage5_t03/test_s5t03_replay_colour.py",
     "scripts/stage5_t27/run_s5t27_evidence.py",
     "docs/stage5/S5T27_replay_colour_input_path_v1.md",
+    "report/evidence/S5-T27/.gitattributes",
     "verification/s5_display_geometry_reference.py",
 )
 TEST_MODULES = (

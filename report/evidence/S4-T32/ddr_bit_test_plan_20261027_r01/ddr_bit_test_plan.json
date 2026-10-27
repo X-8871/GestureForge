@@ -5,31 +5,13 @@
   "purpose": "DDR 位完整性/保持测试方案（离线；执行并入 4-D bring-up 窗口）",
   "test_regions": [
     {
-      "name": "arena_tail_primary",
-      "start": 28180480,
-      "end": 28311552,
+      "name": "arena_tail_final",
+      "start": 296615936,
+      "end": 296747008,
       "bytes": 131072,
-      "why": "2B arena 0x10000000+0x02000000=0x12000000；已登记对象最远到 feature_end 0x01ADADB8 与 head26 0x01AD5E80+20280=0x01AD9DD8 ⇒ 0x01AD9DD8 之后至 0x12000000 全空；取 0x01AE0000 起 128 KiB，64 B 对齐，末端 0x01B00000 < 0x12000000",
+      "alignment": "64 B",
       "conflicts": [],
-      "status": "首选（候选区之外、已登记对象之外）"
-    },
-    {
-      "name": "stripe_low_optional",
-      "start": 50331648,
-      "end": 50462720,
-      "bytes": 131072,
-      "why": "DDR 0x00100000–0x3FF00000 内经 2B BD 地址段；weights 止于 0x005A12FC、tensor 起于 0x10000000 ⇒ 0x03000000 段不在任何登记对象内",
-      "conflicts": [],
-      "status": "可选跨区 stripe（需 lead 批准写入）"
-    },
-    {
-      "name": "stripe_high_optional",
-      "start": 201326592,
-      "end": 201457664,
-      "bytes": 131072,
-      "why": "同上，位于 weights 之后、tensor 之前的空档",
-      "conflicts": [],
-      "status": "可选跨区 stripe（需 lead 批准写入）"
+      "proof": "tensor/feature/head13/head26 全部止于 0x11ADADB8 或更早；arena 尾部 0x11ADADB8–0x12000000 无登记对象；候选区 0x12000000 起，故测试区在候选区之外"
     }
   ],
   "non_conflict_proof": {
@@ -103,7 +85,12 @@
     "rate": "报告 errors/bytes/time，并给出错误地址与位位置列表"
   },
   "coverage_reasoning": "首选区以 64 B stride 覆盖 2048 个地址组；跨区 stripe（可选）覆盖不同 DDR 行/bank 组；**精确 bank/row 映射离线未确定** ⇒ 标 ASSUMED_UNVERIFIED，窗口内以 stripe 实测覆盖代替断言",
-  "authorization": "首选区写入属查根因（非改判据），但写入前须 lead 批准；可选 stripe 需单独批准",
+  "authorization": {
+    "test_region_write": "APPROVED_BY_LEAD (subject to this r02 correction)",
+    "stripe": "NOT_APPROVED",
+    "candidate_region_write_test": "NOT_APPROVED",
+    "window": "4-D bring-up, 60 min"
+  },
   "m2_revision": "在 bisect 出结论前，M2 只能写“构造性排除 + 待重审”，不得写“已证明候选区空闲”",
   "window_budget": {
     "bisect": "6–8 min",
@@ -112,5 +99,20 @@
     "total_new": "16–21 min",
     "note": "并入 4-D bring-up 窗口：M4-a 6 + M4-b 10 + M3 12 + bisect 8 + DDR 8 ≈ 44–60 min ⇒ 建议 bring-up 窗口按 60 min 申请"
   },
-  "boundary": "离线方案；未接触板卡；ENABLE=0；未执行任何写入。"
+  "boundary": "离线方案；未接触板卡；ENABLE=0；未执行任何写入。",
+  "version": "r02",
+  "corrections": [
+    {
+      "from": "0x01AE0000–0x01B00000",
+      "to": "0x11ae0000–0x11b00000",
+      "reason": "r01 正文地址与同段非冲突证明（arena 尾部空档 0x11ADADB8–0x12000000）不一致；属文档笔误，未执行任何写入，无硬件影响"
+    },
+    "r02 复核：start 64B 对齐、end 0x11B00000 < 0x12000000、不重叠 head26（止于 0x11ADADB8）"
+  ],
+  "restore_plan": {
+    "snapshot": "写入前只读 dump 128 KiB + SHA-256 + exit code",
+    "restore_cmd": "mwr -bin -file <snapshot> 0x11AE0000 32768",
+    "verify": "整区读回与快照逐字节比较，diff 必须 0",
+    "on_diff_nonzero": "立即停、保留现场、报 lead"
+  }
 }

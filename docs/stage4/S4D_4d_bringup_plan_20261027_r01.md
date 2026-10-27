@@ -99,7 +99,7 @@
 ## DDR 位完整性 / 保持测试（查根因；2026-10-27 增补）
 
 - 背景：窗口 B r02 候选区 6 字节差异（6 处各清 1 bit），地址归属 = `NEITHER_ACCOUNTED`。
-- 测试区首选 **arena 尾部 `0x01AE0000–0x01B00000`（128 KiB，候选区之外、登记对象之外）**；可选跨区 stripe `0x03000000`/`0x0C000000`（需单独批准）。
+- 测试区首选 **arena 尾部 `0x11AE0000–0x11B00000`（r02 更正；r01 笔误 `0x01AE0000`）（128 KiB，候选区之外、登记对象之外）**；可选跨区 stripe `0x03000000`/`0x0C000000`（需单独批准）。
 - 图样：`0x00`、`0xFF`、`0xAA/0x55` 交错、**walking-1（每 64 B 一个 1 位）**；读时序：写后立即 + 30 s + 60 s，保持测试 + 5 min（窗口不足列独立长跑）。
 - 判定：任一处单 bit 差异 ⇒ **`DDR_BIT_ERROR_SUSPECTED`（不记 PASS）**，报告 errors/bytes/time；T3 失败 ⇒ `DDR_RETENTION_SUSPECTED`。
 - 先后：**先 bisect（S0→S1→S2）**；`NEITHER_STAGE`/`PRE_EXISTING_CHANGE` ⇒ 立即接 DDR 测试。

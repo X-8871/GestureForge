@@ -59,17 +59,18 @@ def sha256_file(path: Path) -> str | None:
 
 def heavy_processes() -> list[str]:
     """列出可能的板卡占用进程（只读探测）。"""
-    names = ("vivado", "xsdb", "hw_server", "xsct", "openocd", "vivado_lab")
+    # 只匹配**精确镜像名**；`vivado-mcp-server-windows` 等 MCP 包装进程不算（且禁止结束）
+    names = {"vivado", "xsdb", "hw_server", "xsct", "openocd", "vivado_lab"}
     found: list[str] = []
     try:
         out = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, text=True,
                              encoding="utf-8", errors="replace").stdout
         for line in out.splitlines():
-            low = line.lower()
-            for name in names:
-                if name in low:
-                    found.append(line.split(",")[0].strip('"'))
-                    break
+            image = line.split(",")[0].strip('"').lower().removesuffix(".exe")
+            if "mcp" in image:
+                continue
+            if image in names:
+                found.append(line.split(",")[0].strip('"'))
     except OSError:
         pass
     return found
@@ -84,6 +85,9 @@ def port_free(host: str, port: int) -> bool:
 
 def run_step(run_dir: Path, step: str, cmd: list[str], timeout: int = 900) -> tuple[int, str]:
     """执行一步：真实退出码 + 原始输出落盘。"""
+    # `.bat` 需经 cmd /c 调用（Python 不能直接 CreateProcess 一个批处理）
+    if cmd and cmd[0].lower().endswith(".bat"):
+        cmd = ["cmd", "/c", *cmd]
     (run_dir / f"{step}.stdout.txt").unlink(missing_ok=True)
     log = run_dir / f"{step}.log"
     started = time.time()
@@ -137,7 +141,7 @@ def start_hw_server(run_dir: Path) -> tuple[int | None, str]:
         return None, f"hw_server 缺失：{HW_SERVER_BAT}"
     out_log = (run_dir / "hw_server.stdout.txt").open("w", encoding="utf-8")
     err_log = (run_dir / "hw_server.stderr.txt").open("w", encoding="utf-8")
-    proc = subprocess.Popen([str(HW_SERVER_BAT), "-s", "tcp::3121"],
+    proc = subprocess.Popen(["cmd", "/c", str(HW_SERVER_BAT), "-s", "tcp::3121"],
                             stdout=out_log, stderr=err_log,
                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     deadline = time.time() + 30

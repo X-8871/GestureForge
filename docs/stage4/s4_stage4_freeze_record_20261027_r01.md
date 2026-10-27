@@ -55,7 +55,7 @@
 ## 6. 证据索引
 
 - 门：`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/`（含 `task27_replay_result_package.json`）
-- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r30/`（含 r25 无开关对照）
+- G0：`report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r30/`（含 r29 无开关对照）
 - 对齐：`report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r15/`
 - 断点决策：`docs/stage4/s4t26_producer_break_decision_20261027_r01.json`
 - 口径登记：`docs/stage4/S4B_binding_byte_basis_registry_20261027_r01.json`

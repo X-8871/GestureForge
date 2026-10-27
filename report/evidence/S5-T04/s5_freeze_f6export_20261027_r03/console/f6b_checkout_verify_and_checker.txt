@@ -1,0 +1,21 @@
+checkout_command=git clone --shared --no-checkout --branch stage5-display-prep <w5> <tmp>; git -C <tmp> checkout 50c4693e6f854e0638d1a8d6cc14a1b50f3ae9a0 -- <89 pathspecs>
+clone_exit_code=0
+checkout_exit_code=0
+toplevel=D:/codex-worktrees/w5/tmp/5/S5-T04/f6_checkout_50c4693e6f85
+commit_object_kind=commit
+checkout_dir=D:\codex-worktrees\w5\tmp\5\S5-T04\f6_checkout_50c4693e6f85
+verify_command=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\codex-worktrees\w5\tmp\5\S5-T04\f6_checkout_50c4693e6f85\verification\verify_stage5_frozen_set.py --root D:\codex-worktrees\w5\tmp\5\S5-T04\f6_checkout_50c4693e6f85 --frozen-set D:\codex-worktrees\w5\tmp\5\S5-T04\f6_checkout_50c4693e6f85\report\evidence\S5-T04\s5_freeze_20261027_r07\frozen_set.json --json-out D:\codex-worktrees\w5\report\evidence\S5-T04\s5_freeze_f6export_20261027_r03\f6b_frozen_set_report.json
+verify_exit_code=0
+checker_command=C:\Users\22061\AppData\Local\Programs\Python\Python312\python.exe -B D:\FPGA_Competition\verification\check_stage_delivery.py --mode evidence --project-root D:\codex-worktrees\w5\tmp\5\S5-T04\f6_checkout_50c4693e6f85 --manifest D:\codex-worktrees\w5\tmp\5\S5-T04\f6_checkout_50c4693e6f85\report\evidence\S5-T04\s5_freeze_20261027_r07\delivery_manifest.json
+checker_exit_code=0
+--- verifier stdout tail ---
+MATCH                        host::stage4_positive_replay_package           988f2cae79cc4bfb306ccf4ef2601fcb52f6f3c34cfd906ddb6589e686d89986
+MATCH                        host::wong_stale_200ms_approval_receipt        d8edb84849cd1f93fded902dd913e841564bb1abedbfacd7c7ecde3112e874fb
+MATCH                        host::stage3_closeout_partial_open_and_task11  c17aea79d0778e46237e63e5c4d2e82d25a94aa74d04d95ddd1de00a54b3e70f
+MATCH                        host::stage4_freeze_supplement_hardware_limitation ef60d9cd840774200804e0385b55b3530945e4d4e06b473d4290e70ce75e19ce
+{"status": "FROZEN_SET_VERIFIED", "exit_code": 0, "totals": {"members": 93, "matched": 93, "mismatched": 0, "env_errors": 0, "skipped_host": 0}, "mismatches": [], "errors": []}
+FROZEN_SET_VERIFIED
+--- checker stdout ---
+{"status":"CHECKS_OK","mode":"evidence","task_id":"S5-T04","run_id":"s5_freeze_20261027_r07","interfaces_not_applicable":{"status":"NOT_APPLICABLE","reason":"本卡为阶段5 **离线范围冻结**：冻结对象是仓库内字节集 + 宿主侧只读引用，无 role=input 的本地输入文件（--mode inputs 要求至少一个 role=input）；上游接口（阶段3/阶段4）本轮均非本卡可冻结对象，故 inputs 模式不适用，不伪造 frozen 字段。","review_note":"其适用性仍须正式G0/Reviewer确认"},"check_statuses":[{"status":"PASS","name":"冻结集生成（逐件哈希）","reason":"93 个成员；分组 {\"contracts_and_specs\": 17, \"offline_implementation\": 4, \"offline_evidence_replay_display\": 56, \"offline_evidence_s5t02\": 7, \"host_upstream_references\": 9}"},{"status":"PASS","name":"冻结集校验（只读、fail-closed）","reason":"FROZEN_SET_VERIFIED；一致 93、不一致 0、环境错误 0"},{"status":"PASS","name":"注入自测（改一字节必须非 0、删一件必须 exit 2）","reason":"SELFTEST_PASS；clean=0、tamper=1、missing=2"},{"status":"PASS","name":"离线套件（回归）","reason":"Ran 159 / failures 0 / errors 0 / skipped 2"},{"status":"FAIL","name":"历史模块探测（S5-A/B/C，非门禁：已知缺口如实记录）","reason":"Ran 83 / failures 18 / errors 0 / skipped 0；根因＝其测试依赖 w4 侧黄金数据（s4c_replay_20261021_r05 / S4-B/20261021_r13）漂移；**不计入**本冻结的离线回归主张，作为未闭合项登记"},{"status":"PASS","name":"安静窗口（无 vivado.exe/xsdb/hw_server/vitis/xsim）","reason":"heavy=(none)；桥接进程 4 个按 DSH-20261027-017 只作信息记录"},{"status":"PASS","name":"工作树基线（无已跟踪改动、无 index.lock）","reason":"tracked_dirty=False lock=False"},{"status":"NOT_APPLICABLE","name":"check_stage_delivery --mode inputs","reason":"本卡无 role=input 本地输入（冻结对象为仓库内字节集 + 宿主侧只读引用），不伪造冻结字段"},{"status":"PASS","name":"check_stage_delivery --mode evidence","reason":"对前置清单 M1 运行（M2 相对 M1 只新增本 check 条目与 console/check_evidence_mode_output.txt）；CHECKS_OK 仅代表包装检查通过，不代表语义/审查/关口通过"}],"errors":[],"warnings":[],"scope_statement":"检查结果不代表 G0/G4/G5 或实物验收。"}
+--- stderr ---
+

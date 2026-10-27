@@ -178,12 +178,13 @@ def main() -> int:
         else:
             code_i, out_i = xsdb_step(run_dir, "PRELOAD_init",
                                       ["-eval", f"connect -url {HW_URL}; "
-                                                f"targets -set -filter {{name =~ \"*#0*\"}}; "
-                                                f"rst -processor; dow -file {init_elf.as_posix()}; con; after 6000; disconnect; exit"],
+                                                f"targets -set -filter {{name =~ \"*Cortex-A9*\"}}; "
+                                                f"rst -processor -stop; dow -file {init_elf.as_posix()}; "
+                                                f"con; after 6000; disconnect; exit"],
                                       timeout=600)
             code_a, out_a = xsdb_step(run_dir, "PRELOAD_app",
                                       ["-eval", f"connect -url {HW_URL}; "
-                                                f"targets -set -filter {{name =~ \"*#0*\"}}; "
+                                                f"targets -set -filter {{name =~ \"*Cortex-A9*\"}}; "
                                                 f"dow -file {elf.as_posix()}; disconnect; exit"],
                                       timeout=600)
             pre.update({"init_exit": code_i, "app_exit": code_a,
@@ -256,7 +257,7 @@ def main() -> int:
             # PRELOAD 已下载 init.elf 与最小 ELF；此处只**选 CPU0 并 con**（CPU1 保持 halted 不释放）
             code, out = xsdb_step(run_dir, "M4a_run_cpu0",
                                   ["-eval", f"connect -url {HW_URL}; "
-                                            f"targets -set -filter {{name =~ \"*#0*\"}}; con; after 2000; "
+                                            f"targets -set -filter {{name =~ \"*Cortex-A9*\"}}; con; after 2000; "
                                             f"puts \"M4A_CPU0_STATE=[state]\"; disconnect; exit"])
             record("M4a_cache_visibility", "PASS" if code == 0 else "FAIL",
                    {"run_exit": code,

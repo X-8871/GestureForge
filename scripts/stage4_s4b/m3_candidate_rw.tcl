@@ -5,7 +5,7 @@
 #   mode=readback  整区回读到 <binfile>
 #   mode=restore   用 <binfile>（快照）整区回写
 # 退出码：0=成功；2=参数/区间断言失败；5=选目标失败；7=mrd/mwr 失败
-# 修复（窗口1 后）：所有 mrd/mwr 前**先选目标**；区间断言不变。
+# 修订（窗口2 后）：选目标用 `*Cortex-A9*`（核，非 APU 集群）；整区读写继续用 `-file`（二进制）。
 
 set BASE 0x12000000
 set END  0x12C08000
@@ -32,17 +32,12 @@ puts "M3_WORDS=$WORDS"
 set url [expr {[info exists env(S4_HW_URL)] ? $env(S4_HW_URL) : "tcp:127.0.0.1:3121"}]
 connect -url $url
 
-# 修复点：先选目标
-set sel ""
-foreach filt {{name =~ "APU*"} {name =~ "*Cortex-A9*"} {name =~ "*#0*"}} {
-    if {![catch {targets -set -filter $filt}]} { set sel $filt; break }
-}
-if {$sel eq ""} {
-    puts "M3_SELECT=FAIL"
+if {[catch {targets -set -filter {name =~ "*Cortex-A9*"}} err]} {
+    puts "M3_SELECT=FAIL $err"
     disconnect
     exit 5
 }
-puts "M3_SELECT=OK filter=$sel"
+puts "M3_SELECT=OK"
 
 if {$mode == "snapshot" || $mode == "readback"} {
     if {[catch {mrd -bin -file $binfile $BASE $WORDS} err]} {
@@ -53,7 +48,6 @@ if {$mode == "snapshot" || $mode == "readback"} {
     puts "M3_DUMP=$binfile"
     puts "M3_RESULT=READ_OK"
 } elseif {$mode == "write"} {
-    # 确定性图案：分块 64 KiB，块首写 0x5A5A0000|chunk，其余 0xA5A5A5A5
     set chunk_words 16384
     set chunks [expr {($WORDS + $chunk_words - 1) / $chunk_words}]
     for {set c 0} {$c < $chunks} {incr c} {

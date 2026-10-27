@@ -40,7 +40,8 @@ class T_GenDumpRows(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.tmp = tempfile.TemporaryDirectory(prefix="s5gen_")
         cls.dir = pathlib.Path(cls.tmp.name)
-        cls.cases = VP.parse_case_table(_header(cls.dir))
+        cls.header = _header(cls.dir)
+        cls.cases = VP.parse_case_table(cls.header)
         cls.boxes = cls.cases[5]
 
     @classmethod
@@ -75,6 +76,55 @@ class T_GenDumpRows(unittest.TestCase):
         self.assertIn("S5_ROW_BEGIN row=", text)
         self.assertIn("mrd -force", text)
         self.assertIn("connect -url tcp:localhost:", text)      # 端口可覆盖（默认 23121）
+
+    # ── 地址模式端到端（测量链离线闭环） ────────────────────────────────────
+    BUF0 = 0x00138C00
+
+    def _synth_dump(self, *, tamper: bool = False) -> pathlib.Path:
+        """按生成计划的**真实地址**合成转储：边框像素用类颜色，其余背景；可选篡改一个边框像素。"""
+        rows: dict[int, bytearray] = {}
+        colors = VP.parse_class_colors(REPO_ROOT / "scripts/stage5_t01/p1_app/s5_overlay.c")
+        for box in self.boxes:
+            x1, y1, x2, y2 = box["rect"]
+            want = colors[box["cls"] % 5]
+            for (x, y) in VP.R.border_pixel_sets(x1, y1, x2, y2, VP.LINE_W, G.CANVAS_W, G.CANVAS_H):
+                row = rows.setdefault(y, bytearray([169] * (G.CANVAS_W * 3)))
+                row[3 * x:3 * x + 3] = bytes(want)
+        if tamper:
+            x1, y1 = self.boxes[0]["rect"][0], self.boxes[0]["rect"][1]
+            rows[y1][3 * x1:3 * x1 + 3] = bytes((7, 7, 7))
+        plan = G.build_plan(self.boxes)
+        words_per_seg = G.WINDOW_PX * 3 // G.WORD_ALIGN
+        lines = ["S5_DUMP_BEGIN"]
+        for item in plan:
+            row, x0 = item["row"], item["x"]
+            data = rows.get(row, bytearray([169] * (G.CANVAS_W * 3)))
+            lines.append(f"S5_ROW_BEGIN row={row} x={x0}")
+            for i in range(words_per_seg):
+                addr = self.BUF0 + row * G.STRIDE + x0 * 3 + i * G.WORD_ALIGN
+                chunk = bytes(data[x0 * 3 + i * G.WORD_ALIGN: x0 * 3 + i * G.WORD_ALIGN + G.WORD_ALIGN])
+                if len(chunk) < G.WORD_ALIGN:
+                    chunk = chunk + bytes(G.WORD_ALIGN - len(chunk))
+                lines.append(f"  {addr:06X}:   {chunk.hex().upper()}")
+        path = self.dir / f"synth_{'tamper' if tamper else 'ok'}.txt"
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+        return path
+
+    def test_05_address_mode_end_to_end_passes(self) -> None:
+        dump = self._synth_dump()
+        code = VP.main(["--dump", str(dump), "--case", "5", "--header", str(self.header),
+                        "--source", str(REPO_ROOT / "scripts/stage5_t01/p1_app/s5_overlay.c"),
+                        "--mode", "address", "--buf0", hex(self.BUF0), "--stride", str(G.STRIDE),
+                        "--min-coverage", "0.02"])
+        self.assertEqual(code, 0, "地址模式端到端应判通过")
+
+    def test_06_address_mode_tamper_is_caught(self) -> None:
+        dump = self._synth_dump(tamper=True)
+        code = VP.main(["--dump", str(dump), "--case", "5", "--header", str(self.header),
+                        "--source", str(REPO_ROOT / "scripts/stage5_t01/p1_app/s5_overlay.c"),
+                        "--mode", "address", "--buf0", hex(self.BUF0), "--stride", str(G.STRIDE),
+                        "--min-coverage", "0.02"])
+        self.assertEqual(code, 1, "篡改边框像素未被抓住 ⇒ 测量链无判别力")
 
     def test_04_cli_exit_codes(self) -> None:
         header = self.dir / "s5_overlay_cases.h"

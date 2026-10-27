@@ -3,6 +3,7 @@
 ## 真实单帧诊断与显式复位（2026-10-27，UTC+8）
 
 - Wong 批准显式 `reset_session()` 返回 RESET 日志并保持原复位行为；`report/evidence/S6-B/s6b_reset_log_20261027_r02/` 的 28 项单测、26 条矩阵、4 项探针及 inputs/evidence/closing 通过，独立复审 PASS。保留冷却锚点、单调时间和 ACK 账本，旧参数接受范围不变；r01 失败记录保留。
+- S6-B r02 清单的 interfaces_not_applicable.reason 沿用旧句“阶段4/5 契约仍未冻结”，该句对当前状态已过期：阶段4/5 已分别冻结离线范围；它们不等于真实接口/板级集成已验收。清单原文与哈希保留，CHECKS_OK 不验证该历史描述的实时准确性。
 - 阶段4提交 `4e0b03dd7090c7dc5615a4cd1e40bd193715faff` 的真实 PS INT8 单帧诊断在 `report/evidence/S6-D/s6d_real_ps_diag_20261027_r01/` 完成只读重解码与关联核查，7 项测试、inputs/evidence 和独立复审 PASS。PS `(session_id,result_seq)=(1396845568,1)` 与 UART `(frame_id,repeat_index,sequence)=(0,0,2)` 属不同命名空间；无检测框几何、state、可信结果时间及 stale，阶段6核心资格 BLOCKED，未调用核心。
 - 因本轮核心字节变化，历史回放 r08 对当前核心的哈希绑定已过期，仍作为当时版本的历史证据；r10 保全其临时输入并不改变该限制。当前真实单帧诊断预检不读取或绑定阶段6核心。P/T6-A03、6-E 实物及 G3 保持 NOT_RUN；真实集成与阶段 G0/G4/G5 未闭合。
 

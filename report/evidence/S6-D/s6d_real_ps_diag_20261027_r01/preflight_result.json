@@ -1,0 +1,266 @@
+{
+  "pinned_commit": "4e0b03dd7090c7dc5615a4cd1e40bd193715faff",
+  "current_w4_head_observed": "83c9284ad2296b9b2c836250cee615e255533615",
+  "pinned_commit_is_ancestor": true,
+  "input_bindings": [
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_hw_20261027_r01/adapter_hardware_result.json",
+      "git_blob": "18096a4c866c1dfb91d61ef03eb030c93f9fd172",
+      "sha256": "688c945eac6a24e1085eed6aa36fd5fc562e5b85a404d0292b9edb4b41541b30",
+      "bytes": 6083
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_hw_20261027_r01/adapter_hardware_events.jsonl",
+      "git_blob": "1723cfd522bef5fe085a993dc17c9819522f586f",
+      "sha256": "45f8f37cc4e30e998caf0de55e44e132223bcabd875fe53ada415545b14fcdc8",
+      "bytes": 9087
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_hw_20261027_r01/trace_double_read.bin",
+      "git_blob": "30e6b5a9f9632aa91025c7432f62fb9fc46cd969",
+      "sha256": "88f104f8b342a8a180632bf1fb2627b372ea013018c401b3e16679e1d6e1a0da",
+      "bytes": 368316
+    },
+    {
+      "path": "docs/stage4/s4b_shared_input_result_contract.json",
+      "git_blob": "2124375ba06f0298ad0452bac43b109722b75aad",
+      "sha256": "2848ba031a6411e2920f7f8edbd58a3199d3404a2558a867d6c0f245c0796a94",
+      "bytes": 58699
+    },
+    {
+      "path": "docs/stage4/S4B_shared_input_result_contract.md",
+      "git_blob": "ddd26f08ea2de9ff27fd28a22d25435c5705fd07",
+      "sha256": "e839f7a0d30f83816b63aedf14047420091dcb84ac75b3d168e87831718b11fd",
+      "bytes": 28679
+    },
+    {
+      "path": "docs/stage4/S4B_ps_tensor_injection_runbook.md",
+      "git_blob": "c82e7706b5adecd6472f5fc9618e9ee41bc91bba",
+      "sha256": "b5e2b6686eaaba5486132d8f8e690f1b3b29b0d954add790fd27ecadc40dd6bd",
+      "bytes": 17006
+    },
+    {
+      "path": "docs/stage4/s4a_stage4_g0_fields.json",
+      "git_blob": "6bdb3a1d271e73862a7b689bb07d3a50d4df92ef",
+      "sha256": "657ea2fbd2587873c4b8161e50390bc4139d373b4496dbfe6d8611081d6930d5",
+      "bytes": 70599
+    },
+    {
+      "path": "scripts/stage4_s4b/decode_s4b_ps_trace.py",
+      "git_blob": "624ed7a834a13b5b736983d314db3a81304c3bab",
+      "sha256": "015adb2a64d70ec9cc2dcfd0856f88e770314351edb51f034056e72523cdecdf",
+      "bytes": 27853
+    }
+  ],
+  "contract_review": {
+    "status": "PASS",
+    "contract_version": "1.3.0",
+    "revision": "r07",
+    "key_roles": {
+      "stage4a_join_key": [
+        "session_id",
+        "frame_id",
+        "repeat_index"
+      ],
+      "ps_log_primary_key": [
+        "session_id",
+        "result_seq"
+      ],
+      "uart_observable_key": [
+        "frame_id",
+        "repeat_index",
+        "sequence"
+      ],
+      "contract_result_key": [
+        "session_id",
+        "frame_id",
+        "result_seq"
+      ]
+    },
+    "meaning": "result_seq 为 PS 本地结果序号；UART sequence 为请求/响应配对序号，独立命名空间。"
+  },
+  "status": "BLOCKED_FOR_S6_CORE",
+  "adapter_sha256": "688c945eac6a24e1085eed6aa36fd5fc562e5b85a404d0292b9edb4b41541b30",
+  "adapter_blob": "18096a4c866c1dfb91d61ef03eb030c93f9fd172",
+  "trace_decoder": {
+    "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\decode_s4b_ps_trace.py D:\\tmp\\s6d-real-ps-d6kcd1wh\\trace_double_read.bin --expected-source-sha256 7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102 --expected-boot-seed 0x5342424f4f543133 --output D:\\tmp\\s6d-real-ps-d6kcd1wh\\trace_decoded.json",
+    "exit_code": 0
+  },
+  "trace_decoder_process": "命令：C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\decode_s4b_ps_trace.py D:\\tmp\\s6d-real-ps-d6kcd1wh\\trace_double_read.bin --expected-source-sha256 7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102 --expected-boot-seed 0x5342424f4f543133 --output D:\\tmp\\s6d-real-ps-d6kcd1wh\\trace_decoded.json\n退出码：0\nstdout UTF-8:\n\nstderr UTF-8:\n\n",
+  "trace_decoded": {
+    "schema_version": 1,
+    "status": "PASS_DECODED_DOUBLE_READ_SNAPSHOT",
+    "snapshot_stability": "two_full_region_reads_byte_identical",
+    "header": {
+      "record_count": 1,
+      "boot_seed": 5999430562011689267,
+      "derived_source_sha256": "7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102",
+      "session_first": 1396845568,
+      "session_last": 1396846567,
+      "next_session_id": 1396845569,
+      "session_range_exhausted": 0,
+      "rejected_request_count": 0,
+      "log_full_reject_count": 0,
+      "last_rejected_sequence": 0,
+      "last_rejected_frame": 0,
+      "last_rejected_reason": 0,
+      "last_run_status": 1,
+      "active_session_id": 1396845568,
+      "active_uart_sequence": 2,
+      "active_base_frame": 0,
+      "active_repeat_count": 1,
+      "active_next_repeat_index": 1,
+      "last_assigned_session_id": 1396845568,
+      "header_crc32": 420032737
+    },
+    "record_count": 1,
+    "records": [
+      {
+        "record_index": 0,
+        "session_id": 1396845568,
+        "frame_id": 0,
+        "result_seq": 1,
+        "repeat_index": 0,
+        "uart_sequence": 2,
+        "input_crc32": 1064075869,
+        "input_length": 519168,
+        "input_format": "INT8_CHW_416",
+        "capture_time_available": false,
+        "capture_time_ns": 0,
+        "unavailable_fields_mask": 3,
+        "input_write_start_ticks": 186145677020,
+        "input_write_done_ticks": 186146021216,
+        "start_command_ticks": 186160768934,
+        "terminal_observation_ticks": 201923275506,
+        "postprocess_done_ticks": 201930941892,
+        "log_commit_ticks": 201930942078,
+        "uart_send_start_ticks": 201930949628,
+        "uart_send_done_ticks": 202668628285,
+        "epoch": 1,
+        "terminal_frame": 0,
+        "terminal_status": 3588,
+        "terminal_error": 0,
+        "terminal_reject": 0,
+        "terminal_safe": true,
+        "decode_status": 0,
+        "detection_count": 1,
+        "raw_candidate_count": 2,
+        "response_status": 0,
+        "uart_send_status": 2,
+        "ack_state": 1,
+        "event_flags": 1023,
+        "record_crc32": 315139650
+      }
+    ],
+    "last_run_incomplete": false,
+    "uart_frame_count_is_not_inference_record_count": true,
+    "notes": [
+      "日志只记录成功进入推理路径的各个结果尝试；UART重量装载响应和其他控制响应不计作推理记录。",
+      "PL完成字段是PS首次观察到安全终态的global timer原始ticks，不表示PL精确完成周期。",
+      "terminal_safe只表示记录中的物理CSR快照满足DONE_SAFE或ERROR_SAFE条件；OBSERVE_TIMEOUT仍可保留此值，因为请求epoch/frame匹配失败时不会把物理safe改写成非safe。",
+      "input_write_*只测CPU从staging复制到arena的代码区间，不表示flush完成或DDR/PL已可见。",
+      "本格式不把raw ticks换算为ns；capture_time不可用且为0。"
+    ]
+  },
+  "eligibility": {
+    "status": "DIAGNOSTIC_ONLY",
+    "stage6_core_eligibility": "BLOCKED",
+    "contract_binding": {
+      "status": "PASS",
+      "contract_version": "1.3.0",
+      "revision": "r07",
+      "key_roles": {
+        "stage4a_join_key": [
+          "session_id",
+          "frame_id",
+          "repeat_index"
+        ],
+        "ps_log_primary_key": [
+          "session_id",
+          "result_seq"
+        ],
+        "uart_observable_key": [
+          "frame_id",
+          "repeat_index",
+          "sequence"
+        ],
+        "contract_result_key": [
+          "session_id",
+          "frame_id",
+          "result_seq"
+        ]
+      },
+      "meaning": "result_seq 为 PS 本地结果序号；UART sequence 为请求/响应配对序号，独立命名空间。"
+    },
+    "observed_keys": {
+      "contract_result_key": [
+        1396845568,
+        0,
+        1
+      ],
+      "stage4a_join_key": [
+        1396845568,
+        0,
+        0
+      ],
+      "ps_log_primary_key": [
+        1396845568,
+        1
+      ],
+      "uart_observable_key": [
+        0,
+        0,
+        2
+      ]
+    },
+    "uart_sequence_namespace_evidence": {
+      "weights_sequence": 1,
+      "run_sequence": 2,
+      "ps_result_seq": 1,
+      "ps_result_seq_is_uart_sequence": false
+    },
+    "diagnostic_counts": {
+      "detection_count": 1,
+      "box_count": 1,
+      "raw_candidate_count": 2,
+      "head_hashes_only": [
+        "head13",
+        "head26"
+      ],
+      "detections_payload_present": false,
+      "box_geometry_present": false
+    },
+    "time_fields": {
+      "capture_time_available": false,
+      "capture_time_ns": 0,
+      "result_time_ns_present": false,
+      "stale_present": false,
+      "raw_ticks_converted_to_ns": false
+    },
+    "missing_stage6_result_fields": [
+      "detections",
+      "state",
+      "result_time_ns",
+      "stale",
+      "error_code",
+      "geometry/score/xyxy detections"
+    ],
+    "core_event_constructed": false,
+    "core_step_called": false,
+    "reasons": [
+      "adapter/trace 仅提供检测框数量与 heads 哈希，不含阶段6所需 detections[]、class、score 或 xyxy；不得由计数或哈希推造框。",
+      "trace capture_time_available=false 且为 0；无契约结果时刻与 stale 权威值，不得将 raw timer ticks 当 ns 或默认 fresh。",
+      "该证据是单帧 INT8_CHW_416 PS 诊断；complete_stage4_or_RGB_preprocess=NOT_CLAIMED。"
+    ]
+  },
+  "core_execution": {
+    "status": "NOT_RUN",
+    "core_event_constructed": false,
+    "core_step_called": false
+  },
+  "limitations": [
+    "该包只有诊断计数和heads哈希，没有阶段6 detections[]/框几何。",
+    "capture_time不可用；没有权威result_time_ns或stale值，未将raw ticks换算成ns。",
+    "不证明完整阶段4/RGB预处理、实时性能、板级G3、6-E实物验收或阶段G4/G5。"
+  ]
+}

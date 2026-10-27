@@ -185,10 +185,37 @@ class GestureInteractionCore:
         self._init_state()
 
     # ------------------------------------------------------------------ 会话与内部状态
-    def reset_session(self, session_id: str) -> None:
-        """全量复位到新会话，保留全局单调时钟与冷却锚点（B25/H-3/H-10）。"""
+    def reset_session(self, session_id: str) -> dict[str, Any]:
+        """全量复位并返回 B25 显式复位日志，保留全局时间与冷却锚点。"""
+        previous_session_id = self.session_id
+        previous_state = self.state
         self._init_state()
         self.session_id = session_id
+        log: dict[str, Any] = {
+            "session_id": session_id,
+            "previous_session_id": previous_session_id,
+            "frame_id": None,
+            "event_kind": "E_SESSION_RESET_SUSPECTED",
+            "input_state": None,
+            "from_state": previous_state,
+            "to_state": self.state,
+            "transition": "RESET",
+            "reason": "显式会话复位：全量复位到 IDLE（B25）",
+            "timers": {
+                "last_t_ns": self.last_t_ns,
+                "t_last_submit_ns": self.t_last_submit_ns,
+                "jitter_frames": self.jitter_frames,
+                "jitter_exhausted": self.jitter_exhausted,
+            },
+            "suppression_events": [],
+            "action_id": None,
+            "trigger_frame_id": None,
+            "t_submit_ns": None,
+            "t_effective_ns": None,
+            "window_complete_ns": None,
+            "warmup": False,
+        }
+        return self._finish(log)
 
     def _init_state(self) -> None:
         """初始化会话状态，保留全局时间锚、冷却锚与 ACK 幂等记录。"""

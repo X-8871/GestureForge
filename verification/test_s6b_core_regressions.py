@@ -558,7 +558,10 @@ class S6BCoreRegressionTests(unittest.TestCase):
             "t_submit_ns": 100,
             "t_effective_ns": 100,
         })
-        core.reset_session("explicit-second-session")
+        core.jitter_frames = 3
+        core.jitter_exhausted = True
+        core.counters["invalid"] = 2
+        reset = core.reset_session("explicit-second-session")
 
         self.assertEqual(core.session_id, "explicit-second-session")
         self.assertEqual(core.state, "IDLE")
@@ -566,7 +569,21 @@ class S6BCoreRegressionTests(unittest.TestCase):
         self.assertEqual(core.last_t_ns, 100)
         self.assertEqual(core.t_last_submit_ns, 100)
         self.assertEqual(core.counters["action_submitted"], 0)
+        self.assertIsNone(reset["action_request"])
+        self.assertEqual(reset["log"]["event_kind"], "E_SESSION_RESET_SUSPECTED")
+        self.assertEqual(reset["log"]["previous_session_id"], "first-session")
+        self.assertEqual(reset["log"]["session_id"], "explicit-second-session")
+        self.assertEqual(reset["log"]["from_state"], "COOLDOWN")
+        self.assertEqual(reset["log"]["to_state"], "IDLE")
+        self.assertEqual(reset["log"]["transition"], "RESET")
+        self.assertEqual(reset["log"]["counters"], core.counters)
+        self.assertEqual(reset["log"]["counters"]["invalid"], 0)
+        self.assertEqual(reset["log"]["timers"]["last_t_ns"], 100)
+        self.assertEqual(reset["log"]["timers"]["t_last_submit_ns"], 100)
+        self.assertEqual(reset["log"]["timers"]["jitter_frames"], 0)
+        self.assertFalse(reset["log"]["timers"]["jitter_exhausted"])
         self.assertEqual(core._seen_action_ack_ids, {"first-session-action"})
+        self.assertEqual(reset["log"]["acquisition_id"], 0)
 
         equal_time = core.step(self._target_event(1, 100, "explicit-second-session"))
         self.assertIsNone(equal_time["log"]["transition"])

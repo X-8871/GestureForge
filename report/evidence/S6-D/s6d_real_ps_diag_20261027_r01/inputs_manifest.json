@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-D",
+  "run_id": "s6d_real_ps_diag_20261027_r01",
+  "source_commit": "a84527819a9b76a953e53ab592cca2190a133dcb",
+  "evidence_dir": "report/evidence/S6-D/s6d_real_ps_diag_20261027_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务只审计固定阶段4真实PS诊断证据的关联及字段资格，不将该诊断包声明为阶段6冻结接口。",
+  "files": [
+    {
+      "path": "verification/s6d_real_ps_trace_preflight.py",
+      "sha256": "781297237436c9f908ecc7700f8907c8d944909bc48266920468d9aa0968dd9a",
+      "role": "source",
+      "keep_reason": "S6-D固定提交审计和消费资格判定实现"
+    },
+    {
+      "path": "verification/test_s6d_real_ps_trace_preflight.py",
+      "sha256": "3a0268903b0e7f4355122d03c395d44c4994f0806440cd43b75bba2b9368e919",
+      "role": "source",
+      "keep_reason": "S6-D真实PS诊断关联与负向阻断定向测试"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_real_ps_diag_20261027_r01/preflight_result.json",
+      "sha256": "e5d4f6d3da7b0a79ddf6f00ad496ff685defda51c257eaeb9e442cac673da7b3",
+      "role": "input",
+      "keep_reason": "固定阶段4提交/blob/文件哈希及trace/UART解码关联结果"
+    }
+  ],
+  "checks": [
+    {
+      "name": "固定阶段4提交与trace UART关联审计",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 verification/s6d_real_ps_trace_preflight.py --w4-root D:\\codex-worktrees\\w4 --output D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_real_ps_diag_20261027_r01\\preflight_result.json",
+      "exit_code": 0
+    },
+    {
+      "name": "固定提交trace双读解码器",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\decode_s4b_ps_trace.py D:\\tmp\\s6d-real-ps-d6kcd1wh\\trace_double_read.bin --expected-source-sha256 7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102 --expected-boot-seed 0x5342424f4f543133 --output D:\\tmp\\s6d-real-ps-d6kcd1wh\\trace_decoded.json",
+      "exit_code": 0
+    },
+    {
+      "name": "S6-D定向正反测试",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B -X utf8 -m unittest -v verification.test_s6d_real_ps_trace_preflight",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "此清单的 CHECKS_OK 只确认绑定文件哈希与输入清单结构；S6核心消费资格仍为 BLOCKED。"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-B",
+  "run_id": "s6b_reset_log_20261027_r02",
+  "source_commit": "a84527819a9b76a953e53ab592cca2190a133dcb",
+  "evidence_dir": "report/evidence/S6-B/s6b_reset_log_20261027_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "S6-B 不消费任何已冻结接口：唯一上游是 docs/stage6/s6a_stage6_g0_behavior_v1.json（S6A-G0-v1.8），其 24 项阈值已于 2026-10-23 批准（值仍为草案值），但接口契约本身仍未冻结；阶段4 结果记录与阶段5 显示契约仍未冻结，集成验收依赖 BLOCKED。",
+  "files": [
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "f44bd3eb17d1f6785cd632e3e01700ba5469950a8e03cd45589b9a366a25f9c9",
+      "role": "input",
+      "keep_reason": "S6-B 唯一的阈值来源（已于 2026-10-23 批准，值仍为草案值）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "输入文件 SHA-256 复算",
+      "status": "PASS",
+      "command": "内置复算（构建器）",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "interfaces 为空：S6-B 没有可声明为 frozen 的接口；24 项阈值已于 2026-10-23 批准（值仍为草案值）。",
+    "inputs 模式 CHECKS_OK 只表示清单/路径/哈希检查通过，不代表语义正确或验收通过。"
+  ]
+}

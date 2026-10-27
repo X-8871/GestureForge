@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-D",
+  "run_id": "s6d_real_ps_diag_20261027_r01",
+  "attempts": [
+    {
+      "attempt": 1,
+      "command": "python -B -X utf8 D:/codex-worktrees/w4/scripts/stage4_s4b/decode_s4b_ps_trace.py D:/codex-worktrees/w4/report/evidence/S4-B/s4b_ps_tensor_hw_20261027_r01/trace_double_read.bin --expected-source-sha256 7c3b57a9989b6fe8026d67b19c6abd75b8de1284302d08be2c201893fbd8f102 --expected-boot-seed 0x5342424f4f543133",
+      "exit_code": 1,
+      "result": "进程启动被本机权限拒绝，尚未执行解码器；同一只读操作经受控提权重跑后 exit=0。"
+    },
+    {
+      "attempt": 2,
+      "command": "python -B -X utf8 -m unittest -v verification.test_s6d_real_ps_trace_preflight",
+      "exit_code": 1,
+      "result": "首轮 7 项中 5 项通过；2 项只因断言期待的错误文字早于实际校验顺序，已修正断言文本并重跑。"
+    },
+    {
+      "attempt": 3,
+      "command": "python -B -X utf8 verification/s6d_real_ps_trace_preflight.py --w4-root D:/codex-worktrees/w4",
+      "exit_code": 1,
+      "result": "解码器输出路径位于已退出的临时目录；已在临时目录生命周期内读取解码结果并重跑。"
+    }
+  ],
+  "final_attempts": [
+    {
+      "command": "python -B -X utf8 verification/s6d_real_ps_trace_preflight.py --w4-root D:/codex-worktrees/w4 --output report/evidence/S6-D/s6d_real_ps_diag_20261027_r01/preflight_result.json",
+      "exit_code": 0
+    },
+    {
+      "command": "python -B -X utf8 -m unittest -v verification.test_s6d_real_ps_trace_preflight",
+      "exit_code": 0,
+      "result": "7/7 PASS"
+    }
+  ]
+}

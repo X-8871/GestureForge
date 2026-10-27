@@ -1,5 +1,11 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 真实单帧诊断与显式复位（2026-10-27，UTC+8）
+
+- Wong 批准显式 `reset_session()` 返回 RESET 日志并保持原复位行为；`report/evidence/S6-B/s6b_reset_log_20261027_r02/` 的 28 项单测、26 条矩阵、4 项探针及 inputs/evidence/closing 通过，独立复审 PASS。保留冷却锚点、单调时间和 ACK 账本，旧参数接受范围不变；r01 失败记录保留。
+- 阶段4提交 `4e0b03dd7090c7dc5615a4cd1e40bd193715faff` 的真实 PS INT8 单帧诊断在 `report/evidence/S6-D/s6d_real_ps_diag_20261027_r01/` 完成只读重解码与关联核查，7 项测试、inputs/evidence 和独立复审 PASS。PS `(session_id,result_seq)=(1396845568,1)` 与 UART `(frame_id,repeat_index,sequence)=(0,0,2)` 属不同命名空间；无检测框几何、state、可信结果时间及 stale，阶段6核心资格 BLOCKED，未调用核心。
+- 因本轮核心字节变化，历史回放 r08 对当前核心的哈希绑定已过期，仍作为当时版本的历史证据；r10 保全其临时输入并不改变该限制。当前真实单帧诊断预检不读取或绑定阶段6核心。P/T6-A03、6-E 实物及 G3 保持 NOT_RUN；真实集成与阶段 G0/G4/G5 未闭合。
+
 ## 离线准备续办（2026-10-27，UTC+8）
 
 - S6-D 对提交 `15a26c1` 的核心重绑定：`report/evidence/S6-D/s6d_replay_no_hand_20261027_r08/` 上游审计及清单检查通过并经独立复审；NO_HAND 与 PRESENT 两帧均缺有效时间/stale，资格 BLOCKED、核心 NOT_RUN。R08 引用的 9 个缓存输入已在 `report/evidence/S6-D/s6d_replay_no_hand_20261027_r10/` 原字节保全并映射；该恢复包独立复审 PASS，无 tmp 的隔离副本 verify-local 通过；重跑 R08 原 checker 仍须先按映射恢复缓存文件。R05/R07/R09 失败轨迹保留，R06 失败材料由 R10 保全。

@@ -13,7 +13,8 @@
 - **窗口结论（lead 指定写入）**：`开窗 20:43:36 → 收窗 20:44:29（53 s）｜P0 PASS｜P1 smoke FAIL（脚本未选目标即 mrd）｜M1–M4a NOT_RUN｜未写 DDR、无副作用｜会话清理 PASS`。**不是 M1–M4 的技术结论，不构成任何通过。**
 - **修复（离线，窗口1 后）**：四个 Tcl 全部改为**先选目标再 mrd/rrd**、`targets` 按结构化元素解析；新增 `p1_smoke.tcl`（三步断言，退出码 11/12/13 指失败步）；驱动加入 P1 三步记录与 PRELOAD 装载流程。
 - **装载流程（不需新授权，落在"允许易失下载"内）**：`dow init.elf → con（PS/DDR 就绪）→ dow 最小 ELF → M1/M2/M3（CPU1 由构造保持 halted）→ M4-a 仅 con CPU0 → UART 交互`；**不执行 `stop`**；若仍需显式 stop，须 Wong 授权。
-- **待办**：Wong 对 CPU1 口径回话后，重开第二窗口；`M4-b=NOT_APPLICABLE`（并入 4-D 必测）；本次不解锁 `ENABLE=1`。
+- **窗口2（2026-10-27 20:53:28 开窗）结论**：`P0 PASS｜P1 三步 smoke PASS（targets/选目标/只读）｜LOAD FAIL（rst -processor → Invalid reset type，发生在任何 dow 之前 ⇒ 未下载任何载荷）｜M1 FAIL（脚本 info target 非 xsdb 子命令 ⇒ 无 state/PC 证据）｜M2 PARTIAL_INVALID（mrd 返回 ADDR: 空值）｜M3/M4-a NOT_RUN｜P4 清理 PASS（3121 已关、无残留）`。**候选区未被写入、未发 stop、无副作用；非技术结论、不构成任何通过。**
+- **待办**：①离线修三处脚本缺陷（`rst` 复位类型、`info target`、`mrd` 的 `ADDR: VALUE` 解析）并重登 SHA；②修好报 lead 再择时开第三窗口；`M4-b=NOT_APPLICABLE`（并入 4-D 必测）；本次不解锁 `ENABLE=1`。
 
 ## 本轮结果（硬件窗口已授权，等待 main OFFER，2026-10-27 14:55 UTC+8）
 

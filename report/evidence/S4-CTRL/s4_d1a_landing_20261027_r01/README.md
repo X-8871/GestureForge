@@ -44,3 +44,10 @@
   ``docs/stage4/S4B_raw_address_ownership_proposal_20261024_r01.md``、``report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/landing_manifest.json``。
   **OID 与对象身份不变，仅路径名更正**；本清单 ``files[].path`` 已统一为 ``/`` 分隔。
 - 本文件为**复审基线的原文更正**；修后复跑证据见 ``s4_d1a_landing_20261027_r02/``。
+
+## hash basis 更正（DELTA 修复 ①，2026-10-27 r02）
+
+- 本包 iles[].sha256 已全部改为 **提交 blob 基座**（git cat-file blob e39f6de:<path>，即被审提交的仓库内容权威），并为每项写入 hash_basis="commit_blob" 与 source_commit。
+- 原记录的不符成因：清单曾用 Get-FileHash（工作区字节）生成——文本文件在 core.autocrlf 下为 CRLF、提交 blob 为 LF，且个别项在清单生成后又被同一会话重写（中间值）⇒ 出现 blob/disk/中间值三类偏差。
+- 并列复算表见 hash_basis_recompute.json（提交 blob SHA-256 与当前磁盘 SHA-256 并列，磁盘值不参与校验）。
+- **r01 = 被审提交 39f6de 的 blob 基座快照；r02 = d5a86bf 承载。**

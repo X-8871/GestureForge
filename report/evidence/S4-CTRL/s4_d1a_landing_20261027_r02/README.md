@@ -26,3 +26,8 @@ NB-1 改动契约字节 ⇒ 缺口表 `basis_bindings[shared_input_contract]` �
 | 缺口审计 | **0**（13/13） |
 
 **未做**：板级四项实测、`ENABLE=1`/4-D、真实链 W-C。**边界**：仅写 w4；`ENABLE=0`；未 FROZEN；无板级访问；未 push；原持有方 **25 项**未提交改动未清理未暂存未代提交。
+
+## hash basis 与时间戳断言（DELTA 修复 ① ②）
+
+- **本包由提交 d5a86bf 承载**；iles[].sha256 均为该提交的 blob 基座（hash_basis="commit_blob"），并列磁盘值见 hash_basis_recompute.json。
+- 时间戳断言已**真实落地**为脚本 scripts/stage4_s4ctrl/check_evidence_timestamps.py（fail-closed：证据时间戳 > 提交时刻即 FAIL），负向自测以合成未来时刻证明可拒（	imestamp_assertion_selftest.json）；真实退出码见同名 .exit_code.txt。

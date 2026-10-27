@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-T27",
+  "run_id": "s5t27_clean_checkout_20261027_r01",
+  "source_commit": "e69b99e54b37ff9ea7b02a30724c46ac62fbd6b4",
+  "evidence_dir": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包为**干净检出自证**（只读副本内复跑门禁）：输入为已提交的 r02 证据包与源码绑定，无 role=input 的本地输入文件；上游接口非本卡可冻结对象，故 inputs 模式不适用。",
+  "files": [
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/console/checker_evidence.txt",
+      "role": "log",
+      "sha256": "bb6d4531fda7b443ce7ab898807c3c85a8fe30eba92d16341e0f6149ba16adc4"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/console/clean_checkout.txt",
+      "role": "log",
+      "sha256": "ca0170ef81af5ff9b90c3f2b90538bce0cd73316459382b1c5fd96691e824d26"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/console/gate_declared_basis.txt",
+      "role": "log",
+      "sha256": "56d9adf866defd1a1ef3dac2f3438937ffc75b8184e7917e8fb88d0f29de7dc8"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/console/gate_declared_delivery.txt",
+      "role": "log",
+      "sha256": "084ebba05e9b7072f0e4350c02888ab8b42069e95a90b6eb5a5b0ec7848082d9"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/console/gate_strict_basis.txt",
+      "role": "log",
+      "sha256": "7664efe4aa35d8c5d9e86dd38b5f1477ea647fea668948ab68441021b4d11c5c"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/console/gate_strict_delivery.txt",
+      "role": "log",
+      "sha256": "d56e876679e4d421d4d4c80876aac23714382023e8d3c38c5049f2c3f87006da"
+    },
+    {
+      "path": "report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/results_clean_checkout.json",
+      "role": "result",
+      "sha256": "232e93da5e75c4054bdc7df13ecfbd8097dcae5a36021eb65f9ca448fd999706"
+    },
+    {
+      "path": "scripts/stage5_t27/run_clean_checkout_proof.py",
+      "role": "source",
+      "sha256": "10072d33ab3b264b76bf447f4863e0e03216da18ca7acf03e9db88ff3afa51ad"
+    },
+    {
+      "path": "scripts/stage5_t27/finalize_manifest_basis.py",
+      "role": "source",
+      "sha256": "abef03c447df132055c8c88b151d5ed4cd3deb113742399aed91d3f4a17250ee"
+    },
+    {
+      "path": "report/evidence/S5-T27/.gitattributes",
+      "role": "source",
+      "sha256": "4c1ff83394fe59317035b9799c11a6e4aa4f4e94b142d7b391d996513e43ca3e"
+    }
+  ],
+  "checks": [
+    {
+      "name": "干净检出内 check_manifest_hash_basis --mode strict（delivery_manifest）",
+      "status": "PASS",
+      "command": "check_manifest_hash_basis.py --repo <clone> --commit e69b99e --mode strict",
+      "exit_code": 0,
+      "reason": "verdict OK（20 条目 0 不符）"
+    },
+    {
+      "name": "干净检出内 check_manifest_hash_basis --mode declared-only（delivery_manifest）",
+      "status": "PASS",
+      "command": "… --mode declared-only",
+      "exit_code": 0,
+      "reason": "OK"
+    },
+    {
+      "name": "干净检出内 check_manifest_hash_basis --mode strict（hash_basis_manifest）",
+      "status": "PASS",
+      "command": "… --paths hash_basis_manifest.json --mode strict",
+      "exit_code": 0,
+      "reason": "18 条目 commit_blob 0 不符"
+    },
+    {
+      "name": "干净检出内 check_manifest_hash_basis --mode declared-only（hash_basis_manifest）",
+      "status": "PASS",
+      "command": "… --mode declared-only",
+      "exit_code": 0,
+      "reason": "OK"
+    },
+    {
+      "name": "干净检出内 check_stage_delivery --mode evidence",
+      "status": "PASS",
+      "command": "check_stage_delivery.py --mode evidence --project-root <clone>",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；仅代表包装检查通过"
+    }
+  ],
+  "limitations": [
+    "本包只证明**干净检出**下两套门禁一致（字节基座 + 包装绑定），不代表语义正确、独立审查通过或任何关口通过。",
+    "副本为部分检出（r02 证据包 + 源码绑定 + .gitattributes），不含与自证无关的历史证据。",
+    "自证提交 C4 = e69b99e；clone 以 --shared 读取同一对象库，未写 w5 的 .git。"
+  ],
+  "tool_versions": {
+    "python": "3.12",
+    "check_manifest_hash_basis": "main 2872851",
+    "check_stage_delivery": "schema_version=1"
+  }
+}

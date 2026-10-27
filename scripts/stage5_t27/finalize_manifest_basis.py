@@ -106,6 +106,10 @@ def main(argv: list[str] | None = None) -> int:
         rel = str(entry["path"]).replace("\\", "/")
         if rel == basis_rel:
             continue
+        if rel.endswith("hashes_sha256.txt"):
+            # 索引文件与基座表互为引用（循环），故不进基座表；其本身在 delivery_manifest 内
+            # 作为 commit_blob 条目由 strict 模式核验（见 gate strict delivery_manifest）。
+            continue
         data = git_blob(REPO_ROOT, commit, rel)
         if data is None:
             missing.append(rel)

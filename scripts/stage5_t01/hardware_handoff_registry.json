@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-22T19:20:00+08:00",
+  "generated_utc8": "2026-10-27T12:32:53+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -153,10 +153,15 @@
     {
       "id": "CDX-20261022-015",
       "file": "codex_mailbox/CDX-20261022-015-execution-index-r02.md",
-      "sha256": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7",
+      "sha256": "be7b65205ceadb8f5a78f01ac25a976dd9400c5b9643fdabd7490a4da9508cde",
       "order_key": "20261022-015",
       "kind": "operation_doc",
-      "issuer": "codex"
+      "issuer": "codex",
+      "sha256_drift": {
+        "registered": "a3ce50d20f2f3b1d573831c18d6d0c347966b9a16699b8cb48cdcee89ee170a7",
+        "actual_20261027": "be7b65205ceadb8f5a78f01ac25a976dd9400c5b9643fdabd7490a4da9508cde",
+        "note": "该文件在他方写入后内容发生变化；本项按现状重登记，变更方与原因待记录方说明（DSH 未改写该文件）"
+      }
     },
     {
       "id": "DSH-20261019-001",
@@ -282,6 +287,123 @@
       "evidence_quote": "本记录不声明任何硬件占用或硬件释放",
       "sha256": "1da37ae693b5c0a358349c4d1858983b2d6671f0d216d264e456ad7b9397f632",
       "note": "阶段6 参数批准与阶段7 处置的跨方告知；明文不声明占用/释放 ⇒ 中性"
+    },
+    {
+      "kind": "decision",
+      "sha256": "6a5b8a76612b3d4dfc863c96d10f25316dd7b062e1175027cf01afdf46ff92bd",
+      "declared_by": "DSH 阶段5 总控（依据 Wong 2026-10-27 12:26 直接指示）",
+      "note": "Wong 授予阶段5 硬件窗口与实物授权（六键：窗口 2026-10-27 12:26 起 / 占用方 DSH 阶段5 总控 w5 / 时限单次≤3h / 范围 阶段5 板级 B1–B10 子集 + 受连接判据重做 / 释放条件 跑完或阻断或超时并回执 / 证据入口 w5 report/evidence/S5-T01）；边界：阶段4 未完成 ⇒ 真实回放接入 NOT_RUN、不接摄像头、不烧录 QSPI、不改厂商原件；本记录**不声明硬件占用**（占用另行登记）",
+      "file": "dsh_mailbox/DSH-20261027-001-stage5-hardware-window-and-physical-authorization.md",
+      "id": "DSH-20261027-001",
+      "order_key": "20261027001"
+    },
+    {
+      "file": "codex_mailbox/CDX-20261023-018-stage3-stage4-hardware-coordination.md",
+      "sha256": "9360ae1bb21e77b6c98e63ff4cb0e3fdd04bb2b66e5ff993cc6eb7134e6f6bd6",
+      "kind": "report",
+      "order_key": "20261023018",
+      "id": "CDX-20261023",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "codex_mailbox/CDX-20261023-019-stage4-hardware-request-deferred.md",
+      "sha256": "57e14a15a11f9cc832e80be003d6bfc0fc7bc8f76fc903d5099a12c54bcb970f",
+      "kind": "report",
+      "order_key": "20261023019",
+      "id": "CDX-20261023",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "codex_mailbox/CDX-20261026-001-main-stage3-write-offer.md",
+      "sha256": "c111a35d6dd3d1aa48176ca5bc3dd95f6bb8802c695f98f4434403b1e58fc7ae",
+      "kind": "report",
+      "order_key": "20261026001",
+      "id": "CDX-20261026",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261023-013-stage3-camera-hw-window.md",
+      "sha256": "cfab43cb918d30d3d3c574e59a69fb78c172883d22cee619a535239f6946f2bc",
+      "kind": "report",
+      "order_key": "20261023013",
+      "id": "DSH-20261023",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261023-014-stage3-hw-window-reminder.md",
+      "sha256": "881c8f09f5147f182d0be68890161d31a6d0eb81f86e9e57b99b770adf2c799f",
+      "kind": "report",
+      "order_key": "20261023014",
+      "id": "DSH-20261023",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261024-001-stage3-colour-unblocked-direction-update.md",
+      "sha256": "a55bce9a4f7a686ab4dd72406affbba17a080c8d9ad63863ebe75d3e722cb2bc",
+      "kind": "report",
+      "order_key": "20261024001",
+      "id": "DSH-20261024",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261024-002-hardware-holder-and-stage3-retest-done.md",
+      "sha256": "196b946f719df2d6edcea3742fc293600e2010a7a992a1813f9f0022eed15d00",
+      "kind": "report",
+      "order_key": "20261024002",
+      "id": "DSH-20261024",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261024-003-w4-handoff-record-needs-correction.md",
+      "sha256": "284ed8722dc47d4863755cc321c4459b6ddfa1cf2b11d06c45da27fa23b888b4",
+      "kind": "report",
+      "order_key": "20261024003",
+      "id": "DSH-20261024",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md",
+      "sha256": "b820fcd1dbe8b213056f88f395ad3ac5a3569f153cde490a5816231a4c76510c",
+      "kind": "report",
+      "order_key": "20261024004",
+      "id": "DSH-20261024",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261024-005-2b-address-confirm-raw-region.md",
+      "sha256": "779d92bf92434078914ab9ff6862990297ef72bb54f558f2f599db72eebdf84b",
+      "kind": "report",
+      "order_key": "20261024005",
+      "id": "DSH-20261024",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261024-006-handover-main-write-right-to-codex.md",
+      "sha256": "52e2cbf1e776222c2c0dcf2e1ac08e50cae7f2b6d4efccbee8d638a388ae8d32",
+      "kind": "report",
+      "order_key": "20261024006",
+      "id": "DSH-20261024",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
+    },
+    {
+      "file": "dsh_mailbox/DSH-20261026-001-stage3-and-main-write-handover-clarification.md",
+      "sha256": "1597c7a960d8b023667355b5ad3a7e921d42a7342ac028ee2797ebae8297cb71",
+      "kind": "report",
+      "order_key": "20261026001",
+      "id": "DSH-20261026",
+      "note": "跨方信箱记录：DSH 按**中性 report** 登记以消除门控『未登记』阻塞；**不代表** DSH 对其中『占用/释放』语义的判断，真实语义以记录方（含 Codex）确认为准。",
+      "pending_author_confirmation": true
     }
   ]
 }

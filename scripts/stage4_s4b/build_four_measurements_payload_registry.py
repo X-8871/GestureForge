@@ -80,6 +80,8 @@ def main() -> int:
         ],
         "payloads": {
             "plan_document": entry(plan, "plan", "M1–M4 执行计划书（含恢复算法、判定阈值、停止条件、45 min 预算）"),
+            "driver": entry(W / "scripts" / "stage4_s4b" / "run_s4_ddr_four_measurements.py", "driver",
+                            "四项实测执行驱动（P0 门禁 → M1/M2/M3/M4a；逐步真实退出码；FAIL 即停；不得重试写 DDR）"),
             "tcl_scripts": [entry(p, "payload_tcl", "离线新增；未经真实 xsdb 执行（窗口 P1 先 smoke）")
                             for p in tcl.values()],
             "existing_not_used": existing,

@@ -24,7 +24,21 @@
   - **F4**：两个 F6 失败目录内部 `run_id` 仍为 `…_r01`（修复前硬编码残留）；**不重写失败证据**，下轮加指认说明。
   - **F5**：构建器 docstring 写 `dir_digest`，实为 `file_set`（该分支本次未用）⇒ 下轮修注释。
 
-## task-27（回放/彩色输入路径 + 离线动态回归）：已交付（2026-10-27 19:55）
+## task-27（回放/彩色输入路径 + 离线动态回归）：复审 PASS；N1–N5 已修（2026-10-27 20:2x）
+
+- **复审**：`PASS`（0 阻断；实现层为真、30/0 回归可复现、`106 572×16 890 000=1 800 001 080 000 ns` 精确、240 次重复已标注）。
+- **N1（阻断，已修）**：`r01` 清单以工作树 LF 字节绑定 `scripts/stage5_t27/run_s5t27_evidence.py`（`eeee8529…`、15 578 B），
+  目录无 `-text` ⇒ 干净检出 CRLF（15 847 B）使 checker exit 2。已加子目录 `.gitattributes`（`scripts/stage5_t27/`、`report/evidence/S5-T27/`，`* -text`，
+  **未动冻结的根 `.gitattributes`**）并**新 RunId `s5t27_replay_colour_20261027_r02`** 重生成；干净检出自证：`report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/`
+  （gate `--mode strict` **exit 0**、`check_stage_delivery --mode evidence` **exit 0**）。
+- **哈希基座新规（2026-10-27 Wong 批准）**：r02 清单**逐项声明 `hash_basis=commit_blob`**（含 manifest 级默认），
+  `verification/check_manifest_hash_basis.py --mode strict` **exit 0**、`--mode declared-only` **exit 0**。
+- **N2（已修）**：`assert_replay_record` 补齐 `algorithm`/`value`/`length_bytes==stride×height` 三要素；自检 6 类注入、用例 17 项全 OK。
+- **N3（已修）**：本文件第 62 行旧句改为"离线部分已交付；板级/实时未做"。
+- **N4（仅登记）**：冻结 `file_set` 目录 `scripts/stage5_t03/` 新增 3 个跟踪文件（25→28）；冻结成员未变、校验器仍 77/77；**下次重冻结纳入**。
+- **N5（已注明）**：相关套件 2 项 skip 属**上游**（阶段4 契约冻结后被改：登记 `7228f513…` ≠ 现状 `25bc30d5…`，消费链按设计 fail-closed），非本卡缺陷。
+
+## task-27 交付明细（r01，2026-10-27 19:55）
 
 - **实现层**（新文件，**未改 S5-T04 冻结成员**）：`scripts/stage5_t03/s5t03_replay_colour_input.py` —— 装载即**现场重算**源帧 sha256/字节数；
   逐帧 `frame_integrity`（algorithm/value/length_bytes 三者全等）；每条记录携带 10 项 `replay_source_*`；
@@ -59,7 +73,7 @@
 ## 明确不主张（逐条）
 
 真实回放接入（板上/实时）｜板上动态映射/绘制｜摄像头真实采集｜真实集成 30 分钟｜T5-10 板上回归｜HUD 屏上视觉确认｜真彩目视｜任何 G0/G1/G3/G4/G5 通过｜真实采集质量/颜色｜端到端延迟实测（时钟 `PENDING_MEASUREMENT`）。
-`task-27`（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态回归）**整体 NOT_RUN**；本冻结只覆盖既有离线骨架与离线消费。
+`task-27`（回放/彩色输入路径实现 + 用阶段4 冻结回放包做离线动态回归）**离线部分已交付**（见下文 task-27 节，证据 r01/r02）；**板级/实时部分未做**（NOT_RUN）。本冻结只覆盖既有离线骨架与离线消费。
 
 ## 继承的上游局限（引用不改写）
 

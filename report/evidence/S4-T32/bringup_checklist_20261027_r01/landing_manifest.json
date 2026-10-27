@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-B/S4-T32",
+  "run_id": "bringup_checklist_20261027_r01",
+  "purpose": "4-D bring-up 执行清单定稿",
+  "hash_basis": "commit_blob",
+  "hash_basis_commit": "f7bc63a3966c9545e426990b8300405b84133ebd",
+  "hash_basis_note": "files[].sha256 取自 `git cat-file blob <hash_basis_commit>:<path>`。",
+  "segments": [
+    {
+      "id": "S1",
+      "name": "bisect",
+      "budget_min": [
+        6,
+        8
+      ]
+    },
+    {
+      "id": "S2",
+      "name": "ddr_bit_test",
+      "budget_min": [
+        5,
+        8
+      ],
+      "region": [
+        "0x11ae0000",
+        "0x11b00000"
+      ]
+    },
+    {
+      "id": "S3",
+      "name": "M4-a",
+      "budget_min": [
+        6,
+        6
+      ]
+    },
+    {
+      "id": "S4",
+      "name": "M4-b",
+      "budget_min": [
+        10,
+        10
+      ]
+    },
+    {
+      "id": "S5",
+      "name": "M3_recheck",
+      "budget_min": [
+        12,
+        12
+      ]
+    },
+    {
+      "id": "S6",
+      "name": "teardown",
+      "budget_min": [
+        5,
+        5
+      ]
+    }
+  ],
+  "readiness": {
+    "four_d_bit": "MISSING",
+    "driver_v3": "MISSING",
+    "ddr_region": "READY",
+    "m3_reference": "READY",
+    "board": "RELEASED_TO_STAGE6"
+  },
+  "files": [
+    {
+      "path": "report/evidence/S4-T32/bringup_checklist_20261027_r01/bringup_checklist.json",
+      "sha256": "394a5f9fff9558f44c3f7a563f2fce17f5d1f71442da2adb095985f493547e87",
+      "hash_basis": "commit_blob",
+      "source_commit": "f7bc63a3966c9545e426990b8300405b84133ebd",
+      "size_bytes": 1730
+    },
+    {
+      "path": "report/evidence/S4-T32/bringup_checklist_20261027_r01/bringup_checklist.md",
+      "sha256": "d05a25dc92b2d38eebdd1514e9e8f9a89add54ff17d881ac93f6b2be831f0128",
+      "hash_basis": "commit_blob",
+      "source_commit": "f7bc63a3966c9545e426990b8300405b84133ebd",
+      "size_bytes": 4848
+    }
+  ],
+  "boundary": "离线清单；未接触板卡；ENABLE=0；未 FROZEN；M3/M2 未写成通过。"
+}

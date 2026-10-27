@@ -1,5 +1,11 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 只读连接诊断准备（2026-10-28，UTC+8）
+
+- `verification/s6e_jtag_readonly_scan.py` 及其测试的离线限定复审 PASS；40/40 模拟测试通过，证据与真实检查器来源见 `report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08/`。旧 checker 不支持 hash_basis 的失败与 r06 初轮测试失败保留；CHECKS_OK 仅说明清单绑定。
+- 硬件扫描仍 NOT_RUN：主目录与 w6 的正式 OFFER/CLAIM 尚缺，执行时 reviewer receipt 尚未签发；DSH-20261024-004 的不完整时间使租约验证 fail-closed，须先取得可核验的时序澄清，不得绕过。收到有效交接和租约证据后，按已审源码生成绑定实际提交的审查回执，再执行只读连接核验；该核验不代表 G3/G4/G5。
+- Wong 已安排 2026-10-28 05:00（UTC+8）在本对话继续阶段6冻结闭环。原 STATE、S6-A 规格及历史证据未提交差异继续保留，P/T6-A03 和 6-E 实物仍 NOT_RUN。
+
 ## 阶段6执行边界与板卡通知（2026-10-27，UTC+8）
 
 - S6-C 动作回执边界 `report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/`：离线串行 ACK 路径 45/45 单测、inputs/evidence 与哈希检查通过，独立复审 PASS。边界只检测串行旁路，不能阻止并发直调核心；真实后端/跨进程恢复接口仍 BLOCKED，须保持唯一 ACK 写入口。

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "S6-E 只读 JTAG 诊断 Reviewer 回执",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_id", "scope", "run_id", "review_status", "reviewer_id", "blocking_findings", "reviewed_commit", "reviewed_files", "tests", "review_evidence_path", "review_evidence_hash_basis", "review_evidence_sha256"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "task_id": { "const": "S6E-JTAG-RO" },
+    "scope": { "const": "S6E_JTAG_READONLY_DIAGNOSTIC" },
+    "run_id": { "type": "string", "pattern": "^s6e_jtag_readonly_[0-9]{8}_r[0-9]{2}$" },
+    "review_status": { "const": "PASS" },
+    "reviewer_id": { "type": "string", "minLength": 1 },
+    "blocking_findings": { "const": 0 },
+    "reviewed_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "reviewed_files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verification/s6e_jtag_readonly_scan.py", "verification/test_s6e_jtag_readonly_scan.py"],
+      "properties": {
+        "verification/s6e_jtag_readonly_scan.py": { "$ref": "#/$defs/fileBinding" },
+        "verification/test_s6e_jtag_readonly_scan.py": { "$ref": "#/$defs/fileBinding" }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "working_directory", "exit_code", "summary", "log_path", "log_hash_basis", "log_sha256"],
+      "properties": {
+        "command": {
+          "const": [
+            "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+            "-B", "-m", "unittest", "test_s6e_jtag_readonly_scan", "-v"
+          ]
+        },
+        "working_directory": { "const": "D:\\codex-worktrees\\w6\\verification" },
+        "exit_code": { "const": 0 },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tests_run", "failures", "errors", "skipped", "success_marker"],
+          "properties": {
+            "tests_run": { "type": "integer", "minimum": 0 },
+            "failures": { "const": 0 },
+            "errors": { "const": 0 },
+            "skipped": { "const": 0 },
+            "success_marker": { "const": "OK" }
+          }
+        },
+        "log_path": { "$ref": "#/$defs/relativePath" },
+        "log_hash_basis": { "const": "worktree_disk" },
+        "log_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "review_evidence_path": { "$ref": "#/$defs/relativePath" },
+    "review_evidence_hash_basis": { "const": "worktree_disk" },
+    "review_evidence_sha256": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "not": { "pattern": "(^|[/\\\\])\\.\\.([/\\\\]|$)" }
+    },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["worktree_disk_hash_basis", "worktree_disk_sha256", "commit_blob_hash_basis", "commit_blob_oid", "commit_blob_sha256"],
+      "properties": {
+        "worktree_disk_hash_basis": { "const": "worktree_disk" },
+        "worktree_disk_sha256": { "$ref": "#/$defs/sha256" },
+        "commit_blob_hash_basis": { "const": "commit_blob" },
+        "commit_blob_oid": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "commit_blob_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

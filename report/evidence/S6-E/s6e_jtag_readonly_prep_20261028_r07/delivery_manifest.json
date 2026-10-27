@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-E",
+  "run_id": "s6e_jtag_readonly_prep_20261028_r07",
+  "source_commit": "d04258fd0e88c220e3678950def82de192922f09",
+  "evidence_dir": "report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r07",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包只封存S6-E只读扫描协调器的离线门禁回归；未消费阶段4/5冻结结果或模型输入，租约信箱仅作为只读准入状态核验。此声明不代表G0批准。",
+  "hash_basis": "worktree_disk",
+  "files": [
+    {
+      "path": "verification/s6e_jtag_readonly_scan.py",
+      "sha256": "f9af18ed4d9382254a9e81479186d13fa1247b92c14e4083fb609f85bfb238e1",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "绑定本次离线门禁被测协调器的当前工作树字节。"
+    },
+    {
+      "path": "verification/test_s6e_jtag_readonly_scan.py",
+      "sha256": "76bed296affd86d355fcb6011eb3e0f9fe62777302c7f272b11364d414e5c43c",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "绑定本次离线回归测试的当前工作树字节。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r07/offline_tests.log",
+      "sha256": "f31531fc5d0069db35f8d960c9da4ad77b7def5c2d6fc89119098944bb964def",
+      "role": "log",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "保留固定unittest命令的完整stdout/stderr。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r07/operation_plan.md",
+      "sha256": "c21078ab909bfb8a0956b2eac9ddc33f7b99f0b0396533c4a026c0fd756a65f0",
+      "role": "artifact",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "记录r07实际验证、旧失败轨迹和当前阻塞。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "s6e_offline_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest test_s6e_jtag_readonly_scan -v",
+      "exit_code": 0,
+      "reason": "实跑40 tests、0 failures/errors/skips；日志SHA-256 f31531fc5d0069db35f8d960c9da4ad77b7def5c2d6fc89119098944bb964def。"
+    },
+    {
+      "name": "r06_prior_unittest",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest test_s6e_jtag_readonly_scan -v",
+      "exit_code": 1,
+      "reason": "保留旧失败轨迹，不覆盖：r06 offline_tests.log SHA-256 cc4ca2aa220963fa924c6d61c484b7e4e2f97b324287618200675328d3d15bda，39 tests/1 failure；失败发生于后续marker修复之前。旧scanner SHA 9433cf5c923986bdaf67c06d12534ec0de50418c1c6a73f11fcf07e4158759b7 是由当前源码逆向已知后续补丁计算，r06原始日志未内嵌该哈希；旧tests SHA cba3637f479ec725046a94140f88e85f3b5e41a5774d6a0478e04fe7341b91e2。"
+    },
+    {
+      "name": "lease_snapshot",
+      "status": "BLOCKED",
+      "command": "只读调用 verification.s6e_jtag_readonly_scan.lease_snapshot()",
+      "exit_code": null,
+      "reason": "阶段6相关板卡通知缺少可解析 UTC+8 时间，按未知召回阻断：DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md；通知SHA-256 b820fcd1dbe8b213056f88f395ad3ac5a3569f153cde490a5816231a4c76510c。"
+    },
+    {
+      "name": "formal_handoff",
+      "status": "BLOCKED",
+      "command": "只读检查 main 与 w6 STATE 中的正式交接任务行",
+      "exit_code": null,
+      "reason": "主 STATE 和 w6 STATE matching rows 均为0（分别SHA-256 8e3b410ae8ac51f1314eadf167732cc94439e6c63d8b4a58a6be5328952718c7、3e6791102b2bade1f5a99d4915f505951be9f226c007f6d033c85ff00834298c）。"
+    },
+    {
+      "name": "reviewer_receipt",
+      "status": "BLOCKED",
+      "command": "只读检查当前执行器配置的 reviewer receipt 路径",
+      "exit_code": null,
+      "reason": "当前路径 D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_jtag_readonly_prep_20261027_r06\\reviewer_receipt.json 不存在；无可用的绑定版本 Reviewer PASS 回执。"
+    },
+    {
+      "name": "hardware_scan",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次仅离线验证；hw_server/xsdb 未启动，未连接或操作板卡。"
+    },
+    {
+      "name": "upstream_frozen_inputs",
+      "status": "NOT_APPLICABLE",
+      "command": null,
+      "exit_code": null,
+      "reason": "本包为扫描器离线门禁准备，不消费阶段4/5业务结果包或冻结契约；不声称其可集成。"
+    },
+    {
+      "name": "check_stage_delivery_w6_legacy",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification\\check_stage_delivery.py --mode evidence --manifest report\\evidence\\S6-E\\s6e_jtag_readonly_prep_20261028_r07\\delivery_manifest.json",
+      "exit_code": 1,
+      "reason": "首次使用w6工作树自带旧版检查器失败：其实现不认识项目规则要求的新hash_basis字段，报5个未知字段；随后改用主仓当前版并显式指定w6为project-root，完整证据检查通过。此项记录工具版本不兼容，不抹除。"
+    },
+    {
+      "name": "check_stage_delivery_evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification\\check_stage_delivery.py --mode evidence --manifest report\\evidence\\S6-E\\s6e_jtag_readonly_prep_20261028_r07\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "实际用主仓当前版检查器并通过 --project-root 指向 w6；返回 CHECKS_OK/exit 0。工作目录为 D:\\FPGA_Competition。"
+    },
+    {
+      "name": "check_manifest_hash_basis",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6 --paths report\\evidence\\S6-E\\s6e_jtag_readonly_prep_20261028_r07\\delivery_manifest.json --mode declared-only --json",
+      "exit_code": 0,
+      "reason": "实际用主仓当前版 hash_basis 检查器核验单个 r07 清单，declared-only 返回 OK，4项均已声明且0 mismatch。"
+    }
+  ],
+  "limitations": [
+    "当前租约状态BLOCKED，未知通知为 D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\dsh_mailbox\\DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md，该记录无可解析UTC+8时间；不得猜测顺序。",
+    "正式S6E-JTAG-RO OFFER/CLAIM 行缺失，且当前Reviewer receipt缺失；执行器准入仍未满足。",
+    "板卡扫描NOT_RUN；本结果不构成G3/G4/G5、实时性能、板级连接或阶段6验收。",
+    "r06原始失败日志未内嵌当时源码SHA；manifest明确区分原始日志与基于已知后续补丁的逆向哈希关联。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "2.56.0.windows.2",
+    "check_stage_delivery": "baseline-d04258fd0e88",
+    "check_manifest_hash_basis": "baseline-d04258fd0e88"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-E",
+  "run_id": "s6e_jtag_readonly_prep_20261028_r08",
+  "source_commit": "d04258fd0e88c220e3678950def82de192922f09",
+  "evidence_dir": "report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包只固定检查器来源并复核已保存的S6-E离线准备证据；不消费阶段4/5业务结果包或冻结契约。",
+  "hash_basis": "worktree_disk",
+  "files": [
+    {
+      "path": "verification/s6e_jtag_readonly_scan.py",
+      "sha256": "f9af18ed4d9382254a9e81479186d13fa1247b92c14e4083fb609f85bfb238e1",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "绑定r07所验证的当前扫描器字节。"
+    },
+    {
+      "path": "verification/test_s6e_jtag_readonly_scan.py",
+      "sha256": "76bed296affd86d355fcb6011eb3e0f9fe62777302c7f272b11364d414e5c43c",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "绑定r07所验证的当前离线测试字节。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08/offline_tests.log",
+      "sha256": "f31531fc5d0069db35f8d960c9da4ad77b7def5c2d6fc89119098944bb964def",
+      "role": "log",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "从r07逐字节复制的40项已通过测试日志；不在r08重跑。"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08/operation_plan.md",
+      "sha256": "9fbfa23c734014494159a0517a84f8abb779fa9ed149a16e7c7933126f026c8d",
+      "role": "artifact",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "记录两个checker的真实来源、调用边界及阻塞。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "saved_offline_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest test_s6e_jtag_readonly_scan -v",
+      "exit_code": 0,
+      "reason": "复用r07已实际执行的40/40 PASS日志，未在r08重跑；日志SHA f31531fc5d0069db35f8d960c9da4ad77b7def5c2d6fc89119098944bb964def；r07清单SHA 06ce078744261598d5bea8d430591919dc1e1ec0cc14b77e628b3f2e30d94c7d；scanner SHA f9af18ed4d9382254a9e81479186d13fa1247b92c14e4083fb609f85bfb238e1；tests SHA 76bed296affd86d355fcb6011eb3e0f9fe62777302c7f272b11364d414e5c43c。"
+    },
+    {
+      "name": "w6_legacy_checker_history",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification\\check_stage_delivery.py --mode evidence --manifest report\\evidence\\S6-E\\s6e_jtag_readonly_prep_20261028_r07\\delivery_manifest.json",
+      "exit_code": 1,
+      "reason": "历史真实失败：CWD为D:\\codex-worktrees\\w6；旧脚本路径D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py，来源提交0725d9cf48aeed21d3ea445ef01575c16b68d950，w6 HEAD blob 79d1d8c7c2b43b7d58a5380b64685fe0b059bc23，磁盘SHA d043812712b1faf56f64351f55bac92c4781178fb0f5626c059fcd3948e57bae；对r07清单报5个未知hash_basis字段。失败不是文件哈希不一致，随后主仓当前脚本成功。"
+    },
+    {
+      "name": "main_checker_evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --manifest report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08/delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "实际由CWD D:\\FPGA_Competition 调用；脚本 D:\\FPGA_Competition\\verification\\check_stage_delivery.py；last-change commit 803fd98335c557e997fdc77c27b46c3edc504170；main HEAD d6cb313898fc71f78a45a48ce6f4f6b6ab799ee7；HEAD blob 7be1af75609e9fa29ca9afe5f8024d31545a3224；blob/disk SHA 00350ac813e928c052e43a5237fdf7a9be79d75c952cf691318eeb1e9fceeb8e；检查目标是w6 r08。"
+    },
+    {
+      "name": "main_checker_hash_basis",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6 --paths report/evidence/S6-E/s6e_jtag_readonly_prep_20261028_r08/delivery_manifest.json --mode declared-only --json",
+      "exit_code": 0,
+      "reason": "实际由CWD D:\\FPGA_Competition 调用；脚本 D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py；last-change commit 8f8e2e574f67aba8d36a6c7986756136f5ff3ebe；main HEAD d6cb313898fc71f78a45a48ce6f4f6b6ab799ee7；HEAD blob 2565d9a54d26ffc1392b5a3156ee8a9f004d5a21；blob/disk SHA 10e3fe7121cc46665cfcd553dc5237833fe3134bc0dd00a8652d79fa290e85f6；检查目标是w6 r08 manifest。"
+    },
+    {
+      "name": "lease_snapshot",
+      "status": "BLOCKED",
+      "command": "只读调用 s6e_jtag_readonly_scan.lease_snapshot()",
+      "exit_code": null,
+      "reason": "阶段6相关板卡通知缺少可解析 UTC+8 时间，按未知召回阻断：DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md；通知SHA b820fcd1dbe8b213056f88f395ad3ac5a3569f153cde490a5816231a4c76510c。"
+    },
+    {
+      "name": "formal_handoff",
+      "status": "BLOCKED",
+      "command": "只读检查 main 与 w6 STATE 的S6E任务行",
+      "exit_code": null,
+      "reason": "匹配行数 main=0, w6=0；STATE SHA main=8e3b410ae8ac51f1314eadf167732cc94439e6c63d8b4a58a6be5328952718c7, w6=3e6791102b2bade1f5a99d4915f505951be9f226c007f6d033c85ff00834298c。"
+    },
+    {
+      "name": "reviewer_receipt",
+      "status": "BLOCKED",
+      "command": "只读检查扫描器配置的Reviewer receipt路径",
+      "exit_code": null,
+      "reason": "当前配置路径 D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_jtag_readonly_prep_20261027_r06\\reviewer_receipt.json 不存在；无可用PASS回执。"
+    },
+    {
+      "name": "hardware_scan",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "r08只做离线封包与只读工具来源核验；没有启动硬件工具或连接板卡。"
+    }
+  ],
+  "limitations": [
+    "r08未重跑40项测试，复用日志时核实其SHA与r07完全相同，且当前scanner/test文件SHA与r07相同。",
+    "租约状态继续BLOCKED：通知 D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\dsh_mailbox\\DSH-20261024-004-stage3-window-j10-scope-w4-takeover.md 无可解析UTC+8时间。",
+    "正式OFFER/CLAIM缺失，Reviewer PASS receipt缺失；硬件扫描NOT_RUN。",
+    "检查器封装通过仅代表证据目录/哈希绑定有效，不代表G3/G4/G5或阶段验收。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "2.56.0.windows.2",
+    "check_stage_delivery": "main-d6cb313-803fd983-7be1af75",
+    "check_manifest_hash_basis": "main-d6cb313-8f8e2e5-2565d9a5",
+    "w6_legacy_check_stage_delivery": "w6-d04258f-0725d9cf-79d1d8c7"
+  }
+}

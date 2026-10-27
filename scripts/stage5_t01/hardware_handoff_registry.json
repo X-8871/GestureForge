@@ -1,6 +1,6 @@
 {
   "schema_version": "gestureforge_s5t01_hw_handoff_registry_v1",
-  "generated_utc8": "2026-10-27T15:39:57+08:00",
+  "generated_utc8": "2026-10-27T15:45:34+08:00",
   "purpose": "把「真实硬件占用/让出」与「普通请求/操作文档/交付回执」显式区分：只有本表登记的 hardware_occupation / hardware_release 才改变硬件状态。禁止再用全部 MD 全文关键词推断占用。",
   "ordering_rule": "同一 hardware_scope 内按 id 的「日期-序号」顺序（order_key）判定先后；最新一条状态类记录决定硬件状态。order_key 取自信箱记录自身编号，不是墙钟时间声明。",
   "state_changing_kinds": [
@@ -562,6 +562,15 @@
       "declared_by": "DSH 阶段5 总控",
       "note": "第六窗口释放（实际端口 23121）；像素级未通过，成因收窄为采样缓冲/覆盖",
       "evidence": "report/evidence/S5-T01/s5t02_pixel_confirm_20261027_r01/"
+    },
+    {
+      "id": "DSH-20261027-016",
+      "file": "dsh_mailbox/DSH-20261027-016-stage5-steps-aside-for-stage4-board.md",
+      "kind": "report",
+      "order_key": "20261027016",
+      "sha256": "98dfea684c4859a43dca67b9566bbf5896cf0b2be766ab9fea6450ef9cce66e2",
+      "declared_by": "DSH 阶段5 总控",
+      "note": "阶段5 让位待命：板卡已释放（0 进程、无端口）；期间不启动任何硬件动作（中性登记）"
     }
   ]
 }

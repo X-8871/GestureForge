@@ -1,0 +1,51 @@
+{
+  "task_id": "S4-B/S4-T32",
+  "phase": "驱动 v2（窗口 B 用，离线开发）",
+  "status": "DRIVER_V2_READY",
+  "files": {
+    "driver": {
+      "path": "scripts/stage4_s4b/run_window_b_driver.py",
+      "sha256": "9979fba6afbfc62a4f1437377325a4e6dbe5ab278b9e955eb3e04ddaeb1aec91"
+    },
+    "pl_program_tcl": {
+      "path": "scripts/stage4_s4b/program_2b_bit.tcl",
+      "sha256": "fb31a9ab08e3788ed5986e9558d7b1b3df4e9729be35758329686442c33b5c0a"
+    }
+  },
+  "changes": [
+    "A. M4-a 装载时序修正：dow 后 rst -processor -stop → 校验 Suspended → 再 con；必须先收 M4A READY 横幅（30s 超时即 FAIL，不进入 R/I/F/W）",
+    "B. M4-b 全流程：切 M4-b ELF、预置 head13/head26 到 RAW 与输入/权重到 arena（尺寸严格校验，缺失即显式 NOT_RUN 并写原因）、UART JSON 采集、首拍门控（state∈{1,2} 且 owner=1 且 head/terminal/safe_reuse=0；首拍 DONE_SAFE ⇒ INCONCLUSIVE）、等 state∈{4,5} 且 safe_reuse|terminal、invalidate、head13/head26 逐字节比对、ACK 0x05C/0x060→0x008=4 → is_idle",
+    "C. 可选 PL 装载：--bit + --bit-sha256 前缀必须匹配已登记 555a70c2，否则拒绝装载；Vivado Tcl program_2b_bit.tcl 解析 PROGRAM_OK/IS_DONE",
+    "D. M3 只读复检（--m3-recheck）：整区 dump 与 41907f53… 逐字节比较，差异≠0 立即停",
+    "E. 删除硬编码 NOT_APPLICABLE：改为显式 NOT_RUN（原因）或真实执行",
+    "F. 保留窗口 A′ 纪律：真实退出码落盘、FAIL 即停、P0 只看 LISTENING、不结束 mcp 进程、不发独立 stop"
+  ],
+  "offline_selfcheck": {
+    "py_compile_exit": 0,
+    "offline_selftest_exit": 0,
+    "tcl_stub_exit": 0,
+    "selftest_cases": "21 项（区域数学/参考布局/身份前缀/载荷存在性/无硬编码/P0 门禁逻辑/修正点存在性）"
+  },
+  "window_b_expectation": {
+    "timebox_minutes": 45,
+    "steps": [
+      "P0",
+      "P0b",
+      "P1",
+      "PL_program(2B bit 555a70c2)",
+      "PRELOAD init.elf",
+      "M1",
+      "M2(位流身份分支)",
+      "M3 只读复检",
+      "M4-a",
+      "M4-b 首轮",
+      "P4"
+    ]
+  },
+  "limitations": [
+    "M4-b 依赖 CLI 传入 input/weights/head13/head26 四个参考文件；未提供则 NOT_RUN（不静默）",
+    "M4-b 首轮若本拍已 DONE_SAFE ⇒ INCONCLUSIVE（不记 PASS）",
+    "驱动 v2 尚未在板上执行过；窗口 B 为首次执行"
+  ],
+  "boundary": "离线开发；未接触板卡；ENABLE=0；不构成任何关口通过。"
+}

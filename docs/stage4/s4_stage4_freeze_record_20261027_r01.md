@@ -67,7 +67,7 @@
 Wong 告知板卡已上电。只读观测确认线缆与串口存在（FTDI `VID_0403&PID_6014`、`COM4`、`hw_server` 未运行），
 但按 runbook「工作树写权交接与板卡上电报告不能替代 OFFER/CLAIM」，**未开跑**。
 
-- 机检：`report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r03/` → `BLOCKED / exit 1`，13 项阻断。
+- 机检：`report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r04/` → `BLOCKED / exit 1`，13 项阻断。
 - 注入单元离线就绪：`OFFLINE_PREPARATION_VALID`（prepare 与 validate 均 exit 0）。
 - 解除清单：`docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md`（含 main OFFER 模板与 w4 CLAIM 六键）。
 - 仍未做：加载位流、开串口、启动 hw_server/xsdb、复位、读日志；`ENABLE=0` 未变。

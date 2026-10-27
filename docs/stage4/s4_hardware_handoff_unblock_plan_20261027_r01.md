@@ -21,7 +21,7 @@ runbook `docs/stage4/S4B_ps_tensor_injection_runbook.md`「正式硬件交接与
 | 串口 | `COM4` 存在 | 注册表 `HARDWARE\DEVICEMAP\SERIALCOMM` |
 | `hw_server` | 未运行 | 进程表 |
 | 注入单元离线就绪 | `OFFLINE_PREPARATION_VALID`，ELF `bfe88660…`、派生源 `7c3b57a9…` | `tmp/4/S4-B-REAL-02B/s4b_ps_adapter_g3_20261027_r01/adapter_preparation.json`；prepare 与 validate 均 exit 0 |
-| 八类门禁 | **0/8**（全部 `record_missing`） | `report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r03/gate_readiness.json` |
+| 八类门禁 | **0/8**（全部 `record_missing`） | `report/evidence/S4-B/s4b_hw_gate_readiness_20261027_r04/gate_readiness.json` |
 | main OFFER | **不存在**（main STATE 无 `S4-B-REAL-02B::s4b_hardware_session_handoff`） | 机检读 `D:\FPGA_Competition` HEAD |
 | w4 CLAIM | **不存在** | 机检读 w4 HEAD |
 | 地址图 | `DRAFT_PENDING_REVIEW` | `docs/stage4/S4B_stage4_address_map.json` |

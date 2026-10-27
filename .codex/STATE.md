@@ -31,10 +31,12 @@
   目录无 `-text` ⇒ 干净检出 CRLF（15 847 B）使 checker exit 2。已加子目录 `.gitattributes`（`scripts/stage5_t27/`、`report/evidence/S5-T27/`，`* -text`，
   **未动冻结的根 `.gitattributes`**）并**新 RunId `s5t27_replay_colour_20261027_r02`** 重生成；干净检出自证：`report/evidence/S5-T27/s5t27_clean_checkout_20261027_r01/`
   （gate `--mode strict` **exit 0**、`check_stage_delivery --mode evidence` **exit 0**）。
-- **哈希基座新规（2026-10-27 Wong 批准）**：采用**双文件**形式（主仓 `check_stage_delivery.py` 尚不接受清单内联 `hash_basis`，实测"未知字段"exit 2）——
-  `hash_basis_manifest.json` 逐项声明 `commit_blob`（18 条；索引/基座表自身因循环引用不入表，由 delivery_manifest 的 strict 条目核验），
-  `delivery_manifest.json` 保持 schema 干净 ⇒ 两套门禁同时满足。实测：`check_manifest_hash_basis --mode strict` **0**、`--mode declared-only` **0**、
-  `check_stage_delivery --mode evidence` **0**（提交 `e69b99e`）。
+- **哈希基座新规（2026-10-27 Wong 批准；主仓检查器 HL-T79 已支持内联）**：`delivery_manifest.json` **内联**基座 ——
+  清单级 `hash_basis="commit_blob"` + `hash_basis_commit=<40 位真实 SHA>`、`files[]` 逐项 `hash_basis="commit_blob"`；
+  伴生基座表 `hash_basis_manifest.json` 与索引 `hashes_sha256.txt` 已**删除**（避免两文件漂移与自引用循环）。
+  `hash_basis_commit` 语义＝**承载 `files[]` 全部字节的提交**（清单自身不入 `files[]`，其字节不上卷）：r02＝`f9755f6`、自证包 r02＝`feb34c9`。
+  实测（HEAD `643684c`）：r02 与自证包 `check_stage_delivery --mode evidence` **0/0**、`check_manifest_hash_basis --mode strict` **0/0**、`--mode declared-only` **0/0**。
+- **干净检出自证**：`report/evidence/S5-T27/s5t27_clean_checkout_20261027_r02/`（针对 C8 `76c74fe`；`CLEAN_CHECKOUT_PASS`，5 项门禁全 0）；r01 保留为历史（双文件形式）。
 - **N2（已修）**：`assert_replay_record` 补齐 `algorithm`/`value`/`length_bytes==stride×height` 三要素；自检 6 类注入、用例 17 项全 OK。
 - **N3（已修）**：本文件第 62 行旧句改为"离线部分已交付；板级/实时未做"。
 - **N4（仅登记）**：冻结 `file_set` 目录 `scripts/stage5_t03/` 新增 3 个跟踪文件（25→28）；冻结成员未变、校验器仍 77/77；**下次重冻结纳入**。

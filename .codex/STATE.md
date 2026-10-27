@@ -2,7 +2,27 @@
 
 **写权：Workbuddy 阶段4总控 受 Wong 2026-10-27 授权独占，覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
 
-## 本轮结果（阶段4 冻结签发 + 门禁 6/8，2026-10-27 14:28 UTC+8）
+## 本轮结果（硬件窗口已授权，等待 main OFFER，2026-10-27 14:55 UTC+8）
+
+- **Wong 已授权硬件窗口（R-1 完成）**。R-2 仍需 main 提交 OFFER —— 阶段4 不写 main。
+- **OFFER 前置已实测清楚**：main 分支 `main` / HEAD `bdb7a360…`；main STATE **无 OFFER 行**、
+  也**无写权行**（OFFER 校验不要求 main 写权行，只要求一行 OFFER）；
+  main 工作树**有 423 项未提交改动**（含 `.codex/STATE.md` 已改），提交 OFFER 时只 add STATE。
+- **新增两个生成器，把 R-2→R-3→R-4 压到可一键执行**：
+  · `scripts/stage4_s4b/make_offer_line.py` —— 读 main HEAD 取起始提交、读 w4 写权负责人拼出
+    `OFFERED Workbuddy 阶段4总控`，并用 adapter 自己的 `_parse_state_handoff_rows` **离线自校验**，
+    打印可直接粘贴的 11 字段行；已实测 `[OK] 自校验通过`。
+  · `scripts/stage4_s4b/make_handoff_record.py` —— 从 OFFER 与 CLAIM 两个提交的 STATE blob
+    取真实 Git 身份，组装 `authority_source` / `claim_source` 生成 handoff 门禁记录。
+    负控：两个合法但无 OFFER 的提交 → `OFFER 行数为 0` / `exit 1` / **不留残留目录**。
+- **执行指引**：`docs/stage4/s4b_main_offer_execution_20261027_r01.md`
+  （含精确命令、三个必踩的坑、1 小时/30 分钟的窗口嵌套）。
+- **必须提醒 main 侧的三点**：①只 `git add .codex/STATE.md`，否则 423 项全被卷入；
+  ②提交后**不得再改 main 的 STATE**（三处一致性会破）；③若生成后 main 又有新提交，必须重跑生成器。
+- 门禁维持 **6/8**；`exclusive_session` 需 OFFER 到位后现场取证（30 min 窗口）。
+  未启动 hw_server / xsdb，未开串口，未装载位流；`ENABLE=0` 未变。
+
+## 历史（阶段4 冻结签发 + 门禁 6/8，2026-10-27 14:28 UTC+8）
 
 - **判定：`OFFLINE_SCOPE_FROZEN`（离线范围冻结，已正式签发）**，
   文书 `docs/stage4/s4_stage4_freeze_signed_20261027_r01.md`。
@@ -145,7 +165,7 @@
 
 ## 当前交接行（11字段，2026-10-27 08:12 UTC+8）
 
-任务=`S4-FREEZE-SIGN：阶段4 离线范围冻结签发（门禁 6/8，硬件窗口未授权）` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r30、gate_reconcile_r06..r15、gate_rerun_r01..r04、contract_verify_r01..r02、gap_audit_r01..r02、basis_sync_r01..r03 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 14:28` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r36/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r18/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md；report/evidence/S4-CTRL/s4_frozen_set_verify_20261027_r05/frozen_set_verification.json；docs/stage4/s4_stage4_freeze_signed_20261027_r01.md；report/evidence/S4-B/s4b_hw_gates_20261027_r04/gate_records_index.json；report/evidence/S4-B/s4b_address_approval_review_20261027_r01/approval_review.json；report/evidence/S4-B/s4b_adapter_review_20261027_r02/adapter_review.json；report/evidence/S4-CTRL/s4t27_replay_positive_20261027_r01/task27_replay_result_package_positive.json；docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`OFFLINE_SCOPE_FROZEN（已签发，冻结集 8/8 校验通过）；硬件窗口未授权 ⇒ handoff/exclusive_session 不可达，整体冻结解除条件见签发文书 R-1..R-7；窗口授权后按 R-2→R-5 同一小时内串行执行`
+任务=`S4-HW-WINDOW：硬件窗口已授权，等待 main OFFER 后 CLAIM→取证→开跑` | 负责人=`Workbuddy 阶段4总控` | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`54e32c479ba0aa3c1e70de403a3d7e6ae7e3d701` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md；不含 main、dbdf、w2b、w5、w6、厂商原件、信箱与任何硬件` | 未提交改动归属=`Codex 既有 12 个 ELF/MAP 与两个遗留证据目录保持原位未动（STATE 已由本窗口提交）；本轮新增 gate_rerun_r01|r02|r03、g0_inputs_r15..r30、gate_reconcile_r06..r15、gate_rerun_r01..r04、contract_verify_r01..r02、gap_audit_r01..r02、basis_sync_r01..r03 及文档归 Workbuddy 阶段4总控` | 让出声明=`仅 w4；未操作硬件、未下载、未烧录、未开阶段7；离线门 PASS 不等于 G3/G4/G5 通过；producer provenance 为已登记断点，不表示可复现` | 心跳(UTC+8)=`2026-10-27 14:55` | 证据入口=`report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04/replay_forward_bridge_result.json；report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r36/preflight_verification.json；report/evidence/S4-CTRL/s4t26_gate_reconcile_20261027_r18/reconcile.json；docs/stage4/s4_stage4_freeze_record_20261027_r01.md；docs/stage4/s4b_main_offer_execution_20261027_r01.md；report/evidence/S4-CTRL/s4_frozen_set_verify_20261027_r05/frozen_set_verification.json；docs/stage4/s4_stage4_freeze_signed_20261027_r01.md；report/evidence/S4-B/s4b_hw_gates_20261027_r04/gate_records_index.json；report/evidence/S4-B/s4b_address_approval_review_20261027_r01/approval_review.json；report/evidence/S4-B/s4b_adapter_review_20261027_r02/adapter_review.json；report/evidence/S4-CTRL/s4t27_replay_positive_20261027_r01/task27_replay_result_package_positive.json；docs/stage4/s4_hardware_handoff_unblock_plan_20261027_r01.md` | 恢复命令=`python -B -X utf8 scripts/stage4_s4ctrl/replay_forward_bridge.py --run-dir report/evidence/S4-CTRL/s4t26_gate_rerun_<新RunId>; python -B -X utf8 verification/check_s4t26_g0_inputs.py --run-id s4t26_g0_inputs_20261026_r<NN> --accept-producer-break; python -B scripts/stage4_s4ctrl/reconcile_t26_gate_evidence.py --evidence-dir report/evidence/S4-CTRL/s4t26_gate_reconcile_<新RunId>` | 状态/下一接手方=`OFFLINE_SCOPE_FROZEN + 硬件窗口已授权（R-1 完成）；R-2 main OFFER 待提交（阶段4 不写 main），行已生成并自校验；OFFER 后 1 小时内完成 CLAIM→handoff 记录→机检，30 分钟内建会话并开跑`
 
 ## 历史交接（2026-10-27 00:29；已由上方本轮接管取代）
 

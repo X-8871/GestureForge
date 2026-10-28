@@ -481,3 +481,65 @@
   **冻结产物按 SHA 引用**（r3/r4/r5 版本映射已在 `app_elf_registration_r5.json`）。
 - 边界：覆盖 **2B 平台位流 + SW 预处理（PS 实现）**；fixture `FIXTURE_GENERATED`（非实拍）；
   不主张 G3/G4/G5；M3/M2 未闭合；`ENABLE=0`、未烧 QSPI、未改线、未 push。
+## 长跑（口径 A）离线就绪（2026-10-28 21:20–21:35）—— 待窗口
+
+- 新增 `S4D_LONGRUN_SELFCHECK` 分支：SW 预处理一次 → 循环[读 epoch → START → 等 DONE_SAFE → invalidate → 解码 → ACK]，
+  停止：任一轮失败即停 / wall>=1800 s / iter>=160（先到者）；每轮校验 status==0x0E04、error==0、decode_rc==0、
+  count==1、raw==2、ack_idle==1、epoch 单调、框逐位与第 1 轮一致。
+- 长跑 ELF（新 SHA）：`s4d_ps_app_sw0_longrun.elf` **`f9951d78d3fbbb50d280e0740d2fc3e989fcd85a4ecf9af67427b6ec58177031`**（271,904 B）；
+  pl 变体 `570ba45d…`；`nm` 强符号 T；登记 `app_elf_registration_r6.json`。
+- 离线自检 `scripts/stage4_s4b/verify_longrun_v1.py`：**7/7 PASS exit 0**（强符号/判据常量/循环与失败即停/汇总字段/ELF 身份）。
+- 窗口判据已**事先写死**在 `report/evidence/S4-T34/bringup_longrun_20261028_r01/README.md`（LR-1..LR-9）；
+  执行器 `tmp/4/S4-T34/run_longrun.py` 已编译（采集上限 2100 s）。
+- 边界：`ENABLE=0`、未烧 QSPI、未改线、未 push、不主张 G3/G4/G5；M3/M2 未闭合。
+## 长跑窗口结果（2026-10-28 21:24–22:02，`bringup_longrun_20261028_r01`）—— **FAIL（未达判据）**
+
+- W0 diff=0、W1 四动作双读回 PASS、IDENT PASS、W4 restore_diff=0、清理干净；wrapper exit 1。
+- **W2**：预处理 CRC `0x5B183B50` ✓；**完成 40 轮**（每轮 `elapsed_ms=11821`、`status=0x0E04`、`error=0`、
+  `epoch_lo=1→40`、`ack_idle=1`），**第 41 轮起静默停止**（最后一次输出 `iter=40, wall_ms=461117`），
+  此后至 2100 s 采集上限无任何输出（**无 `LONGRUN FAIL`、无 `LONGRUN RESULT``）。
+- 判据：LR-1/LR-2/LR-4/LR-5/LR-9 FAIL（未达 140 轮/1800 s）；LR-8 **真通过**（首轮框 vs 离线参考 abs diff 0.0）；
+  LR-3/LR-6/LR-7 为"无 RESULT 可解析"的**空真**，不构成通过（证据内已标注）。
+- **诊断判断**：失败为"不可中断操作中静默停住"（最可能 PS 侧 CSR/AXI 无总线超时停等，或硬异常），
+  非判据失败；需 **逐轮心跳 + 看门狗**，并**离线核查 2B RTL 的重复 START/ledger/first_selected/visibility 累积位**。
+- 未重跑（遵 lead 指示）；运行期未轮询 mrd；无 -force；未写 QSPI；ENABLE 未碰；未改线；未 push。
+## 长跑根因 + 仪表化（2026-10-28 22:05–22:20）—— 诊断窗口就绪
+
+- **A 根因**（`report/evidence/S4-T34/longrun_rca_20261028_r01/`）：应用侧**无无界循环**（主循环 160、等 DONE 有 120 s 墙钟、
+  读 epoch ≤8、ACK/idle 单次读），且**未装数据中止处理器**；2B RTL 的 `ack_pending` 会否决后续所有 CSR 写（L92/93/109/270），
+  ACK 前置不满足即静默 SLVERR（L182-184/L237-240）。**平台先例**：2B T20 postmortem `DFSR=0x1808/DFAR=0x43C00008(写START)/STR e5801000 → 判 SLVERR`，
+  与"静默停住"同源。2B 实板只做过忙 START/ACK/重接受，**未记录 ≥40 次连续 START**（模型级 1109 次）。最可能卡点：第 41 轮首次 CSR 写（0x014）。
+- **B 仪表化**（新 ELF `s4d_ps_app_sw0_longrunI.elf` = `c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1`，登记 r7）：
+  每轮心跳；每步魔数写 `0x11B00000`（magic/step|iter/DFSR/DFAR/abort，共 5 字，不碰候选区）；`Xil_ExceptionRegisterHandler`
+  捕获数据中止；收尾清零魔数区。自检 `verify_longrun_v2.py` **11/11 PASS exit 0**。
+- 诊断执行器 `tmp/4/S4-T34/run_diag_longrun.py` 就绪：停住检测（最后心跳后 60 s 收手）→ 普通 `mrd` 读魔数定位 →
+  W4 候选区 diff=0 + 魔数区清零 diff=0。等 lead 签诊断窗口（≤20 min）。
+- 边界：未重跑原长跑、未改判据；`ENABLE=0`、未烧 QSPI、未改线、未 push；不主张 G3/G4/G5；M3/M2 未闭合。
+## 诊断窗口被阻断（2026-10-28 22:17，`bringup_longrun_diag_20261028_r01`）
+
+- **W0 无法执行**：A9 目标枚举不到；`available targets: 1 whole scan chain (DR shift through all zeroes)`；
+  `targets`（3 次独立会话）与低层 `jtag targets` **均为空** ⇒ **TAP 不响应**。
+- 旁证：USB-JTAG `VID_0403&PID_6014\210512180081` 状态 OK、COM4 在；上一窗口 W4 于 22:02:26 完成且 `restore_diff=0`（当时可达）。
+- **未执行** W1/W2/W3 ⇒ **未取得 step_id/iter/DFSR/DFAR，不得据此下长跑根因结论**；结论记 `DIAG_BLOCKED_JTAG_CHAIN`。
+- 校验器 fail-closed 生效：`reset_stop_exit=0` 但日志含 `no targets found` ⇒ 判 FAIL（未误判通过）。
+- 清理：3121=0、无 hw_server/xsdb/vivado、无 index.lock。
+- 待办：请 Wong 检查 12V 供电/指示灯，必要时彻底断电 ≥10 s 重上电；恢复后先做**一次只读枚举**确认，再重开诊断窗口（判据不变）。
+## 诊断窗口 r02：主机侧 JTAG 句柄卡住（2026-10-28 22:22，`bringup_longrun_diag_20261028_r02`）
+
+- 枚举重试 3 次（间隔 5 s，逐次留原文）**全空**（`targets` 在 `E_BEGIN/E_END` 间无内容）⇒ `P2_enum_preflight=FAIL`；
+  **W1/W2/W3 未执行**，仍无 step_id/iter/DFSR/DFAR。
+- 对照探测（全只读）：驱动自起 hw_server（等 10 s 稳定）、Vivado `hw_server.bat`、`xsdb` 自动起 hw_server —— **三种变体均 0 目标**；
+  主机无 hw_server/cs_server/vivado/xsdb 进程、3121/3122/3042 无监听；FTDI `VID_0403&PID_6014\210512180081` Status=OK/CM_PROB_NONE/FTDIBUS。
+- 判定：**非板卡故障、非"长跑导致 JTAG 失效"**；最一致解释=本机 USB-JTAG（HS1 D2XX）句柄在多次 hw_server 起停后卡住。
+- 已请 Wong **拔插 JTAG USB**（板卡不必断电）；恢复后先只读枚举确认，再重跑诊断窗口（判据/停止规则/IDENT 不变）。
+- 清理：停自起 hw_server（含 xsdb 自动起的那个）→ 3121=0、无残留、无锁。
+- 边界：未改判据、未硬测；禁 `-force`、未做 JTAG CSR 直探；`ENABLE=0`、未烧 QSPI、未改线、未 push；不主张 G3/G4/G5；M3/M2 未闭合。
+## errata + 长跑诊断（2026-10-28 23:0x–23:4x）
+
+- **r05 诊断定位**：停住在**第 24 轮 · step=4（等 DONE_SAFE）**；魔数 `0x4c524d47 / 0x00001804`（step4|iter24），
+  `DFSR=0 / DFAR=0 / 无中止标记` ⇒ **非数据中止**，更符合"AXI 读不返回 / CSR 相引擎停滞"。三次停住迭代 40/23/24 ⇒ 非确定性。
+  采集器曾误报 MAXTIME（`last_rx` 被杂散字节刷新），已按心跳间隔修正结论为 `DIAG_LOCATED_STEP4_ITER24`。
+- **errata**（`report/evidence/S4-T34/freeze_errata_20261028_r01/`）：ERRATA.md + ledger_reference.json + naming_map.json
+  + supersession.json + manifest.json + delivery_evidence.json；F1–F7 逐条处置；**原文件与冻结文档零修改**；
+  `check_manifest_hash_basis --strict` **0**、`check_stage_delivery --mode evidence` **0**（CHECKS_OK）。
+- 边界：`ENABLE=0`、未烧 QSPI、未改线、未 push；不主张 G3/G4/G5；M3/M2 未闭合。

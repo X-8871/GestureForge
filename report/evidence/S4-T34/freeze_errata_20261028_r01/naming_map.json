@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "freeze_errata_20261028_r01",
+  "artifact": "F3 命名漂移映射（冻结文档 ↔ 实现输出字段）",
+  "policy": "**不改冻结文档**（在 r5 冻结集内），只做映射与语义等价说明",
+  "doc": {
+    "path": "docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md",
+    "sha256": "0fdb4824bf7591a18d38fe2de18b7f947f649555439648392287d65afc062d86",
+    "line": 58,
+    "line_text": "输出（UART 单行 JSON）：`M4B RESULT={\"pass\":..,\"diff13\":..,\"diff26\":..,\"first_diff13\":..,\"first_diff26\":..,\"stale\":..,\"premature\":\"BLOCKED|INCONCLUSIVE\",\"ack_idle\":..}`。"
+  },
+  "implementation": {
+    "path": "vitis/stage4/ps/s4d_ps_app.c",
+    "sha256_worktree_disk": "957fcf3614f91cfd28117e678b188733888a3dd28439820d8a282a2decfa63ef",
+    "markers": [
+      "first13",
+      "first26",
+      "gate"
+    ]
+  },
+  "mapping": [
+    {
+      "doc_field": "first_diff13",
+      "impl_field": "first13",
+      "meaning": "head13 第一个差异字节的下标；**diff13==0 时实现输出 -1**（设计上的“无差异”哨兵）",
+      "equivalence": "语义等价；-1 表示无差异，不是错误码"
+    },
+    {
+      "doc_field": "first_diff26",
+      "impl_field": "first26",
+      "meaning": "head26 第一个差异字节的下标；diff26==0 时为 -1",
+      "equivalence": "同上"
+    },
+    {
+      "doc_field": "premature",
+      "impl_field": "gate",
+      "meaning": "门控观测结果：gate=1 表示首拍观测到 RUN/未生效（BLOCKED 分支成立）；gate=2 表示首拍已 DONE_SAFE（INCONCLUSIVE）；其余为 0",
+      "equivalence": "文档的 premature 语义 = 实现的 gate 判定分支（BLOCKED / INCONCLUSIVE）"
+    }
+  ],
+  "consequence": {
+    "M4_b_judgement": "判据未变：pass==1（含 done==1、两 diff==0、stale==1、gate==1、ack_idle==1）；`first==-1` 在 diff==0 时属正常，因此**不得**用 `first!=-1` 作为通过条件",
+    "case": "窗口 #6 r03 M4-b PASS 即 diff13=0/diff26=0/first13=-1/first26=-1 的实例"
+  },
+  "hash_basis": "commit_blob",
+  "hash_basis_commit": "f84d541bafb1bf24a72f86d28fa8a55377532d82",
+  "boundary": "不改冻结文档；不改实现；离线；不主张 G3/G4/G5"
+}

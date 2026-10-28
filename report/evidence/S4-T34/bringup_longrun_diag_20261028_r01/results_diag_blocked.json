@@ -1,0 +1,117 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_longrun_diag_20261028_r01",
+  "phase": "长跑诊断（仪表化）",
+  "window_blocked": {
+    "conclusion": "DIAG_BLOCKED_JTAG_CHAIN",
+    "blocked_at": "W0（长跑诊断从未开始；W1/W2/W3 未执行）",
+    "symptom": "A9 目标枚举不到；`available targets: 1 whole scan chain (DR shift through all zeroes)`；`targets` 与 `jtag targets` 均渲染为空",
+    "evidence": {
+      "W0_restore_candidate.json": {
+        "reset_stop_exit": 0,
+        "reset_stop_err": "no targets found with \"name =~ \"*Cortex-A9*#0*\"\". available targets:",
+        "note": "xsdb 进程码 0 但日志含错误文本 ⇒ v3.2.4 守卫判 FAIL（按设计 fail-closed）"
+      },
+      "W0_reset_stop.log": "已保存（含 `1 whole scan chain (DR shift through all zeroes)`）",
+      "probe_targets_once.py": "3 次独立会话 `targets` 均空（probe_targets_{0,1,2}.log）",
+      "usb_jtag": "USB\\VID_0403&PID_6014\\210512180081 状态 OK（线缆在、端点在）",
+      "usb_serial": "COM4 存在",
+      "low_level_jtag_targets": "`jtag targets` 输出为空（JTAG_BEGIN/JTAG_END 之间无内容）"
+    },
+    "interpretation": "JTAG 线缆与 USB 端点正常，但 TAP 不响应（DR 全零）⇒ **FPGA/PS 侧未就绪**（断电/复位保持/供电异常），与本轮长跑停住无直接判定关系；需先恢复板卡可访问性",
+    "not_conclusion": "本窗口**未**取得 step_id/iter/DFSR/DFAR；**不得**据此下任何长跑根因结论",
+    "recommend": "请 Wong 检查 12V 供电与电源指示灯；必要时**彻底断电 ≥10 s 后重新上电**；恢复后我会先做一次只读枚举确认，再重开诊断窗口（不硬测）",
+    "previous_ok_evidence": "上一窗口 `bringup_longrun_20261028_r01` 的 W4 于 22:02:26 完成且 restore_diff=0，说明 22:02 时 A9 可达；22:17 起不可达"
+  },
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "file": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+          "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+          "expect": "555a70c2",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "longrun_instr_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\longrunI\\s4d_ps_app_sw0_longrunI.elf",
+          "sha256": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+          "expect": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+          "match": true
+        },
+        {
+          "tag": "m3_snapshot",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_a_20261027_r01\\m3_snapshot_orig.bin",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver_v326",
+          "file": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855",
+          "expect": "311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855",
+          "match": true
+        },
+        {
+          "tag": "fixture_raw",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_chainlite_b_20261028_r01\\fixture\\fixture_fist_000_640x480_bgr888.raw",
+          "sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "expect": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "match": true
+        },
+        {
+          "tag": "weights",
+          "file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "exists": true,
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        }
+      ],
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "real_index_lock_present": false,
+      "exit_code": 0
+    },
+    "P1_hw_server": {
+      "ok": true,
+      "pid": 30868,
+      "exit_code": 0
+    },
+    "W0_restore_candidate": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "reset_stop_exit": 0,
+      "reset_stop_err": "no targets found with \"name =~ \"*Cortex-A9*#0*\"\". available targets:"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 30868,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "started_utc8": "2026-10-28T22:17:31+08:00",
+  "finished_utc8": "2026-10-28T22:17:43+08:00",
+  "boundary": "未执行 W1/W2/W3；无判据结论；ENABLE=0；未写 QSPI；未改线；未 push；不主张 G3/G4/G5；M3/M2 未闭合"
+}

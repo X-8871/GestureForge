@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "longrun_rca_20261028_r01",
+  "artifact": "长跑静默停住（iter=40 后）的离线根因分析",
+  "observed": {
+    "evidence_run": "report/evidence/S4-T34/bringup_longrun_20261028_r01/",
+    "last_uart_line": "LONGRUN STEP iter=40 elapsed_ms=11821 wall_ms=461117 epoch_lo=40 epoch_hi=0 status=0x00000E04",
+    "then": "无 LONGRUN FAIL、无 LONGRUN RESULT；2100 s 采集期内 0 行",
+    "implication": "应用未进入任何 fail-fast 分支 ⇒ 停在**不可中断操作**（AXI 访问/异常），非判据失败",
+    "rounds_ok": 40,
+    "per_round_elapsed_ms": 11821,
+    "per_round_status": "0x00000E04",
+    "epoch_range": [
+      1,
+      40
+    ]
+  },
+  "A1_app_side_waits": {
+    "conclusion": "长跑函数内**无无界循环**；停住点只能是 AXI 访问（无总线超时）或硬异常",
+    "items": [
+      {
+        "loop": "主循环 for iter<=160",
+        "bounded": true,
+        "basis": "app L879"
+      },
+      {
+        "loop": "等 DONE_SAFE（spin<1.5e8 且 wall>=120 s 退出）",
+        "bounded": true,
+        "basis": "app L619"
+      },
+      {
+        "loop": "s4d_read_epoch（最多 8 次重试）",
+        "bounded": true,
+        "basis": "app s4d_read_epoch 定义处 for (r=0;r<8u;r++)"
+      },
+      {
+        "wait": "START 前等 idle",
+        "bounded": "单次读，无循环",
+        "basis": "app L894"
+      },
+      {
+        "wait": "ACK 回 idle",
+        "bounded": "单次读，无循环",
+        "basis": "app L677"
+      },
+      {
+        "wait": "invalidate 后等待",
+        "bounded": "无等待（DSB 级）",
+        "basis": "s4d_region_invalidate 内仅 cache 维护 + dsb"
+      },
+      {
+        "note": "xil_printf 的 UART TX FIFO 等待是**无界**的；但本次主机持续读取，且最后一行已发出，可能性低（无法完全排除）"
+      }
+    ],
+    "arrays_and_pointers": "每轮复用固定 det[15] 与 first 结构，无新分配、无跨轮增长；s2a_decode_nms_reference 只读 arena + 写 det；无累积缓冲",
+    "exception_handling": "应用**未安装**数据中止处理器 ⇒ 若 CSR 写返回 SLVERR，Cortex-A9 数据中止后停在默认异常路径，**无 UART 输出**"
+  },
+  "A2_rtl_accumulating_state": {
+    "file": "w2b/src/s2b_control_csr.sv",
+    "hash_basis": "commit_blob",
+    "blob": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6",
+    "items": [
+      {
+        "name": "epoch",
+        "width": "64 bit（L49）",
+        "increment": "START 接受时 +1（L245）",
+        "wrap_protection": "L241 `else if (&q.epoch)` 全 1 饱和保护",
+        "assessment": "40 远未接近 64 位边界 ⇒ 不是计数器回绕"
+      },
+      {
+        "name": "ack_pending",
+        "gate": "L92/L93 写入 ready = ... && !q.ack_pending；L109 write_commit 同",
+        "set": "L270 `if (q.status_shadow[2:1] != 0) d.ack_pending=1; d.bvalid=0;`",
+        "clear": "L296 在 clear_safe 内清；L335 select_fault 时清并回 SLVERR",
+        "assessment": "**若 ACK 时内核 status[2:1]!=0 而随后 clear_safe 条件长期不成立 ⇒ ack_pending 常置 ⇒ 后续所有 CSR 写永久停等**（应用无 BRESP 可见性）"
+      },
+      {
+        "name": "first_selected / first_pending / visibility_confirmed",
+        "role": "ACK 前置（L182-184）与恢复判据（L338-339）",
+        "assessment": "三者均在每轮 START/ACK 路径重置（L246、L293、L296），未见随次数单调累积；但 `visibility_confirmed` 为外部输入，若抖动会**静默拒 ACK（SLVERR, last_reject=3）**"
+      },
+      {
+        "name": "ledger / ledger_empty / ledger_empty_next",
+        "role": "ACK 前置与 status bit12",
+        "assessment": "若某轮账本未闭合，ACK 被拒（SLVERR）；应用不查 BRESP ⇒ 状态机停在 DONE_SAFE/ERROR_SAFE，下一轮写 config 时 `q.state != IDLE_PS` ⇒ **SLVERR（L237/L240）**"
+      }
+    ]
+  },
+  "A3_platform_precedent": {
+    "claim": "本平台**曾**捕获过同源故障：CSR 写返回 SLVERR 触发 CPU 数据中止",
+    "source": "w2b/.codex/STATE.md（blob da6ae3b10775c7d65764e2d4e2b32df403645f6b）",
+    "quote": "CPU原生postmortem保存DFSR1808/DFAR43C00008/PC C344/STR e5801000/LAST_REJECT变化，独审判SLVERR",
+    "interpretation": "DFAR=0x43C00008 = **写 START 命令寄存器**；DFSR=0x1808 = 数据中止（写/外部中止类）；与本次“静默停住”现象一致",
+    "2b_repeat_coverage": [
+      "模型级（formal/仿真）：T18 `formal_stress1000_then109_20261018_r02/` = **1109 次 RUN**、双头全部比对通过（模型/仿真口径，非实板）",
+      "实板：R08 做过“忙 START 拒绝 / 同 RUN 黄金与 ACK / 重接受”，**未记录 ≥40 次连续 START 的实板长跑**",
+      "结论：**实板重复 START ≈40 次这一路径很可能是首次触达**"
+    ]
+  },
+  "A4_localisation": {
+    "last_output": "iter=40 的进度行（在 ACK + epoch 校验完成后打印）",
+    "next_actions_of_round41": [
+      "L887 XTime_GetTime(&t_now) —— 非 AXI",
+      "L892 s4d_read_epoch(&e_before) —— 首次 AXI **读**（0x43C00050/54）",
+      "L894 s4d_is_idle() —— AXI 读（0x43C0000C）",
+      "L898..L904 七次 AXI **写**（0x014..0x02C）",
+      "L906 AXI **写** START（0x43C00008）",
+      "L911 等 DONE_SAFE 循环（有界）"
+    ],
+    "most_likely_stall_point": "**第 41 轮的首次 CSR 写**（L898 写 0x014，或若前两步已被拒则更早）—— 若上一轮 ACK 留下 `ack_pending=1` 或状态非 IDLE_PS，写响应返回 SLVERR，Cortex-A9 取数据中止（DFSR 0x1808）后无输出停住",
+    "candidates_ranked": [
+      {
+        "rank": 1,
+        "mechanism": "CSR 写返回 SLVERR → CPU 数据中止（DFSR=0x1808, DFAR=0x43C00008 类）",
+        "why": "与 T20 postmortem 同源；应用无中止处理器；无 FAIL 输出"
+      },
+      {
+        "rank": 2,
+        "mechanism": "ack_pending 常置导致写 ready 永不置起 → CPU 停等（无中止）",
+        "why": "RTL L92/93/109/270；应用无法观测"
+      },
+      {
+        "rank": 3,
+        "mechanism": "q.rvalid 未清 → 后续读停等",
+        "why": "需 PS 未接收 R 响应，可能性低"
+      },
+      {
+        "rank": 4,
+        "mechanism": "UART TX 阻塞（xil_printf 无界）",
+        "why": "主机持续读，可能性低但未排除"
+      }
+    ]
+  },
+  "B_instrumentation_plan": {
+    "heartbeat": "每轮一行（iter/elapsed/epoch/status）",
+    "step_magic": {
+      "addr": "0x11B00000",
+      "layout": [
+        "magic",
+        "step_id|iter<<8",
+        "DFSR",
+        "DFAR",
+        "reserved"
+      ],
+      "steps": [
+        "1 读epoch",
+        "2 配置CSR",
+        "3 START",
+        "4 等DONE",
+        "5 invalidate",
+        "6 decode",
+        "7 ACK",
+        "8 下一轮"
+      ]
+    },
+    "abort_capture": "安装 XIL_EXCEPTION_ID_DATA_ABORT_INT 处理器（BSP 提供 Xil_ExceptionRegisterHandler），记录 DFSR/DFAR + 当前 step 到 0x11B00000 后停机",
+    "bounded_steps": "AXI 访问无法在软件侧限时；以“每步魔数 + 中止处理器”替代（如实说明）",
+    "cleanup": "收尾清零 0x11B00000；W4 校验候选区 diff=0 且魔数区全 0"
+  },
+  "boundary": "离线分析；未上板；不改判据；ENABLE=0；不主张 G3/G4/G5；M3/M2 未闭合",
+  "hashes": {
+    "app_sha256_worktree_disk": "0a97ace45a16e8422deee3b8943b426ee669b43cf5ef05874fc2e59cfe539991",
+    "csr_rtl_blob": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6",
+    "w2b_state_blob": "da6ae3b10775c7d65764e2d4e2b32df403645f6b",
+    "iface_doc_blob": "682b96f165708c0f1aa62cf9032dcdac97a7ad5c"
+  }
+}

@@ -1,0 +1,16 @@
+诊断窗口被阻断（JTAG 链无目标）
+================================
+时间：2026-10-28T22:20:05+08:00
+阶段：W0（长跑诊断未开始；W1/W2/W3 未执行）
+
+症状：
+  - `targets -set -filter {name =~ "*Cortex-A9*#0*"}` 报 `no targets found`
+  - `available targets: 1 whole scan chain (DR shift through all zeroes)`
+  - 3 次独立会话 `targets` 均为空；`jtag targets` 亦为空
+
+旁证：
+  - USB-JTAG 线缆 `USB\VID_0403&PID_6014\210512180081` 状态 OK；串口 COM4 存在
+  - 上一窗口 W4 于 22:02:26 完成且 restore_diff=0（当时 A9 可达）
+
+判定：**未取得任何 step/DFSR/DFAR**；不得据此下长跑根因结论。
+建议：检查 12V 供电/指示灯；必要时彻底断电 ≥10 s 后重新上电，再做只读枚举确认。

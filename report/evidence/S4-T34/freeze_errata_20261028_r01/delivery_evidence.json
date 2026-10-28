@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-T34",
+  "run_id": "freeze_errata_20261028_r01",
+  "source_commit": "f84d541bafb1bf24a72f86d28fa8a55377532d82",
+  "evidence_dir": "report/evidence/S4-T34/freeze_errata_20261028_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 errata 只做账本口径澄清，不引入或变更任何接口语义",
+  "files": [
+    {
+      "path": "report/evidence/S4-T34/freeze_errata_20261028_r01/ERRATA.md",
+      "sha256": "e901601903578393812cd5396df2437e2c67b4ed4e8ae6e0f1cf03866c66aaad",
+      "role": "diagnostic",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "本轮新增（未提交），按磁盘字节计算；提交后可用 commit_blob 复核"
+    },
+    {
+      "path": "report/evidence/S4-T34/freeze_errata_20261028_r01/ledger_reference.json",
+      "sha256": "823470c7170e335aab0e83a6f940f74a18464f647649bee7f111d1c8b22c066f",
+      "role": "result",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "本轮新增（未提交），按磁盘字节计算；提交后可用 commit_blob 复核"
+    },
+    {
+      "path": "report/evidence/S4-T34/freeze_errata_20261028_r01/naming_map.json",
+      "sha256": "70c14d04c3ed05dde8468199bd310952830b5da0bc9e41088c39230a9eed076c",
+      "role": "result",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "本轮新增（未提交），按磁盘字节计算；提交后可用 commit_blob 复核"
+    },
+    {
+      "path": "report/evidence/S4-T34/freeze_errata_20261028_r01/supersession.json",
+      "sha256": "adf3721204585f7c7337f4d7c09270df569e4f18c452dbb7e13dae55deaa10b8",
+      "role": "result",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "本轮新增（未提交），按磁盘字节计算；提交后可用 commit_blob 复核"
+    },
+    {
+      "path": "report/evidence/S4-T34/freeze_errata_20261028_r01/manifest.json",
+      "sha256": "3a21da2a3d2ec584ae31cf5c029a71aff0377941dcb44ffa0ffdd074dc2b5d27",
+      "role": "artifact",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "本轮新增（未提交），按磁盘字节计算；提交后可用 commit_blob 复核"
+    },
+    {
+      "path": "vitis/stage4/ps/s4d_ps_app.c",
+      "sha256": "957fcf3614f91cfd28117e678b188733888a3dd28439820d8a282a2decfa63ef",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "源码/冻结文档绑定（只读引用，未修改）"
+    },
+    {
+      "path": "scripts/stage4_s4b/verify_longrun_v2.py",
+      "sha256": "9b29f339ec02047e56e7128d3807909a747823e665d7e436160e0896c2b6600d",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "源码/冻结文档绑定（只读引用，未修改）"
+    },
+    {
+      "path": "docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md",
+      "sha256": "0fdb4824bf7591a18d38fe2de18b7f947f649555439648392287d65afc062d86",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "源码/冻结文档绑定（只读引用，未修改）"
+    }
+  ],
+  "checks": [
+    {
+      "name": "errata_manifest_hash_basis_strict",
+      "status": "PASS",
+      "command": "python -B D:/FPGA_Competition/verification/check_manifest_hash_basis.py --repo D:/codex-worktrees/w4 --paths report/evidence/S4-T34/freeze_errata_20261028_r01/manifest.json --mode strict --json",
+      "exit_code": 0,
+      "reason": null
+    },
+    {
+      "name": "delivery_evidence_mode",
+      "status": "PASS",
+      "command": "python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --project-root D:/codex-worktrees/w4 --manifest report/evidence/S4-T34/freeze_errata_20261028_r01/delivery_evidence.json",
+      "exit_code": 0,
+      "reason": null
+    },
+    {
+      "name": "originals_unmodified",
+      "status": "PASS",
+      "command": "git -C D:/codex-worktrees/w4 status --short -- report/evidence/S4-T34/bringup_chainlite_b_20261028_r01 report/evidence/S4-T34/bringup_window6_20261028_r03 docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md",
+      "exit_code": 0,
+      "reason": null
+    },
+    {
+      "name": "errata_F1_F7_covered",
+      "status": "PASS",
+      "command": "读 ERRATA.md / ledger_reference.json / naming_map.json / supersession.json 人工交叉核对 F1-F7",
+      "exit_code": 0,
+      "reason": null
+    }
+  ],
+  "limitations": [
+    "本 errata 不改变任何实测值、不重跑板卡、不改冻结成员；只做口径澄清与结构化引用",
+    "F1 的最终判定依据是已落盘板上 UART 与离线参考的比较（W3_compare_final.json），窗口内 W3_compare.exit_code=1 属 pending 态",
+    "F2 的修正仅提供结构化指针，原汇总文件保留裸字符串不动",
+    "F3 只给映射，不改冻结文档 docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md",
+    "F4 投毒前置属宿主侧操作，仅用于使 stale 可判定；候选区未被投毒写入",
+    "F5/F6/F7 只登记取代关系与词面口径，原文件一律保留",
+    "hash_basis：新增 errata 文件为 worktree_disk（提交前无法用 commit_blob）；引用文件见 manifest.json 的 commit_blob 基座"
+  ],
+  "tool_versions": {
+    "python": "3.12",
+    "git": "2.x",
+    "xsdb": "2026.1"
+  },
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "本清单每一项按磁盘字节计算；commit_blob 基座版见同目录 manifest.json",
+  "hash_basis_commit": "f84d541bafb1bf24a72f86d28fa8a55377532d82"
+}

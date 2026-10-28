@@ -1,0 +1,126 @@
+{
+  "task_id": "S4-T34",
+  "checker": "verify_longrun_v2.py",
+  "checks": [
+    {
+      "id": "L1",
+      "name": "strong_symbol[sw0_longrunI]",
+      "ok": true,
+      "detail": "s4d_ps_app_sw0_longrunI.elf: type=T"
+    },
+    {
+      "id": "L1",
+      "name": "strong_symbol[pl_longrunI]",
+      "ok": true,
+      "detail": "s4d_ps_app_pl_longrunI.elf: type=T"
+    },
+    {
+      "id": "L2",
+      "name": "judgement_constants",
+      "ok": true,
+      "detail": {
+        "wall": true,
+        "max": true,
+        "min": true
+      }
+    },
+    {
+      "id": "L3",
+      "name": "loop_and_failfast",
+      "ok": true,
+      "detail": {
+        "loop": true,
+        "wall_exit": true,
+        "fail_print": true,
+        "status_e04": true,
+        "error_zero": true,
+        "decode_rc": true,
+        "count_1": true,
+        "raw_2": true,
+        "ack_idle": true,
+        "epoch_mono": true,
+        "box_change": true
+      }
+    },
+    {
+      "id": "L4",
+      "name": "summary_fields",
+      "ok": true,
+      "detail": {
+        "\"iterations\":%u": true,
+        "\"failures\":%u": true,
+        "\"wall_ms_lo\":%u": true,
+        "\"min_elapsed_ms\":%u": true,
+        "\"avg_elapsed_ms\":%u": true,
+        "\"max_elapsed_ms\":%u": true,
+        "\"epoch_first_lo\":%u": true,
+        "\"epoch_last_lo\":%u": true,
+        "\"within_judgement\":%d": true
+      }
+    },
+    {
+      "id": "M1",
+      "name": "heartbeat_every_round",
+      "ok": true,
+      "detail": {
+        "no_progress_modulo": true,
+        "heartbeat_marker": true,
+        "step_line": true
+      }
+    },
+    {
+      "id": "M2",
+      "name": "step_magic",
+      "ok": true,
+      "detail": {
+        "addr": true,
+        "magic_val": true,
+        "helper": true,
+        "steps_1_to_8": true,
+        "flush_after_write": true,
+        "missing_steps": []
+      }
+    },
+    {
+      "id": "M3",
+      "name": "data_abort_capture",
+      "ok": true,
+      "detail": {
+        "register": true,
+        "handler": true,
+        "dfsr": true,
+        "dfar": true,
+        "abort_marker": true
+      }
+    },
+    {
+      "id": "M4",
+      "name": "magic_cleared",
+      "ok": true,
+      "detail": {
+        "clear_fn": true,
+        "called_at_end": true
+      }
+    },
+    {
+      "id": "M5",
+      "name": "elf_sha_matches_registration[sw0_longrunI]",
+      "ok": true,
+      "detail": {
+        "expected": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+        "actual": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1"
+      }
+    },
+    {
+      "id": "M5",
+      "name": "elf_sha_matches_registration[pl_longrunI]",
+      "ok": true,
+      "detail": {
+        "expected": "e1575dcab5f932a3e0a0381d2df75d1db7647a019a5cff021f8fa51ce892e999",
+        "actual": "e1575dcab5f932a3e0a0381d2df75d1db7647a019a5cff021f8fa51ce892e999"
+      }
+    }
+  ],
+  "fail": [],
+  "verdict": "PASS"
+}

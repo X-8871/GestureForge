@@ -1,0 +1,15 @@
+枚举阻断记录（r02，2026-10-28 22:22-22:26）
+==========================================
+结论：**主机侧 JTAG 句柄/驱动层卡住** —— 三种 hw_server 变体均看不到任何 JTAG 目标；
+FTDI 设备本身状态正常且无进程占用。
+
+1) 驱动自起 hw_server（Vivado unwrapped hw_server.exe）：targets 3 次（间隔 5 s）全空 -> enum_preflight FAIL
+2) Vivado bin\\hw_server.bat：jtag targets 2 次、targets 2 次全空 -> vivado_hw_probe_0/1.log
+3) xsdb 自动起 hw_server（connect 无 URL）：jtag targets 为空 -> A_BEGIN/A_END 之间无内容
+4) 稳定等待 10 s 后仍为空 -> probe_stable_1793197392.log（J1/T1/J2/T2 四段全空）
+5) 主机侧无 hw_server/cs_server/vivado/xsdb 进程占用；3121/3122/3042 无监听
+6) FTDI 设备 USB\\VID_0403&PID_6014\\210512180081：Status=OK、Problem=CM_PROB_NONE、Service=FTDIBUS
+7) 对照：上一窗口 W4 于 22:02:26 完成（restore_diff=0，A9 可达）；lead 22:2x 独立探测见 16/17 项
+
+判定：不是板卡故障、也不是判据失败；**是本机 USB-JTAG 句柄在多次 hw_server 起停后卡住**。
+处置建议：**拔插 Digilent JTAG-HS1 的 USB**（不是板卡断电）；重插后我会先做一次只读枚举确认，再重跑诊断窗口。

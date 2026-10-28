@@ -1,0 +1,299 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_longrun_diag_20261028_r05",
+  "phase": "长跑诊断（仪表化 + 停住定位）",
+  "driver_sha256": "311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855",
+  "longrun_instr_elf_sha256": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+  "fixture_sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+  "started_utc8": "2026-10-28T22:56:20+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "file": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+          "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+          "expect": "555a70c2",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "longrun_instr_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\longrunI\\s4d_ps_app_sw0_longrunI.elf",
+          "sha256": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+          "expect": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+          "match": true
+        },
+        {
+          "tag": "m3_snapshot",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_a_20261027_r01\\m3_snapshot_orig.bin",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver_v326",
+          "file": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855",
+          "expect": "311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855",
+          "match": true
+        },
+        {
+          "tag": "fixture_raw",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_chainlite_b_20261028_r01\\fixture\\fixture_fist_000_640x480_bgr888.raw",
+          "sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "expect": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "match": true
+        },
+        {
+          "tag": "weights",
+          "file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "exists": true,
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        }
+      ],
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "real_index_lock_present": false,
+      "exit_code": 0
+    },
+    "P1_hw_server": {
+      "ok": true,
+      "pid": null,
+      "method": "xsdb_auto_hw_server（不预起，空等 15 s）",
+      "xsdb_exit": 0,
+      "targets_raw": "1  APU\n     2  ARM Cortex-A9 MPCore #0 (Running)\n     3  ARM Cortex-A9 MPCore #1 (Running)\n  4  xc7z020",
+      "jtag_targets_raw": "1  Digilent JTAG-HS1 210512180081\n     2  arm_dap (idcode 4ba00477 irlen 4)\n     3  xc7z020 (idcode 23727093 irlen 6 fpga)",
+      "log": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_longrun_diag_20261028_r05\\P1_recipe_probe.log",
+      "exit_code": 0
+    },
+    "P2_enum_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "used_attempt": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "utc8": "2026-10-28T22:56:41+08:00",
+          "xsdb_exit": 0,
+          "targets_raw": "1  APU\n     2  ARM Cortex-A9 MPCore #0 (Vector Catch)\n     3  ARM Cortex-A9 MPCore #1 (Suspended)\n  4  xc7z020",
+          "log": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_longrun_diag_20261028_r05\\enum_1.log",
+          "a9_present": true
+        }
+      ]
+    },
+    "W0_restore_candidate": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0
+    },
+    "W1_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xa",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xa",
+        "readback_raw": "10",
+        "tcl_verdict": "OK",
+        "readback": "0xa",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      },
+      "program_pl_exit": 0,
+      "lvl_0xF": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xf",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xf",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      }
+    },
+    "W2_longrun": {
+      "status": "MAXTIME",
+      "exit_code": 1,
+      "collect_stop_reason": "MAXTIME",
+      "preload": {
+        "raw": {
+          "exit": 0,
+          "err": null,
+          "words": 230400,
+          "sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4"
+        },
+        "weights": {
+          "exit": 0,
+          "err": null,
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        }
+      },
+      "result_line": null,
+      "fail_line": null,
+      "heartbeats": 23,
+      "last_heartbeat_iter": 23,
+      "last_heartbeat": "LONGRUN STEP iter=23 elapsed_ms=11821 wall_ms=260132 epoch_lo=23 epoch_hi=0 status=0x00000E04",
+      "stall_detected_at_utc8": null,
+      "uart_lines_total": 28,
+      "uart_log": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_longrun_diag_20261028_r05\\diag_uart.log"
+    },
+    "W3_magic_raw": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ddr_reinit_exit": 0,
+      "ddr_reinit_err": null,
+      "magic": {
+        "mrd_exit": 0,
+        "words_dec": [
+          1280462151,
+          6148,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "words_hex": [
+          "0x4c524d47",
+          "0x00001804",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000"
+        ],
+        "magic": 1280462151,
+        "magic_ok": true,
+        "step_id": 4,
+        "iter": 24,
+        "dfsr": 0,
+        "dfar": 0,
+        "abort_marker": 0,
+        "abort_captured": false,
+        "step_name": "等DONE_SAFE"
+      },
+      "magic_raw_txt": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_longrun_diag_20261028_r05\\magic_raw.txt",
+      "magic_raw_txt_sha256": "d7f441396243bf0203b338dd19e8ce3bd2734d1ed00e433eb6930d3b0f967acd",
+      "magic_parsed_sha256": "7f7345ccc22012cef3c9d7d8a349199ef7abb24fb54a2c7ca0f20ba0248f4caa"
+    },
+    "W3_locate": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "reproduced": false,
+      "located": false,
+      "collect_stop_reason": "MAXTIME",
+      "last_heartbeat_iter": 23,
+      "magic": {
+        "mrd_exit": 0,
+        "words_dec": [
+          1280462151,
+          6148,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "words_hex": [
+          "0x4c524d47",
+          "0x00001804",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000"
+        ],
+        "magic": 1280462151,
+        "magic_ok": true,
+        "step_id": 4,
+        "iter": 24,
+        "dfsr": 0,
+        "dfar": 0,
+        "abort_marker": 0,
+        "abort_captured": false,
+        "step_name": "等DONE_SAFE"
+      },
+      "step_name": "等DONE_SAFE",
+      "interpretation": "未复现停住（stop=MAXTIME）；如实记录，不硬测",
+      "abort_captured": false,
+      "dfsr": 0,
+      "dfar": 0
+    },
+    "W4_final_restore": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 918130,
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": true,
+      "write_exit": 0,
+      "write_err": null,
+      "restore_diff": 0
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "killed_hw_server_pids": [
+          "17412"
+        ],
+        "listening_3121": 0,
+        "residual_processes": []
+      }
+    }
+  },
+  "stop_reason": "未复现停住（stop=MAXTIME）；如实记录，不硬测",
+  "judgement": "成功 = 复现停住 + 读出 step_id/iter（0x11B00000）；未复现则如实记 NOTE_REPRODUCED=false",
+  "boundary": "2B 平台位流 + SW 预处理；fixture 非实拍；ENABLE=0；不主张 G3/G4/G5；M3/M2 未闭合",
+  "finished_utc8": "2026-10-28T23:19:16+08:00",
+  "elapsed_min": 22.9,
+  "conclusion": "DIAG_NOT_REPRODUCED"
+}

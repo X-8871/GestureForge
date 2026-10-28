@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "freeze_errata_20261028_r01",
+  "artifact": "F1/F2 结构化权威引用（chain-lite-B 结论的可核依据）",
+  "subject": {
+    "window": "chain-lite-B",
+    "run_id": "bringup_chainlite_b_20261028_r01",
+    "conclusion": "CHAINLITE_B_PASS"
+  },
+  "authority": {
+    "file": "report/evidence/S4-T34/bringup_chainlite_b_20261028_r01/W3_compare_final.json",
+    "sha256": "0a1c251fa8519c782784458d90ef208f9b8478449766b1f790893c257fe30c85",
+    "verdict": "PASS",
+    "reference_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_chainlite_b_20261028_r01\\offline_reference_boxes.json",
+    "reference_sha256": "6ef19763a1e4fcbdb58933487201c34de5747ce0355b610dd2da730babbaa5b4",
+    "tolerance": 1e-09,
+    "max_abs_diff": 0.0,
+    "board_uart_sha256": "5bed16eb19cf63e191be7024ae8023ec8cab2d184f63159e9614887549472175",
+    "board_uart_note": "板上 UART 原文（分块写入，整体 SHA-256 随文件落在 CHAIN/chainb_uart.log）",
+    "board_uart_log_sha256": "5bed16eb19cf63e191be7024ae8023ec8cab2d184f63159e9614887549472175",
+    "W3a": {
+      "board_tensor_crc32": 1528314704,
+      "offline_tensor_crc32": "0x5b183b50",
+      "offline_tensor_sha256": "6c03f2af9a861e08414735b3a1185fbebddc0b1e5f503b6f4f65e5dc9903418e",
+      "match": true,
+      "board_hex": "0x5b183b50"
+    },
+    "in_window_vs_post_window": {
+      "W2_status": "PASS",
+      "W3_status_at_window": "W3A_PASS_W3B_PENDING",
+      "note": "窗口内 W3b 离线参考未就绪，记 W3A_PASS_W3B_PENDING（未判 PASS）"
+    }
+  },
+  "non_final_markers": {
+    "file": "report/evidence/S4-T34/bringup_chainlite_b_20261028_r01/W3_compare.json",
+    "sha256": "3cddd9e885781161f47ac6ae71a216aa0b1ca064ab88dd82836e5ab2bb78177c",
+    "status": "W3A_PASS_W3B_PENDING",
+    "exit_code": 1,
+    "label": "IN_WINDOW_PENDING_NOT_FINAL",
+    "reason": "窗口执行时离线参考框尚未生成，按判据记 pending（未判 PASS）；参考生成后以已落盘板上 UART 完成比较（未重跑板卡）"
+  },
+  "evidence_preconditions": {
+    "F4_poison": {
+      "what": "运行前把两个 head 输出区首 64 B 投毒为“与参考首字节相反”的值（目的：使 stale 可判定）",
+      "where": "report/evidence/S4-T34/bringup_window6_20261028_r03/W2_M4b_preload_details.json",
+      "sha256": "3b915dbf08db4c9de01c643de5280bf045f9940bbf5691bb899ae52c9067f314",
+      "why": "干净恢复后基线恰与参考首字节相同 ⇒ stale=0 ⇒ 按 M4b-4 无法判新旧；投毒后 stale=1，diff=0 才具判别力",
+      "writes": [
+        "0x11A46100 (head13 输出区, 64 B)",
+        "0x11AD5E80 (head26 输出区, 64 B)"
+      ],
+      "not_written": "候选区 [0x12000000,0x12C08000) 未被投毒写入"
+    },
+    "preload_padding": {
+      "what": "head13 参考 5,070 B 非 4 字节倍数 ⇒ 补齐到 5,072 B 写 1,268 字",
+      "why": "按 1,267 字写会漏掉末 2 字节（窗口 #5 diff13=2 的根因）"
+    }
+  },
+  "hash_basis": "commit_blob",
+  "hash_basis_commit": "f84d541bafb1bf24a72f86d28fa8a55377532d82",
+  "note": "本文件为新增证据（worktree_disk 基座），其引用的原始证据文件为 commit_blob 基座（见 manifest.json）",
+  "boundary": "不改实测值；不改冻结成员；离线；不主张 G3/G4/G5"
+}

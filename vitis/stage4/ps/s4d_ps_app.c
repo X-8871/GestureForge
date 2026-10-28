@@ -18,12 +18,14 @@
 #include <string.h>
 
 #include "xil_cache.h"
+#include "xil_exception.h"
 #include "xil_io.h"
 #include "xil_printf.h"
 #include "xparameters.h"
 
 #include "s4d_geometry.h"   /* 唯一几何参数表 + 最近邻 letterbox（PL/SW 共用，禁止另写字面量） */
 #include "s2a_ps_decode_nms_reference.h"   /* r13 冻结解码参考：强符号 s2a_t62_decode_nms */
+#include "s4d_sw_preproc.h"   /* 4-D SW 预处理（D2 冻结口径，逐字节对拍已通过） */
 #include "xiltimer.h"      /* COUNTS_PER_SECOND（BSP xtimer_config.h：CPU_CORE_CLOCK/2） */
 
 /* SDT BSP 未随附 xtime_l.h；libxiltimer.a 已导出 XTime_GetTime（arm-none-eabi-nm 已核），此处按 BSP 原型声明 */
@@ -563,6 +565,519 @@ int s4d_m4b_selfcheck(void)
     return (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 0 : -2;
 }
 
+#if defined(S4D_CHAIN_SELFCHECK) && S4D_CHAIN_SELFCHECK
+/* ---------------- chain-lite-A 自检：注入张量 -> PL 网络 -> PS 解码/NMS -> UART 框 JSON ----------------
+ * 判据（事先写死，不得放宽）：DONE_SAFE + error=0；框 JSON 与 r13 冻结参考逐字段一致（容差 1e-9）。
+ * 不做预处理（PREPROC=INJECTED_TENSOR）；不与 RAW 0x12000000 参考比较（本步不涉及）。
+ */
+static int s4d_chain_selfcheck(void)
+{
+    uint32_t st = 0, err = 0;
+    uint64_t epoch = 0, epoch_before = 0;
+    uint64_t t0 = 0, t1 = 0;
+    uint32_t elapsed_ms = 0, spin = 0;
+    uint32_t frame = 1u;
+    s2a_t62_detection det[S4D_DEC_MAX_BOX];
+    uint32_t count = 0u, raw = 0u;
+    int decode_rc = -99, done = 0, ack_idle = 0;
+    uint32_t i;
+
+    s4d_cur_src_w = 1440u;   /* 冻结几何（host_result_test_fist_000.json: geometry 1440x1920） */
+    s4d_cur_src_h = 1920u;
+
+    xil_printf("CHAIN STEP=0 enter PREPROC=INJECTED_TENSOR geom=1440x1920\r\n");
+    xil_printf("CHAIN STEP=1 read CSR_ID addr=0x%08x\r\n", (unsigned)S4D_CSR_ID);
+    xil_printf("CHAIN CSR id=0x%08x ver=0x%08x\r\n",
+               (unsigned)s4d_rd(S4D_CSR_ID), (unsigned)s4d_rd(S4D_CSR_VER));
+    xil_printf("CHAIN STEP=2 check idle: status=0x%08x\r\n", (unsigned)s4d_rd(S4D_CSR_STATUS));
+    if (!s4d_is_idle()) {
+        xil_printf("CHAIN RESULT={\"pass\":0,\"reason\":\"not_idle\",\"status\":%u}\r\n",
+                   (unsigned)s4d_rd(S4D_CSR_STATUS));
+        return -1;
+    }
+    xil_printf("CHAIN STEP=3 read epoch\r\n");
+    if (!s4d_read_epoch(&epoch_before)) { xil_printf("CHAIN RESULT={\"pass\":0,\"reason\":\"epoch_read_fail\"}\r\n"); return -1; }
+    epoch = epoch_before + 1u;
+
+    s4d_region_flush(S4D_TENSOR_BASE, S4D_INPUT_BYTES);
+    s4d_region_flush(S4D_TENSOR_BASE + S4D_INPUT_BASE, S4D_WEIGHT_BYTES);
+    s4d_dsb();
+    xil_printf("CHAIN STEP=4 cache flush done\r\n");
+
+    s4d_wr(S4D_CSR_FRAME_W, frame);
+    s4d_wr(S4D_CSR_INADDR_W, 0u);
+    s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
+    s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
+    s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
+    s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
+    s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
+    XTime_GetTime(&t0);
+    s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
+    xil_printf("CHAIN STEP=5 START cmd written\r\n");
+
+    {
+        uint32_t last_progress_ms = 0;
+        for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
+            int r = s4d_safe_done(&st, &err);
+            XTime_GetTime(&t1);
+            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+            if (r == 1) { done = 1; break; }
+            if (r == 2) { done = 2; break; }
+            if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
+            if (elapsed_ms >= S4D_M4B_WALL_MS) { done = 0; break; }
+            if (elapsed_ms - last_progress_ms >= 5000u) {
+                last_progress_ms = elapsed_ms;
+                xil_printf("CHAIN STEP=6 progress elapsed_ms=%u status=0x%08x error=0x%08x\r\n",
+                           (unsigned)elapsed_ms, (unsigned)st, (unsigned)err);
+            }
+        }
+    }
+    xil_printf("CHAIN STEP=6 wait done=%d elapsed_ms=%u spin=%u status=0x%08x error=0x%08x\r\n",
+               done, (unsigned)elapsed_ms, (unsigned)spin, (unsigned)st, (unsigned)err);
+    if (done != 1) {
+        xil_printf("CHAIN RESULT={\"pass\":0,\"reason\":\"not_done_safe\",\"done\":%d,"
+                   "\"status\":%u,\"error\":%u,\"elapsed_ms\":%u,\"spin\":%u}\r\n",
+                   done, (unsigned)st, (unsigned)err, (unsigned)elapsed_ms, (unsigned)spin);
+        return -1;
+    }
+
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
+    xil_printf("CHAIN STEP=7 heads invalidated\r\n");
+
+    decode_rc = s2a_decode_nms_reference(
+        (const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF), frame, frame, det, &count);
+    raw = s4d_last_raw_candidates;   /* 候选数由封装函数经全局回传（R13 口径） */
+    xil_printf("CHAIN STEP=8 decode rc=%d count=%u raw=%u\r\n",
+               decode_rc, (unsigned)count, (unsigned)raw);
+    /* 注：xil_printf 是 Xilinx 精简实现，**不支持 %g/浮点**（窗口实测：%g 输出为空且后续参数错位）。
+     * 故 double 一律按 IEEE-754 位模式输出（hi/lo 两个 32-bit hex），主机端按位重建，位级精确。 */
+    for (i = 0u; i < count; i++) {
+        union { double d; uint64_t u; } sc, b1, b2, b3, b4;
+        sc.d = det[i].score; b1.d = det[i].x1; b2.d = det[i].y1; b3.d = det[i].x2; b4.d = det[i].y2;
+        xil_printf("CHAIN DET idx=%u class=%d "
+                   "score_hi=%08x score_lo=%08x "
+                   "x1_hi=%08x x1_lo=%08x y1_hi=%08x y1_lo=%08x "
+                   "x2_hi=%08x x2_lo=%08x y2_hi=%08x y2_lo=%08x order=%d\r\n",
+                   (unsigned)i, (int)det[i].class_id,
+                   (unsigned)(uint32_t)(sc.u >> 32), (unsigned)(uint32_t)(sc.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b1.u >> 32), (unsigned)(uint32_t)(b1.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b2.u >> 32), (unsigned)(uint32_t)(b2.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b3.u >> 32), (unsigned)(uint32_t)(b3.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b4.u >> 32), (unsigned)(uint32_t)(b4.u & 0xFFFFFFFFu),
+                   (int)det[i].source_order);
+    }
+
+    xil_printf("CHAIN STEP=9 ACK phase (idle_before=%d)\r\n", s4d_is_idle());
+    {
+        uint64_t e2 = 0;
+        if (s4d_read_epoch(&e2) && e2 == epoch && s4d_rd(S4D_CSR_FRAME_R) == frame) {
+            s4d_wr(S4D_CSR_ACKLO_W, (uint32_t)epoch);
+            s4d_wr(S4D_CSR_ACKHI_W, (uint32_t)(epoch >> 32));
+            s4d_wr(S4D_CSR_CMD, S4D_CMD_ACK);
+            ack_idle = s4d_is_idle();
+        }
+    }
+    xil_printf("CHAIN RESULT={\"pass\":%d,\"done\":1,\"status\":%u,\"error\":%u,\"decode_rc\":%d,"
+               "\"count\":%u,\"raw\":%u,\"ack_idle\":%d,\"elapsed_ms\":%u,\"spin\":%u}\r\n",
+               (done == 1 && err == 0u && decode_rc == 0 && count >= 1u && ack_idle == 1) ? 1 : 0,
+               (unsigned)st, (unsigned)err, decode_rc, (unsigned)count, (unsigned)raw,
+               ack_idle, (unsigned)elapsed_ms, (unsigned)spin);
+    return (done == 1 && err == 0u && decode_rc == 0 && count >= 1u && ack_idle == 1) ? 0 : -2;
+}
+#endif
+
+
+#if defined(S4D_CHAINB_SELFCHECK) && S4D_CHAINB_SELFCHECK
+/* ---------------- chain-lite-B 自检：RAW 640x480 BGR888 -> SW 预处理 -> PL 网络 -> 解码 -> 框 JSON ----------
+ * 判据（与 chain-lite-A 同强度）：DONE_SAFE + error=0 + decode_rc=0 + count>=1 + ACK 回 idle；
+ * 预处理后打印张量 CRC-32（= zlib crc32），供离线同输入比对，自证板上预处理实现。
+ */
+static int s4d_chainb_selfcheck(void)
+{
+    uint32_t st = 0, err = 0, tcr = 0;
+    uint64_t epoch = 0, epoch_before = 0;
+    uint64_t t0 = 0, t1 = 0;
+    uint32_t elapsed_ms = 0, spin = 0;
+    uint32_t frame = 1u;
+    s2a_t62_detection det[S4D_DEC_MAX_BOX];
+    uint32_t count = 0u, raw = 0u;
+    int decode_rc = -99, done = 0, ack_idle = 0, prc;
+    uint32_t i;
+
+    s4d_cur_src_w = 640u;
+    s4d_cur_src_h = 480u;
+
+    xil_printf("CHAINB STEP=0 enter PREPROC=SW RAW=0x%08x %s\r\n",
+               (unsigned)S4D_RAW_BASE, S4D_GEOM.name);
+    xil_printf("CHAINB STEP=1 read CSR_ID addr=0x%08x\r\n", (unsigned)S4D_CSR_ID);
+    xil_printf("CHAINB CSR id=0x%08x ver=0x%08x\r\n",
+               (unsigned)s4d_rd(S4D_CSR_ID), (unsigned)s4d_rd(S4D_CSR_VER));
+    if (!s4d_is_idle()) {
+        xil_printf("CHAINB RESULT={\"pass\":0,\"reason\":\"not_idle\",\"status\":%u}\r\n",
+                   (unsigned)s4d_rd(S4D_CSR_STATUS));
+        return -1;
+    }
+    if (!s4d_read_epoch(&epoch_before)) { xil_printf("CHAINB RESULT={\"pass\":0,\"reason\":\"epoch_read_fail\"}\r\n"); return -1; }
+    epoch = epoch_before + 1u;
+
+    /* ---- SW 预处理：RAW BGR888(640x480) -> INT8 CHW(416x416x3) 写入 arena ---- */
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,
+                                 (Xil_ExceptionHandler)s4d_lr_data_abort_handler, NULL);
+    s4d_lr_mark(0u, 0u);
+
+    prc = s4d_sw_preproc_bgr888_to_chw_int8((const uint8_t *)(uintptr_t)S4D_RAW_BASE, 640, 480,
+                                            (int8_t *)(uintptr_t)S4D_TENSOR_BASE);
+    s4d_region_flush(S4D_TENSOR_BASE, S4D_INPUT_BYTES);
+    s4d_region_flush(S4D_TENSOR_BASE + S4D_INPUT_BASE, S4D_WEIGHT_BYTES);
+    s4d_dsb();
+    tcr = s4d_crc32((const void *)(uintptr_t)S4D_TENSOR_BASE, S4D_INPUT_BYTES);
+    xil_printf("CHAINB STEP=2 sw_preproc rc=%d tensor_crc32=0x%08x bytes=%u\r\n",
+               prc, (unsigned)tcr, (unsigned)S4D_INPUT_BYTES);
+    if (prc != 0) { xil_printf("CHAINB RESULT={\"pass\":0,\"reason\":\"preproc_fail\",\"rc\":%d}\r\n", prc); return -1; }
+
+    xil_printf("CHAINB STEP=3 read epoch ok\r\n");
+    s4d_wr(S4D_CSR_FRAME_W, frame);
+    s4d_wr(S4D_CSR_INADDR_W, 0u);
+    s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
+    s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
+    s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
+    s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
+    s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
+    XTime_GetTime(&t0);
+    s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
+    xil_printf("CHAINB STEP=4 START cmd written\r\n");
+
+    {
+        uint32_t last_progress_ms = 0;
+        for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
+            int r = s4d_safe_done(&st, &err);
+            XTime_GetTime(&t1);
+            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+            if (r == 1) { done = 1; break; }
+            if (r == 2) { done = 2; break; }
+            if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
+            if (elapsed_ms >= S4D_M4B_WALL_MS) { done = 0; break; }
+            if (elapsed_ms - last_progress_ms >= 5000u) {
+                last_progress_ms = elapsed_ms;
+                xil_printf("CHAINB STEP=5 progress elapsed_ms=%u status=0x%08x error=0x%08x\r\n",
+                           (unsigned)elapsed_ms, (unsigned)st, (unsigned)err);
+            }
+        }
+    }
+    xil_printf("CHAINB STEP=5 wait done=%d elapsed_ms=%u spin=%u status=0x%08x error=0x%08x\r\n",
+               done, (unsigned)elapsed_ms, (unsigned)spin, (unsigned)st, (unsigned)err);
+    if (done != 1) {
+        xil_printf("CHAINB RESULT={\"pass\":0,\"reason\":\"not_done_safe\",\"done\":%d,\"status\":%u,"
+                   "\"error\":%u,\"tensor_crc32\":%u,\"elapsed_ms\":%u,\"spin\":%u}\r\n",
+                   done, (unsigned)st, (unsigned)err, (unsigned)tcr, (unsigned)elapsed_ms, (unsigned)spin);
+        return -1;
+    }
+
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
+    decode_rc = s2a_decode_nms_reference(
+        (const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF), frame, frame, det, &count);
+    raw = s4d_last_raw_candidates;
+    xil_printf("CHAINB STEP=6 decode rc=%d count=%u raw=%u\r\n",
+               decode_rc, (unsigned)count, (unsigned)raw);
+    for (i = 0u; i < count; i++) {
+        union { double d; uint64_t u; } sc, b1, b2, b3, b4;
+        sc.d = det[i].score; b1.d = det[i].x1; b2.d = det[i].y1; b3.d = det[i].x2; b4.d = det[i].y2;
+        xil_printf("CHAINB DET idx=%u class=%d "
+                   "score_hi=%08x score_lo=%08x "
+                   "x1_hi=%08x x1_lo=%08x y1_hi=%08x y1_lo=%08x "
+                   "x2_hi=%08x x2_lo=%08x y2_hi=%08x y2_lo=%08x order=%d\r\n",
+                   (unsigned)i, (int)det[i].class_id,
+                   (unsigned)(uint32_t)(sc.u >> 32), (unsigned)(uint32_t)(sc.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b1.u >> 32), (unsigned)(uint32_t)(b1.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b2.u >> 32), (unsigned)(uint32_t)(b2.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b3.u >> 32), (unsigned)(uint32_t)(b3.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(b4.u >> 32), (unsigned)(uint32_t)(b4.u & 0xFFFFFFFFu),
+                   (int)det[i].source_order);
+    }
+
+    xil_printf("CHAINB STEP=7 ACK phase (idle_before=%d)\r\n", s4d_is_idle());
+    {
+        uint64_t e2 = 0;
+        if (s4d_read_epoch(&e2) && e2 == epoch && s4d_rd(S4D_CSR_FRAME_R) == frame) {
+            s4d_wr(S4D_CSR_ACKLO_W, (uint32_t)epoch);
+            s4d_wr(S4D_CSR_ACKHI_W, (uint32_t)(epoch >> 32));
+            s4d_wr(S4D_CSR_CMD, S4D_CMD_ACK);
+            ack_idle = s4d_is_idle();
+        }
+    }
+    xil_printf("CHAINB RESULT={\"pass\":%d,\"done\":1,\"status\":%u,\"error\":%u,\"decode_rc\":%d,"
+               "\"count\":%u,\"raw\":%u,\"ack_idle\":%d,\"tensor_crc32\":%u,\"elapsed_ms\":%u,\"spin\":%u}\r\n",
+               (done == 1 && err == 0u && decode_rc == 0 && count >= 1u && ack_idle == 1) ? 1 : 0,
+               (unsigned)st, (unsigned)err, decode_rc, (unsigned)count, (unsigned)raw,
+               ack_idle, (unsigned)tcr, (unsigned)elapsed_ms, (unsigned)spin);
+    return (done == 1 && err == 0u && decode_rc == 0 && count >= 1u && ack_idle == 1) ? 0 : -2;
+}
+#endif
+
+
+#if defined(S4D_LONGRUN_SELFCHECK) && S4D_LONGRUN_SELFCHECK
+/* ---- 仪表化：每步魔数 + 数据中止捕获（仅写 0x11B00000 的 5 个字，不触候选区） ---- */
+#define S4D_LR_MAGIC_ADDR   0x11B00000u
+#define S4D_LR_MAGIC_VAL    0x4C524D47u   /* "LRMG" */
+#define S4D_LR_ABORT_VAL    0xAB0AB70Bu
+
+static void s4d_lr_mark(uint32_t step_id, uint32_t iter)
+{
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_MAGIC_ADDR;
+    m[0] = S4D_LR_MAGIC_VAL;
+    m[1] = (step_id & 0xFFu) | (iter << 8);
+    Xil_DCacheFlushRange((UINTPTR)S4D_LR_MAGIC_ADDR, 64);
+}
+
+static void s4d_lr_clear_magic(void)
+{
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_MAGIC_ADDR;
+    int i;
+    for (i = 0; i < 16; i++) { m[i] = 0u; }
+    Xil_DCacheFlushRange((UINTPTR)S4D_LR_MAGIC_ADDR, 64);
+}
+
+/* 数据中止处理器：记录 DFSR/DFAR + 当前 step 后停机（主机用普通 mrd 读魔数区即可定位） */
+static void s4d_lr_data_abort_handler(void *arg)
+{
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_MAGIC_ADDR;
+    uint32_t dfsr = 0u, dfar = 0u;
+    (void)arg;
+    __asm__ volatile("mrc p15, 0, %0, c5, c0, 0" : "=r"(dfsr));
+    __asm__ volatile("mrc p15, 0, %0, c6, c0, 0" : "=r"(dfar));
+    m[2] = dfsr;
+    m[3] = dfar;
+    m[4] = S4D_LR_ABORT_VAL;
+    Xil_DCacheFlushRange((UINTPTR)S4D_LR_MAGIC_ADDR, 64);
+    for (;;) { }
+}
+
+/* ---------------- 长跑自检：SW 预处理一次 -> 循环[START -> DONE_SAFE -> 解码 -> ACK] ----------------
+ * 判据（事先写死，见证据 README）：wall_ms>=1800000、iterations>=140、failures==0、
+ * 每轮 status==0x00000E04(DONE_SAFE) 且 error==0、decode_rc==0、count==1、raw==2、ack_idle==1、
+ * epoch 单调递增、框 8 字段与第一轮逐位一致（第一轮框另由主机侧与离线参考比对）。
+ * 停止：任一轮失败即停并打印失败轮次/状态；wall>=1800 s 或 iter>=160 先到者。
+ */
+#define S4D_LR_WALL_MS     1800000u
+#define S4D_LR_MAX_ITERS   160u
+#define S4D_LR_MIN_ITERS   140u
+#define S4D_LR_PROGRESS    10u
+
+typedef union { double d; uint64_t u; } s4d_lr_dbl;
+
+typedef struct {
+    int class_id;
+    int source_order;
+    s4d_lr_dbl score, x1, y1, x2, y2;
+} s4d_lr_box;
+
+static int s4d_lr_box_equal(const s4d_lr_box *a, const s4d_lr_box *b)
+{
+    return a->class_id == b->class_id && a->source_order == b->source_order
+        && a->score.u == b->score.u && a->x1.u == b->x1.u && a->y1.u == b->y1.u
+        && a->x2.u == b->x2.u && a->y2.u == b->y2.u;
+}
+
+static int s4d_longrun_selfcheck(void)
+{
+    uint32_t st = 0, err = 0, tcr = 0, prc;
+    uint64_t t_start = 0, t_now = 0, wall_ms = 0;
+    uint64_t epoch_first = 0, epoch_last = 0, epoch_prev = 0;
+    uint32_t iter = 0, failures = 0;
+    uint32_t e_min = 0xFFFFFFFFu, e_max = 0u, e_sum = 0u;
+    s2a_t62_detection det[S4D_DEC_MAX_BOX];
+    s4d_lr_box first;
+    int first_valid = 0;
+    int exit_code = 0;
+
+    s4d_cur_src_w = 640u;
+    s4d_cur_src_h = 480u;
+    memset(&first, 0, sizeof(first));
+
+    xil_printf("LONGRUN STEP=0 enter PREPROC=SW RAW=0x%08x wall_ms_max=%u iter_max=%u\r\n",
+               (unsigned)S4D_RAW_BASE, (unsigned)S4D_LR_WALL_MS, (unsigned)S4D_LR_MAX_ITERS);
+
+    prc = s4d_sw_preproc_bgr888_to_chw_int8((const uint8_t *)(uintptr_t)S4D_RAW_BASE, 640, 480,
+                                            (int8_t *)(uintptr_t)S4D_TENSOR_BASE);
+    s4d_region_flush(S4D_TENSOR_BASE, S4D_INPUT_BYTES);
+    s4d_region_flush(S4D_TENSOR_BASE + S4D_INPUT_BASE, S4D_WEIGHT_BYTES);
+    s4d_dsb();
+    tcr = s4d_crc32((const void *)(uintptr_t)S4D_TENSOR_BASE, S4D_INPUT_BYTES);
+    xil_printf("LONGRUN STEP=1 sw_preproc rc=%d tensor_crc32=0x%08x\r\n", prc, (unsigned)tcr);
+    if (prc != 0) {
+        xil_printf("LONGRUN RESULT={\"exit\":1,\"reason\":\"preproc_fail\",\"rc\":%d}\r\n", prc);
+        return -1;
+    }
+    if (!s4d_is_idle()) {
+        xil_printf("LONGRUN RESULT={\"exit\":1,\"reason\":\"not_idle\",\"status\":%u}\r\n",
+                   (unsigned)s4d_rd(S4D_CSR_STATUS));
+        return -1;
+    }
+
+    XTime_GetTime(&t_start);
+    for (iter = 1u; iter <= S4D_LR_MAX_ITERS; iter++) {
+        uint64_t e_before = 0, e_expect = 0, e_after = 0;
+        uint64_t t0 = 0, t1 = 0;
+        uint32_t elapsed_ms = 0, spin = 0, count = 0u, raw = 0u;
+        int done = 0, decode_rc = -99, ack_idle = 0;
+        int round_fail = 0;
+        const char *fail_why = "";
+
+        XTime_GetTime(&t_now);
+        wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+        if (wall_ms >= S4D_LR_WALL_MS) { break; }
+        s4d_lr_mark(8u, iter);   /* 8 = 下一轮开始 */
+
+        /* STEP A：epoch */
+        s4d_lr_mark(1u, iter);   /* 1 = 读 epoch */
+        if (!s4d_read_epoch(&e_before)) { round_fail = 1; fail_why = "epoch_read_fail"; }
+        e_expect = e_before + 1u;
+        if (round_fail == 0 && !s4d_is_idle()) { round_fail = 1; fail_why = "not_idle_before_round"; }
+
+        /* STEP B：配置 + START */
+        if (round_fail == 0) {
+            s4d_lr_mark(2u, iter);   /* 2 = 配置 CSR */
+            s4d_wr(S4D_CSR_FRAME_W, iter);
+            s4d_wr(S4D_CSR_INADDR_W, 0u);
+            s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
+            s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
+            s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
+            s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
+            s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
+            XTime_GetTime(&t0);
+            s4d_lr_mark(3u, iter);   /* 3 = 写 START */
+            s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
+        }
+
+        /* STEP C：等 DONE_SAFE */
+        if (round_fail == 0) {
+            s4d_lr_mark(4u, iter);   /* 4 = 等 DONE_SAFE */
+            for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
+                int r = s4d_safe_done(&st, &err);
+                XTime_GetTime(&t1);
+                elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+                if (r == 1) { done = 1; break; }
+                if (r == 2) { done = 2; break; }
+                if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
+                if (elapsed_ms >= S4D_M4B_WALL_MS) { done = 0; break; }
+            }
+            if (done != 1) { round_fail = 1; fail_why = "not_done_safe"; }
+            else if (st != 0x00000E04u) { round_fail = 1; fail_why = "status_not_0E04"; }
+            else if (err != 0u) { round_fail = 1; fail_why = "error_nonzero"; }
+        }
+
+        /* STEP D：invalidate + 解码 */
+        if (round_fail == 0) {
+            s4d_lr_mark(5u, iter);   /* 5 = invalidate head */
+            s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
+            s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
+            s4d_lr_mark(6u, iter);   /* 6 = 解码 */
+            decode_rc = s2a_decode_nms_reference(
+                (const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF), (uint32_t)iter, (uint32_t)iter,
+                det, &count);
+            raw = s4d_last_raw_candidates;
+            if (decode_rc != 0) { round_fail = 1; fail_why = "decode_rc_nonzero"; }
+            else if (count != 1u) { round_fail = 1; fail_why = "count_not_1"; }
+            else if (raw != 2u) { round_fail = 1; fail_why = "raw_not_2"; }
+        }
+
+        /* STEP E：核对框是否与第一轮逐位一致 */
+        if (round_fail == 0) {
+            s4d_lr_box b;
+            b.class_id = (int)det[0].class_id;
+            b.source_order = (int)det[0].source_order;
+            b.score.d = det[0].score; b.x1.d = det[0].x1; b.y1.d = det[0].y1;
+            b.x2.d = det[0].x2; b.y2.d = det[0].y2;
+            if (first_valid == 0) {
+                first = b;
+                first_valid = 1;
+                xil_printf("LONGRUN BOX iter=%u class=%d order=%d score_hi=%08x score_lo=%08x "
+                           "x1_hi=%08x x1_lo=%08x y1_hi=%08x y1_lo=%08x "
+                           "x2_hi=%08x x2_lo=%08x y2_hi=%08x y2_lo=%08x\r\n",
+                           (unsigned)iter, b.class_id, b.source_order,
+                           (unsigned)(uint32_t)(b.score.u >> 32), (unsigned)(uint32_t)(b.score.u & 0xFFFFFFFFu),
+                           (unsigned)(uint32_t)(b.x1.u >> 32), (unsigned)(uint32_t)(b.x1.u & 0xFFFFFFFFu),
+                           (unsigned)(uint32_t)(b.y1.u >> 32), (unsigned)(uint32_t)(b.y1.u & 0xFFFFFFFFu),
+                           (unsigned)(uint32_t)(b.x2.u >> 32), (unsigned)(uint32_t)(b.x2.u & 0xFFFFFFFFu),
+                           (unsigned)(uint32_t)(b.y2.u >> 32), (unsigned)(uint32_t)(b.y2.u & 0xFFFFFFFFu));
+            } else if (!s4d_lr_box_equal(&b, &first)) {
+                round_fail = 1; fail_why = "box_changed";
+            }
+        }
+
+        /* STEP F：ACK 回 idle */
+        if (round_fail == 0) {
+            s4d_lr_mark(7u, iter);   /* 7 = ACK */
+            if (s4d_read_epoch(&e_after) && e_after == e_expect && s4d_rd(S4D_CSR_FRAME_R) == (uint32_t)iter) {
+                s4d_wr(S4D_CSR_ACKLO_W, (uint32_t)e_expect);
+                s4d_wr(S4D_CSR_ACKHI_W, (uint32_t)(e_expect >> 32));
+                s4d_wr(S4D_CSR_CMD, S4D_CMD_ACK);
+                ack_idle = s4d_is_idle();
+            }
+            if (ack_idle != 1) { round_fail = 1; fail_why = "ack_not_idle"; }
+        }
+
+        /* STEP G：epoch 单调 */
+        if (round_fail == 0) {
+            if (epoch_prev != 0 && e_expect <= epoch_prev) { round_fail = 1; fail_why = "epoch_not_monotonic"; }
+            epoch_prev = e_expect;
+            if (epoch_first == 0) { epoch_first = e_expect; }
+            epoch_last = e_expect;
+            if (e_min > elapsed_ms) { e_min = elapsed_ms; }
+            if (e_max < elapsed_ms) { e_max = elapsed_ms; }
+            e_sum += elapsed_ms;
+        }
+
+        if (round_fail != 0) {
+            failures++;
+            xil_printf("LONGRUN FAIL iter=%u why=%s status=0x%08x error=0x%08x decode_rc=%d count=%u raw=%u "
+                       "ack_idle=%d elapsed_ms=%u spin=%u\r\n",
+                       (unsigned)iter, fail_why, (unsigned)st, (unsigned)err, decode_rc,
+                       (unsigned)count, (unsigned)raw, ack_idle, (unsigned)elapsed_ms, (unsigned)spin);
+            exit_code = 2;
+            break;
+        }
+        /* 心跳：**每轮一行**（诊断窗口据此确定最后完成的轮次） */
+        xil_printf("LONGRUN STEP iter=%u elapsed_ms=%u wall_ms=%u epoch_lo=%u epoch_hi=%u status=0x%08x\r\n",
+                   (unsigned)iter, (unsigned)elapsed_ms, (unsigned)wall_ms,
+                   (unsigned)(uint32_t)e_expect, (unsigned)(uint32_t)(e_expect >> 32), (unsigned)st);
+    }
+
+    s4d_lr_clear_magic();   /* 收尾清零魔数区（W4 校验全 0） */
+    XTime_GetTime(&t_now);
+    wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+    {
+        uint32_t done_iters = (failures == 0u) ? iter : (iter - 1u);
+        uint32_t avg = (done_iters > 0u && e_min != 0xFFFFFFFFu) ? (e_sum / done_iters) : 0u;
+        int within = (wall_ms >= S4D_LR_WALL_MS && done_iters >= S4D_LR_MIN_ITERS && failures == 0u) ? 1 : 0;
+        if (failures == 0u && within == 0) { exit_code = 3; }
+        if (failures == 0u) { exit_code = within ? 0 : 3; }
+        xil_printf("LONGRUN RESULT={\"exit\":%d,\"iterations\":%u,\"failures\":%u,\"wall_ms_lo\":%u,"
+                   "\"wall_ms_hi\":%u,\"min_elapsed_ms\":%u,\"avg_elapsed_ms\":%u,\"max_elapsed_ms\":%u,"
+                   "\"epoch_first_lo\":%u,\"epoch_last_lo\":%u,\"tensor_crc32\":%u,\"box_class\":%d,"
+                   "\"box_order\":%d,\"box_score_hi\":%08x,\"box_score_lo\":%08x,"
+                   "\"box_x1_hi\":%08x,\"box_x1_lo\":%08x,\"box_y1_hi\":%08x,\"box_y1_lo\":%08x,"
+                   "\"box_x2_hi\":%08x,\"box_x2_lo\":%08x,\"box_y2_hi\":%08x,\"box_y2_lo\":%08x,"
+                   "\"within_judgement\":%d}\r\n",
+                   exit_code, (unsigned)done_iters, (unsigned)failures,
+                   (unsigned)(uint32_t)(wall_ms & 0xFFFFFFFFu), (unsigned)(uint32_t)(wall_ms >> 32),
+                   (unsigned)((e_min == 0xFFFFFFFFu) ? 0u : e_min), (unsigned)avg, (unsigned)e_max,
+                   (unsigned)(uint32_t)epoch_first, (unsigned)(uint32_t)epoch_last, (unsigned)tcr,
+                   first.class_id, first.source_order,
+                   (unsigned)(uint32_t)(first.score.u >> 32), (unsigned)(uint32_t)(first.score.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(first.x1.u >> 32), (unsigned)(uint32_t)(first.x1.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(first.y1.u >> 32), (unsigned)(uint32_t)(first.y1.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(first.x2.u >> 32), (unsigned)(uint32_t)(first.x2.u & 0xFFFFFFFFu),
+                   (unsigned)(uint32_t)(first.y2.u >> 32), (unsigned)(uint32_t)(first.y2.u & 0xFFFFFFFFu),
+                   within);
+    }
+    return exit_code;
+}
+#endif
+
+
 /* ---------------- infer_one_from_pl_tensor：跳过 CPU memcpy / 输入写回 ---------------- */
 int infer_one_from_pl_tensor(const s4d_host_req_t *req)
 {
@@ -594,6 +1109,22 @@ int main(void)
 #if defined(S4D_M4B_SELFCHECK) && S4D_M4B_SELFCHECK
     xil_printf("S4D MODE=M4B_SELFCHECK geom=%s\r\n", S4D_GEOM.name);
     (void)s4d_m4b_selfcheck();
+    for (;;) { }
+#endif
+#if defined(S4D_CHAIN_SELFCHECK) && S4D_CHAIN_SELFCHECK
+    xil_printf("S4D MODE=CHAIN_SELFCHECK geom=%s\r\n", S4D_GEOM.name);
+    (void)s4d_chain_selfcheck();
+    for (;;) { }
+#endif
+#if defined(S4D_CHAINB_SELFCHECK) && S4D_CHAINB_SELFCHECK
+    xil_printf("S4D MODE=CHAINB_SELFCHECK geom=%s\r\n", S4D_GEOM.name);
+    (void)s4d_chainb_selfcheck();
+    for (;;) { }
+#endif
+#if defined(S4D_LONGRUN_SELFCHECK) && S4D_LONGRUN_SELFCHECK
+    xil_printf("S4D MODE=LONGRUN_SELFCHECK geom=%s\r\n", S4D_GEOM.name);
+    (void)s4d_longrun_selfcheck();
+    xil_printf("LONGRUN DONE, halting\r\n");
     for (;;) { }
 #endif
     uint32_t last_frame = 0xFFFFFFFFu;

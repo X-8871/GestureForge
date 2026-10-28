@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "ps_decode_link_20261028_r01",
+  "artifact": "长跑仪表化变体（长跑 + 每轮心跳 + 每步魔数 0x11B00000 + 数据中止捕获）",
+  "supersedes_for_diagnosis": "app_elf_registration_r6.json（r6 为纯长跑；r7 只加仪表化，不改判据）",
+  "source": {
+    "app": {
+      "path": "vitis/stage4/ps/s4d_ps_app.c",
+      "sha256_worktree_disk": "957fcf3614f91cfd28117e678b188733888a3dd28439820d8a282a2decfa63ef",
+      "hash_basis": "worktree_disk"
+    },
+    "sw_preproc": {
+      "path": "vitis/stage4/ps/s4d_sw_preproc.c",
+      "sha256_worktree_disk": "2c645e201785eb5ff1af88fb8723cb96f8bfdc1fc00b399499ccdf7fa87c647a",
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "changes": [
+    "心跳改为**每轮一行**（诊断窗口据此确定最后完成的轮次）",
+    "每步把 `step_id | iter<<8` 写到 **0x11B00000**（步骤 1..8：读epoch/配置CSR/START/等DONE/invalidate/decode/ACK/下一轮），写后 `Xil_DCacheFlushRange` 保证可被 JTAG mrd 读到",
+    "安装 **数据中止处理器**（`Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT, …)`），把 DFSR/DFAR + 中止标记写入魔数区后停机",
+    "收尾 **清零魔数区**（正常结束时）；异常时保留证据供 mrd 读取",
+    "允许写入范围：仅 0x11B00000 的 16 个字（实际用 5 个）；不写候选区、不写冻结对象"
+  ],
+  "memory_map": {
+    "magic_addr": "0x11B00000",
+    "words": {
+      "0": "magic 0x4C524D47",
+      "1": "step_id | iter<<8",
+      "2": "DFSR",
+      "3": "DFAR",
+      "4": "abort_marker 0xAB0AB70B"
+    },
+    "in_candidate_region": false,
+    "in_frozen_objects": false,
+    "note": "0x11B00000 位于 DDR 空隙（DDR 测试区 0x11AE0000-0x11B00000 之后），不在候选区 [0x12000000,0x12C08000) 内"
+  },
+  "build": {
+    "command": "python -B scripts/stage4_s4b/build_s4d_ps_app_v2.py --define S4D_LONGRUN_SELFCHECK=1 --out-tag longrunI",
+    "exit_code": 0,
+    "toolchain": {
+      "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe"
+    }
+  },
+  "outputs": {
+    "sw0_longrunI": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunI/s4d_ps_app_sw0_longrunI.elf",
+      "elf_sha256": "c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1",
+      "elf_size": 274384,
+      "map_sha256": "57cd5e9473015d74eb319ecdbd75bf220c0444bb0d5b6e504758f7ae8478d2fb",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    },
+    "pl_longrunI": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunI/s4d_ps_app_pl_longrunI.elf",
+      "elf_sha256": "e1575dcab5f932a3e0a0381d2df75d1db7647a019a5cff021f8fa51ce892e999",
+      "elf_size": 274384,
+      "map_sha256": "8f184ee55e42649e22a6a7cdc783acba4d9ff3ff2e0f900016b46ba7a205d54d",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "judgement": "判据不变（与 r6 相同，见 bringup_longrun_20261028_r01/README.md LR-1..LR-9）；本变体只增加仪表化",
+  "verification": {
+    "script": "scripts/stage4_s4b/verify_longrun_v2.py",
+    "result": {
+      "script": "scripts/stage4_s4b/verify_longrun_v2.py",
+      "verdict": "PASS",
+      "checks": 11,
+      "fail": [],
+      "exit_code": 0,
+      "evidence": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunI/verify_longrun_v2.json"
+    }
+  },
+  "boundary": "离线构建；未上板；ENABLE=0；不写 QSPI；不改线；未 push；不主张 G3/G4/G5；M3/M2 未闭合"
+}

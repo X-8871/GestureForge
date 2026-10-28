@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "freeze_errata_20261028_r01",
+  "artifact": "F5/F6/F7 取代关系与词面口径",
+  "F5_results_supersession": {
+    "superseded": {
+      "file": "report/evidence/S4-T34/bringup_window6_20261028_r03/results_window5.json",
+      "sha256": "b3a106de17e90c3b1b6daa4fce48e171aeddca691a7a03393f90195447b916d0",
+      "conclusion": "WINDOW6_STOPPED_ON_FAILURE",
+      "defect": "conclusion 曾因统计口径 bug（P0_gate/P1_hw_server 无 status 字段）误记为 STOPPED_ON_FAILURE"
+    },
+    "superseding": {
+      "file": "report/evidence/S4-T34/bringup_window6_20261028_r03/results_window6.json",
+      "sha256": "a34e9417e35f8b61bacbb5ad93a9bddca1a63bce55bb6ab319002f99df14c185",
+      "conclusion": "WINDOW6_ALL_PASS",
+      "fix": "按 `status in {PASS,NOT_RUN} or (status is None and exit_code==0)` 重算"
+    },
+    "rule": "**原文件不删不改**；以 superseding 为最终结论；window_close.txt.orig 亦保留"
+  },
+  "F6_criteria_wording": {
+    "file": "report/evidence/S4-T34/bringup_longrun_20261028_r01/results_longrun.json",
+    "sha256": "c2d60cfb2f48d9ab26b4126753c159b1f925790bb2a4c77e1fe206a9120bf2ec",
+    "observed": {
+      "conclusion": "LONGRUN_STOPPED_ON_FAILURE",
+      "W2_parsed": {}
+    },
+    "issue": "长跑未产出 `LONGRUN RESULT` 时 `failures` 为 None；`conclusion=LONGRUN_STOPPED_ON_FAILURE` 但缺“未达判据”词面",
+    "wording": "**CRITERIA_UNREACHED**：判据未达（wall_ms/iterations 未满足、无结果可判），**不得**解读为“0 失败通过”",
+    "applies_to": [
+      "bringup_longrun_20261028_r01",
+      "bringup_longrun_diag_20261028_r04",
+      "bringup_longrun_diag_20261028_r05（W2 采集器 why=MAXTIME 亦属此类，另见其 results_diag_final.json）"
+    ]
+  },
+  "F7_window5_stats_posthoc": {
+    "file": "report/evidence/S4-T34/bringup_window6_20261028_r03/results_window5.json",
+    "sha256": "b3a106de17e90c3b1b6daa4fce48e171aeddca691a7a03393f90195447b916d0",
+    "note": "window5 的失败步统计口径为**事后**在 results_window6.json 中定义并重算；reading 指南：引用 window5 结论时须同时引用 results_window6.json 的口径说明"
+  },
+  "hash_basis": "commit_blob",
+  "hash_basis_commit": "f84d541bafb1bf24a72f86d28fa8a55377532d82",
+  "boundary": "不改原文件；离线；不主张 G3/G4/G5"
+}

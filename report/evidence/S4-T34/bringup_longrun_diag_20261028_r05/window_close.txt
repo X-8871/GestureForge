@@ -1,0 +1,20 @@
+# 长跑诊断 r05（先取证后清理）执行记录
+
+- RunId：`bringup_longrun_diag_20261028_r05`
+- 开窗/收窗：2026-10-28T22:56:20+08:00 → 2026-10-28T23:20:18+08:00；用时 22.9 min
+- 结论：**DIAG_LOCATED_STEP4_ITER24**
+- ELF：longrunI `c822dc0bf85b3068aa2ca9884382af1bf15e5c7ed7a021b19ef3a53d06b897c1`
+
+## 关键证据
+- 最后心跳：`LONGRUN STEP iter=23 elapsed_ms=11821 wall_ms=260132 epoch_lo=23 epoch_hi=0 status=0x00000E04`
+- 停住：第 24 轮 **step=4（等 DONE_SAFE）**；`DFSR=0x00000000`、`DFAR=0x00000000`、**无中止标记**
+- 魔数原始 8 字：`0x4c524d47, 0x00001804, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000`（magic 校验 OK）
+- 采集器 why=MAXTIME 属**采集器缺陷**（杂散字节刷新 silence 计时），已按心跳间隔修正；判据/实测值未改
+
+## 恢复
+- 候选区：`initial_diff=918130` → `restore_diff=0`
+- 魔数区清零：PASS（写 exit=0，复读全 0=True）
+
+## 边界
+- 覆盖 2B 平台位流 + SW 预处理；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`；未做 JTAG CSR 直探。
+- 不主张 G3/G4/G5；M3/M2 未闭合。

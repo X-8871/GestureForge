@@ -1,0 +1,23 @@
+# 阶段4 4-D bring-up 窗口 #2（收窗记录）
+
+- RunId：`bringup_window2_20261028_r02`
+- 收窗（UTC+8）：2026-10-28T12:22:23+08:00
+- 用时：5.6 min
+- 结论：**WINDOW2_STOPPED_ON_FAILURE**
+- stop_reason：异常：name 'INIT_ELF' is not defined
+
+## 各步
+- IDENT：status=`PASS` exit_code=`0`
+- P0_gate：status=`None` exit_code=`0`
+- P1_hw_server：status=`None` exit_code=`0`
+- R0_dump：status=`PASS` exit_code=`0`
+- R1_restore：status=`PASS` exit_code=`0`
+- S1_bisect：status=`PASS` exit_code=`0`
+- P4_teardown：status=`PASS` exit_code=`0`
+
+## 收尾核验
+- 3121 LISTENING=0；residual_processes=[]
+
+## 边界
+- 不主张 G3/G4/G5；`ENABLE=0` 未碰；未写 QSPI；未改线；未发独立 `stop`；未 push。
+- R0 记录的候选区差异属**上一窗口 M4-b 预置残留**（已知偏差），本窗口已按 M3 快照整区恢复并 diff=0。

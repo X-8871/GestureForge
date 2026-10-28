@@ -18,7 +18,7 @@
       --evidence-dir report/evidence/S4-FREEZE/stage4_freeze_20261028_r04 \
       --commit <冻结包提交>
 
-退出码：0=成功且自检通过；2=输入错误；3=存在未入库路径；4=存在日志/被忽略项；5=输入类文件自指；6=自检失败。
+退出码：0=成功且自检通过；2=输入错误；3=存在未入库路径；4=存在日志/被忽略项；5=输入类文件自指；6=自检失败；7=包内出现 *_verification/ 路径。
 """
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ VERIFIER = "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py"
 GATE = r"D:\FPGA_Competition\verification\check_manifest_hash_basis.py"
 DELIVERY = r"D:\FPGA_Competition\verification\check_stage_delivery.py"
 MANIFEST_NAMES = ("landing_manifest.json", "delivery_manifest.json")
+VERIFICATION_DIR_FORBIDDEN = True
 
 
 def git(repo: Path, *args: str) -> tuple[int, str]:
@@ -101,6 +102,9 @@ def main() -> int:
         if git(repo, "check-ignore", "-q", rel)[0] == 0:
             print(f"[FAIL] 包内不得含被 gitignore 忽略项：{rel}", file=sys.stderr)
             return 4
+        if any(part.endswith("_verification") for part in Path(rel).parts):
+            print(f"[FAIL] 冻结包目录内出现验证目录路径（分离失败）：{rel}", file=sys.stderr)
+            return 7
 
     # 输入类文件不得包含被绑定提交/树的哈希（自指防护）
     self_ref = []

@@ -3,19 +3,20 @@
   "stage": "4",
   "task_id": "S4-FREEZE",
   "run_id": "stage4_freeze_20261028_r01",
-  "source_commit": "3028e3d2c8ab416cf474e9834c8b1075f7efecdf",
+  "source_commit": "f0881b1fab562a83283d557174f01b8b322b6e18",
   "evidence_dir": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01",
   "interfaces": [],
+  "interfaces_not_applicable_reason": "本冻结包不引入新接口；接口与地址契约已作为 spec 成员冻结",
   "files": [
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/check_stage_delivery.log",
-      "sha256": "93d76b80416a71ae61be754cebdd97f2e9ac042448523eeb11ff3c2fdd22de7f",
+      "sha256": "20ecc6fc7f1688afbe0c2f488a352b1c363273c355f203da4186f6ace4fb3f47",
       "role": "result",
       "hash_basis": "worktree_disk"
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/clean_export.log",
-      "sha256": "adb14af5b443539e7fc1811e96d29a56c14766d82929c5178ab57159ceab2f66",
+      "sha256": "dd6a4db962a0a7b24f3f3384dd9b6483013d5bf17f18fd31a3bddd3283a931ba",
       "role": "result",
       "hash_basis": "worktree_disk"
     },
@@ -33,7 +34,7 @@
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_clean_export.txt",
-      "sha256": "5dae72a737750057776cc6551d222d7a5b70e71940b313cd2fc9a1aca1f4a9f4",
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8",
       "role": "result",
       "hash_basis": "worktree_disk"
     },
@@ -69,14 +70,14 @@
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set.json",
-      "sha256": "cd9e03860e3f484c557755ea6768b5ffe8b29be811843c3bb9695785aa5481cd",
-      "role": "result",
+      "sha256": "67447c639b0a0d2a83d9becb524ca8cb281b85c0b21f2ea01fd0cb46b8918b82",
+      "role": "artifact",
       "hash_basis": "worktree_disk"
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set_report.json",
       "sha256": "a7fcaa20548d513f8a09b21ddc2f80b6604dbf6d89488c8ebf20c1666fb12ef9",
-      "role": "result",
+      "role": "artifact",
       "hash_basis": "worktree_disk"
     },
     {
@@ -99,8 +100,8 @@
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/results_freeze.json",
-      "sha256": "d79b4023b3d85aebd1dea8d51e618333e90348203e09993e16f042968150c9e9",
-      "role": "result",
+      "sha256": "2d7809b80d8f1697d28df1b825e9d765eed7e2e0efeb4fa2cb1dd5732eabc59e",
+      "role": "artifact",
       "hash_basis": "worktree_disk"
     },
     {
@@ -120,6 +121,13 @@
       "sha256": "0c2a68c98e01a63d78095eed69495f4f7dfe60ce4d955143f91d3f544a9d6ade",
       "role": "result",
       "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
+      "sha256": "8e03088318ea12aa0826c9853bf09fa2969f6338e554464343083da38b07556e",
+      "role": "source",
+      "hash_basis": "worktree_disk",
+      "keep_reason": "冻结包验证器源码"
     }
   ],
   "checks": [
@@ -139,14 +147,14 @@
     },
     {
       "name": "freeze_verifier_clean_export",
-      "status": "FAIL",
+      "status": "PASS",
       "command": "python -B <export>/scripts/stage4_s4ctrl/verify_stage4_freeze_package.py --repo <export> --frozen-set report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set.json --disk",
-      "exit_code": 1,
+      "exit_code": 0,
       "reason": null
     }
   ],
   "limitations": [
-    "冻结集 artifact_identity 共 11 项，其中 3 项仓库外产物（2B bit/2B XSA/weights）不列入本交付清单（越出 project-root），由冻结验证器按绝对路径重算",
+    "artifact_identity 共 11 项，其中 3 项仓库外产物不列入本清单（越出 project-root），由冻结验证器按绝对路径重算",
     "NEITHER_ACCOUNTED 候选区 6 字节变化根因未定",
     "M3 FAIL/未闭合",
     "M4-a/M4-b NOT_RUN",
@@ -154,6 +162,11 @@
     "PS 真实解码未接线",
     "冻结不等于验收通过"
   ],
+  "tool_versions": {
+    "python": "3.12 (Windows x64)",
+    "git": "git version 2.56.0.windows.2",
+    "vivado": "2026.1（仅历史登记）"
+  },
   "hash_basis": "worktree_disk",
-  "hash_basis_commit": "3028e3d2c8ab416cf474e9834c8b1075f7efecdf"
+  "hash_basis_commit": "f0881b1fab562a83283d557174f01b8b322b6e18"
 }

@@ -1,0 +1,197 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_driver_v3_20261028_r01",
+  "generated_utc8": "2026-10-28T11:01:43+08:00",
+  "checks": [
+    {
+      "name": "region_arithmetic",
+      "ok": true,
+      "detail": {
+        "base": "0x11ae0000",
+        "end": "0x11b00000",
+        "bytes": 131072,
+        "aligned64": true,
+        "size_128k": true,
+        "no_head26_overlap": true,
+        "below_meta": true
+      }
+    },
+    {
+      "name": "pattern[zeros]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "fa43239bcee7b97ca62f007cc68487560a39e19f74f3dde7486db3f98df8e471"
+      }
+    },
+    {
+      "name": "pattern[ones]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "b5a41c3758763bbec72769fab4a2533bf2db0b6312d93d25a695f9e4b9e02260"
+      }
+    },
+    {
+      "name": "pattern[aa55]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "7e56ab51dd01377883e9fda970f4d33a5bc36724b39c425d285fbef1c490635a"
+      }
+    },
+    {
+      "name": "pattern[walking1]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "7412e31810fee411021ef2be1ac2b59947b9846e93ec23c482ac5e0de752ee59"
+      }
+    },
+    {
+      "name": "pattern_distinct",
+      "ok": true,
+      "detail": "四种图样哈希须互异"
+    },
+    {
+      "name": "s1_verdict_CHANGED_AT_PL_PROGRAM",
+      "ok": true,
+      "detail": "CHANGED_AT_PL_PROGRAM"
+    },
+    {
+      "name": "s1_verdict_CHANGED_AT_INIT_EXEC",
+      "ok": true,
+      "detail": "CHANGED_AT_INIT_EXEC"
+    },
+    {
+      "name": "s1_verdict_NEITHER_STAGE",
+      "ok": true,
+      "detail": "NEITHER_STAGE"
+    },
+    {
+      "name": "s1_verdict_PRE_EXISTING_CHANGE",
+      "ok": true,
+      "detail": "PRE_EXISTING_CHANGE"
+    },
+    {
+      "name": "s2_pass",
+      "ok": true,
+      "detail": "DDR_BIT_TEST_PASS"
+    },
+    {
+      "name": "s2_retention",
+      "ok": true,
+      "detail": "DDR_RETENTION_SUSPECTED"
+    },
+    {
+      "name": "s2_bit_error",
+      "ok": true,
+      "detail": "DDR_BIT_ERROR_SUSPECTED"
+    },
+    {
+      "name": "s2_restore_hard_stop",
+      "ok": true,
+      "detail": "HARD_STOP_RESTORE_DIFF"
+    },
+    {
+      "name": "no_hardcoded_status",
+      "ok": true,
+      "detail": {
+        "hits": []
+      }
+    },
+    {
+      "name": "stage_order",
+      "ok": true,
+      "detail": {
+        "order": [
+          "S1_bisect",
+          "S2_ddr_bit_test",
+          "P2_load_app",
+          "M4b_dma_visibility",
+          "M4a_cache_visibility",
+          "M3_recheck",
+          "S3_chain_lite",
+          "P4_teardown"
+        ],
+        "ok": true
+      }
+    },
+    {
+      "name": "time_budget_60min",
+      "ok": true,
+      "detail": {
+        "budget_min": {
+          "S1_bisect": 10,
+          "S2_ddr_bit_test": 20,
+          "P2_load_app": 4,
+          "M4b_dma_visibility": 8,
+          "M4a_cache_visibility": 5,
+          "M3_recheck": 7,
+          "S3_chain_lite": 5,
+          "P4_teardown": 1
+        },
+        "total": 60,
+        "limit": 60
+      }
+    },
+    {
+      "name": "tcl_stub",
+      "ok": true,
+      "detail": {
+        "exists": true,
+        "has_PROGRAM_OK": true,
+        "has_program_hw": true
+      }
+    },
+    {
+      "name": "app_sw_sha_prefix",
+      "ok": true,
+      "detail": {
+        "actual": "1224f04891bfc9229d361a55d73932a4200eafc33918d859d418a0b5f32f8b34",
+        "expected_prefix": "1224f048"
+      }
+    },
+    {
+      "name": "bit_identity_prefix",
+      "ok": true,
+      "detail": "555a70c2"
+    },
+    {
+      "name": "chain_lite_honest_NOT_RUN",
+      "ok": true,
+      "detail": {
+        "status": "NOT_RUN",
+        "reason": "PS 应用当前只在 UART 输出 frame/rc/seq，未输出框 JSON/未发布 boxes；chain-lite 需应用补充后另开卡"
+      }
+    },
+    {
+      "name": "s1_tcl_read_only",
+      "ok": true,
+      "detail": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mrd -bin -file {outfile} 0x11ae0000 32"
+    },
+    {
+      "name": "s2_tcl_uses_region",
+      "ok": true,
+      "detail": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mwr -bin -file p.bin 0x11ae0000 32768;"
+    },
+    {
+      "name": "ps_result_parse",
+      "ok": true,
+      "detail": {
+        "magic": 1395934290,
+        "version": 1,
+        "session_id": 7,
+        "frame_id": 42,
+        "result_seq": 3,
+        "phys_status": 0,
+        "error_code": 0,
+        "last_reject": 0,
+        "raw_candidate_count": 2,
+        "box_count": 1
+      }
+    }
+  ],
+  "fail": [],
+  "verdict": "PASS"
+}

@@ -105,3 +105,39 @@
 - 先后：**先 bisect（S0→S1→S2）**；`NEITHER_STAGE`/`PRE_EXISTING_CHANGE` ⇒ 立即接 DDR 测试。
 - 详细版：`report/evidence/S4-T32/ddr_bit_test_plan_20261027_r01/ddr_bit_test_plan.md`。
 - **M2 措辞**：bisect 出结论前，M2 只能写"构造性排除 + 待重审"，不得写已证明。
+
+---
+
+## 9. 执行顺序对齐（2026-10-28 r02；**驱动 v3** `scripts/stage4_s4b/run_bringup_driver.py`）
+
+> **本章取代 §5 的 45 min 分段与 §2/§3/§4 的执行先后**；各判据正文（M3/M4-a/M4-b/M1/M2）不变。
+
+### 9.1 固定顺序与预算（时间盒 **60 min**）
+| 段 | 预算 | 动作 | 停止/判定 |
+|---|---|---|---|
+| P0 | 3 min | 只读门禁：无重型进程、3121 无 LISTENING、无 `index.lock`、COM4 可用 | 任一不满足 ⇒ 停止开窗 |
+| S1 | 10 min | **bisect（只读）**：复位 dump D0 → 装 PL dump D1 → `dow init.elf`+`con` dump D2 | 判定 `CHANGED_AT_PL_PROGRAM/CHANGED_AT_INIT_EXEC/PRE_EXISTING_CHANGE/NEITHER_STAGE`；全程仅 `mrd` |
+| S2 | 20 min | **DDR 位测试**：`0x11AE0000–0x11B00000`（128 KiB）4 图样（`0x00`/`0xFF`/`0xAA55` 交替/walking-1），T0 立即、T1 全图样后、T2 延迟 1 s 读回 | `DDR_BIT_TEST_PASS` / `DDR_BIT_ERROR_SUSPECTED` / `DDR_RETENTION_SUSPECTED`；**恢复 diff≠0 ⇒ 立即停** |
+| P2 | 4 min | 装载 PS 应用：核 ELF SHA 前缀 `1224f048`（SW 变体）→ `rst -system -stop`→`dow init.elf`→`con`→`dow app`→`rst -processor -stop`→`con`；**必须收到 UART `S4D PS APP` 横幅** | 无横幅 ⇒ FAIL 停 |
+| M4-b | 8 min | 判据 M4b-1..3（真实 DMA 路径；长跑不在本窗口） | 任一不符 ⇒ FAIL 停 |
+| M4-a | 5 min | UART R/I/F/W + 恢复比对 | 任一 CRC 不符 ⇒ FAIL |
+| M3 | 7 min | **复检**（只读对拍 `m3_snapshot_orig.bin` + 恢复 diff） | 差异≠0 ⇒ 立即停 |
+| S3 | 5 min | 可选 `--chain-lite`（RAW→SW 预处理→启动网络→解码→UART 单框 JSON） | 时间不足或应用未输出框 JSON ⇒ `NOT_RUN` 并写原因，**不得**用离线结果替代 |
+| P4 | 1 min | 收尾：停自起 hw_server、核 3121 无 LISTENING、无残留重型进程 | 不 `stop` 处理器目标 |
+
+> **顺序要点**：M3 复检放在 **M4-b → M4-a 之后**（教训：顺序反了会被 M3 的 REGION_CHANGED 提前阻断）；S1/S2 在所有写操作之前，S1 全程只读。
+
+### 9.2 停止条件（任一命中 ⇒ 立即停、保留现场、报 DSH）
+1. 载荷/位流 SHA-256 与登记前缀不符；2. 需要写 `[0x12000000,0x12C08000)` 以外地址；3. S1 判定 `PRE_EXISTING_CHANGE` 且未按 §9.3 处置；4. S2 **恢复 diff≠0**；5. S2 `DDR_BIT_ERROR_SUSPECTED`/`DDR_RETENTION_SUSPECTED`；6. M4-b/M4-a 任一判据不符；7. M3 复检差异≠0；8. 复位/挂死/串口异常/异常退出；9. 超 60 min 或 DSH 叫停。
+
+### 9.3 恢复入口
+- 候选区原字节：S2 快照 `s2_snapshot.bin`（本窗口 128 KiB）+ M3 快照 `m3_snapshot_orig.bin`（整区）；`mwr -bin -file <snapshot> <addr> <words>` 恢复后必须整区 dump 与快照 **差异 0**；差异≠0 立即停。
+- 进程：仅结束本窗口自起的 `hw_server`；不按名字杀 `mcp` 相关进程；不 `stop` 处理器目标。
+
+### 9.4 冻结身份口径
+- **冻结身份以 annotated tag `stage4-offline-freeze-20261028-r5` 为准**；当前工作区已因 PS 真实解码接线等开发推进**偏离** tag r5，属正常开发，**不得**把工作区当作冻结树校验；
+- 需要复核冻结身份时，从 tag r5 干净导出后运行 `scripts/stage4_s4ctrl/verify_stage4_freeze_package.py`，不要用工作区文件替代。
+
+### 9.5 明确未做
+- chain-lite：PS 应用当前 UART 只输出 `frame/rc/seq`，**未输出框 JSON、未发布 boxes 到结果区** ⇒ 窗口内记 `NOT_RUN`（原因见上），不得以离线解码结果替代；
+- M4-b 长跑（≥30 min/≥1000 次）另批；M1/M2 仍按"构造性排除 + 待重审"措辞。

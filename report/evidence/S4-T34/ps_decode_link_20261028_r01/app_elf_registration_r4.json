@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "ps_decode_link_20261028_r01",
+  "artifact": "PS 应用 chain-lite-A 变体登记（新增 CHAIN_SELFCHECK 分支；不改 M4-b 判据）",
+  "supersedes": null,
+  "relation_to_r3": "同一源码文件的新变体（不同编译宏），r3 的 M4-b ELF 不受影响、SHA 不变",
+  "source": {
+    "path": "vitis/stage4/ps/s4d_ps_app.c",
+    "sha256_worktree_disk": "4c209ce76dd00a916b1dc6638ca94e7a0ab581f7699a720608bc7ee9a80ba8e0",
+    "hash_basis": "worktree_disk",
+    "note": "本轮新增 CHAIN_SELFCHECK 分支 + 两处调用修正；提交后按 commit_blob 重算"
+  },
+  "changes": [
+    "新增 `#if defined(S4D_CHAIN_SELFCHECK)` 分支：注入张量 -> START -> 等 DONE_SAFE -> invalidate -> PS 解码/NMS -> 框 JSON -> ACK（不改 M4-b 判据与既有逻辑）",
+    "修正1：`s2a_decode_nms_reference` 的 heads 形参不接受 NULL（NULL ⇒ -1），改传 arena head13 指针",
+    "修正2：xil_printf 不支持 %g/浮点 ⇒ double 改按 IEEE-754 位模式（hi/lo 各 %08x）输出，主机按位重建",
+    "raw（候选数）改从全局 s4d_last_raw_candidates 回读"
+  ],
+  "build": {
+    "command": "python -B scripts/stage4_s4b/build_s4d_ps_app_v2.py --define S4D_CHAIN_SELFCHECK=1 --out-tag chainA3",
+    "toolchain": {
+      "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "gcc_version_family": "arm-none-eabi (GCC, Vitis 2026.1 bundled)",
+      "size": "arm-none-eabi-size.exe",
+      "nm": "arm-none-eabi-nm.exe",
+      "flags": "-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -DSDT -DPREPROC_SRC={0,1} -DS4D_M4B_SELFCHECK=1 -O2 -g3 -std=gnu11"
+    },
+    "bsp": "tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0（include/lib/Xilinx.spec）",
+    "linked_libs": [
+      "xilstandalone",
+      "xiltimer",
+      "xil",
+      "gcc",
+      "c",
+      "m"
+    ],
+    "exit_code": 0
+  },
+  "outputs": {
+    "sw0_chainA3": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/chainA3/s4d_ps_app_sw0_chainA3.elf",
+      "elf_sha256": "740815e218486bce52eadf1acf087db933c1a799fd3c73c0944eacaf62ae80a8",
+      "elf_size": 253072,
+      "map_sha256": "54dcde08b18b34f9135aa4241ec09b561d69c1ff5b4b0c1b8aff995362c5407c",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "evidence_chainlite_a": {
+    "run_id": "bringup_chainlite_a_20261028_r03",
+    "conclusion": "CHAINLITE_A_PASS",
+    "judgement": {
+      "C1": "CHAIN RESULT.pass==1",
+      "C2": "与 r13 冻结参考逐字段一致（abs<=1e-9）",
+      "C3": "PREPROC=INJECTED_TENSOR，不比较 RAW"
+    },
+    "result_line": "CHAIN RESULT={\"pass\":1,\"done\":1,\"status\":3588,\"error\":0,\"decode_rc\":0,\"count\":1,\"raw\":2,\"ack_idle\":1,\"elapsed_ms\":11821,\"spin\":78145570}",
+    "reference_file": "report/evidence/S4-B/20261021_r01/host_result_test_fist_000.json",
+    "reference_sha256": "0c793dafc3660a22f80499088053a57c5fd73d8521ce5fdbf6bc0377065c7fc0",
+    "max_abs_diff": 0.0,
+    "input_tensor_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "input_tensor_bytes": 519168,
+    "boundary": "chain-lite-A 结论仅覆盖 2B 平台位流适用性；ENABLE=0；不主张 G3/G4/G5"
+  },
+  "boundary": "离线构建 + 一次板上自检；ENABLE=0；未写 QSPI；未改线;未 push；不主张 G3/G4/G5；M3/M2 未闭合"
+}

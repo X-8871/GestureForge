@@ -1,0 +1,23 @@
+# chain-lite-A（PS 侧链路，不含预处理）记录
+
+- RunId：`bringup_chainlite_a_20261028_r02`
+- 开窗：2026-10-28T20:40:00+08:00；收窗：2026-10-28T20:43:07+08:00
+- 用时：3.1 min
+- 结论：**CHAINLITE_A_STOPPED_ON_FAILURE**
+- stop_reason：chain-lite-A FAIL（按规则停，保原文）
+- 驱动 v3.2.6 `311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855`；chainA ELF `d91d8fa9a0fcd19dd195e7dcfdfb544ada8c876c51c96f48047b417c2067cbde`；输入张量 `da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e`
+- 判据：C1 `CHAIN RESULT.pass==1`；C2 与 r13 冻结参考逐字段一致（abs<=1e-9）；C3 无预处理、不比较 RAW
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_chain_a：`FAIL` exit=`1`
+- W4_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 结论仅覆盖 **2B 平台位流适用性**；不主张 G3/G4/G5；M3/M2 未闭合。
+- `ENABLE=0` 未碰；未写 QSPI；未改线；未 push；未用 `-force`；未做 JTAG CSR 直探。

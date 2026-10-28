@@ -1,0 +1,21 @@
+# 阶段4 4-D bring-up 窗口 #4（记录）
+
+- RunId：`bringup_window4_20261028_r02`
+- 开窗：2026-10-28T14:57:29+08:00；收窗：2026-10-28T14:57:55+08:00
+- 用时：0.4 min
+- 结论：**WINDOW4_STOPPED_ON_FAILURE**
+- stop_reason：候选区恢复失败 diff=None（立即停）
+- 驱动：v3.2.3 SHA-256 `ceee3d7d50cee1d54262b4a5afbe3d8062f497c650d0a0aaf1eec2cd40e1f438`
+- 收尾：3121 LISTENING=0；residual=[]
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- W0_restore_candidate：`FAIL` exit=`1`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 不主张 G3/G4/G5；`ENABLE=0` 未碰；未写 QSPI；未改线；未发独立 `stop`；未 push。
+- 未做 JTAG `mrd 0x43C00000` 直探（工具限制，`-force` 禁用）；CSR 证据只认应用 UART。
+- M4-b 结论仅限 **2B 平台位流上的 4-D PS 侧行为**，不覆盖 4-D 自建位流。

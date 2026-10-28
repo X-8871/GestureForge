@@ -1,0 +1,8 @@
+{
+  "step": "S3_rst_por",
+  "xsdb_exit": 0,
+  "a9_present": true,
+  "dap_error_in_log": true,
+  "empty_targets": false,
+  "log_tail": "\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; if {[catch {targets -set -filter {name =~ \"*DAP*\"}} e1]} { puts \"DAP_SEL_BY_NAME_ERR=$e1\"; catch {targets 1} e2; puts \"DAP_SEL_BY_INDEX_ERR=$e2\" }; rst -por;  targets; disconnect; exit\nexit=0 elapsed=3.746\nDAP_SEL_BY_NAME_ERR no targets found with \"name =~ \"*DAP*\"\". available targets:\n  1  APU\n     2  ARM Cortex-A9 MPCore #0 (APB AP transaction error, DAP status 0xF0000021)\n     3  ARM Cortex-A9 MPCore #1 (APB AP transaction error, DAP status 0xF0000021)\n  4  xc7z020\nDAP_SEL_BY_INDEX_ERR \npor not supported for target\n    while executing\n\"error \"por not supported for target\"\"\n    (procedure \"rst\" line 108)\n    invoked from within\n\"rst -por\""
+}

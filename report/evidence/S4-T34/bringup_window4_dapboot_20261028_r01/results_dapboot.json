@@ -1,0 +1,119 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window4_dapboot_20261028_r01",
+  "window": 4,
+  "phase": "DAP bootstrap A→B→C",
+  "started_utc8": "2026-10-28T15:02:20+08:00",
+  "attempts": {
+    "A": {
+      "attempt": "A_single_session",
+      "xsdb_exit": 0,
+      "pre_targets": "\"; targets; puts \"",
+      "post_targets": "\"; targets; puts \"",
+      "dap_recovered_double_condition": false,
+      "dap_detail": {
+        "a9_line": null,
+        "cond1_enumerated_a9": false,
+        "cond2_no_apb_error_on_a9_line": false,
+        "apb_error_present_on_a9": false
+      },
+      "rst_dap_err": "$e3\"; after 2000; puts \"POST_RST_TARGETS_BEGIN\"; targets; puts \"POST_RST_TARGETS_END\"; if {[catch {targets -set -filter {name =~ \"*Cortex-A9*#0*\"}} e4]} { puts \"A9_SELECT_ERR=$e4\"; disconnect; exit }; catch {rst -system -stop} e5; puts \"RST_SYSTEM_ERR=$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_post.bin 0x12000000 3153920; disconnect; exit",
+      "a9_select_err": "$e4\"; disconnect; exit }; catch {rst -system -stop} e5; puts \"RST_SYSTEM_ERR=$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_post.bin 0x12000000 3153920; disconnect; exit",
+      "rst_system_err": "$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_post.bin 0x12000000 3153920; disconnect; exit",
+      "state": "[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_post.bin 0x12000000 3153920; disconnect; exit",
+      "pre_dump": {
+        "exists": false,
+        "bytes": null,
+        "diff_vs_m3": null,
+        "sha256": null
+      },
+      "post_dump": {
+        "exists": false,
+        "bytes": null,
+        "diff_vs_m3": null,
+        "sha256": null
+      },
+      "log_tail": "saction error, DAP status 0xF0000021\nSTATE APB AP transaction error, DAP status 0xF0000021\nCannot read memory if not stopped. Context ARM Cortex-A9 MPCore #0 state: APB AP transaction error, DAP status 0xF0000021\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#0 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 301989888 4 12615680 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/A_single_session_pre.bin 0x12000000 3153920\"",
+      "restore_ok": false
+    },
+    "B": {
+      "attempt": "B_lower_jtag_freq",
+      "xsdb_exit": 0,
+      "pre_targets": "\"; targets; puts \"",
+      "post_targets": "\"; targets; puts \"",
+      "dap_recovered_double_condition": false,
+      "dap_detail": {
+        "a9_line": null,
+        "cond1_enumerated_a9": false,
+        "cond2_no_apb_error_on_a9_line": false,
+        "apb_error_present_on_a9": false
+      },
+      "rst_dap_err": "$e3\"; after 2000; puts \"POST_RST_TARGETS_BEGIN\"; targets; puts \"POST_RST_TARGETS_END\"; if {[catch {targets -set -filter {name =~ \"*Cortex-A9*#0*\"}} e4]} { puts \"A9_SELECT_ERR=$e4\"; disconnect; exit }; catch {rst -system -stop} e5; puts \"RST_SYSTEM_ERR=$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_post.bin 0x12000000 3153920; disconnect; exit",
+      "a9_select_err": "$e4\"; disconnect; exit }; catch {rst -system -stop} e5; puts \"RST_SYSTEM_ERR=$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_post.bin 0x12000000 3153920; disconnect; exit",
+      "rst_system_err": "$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_post.bin 0x12000000 3153920; disconnect; exit",
+      "state": "[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_post.bin 0x12000000 3153920; disconnect; exit",
+      "pre_dump": {
+        "exists": false,
+        "bytes": null,
+        "diff_vs_m3": null,
+        "sha256": null
+      },
+      "post_dump": {
+        "exists": false,
+        "bytes": null,
+        "diff_vs_m3": null,
+        "sha256": null
+      },
+      "log_tail": "action error, DAP status 0xF0000021\nSTATE APB AP transaction error, DAP status 0xF0000021\nCannot read memory if not stopped. Context ARM Cortex-A9 MPCore #0 state: APB AP transaction error, DAP status 0xF0000021\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#1 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 301989888 4 12615680 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/B_lower_jtag_freq_pre.bin 0x12000000 3153920\"",
+      "restore_ok": false
+    },
+    "C": {
+      "attempt": "C_por_other_targets",
+      "xsdb_exit": 0,
+      "pre_targets": "\"; targets; puts \"",
+      "post_targets": "\"; targets; puts \"",
+      "dap_recovered_double_condition": false,
+      "dap_detail": {
+        "a9_line": null,
+        "cond1_enumerated_a9": false,
+        "cond2_no_apb_error_on_a9_line": false,
+        "apb_error_present_on_a9": false
+      },
+      "rst_dap_err": "$e3\"; after 2000; puts \"POST_RST_TARGETS_BEGIN\"; targets; puts \"POST_RST_TARGETS_END\"; if {[catch {targets -set -filter {name =~ \"*Cortex-A9*#0*\"}} e4]} { puts \"A9_SELECT_ERR=$e4\"; disconnect; exit }; catch {rst -system -stop} e5; puts \"RST_SYSTEM_ERR=$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_post.bin 0x12000000 3153920; disconnect; exit",
+      "a9_select_err": "$e4\"; disconnect; exit }; catch {rst -system -stop} e5; puts \"RST_SYSTEM_ERR=$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_post.bin 0x12000000 3153920; disconnect; exit",
+      "rst_system_err": "$e5\"; puts \"STATE=[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_post.bin 0x12000000 3153920; disconnect; exit",
+      "state": "[state]\"; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_pre.bin 0x12000000 3153920; mwr -bin -file D:/codex-worktrees/w4/report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin 0x12000000 3153920; mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_post.bin 0x12000000 3153920; disconnect; exit",
+      "pre_dump": {
+        "exists": false,
+        "bytes": null,
+        "diff_vs_m3": null,
+        "sha256": null
+      },
+      "post_dump": {
+        "exists": false,
+        "bytes": null,
+        "diff_vs_m3": null,
+        "sha256": null
+      },
+      "log_tail": "tion error, DAP status 0xF0000021\nSTATE APB AP transaction error, DAP status 0xF0000021\nCannot read memory if not stopped. Context ARM Cortex-A9 MPCore #0 state: APB AP transaction error, DAP status 0xF0000021\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#1 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 301989888 4 12615680 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_pre.bin 0x12000000 3153920\"",
+      "restore_ok": false
+    }
+  },
+  "rule": "恢复 = ①枚举到 A9#0 且 ②该行无 APB 错误；写回后 post dump diff 必须 0",
+  "hw_server": {
+    "ok": true,
+    "pid": 30196
+  },
+  "jtag_freq_before_log": "elapsed=0.662\nInvalid target. Use \"jtag targets\" command to select a target\n    while executing\n\"error \"Invalid target. Use \\\"jtag targets\\\" command to select a target\"\"\n    (procedure \"getcurnode\" line 4)\n    invoked from within\n\"getcurnode\"\n    (procedure \"::xsdb::jtag::frequency\" line 15)\n    invoked from within\n\"jtag frequency\"\n    invoked from within\n\"puts \"JTAG_FREQ_BEFORE [jtag frequency]\"\"",
+  "teardown": {
+    "stopped_pid": 30196,
+    "listening_3121": 0,
+    "residual_processes": [],
+    "time_wait_note": "TIME_WAIT 可接受，不清理"
+  },
+  "recovered_and_restored": false,
+  "finished_utc8": "2026-10-28T15:02:50+08:00",
+  "elapsed_min": 0.5,
+  "conclusion": "ALL_FAILED",
+  "recommend_physical_power_cycle": true
+}

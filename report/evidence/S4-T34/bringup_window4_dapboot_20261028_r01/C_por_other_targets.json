@@ -1,0 +1,46 @@
+{
+  "attempt": "C_por_other_targets",
+  "xsdb_exit": 0,
+  "pre_targets": "",
+  "post_targets": "",
+  "dap_recovered_double_condition": false,
+  "dap_detail": {
+    "a9_line": null,
+    "cond1_enumerated_a9": false,
+    "cond2_no_apb_error_on_a9_line": false,
+    "apb_error_present_on_a9": false
+  },
+  "rst_dap_err": "",
+  "a9_select_err": "",
+  "rst_system_err": "Cannot reset APU. APB AP transaction error, DAP status 0xF0000021",
+  "state": "APB AP transaction error, DAP status 0xF0000021",
+  "pre_dump": {
+    "exists": false,
+    "bytes": null,
+    "diff_vs_m3": null,
+    "sha256": null
+  },
+  "post_dump": {
+    "exists": false,
+    "bytes": null,
+    "diff_vs_m3": null,
+    "sha256": null
+  },
+  "log_tail": "tion error, DAP status 0xF0000021\nSTATE APB AP transaction error, DAP status 0xF0000021\nCannot read memory if not stopped. Context ARM Cortex-A9 MPCore #0 state: APB AP transaction error, DAP status 0xF0000021\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#1 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 301989888 4 12615680 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -bin -file D:/codex-worktrees/w4/report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/C_por_other_targets_pre.bin 0x12000000 3153920\"",
+  "restore_ok": false,
+  "parsed_from": "只解析 exit= 之后的输出（修正回显行误匹配）",
+  "apb_sticky_error_present": true,
+  "targets_rendered_empty": true,
+  "verdict": {
+    "a9_selectable": true,
+    "a9_state_usable": false,
+    "restore_attempted": false,
+    "restore_ok": false
+  },
+  "key_facts": [
+    "targets 输出为空（PRE/POST 均空），但 targets -set -filter A9#0 未报错 ⇒ A9 目标对象存在且可选",
+    "[state] = APB AP transaction error, DAP status 0xF0000021",
+    "rst -system -stop ⇒ Cannot reset APU. APB AP transaction error, DAP status 0xF0000021",
+    "mrd 失败 ⇒ 未发生任何 DDR 读/写；脚本无 pre/post bin 文件"
+  ]
+}

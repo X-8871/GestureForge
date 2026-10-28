@@ -1,0 +1,124 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window4_20261028_r02",
+  "window": 4,
+  "driver_sha256": "ceee3d7d50cee1d54262b4a5afbe3d8062f497c650d0a0aaf1eec2cd40e1f438",
+  "started_utc8": "2026-10-28T14:57:29+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "file": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+          "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+          "expect": "555a70c2",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "m4b_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\m4b\\s4d_ps_app_sw0_m4b.elf",
+          "sha256": "ada4b30d98298ec9cea053d97d01e9fea91ae97e70c8a13f7be1bc36079445a7",
+          "expect": "ada4b30d",
+          "match": true
+        },
+        {
+          "tag": "m3_snapshot",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_a_20261027_r01\\m3_snapshot_orig.bin",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver_v323",
+          "file": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "ceee3d7d50cee1d54262b4a5afbe3d8062f497c650d0a0aaf1eec2cd40e1f438",
+          "expect": "ceee3d7d50cee1d54262b4a5afbe3d8062f497c650d0a0aaf1eec2cd40e1f438",
+          "match": true
+        },
+        {
+          "tag": "m4b_input",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_layer_divergence_20261026_r02\\bridge_input_postquant_int8_chw.bin",
+          "exists": true,
+          "bytes": 519168
+        },
+        {
+          "tag": "m4b_weights",
+          "file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "exists": true,
+          "bytes": 5903100
+        },
+        {
+          "tag": "head13",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head13.raw",
+          "exists": true,
+          "bytes": 5070
+        },
+        {
+          "tag": "head26",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head26.raw",
+          "exists": true,
+          "bytes": 20280
+        }
+      ],
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "real_index_lock_present": false,
+      "exit_code": 0
+    },
+    "P1_hw_server": {
+      "ok": true,
+      "pid": 7268,
+      "exit_code": 0
+    },
+    "W0_restore_candidate": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 1,
+      "initial_diff": null,
+      "sha256": null,
+      "status": "FAIL",
+      "exit_code": 1,
+      "rewritten": true,
+      "write_exit": 0,
+      "dump2_exit": 1,
+      "restore_diff": null,
+      "post_restore_sha256": null
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 7268,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": "候选区恢复失败 diff=None（立即停）",
+  "boundary": "不主张 G3/G4/G5；ENABLE=0 未碰；未写 QSPI；未改线；未发独立 stop；未 push；M4-b 结论仅限 2B 平台位流上的 4-D PS 侧行为",
+  "finished_utc8": "2026-10-28T14:57:55+08:00",
+  "elapsed_min": 0.4,
+  "failed_steps": [
+    "P0_gate",
+    "P1_hw_server",
+    "W0_restore_candidate"
+  ],
+  "conclusion": "WINDOW4_STOPPED_ON_FAILURE"
+}

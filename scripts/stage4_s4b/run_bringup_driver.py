@@ -1,4 +1,4 @@
-"""阶段4 4-D bring-up 执行驱动 v3.2.3（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 四动作使能）。
+"""阶段4 4-D bring-up 执行驱动 v3.2.4（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 四动作 + xsdb 错误文本守卫）。
 
 v3.2 变更（2026-10-28，窗口 #2 根因修复）：
   1. **修复 NameError**：`load_elf_ddr()` 引用模块级 `INIT_ELF`，v3.1 从未赋值 ⇒ 装载阶段必抛
@@ -51,6 +51,14 @@ v3.2 变更（2026-10-28，窗口 #2 根因修复）：
      依据见 `docs/stage4/S4D_ps_pl_level_shifter_enable_20261028_r01.md` 与
      `report/evidence/S4-T34/csr_base_audit_20261028_r01/`（UG585 §2.6 / PDF 页 1412、1454）。
      **注意：仍不把 JTAG `mrd 0x43C00000` 作判据**（调试器需 `loadhw` 登记地址，属工具限制）。
+  7. **v3.2.4（窗口 #4 实测的 fail-open 修复）**：`xsdb -eval` 在 TCL 报错时**进程退出码仍为 0**
+     （实测 `W0_write.exit_code.txt=0` 而日志是 `no targets found`）⇒ 只判进程码会**假成功**。
+     本版新增 `XSDb_ERROR_PATTERNS` + `_xsdb_error_text()` + `xsdb_checked()` + `jtag_write_checked()`：
+     命中 `no targets found` / `while executing` / `Memory read|write error` / `Invalid target` /
+     `not been added to the memory map` / `unexpected arguments` / `not supported for target`
+     ⇒ **该步直接判 FAIL（无论进程码）**；`load_elf_ddr`、S1b 恢复写、四动作使能均已接入。
+     另新增 **`dap_recovered()` 双条件判定**（lead 2026-10-28 裁决）：必须 ① 枚举到
+     `Cortex-A9 MPCore #0` **且** ② 该行不含 `APB AP transaction error`，缺一不得写"恢复"。
 
 与 v2 的差别：
   1. 分段固定顺序：**S1 bisect → S2 DDR 位测试 → 装载 PS 应用 → M4-b → M4-a → M3 复检 →（可选 chain-lite）→ 收尾**；
@@ -117,7 +125,38 @@ SLCR_UNLOCK_KEY = 0xDF0D
 SLCR_LOCK_KEY = 0x767B
 LVL_SHFTR_CFG = 0xA             # §2.4.8：PL 配置期间（关输入、防毛刺）
 LVL_SHFTR_ON = 0xF              # §2.4.8/§6：PL 配置完成后使能全部
-_PL_STATE = {"programmed": False, "lvl_readback": None}
+_PL_STATE = {"programmed": False, "lvl_readback": None, "fpga_rst_ctrl_readback": None}
+
+# ---- v3.2.4：xsdb 日志错误文本守卫（fail-closed；xsdb 在 TCL 报错时进程码仍为 0）----
+XSDb_ERROR_PATTERNS = (
+    "no targets found",
+    "while executing",
+    "memory read error",
+    "memory write error",
+    "invalid target",
+    "not been added to the memory map",
+    "unexpected arguments",
+    "not supported for target",
+)
+
+
+def dap_recovered(targets_text: str | None) -> tuple[bool, dict]:
+    """DAP 恢复判定（**双条件**，缺一不得写"恢复"）：
+
+    ① 枚举到 `Cortex-A9 MPCore #0`；
+    ② 该行**不含** `APB AP transaction error`（有错误码说明调试 APB 仍不可用）。
+    依据：lead 2026-10-28 裁决（窗口 #4 观测到 A9 出现但带 `DAP status 0xF0000021`）。
+    """
+    txt = targets_text or ""
+    a9_lines = [ln.strip() for ln in txt.splitlines()
+                if "Cortex-A9" in ln and "#0" in ln]
+    cond1 = bool(a9_lines)
+    cond2 = cond1 and not any("APB AP transaction error" in ln for ln in a9_lines)
+    detail = {"a9_line": a9_lines[0] if a9_lines else None,
+              "cond1_enumerated_a9": cond1,
+              "cond2_no_apb_error_on_a9_line": cond2,
+              "apb_error_present_on_a9": any("APB AP transaction error" in ln for ln in a9_lines)}
+    return (cond1 and cond2), detail
 
 # 候选区（S1 dump / 恢复；12,615,680 B）
 CAND_BASE = 0x12000000
@@ -292,6 +331,35 @@ def parse_mrd_value(raw: str | None) -> int | None:
     return None
 
 
+def _xsdb_error_text(txt: str | None) -> str | None:
+    """在 xsdb 日志里找 TCL/硬件错误文本；命中即返回该行（**fail-closed 守卫**）。
+
+    背景（窗口 #4 实测）：`xsdb -eval` 在 TCL 报错时**进程退出码仍为 0**
+    （例：`W0_write.exit_code.txt=0` 而日志是 `no targets found`）⇒ 只判进程码会**假成功**。
+    """
+    low = (txt or "").lower()
+    for pat in XSDb_ERROR_PATTERNS:
+        if pat in low:
+            for line in (txt or "").splitlines():
+                if pat in line.lower():
+                    return line.strip()[:200]
+            return pat
+    return None
+
+
+def xsdb_checked(eval_text: str, tag: str, timeout: int = 1200) -> tuple[int, str | None]:
+    """执行 xsdb 并**同时**校验进程码与日志错误文本；返回 (exit_code, error_text)。"""
+    code = base.xsdb(eval_text, tag, timeout=timeout)
+    return code, _xsdb_error_text(_read_step_log(tag))
+
+
+def jtag_write_checked(path: Path, addr: int, tag: str, words: int) -> tuple[int, str | None]:
+    """整块写内存并校验日志错误文本（防"TCL 报错但进程码 0"的假成功）。"""
+    return xsdb_checked(f"connect -url {base.HW_URL}; {base.select_core()}"
+                        f"mwr -bin -file {Path(path).as_posix()} {hex(addr)} {words}; "
+                        f"disconnect; exit", tag)
+
+
 def lvl_shifter_tcl(value: int, readback_hint: str = "PPL_LVL_RB") -> str:
     """生成 PS-PL 使能 TCL：**四动作**（与 2B `ps7_post_config` 一致）+ 双读回。
 
@@ -388,11 +456,13 @@ def enable_ps_pl_level_shifters(value: int = LVL_SHFTR_ON, tag: str = "PPL_lvl_s
                    else ("BAD" if "PPL_LVL_RB_BAD" in lines else None))
     rst_verdict = ("OK" if "PPL_LVL_RB_RST_OK" in lines
                    else ("BAD" if "PPL_LVL_RB_RST_BAD" in lines else None))
-    ok = (code == 0 and readback == value and rst_readback == 0
+    err = _xsdb_error_text(txt)
+    ok = (code == 0 and err is None and readback == value and rst_readback == 0
           and tcl_verdict != "BAD" and rst_verdict != "BAD")
     res = {"status": "PASS" if ok else "FAIL", "exit_code": 0 if ok else 1,
            "actions": ["SLCR_UNLOCK=0xDF0D", f"LVL_SHFTR_EN={hex(value)}",
                        "FPGA_RST_CTRL=0x0", "SLCR_LOCK=0x767B"],
+           "xsdb_error_text": err,
            "write_value": hex(value), "readback_raw": raw, "tcl_verdict": tcl_verdict,
            "readback": hex(readback) if readback is not None else None,
            "fpga_rst_ctrl_raw": raw_rst, "fpga_rst_ctrl_verdict": rst_verdict,
@@ -675,6 +745,45 @@ def offline_selftest() -> int:
                        "ok": r_rst_bad["status"] == "FAIL"
                              and r_rst_bad.get("fpga_rst_ctrl_readback") == "0x1",
                        "detail": r_rst_bad})
+        # (i) v3.2.4：日志错误文本守卫（判别力两侧：报错必抓、干净必过）
+        def _fake_log(body: str):
+            def _f(eval_text, step, timeout=600):
+                RUN_DIR.mkdir(parents=True, exist_ok=True)
+                (RUN_DIR / f"{step}.log").write_text(body, encoding="utf-8")
+                return 0          # 关键：故意返回 0，模拟 xsdb 的"TCL 报错但进程码 0"
+            return _f
+
+        err_body = ('$ cmd /c xsdb.bat -eval ...\nexit=0 elapsed=0.800\n'
+                    'no targets found with "name =~ "*Cortex-A9*#0*"". available targets:\n'
+                    '    while executing\n"error \\"no targets found\\""\n')
+        clean_body = "$ cmd /c xsdb.bat -eval ...\nexit=0 elapsed=0.500\nS1_RST_STOPPED\n"
+        base.xsdb = _fake_log(err_body)
+        code_e, err_e = xsdb_checked("connect; targets; disconnect; exit", "SELFTEST_guard_err")
+        base.xsdb = _fake_log(clean_body)
+        code_c, err_c = xsdb_checked("connect; rst -system -stop; disconnect; exit", "SELFTEST_guard_clean")
+        checks.append({"name": "xsdb_error_guard_both_sides",
+                       "ok": (code_e == 0 and err_e is not None and "no targets found" in err_e.lower()
+                              and code_c == 0 and err_c is None),
+                       "detail": {"err_side": {"exit": code_e, "error": err_e},
+                                  "clean_side": {"exit": code_c, "error": err_c},
+                                  "rule": "进程码 0 但日志含错误文本 ⇒ 必须判失败"}})
+        # (j) 注入：load_elf_ddr 在"假成功"日志下必须返回非 0
+        base.xsdb = _fake_log(err_body)
+        code_ph = load_elf_ddr(INIT_ELF, "SELFTEST_load_phantom")
+        checks.append({"name": "load_elf_ddr_fails_on_phantom_success", "ok": code_ph != 0,
+                       "detail": {"returned": code_ph,
+                                  "rule": "xsdb 进程码 0 但日志报 no targets found ⇒ 装载必须判失败"}})
+        # (k) v3.2.4：DAP 恢复双条件（lead 裁决）
+        ok_clean, det_clean = dap_recovered(
+            "  1  APU\n  2  ARM Cortex-A9 MPCore #0\n  3  ARM Cortex-A9 MPCore #1\n  4  xc7z020\n")
+        ok_apb, det_apb = dap_recovered(
+            "  2  ARM Cortex-A9 MPCore #0 (APB AP transaction error, DAP status 0xF0000021)\n")
+        ok_none, det_none = dap_recovered("  1  DAP (APB AP transaction error, DAP status 0x30000021)\n  2  xc7z020\n")
+        checks.append({"name": "dap_recovered_requires_no_apb_error",
+                       "ok": (ok_clean and not ok_apb and not ok_none),
+                       "detail": {"clean_a9": det_clean, "a9_with_apb_error": det_apb,
+                                  "no_a9": det_none,
+                                  "rule": "必须 ①枚举到 A9#0 且 ②该行无 APB AP transaction error"}})
     finally:
         base.xsdb = _orig_xsdb
         if _orig_ensure_uart is not None:
@@ -828,7 +937,12 @@ def load_elf_ddr(elf, tag, hold_reset=True):
         + 'after 200; puts "HOLD_STATE=[state]"; '
         + 'con; after 2000; puts "RUN_STATE=[state]"; disconnect; exit'
     )
-    return base.xsdb(cmds, tag, timeout=1200)
+    code, err = xsdb_checked(cmds, tag, timeout=1200)
+    if err is not None:
+        (RUN_DIR / f"{tag}.xsdb_error_text.txt").write_text(err + "\n", encoding="utf-8", newline="\n")
+        log(f"[FAIL] {tag}: xsdb 日志错误文本命中 ⇒ 视为失败：{err}")
+        return 99 if code == 0 else code
+    return code
 
 
 def stage_s1(args) -> dict:
@@ -887,10 +1001,11 @@ def stage_s1(args) -> dict:
         if len(ref_bytes) != CAND_BYTES:
             return {"status": "FAIL", "reason": f"M3 快照尺寸不符：{len(ref_bytes)} != {CAND_BYTES}",
                     "verdict": verdict}
-        c = base.jtag_write_file(ref, CAND_BASE, "S1b_restore_write", CAND_BYTES // 4)
+        c, err = jtag_write_checked(ref, CAND_BASE, "S1b_restore_write", CAND_BYTES // 4)
         write_exit("S1b_restore_write", c)
-        if c != 0:
-            return {"status": "FAIL", "reason": "候选区恢复写失败（立即停）", "exit": c}
+        if c != 0 or err is not None:
+            return {"status": "FAIL",
+                    "reason": f"候选区恢复写失败（立即停）；xsdb_error_text={err}", "exit": c}
         chk = RUN_DIR / "s1_post_restore.bin"
         c = _dump("S1b_post_restore_dump", CAND_BASE, CAND_BYTES, chk)
         write_exit("S1b_post_restore_dump", c)

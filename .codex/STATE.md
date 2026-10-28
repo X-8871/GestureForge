@@ -395,3 +395,37 @@
   `r04/`（`-force` 超时 + 内联断言 `&` 缺陷导致装载 exit=255）、`r05/`（DAP 错误态）、
   `bringup_window3_recover_20261028_r01/`（恢复尝试：A9 未回来）。
 - 结论：**M4-b 仍未取得有效判定**；M3/M2 未闭合；不主张 G3/G4/G5。
+
+## 窗口#4 阻断记录（2026-10-28 14:51，**POR 后 DAP 仍不可用**）
+
+- **现象**：Wong 于 14:50 完成物理 POR；窗口 #4 于 14:51:27 开窗，**第一步 W0 即停**。
+  `targets -set -filter {name =~ "*Cortex-A9*#0*"}` 报
+  `no targets found … available targets: 1 DAP (APB AP transaction error, DAP status 0x30000021), 2 xc7z020`
+  ⇒ **DAP 仍处错误态、Cortex-A9 未出现**；紧接着的一次式只读 `targets` 探测（新 hw_server）
+  甚至**枚举到 0 个器件**（连 DAP/`xc7z020` 都没有），`probe_result.json` 已存。
+- **USB-JTAG 线正常**：OS 层 `USB\VID_0403&PID_6014\210512180081` 状态 OK
+  （与 xsdb 的 `JTAG-HS1-210512180081` 一致）⇒ 线在、板端 TAP 未响应。
+- **本轮未发生任何真实硬件操作**：所有 xsdb 调用均在 `targets` 处报错，DDR 未读未写；
+  候选区因 POR 内容未定义，**恢复尚未完成**（需 A9 恢复后按 M3 快照写回并核验 diff=0）。
+- **待人工确认**：板卡电源是否真的断开≥10 s 再上电（电源开关/指示灯/12V 适配器）、USB-JTAG 两端排线、
+  BOOT 模式开关；确认后我再做一次只读 `targets`，出现 A9 才继续 W0→W4。
+- **工具缺陷（fail-open，待修）**：`xsdb -eval` 在 TCL 报错时**进程退出码仍为 0**
+  （例：`W0_write.exit_code.txt=0` 但日志是 `no targets found`）⇒ 现有驱动只判进程码会**假成功**。
+  建议 v3.2.4 增加"日志错误文本守卫"（`no targets found` / `while executing` / `Memory read|write error`）。
+- 证据：`report/evidence/S4-T34/bringup_window4_20261028_r01/`（`W0_restore_candidate.json`、
+  `W0_reset_stop|ps7_init|write|dump*.log`、`window_close.txt`）、
+  `report/evidence/S4-T34/bringup_window4_probe_20261028_r01/`（`POR_targets.log`、`probe_result.json`）。
+- 结论：**M4-b 仍未取得有效判定**；M3/M2 未闭合；不主张 G3/G4/G5。
+
+## 窗口#4 补记（A/B/C 单会话引导结果，2026-10-28 15:03）
+
+- **A/B/C 全部失败**：A9 目标**可选**（`targets -set -filter {name =~ "*Cortex-A9*#0*"}` 不报错），但 `[state]`、`rst -system -stop`、`mrd` 全部报 `APB AP transaction error, DAP status 0xF0000021`；
+  `rst -dap` 返回成功但**清不掉**该 sticky 错误；`rst -por` 在 DAP 与 `xc7z020` 上均报 `por not supported for target`；
+  `jtag frequency` 需先 `jtag targets` 选目标，故 B 的降频**未生效**。
+- **抖动记录**：三次会话 `targets` 渲染均为空，但 A9 目标对象存在且可选 ⇒ **列表渲染与目标对象不一致**。
+- **未发生任何 DDR 读/写**：`mrd` 失败，0 个 dump/bin 文件；候选区仍为 POR 后未定义态、**未恢复**（W0 diff = 不适用）。
+- **结论/建议**：需 **物理彻底断电（拔 12V ≥10 s）** 才能清 PS 调试 APB sticky 错误；恢复后按 A 的单会话引导重试。
+- 驱动 **v3.2.4** SHA `6eb91f15364e6f5bc93ad19ece0e8c1d199bb5a2fd5f65a3a117ba68df8dc786`，自检 **45/45 PASS exit 0**
+  （xsdb 日志错误文本守卫 + `dap_recovered()` 双条件 + 注入自检）。
+- 证据：`report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/`（A/B/C 会话日志、修正后 JSON、`summary_abc.json`）；
+  `bringup_driver_v324_20261028_r01/`（自检）。

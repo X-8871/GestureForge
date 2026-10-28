@@ -26,6 +26,8 @@
 #include "s2a_ps_decode_nms_reference.h"   /* r13 冻结解码参考：强符号 s2a_t62_decode_nms */
 
 /* ---------------- 地址与 ABI 常量（冻结，ADR §8.2/§8.4） ---------------- */
+static const void *const s4d_keep_strong_symbols[3];
+
 #define S4D_RAW_BASE      0x12000000u
 #define S4D_RAW_BYTES     12582912u
 #define S4D_META_BASE     0x12C00000u
@@ -189,6 +191,7 @@ void s4d_region_flush_invalidate(uint32_t addr, uint32_t len)
     Xil_DCacheInvalidateRange((INTPTR)a0, (UINTPTR)alen);
     __asm__ volatile("dsb sy" ::: "memory");
 }
+
 
 /* ---------------- 预处理 ---------------- */
 #if PREPROC_SRC
@@ -420,6 +423,7 @@ static uint32_t s4d_count_diff(const uint8_t *a, const uint8_t *b, uint32_t n, u
 
 int s4d_m4b_selfcheck(void)
 {
+    xil_printf("M4B STEP=0 enter\r\n");
     const uint8_t *arena = (const uint8_t *)(uintptr_t)S4D_TENSOR_BASE;   /* 0x10000000 */
     const uint8_t *ref = (const uint8_t *)(uintptr_t)S4D_RAW_BASE;        /* host 预置参考 */
     uint64_t epoch_before = 0, epoch = 0;
@@ -428,9 +432,11 @@ int s4d_m4b_selfcheck(void)
     uint32_t d13 = 0, d26 = 0, f13 = 0xFFFFFFFFu, f26 = 0xFFFFFFFFu;
     uint32_t frame = 1u;
 
+    xil_printf("M4B STEP=1 read CSR_ID addr=0x%08x\r\n", (unsigned)S4D_CSR_ID);
     xil_printf("M4B CSR id=0x%08x ver=0x%08x\r\n",
                (unsigned)s4d_rd(S4D_CSR_ID), (unsigned)s4d_rd(S4D_CSR_VER));
 
+    xil_printf("M4B STEP=2 check idle: status=0x%08x\r\n", (unsigned)s4d_rd(S4D_CSR_STATUS));
     if (!s4d_is_idle()) {
         xil_printf("M4B RESULT={\"pass\":0,\"reason\":\"not_idle\",\"status\":%u}\r\n",
                    (unsigned)s4d_rd(S4D_CSR_STATUS));
@@ -441,6 +447,7 @@ int s4d_m4b_selfcheck(void)
     s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, 64);
     stale = (arena[S4D_HEAD13_OFF] != ref[0] || arena[S4D_HEAD13_OFF + 1] != ref[1]) ? 1 : 0;
 
+    xil_printf("M4B STEP=3 read epoch\r\n");
     if (!s4d_read_epoch(&epoch_before)) { xil_printf("M4B RESULT={\"pass\":0,\"reason\":\"epoch_read_fail\"}\r\n"); return -1; }
     epoch = epoch_before + 1u;
 
@@ -449,6 +456,7 @@ int s4d_m4b_selfcheck(void)
     s4d_region_flush(S4D_TENSOR_BASE + S4D_INPUT_BASE, S4D_WEIGHT_BYTES);
     s4d_dsb();
 
+    xil_printf("M4B STEP=4 cache flush done\r\n");
     /* configure_start（r13 顺序与偏移） */
     s4d_wr(S4D_CSR_FRAME_W, frame);
     s4d_wr(S4D_CSR_INADDR_W, 0u);
@@ -459,6 +467,7 @@ int s4d_m4b_selfcheck(void)
     s4d_wr(S4D_CSR_DRAINTO_W, 400u);
     s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
 
+    xil_printf("M4B STEP=5 START cmd written\r\n");
     /* 完成序门控：START 后第一拍快照 */
     st = s4d_rd(S4D_CSR_STATUS);
     if (((st & 7u) == S4D_ST_ARMING || (st & 7u) == S4D_ST_RUN) &&
@@ -472,11 +481,19 @@ int s4d_m4b_selfcheck(void)
     for (spin = 0; spin < 50000000u; spin++) {
         int r = s4d_safe_done(&st, &err);
         if (r == 1) { done = 1; break; }
+    if (done == 0) {
+        xil_printf("M4B STEP=6 TIMEOUT wait spin=%u status=0x%08x error=0x%08x\r\n",
+                   (unsigned)spin, (unsigned)st, (unsigned)err);
+    } else {
+        xil_printf("M4B STEP=6 wait done=%d status=0x%08x error=0x%08x\r\n",
+                   done, (unsigned)st, (unsigned)err);
+    }
         if (r == 2) { done = 2; break; }
         if ((st & 7u) == S4D_ST_FAULT) break;
     }
 
     /* PL→PS 可见性：invalidate 后逐字节比对 head13/head26 */
+    xil_printf("M4B STEP=7 compare heads (done=%d)\r\n", done);
     if (done == 1) {
         s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
         s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
@@ -488,6 +505,7 @@ int s4d_m4b_selfcheck(void)
     }
 
     /* ACK 收尾：safe snapshot 匹配 → 0x05C/0x060 → 0x008=4 → is_idle */
+    xil_printf("M4B STEP=8 ACK phase (idle_before=%d)\r\n", s4d_is_idle());
     if (done == 1) {
         uint64_t e2 = 0;
         uint32_t st2 = s4d_rd(S4D_CSR_STATUS);
@@ -536,6 +554,8 @@ int infer_one_from_pl_tensor(const s4d_host_req_t *req)
 /* ---------------- 主循环：轮询 HOST_REQ → 预处理 → 推理 → 发布 PS_RESULT ---------------- */
 int main(void)
 {
+    /* 保活解码/启动强符号，防止仅自检变体被 --gc-sections 裁掉 */
+    __asm__ volatile("" : : "r"(s4d_keep_strong_symbols[0]) : "memory");
     xil_printf("\r\nS4D PS APP: PREPROC_SRC=%d ABI=%u\r\n", PREPROC_SRC, S4D_ABI_VERSION);
 #if defined(S4D_M4B_SELFCHECK) && S4D_M4B_SELFCHECK
     xil_printf("S4D MODE=M4B_SELFCHECK geom=%s\r\n", S4D_GEOM.name);
@@ -587,3 +607,10 @@ int main(void)
     }
     return 0;
 }
+
+/* 保留强符号：M4-b 等仅走自检的变体在 --gc-sections 下也必须保留解码/启动入口 */
+__attribute__((used)) static const void *const s4d_keep_strong_symbols[] = {
+    (const void *)s2a_t62_decode_nms,
+    (const void *)s2a_decode_nms_reference,
+    (const void *)s2b_network_start_from_tensor,
+};

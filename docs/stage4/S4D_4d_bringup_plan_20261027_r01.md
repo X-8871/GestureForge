@@ -141,3 +141,35 @@
 ### 9.5 明确未做
 - chain-lite：PS 应用当前 UART 只输出 `frame/rc/seq`，**未输出框 JSON、未发布 boxes 到结果区** ⇒ 窗口内记 `NOT_RUN`（原因见上），不得以离线解码结果替代；
 - M4-b 长跑（≥30 min/≥1000 次）另批；M1/M2 仍按"构造性排除 + 待重审"措辞。
+
+
+---
+
+## 10. 驱动 v3.1 与 S1 口径修正（2026-10-28，离线）
+
+### 10.1 S1 口径（关键修正）
+- **默认 dump 候选区全域** `[0x12000000,0x12C08000)` = **12,615,680 B**（单次约 33 s，三次约 100 s）；
+- 精简模式 `--s1-region probe6`：对 6 个已知变化地址各取 128 B（向下 64 B 对齐一行）：
+  `0x12b09e1b`、`0x12b4805b`、`0x12b4906a`、`0x12b4930e`、`0x12bc8f82`、`0x12bc9f5b`；另保留 `test` 模式（128 KiB 测试区）；
+- 段定义：`D0 = ps7_init 完成后停核（现状，非上电态）`、`D1 = 装 PL 后`、`D2 = dow init.elf+con 后`；
+- 判定四选一，结论**必须带三次 dump 的 SHA-256 与两两差异字节数**。
+
+### 10.2 候选区恢复（并入 S1 段）
+- `装 PL 前 dump → 装 PL 后 dump → init 后 dump → 按 M3 快照整区恢复（12,615,680 B）→ 恢复后 dump`；
+- **恢复后整区 diff 必须 0**；非 0 ⇒ 立即停；恢复后 dump 的 SHA-256 记为新基线。
+
+### 10.3 驱动 v3.1 回灌的 5 处窗口修正
+1. P0 的 COM4 用 `pyserial` 实开/关判定（`Path("COM4").exists()` 不可靠）；
+2. D0 前先跑 init.elf 的 ps7_init（DDR 控制器复位时 JTAG 不可读）；
+3. ELF 装载顺序 `rst -processor -stop → dow → con`，**dow 后不得再 rst**（会重置入口，应用不运行）；
+4. UART 句柄生命周期：P0 预开、`ensure_uart()` 在 M4-b/M4-a 装载前复用，避免错过横幅；
+5. M4-b 参数补 `skip_m4b=False`（v3 构造 SimpleNamespace 缺字段）。
+
+### 10.4 PS 应用 r2 登记（M4-b 可观测性）
+- `s4d_m4b_selfcheck()` 增加 `M4B STEP=0..8` 进度标记与等待超时打印（`M4B STEP=6 TIMEOUT wait spin=… status=… error=…`），**判据不变**（`INCONCLUSIVE`/FAIL 规则不变）；
+- 应用末尾加 `used` 强符号池 + `main()` 引用，避免仅自检变体被 `--gc-sections` 裁掉解码/启动符号；
+- 新 ELF SHA-256：SW `4fc095ae6283a893960d77d607c8e0471b5787e639e6f072383fb41f34c0aaba`、PL `d4e7344dbee10a1c9994b40f32427984a0cd076ea790ea8570aa4c0d129608e2`、M4-b(SW) `ada4b30d98298ec9cea053d97d01e9fea91ae97e70c8a13f7be1bc36079445a7`、M4-b(PL) `011d2be58f7748690d864eede17d0fee5210bfc3cf934f2dc6713628651e1892`；
+- 登记文件：`report/evidence/S4-T34/ps_decode_link_20261028_r01/app_elf_registration_r2.json`。
+
+### 10.5 驱动 v3.1
+`scripts/stage4_s4b/run_bringup_driver.py`，离线自检 **27/27 PASS、exit 0**；窗口前 SHA 见提交报告。

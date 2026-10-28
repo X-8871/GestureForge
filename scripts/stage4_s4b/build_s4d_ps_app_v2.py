@@ -55,6 +55,7 @@ def main() -> int:
     """构建两变体并记录证据。"""
     ap = argparse.ArgumentParser()
     ap.add_argument("--define", action="append", default=[])
+    ap.add_argument("--out-tag", default="", help="输出文件名后缀/证据子目录（如 m4b）")
     args = ap.parse_args()
     for p in (SOURCE, REF_C, REF_H, GCC, SIZE, NM):
         if not p.exists():
@@ -70,6 +71,8 @@ def main() -> int:
             return 2
     BUILD.mkdir(parents=True, exist_ok=True)
     EVID.mkdir(parents=True, exist_ok=True)
+    outdir = EVID / args.out_tag if args.out_tag else EVID
+    outdir.mkdir(parents=True, exist_ok=True)
     # 构建专用链接脚本副本：去掉 r13 专属的 arena 尺寸断言，保留 app budget 断言
     lscript = BUILD / "lscript_s4t34.ld"
     kept = []
@@ -94,8 +97,9 @@ def main() -> int:
             "-ffunction-sections", "-fdata-sections", "-U__clang__"]
         obj = BUILD / f"s4d_ps_app_{tag}.o"
         ref_obj = BUILD / "s2a_ps_decode_nms_reference.o"
-        elf = BUILD / f"s4d_ps_app_{tag}.elf"
-        mapf = BUILD / f"s4d_ps_app_{tag}.map"
+        suffix = f"_{args.out_tag}" if args.out_tag else ""
+        elf = BUILD / f"s4d_ps_app_{tag}{suffix}.elf"
+        mapf = BUILD / f"s4d_ps_app_{tag}{suffix}.map"
         code_c, _ = run([str(GCC), *common, "-o", str(obj), "-c", str(SOURCE)], BUILD, log)
         code_r, _ = run([str(GCC), *common, "-o", str(ref_obj), "-c", str(REF_C)], BUILD, log)
         if code_c != 0 or code_r != 0:
@@ -124,7 +128,7 @@ def main() -> int:
             print(f"[FAIL] nm 断言失败 variant={variant}：{nm_summary}")
             return 3
         for a in (elf, mapf):
-            shutil.copy2(a, EVID / a.name)
+            shutil.copy2(a, outdir / a.name)
         record = {
             "task_id": "S4-T34",
             "phase": "PS 应用真实解码接线（v2）",
@@ -143,9 +147,9 @@ def main() -> int:
             },
             "nm": nm_summary,
             "outputs": {
-                "elf": {"path": str(EVID / elf.name), "sha256": sha(EVID / elf.name),
-                        "size_bytes": (EVID / elf.name).stat().st_size},
-                "map": {"path": str(EVID / mapf.name), "sha256": sha(EVID / mapf.name)},
+                "elf": {"path": str(outdir / elf.name), "sha256": sha(outdir / elf.name),
+                        "size_bytes": (outdir / elf.name).stat().st_size},
+                "map": {"path": str(outdir / mapf.name), "sha256": sha(outdir / mapf.name)},
             },
             "exit_codes": {"compile_app": code_c, "compile_ref": code_r, "link": code_l,
                            "size": code_sz, "nm": code_nm},
@@ -158,7 +162,7 @@ def main() -> int:
             ],
             "boundary": "离线编译；未接触板卡；ENABLE=0；不构成任何关口通过。",
         }
-        (EVID / f"build_record_{record['variant']}.json").write_text(
+        (outdir / f"build_record_{record['variant']}.json").write_text(
             json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
         results[record["variant"]] = {
             "elf_sha256": record["outputs"]["elf"]["sha256"],

@@ -1,19 +1,37 @@
 {
   "task_id": "S4-T34",
   "run_id": "bringup_driver_v3_20261028_r01",
-  "generated_utc8": "2026-10-28T11:01:43+08:00",
+  "generated_utc8": "2026-10-28T11:37:15+08:00",
   "checks": [
     {
       "name": "region_arithmetic",
       "ok": true,
       "detail": {
-        "base": "0x11ae0000",
-        "end": "0x11b00000",
-        "bytes": 131072,
-        "aligned64": true,
-        "size_128k": true,
-        "no_head26_overlap": true,
-        "below_meta": true
+        "candidate": {
+          "base": "0x12000000",
+          "end": "0x12c08000",
+          "bytes": 12615680,
+          "size_12_6m": true,
+          "aligned64": true
+        },
+        "test": {
+          "base": "0x11ae0000",
+          "end": "0x11b00000",
+          "bytes": 131072,
+          "aligned64": true,
+          "size_128k": true,
+          "no_head26_overlap": true,
+          "below_meta": true
+        },
+        "probe_addrs": [
+          "0x12b09e1b",
+          "0x12b4805b",
+          "0x12b4906a",
+          "0x12b4930e",
+          "0x12bc8f82",
+          "0x12bc9f5b"
+        ],
+        "probe_aligned": true
       }
     },
     {
@@ -145,11 +163,40 @@
       }
     },
     {
+      "name": "s1_default_candidate_region",
+      "ok": true,
+      "detail": {
+        "base": "0x12000000",
+        "bytes": 12615680,
+        "label": "candidate"
+      }
+    },
+    {
+      "name": "s1_probe6_mode",
+      "ok": true,
+      "detail": {
+        "bytes": 768,
+        "addrs": [
+          "0x12b09e1b",
+          "0x12b4805b",
+          "0x12b4906a",
+          "0x12b4930e",
+          "0x12bc8f82",
+          "0x12bc9f5b"
+        ]
+      }
+    },
+    {
+      "name": "s1_candidate_restore_step_present",
+      "ok": true,
+      "detail": "恢复写 + 回读 diff 必须 0 的步骤存在于 stage_s1"
+    },
+    {
       "name": "app_sw_sha_prefix",
       "ok": true,
       "detail": {
-        "actual": "1224f04891bfc9229d361a55d73932a4200eafc33918d859d418a0b5f32f8b34",
-        "expected_prefix": "1224f048"
+        "actual": "4fc095ae6283a893960d77d607c8e0471b5787e639e6f072383fb41f34c0aaba",
+        "expected_prefix": "4fc095ae"
       }
     },
     {
@@ -168,7 +215,7 @@
     {
       "name": "s1_tcl_read_only",
       "ok": true,
-      "detail": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mrd -bin -file {outfile} 0x11ae0000 32"
+      "detail": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mrd -bin -file {outfile} 0x12000000 31"
     },
     {
       "name": "s2_tcl_uses_region",

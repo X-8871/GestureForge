@@ -1,0 +1,106 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_driver_v3_20261028_r01",
+  "started_utc8": "2026-10-28T11:29:50+08:00",
+  "stage_order": [
+    "S1_bisect",
+    "S2_ddr_bit_test",
+    "P2_load_app",
+    "M4b_dma_visibility",
+    "M4a_cache_visibility",
+    "M3_recheck",
+    "S3_chain_lite",
+    "P4_teardown"
+  ],
+  "budget_min": {
+    "S1_bisect": 10,
+    "S2_ddr_bit_test": 20,
+    "P2_load_app": 4,
+    "M4b_dma_visibility": 8,
+    "M4a_cache_visibility": 5,
+    "M3_recheck": 7,
+    "S3_chain_lite": 5,
+    "P4_teardown": 1
+  },
+  "steps": {
+    "S1_bisect": {
+      "status": "PASS",
+      "verdict": "NEITHER_STAGE",
+      "detail": {
+        "labels": [
+          "D0",
+          "D1",
+          "D2"
+        ],
+        "same_D0_D1": true,
+        "same_D1_D2": true,
+        "same_D0_D2": true,
+        "diff_byte_counts": {
+          "D0_vs_D1": 0,
+          "D1_vs_D2": 0,
+          "D0_vs_D2": 0
+        }
+      },
+      "note": "只读；未写候选区"
+    },
+    "S2_ddr_bit_test": {
+      "status": "PASS",
+      "verdict": "DDR_BIT_TEST_PASS",
+      "detail": {
+        "errors": 0
+      },
+      "errors": {
+        "T0_zeros": 0,
+        "T0_ones": 0,
+        "T0_aa55": 0,
+        "T0_walking1": 0,
+        "T1_after_all": 0,
+        "T2_delayed": 0
+      },
+      "restore_diff": 0,
+      "stop": ""
+    },
+    "P2_load_app": {
+      "status": "PASS",
+      "banner": "\r\nS4D PS APP: PREPROC_SRC=0 ABI=1\r\n",
+      "elf_sha256": "1224f04891bfc9229d361a55d73932a4200eafc33918d859d418a0b5f32f8b34"
+    },
+    "M4b_dma_visibility": {
+      "status": "FAIL",
+      "preload": {
+        "jtag_ref_head13": 0,
+        "jtag_ref_head26": 0,
+        "jtag_input": 0,
+        "jtag_weights": 0,
+        "load_exit": 0,
+        "uart_seen": true
+      },
+      "result_line": null,
+      "gating_line": null,
+      "parsed": {},
+      "rule": "首拍已 DONE_SAFE ⇒ gate=2 ⇒ INCONCLUSIVE（不记 PASS）"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "detail": {
+        "stopped_pid": 35044,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": "M4-b FAIL",
+  "boundary": "离线文档就绪；未上板；ENABLE=0；不主张 G3/G4/G5",
+  "P0_gate": {
+    "ok": true,
+    "heavy_processes": [],
+    "listening_3121": 0,
+    "index_lock": false,
+    "com4_present": true,
+    "com4_error": "",
+    "uart_preopened": true
+  },
+  "finished_utc8": "2026-10-28T11:32:25+08:00",
+  "conclusion": "STOPPED_ON_FAILURE"
+}

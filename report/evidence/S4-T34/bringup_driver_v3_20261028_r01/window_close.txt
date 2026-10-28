@@ -1,0 +1,19 @@
+# 阶段4 4-D bring-up 窗口记录（S4-T34）
+
+- 首次开窗（UTC+8）：2026-10-28T11:09:22（前置核对全绿后）
+- 有效执行窗口开窗：2026-10-28T11:29:50；收窗：2026-10-28T11:33:00
+- 驱动：run_bringup_driver.py，SHA-256 203355c38dcde0af3a08aa5132144e119b3f30ada9b2da4447afe5092f425027（窗口前 S1 补丁后）
+- 窗口内 wrapper（tmp，不提交）修正：P0 COM4 实开判定、S1 D0 前 ps7_init、ELF 装载保留 DDR、UART 预开生命周期、M4-b 参数补 skip_m4b
+
+## 结果
+- S1 bisect：PASS，判定 NEITHER_STAGE；D0/D1/D2 三份 dump 同 SHA（见 s1_D*.bin）
+- S2 DDR 位测试：PASS，DDR_BIT_TEST_PASS，T0/T1/T2 差异全 0，恢复 diff = 0，单趟 walking-1（非经典 32 趟）
+- P2 装载 PS 应用：PASS，ELF SHA 前缀 1224f048 匹配，收到 UART 横幅 S4D PS APP
+- M4-b：FAIL（应用横幅与 MODE 打印后，30 s 内无 M4B CSR/RESULT 行；未见 HEADS）
+- M4-a：NOT_RUN（M4-b FAIL 即停）
+- M3 复检：NOT_RUN
+- chain-lite：NOT_RUN
+- P4 收尾：PASS；3121 无 LISTENING、无残留 hw_server/xsdb/vivado、无 index.lock
+
+## 边界
+未做"通过"升级；M3/M2 未判 PASS；不主张 G3/G4/G5；ENABLE=0 未碰。

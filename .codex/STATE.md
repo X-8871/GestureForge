@@ -96,3 +96,12 @@
 - **未主张**：G3/G4/G5、阶段4/5 验收通过、板级 B1-B10、ENABLE=1（仍 0）；阶段4 未闭合项与阶段5 板级项见 decisions/freeze_declaration_stage4_r5_stage5_r3_20261028_r01.md。
 - 迭代中被拦下的真缺陷（r1 假哈希 / r2 导出不可复现 / r3 gitignore 日志入清单 / r4 tag 树含旧验证包）均已记录在该决策文件中。
 - **阶段4 冻结勘误（2026-10-28）**：r5 包的 `not_frozen_count` 记录 35、实为 32（`not_frozen` 32 条 = `git status` 32 项）；errata RunId = `stage4_freeze_20261028_r05_errata_20261028_r01`（`ERRATA.md` sha256 `dc7f1b94ebac25c0…32cf3`）；**tag r5 `a0ecc71` 与冻结包 6 文件字节未动**；生成器改为由 `len(frozen_set.not_frozen)` 计数并加 exit 8/9 断言（统计不符/磁盘与 blob 不一致即拒）。
+
+## 阶段5 W-E 板级窗口（2026-10-28）
+
+- 窗口 r02：11:06:35 -> 11:07:55（80 s）；证据 report/evidence/S5-WE/window_20261028_r02/（w5 提交 2decd0d）；w5 工作树干净、未 push。
+- 身份四项全等：重建 ELF 6a521a60...、XSA 90e1bdee...、XSA 内 bit 44e609cc...（1,572,373 B）、ps7_init.tcl 4fc10193...；ELF 载入区间 [0x100000,0x130ad40) 与阶段4 候选区无重叠。
+- **B1=PASS**（装载 exit 0、S5DL_ALL_DONE=1；读回 xc7z020 / DAP 4ba00477 / A9 两核 Running / DevCfg 0x40000F30）；**B9=PASS**（connect 16 -> disconnect -> reconnect 16，exit 0）。
+- **B2/B7=NOT_RUN**（Wong 未确认在场，未用截图替代）；**B3/B4/B5/B6/B8/B10=BLOCKED_BY_DEPLOYMENT**（摄像头->PL->结果显示的合并部署未构建）。
+- 前一轮空窗口：执行体失败、无任何证据，只读探测显示两核仍 Running（未复位/未装载），已记 report/evidence/S5-WE/window_20261028_r01/FAILED_ATTEMPT_NOTE.md，进程已清理（4bd9fb8）。
+- **未主张**：G5、B1-B10 全部完成、任何超出逐项判定的板级/实时/实物结论。

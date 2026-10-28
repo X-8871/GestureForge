@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-D",
+  "run_id": "s6d_replay_qualification_20261028_r01",
+  "status": "BLOCKED",
+  "scope": "replay_only_qualification",
+  "stage6_source_commit": "56004d3a766e99dd8aef4203bba418865556eef0",
+  "stage6_source_bindings": {
+    "core_sha256": "b75948f504fbf732958b16b14bb892de1865bd4defa97dc704bbb8dbf64ad9bc",
+    "params_sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+    "qualification_gate_sha256": "fe457df64cefbc2cf8376a16f72f93e06472e2414f7aab17010bae5abb2448ea"
+  },
+  "interfaces": [
+    {
+      "id": "s4-shared-io",
+      "version": "1.3.0",
+      "revision": "r07",
+      "status": "FROZEN_OFFLINE_ONLY",
+      "scope": "replay_only"
+    },
+    {
+      "id": "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R03",
+      "version": "OFFLINE_SCOPE_FROZEN",
+      "revision": "s5_freeze_20261027_r07",
+      "scope": "replay_only"
+    }
+  ],
+  "frames": [
+    {
+      "variant": "NO_HAND",
+      "frame_id": 1,
+      "state": "NO_HAND",
+      "capture_time_ns": 1792776253000000000,
+      "result_time_ns": null,
+      "stale": null,
+      "eligibility": {
+        "status": "BLOCKED",
+        "reasons": [
+          "stale 不是布尔值；阶段6不能把未知状态静默当作 fresh"
+        ],
+        "core_event_constructed": false,
+        "core_step_called": false
+      }
+    },
+    {
+      "variant": "positive_with_detections",
+      "frame_id": 1,
+      "state": "PRESENT",
+      "detection_count": 1,
+      "detections": [
+        {
+          "class_id": 0,
+          "class_name": "fist",
+          "score": 0.7697084233252404,
+          "xyxy": [
+            0.2481297045148163,
+            0.3713942307692308,
+            0.34786113088325127,
+            0.4362980769230769
+          ],
+          "xyxy_px": {
+            "x1": 317,
+            "y1": 267,
+            "x2": 445,
+            "y2": 314
+          },
+          "source_order": 6570,
+          "source_ref": "detections.boxes[0]",
+          "source_index": 0,
+          "xyxy_clipped": [
+            0.2481297045148163,
+            0.3713942307692308,
+            0.34786113088325127,
+            0.4362980769230769
+          ],
+          "xyxy_clipped_flag": false,
+          "zero_area": false,
+          "border_pixels": 699,
+          "xyxy_px_rule": "round_half_up_to_nearest_pixel_index via R.original_norm_to_display_px(fit=exact)",
+          "xyxy_px_canvas": [
+            1280,
+            720
+          ]
+        }
+      ],
+      "capture_time_ns": 0,
+      "result_time_ns": null,
+      "stale": null,
+      "eligibility": {
+        "status": "BLOCKED",
+        "reasons": [
+          "输入记录缺少精确离线回放范围声明",
+          "结果 state 不属于阶段6可消费的 OK/NO_HAND",
+          "stale 不是布尔值；阶段6不能把未知状态静默当作 fresh"
+        ],
+        "core_event_constructed": false,
+        "core_step_called": false
+      }
+    }
+  ],
+  "core_execution": {
+    "status": "NOT_RUN",
+    "core_event_constructed": false,
+    "core_step_called": false,
+    "reason": "NO_HAND与阳性帧均被当前输入资格门阻断。"
+  },
+  "limitations": [
+    "NO_HAND只有秒级文档墙钟capture_time；无同域发布时刻、result_time_ns与stale。",
+    "阳性帧capture_time_ns=0是FILE_INJECTION哨兵，result_time_ns与stale为空。",
+    "阳性state=PRESENT；阶段6核心只接受OK/NO_HAND，当前材料无已冻结映射。",
+    "未推导fresh/stale、单调t_input_ns或帧周期；没有构造核心事件或调用状态机。",
+    "不代表实时推理、板级行为、P/T6-A03、G3/G4/G5或阶段6整体冻结通过。"
+  ],
+  "initial_commands": {
+    "stage5_frozen_set": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "D:\\codex-worktrees\\w5\\verification\\verify_stage5_frozen_set.py",
+        "--root",
+        "D:\\codex-worktrees\\w5",
+        "--frozen-set",
+        "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T04\\s5_freeze_20261027_r07\\frozen_set.json"
+      ],
+      "cwd": "D:\\codex-worktrees\\w5",
+      "exit_code": 0,
+      "output": "report/evidence/S6-D/s6d_replay_qualification_20261028_r01/stage5_frozen_set_check.txt",
+      "output_sha256": "3a8aa54dd2f18ff18253cc4507a35742d7bd45428ae03eb6b375c6e6c558b133"
+    },
+    "s6d_eligibility_tests": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "-m",
+        "unittest",
+        "-v",
+        "verification.test_s6d_replay_preview_preflight"
+      ],
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output": "report/evidence/S6-D/s6d_replay_qualification_20261028_r01/s6d_eligibility_tests.txt",
+      "output_sha256": "a2c3cb54aafece4f0f6f1c8e285a5e7df31d70e1f9565f864fb80d983d2401e5"
+    }
+  }
+}

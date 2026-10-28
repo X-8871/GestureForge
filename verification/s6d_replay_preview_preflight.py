@@ -13,15 +13,32 @@ from typing import Any
 
 EXPECTED_W4_RUN_HEAD = "4f4ae8f6d44f95b81e3cad2c17341611b0695485"
 EXPECTED_W4_REVIEW_COMMIT = "5f9a04a045f4aaa7516759513f660f9872cbab61"
+EXPECTED_W4_CONTRACT_COMMIT = "4400bb89cba5a860d6baa9e976bb08f25606cf15"
 EXPECTED_W5_SOURCE_COMMIT = "869b869b9ba559d145f6bb28831667de07b093f8"
 W4_CONTRACT = "docs/stage4/s4b_shared_input_result_contract.json"
 W4_FREEZE = "report/evidence/S4-CTRL/s4t27_replay_package_freeze_20261027_r01/replay_package_freeze.json"
 W4_FREEZE_MANIFEST = "report/evidence/S4-CTRL/s4t27_replay_package_freeze_20261027_r01/manifest.json"
 W4_PACKAGE_DIR = "report/evidence/S4-CTRL/s4t26_gate_rerun_20261027_r04"
 W5_REPLAY_DIR = "report/evidence/S5-T03/s5t03_stage4_frozen_replay_20261027_r04"
+W5_FREEZE_DIR = "report/evidence/S5-T04/s5_freeze_20261027_r07"
 EXPECTED_FREEZE_SHA256 = "012f5ea4b6d21cf54b806ec46799bbff967ff41da24a47a52e09a4e9f019dfbd"
 EXPECTED_W4_CONTRACT_SHA256 = "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145"
 EXPECTED_W5_MANIFEST_SHA256 = "3fb5f94c560f92dbcab0deb68afbde3b857b5b6d722364a35dbb5b5a979b472b"
+EXPECTED_W5_FREEZE_MANIFEST_DISK_SHA256 = "e37af1f5e3b706acb3fda2645e30206072a25285c9f8309e97766f4caa06b685"
+EXPECTED_W5_FREEZE_MANIFEST_BLOB_SHA256 = "370d180bd6d4266c523f4b766415b2d92dfca96e064da2a082fcfd98e3077a37"
+EXPECTED_W5_FREEZE_MANIFEST_BLOB_COMMIT = "7244fd9761bcbf5d5688aa7586a233fdbae07876"
+EXPECTED_W5_FROZEN_SET_SHA256 = "4461bbbcd22cf993c4e7bc2985c73f578f16f9996b51e262c6350995c5a8cb4c"
+EXPECTED_W5_FROZEN_SET_BASELINE_COMMIT = "d19a66ca0eac239714bd0024295829b561a31ee2"
+EXPECTED_W5_FROZEN_SET_ID = "S5T04-OFFLINE-SCOPE-FROZEN-20261027-R03"
+EXPECTED_W5_SOURCE_PATHS = {
+    "scripts/stage5_t03/s5t03_freeze_integrity.py",
+    "scripts/stage5_t03/s5t03_stage4_frozen_replay.py",
+    "scripts/stage5_t03/check_s5t03_frozen_replay.py",
+    "scripts/stage5_t03/run_s5t03_frozen_replay_evidence.py",
+    "scripts/stage5_t03/test_s5t03_frozen_replay.py",
+    "verification/s5_display_geometry_reference.py",
+    "docs/stage5/S5T03_stage4_frozen_replay_consumption_v1.md",
+}
 EXPECTED_W5_FILES = {
     "freeze_integrity.json": "fb4f7dc0c3c2133d859b9b25931051c7983169bc2a8c55ef7d80e461a48b55a7",
     "consumer_report.json": "f58d5167d029a5e54623bc69ceb7af92a38985159766eaae417fb3fe2eb573f9",
@@ -67,6 +84,60 @@ def git_blob_sha256(root: Path, revision: str, rel_path: str) -> str:
     if result.returncode != 0:
         raise RuntimeError(f"读取 Git blob 失败：{revision}:{rel_path}")
     return sha256_bytes(result.stdout)
+
+
+def git_blob(root: Path, revision: str, rel_path: str) -> bytes:
+    result = subprocess.run(
+        ["git", "-C", str(root), "cat-file", "blob", f"{revision}:{rel_path}"],
+        capture_output=True, check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"读取 Git blob 失败：{revision}:{rel_path}")
+    return result.stdout
+
+
+def frozen_set_file_map(frozen_set: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """展开冻结集的 file 与 file_set 成员到逐文件哈希记录。"""
+    files: dict[str, dict[str, Any]] = {}
+    for member in frozen_set.get("members", []):
+        kind = member.get("kind")
+        if kind == "file":
+            entries = [(member.get("path"), member)]
+        elif kind == "file_set":
+            base = member.get("path")
+            if not isinstance(base, str) or not base:
+                raise ValueError("S5 frozen_set file_set 缺少有效路径")
+            entries = [
+                (f"{base.rstrip('/')}/{entry.get('path', '')}", entry)
+                for entry in member.get("files", [])
+            ]
+        else:
+            continue
+        for path, record in entries:
+            if not isinstance(path, str) or not path or path in files:
+                raise ValueError("S5 frozen_set 含空路径或重复文件路径")
+            if not isinstance(record.get("sha256"), str) or len(record["sha256"]) != 64:
+                raise ValueError(f"S5 frozen_set 文件缺少 SHA-256：{path}")
+            files[path] = record
+    return files
+
+
+def validate_source_hash_bases(source_sha256: str, frozen_disk_sha256: str,
+                               actual_disk_sha256: str, pinned_blob_sha256: str) -> dict[str, Any]:
+    """分别验证 frozen_set 工作树字节与固定提交 blob，不跨基座比较。"""
+    if actual_disk_sha256 != frozen_disk_sha256:
+        raise ValueError("当前阶段5源文件磁盘字节不匹配 frozen_set worktree_disk SHA")
+    if source_sha256 != pinned_blob_sha256:
+        raise ValueError("S5 replay 源 SHA 不匹配固定提交 commit_blob SHA")
+    return {
+        "worktree_disk_sha256": actual_disk_sha256,
+        "frozen_set_worktree_disk_sha256": frozen_disk_sha256,
+        "worktree_disk_matches_frozen_set": True,
+        "pinned_commit_blob_sha256": pinned_blob_sha256,
+        "source_manifest_expected_commit_blob_sha256": source_sha256,
+        "commit_blob_matches_source_manifest": True,
+        "hash_bases_compared_independently": True,
+    }
 
 
 def is_ancestor(root: Path, ancestor: str, revision: str) -> bool:
@@ -144,23 +215,21 @@ def classify_frame(frame: dict[str, Any], marking: dict[str, Any]) -> dict[str, 
     stale = frame.get("stale")
     if type(stale) is not bool:
         reasons.append("stale 不是布尔值；阶段6不能把未知状态静默当作 fresh")
-    elif stale is False:
+    else:
         result_time = frame.get("result_time_ns")
-        timing = frame.get("timing_basis")
-        result_timing = timing.get("result_time_ns") if isinstance(timing, dict) else None
-        field_bases = frame.get("field_bases")
-        stale_basis = field_bases.get("stale") if isinstance(field_bases, dict) else None
+        age_result = frame.get("age_result_ns")
+        age_frame = frame.get("age_frame_ns")
         if isinstance(result_time, bool) or not isinstance(result_time, int) or result_time < 0:
-            reasons.append("stale=false 缺少契约结果记录要求的有效 result_time_ns")
-        if (not isinstance(result_timing, dict)
-                or result_timing.get("defined") is not True
-                or result_timing.get("value") != result_time
-                or not isinstance(result_timing.get("clock_domain"), str)
-                or not result_timing.get("clock_domain")):
-            reasons.append("stale=false 缺少与 result_time_ns 一致且声明时钟域的有效时间依据")
-        if (not isinstance(stale_basis, str) or not stale_basis
-                or "NOT_DECLARED" in stale_basis or "UNAVAILABLE" in stale_basis):
-            reasons.append("stale=false 缺少阶段4契约结果字段的权威 stale 来源声明")
+            reasons.append("缺少契约结果记录要求的有效单调 result_time_ns")
+        if (not isinstance(age_result, int) or isinstance(age_result, bool) or age_result < 0
+                or not isinstance(age_frame, int) or isinstance(age_frame, bool) or age_frame < 0):
+            if stale:
+                reasons.append("stale=true 结果缺少契约要求的 age_result_ns 与 age_frame_ns")
+            else:
+                reasons.append("stale=false 结果缺少可复算的 age_result_ns 与 age_frame_ns")
+        # r07 未冻结结果时间、采集时间与 stale 来源的字段依据和时钟域 schema；
+        # 帧内自报字符串不能证明这些值来自权威单调时钟，因此两种 stale 标志都阻断。
+        reasons.append("阶段4 r07 未冻结可验证的结果时间/stale 来源 schema；回放字段自报值不足以证明时钟权威")
     key = (frame.get("session_id"), frame.get("frame_id"), frame.get("result_seq"))
     if any(type(value) is not int for value in key):
         reasons.append("session_id/frame_id/result_seq 缺少整数主键")
@@ -190,9 +259,13 @@ def audit_upstream(w4_root: Path, w5_root: Path) -> dict[str, Any]:
 
     w4_run_manifest = load_json(w4_root / W4_PACKAGE_DIR / "delivery_manifest.json")
     w4_run_head = w4_run_manifest.get("baseline", {}).get("head_observed_only")
-    contract_path = w4_root / W4_CONTRACT
-    contract_sha = require_sha(contract_path, EXPECTED_W4_CONTRACT_SHA256, "w4 共享契约")
-    contract = load_json(contract_path)
+    if not is_ancestor(w4_root, EXPECTED_W4_CONTRACT_COMMIT, w4_head):
+        raise ValueError("w4 固定 r07 契约提交不是当前 w4 HEAD 的祖先")
+    contract_blob = git_blob(w4_root, EXPECTED_W4_CONTRACT_COMMIT, W4_CONTRACT)
+    contract_sha = sha256_bytes(contract_blob)
+    if contract_sha != EXPECTED_W4_CONTRACT_SHA256:
+        raise ValueError("w4 固定提交中的 r07 契约字节哈希不符")
+    contract = json.loads(contract_blob.decode("utf-8"))
     review_record = contract.get("review_record") or {}
     freeze_record = contract.get("freeze_record") or {}
     review_commit = review_record.get("reviewed_commit")
@@ -216,6 +289,43 @@ def audit_upstream(w4_root: Path, w5_root: Path) -> dict[str, Any]:
     if not is_ancestor(w5_root, EXPECTED_W5_SOURCE_COMMIT, w5_head):
         raise ValueError("w5 回放消费者源码提交不是当前 w5 HEAD 的祖先")
 
+    w5_freeze_dir = w5_root / W5_FREEZE_DIR
+    w5_freeze_manifest_path = w5_freeze_dir / "delivery_manifest.json"
+    frozen_set_path = w5_freeze_dir / "frozen_set.json"
+    freeze_manifest = load_json(w5_freeze_manifest_path)
+    freeze_manifest_disk_sha = sha256_file(w5_freeze_manifest_path)
+    if freeze_manifest_disk_sha != EXPECTED_W5_FREEZE_MANIFEST_DISK_SHA256:
+        raise ValueError("S5 r07 冻结清单当前磁盘字节哈希不匹配")
+    if (freeze_manifest.get("hash_basis") != "commit_blob"
+            or freeze_manifest.get("hash_basis_commit") != EXPECTED_W5_FREEZE_MANIFEST_BLOB_COMMIT):
+        raise ValueError("S5 r07 冻结清单未声明预期的固定 commit_blob 基座")
+    if not is_ancestor(w5_root, EXPECTED_W5_FREEZE_MANIFEST_BLOB_COMMIT, w5_head):
+        raise ValueError("S5 r07 冻结清单 commit_blob 基线不是当前 w5 HEAD 的祖先")
+    freeze_manifest_blob_sha = git_blob_sha256(
+        w5_root, EXPECTED_W5_FREEZE_MANIFEST_BLOB_COMMIT,
+        f"{W5_FREEZE_DIR}/delivery_manifest.json")
+    if freeze_manifest_blob_sha != EXPECTED_W5_FREEZE_MANIFEST_BLOB_SHA256:
+        raise ValueError("S5 r07 冻结清单固定 commit_blob SHA 不匹配")
+    frozen_set_row = next((item for item in freeze_manifest.get("files", [])
+                           if item.get("path") == f"{W5_FREEZE_DIR}/frozen_set.json"), None)
+    if (frozen_set_row is None or frozen_set_row.get("hash_basis") != "commit_blob"
+            or frozen_set_row.get("sha256") != EXPECTED_W5_FROZEN_SET_SHA256):
+        raise ValueError("S5 r07 冻结清单未精确绑定 frozen_set commit_blob")
+    frozen_set_disk_sha = sha256_file(frozen_set_path)
+    frozen_set_blob_sha = git_blob_sha256(
+        w5_root, EXPECTED_W5_FREEZE_MANIFEST_BLOB_COMMIT, f"{W5_FREEZE_DIR}/frozen_set.json")
+    if (frozen_set_disk_sha != EXPECTED_W5_FROZEN_SET_SHA256
+            or frozen_set_blob_sha != EXPECTED_W5_FROZEN_SET_SHA256):
+        raise ValueError("S5 r07 frozen_set 当前磁盘或固定 commit_blob SHA 不匹配")
+    frozen_set = load_json(frozen_set_path)
+    if (frozen_set.get("frozen_set_id") != EXPECTED_W5_FROZEN_SET_ID
+            or frozen_set.get("baseline_commit") != EXPECTED_W5_FROZEN_SET_BASELINE_COMMIT
+            or not is_ancestor(w5_root, EXPECTED_W5_SOURCE_COMMIT,
+                               EXPECTED_W5_FROZEN_SET_BASELINE_COMMIT)
+            or not is_ancestor(w5_root, EXPECTED_W5_FROZEN_SET_BASELINE_COMMIT, w5_head)):
+        raise ValueError("S5 r07 frozen_set 身份或固定基线提交关系不匹配")
+    frozen_members = frozen_set_file_map(frozen_set)
+
     binding = freeze.get("contract_binding") or {}
     if (contract.get("status") != "FROZEN_OFFLINE_ONLY"
             or contract.get("contract_version") != "1.3.0"
@@ -223,6 +333,16 @@ def audit_upstream(w4_root: Path, w5_root: Path) -> dict[str, Any]:
             or binding.get("json_sha256") != contract_sha
             or binding.get("freeze_scope") != "OFFLINE_ONLY"):
         raise ValueError("w4 契约状态、版本或冻结绑定不一致")
+    result_record = (contract.get("result_contract") or {}).get("result_record") or {}
+    stale_rule = (contract.get("result_contract") or {}).get("stale_rule") or {}
+    result_record_fields = result_record.get("fields")
+    if (not isinstance(result_record.get("authority"), str)
+            or not isinstance(result_record_fields, list)
+            or "stale" not in result_record_fields
+            or "result_time_ns" not in result_record_fields
+            or stale_rule.get("stale_limit_ns") != 200000000
+            or stale_rule.get("stale_limit_status") != "APPROVED_BY_WONG"):
+        raise ValueError("w4 固定 r07 契约缺少获批 stale 与时间字段定义")
 
     source_dir = w4_root / W4_PACKAGE_DIR
     file_checks = []
@@ -255,12 +375,31 @@ def audit_upstream(w4_root: Path, w5_root: Path) -> dict[str, Any]:
             or s5_manifest.get("consumption_mode") != "replay_only"
             or s5_manifest.get("evidence_kind") != "offline_replay"):
         raise ValueError("w5 消费证据身份或范围标签不一致")
-    for source in s5_manifest.get("sources", []):
+    sources = s5_manifest.get("sources", [])
+    if {source.get("path") for source in sources} != EXPECTED_W5_SOURCE_PATHS:
+        raise ValueError("S5 replay 源路径集合不匹配固定范围")
+    source_hash_checks = []
+    for source in sources:
         source_path = source["path"]
+        member = frozen_members.get(source_path)
+        if member is None:
+            raise ValueError(f"S5 源文件不在 r07 frozen_set 中：{source_path}")
+        frozen_disk_sha = member["sha256"]
+        frozen_disk_bytes = member.get("bytes")
         disk_sha = sha256_file(w5_root / source_path)
         blob_sha = git_blob_sha256(w5_root, EXPECTED_W5_SOURCE_COMMIT, source_path)
-        if disk_sha != source.get("sha256") or blob_sha != source.get("sha256"):
-            raise ValueError(f"w5 消费脚本与固定源码提交 blob 不匹配：{source_path}")
+        actual_bytes = (w5_root / source_path).stat().st_size
+        source_hash_checks.append({
+            "path": source_path,
+            "pinned_commit": EXPECTED_W5_SOURCE_COMMIT,
+            "source_manifest_sha256": source.get("sha256"),
+            "frozen_set_worktree_disk_bytes": frozen_disk_bytes,
+            **validate_source_hash_bases(source.get("sha256"), frozen_disk_sha,
+                                         disk_sha, blob_sha),
+            "actual_disk_bytes": actual_bytes,
+        })
+        if actual_bytes != frozen_disk_bytes:
+            raise ValueError(f"阶段5源文件字节数不匹配 frozen_set worktree_disk：{source_path}")
 
     evidence_files = {}
     for name, expected_sha in EXPECTED_W5_FILES.items():
@@ -316,14 +455,27 @@ def audit_upstream(w4_root: Path, w5_root: Path) -> dict[str, Any]:
     return {
         "w4": {"current_head": w4_head, "run_source_commit": w4_run_head,
                "reviewed_contract_commit": review_commit, "contract_path": W4_CONTRACT,
+               "contract_commit": EXPECTED_W4_CONTRACT_COMMIT,
                "contract_sha256": contract_sha, "contract_version": "1.3.0",
                "contract_revision": "r07", "freeze_record_path": W4_FREEZE,
                "freeze_record_sha256": freeze_sha, "freeze_scope": "OFFLINE_ONLY",
+               "result_record_authority": result_record["authority"],
+               "result_record_fields": result_record_fields,
+               "stale_rule": stale_rule,
                "package_dir": W4_PACKAGE_DIR, "package_files": file_checks},
         "w5": {"current_head": w5_head, "source_commit": EXPECTED_W5_SOURCE_COMMIT,
                "evidence_dir": W5_REPLAY_DIR,
                "manifest_sha256": s5_manifest_sha, "source_count": len(s5_manifest.get("sources", [])),
-               "source_hashes_match_pinned_commit_blobs": True, "evidence_files": evidence_files,
+                "frozen_set": {
+                    "frozen_set_id": frozen_set["frozen_set_id"],
+                    "baseline_commit": frozen_set["baseline_commit"],
+                    "worktree_disk_sha256": frozen_set_disk_sha,
+                    "pinned_commit_blob_sha256": frozen_set_blob_sha,
+                    "freeze_manifest_worktree_disk_sha256": freeze_manifest_disk_sha,
+                    "freeze_manifest_pinned_commit_blob_sha256": freeze_manifest_blob_sha,
+                },
+                "source_hash_basis_checks": source_hash_checks,
+                "source_hash_basis_checks_pass": True, "evidence_files": evidence_files,
                "freeze_integrity": {"verdict": integrity.get("verdict"),
                                     "file_integrity": "10/10 PASS",
                                     "upstream_binding_drift": "17/17 PASS"}},
@@ -343,9 +495,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--w4-root", default="D:/codex-worktrees/w4")
     parser.add_argument("--w5-root", default="D:/codex-worktrees/w5")
     parser.add_argument("--run-dir")
+    parser.add_argument("--expected-self-sha256")
     args = parser.parse_args(argv)
     if args.upstream_audit:
         try:
+            if args.expected_self_sha256:
+                actual_self_sha = sha256_file(Path(__file__).resolve())
+                if actual_self_sha != args.expected_self_sha256:
+                    raise ValueError("实际加载的上游审计源码 SHA 与构建器快照不符")
             upstream = audit_upstream(Path(args.w4_root).resolve(), Path(args.w5_root).resolve())
         except Exception as exc:  # noqa: BLE001
             print(f"上游绑定核验失败：{type(exc).__name__}: {exc}", file=sys.stderr)

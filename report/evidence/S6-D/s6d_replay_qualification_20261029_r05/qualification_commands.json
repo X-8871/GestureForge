@@ -1,0 +1,167 @@
+{
+  "preserved_failure_repro": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\preserved_failure\\pre_fix_s6d_replay_preview_preflight.py",
+      "--upstream-audit",
+      "--w4-root",
+      "D:/codex-worktrees/w4",
+      "--w5-root",
+      "D:/codex-worktrees/w5"
+    ],
+    "cwd": "D:\\codex-worktrees\\w6",
+    "exit_code": 2,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/preserved_failure/repro_output.txt",
+    "output_sha256": "1a041f8df7c65d68b9c43b7465507fd6fdafbd4f596fa374329985e22fba2996",
+    "source_path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/preserved_failure/pre_fix_s6d_replay_preview_preflight.py",
+    "source_sha256": "a95c453fceb870baa7e823bc2c2ab5a3c103419988831f13e0b67730f95ea634"
+  },
+  "build_qualification": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\build_qualification.py"
+    ],
+    "cwd": "D:\\codex-worktrees\\w6",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/build_invocation_output.txt",
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "invocation_record": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/build_invocation.json",
+    "invocation_sha256": "610343a0f1817341aad2103b3cf4aa3f8a441ad293dab9c4763e9d9a075f4483"
+  },
+  "stage5_frozen_set": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\codex-worktrees\\w5\\verification\\verify_stage5_frozen_set.py",
+      "--root",
+      "D:\\codex-worktrees\\w5",
+      "--frozen-set",
+      "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T04\\s5_freeze_20261027_r07\\frozen_set.json"
+    ],
+    "cwd": "D:\\codex-worktrees\\w5",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/stage5_frozen_set_check.txt",
+    "output_sha256": "3a8aa54dd2f18ff18253cc4507a35742d7bd45428ae03eb6b375c6e6c558b133"
+  },
+  "snapshot_import_check": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "-c",
+      "import hashlib,json,pathlib,verification.s6d_replay_preview_preflight as impl,verification.test_s6d_replay_preview_preflight as tests;root=pathlib.Path.cwd().resolve();items=[(impl.__file__,'verification/s6d_replay_preview_preflight.py','e4c95625cc2e69b6913a8c71bef2cdfd93e9c48cad86e5ab06c4fbc130b3ad4c'),(tests.__file__,'verification/test_s6d_replay_preview_preflight.py','93f032513fe7b9aafee4699537ae0dae4e66dc443e6654de394bb22efe5e9147')];out=[{'path':str(p),'sha256':actual} for path,rel,want in items for p in [pathlib.Path(path).resolve()] for actual in [hashlib.sha256(p.read_bytes()).hexdigest()] if p==(root/rel).resolve() and actual==want];assert len(out)==2,out;print(json.dumps({'run_id':'s6d_replay_qualification_20261029_r05','modules':out},ensure_ascii=False))"
+    ],
+    "cwd": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\inputs\\w6",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/snapshot_import_check.txt",
+    "output_sha256": "d0ac105c91ad9e784a593fd7ac8f201a3df5635a9734906e37b8686568673728"
+  },
+  "s6d_eligibility_tests": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "-c",
+      "import hashlib,pathlib,sys,unittest,verification.s6d_replay_preview_preflight as impl,verification.test_s6d_replay_preview_preflight as tests;root=pathlib.Path.cwd().resolve();assert pathlib.Path(impl.__file__).resolve()==(root/'verification/s6d_replay_preview_preflight.py').resolve();assert pathlib.Path(tests.__file__).resolve()==(root/'verification/test_s6d_replay_preview_preflight.py').resolve();assert hashlib.sha256(pathlib.Path(impl.__file__).read_bytes()).hexdigest()=='e4c95625cc2e69b6913a8c71bef2cdfd93e9c48cad86e5ab06c4fbc130b3ad4c';assert hashlib.sha256(pathlib.Path(tests.__file__).read_bytes()).hexdigest()=='93f032513fe7b9aafee4699537ae0dae4e66dc443e6654de394bb22efe5e9147';suite=unittest.defaultTestLoader.loadTestsFromModule(tests);result=unittest.TextTestRunner(verbosity=2).run(suite);sys.exit(0 if result.wasSuccessful() else 1)"
+    ],
+    "cwd": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\inputs\\w6",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/s6d_eligibility_tests.txt",
+    "output_sha256": "e236d87a1a33a4feee66853488d41cf22707f92387fbbaa713e9738b499b1d31"
+  },
+  "upstream_audit": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\inputs\\w6\\verification\\s6d_replay_preview_preflight.py",
+      "--upstream-audit",
+      "--w4-root",
+      "D:\\codex-worktrees\\w4",
+      "--w5-root",
+      "D:\\codex-worktrees\\w5",
+      "--expected-self-sha256",
+      "e4c95625cc2e69b6913a8c71bef2cdfd93e9c48cad86e5ab06c4fbc130b3ad4c"
+    ],
+    "cwd": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\inputs\\w6",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/upstream_audit.txt",
+    "output_sha256": "05668dc82ee07283d1cbb16fca7e8e0984378fe142957a3f0cd50294aad6aa1d"
+  },
+  "inputs_manifest": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\FPGA_Competition\\verification\\check_stage_delivery.py",
+      "--mode",
+      "inputs",
+      "--manifest",
+      "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\inputs_manifest.json",
+      "--project-root",
+      "D:\\codex-worktrees\\w6"
+    ],
+    "cwd": "D:\\FPGA_Competition",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs_check.txt",
+    "output_sha256": "d4a87dc64f727cb4aca2fcbb3452ec0897a312f679524bf10e71cf15d1b7ae63"
+  },
+  "evidence_manifest": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\FPGA_Competition\\verification\\check_stage_delivery.py",
+      "--mode",
+      "evidence",
+      "--manifest",
+      "D:\\codex-worktrees\\w6\\report\\evidence\\S6-D\\s6d_replay_qualification_20261029_r05\\delivery_manifest.json",
+      "--project-root",
+      "D:\\codex-worktrees\\w6"
+    ],
+    "cwd": "D:\\FPGA_Competition",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/evidence_check.txt",
+    "output_sha256": "15f902bc6b57b93af3d25400dc5fb52bd5a3e3d373494775fa8fbd3533e04e43"
+  },
+  "manifest_hash_basis": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py",
+      "--repo",
+      "D:\\codex-worktrees\\w6",
+      "--paths",
+      "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs_manifest.json",
+      "--paths",
+      "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/delivery_manifest.json",
+      "--mode",
+      "strict",
+      "--json",
+      "--commit",
+      "56004d3a766e99dd8aef4203bba418865556eef0"
+    ],
+    "cwd": "D:\\FPGA_Competition",
+    "exit_code": 0,
+    "output": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/hash_basis_check.txt",
+    "output_sha256": "8da50d1cb96ce15710a4ee43cf3e3a1674e344e4d4e7febd2302edb8050bf49c"
+  },
+  "schema_version": 1,
+  "run_id": "s6d_replay_qualification_20261029_r05",
+  "evidence_dir": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05"
+}

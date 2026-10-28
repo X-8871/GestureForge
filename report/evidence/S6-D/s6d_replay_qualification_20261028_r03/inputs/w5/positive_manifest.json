@@ -1,0 +1,125 @@
+{
+  "schema_version": "gestureforge_s5t03_stage4_positive_replay_v1",
+  "run_id": "s5t03_stage4_positive_replay_20261027_r01",
+  "task_id": "S5-T03",
+  "generated_utc8": "2026-10-27T13:51:12+08:00",
+  "source_commit": "869b869b9ba559d145f6bb28831667de07b093f8",
+  "upstream": {
+    "run_id": "s4t27_replay_positive_20261027_r01",
+    "task_id": "S4-T27-REPLAY-POSITIVE",
+    "verdict": "FROZEN_REPLAY_ONLY_WITH_DETECTIONS",
+    "index_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t27_replay_positive_20261027_r01\\freeze_index.json"
+  },
+  "goal_reached": "STAGE4_BOXED_FROZEN_REPLAY_CONSUMED_OFFLINE__CROSSCHECK_PASS",
+  "exit_codes": {
+    "consumer": 0,
+    "new_tests": 0,
+    "full_suite": 0
+  },
+  "integrity": {
+    "all_pass": true,
+    "checks": [
+      {
+        "name": "package_sha256",
+        "declared": "988f2cae79cc4bfb306ccf4ef2601fcb52f6f3c34cfd906ddb6589e686d89986",
+        "actual": "988f2cae79cc4bfb306ccf4ef2601fcb52f6f3c34cfd906ddb6589e686d89986",
+        "pass": true
+      },
+      {
+        "name": "gate_result_sha256",
+        "declared": "dcf3455048252b3c5a52d412aafbb93678d1dfcca381e5a67442d5b93f39d845",
+        "actual": "dcf3455048252b3c5a52d412aafbb93678d1dfcca381e5a67442d5b93f39d845",
+        "pass": true
+      },
+      {
+        "name": "contract_json_sha256",
+        "declared": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+        "actual": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+        "pass": true
+      }
+    ]
+  },
+  "counts": {
+    "frames": 1,
+    "detections": 1,
+    "boxes_with_px": 1
+  },
+  "box": {
+    "class_id": 0,
+    "class_name": "fist",
+    "score": 0.7697084233252404,
+    "xyxy": [
+      0.2481297045148163,
+      0.3713942307692308,
+      0.34786113088325127,
+      0.4362980769230769
+    ],
+    "xyxy_px": {
+      "x1": 317,
+      "y1": 267,
+      "x2": 445,
+      "y2": 314
+    }
+  },
+  "five_tuple": {
+    "displayed_frame_id": 1,
+    "result_frame_id": 1,
+    "age_result_ns": null,
+    "age_frame_ns": null,
+    "display_semantics": "B_latest_result_overlay",
+    "display_eligible": true
+  },
+  "labels": {
+    "previous_label": "synthetic_replay (既有骨架)",
+    "input_kind": "stage4_frozen_replay",
+    "input_variant": "positive_with_detections",
+    "consumption_mode": "replay_only",
+    "evidence_kind": "offline_replay"
+  },
+  "files": [
+    {
+      "path": "console/positive_bridge_payload.json",
+      "sha256": "14e1571b91246c417d6973ad43892c38987799c64db48021c7e3d7fad6d77f0d",
+      "bytes": 5751
+    },
+    {
+      "path": "console/positive_integrity.json",
+      "sha256": "4240df395f10e4af76f27416a5af6dd22565001dec7681c9b39399a70aa50730",
+      "bytes": 2211
+    },
+    {
+      "path": "console/positive_report.json",
+      "sha256": "1fcc3a936da452691cd7e8d4dd756dd2bc0b82a9a496c01a12f691bc552fc497",
+      "bytes": 8169
+    },
+    {
+      "path": "five_tuples.jsonl",
+      "sha256": "12c0937b2f1a1a9eb3997b3e756eb35b342f449e70aeb3eff58f792a8187e670",
+      "bytes": 1004
+    },
+    {
+      "path": "frames.jsonl",
+      "sha256": "e3c99504de983f0d614232b9e4745fbf74e8f54b11c3492914cf3cb2fc4eba70",
+      "bytes": 3209
+    },
+    {
+      "path": "summary.md",
+      "sha256": "b09f48234f69776bc1723a5b3317413898b63645a069e7c77df24027a3e476b3",
+      "bytes": 2774
+    }
+  ],
+  "limitations": [
+    "本包为**离线回放**：不是 PL 真实运行、不是 UART 实收、不是真实摄像头采集质量或颜色",
+    "capture_time_ns=0 哨兵 ⇒ end_to_end_latency_ns 不可定义；age_*/stale 未定义（不伪造）",
+    "session_id 为 replay-only 合成标识（不是 PS 分配的 u32 会话号）——见包内 marking",
+    "板上真实回放仍需硬件 OFFER/CLAIM + 八类门禁（当前 0/8）"
+  ],
+  "not_run": [
+    "板上真实回放",
+    "真实摄像头采集路径",
+    "P/4-D/G3/G4/G5 判定",
+    "§4.5/§7.3 关闭",
+    "板上真实回放（八类门禁 0/8）",
+    "§4.5/§7.3 关闭"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_decision_20261025_r06",
+  "reviewed_run_id": "s6a_u6_02_decision_20261025_r04",
+  "review_status": "CHANGES_REQUIRED",
+  "review_scope": [
+    "U6-02 当前批准语义与 §10 的一致性",
+    "回执、机器可读 JSON、人读规格及 STATE 的范围和状态",
+    "r01/r02 失败结果与 r04 自检、清单绑定的证据保留"
+  ],
+  "blocking_finding": {
+    "id": "U6-02-RECEIPT-QUANTIFIER",
+    "location": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r01/decision_receipt.json",
+    "problem": "旧回执写‘每次获取最多提交一次’，允许一次获取产生零次；§10 与 JSON 声明的是每个获取区间恰好产生一次 ACTION_SUBMITTED。",
+    "impact": "旧回执不能准确证明用户批准了当前 §10 语义。",
+    "closure_condition": "新回执只确认 §10 当前定义，明确恰好一次与新获取/全局冷却边界；保留旧记录；重跑自检并更新证据绑定。"
+  },
+  "nonblocking_review": [
+    "决策没有扩大到其他参数或权限。",
+    "STATE 保持 DELIVERED_PENDING_REVIEW，整体 G0/G5 未通过，T6-A03 仍 NOT_RUN。",
+    "r01/r02 失败结果存在，r04 自检为 17/17 ALL_PASS；r04 manifest 中核心文件哈希一致。"
+  ],
+  "reviewer_limitations": "Reviewer 只读，未运行测试、未写文件、未操作硬件。"
+}

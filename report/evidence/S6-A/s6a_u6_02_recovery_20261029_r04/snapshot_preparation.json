@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "artifact": "s6a_recovery_snapshot_preparation",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_recovery_20261029_r04",
+  "source_commit": "86a2bb18e1a197dc56d07ea8c42ec38a6adf3ed1",
+  "source_commit_time": "2026-10-29T01:16:25+08:00",
+  "branch": "stage6-interact-prep",
+  "started_utc8": "2026-10-29 01:56:06+0800",
+  "finished_utc8": "2026-10-29 01:56:07+0800",
+  "input_source_run_id": "s6a_u6_02_recovery_20261029_r01",
+  "source_input_count": 130,
+  "tool_source_count": 2,
+  "total_snapshot_bytes": 1136000,
+  "source_bindings_sha256": "dca8ea12e7aeba136490e603eca9a709161c28b0c9f00d7c06da978cf0e19160",
+  "tool_source_provenance_sha256": "b87e214cfe35c6a900cb48c0ee2dfcb895dc2bc050bad2c573a186c2ff5df9db",
+  "checks": [
+    {
+      "name": "pinned_w6_branch_and_HEAD",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "name": "current_source_files_equal_r01_snapshot",
+      "status": "PASS",
+      "exit_code": 0
+    },
+    {
+      "name": "main_gate_sources_match_pinned_git_blob_and_disk_sha256",
+      "status": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "此准备记录仅绑定离线恢复输入，不等同于 S6-A 语义自检、独立审查或阶段验收。",
+    "文件快照使用 worktree_disk 基座；基线提交仅用于隔离克隆与源码版本定位。"
+  ],
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "SHA-256 按工作区磁盘字节计算；不将未提交快照伪称为 commit_blob。"
+}

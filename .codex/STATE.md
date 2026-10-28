@@ -88,3 +88,10 @@
 - 历史维护记录：2026-10-11 按 Wong 授权清理可重建缓存（C 盘仅 npm/pip 下载缓存，净释放 6,073,454,592 B；D 盘仅当前候选 109 个成功 RunId 下 218 个精确 PCH 文件，净释放 31,633,760,256 B；失败目录、模型/数据、波形、2B/3 工作树与用户原改动不动；清单见 `report/evidence/CTRL-CLEANUP/cache_cleanup_20261011_r01/cleanup_record.json`）；ROSS 2026.9.1 独立 Tcl 冒烟通过（Vivado 2026.1 退出码 0；证据 `report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/`，未测 IP/综合/实现/硬件）。
 - 历史 T68 源映射修复基线为 `65dd1c310e7686d50685d2f83b9b2b623e6cf3ad`。候选实现提交 `999238284157bed77cdb3a37e3e6eea52daeefc4` 包含 tile engine、T66 testbench 与 runner；2026-10-06 G4 acceptance/OOC 综合证据提交为 `a232bc7c815a1e9bb18c675b0e9f31bccd857c62`。均未推送；保持其他阶段改动、运行目录、shards、模型数据、密钥和构建产物不入提交。
 - 下一步：发令总控按本次补验关闭记录及其所在Git提交核对交付；r03源码/工具/报告/日志清单核验与独立审查均通过，旧目标成果、109功能证据和r01/r02失败证据保留。r03脚本是已执行快照，不能重复prepare；后续综合须新RunId、路径、namespace及重新绑定哈希，源码可从冻结14项Git blobs恢复。摄像头/HDMI等尚未计入本次核心OOC；阶段7各资源≤85%的初始目标下DSP仅余1、LUT余4,670，完整系统资源/带宽/时序仍须后续评估；不自动越过2B/3阶段边界。
+
+## 冻结声明（2026-10-28，Wong 指令「冻结阶段45」）
+
+- **阶段5 离线冻结**：tag stage5-offline-freeze-20261027-r3 -> 679b8a1；frozen_set 4461bbbc...（tag 与 HEAD 同字节）；93 成员/93 唯一 id；三路 93/93 exit 0；自测 4/4；旧 tag r1/r2 未动。
+- **阶段4 离线冻结**：tag stage4-offline-freeze-20261028-r5 -> a0ecc71（tree 5b6fc279）；冻结包 6 个输入类文件（tag 树内 _verification/ 计数=0）；115 成员（17/5/8/85）+ 11 项真实产物身份；真 git archive 导出 4359 文件 -> --disk 115/115 exit 0；五项退出码全 0；验证包为 post-freeze 提交 3ddb0af（不在 tag 内）。
+- **未主张**：G3/G4/G5、阶段4/5 验收通过、板级 B1-B10、ENABLE=1（仍 0）；阶段4 未闭合项与阶段5 板级项见 decisions/freeze_declaration_stage4_r5_stage5_r3_20261028_r01.md。
+- 迭代中被拦下的真缺陷（r1 假哈希 / r2 导出不可复现 / r3 gitignore 日志入清单 / r4 tag 树含旧验证包）均已记录在该决策文件中。

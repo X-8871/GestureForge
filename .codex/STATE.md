@@ -363,3 +363,14 @@
 ## 历史交接行（已被上行取代，不再代表写权）
 
 任务=`task-21 阶段4 接续（DSH 认领 w4）：契约改绑真实彩色 + 应用已批准项 + RAW 系统 G0 收口 + 帧周期 P 方案（全离线）` | 负责人=`DSH 阶段4 总控（stage4-lead）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`f6fa9f0d84274f1a0d03e6f87263fb550ebc6656` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、scripts/stage4_s4b/、verification/、report/evidence/S4-CTRL/、.codex/STATE.md`（主目录与其他树、硬件均无授权） | 未提交改动归属=`12 项未跟踪 6 ELF/6 map 属 Codex 本机恢复产物，留原位不入 Git；本轮新文件随本次提交` | 让出声明=`w4 由 DSH 阶段4 总控持有至本轮收尾；硬件使用权未随交接，阶段4 板级依 CDX-20261023-019 暂缓，恢复须另行申请窗口` | 心跳(UTC+8)=`2026-10-24 01:00` | 证据入口=`report/evidence/S4-CTRL/t21_takeover_20261024_r02/、t21_contract_colour_rebind_20261024_r02/、t21_raw_g0_gap_registry_20261024_r03/、t21_frame_period_p_plan_20261024_r01/` | 恢复命令=`git -C D:/codex-worktrees/w4 log --oneline -3; git -C D:/codex-worktrees/w4 status --short; python -B D:/codex-worktrees/w4/scripts/stage4_s4ctrl/verify_shared_io_contract.py` | 状态/下一接手方=`IN_PROGRESS / 本轮收尾后由 DSH 项目总控指派独立复审与后续（含硬件窗口申请）`
+
+## 临时接管交接行（阶段4 4-D bring-up 窗口 #2，2026-10-28；已被下发执行、现收窗）
+
+**窗口结论（一句话）**：R0 记录到上一窗口残留；R1 与两处收尾整区恢复 **diff=0**；S1 三段判定 `NEITHER_STAGE`；**M4-b FAIL**（根因已定位：**PS-PL level shifters 未使能**，PS 访问 `0x43C00000` 被拒，应用卡在 `M4B STEP=1`）；M4-a / M3 复检 / chain-lite `NOT_RUN`。**不主张 G3/G4/G5**；`ENABLE=0` 未碰；未写 QSPI、未改线、未发独立 `stop`、未 push。
+
+任务=`S4-T34 4-D bring-up 窗口#2（临时接管执行；原阶段4 执行体收尾失败）` | 负责人=`stage6-lead4`（**DSH 直接指令接管，非 OFFERED**） | 工作树/分支=`D:\codex-worktrees\w4` / `stage4-infer-prep` | 起始提交=`5dd2f87bc42460d844746105b02b6727f7c0505b` | 允许修改范围=`本轮仅 report/evidence/S4-T34/bringup_window2_*/** 与 .codex/STATE.md；不改驱动/契约/地址图/构建产物` | 未提交改动归属=`进入时 33 项已声明脏项（比口头记录多 1 项，疑为未跟踪 .pylibs/）**全部原样未清理**；本轮新增 4 个证据目录未提交、归本轮` | 让出声明=`已收窗：hw_server 已停、3121 无 LISTENING（仅 5 个 TIME_WAIT 未清理）、无残留进程、无 index.lock` | 心跳(UTC+8)=`2026-10-28 12:40` | 证据入口=`report/evidence/S4-T34/bringup_window2_20261028_r04/window_close.txt；bringup_window2_restore_20261028_r01/results_restore.json；bringup_window2_diag_20261028_r01/results_diag.json；bringup_window2_order_20261028_r01/results_order.json` | 恢复命令=`git -C D:/codex-worktrees/w4 rev-parse HEAD; git -C D:/codex-worktrees/w4 status --short` | 状态/下一接手方=`窗口#2 结束（M4-b BLOCKED 于 PS-PL level shifters）/ 待 DSH 项目总控裁决后续`
+
+### 窗口#2 关键事实
+- 驱动 v3.1 SHA `467506d1…`；**v3.1 缺陷**：`load_elf_ddr()` 引用模块级 `INIT_ELF` 但从未赋值（仅第 480 行引用）⇒ 直接走 `--window` 会在 P2/M4-b 装载阶段抛 `NameError`；本轮以 tmp wrapper 注入等价路径规避，**未改驱动源码**。
+- `rst -system -stop` 会清空 PL（`mrd 0x43C00000` 报 `Bitstream is not programmed`）；"先装 PL 再跑 init" 与 "先 init 再装 PL" 两序均报 `Level shifters are not enabled` ⇒ 需 `ps7_post_config`/FSBL 流程使能 PS-PL 电平转换器，才能做任何 PS→PL AXI-Lite 访问（M4-b 的前置）。
+- 失败尝试按序保留：r01（IDENT 失败：weights 路径笔误）、r02（`INIT_ELF` NameError，预置已写入后恢复未跑）、r03（import 期 NameError，无产物）、r04（正式窗口）；r05 = 收尾恢复核验（`RESTORE_VERIFIED`，diff=0）。

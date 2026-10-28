@@ -1,0 +1,23 @@
+# 阶段4 4-D bring-up 窗口 #2（开窗记录）
+
+- RunId：`bringup_window2_20261028_r04`
+- 开窗（UTC+8）：2026-10-28T12:23:50+08:00
+- 驱动：`scripts/stage4_s4b/run_bringup_driver.py` SHA-256 `467506d123dd334e70b6face43cac3c08fa785cadaa0fc6da375c168de192eae`（v3.1）
+- 执行方式：tmp wrapper `tmp/4/S4-T34/run_window2.py`（逐步驱动；按 lead 指令顺序）
+
+## P0 门禁
+- ok=True；heavy_processes=[]；listening_3121=0；real_index_lock_present=False；COM4=True（err=''）；uart_preopened=True
+
+## 载荷身份（SHA-256）
+- `D:\FPGA_Competition\w2b\report\evidence\S2B-T19\visibility1_csr_fixed_20261016_r04\artifacts\s2b_inference.bit` → `555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7`（期望前缀 `555a70c2`，match=True）
+- `D:\codex-worktrees\w4\report\evidence\S4-B\s4b_ps_tensor_20261023_r13\verified_payload\init.elf` → `237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1`（期望前缀 `237dd959`，match=True）
+- `D:\codex-worktrees\w4\report\evidence\S4-T34\ps_decode_link_20261028_r01\m4b\s4d_ps_app_sw0_m4b.elf` → `ada4b30d98298ec9cea053d97d01e9fea91ae97e70c8a13f7be1bc36079445a7`（期望 `ada4b30d98298ec9cea053d97d01e9fea91ae97e70c8a13f7be1bc36079445a7`，match=True）
+- `D:\codex-worktrees\w4\report\evidence\S4-T32\window_a_20261027_r01\m3_snapshot_orig.bin` → `41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf`（期望 `41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf`，match=True）
+- `D:\codex-worktrees\w4\scripts\stage4_s4b\run_bringup_driver.py` → `467506d123dd334e70b6face43cac3c08fa785cadaa0fc6da375c168de192eae`（期望 `467506d123dd334e70b6face43cac3c08fa785cadaa0fc6da375c168de192eae`，match=True）
+- `D:\codex-worktrees\w4\report\evidence\S4-CTRL\s4t26_layer_divergence_20261026_r02\bridge_input_postquant_int8_chw.bin` → `da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e`（exists=True，519168 B）
+- `D:\FPGA_Data\HaGRIDv2\darknet_inputs\runs\s1_t02_d2_tiny416_int8_weight_r2\gesture_yolov4_tiny_416_int8_weights.gf8` → `f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39`（exists=True，5903100 B）
+- `D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r01\test_fist_000_head13.raw` → `07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6`（exists=True，5070 B）
+- `D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r01\test_fist_000_head26.raw` → `7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e`（exists=True，20280 B）
+
+## 边界
+- `ENABLE=0` 未碰；不主张 G3/G4/G5；不写 QSPI；不改线/`ENABLE`；不发独立 `stop`。

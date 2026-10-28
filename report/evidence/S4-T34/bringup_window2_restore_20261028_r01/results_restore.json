@@ -1,0 +1,64 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window2_restore_20261028_r01",
+  "purpose": "R2 收尾恢复的核验/补做",
+  "started_utc8": "2026-10-28T12:31:07+08:00",
+  "steps": {
+    "P0_gate": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "heavy_processes": [],
+        "listening_3121": 0,
+        "index_lock": false,
+        "com4_present": true,
+        "com4_error": "",
+        "uart_preopened": true,
+        "real_index_lock_present": false
+      }
+    },
+    "P1_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 32116
+      }
+    },
+    "RC_verify": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "restore_diff": 28126,
+      "sha256": "f0d4e91a24028acd43605909e041d561082f3b447fc0136d441ea907e9d405dd",
+      "expected_sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "note": "R2 曾 write_exit=0；本步在停核后复读核验"
+    },
+    "RC_rewrite": {
+      "status": "PASS",
+      "exit_code": 0,
+      "write_exit": 0,
+      "dump_exit": 0,
+      "restore_diff": 0,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 32116,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "boundary": "不主张 G3/G4/G5",
+  "restore_ok": true,
+  "finished_utc8": "2026-10-28T12:32:52+08:00",
+  "elapsed_min": 1.8,
+  "conclusion": "RESTORE_VERIFIED"
+}

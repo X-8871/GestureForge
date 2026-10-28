@@ -1,0 +1,107 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window2_diag_20261028_r01",
+  "kind": "DIAGNOSTIC_ONLY",
+  "boundary": "本包**不构成 M4-b 判据**、不升级通过；不主张 G3/G4/G5；ENABLE=0 未碰",
+  "hypothesis": "H1: load_elf_ddr 的 rst -system -stop 使 PL 配置失效 ⇒ CSR(0x43C00000) 无响应",
+  "started_utc8": "2026-10-28T12:33:48+08:00",
+  "steps": {
+    "P0": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "heavy_processes": [],
+        "listening_3121": 0,
+        "index_lock": false,
+        "com4_present": true,
+        "com4_error": "",
+        "uart_preopened": true,
+        "real_index_lock_present": false
+      }
+    },
+    "P1_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 14976
+      }
+    },
+    "D0_reset_ps7init": {
+      "status": "PASS",
+      "exit_code": 0,
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0
+    },
+    "D1_csr_before_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "exit_code": 0,
+        "log": "ect; exit\nexit=0 elapsed=0.769\nMemory read error at 0x43C00000. Blocked address 0x43C00000. Cannot access FPGA: Bitstream is not programmed\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#0 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 1136656384 4 4 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -v 0x43c00000 1\""
+      }
+    },
+    "D2_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "D2_csr_after_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "exit_code": 0,
+        "log": "; exit\nexit=0 elapsed=1.654\nMemory read error at 0x43C00000. Blocked address 0x43C00000. Cannot access FPGA: Level shifters are not enabled\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#0 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 1136656384 4 4 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -v 0x43c00000 1\""
+      }
+    },
+    "D3_preload": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "head13": 0,
+        "head26": 0,
+        "input": 0,
+        "weights": 0
+      }
+    },
+    "D3_load_no_system_reset": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "D3_uart": {
+      "status": "DIAGNOSTIC_ONLY",
+      "exit_code": null,
+      "lines": [
+        "S4D PS APP: PREPROC_SRC=0 ABI=1",
+        "S4D MODE=M4B_SELFCHECK geom=letterbox_640x480_to_416x416",
+        "M4B STEP=0 enter",
+        "M4B STEP=1 read CSR_ID addr=0x43C00000"
+      ],
+      "saw_step1": true,
+      "saw_result": false,
+      "note": "仅诊断：即使出现 RESULT 也**不构成** M4-b PASS"
+    },
+    "D4_final_restore": {
+      "status": "PASS",
+      "exit_code": 0,
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "write_exit": 0,
+      "dump_exit": 0,
+      "restore_diff": 0,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 14976,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "finished_utc8": "2026-10-28T12:37:10+08:00",
+  "elapsed_min": 3.4
+}

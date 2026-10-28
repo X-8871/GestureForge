@@ -1,0 +1,85 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window2_order_20261028_r01",
+  "kind": "DIAGNOSTIC_ONLY_ORDER_EXPERIMENT",
+  "boundary": "不构成 M4-b 判据、不升级通过；不主张 G3/G4/G5；ENABLE=0 未碰",
+  "recipe_under_test": "program PL → dow init.elf + con（**不带 rst -system**）→ 装应用 + con",
+  "started_utc8": "2026-10-28T12:38:03+08:00",
+  "steps": {
+    "P0": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "heavy_processes": [],
+        "listening_3121": 0,
+        "index_lock": false,
+        "com4_present": true,
+        "com4_error": "",
+        "uart_preopened": true,
+        "real_index_lock_present": false
+      }
+    },
+    "P1_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 8468
+      }
+    },
+    "E1_reset_and_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "reset_stop_exit": 0,
+      "program_pl_exit": 0
+    },
+    "E2_init_no_system_reset": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "E3_csr": {
+      "status": "FAIL",
+      "exit_code": 0,
+      "detail": {
+        "exit_code": 0,
+        "error": "Memory read error at 0x43C00000. Blocked address 0x43C00000. Cannot access FPGA: Level shifters are not enabled",
+        "value_line": "",
+        "log_tail": "3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -v 0x43c00000 1\""
+      }
+    },
+    "E4_preload": {
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "CSR 仍不可访问"
+    },
+    "E5_load": {
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "CSR 仍不可访问"
+    },
+    "E6_uart": {
+      "status": "NOT_RUN",
+      "exit_code": null,
+      "reason": "CSR 仍不可访问"
+    },
+    "F1_final_restore": {
+      "status": "PASS",
+      "exit_code": 0,
+      "restore_diff": 0,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf"
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 8468,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "finished_utc8": "2026-10-28T12:40:01+08:00",
+  "elapsed_min": 2.0
+}

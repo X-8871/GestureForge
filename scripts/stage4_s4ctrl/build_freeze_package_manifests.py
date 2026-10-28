@@ -102,8 +102,9 @@ def main() -> int:
         if git(repo, "check-ignore", "-q", rel)[0] == 0:
             print(f"[FAIL] 包内不得含被 gitignore 忽略项：{rel}", file=sys.stderr)
             return 4
-        if any(part.endswith("_verification") for part in Path(rel).parts):
-            print(f"[FAIL] 冻结包目录内出现验证目录路径（分离失败）：{rel}", file=sys.stderr)
+        rel_inside = p.relative_to(ev).parts
+        if any(part.endswith("_verification") for part in rel_inside[:-1]):
+            print(f"[FAIL] 冻结包目录内出现验证子目录路径（分离失败）：{rel}", file=sys.stderr)
             return 7
 
     # 输入类文件不得包含被绑定提交/树的哈希（自指防护）

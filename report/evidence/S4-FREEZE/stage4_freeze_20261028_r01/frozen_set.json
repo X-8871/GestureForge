@@ -1,11 +1,11 @@
 {
   "schema_version": "stage4_frozen_set_v1",
-  "freeze_id": "stage4-offline-freeze-20261028-r1",
+  "freeze_id": "stage4-offline-freeze-20261028-r2",
   "task_id": "S4-T33",
-  "created_utc8": "2026-10-28T10:20:00+08:00",
+  "created_utc8": "2026-10-28T11:00:00+08:00",
   "hash_basis": "commit_blob",
-  "hash_basis_commit": "60ec1fd4afb0ea300ed4b5c5956646a680838393",
-  "hash_basis_note": "members[].sha256 取自 `git cat-file blob <hash_basis_commit>:<path>`；artifact_identity 为仓库外已登记产物身份。",
+  "hash_basis_commit": "6f08f9f4250154c0db4572800d90c1350aad3184",
+  "hash_basis_note": "members[].sha256 取自 `git cat-file blob <hash_basis_commit>:<path>`；artifact_identity 为真实文件 SHA-256（含路径），验证器按路径重算比对并拒绝占位形态。",
   "scope": "OFFLINE_ONLY",
   "freeze_meaning": "冻结只表示当前交付物身份可复现；不代表阶段4 通过，不主张 G3/G4/G5。",
   "categories": {
@@ -29,7 +29,7 @@
       "spec:docs/stage4/s4b_hw_remaining_gates_plan_20261027_r01.md"
     ],
     "verifier": [
-      "verifier:scripts/stage4_s4ctrl/verify_stage4_frozen_set.py",
+      "verifier:scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
       "verifier:verification/verify_stage4_frozen_set.py",
       "verifier:verification/s2a_ps_decode_nms_reference.c",
       "verifier:verification/s2a_ps_decode_nms_reference.h",
@@ -243,9 +243,9 @@
       "category": "spec"
     },
     {
-      "id": "verifier:scripts/stage4_s4ctrl/verify_stage4_frozen_set.py",
-      "path": "scripts/stage4_s4ctrl/verify_stage4_frozen_set.py",
-      "sha256": "ca1e1e19523a8f8f6c2159d35ea4d979b5cf229dd041a3eaea2508077434bef2",
+      "id": "verifier:scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
+      "path": "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
+      "sha256": "213be22709b02f511dc0b5e00e29f70ec173f927fc0b2844325a6f5ba7749755",
       "category": "verifier"
     },
     {
@@ -834,57 +834,102 @@
   "artifact_identity": [
     {
       "name": "2B bitstream",
+      "path": "D:/FPGA_Competition/w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.bit",
       "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
-      "bytes": 4045776
+      "bytes": 4045776,
+      "in_repo": false,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "2B XSA",
-      "sha256": "ea52da1b00000000000000000000000000000000000000000000000000000000"
+      "path": "D:/FPGA_Competition/w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "bytes": 848620,
+      "in_repo": false,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "rebuild bitstream",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-T32/phase2_build_r02_20261027_r01/s4d_inference.bit",
       "sha256": "c7efcb7a6a621b26cfba7e6ea57a930d00b6cfbd994b59791601d67aa89bc25a",
-      "bytes": 4045776
+      "bytes": 4045776,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "rebuild XSA",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-T32/phase2_build_r02_20261027_r01/s4d_inference.xsa",
       "sha256": "22d4b70d88749c2c2fbb3bed1e02e57dfe65ee3710872bdcc1fc550c3f79bfab",
-      "bytes": 841362
+      "bytes": 841362,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "PS SW ELF",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-T32/phase2_ps_app_20261027_r01/s4d_ps_app_sw.elf",
       "sha256": "3f5dda5709ff495597458520583407a7352341e963fce06080af166868550583",
-      "bytes": 183032
+      "bytes": 183032,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "PS PL ELF",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-T32/phase2_ps_app_20261027_r01/s4d_ps_app_pl.elf",
       "sha256": "935e535ee14ef128bcaf8731cfcaa2bc09bae7a61e08e93a2a60b8957cdfd13a",
-      "bytes": 184572
+      "bytes": 184572,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "M4-b selfcheck ELF",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-T32/phase2_ps_app_20261027_r01/s4d_ps_app_m4b_v2.elf",
       "sha256": "dabaf67aae1be96f5ddc32525c520de448edfc9ac92bccbf3397e75c8867a55b",
-      "bytes": 190720
+      "bytes": 190720,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "input tensor",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-CTRL/s4t26_layer_divergence_20261026_r02/bridge_input_postquant_int8_chw.bin",
       "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
-      "bytes": 519168
+      "bytes": 519168,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "weights",
+      "path": "D:/FPGA_Data/HaGRIDv2/darknet_inputs/runs/s1_t02_d2_tiny416_int8_weight_r2/gesture_yolov4_tiny_416_int8_weights.gf8",
       "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
-      "bytes": 5903100
+      "bytes": 5903100,
+      "in_repo": false,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "head13",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-B/20261021_r01/test_fist_000_head13.raw",
       "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
-      "bytes": 5070
+      "bytes": 5070,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     },
     {
       "name": "head26",
+      "path": "D:/codex-worktrees/w4/report/evidence/S4-B/20261021_r01/test_fist_000_head26.raw",
       "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
-      "bytes": 20280
+      "bytes": 20280,
+      "in_repo": true,
+      "hash_basis": "worktree_disk",
+      "hash_basis_note": "按实际文件字节计算（仓库外产物或按路径落盘重算）"
     }
   ],
   "not_frozen": [
@@ -907,12 +952,17 @@
   ],
   "superseded": [
     {
+      "tag": "stage4-offline-freeze-20261028-r1",
+      "commit": "4bb27b6754e2f0536596002d8cac4b56812d0e8f",
+      "reason": "artifact_identity 中 2B XSA 为前缀+补零占位哈希，且验证器未拦截占位形态"
+    },
+    {
       "commit": "83c9284ad2296b9b2c836250cee615e255533615",
-      "note": "前次阶段4 离线冻结（已被 r1 取代）"
+      "reason": "更早的阶段4 离线冻结，已被 r1/r2 取代"
     },
     {
       "commit": "4e0b03dd7090c7dc5615a4cd1e40bd193715faff",
-      "note": "前次阶段4 离线冻结（已被 r1 取代）"
+      "reason": "更早的阶段4 离线冻结，已被 r1/r2 取代"
     }
   ],
   "excluded_self": [

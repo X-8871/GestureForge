@@ -429,3 +429,17 @@
   （xsdb 日志错误文本守卫 + `dap_recovered()` 双条件 + 注入自检）。
 - 证据：`report/evidence/S4-T34/bringup_window4_dapboot_20261028_r01/`（A/B/C 会话日志、修正后 JSON、`summary_abc.json`）；
   `bringup_driver_v324_20261028_r01/`（自检）。
+## 窗口#4 有效结果（2026-10-28 18:17–18:21，RunId `bringup_window4_20261028_r05`）
+
+- **四动作修复被实板证实**：`STEP=1` 由"永远挂住"变为读到 `M4B CSR id=0x53324250 ver=0x00000100`
+  ⇒ **缺 `FPGA_RST_CTRL=0` + PS-PL 电平转换器 是 CSR 不可访问的根因**（驱动 v3.2.6 四动作 + 双读回：
+  `0xF8000900=15(0xF)`、`0xF8000240=0`）。
+- **M4-b 判定仍 FAIL（非 INCONCLUSIVE）**：应用跑完 STEP 0–8 并输出
+  `M4B RESULT={"pass":0,"done":2,"diff13":0,"diff26":0,"first13":-1,"first26":-1,"stale":1,"gate":1,
+  "ack_idle":0,"epoch":1,"status":3077,"error":5}`；**新阻断在 `STEP=6` 等 PL 完成超时**
+  （`status` `0x1102→0x0C05`、`error=5`）。PS→PL 通路已通，问题转向 PL 侧完成信号/预置内容/超时预算。
+- **W0 恢复 diff=0**（初始即 `41907f53…`）；**W4 收尾恢复**：初始 diff 25,168 → 写回 → **diff=0**。
+- 未做 M4-a（M4-b 非 PASS 即停）；未用 `-force`；未做 JTAG CSR 直探。
+- 窗口内 3 次尝试均为**工具缺陷**并已修（v3.2.4 错误文本守卫 → v3.2.5 去双引号 → v3.2.6 去 `!`），
+  每次 45/45 离线自检 exit 0；**v3.2.6 SHA `311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855`**。
+- 清理：3121 无 LISTENING、无残留、无 `index.lock`。**不主张 G3/G4/G5**；M3/M2 未闭合。

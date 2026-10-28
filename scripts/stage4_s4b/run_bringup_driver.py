@@ -1,4 +1,4 @@
-"""阶段4 4-D bring-up 执行驱动 v3.2.4（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 四动作 + xsdb 错误文本守卫）。
+"""阶段4 4-D bring-up 执行驱动 v3.2.6（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 四动作 + xsdb 错误文本守卫 + cmd 元字符规避）。
 
 v3.2 变更（2026-10-28，窗口 #2 根因修复）：
   1. **修复 NameError**：`load_elf_ddr()` 引用模块级 `INIT_ELF`，v3.1 从未赋值 ⇒ 装载阶段必抛
@@ -389,18 +389,23 @@ def lvl_shifter_tcl(value: int, readback_hint: str = "PPL_LVL_RB") -> str:
         f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
         f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
         f"set _rb2 [mrd -value {hex(FPGA_RST_CTRL_ADDR)}]; "
-        f"puts \"{readback_hint}\"; puts $_rb; "
-        f"puts \"{readback_hint}_RST\"; puts $_rb2; "
-        f"if {{$_rb == {value}}} {{ puts \"{readback_hint}_OK\" }} "
-        f"else {{ puts \"{readback_hint}_BAD\" }}; "
-        f"if {{$_rb2 == 0}} {{ puts \"{readback_hint}_RST_OK\" }} "
-        f"else {{ puts \"{readback_hint}_RST_BAD\" }}; "
+        f"puts {{{readback_hint}}}; puts $_rb; "
+        f"puts {{{readback_hint}_RST}}; puts $_rb2; "
+        f"if {{$_rb == {value}}} {{ puts {{{readback_hint}_OK}} }} "
+        f"else {{ puts {{{readback_hint}_BAD}} }}; "
+        f"if {{$_rb2 == 0}} {{ puts {{{readback_hint}_RST_OK}} }} "
+        f"else {{ puts {{{readback_hint}_RST_BAD}} }}; "
         f"disconnect; exit"
     )
 
 
 def lvl_shifter_inline_assert(value: int = LVL_SHFTR_ON, hint: str = "PPL_LVL_RB") -> str:
-    """装载/启动前的**内联**断言片段（四动作 + 双读回）；任一读回不符即 `error` 终止该步。"""
+    """装载/启动前的**内联**断言片段（四动作 + 双读回）；任一读回不符即 `error` 终止该步。
+
+    v3.2.5：**整段不使用双引号**（puts/error 全用 Tcl 大括号）。原因：经 `cmd /c xsdb.bat -eval`
+    传递时内嵌 `"` 会被 cmd 重新切分（窗口 #4 r03 实测：`dow` 整条命令 `exit=255`，
+    日志为 `...puts \"HOLD_STATE was unexpected at this time.`）。
+    """
     return (
         f"mwr {hex(SLCR_UNLOCK_ADDR)} {hex(SLCR_UNLOCK_KEY)}; "
         f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
@@ -408,11 +413,11 @@ def lvl_shifter_inline_assert(value: int = LVL_SHFTR_ON, hint: str = "PPL_LVL_RB
         f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
         f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
         f"set _rb2 [mrd -value {hex(FPGA_RST_CTRL_ADDR)}]; "
-        f"puts \"{hint}\"; puts $_rb; puts \"{hint}_RST\"; puts $_rb2; "
-        f"if {{$_rb != {value}}} "
-        f"{{ error \"PS-PL level shifters readback not equal to {hex(value)}\" }}; "
-        f"if {{$_rb2 != 0}} "
-        f"{{ error \"FPGA_RST_CTRL readback not zero (FPGA soft reset still asserted)\" }}; "
+        f"puts {{{hint}}}; puts $_rb; puts {{{hint}_RST}}; puts $_rb2; "
+        f"if {{$_rb == {value}}} {{}} else "
+        f"{{ error {{PS-PL level shifters readback not equal to {hex(value)}}} }}; "
+        f"if {{$_rb2 == 0}} {{}} else "
+        f"{{ error {{FPGA_RST_CTRL readback not zero, FPGA soft reset still asserted}} }}; "
     )
 
 
@@ -804,14 +809,14 @@ def offline_selftest() -> int:
                                            "SLCR_LOCK=0x767B"],
                               "ref": "2B verification/s2b_board_jtag.py:199-200 的四动作顺序"}})
     bad_chars = []
-    for tname, tcl_txt in (("lvl_shifter_tcl", lvl_shifter_tcl(LVL_SHFTR_ON)),
-                           ("inline_assert", lvl_shifter_inline_assert())):
-        for ch in ("%", "&"):
+    for tname, tcl_txt, chars in (("lvl_shifter_tcl", lvl_shifter_tcl(LVL_SHFTR_ON), ("%", "&")),
+                                  ("inline_assert", lvl_shifter_inline_assert(), ("%", "&", '"', '!'))):
+        for ch in chars:
             if ch in tcl_txt:
                 bad_chars.append({"tcl": tname, "char": ch})
     checks.append({"name": "pspl_tcl_no_cmd_metachars", "ok": not bad_chars,
                    "detail": {"bad": bad_chars,
-                              "rule": "经 cmd /c 传给 xsdb 的 TCL 不得含 % （被当 %0 展开）与 & （命令分隔符）"}})
+                              "rule": "经 cmd /c 传给 xsdb 的 TCL 不得含 % （被当 %0 展开）、& （命令分隔符）、\" （会被再次切分）"}})
     checks.append({"name": "pspl_stage_wires_lvl_shifter",
                    "ok": "def stage_pspl_setup_and_load" in src_v32
                          and "stage_pspl_setup_and_load(args)" in src_v32

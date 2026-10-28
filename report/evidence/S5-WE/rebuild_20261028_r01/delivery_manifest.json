@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "stage": "5",
+  "task_id": "S5-WE",
+  "run_id": "rebuild_20261028_r01",
+  "source_commit": "70bb1009387d65ff6a9f8199c93a1232731ce8e0",
+  "evidence_dir": "report/evidence/S5-WE/rebuild_20261028_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "W-E 离线重建包：输入为 w5 自身 Git 跟踪应用源码（commit_blob 绑定）+ w5 既有 tmp 配方 + rebuilt XSA 内 bit；无上游冻结接口依赖。",
+  "files": [
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_overlay.c",
+      "sha256": "1df69dfee9a00dfc50106c446c23d485859ebde66e0449290e794b98b66f8fe6",
+      "role": "source",
+      "keep_reason": "被证据绑定的 w5 Git 跟踪应用源码（commit_blob 基座）",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.c",
+      "sha256": "799b3626a63cc3501fc6ee2d5b14b9426cf2910f21cc19e5ede03b298dec2105",
+      "role": "source",
+      "keep_reason": "被证据绑定的 w5 Git 跟踪应用源码（commit_blob 基座）",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.h",
+      "sha256": "85edd69bd250b4786f0b2f10ccf6b6c1fb7e78e85ab0b7916d9956f33b207340",
+      "role": "source",
+      "keep_reason": "被证据绑定的 w5 Git 跟踪应用源码（commit_blob 基座）",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map_host.c",
+      "sha256": "8abe3acc96edb39bc3c072aed6ba17f04148ca6cbc8b411c927986f4598b998f",
+      "role": "source",
+      "keep_reason": "被证据绑定的 w5 Git 跟踪应用源码（commit_blob 基座）",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S5-WE/rebuild_20261028_r01/build_record.json",
+      "sha256": "94ffe958977193cb6f830d1618599d5edab491a4eb9fe76a7d9b76cfe8b3cfcb",
+      "role": "result",
+      "keep_reason": "ELF 重建记录：输入哈希/命令/退出码/工具链/license/BSP fallback/输出",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S5-WE/rebuild_20261028_r01/console_build_elf.txt",
+      "sha256": "f50ce8748e194e7d0530eb504c91d7071e7ee49cdc12fc6257554b54a2c6028e",
+      "role": "diagnostic",
+      "keep_reason": "首次构建真实失败输出（multiple definition of main）",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S5-WE/rebuild_20261028_r01/console_build_elf_retry.txt",
+      "sha256": "797c02b3c409eeb2838bd19a83b7910d5fa5d350bdba16b3028e2a3aecd5047b",
+      "role": "diagnostic",
+      "keep_reason": "修正后构建真实输出（exit 0）",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S5-WE/rebuild_20261028_r01/console_gen_bsp.txt",
+      "sha256": "d96d264eeb8046ff8601956b99fce9252e5e8fbaf9a1565f80383d4f9784f7ab",
+      "role": "result",
+      "keep_reason": "证据文件：console_gen_bsp.txt",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S5-WE/rebuild_20261028_r01/s5_overlay_we_rebuild_r01.elf",
+      "sha256": "6a521a60f9245976409a3f18c31d2eb522c94dd30dc3d842fe9cb48e026ecc1b",
+      "role": "artifact",
+      "keep_reason": "W-E 窗口装载用重建 ELF（未装载时仅离线产物）",
+      "hash_basis": "commit_blob"
+    }
+  ],
+  "checks": [
+    {
+      "name": "check_stage_delivery --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w5\\report\\evidence\\S5-WE\\rebuild_20261028_r01\\delivery_manifest.json --project-root D:\\codex-worktrees\\w5",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "OFFLINE_BUILD_ONLY：本包未连接板卡、未装载、无板上结论；板上结果另见 S5-B*/ 与 results_*.json。",
+    "BSP 为外部只读 fallback 复制（Vitis 2026.1 禁用 xsct），未由已登记 XSA 现场重建；已知限制。",
+    "bit 解出件放 tmp（*.bit 忽略规则）未入库；SHA-256 记录在 build_record，可由 prep XSA 复现。",
+    "重建 ELF 与 prep s5_diag.elf 非逐字节相同（prep 旧 ELF provenance 不实，未沿用）。",
+    "本包哈希基座=commit_blob，hash_basis_commit 为承载全部 files[] 字节的内容提交。"
+  ],
+  "tool_versions": {
+    "python": "3.12.10",
+    "arm_gcc": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "make": "GNU Make 4.2.1",
+    "vitis": "Vitis v2026.1 (64-bit) SW Build 6511674"
+  },
+  "hash_basis": "commit_blob",
+  "hash_basis_commit": "70bb1009387d65ff6a9f8199c93a1232731ce8e0"
+}

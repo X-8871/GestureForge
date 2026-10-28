@@ -45,3 +45,9 @@ python -B <export>/scripts/stage4_s4ctrl/verify_stage4_freeze_package.py --repo 
 
 ## 边界
 全离线；不接触板卡；`ENABLE=0`；不改写既有证据；不 push；不动其他树；不主张阶段4 通过/G3/G4/G5。
+
+## r3 → r4 修正（交付清单可满足性）
+1. 交付清单**不再收录任何 `*.log`**：包内日志已移出到 `tmp/4/S4-T33/logs_r4/`（`*.log` 属 gitignore，不可入库）；退出码证据由 `results_freeze.exit_codes` 与 `exit_*.txt`（内含 `commit=` 与 `tree=`）承载。
+2. 新增**清单生成器** `scripts/stage4_s4ctrl/build_freeze_package_manifests.py`：写盘前对 `files[]` 每个路径执行 `git cat-file -e <commit>:<path>`，任一失败 ⇒ **exit 3**；`.log`/`git check-ignore` 命中 ⇒ **exit 4**（防复发）。
+3. 干净导出从**冻结提交**重建，`frozen_set_report.checks.clean_export.export_commit` 写明所用提交与 tree。
+4. 每轮 `exit_*.txt` 内容为 `exit=<code> commit=<commit> tree=<tree>`，因此各轮证据文件天然不同。

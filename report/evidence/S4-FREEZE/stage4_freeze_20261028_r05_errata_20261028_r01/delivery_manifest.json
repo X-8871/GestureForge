@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "stage": "4",
+  "task_id": "S4-FREEZE",
+  "run_id": "stage4_freeze_20261028_r05_errata_20261028_r01",
+  "source_commit": "c0f7b84d314f313575c7203cf27e469ca8cde69a",
+  "evidence_dir": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r05_errata_20261028_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本清单不引入新接口；接口与地址契约已作为 spec 成员冻结",
+  "files": [
+    {
+      "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r05_errata_20261028_r01/errata.json",
+      "sha256": "f6c31e547c9f00d8f991435209081de03b0f9eaf6f09a7a3731e82e645608641",
+      "role": "result",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r05_errata_20261028_r01/ERRATA.md",
+      "sha256": "dc7f1b94ebac25c052154668ef1ecb312219ca388b09616ad2889590a2532cf3",
+      "role": "result",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r05_errata_20261028_r01/landing_manifest.json",
+      "sha256": "0f5ec890b308197883313ac4f04d48a11a7c67eb6fe9ad07648363ab957947c3",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
+      "sha256": "f628e4b77da742cc283286bfe9839e8a8a24c189d4b619f42f62c15a26f08228",
+      "role": "source",
+      "hash_basis": "commit_blob",
+      "keep_reason": "冻结包验证器源码"
+    }
+  ],
+  "checks": [
+    {
+      "name": "errata_consistency",
+      "status": "PASS",
+      "command": "python -B scripts/stage4_s4ctrl/build_freeze_package_manifests.py --evidence-dir <errata> (count guard)",
+      "exit_code": 0,
+      "reason": null
+    },
+    {
+      "name": "not_frozen_count_matches_git_status",
+      "status": "PASS",
+      "command": "git status --porcelain (matched=32, undeclared=[])",
+      "exit_code": 0,
+      "reason": null
+    }
+  ],
+  "limitations": [
+    "artifact_identity 共 11 项，其中 3 项仓库外产物不列入清单，由冻结验证器按绝对路径重算",
+    "NEITHER_ACCOUNTED 候选区 6 字节变化根因未定",
+    "M3 FAIL/未闭合",
+    "M4-a/M4-b NOT_RUN",
+    "PL v2 未完成、4-D 位流未产出",
+    "PS 真实解码未接线",
+    "旧 F1–F8 语义验证器 exit 1（7/8，F5）",
+    "工作区仍有已声明的非冻结脏项",
+    "冻结不等于验收通过"
+  ],
+  "tool_versions": {
+    "python": "3.12 (Windows x64)",
+    "git": "git version 2.56.0.windows.2",
+    "vivado": "2026.1（仅历史登记）"
+  },
+  "hash_basis": "commit_blob",
+  "hash_basis_commit": "c0f7b84d314f313575c7203cf27e469ca8cde69a"
+}

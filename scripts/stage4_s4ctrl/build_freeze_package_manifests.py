@@ -18,7 +18,7 @@
       --evidence-dir report/evidence/S4-FREEZE/stage4_freeze_20261028_r04 \
       --commit <冻结包提交>
 
-退出码：0=成功且自检通过；2=输入错误；3=存在未入库路径；4=存在日志/被忽略项；5=输入类文件自指；6=自检失败；7=包内出现 *_verification/ 路径。
+退出码：0=成功且自检通过；2=输入错误；3=存在未入库路径；4=存在日志/被忽略项；5=输入类文件自指；6=自检失败；7=包内出现 *_verification/ 路径；8=not_frozen_count 口径不一致；9=磁盘字节与 commit blob 不一致。
 """
 
 from __future__ import annotations
@@ -70,6 +70,47 @@ def dump(path: Path, obj: dict) -> None:
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
+
+def enforce_not_frozen_counts(ev: Path, repo: Path, fix: bool) -> int:
+    """not_frozen_count 一律由 len(frozen_set.not_frozen) 计算，并与 git status 声明匹配数断言。
+
+    返回 0=一致（或已修正）；8=不一致且未允许修正。
+    """
+    fs_path = ev / "frozen_set.json"
+    if not fs_path.is_file():
+        return 0
+    fs = json.loads(fs_path.read_text(encoding="utf-8"))
+    declared = [str(x.get("path", "")) for x in fs.get("not_frozen", [])]
+    computed = len(declared)
+    status = subprocess.run(["git", "-C", str(repo), "status", "--porcelain"],
+                            capture_output=True, text=True).stdout.splitlines()
+    actual = {line[3:].strip().strip(chr(34)) for line in status if line.strip()}
+    matched = len(set(declared) & actual)
+    bad = []
+    for name in ("results_freeze.json", "frozen_set_report.json"):
+        f = ev / name
+        if not f.is_file():
+            continue
+        obj = json.loads(f.read_text(encoding="utf-8"))
+        stored = obj.get("not_frozen_count")
+        if stored != computed:
+            if fix:
+                obj["not_frozen_count"] = computed
+                obj["not_frozen_count_basis"] = "len(frozen_set.not_frozen)"
+                f.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n",
+                             encoding="utf-8", newline="\n")
+            else:
+                bad.append(f"{name}: not_frozen_count={stored} != len(frozen_set.not_frozen)={computed}")
+    if matched != computed:
+        bad.append(f"git status 匹配数={matched} != len(frozen_set.not_frozen)={computed}")
+    if bad:
+        print("[FAIL] not_frozen_count 统计口径不一致：", file=sys.stderr)
+        for b in bad:
+            print("  -", b, file=sys.stderr)
+        return 8
+    return 0
+
+
 def main() -> int:
     """生成清单、自检、失败即回滚。"""
     ap = argparse.ArgumentParser(description="生成阶段4 冻结包清单（哈希基座加固）")
@@ -78,6 +119,7 @@ def main() -> int:
     ap.add_argument("--commit", required=True)
     ap.add_argument("--checks", default="", help="可选：checks 列表 JSON 路径")
     ap.add_argument("--no-selfcheck", action="store_true", help="仅调试用：跳过写盘后自检")
+    ap.add_argument("--fix-counts", action="store_true", help="按 len(frozen_set.not_frozen) 修正计数后再生成")
     args = ap.parse_args()
 
     repo = Path(args.repo).resolve()
@@ -93,6 +135,10 @@ def main() -> int:
     _, tree_out = git(repo, "rev-parse", f"{commit}^{{tree}}")
     tree = tree_out.strip().splitlines()[0]
 
+    count_problem = enforce_not_frozen_counts(ev, repo, args.fix_counts)
+    if count_problem != 0:
+        return count_problem
+
     package_files = [p for p in sorted(ev.rglob("*")) if p.is_file()]
     for p in package_files:
         rel = str(p.relative_to(repo)).replace("\\", "/")
@@ -103,6 +149,10 @@ def main() -> int:
             print(f"[FAIL] 包内不得含被 gitignore 忽略项：{rel}", file=sys.stderr)
             return 4
         rel_inside = p.relative_to(ev).parts
+        blob_h = blob_sha256(repo, commit, rel)
+        if blob_h is not None and disk_sha256(p) != blob_h:
+            print(f"[FAIL] 磁盘字节与提交 blob 不一致（换行/编码分歧）：{rel}", file=sys.stderr)
+            return 9
         if any(part.endswith("_verification") for part in rel_inside[:-1]):
             print(f"[FAIL] 冻结包目录内出现验证子目录路径（分离失败）：{rel}", file=sys.stderr)
             return 7

@@ -1,21 +1,23 @@
 {
   "task_id": "S4-T33",
-  "freeze_id": "stage4-offline-freeze-20261028-r1",
-  "generated_utc8": "2026-10-28T10:30:00+08:00",
-  "hash_basis_commit": "8222354fc76156e3918f705dceb8fce99596081d",
-  "verifier": {
-    "path": "scripts/stage4_s4ctrl/verify_stage4_frozen_set.py",
-    "sha256": "ca1e1e19523a8f8f6c2159d35ea4d979b5cf229dd041a3eaea2508077434bef2"
+  "freeze_id": "stage4-offline-freeze-20261028-r3",
+  "generated_utc8": "2026-10-28T11:55:00+08:00",
+  "freeze_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
+  "identity": {
+    "scheme": "commit_blob",
+    "frozen_set_commit_blob_sha256": "0af401d52d403fb3c25d817aa19019ba08baa6b5b5ec683cdc496edf3880edcb",
+    "frozen_set_disk_sha256": "d4759ad5d52f15b9326415f0857a46ade0066f6b6eb88a0de23145b143cdda7e",
+    "note": "冻结身份以 commit blob 为准；disk 值仅作附注（受 autocrlf/换行影响）"
   },
-  "frozen_set": {
-    "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set.json",
-    "sha256": "25e00cc81ac1c4fd36ad8ca03666adca0eed4c2728bb2c334ba38f06f7024d0f"
+  "hash_basis_commit": "82b466d823d820f84e1936938ea2d47a40766db8",
+  "verifier": {
+    "path": "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
+    "sha256": "f628e4b77da742cc283286bfe9839e8a8a24c189d4b619f42f62c15a26f08228"
   },
   "checks": {
     "selftest": {
       "exit": 0,
       "tail": [
-        "  [PASS] path_escape: got=2 expected=2",
         "SELFTEST_RESULT=PASS (members_clean=2)"
       ]
     },
@@ -25,22 +27,22 @@
         "FROZEN_SET_VERIFIED (115/115)"
       ]
     },
-    "clean_export_verify": {
+    "clean_export": {
       "exit": 0,
+      "export_files": 4346,
+      "commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
+      "method": "git archive <freeze commit> → Python tarfile 解包（无 .git）→ --disk",
       "tail": [
         "FROZEN_SET_VERIFIED (115/115)"
-      ],
-      "export_files": 4336,
-      "mode": "disk（无 .git，CRLF 归一化）"
-    },
-    "manifest_gate": {
-      "exit": 0,
-      "commit": "a283365253ddcc798f59c90c4ec2742933c4c6f6",
-      "tail": [
-        "manifests=1 checked=7 mismatched=0 skipped_undeclared=0 skipped_manifests=0",
-        "结论：OK"
       ]
     }
+  },
+  "legacy_semantic_verifier": {
+    "path": "verification/verify_stage4_frozen_set.py",
+    "exit": 1,
+    "passed": "7/8",
+    "failed": "F5_hardware_gate_records",
+    "note": "与冻结集成员校验器不同义；不得表述为全通过"
   },
   "category_counts": {
     "spec": 17,
@@ -48,6 +50,8 @@
     "implementation": 8,
     "evidence_runid": 85
   },
+  "not_frozen_count": 32,
+  "artifact_identity_count": 11,
   "verdict": "FROZEN_SET_VERIFIED",
   "freeze_meaning": "冻结只表示交付物身份可复现；不主张 G3/G4/G5。"
 }

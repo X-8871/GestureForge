@@ -192,7 +192,7 @@ def check_members(repo: Path, fs: dict, disk: bool = False) -> tuple[int, list[s
         target = Path(apath)
         if not target.is_absolute():
             target = repo / apath
-        if disk_mode and not target.is_file():
+        if disk and not target.is_file():
             # 干净导出内，仓库外产物不可用：明确记录跳过（不静默）
             skipped_external.append({"name": name, "path": apath, "reason": "导出环境不可达（仓库外产物）"})
             continue

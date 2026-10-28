@@ -28,6 +28,9 @@ import sys
 from pathlib import Path
 
 VERIFIER = "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py"
+# 输入类文件不得记录"本清单所绑提交"的 sha/tree（否则同一个提交既要包含又要描述自己）
+INPUT_CLASS_SUFFIXES = (".json", ".md")
+
 
 
 def git(repo: Path, *args: str) -> tuple[int, str]:
@@ -92,6 +95,23 @@ def main() -> int:
         for r in logs:
             print("  -", r, file=sys.stderr)
         return 4
+
+    tree = git(repo, "rev-parse", f"{commit}^{{tree}}")[1].strip().splitlines()[0]
+    # 断言 2b：输入类文件不得包含被绑定提交/树的字面哈希（防自指）
+    self_ref = []
+    for p in package_files:
+        if p.name in ("landing_manifest.json", "delivery_manifest.json"):
+            continue
+        if not p.suffix.lower().endswith(INPUT_CLASS_SUFFIXES):
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace").lower()
+        if commit.lower() in text or tree.lower() in text:
+            self_ref.append(str(p.relative_to(repo)).replace("\\", "/"))
+    if self_ref:
+        print("[FAIL] 以下输入类文件包含被绑定提交/树的哈希（自指）：", file=sys.stderr)
+        for r in self_ref:
+            print("  -", r, file=sys.stderr)
+        return 5
 
     landing_name = "landing_manifest.json"
     delivery_name = "delivery_manifest.json"

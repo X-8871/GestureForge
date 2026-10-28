@@ -1,11 +1,12 @@
 {
   "schema_version": "stage4_frozen_set_v1",
-  "freeze_id": "stage4-offline-freeze-20261028-r2",
+  "freeze_id": "stage4-offline-freeze-20261028-r3",
   "task_id": "S4-T33",
-  "created_utc8": "2026-10-28T11:20:00+08:00",
+  "created_utc8": "2026-10-28T11:40:00+08:00",
   "hash_basis": "commit_blob",
-  "hash_basis_commit": "3028e3d2c8ab416cf474e9834c8b1075f7efecdf",
-  "hash_basis_note": "members[].sha256 取自 `git cat-file blob <hash_basis_commit>:<path>`；artifact_identity 为真实文件 SHA-256（含路径），验证器按路径重算比对并拒绝占位形态。",
+  "hash_basis_commit": "82b466d823d820f84e1936938ea2d47a40766db8",
+  "hash_basis_note": "members[].sha256 取自 `git cat-file blob <hash_basis_commit>:<path>`；artifact_identity 为真实文件 SHA-256（含路径，按文件重算）。",
+  "identity_note": "冻结身份以 commit blob 为准；frozen_set.json 自身的 commit blob 与磁盘字节值分别列于 frozen_set_report.json。",
   "scope": "OFFLINE_ONLY",
   "freeze_meaning": "冻结只表示当前交付物身份可复现；不代表阶段4 通过，不主张 G3/G4/G5。",
   "categories": {
@@ -245,7 +246,7 @@
     {
       "id": "verifier:scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
       "path": "scripts/stage4_s4ctrl/verify_stage4_freeze_package.py",
-      "sha256": "8e03088318ea12aa0826c9853bf09fa2969f6338e554464343083da38b07556e",
+      "sha256": "f628e4b77da742cc283286bfe9839e8a8a24c189d4b619f42f62c15a26f08228",
       "category": "verifier"
     },
     {
@@ -934,35 +935,185 @@
   ],
   "not_frozen": [
     {
-      "path": "tmp/",
-      "reason": "构建/仿真缓存与临时工程，可重建"
+      "path": "eport/evidence/S4-B/s4b_hw_session_live_20261027_r01/hw_server_3121.log",
+      "status": "M",
+      "reason": "既有未提交改动（本轮未核内容，保持原样）"
     },
     {
-      "path": "report/evidence/**/*.bin",
-      "reason": "大体积原始 dump（12.6 MB 级），SHA 已记录在对应 RunId 清单/结果 JSON"
+      "path": "report/evidence/S4-T32/phase2_ps_app_20261027_r01/s4d_ps_app.elf",
+      "status": "M",
+      "reason": "构建中间产物（未登记为身份的版本），非冻结成员"
     },
     {
-      "path": "report/evidence/**/*.log",
-      "reason": "工具原始日志属 gitignore；对应 RunId 结果 JSON 已入集"
+      "path": "report/evidence/S4-T32/phase2_ps_app_20261027_r01/s4d_ps_app.map",
+      "status": "M",
+      "reason": "同上"
     },
     {
-      "path": "工作区 25 项既有未提交改动",
-      "reason": "非本轮产物，归属与内容未核，保持原样"
+      "path": "scripts/stage4_s4b/m3_candidate_rw.tcl",
+      "status": "M",
+      "reason": "窗口期 M3 脚本（已提交版为冻结外的工具，属本轮前既有改动）"
+    },
+    {
+      "path": "scripts/stage4_s4b/run_s4_ddr_four_measurements.py",
+      "status": "M",
+      "reason": "窗口 A 驱动 v1（既有改动，未纳入本次冻结）"
+    },
+    {
+      "path": ".pylibs/",
+      "status": "??",
+      "reason": "本机 Python 辅助库缓存（可重建）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/preparation/window5_driver.stdout.txt",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4_ddr_four_measurements_20261027_r01/preparation/window5_open.txt",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_hw_gates_20261027_r05/",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_hw_handoff_20261027_r01/",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.elf",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r04/s4b_ps_tensor_diagnostic.map",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.elf",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r05/s4b_ps_tensor_diagnostic.map",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.elf",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r09/s4b_ps_tensor_diagnostic.map",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.elf",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r11/s4b_ps_tensor_diagnostic.map",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.elf",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r12/s4b_ps_tensor_diagnostic.map",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/forged_hardware_handoff.json",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/frozen_import_probe.exit_code.txt",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/frozen_import_probe.stderr.bin",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/frozen_import_probe.stdout.bin",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/frozen_import_probe/",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.elf",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_diagnostic.map",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/s4b_ps_tensor_preparation.json",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/verified_payload/",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4t26_g0_inputs_20261026_r11/",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "report/evidence/S4-CTRL/s4t26_golden_rebind_20261026_r01/",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
+    },
+    {
+      "path": "scripts/stage4_s4b/collect_phase2_build_evidence.py",
+      "status": "??",
+      "reason": "既有未跟踪文件（属历史证据/构建产物，本轮未核内容，保持原样）"
     }
   ],
+  "not_frozen_count": 32,
   "superseded": [
     {
+      "tag": "stage4-offline-freeze-20261028-r2",
+      "commit": "a5f5485695e4ba681c2cd144e6c29ce42e1c3c13",
+      "reason": "CRITICAL-1 干净导出结论不可复现（disk 模式仍强制解析 commit，且证据为 r1 遗留）；CRITICAL-2 frozen_set_report 为 r1 遗留；MAJOR-3 工作区 33 项脏未声明、未做清单数量不符"
+    },
+    {
       "tag": "stage4-offline-freeze-20261028-r1",
-      "commit": "4bb27b6754e2f0536596002d8cac4b56812d0e8f",
-      "reason": "artifact_identity 中 2B XSA 为前缀+补零占位哈希，且验证器未拦截占位形态"
+      "commit": "4bb27b6754e2f0536596002c8cac4b56812d0e8f",
+      "reason": "artifact_identity 占位哈希 + 验证器未拦占位"
     },
     {
       "commit": "83c9284ad2296b9b2c836250cee615e255533615",
-      "reason": "更早的阶段4 离线冻结，已被 r1/r2 取代"
+      "reason": "更早的阶段4 离线冻结，已被 r1/r2/r3 取代"
     },
     {
       "commit": "4e0b03dd7090c7dc5615a4cd1e40bd193715faff",
-      "reason": "更早的阶段4 离线冻结，已被 r1/r2 取代"
+      "reason": "更早的阶段4 离线冻结，已被 r1/r2/r3 取代"
     }
   ],
   "excluded_self": [

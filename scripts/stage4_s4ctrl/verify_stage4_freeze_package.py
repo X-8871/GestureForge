@@ -57,6 +57,23 @@ def disk_candidates(path: Path) -> list[bytes]:
     return cands
 
 
+PLACEHOLDER_FILL = 8  # 尾部连续 >=8 个 0 或 f ⇒ 判为占位形态
+
+
+def looks_like_placeholder(hexstr: str) -> bool:
+    """识别占位哈希：长度对但尾部连续 8+ 个 0/f，或前 8 位之后全同字符。"""
+    if len(hexstr) != 64:
+        return True
+    tail0 = len(hexstr) - len(hexstr.rstrip("0"))
+    tailf = len(hexstr) - len(hexstr.rstrip("f"))
+    if tail0 >= PLACEHOLDER_FILL or tailf >= PLACEHOLDER_FILL:
+        return True
+    body = hexstr[8:]
+    if body and len(set(body)) == 1:
+        return True
+    return False
+
+
 def sha256(data: bytes) -> str:
     """字节 SHA-256。"""
     return hashlib.sha256(data).hexdigest()
@@ -82,6 +99,7 @@ def check_members(repo: Path, fs: dict, disk: bool = False) -> tuple[int, list[s
     """逐成员校验；返回 (退出码, 错误, 明细)。"""
     errors: list[str] = []
     details: list[dict] = []
+    skipped_external: list[dict] = []
     commit = fs.get("hash_basis_commit", "")
     if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
         return EXIT_INPUT, [f"hash_basis_commit 非 40 位小写 SHA：{commit!r}"], []
@@ -155,14 +173,46 @@ def check_members(repo: Path, fs: dict, disk: bool = False) -> tuple[int, list[s
         if not isinstance(art, dict):
             errors.append("artifact_identity 含非对象项")
             continue
+        name = art.get("name", "?")
         sha = art.get("sha256", "")
+        if art.get("status") == "NOT_VERIFIED":
+            if not art.get("reason"):
+                errors.append(f"artifact_identity[{name}] NOT_VERIFIED 必须写 reason")
+            continue
         if not isinstance(sha, str) or len(sha) != 64 or any(c not in "0123456789abcdef" for c in sha):
-            errors.append(f"artifact_identity[{art.get('name', '?')}] sha256 非 64 位小写十六进制")
+            errors.append(f"artifact_identity[{name}] sha256 非 64 位小写十六进制")
+            continue
+        if looks_like_placeholder(sha):
+            errors.append(f"artifact_identity[{name}] 疑似占位哈希（尾部补零/补齐）：{sha}")
+            continue
+        apath = art.get("path")
+        if not isinstance(apath, str) or not apath:
+            errors.append(f"artifact_identity[{name}] 缺 path（必须给出可重算的文件路径）")
+            continue
+        target = Path(apath)
+        if not target.is_absolute():
+            target = repo / apath
+        if disk_mode and not target.is_file():
+            # 干净导出内，仓库外产物不可用：明确记录跳过（不静默）
+            skipped_external.append({"name": name, "path": apath, "reason": "导出环境不可达（仓库外产物）"})
+            continue
+        if not target.is_file():
+            errors.append(f"artifact_identity[{name}] 文件不存在：{apath}")
+            continue
+        actual = sha256(target.read_bytes())
+        declared_bytes = art.get("bytes")
+        if declared_bytes is not None and target.stat().st_size != declared_bytes:
+            errors.append(f"artifact_identity[{name}] 字节数不符 declared={declared_bytes} actual={target.stat().st_size}")
+        if actual != sha:
+            errors.append(f"artifact_identity[{name}] 重算哈希不符 declared={sha[:12]}… actual={actual[:12]}…")
     for nf in fs.get("not_frozen", []):
         if not isinstance(nf, dict) or "path" not in nf or "reason" not in nf:
             errors.append("not_frozen 项必须含 path 与 reason")
 
     missing = any("缺件" in e for e in errors)
+    if skipped_external:
+        for sk in skipped_external:
+            print(f"[SKIP] artifact_identity[{sk['name']}] {sk['reason']}")
     if duplicate or escape or missing:
         return EXIT_INPUT, errors, details
     if errors:
@@ -201,14 +251,19 @@ def run_selftest() -> int:
         fs_deleted = json.loads(json.dumps(fs))
         fs_deleted["hash_basis_commit"] = git(repo, "rev-parse", "HEAD")[1].decode().strip()
         deleted, _, _ = check_members(repo, fs_deleted)
+        fs_placeholder = {"schema_version": "stage4_frozen_set_v1", "hash_basis_commit": base,
+                          "members": [], "categories": {},
+                          "artifact_identity": [{"name": "fake", "sha256": "ea52da1b" + "0" * 56}],
+                          "not_frozen": []}
+        placeholder, _, _ = check_members(repo, fs_placeholder)
         fs_escape = {"schema_version": "stage4_frozen_set_v1", "hash_basis_commit": base,
                      "members": [{"id": "evil", "path": "../outside.txt", "sha256": "0" * 64}],
                      "categories": {"selftest": ["evil"]}, "artifact_identity": [], "not_frozen": []}
         escaped, _, _ = check_members(repo, fs_escape)
 
-        got = [clean, changed, deleted, escaped]
-        exp = [EXIT_OK, EXIT_MISMATCH, EXIT_INPUT, EXIT_INPUT]
-        labels = ["clean", "one_byte_change", "deleted_member", "path_escape"]
+        got = [clean, changed, deleted, escaped, placeholder]
+        exp = [EXIT_OK, EXIT_MISMATCH, EXIT_INPUT, EXIT_INPUT, EXIT_MISMATCH]
+        labels = ["clean", "one_byte_change", "deleted_member", "path_escape", "placeholder_hash"]
         for label, g, e in zip(labels, got, exp):
             print(f"  [{('PASS' if g == e else 'FAIL')}] {label}: got={g} expected={e}")
         ok = got == exp

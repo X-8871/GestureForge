@@ -1,0 +1,33 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window3_recover_20261028_r01",
+  "purpose": "DAP 错误态恢复 + 候选区恢复核验",
+  "started_utc8": "2026-10-28T13:07:24+08:00",
+  "steps": {
+    "hw_server": {
+      "ok": true,
+      "pid": 35436
+    },
+    "targets_before": {
+      "exit": 0,
+      "a9_present": false,
+      "has_dap_error": false
+    },
+    "system_reset": {
+      "exit": 0,
+      "a9_present": false,
+      "has_dap_error": false,
+      "log_tail": "$ cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; rst -system -stop; targets; disconnect; exit\nexit=0 elapsed=0.656\nInvalid target. Use \"targets\" command to select a target\n    while executing\n\"error \"Invalid target. Use \\\"targets\\\" command to select a target\"\"\n    (procedure \"getcurtarget\" line 4)\n    invoked from within\n\"getcurtarget\"\n    (procedure \"rst\" line 52)\n    invoked from within\n\"rst -system -stop\""
+    },
+    "teardown": {
+      "stopped_pid": 35436,
+      "listening_3121": 0,
+      "residual_processes": [],
+      "time_wait_note": "TIME_WAIT 可接受，不清理"
+    }
+  },
+  "restore_ok": false,
+  "note": "A9 目标未恢复；候选区仍为 r04 预置后的状态，需物理 POR/重新上电后再恢复",
+  "finished_utc8": "2026-10-28T13:07:34+08:00",
+  "elapsed_min": 0.2
+}

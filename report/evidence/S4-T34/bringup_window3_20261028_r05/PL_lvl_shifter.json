@@ -1,0 +1,23 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "reset_stop_exit": 0,
+  "lvl_0xA": {
+    "status": "FAIL",
+    "exit_code": 1,
+    "write_value": "0xa",
+    "readback_raw": null,
+    "tcl_verdict": null,
+    "readback": null,
+    "xsdb_exit": 0,
+    "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]）",
+    "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"
+  },
+  "program_pl_exit": 1,
+  "lvl_0xF": {
+    "status": "FAIL",
+    "exit_code": 1,
+    "reason": "PL 装载未成功，未使能 0xF"
+  },
+  "note": "UG585 v1.2 §2.4.8/§6：0xA 配置期、0xF 完成期；读回必须 0xF"
+}

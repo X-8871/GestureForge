@@ -1,0 +1,8 @@
+{
+  "status": "INFO_ONLY",
+  "exit_code": null,
+  "xsdb_exit": 0,
+  "error": "Memory read error at 0x43C00000. Blocked address 0x43C00000. PL AXI slave ports access is not allowed. This address has not been added to the memory map",
+  "log_tail": "2180081-4ba00477-0.0 1136656384 4 4 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -value 0x43c00000 1\"",
+  "note": "JTAG mrd 受调试器内存映射限制（PL AXI slave 未加入 memory map），不等于 PS 侧不可访问；按总控停止规则仅在 `Cannot access FPGA` 时停"
+}

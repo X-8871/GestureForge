@@ -374,3 +374,24 @@
 - 驱动 v3.1 SHA `467506d1…`；**v3.1 缺陷**：`load_elf_ddr()` 引用模块级 `INIT_ELF` 但从未赋值（仅第 480 行引用）⇒ 直接走 `--window` 会在 P2/M4-b 装载阶段抛 `NameError`；本轮以 tmp wrapper 注入等价路径规避，**未改驱动源码**。
 - `rst -system -stop` 会清空 PL（`mrd 0x43C00000` 报 `Bitstream is not programmed`）；"先装 PL 再跑 init" 与 "先 init 再装 PL" 两序均报 `Level shifters are not enabled` ⇒ 需 `ps7_post_config`/FSBL 流程使能 PS-PL 电平转换器，才能做任何 PS→PL AXI-Lite 访问（M4-b 的前置）。
 - 失败尝试按序保留：r01（IDENT 失败：weights 路径笔误）、r02（`INIT_ELF` NameError，预置已写入后恢复未跑）、r03（import 期 NameError，无产物）、r04（正式窗口）；r05 = 收尾恢复核验（`RESTORE_VERIFIED`，diff=0）。
+
+## 窗口#3 中断记录（2026-10-28；**板卡需物理 POR**）
+
+**当前板卡状态：JTAG/PS 目标不可达，需重新上电（POR）后才能继续。禁止他人在此状态下开窗。**
+
+- 现象链：窗口#3 r04 用 `mrd -force 0x43C00000` 探测**无响应**的 PL 从口 ⇒ AXI 事务超时 ⇒
+  自 r05 起 `targets` 报 `DAP (APB AP transaction error, DAP status 0x30000021)`、**Cortex-A9 目标消失**；
+  DAP 级 `rst -system` 无效（`Invalid target`）；重启 `hw_server` 后 `targets` 返回空。
+- **候选区未恢复（重要）**：r04 的 M4-b 预置已写 `head13 → 0x12000000`、`head26 → 0x12002000`
+  （5,070 B / 20,280 B），因目标不可达**无法 dump/恢复**。
+  **POR 后第一件事**：停核 + `ps7_init` → 整区 dump → 与 M3 快照 `41907f53…` 比对；
+  若 diff≠0 则整区写回并复读至 **diff=0**（现成脚本 `tmp/4/S4-T34/finish_restore.py`，指向新 RunId）。
+- 已核验：3121 无 LISTENING、无 `hw_server`/`xsdb` 残留、无 `index.lock`。
+- 教训（已进 v3.2.2 离线自检）：经 `cmd /c` 传给 xsdb 的 TCL **不得含 `%`**（被当 `%0` 展开）与
+  **`&`**（命令分隔符）；**`mrd -force` 不得用于无响应的 PL 地址**（会锁死 DAP/互联）。
+- 驱动 v3.2.2 SHA-256 `8aede15a41510d89cf14b77e8189e1533fd1bcfcdd02f27c81d08ad319ae143c`，
+  离线自检 39/39 PASS exit 0（`report/evidence/S4-T34/bringup_driver_v322_20261028_r01/`，**未提交**）。
+- 窗口#3 证据：`bringup_window3_20261028_r03/`（电平转换器 PASS、CSR 内存映射报错）、
+  `r04/`（`-force` 超时 + 内联断言 `&` 缺陷导致装载 exit=255）、`r05/`（DAP 错误态）、
+  `bringup_window3_recover_20261028_r01/`（恢复尝试：A9 未回来）。
+- 结论：**M4-b 仍未取得有效判定**；M3/M2 未闭合；不主张 G3/G4/G5。

@@ -1,0 +1,362 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_driver_v322_20261028_r01",
+  "generated_utc8": "2026-10-28T13:06:27+08:00",
+  "checks": [
+    {
+      "name": "region_arithmetic",
+      "ok": true,
+      "detail": {
+        "candidate": {
+          "base": "0x12000000",
+          "end": "0x12c08000",
+          "bytes": 12615680,
+          "size_12_6m": true,
+          "aligned64": true
+        },
+        "test": {
+          "base": "0x11ae0000",
+          "end": "0x11b00000",
+          "bytes": 131072,
+          "aligned64": true,
+          "size_128k": true,
+          "no_head26_overlap": true,
+          "below_meta": true
+        },
+        "probe_addrs": [
+          "0x12b09e1b",
+          "0x12b4805b",
+          "0x12b4906a",
+          "0x12b4930e",
+          "0x12bc8f82",
+          "0x12bc9f5b"
+        ],
+        "probe_aligned": true
+      }
+    },
+    {
+      "name": "pattern[zeros]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "fa43239bcee7b97ca62f007cc68487560a39e19f74f3dde7486db3f98df8e471"
+      }
+    },
+    {
+      "name": "pattern[ones]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "b5a41c3758763bbec72769fab4a2533bf2db0b6312d93d25a695f9e4b9e02260"
+      }
+    },
+    {
+      "name": "pattern[aa55]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "7e56ab51dd01377883e9fda970f4d33a5bc36724b39c425d285fbef1c490635a"
+      }
+    },
+    {
+      "name": "pattern[walking1]",
+      "ok": true,
+      "detail": {
+        "bytes": 131072,
+        "sha256": "7412e31810fee411021ef2be1ac2b59947b9846e93ec23c482ac5e0de752ee59"
+      }
+    },
+    {
+      "name": "pattern_distinct",
+      "ok": true,
+      "detail": "四种图样哈希须互异"
+    },
+    {
+      "name": "s1_verdict_CHANGED_AT_PL_PROGRAM",
+      "ok": true,
+      "detail": "CHANGED_AT_PL_PROGRAM"
+    },
+    {
+      "name": "s1_verdict_CHANGED_AT_INIT_EXEC",
+      "ok": true,
+      "detail": "CHANGED_AT_INIT_EXEC"
+    },
+    {
+      "name": "s1_verdict_NEITHER_STAGE",
+      "ok": true,
+      "detail": "NEITHER_STAGE"
+    },
+    {
+      "name": "s1_verdict_PRE_EXISTING_CHANGE",
+      "ok": true,
+      "detail": "PRE_EXISTING_CHANGE"
+    },
+    {
+      "name": "s2_pass",
+      "ok": true,
+      "detail": "DDR_BIT_TEST_PASS"
+    },
+    {
+      "name": "s2_retention",
+      "ok": true,
+      "detail": "DDR_RETENTION_SUSPECTED"
+    },
+    {
+      "name": "s2_bit_error",
+      "ok": true,
+      "detail": "DDR_BIT_ERROR_SUSPECTED"
+    },
+    {
+      "name": "s2_restore_hard_stop",
+      "ok": true,
+      "detail": "HARD_STOP_RESTORE_DIFF"
+    },
+    {
+      "name": "no_hardcoded_status",
+      "ok": true,
+      "detail": {
+        "hits": []
+      }
+    },
+    {
+      "name": "stage_order",
+      "ok": true,
+      "detail": {
+        "order": [
+          "S1_bisect",
+          "S2_ddr_bit_test",
+          "P2_load_app",
+          "M4b_dma_visibility",
+          "M4a_cache_visibility",
+          "M3_recheck",
+          "S3_chain_lite",
+          "P4_teardown"
+        ],
+        "ok": true
+      }
+    },
+    {
+      "name": "time_budget_60min",
+      "ok": true,
+      "detail": {
+        "budget_min": {
+          "S1_bisect": 10,
+          "S2_ddr_bit_test": 20,
+          "P2_load_app": 4,
+          "M4b_dma_visibility": 8,
+          "M4a_cache_visibility": 5,
+          "M3_recheck": 7,
+          "S3_chain_lite": 5,
+          "P4_teardown": 1
+        },
+        "total": 60,
+        "limit": 60
+      }
+    },
+    {
+      "name": "tcl_stub",
+      "ok": true,
+      "detail": {
+        "exists": true,
+        "has_PROGRAM_OK": true,
+        "has_program_hw": true
+      }
+    },
+    {
+      "name": "s1_default_candidate_region",
+      "ok": true,
+      "detail": {
+        "base": "0x12000000",
+        "bytes": 12615680,
+        "label": "candidate"
+      }
+    },
+    {
+      "name": "s1_probe6_mode",
+      "ok": true,
+      "detail": {
+        "bytes": 768,
+        "addrs": [
+          "0x12b09e1b",
+          "0x12b4805b",
+          "0x12b4906a",
+          "0x12b4930e",
+          "0x12bc8f82",
+          "0x12bc9f5b"
+        ]
+      }
+    },
+    {
+      "name": "s1_candidate_restore_step_present",
+      "ok": true,
+      "detail": "恢复写 + 回读 diff 必须 0 的步骤存在于 stage_s1"
+    },
+    {
+      "name": "app_sw_sha_prefix",
+      "ok": true,
+      "detail": {
+        "actual": "4fc095ae6283a893960d77d607c8e0471b5787e639e6f072383fb41f34c0aaba",
+        "expected_prefix": "4fc095ae"
+      }
+    },
+    {
+      "name": "bit_identity_prefix",
+      "ok": true,
+      "detail": "555a70c2"
+    },
+    {
+      "name": "chain_lite_honest_NOT_RUN",
+      "ok": true,
+      "detail": {
+        "status": "NOT_RUN",
+        "reason": "PS 应用当前只在 UART 输出 frame/rc/seq，未输出框 JSON/未发布 boxes；chain-lite 需应用补充后另开卡"
+      }
+    },
+    {
+      "name": "s1_tcl_read_only",
+      "ok": true,
+      "detail": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mrd -bin -file {outfile} 0x12000000 31"
+    },
+    {
+      "name": "s2_tcl_uses_region",
+      "ok": true,
+      "detail": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mwr -bin -file p.bin 0x11ae0000 32768;"
+    },
+    {
+      "name": "ps_result_parse",
+      "ok": true,
+      "detail": {
+        "magic": 1395934290,
+        "version": 1,
+        "session_id": 7,
+        "frame_id": 42,
+        "result_seq": 3,
+        "phys_status": 0,
+        "error_code": 0,
+        "last_reject": 0,
+        "raw_candidate_count": 2,
+        "box_count": 1
+      }
+    },
+    {
+      "name": "init_elf_constant_defined",
+      "ok": true,
+      "detail": {
+        "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+        "exists": true
+      }
+    },
+    {
+      "name": "lvl_shifter_tcl_exact",
+      "ok": true,
+      "detail": {
+        "missing": [],
+        "tcl": "connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; mwr 0xf8000008 0xdf0d; mwr 0xf8000900 0xf; mwr 0xf8000004 0x767b; set _rb [mrd -value 0xf8000900]; puts \"PPL_LVL_RB\"; puts $_rb; if {$_rb == 15} { puts \"PPL_LVL_RB_OK\" } else { p"
+      }
+    },
+    {
+      "name": "lvl_shifter_lock_key_is_0x767b_not_zero",
+      "ok": true,
+      "detail": "UG585 B.28：加锁是写 0x767B 到 0xF8000004（不是写 0 到 0xF8000008）"
+    },
+    {
+      "name": "lvl_shifter_inline_assert_readback",
+      "ok": true,
+      "detail": "装载期内联断言必须读回并在不符时 error"
+    },
+    {
+      "name": "load_elf_ddr_runs_no_nameerror(system_reset)",
+      "ok": true,
+      "detail": {
+        "exit": 0,
+        "has_system_reset": true,
+        "has_init_elf": true,
+        "has_lvl_assert": true
+      }
+    },
+    {
+      "name": "load_elf_ddr_preserves_pl(rst -processor)",
+      "ok": true,
+      "detail": {
+        "exit": 0,
+        "processor_reset": true,
+        "no_system_reset": true
+      }
+    },
+    {
+      "name": "lvl_shifter_readback_0xF_pass",
+      "ok": true,
+      "detail": {
+        "status": "PASS",
+        "exit_code": 0,
+        "write_value": "0xf",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]）",
+        "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"
+      }
+    },
+    {
+      "name": "lvl_shifter_readback_0xA_must_fail",
+      "ok": true,
+      "detail": {
+        "status": "FAIL",
+        "exit_code": 1,
+        "write_value": "0xf",
+        "readback_raw": "10",
+        "tcl_verdict": "BAD",
+        "readback": "0xa",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]）",
+        "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"
+      }
+    },
+    {
+      "name": "lvl_shifter_parses_real_log_shape(0xA)",
+      "ok": true,
+      "detail": {
+        "status": "PASS",
+        "exit_code": 0,
+        "write_value": "0xa",
+        "readback_raw": "10",
+        "tcl_verdict": "OK",
+        "readback": "0xa",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]）",
+        "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"
+      }
+    },
+    {
+      "name": "lvl_shifter_echo_line_not_misparsed",
+      "ok": true,
+      "detail": {
+        "status": "FAIL",
+        "exit_code": 1,
+        "write_value": "0xa",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]）",
+        "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"
+      }
+    },
+    {
+      "name": "pspl_tcl_no_cmd_metachars",
+      "ok": true,
+      "detail": {
+        "bad": [],
+        "rule": "经 cmd /c 传给 xsdb 的 TCL 不得含 % （被当 %0 展开）与 & （命令分隔符）"
+      }
+    },
+    {
+      "name": "pspl_stage_wires_lvl_shifter",
+      "ok": true,
+      "detail": "装载段必须调用新 stage 且 SLCR 地址常量为 0xF8000900"
+    }
+  ],
+  "fail": [],
+  "verdict": "PASS"
+}

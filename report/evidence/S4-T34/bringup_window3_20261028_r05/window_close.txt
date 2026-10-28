@@ -1,0 +1,20 @@
+# 阶段4 4-D bring-up 窗口 #3（记录）
+
+- RunId：`bringup_window3_20261028_r05`
+- 开窗：2026-10-28T13:06:35+08:00；收窗：2026-10-28T13:06:49+08:00
+- 用时：0.2 min
+- 结论：**WINDOW3_STOPPED_ON_FAILURE**
+- stop_reason：装 PL / 电平转换器使能失败（不继续）
+
+- 驱动：v3.2 SHA-256 `8aede15a41510d89cf14b77e8189e1533fd1bcfcdd02f27c81d08ad319ae143c`
+- 收尾：3121 LISTENING=0；residual=[]
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- PL_lvl_shifter：`FAIL` exit=`1`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 不主张 G3/G4/G5；`ENABLE=0` 未碰；未写 QSPI；未改线；未发独立 `stop`；未 push。

@@ -1,0 +1,21 @@
+# 阶段4 4-D bring-up 窗口 #3（记录）
+
+- RunId：`bringup_window3_20261028_r03`
+- 开窗：2026-10-28T13:03:01+08:00；收窗：2026-10-28T13:03:57+08:00
+- 用时：0.9 min
+- 结论：**WINDOW3_STOPPED_ON_FAILURE**
+- stop_reason：CSR 0x43C00000 仍不可访问：Memory read error at 0x43C00000. Blocked address 0x43C00000. PL AXI slave ports access is not allowed. This address has not been added to the memory map
+
+- 驱动：v3.2 SHA-256 `9cabcd8bd6bee0bea35f4b0f246aa2ff6d75b1204508bdb543ff6e4c8f545801`
+- 收尾：3121 LISTENING=0；residual=[]
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- PL_lvl_shifter：`PASS` exit=`0`
+- CSR_probe：`FAIL` exit=`1`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 不主张 G3/G4/G5；`ENABLE=0` 未碰；未写 QSPI；未改线；未发独立 `stop`；未 push。

@@ -1,4 +1,4 @@
-"""阶段4 4-D bring-up 执行驱动 v3.2（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 电平转换器使能）。
+"""阶段4 4-D bring-up 执行驱动 v3.2.2（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 电平转换器使能）。
 
 v3.2 变更（2026-10-28，窗口 #2 根因修复）：
   1. **修复 NameError**：`load_elf_ddr()` 引用模块级 `INIT_ELF`，v3.1 从未赋值 ⇒ 装载阶段必抛
@@ -28,6 +28,21 @@ v3.2 变更（2026-10-28，窗口 #2 根因修复）：
   3. 自检新增：`init_elf_constant_defined`、`load_elf_ddr_*`（mock 硬件真实跑装载路径）、
      `lvl_shifter_tcl_exact`、`lvl_shifter_readback_0xF_pass`、`lvl_shifter_readback_0xA_must_fail`、
      `pspl_stage_wires_lvl_shifter`。
+  4. **v3.2.1（窗口 #3 实测暴露的两层工具缺陷）**：
+     (a) 读回输出原为 `puts "PPL_LVL_RB=$_rb"`，实测 **xsdb 把 `=` 变成一个空格**，且 `mrd -value`
+         返回**十进制**（日志实际为 `PPL_LVL_RB 10`）；旧解析正则又会误匹配**日志首行的回显命令**
+         （其中含同样字样）⇒ 假 FAIL。
+     (b) 改用 `format "… %08X"` 后，**`%0` 被 cmd 当作 `%0`（批处理脚本名）展开**，输出变成
+         `PPL_LVL_RB D:Xilinx?6.1Vitisinxsdb.bat8X` ⇒ 再次假 FAIL。
+     最终方案：**完全避开 `%` 与 `=`**——输出 **两行**（`PPL_LVL_RB` 标记行 + 十进制数值行）
+     加一行 TCL 侧判定（`PPL_LVL_RB_OK`/`_BAD`，由 `if {$_rb == <value>}` 在板端比较）；
+     驱动按"标记行之后的第一个非空行"解析数值，并以 TCL 侧判定交叉校验。
+     自检新增 `lvl_shifter_parses_real_log_shape(0xA)` 与 `lvl_shifter_echo_line_not_misparsed`
+     两条按**真实日志形状**（含回显命令与 OK/BAD 行）的回归。
+  5. **v3.2.2（窗口 #3 r04 实测）**：内联断言原用 `expr {$_rb & 0xF}`，而 **`&` 经 `cmd /c` 是命令分隔符**
+     ⇒ `dow` 整条命令 `exit=255 "The syntax of the command is incorrect."`（M4-b 装载失败，应用根本没跑）。
+     改为直接比较 `$_rb != <value>`（无 `&`）。**教训：经 `cmd /c` 传给 xsdb 的 TCL 里不得出现
+     `%`（被当 `%0` 展开）、`&`（命令分隔符）**；已加自检 `pspl_tcl_no_cmd_metachars`。
 
 与 v2 的差别：
   1. 分段固定顺序：**S1 bisect → S2 DDR 位测试 → 装载 PS 应用 → M4-b → M4-a → M3 复检 →（可选 chain-lite）→ 收尾**；
@@ -285,7 +300,9 @@ def lvl_shifter_tcl(value: int, readback_hint: str = "PPL_LVL_RB") -> str:
         f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
         f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
         f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
-        f"puts \"{readback_hint}=$_rb\"; "
+        f"puts \"{readback_hint}\"; puts $_rb; "
+        f"if {{$_rb == {value}}} {{ puts \"{readback_hint}_OK\" }} "
+        f"else {{ puts \"{readback_hint}_BAD\" }}; "
         f"disconnect; exit"
     )
 
@@ -297,9 +314,9 @@ def lvl_shifter_inline_assert(value: int = LVL_SHFTR_ON, hint: str = "PPL_LVL_RB
         f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
         f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
         f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
-        f"puts \"{hint}=$_rb\"; "
-        f"if {{[expr {{$_rb & 0xF}}] != {value}}} "
-        f"{{ error \"PS-PL level shifters readback != {hex(value)}\" }}; "
+        f"puts \"{hint}\"; puts $_rb; "
+        f"if {{$_rb != {value}}} "
+        f"{{ error \"PS-PL level shifters readback not equal to {hex(value)}\" }}; "
     )
 
 
@@ -315,15 +332,30 @@ def _read_step_log(tag: str) -> str:
 
 
 def enable_ps_pl_level_shifters(value: int = LVL_SHFTR_ON, tag: str = "PPL_lvl_shifter") -> dict:
-    """写 LVL_SHFTR_EN 并**读回断言**：读回必须等于写入值，否则 FAIL（不得继续）。"""
+    """写 LVL_SHFTR_EN 并**读回断言**：读回必须等于写入值，否则 FAIL（不得继续）。
+
+    v3.2.1 修正（窗口 #3 r01 实测暴露）：xsdb 日志首行是**回显的整条 `-eval` 命令**，其中也含
+    `PPL_LVL_RB` 字样；旧正则 `PPL_LVL_RB=([^\\r\\n]+)` 会匹配到回显行（抓到 `$_rb"; disconnect; exit`）
+    造成假 FAIL。现改为：输出用 `[format "PPL_LVL_RB %08X" [expr {$_rb}]]`（强制 8 位十六进制、不用 `=`
+    作分隔符——实测 xsdb 会把 `=` 吞掉），解析按**行首锚定**并取**最后一个**匹配。
+    """
     code = base.xsdb(lvl_shifter_tcl(value), tag)
     txt = _read_step_log(tag)
-    m = re.search(r"PPL_LVL_RB=([^\r\n]+)", txt)
-    raw = m.group(1).strip() if m else None
+    lines = [ln.strip() for ln in txt.replace("\r\n", "\n").split("\n")]
+    raw = None
+    for i, ln in enumerate(lines):
+        if ln == "PPL_LVL_RB":          # 标记行必须独占一行（回显命令行不会整行等于它）
+            for nxt in lines[i + 1:]:
+                if nxt:
+                    raw = nxt
+                    break
+            break
     readback = parse_mrd_value(raw)
-    ok = (code == 0 and readback == value)
+    tcl_verdict = ("OK" if "PPL_LVL_RB_OK" in lines
+                   else ("BAD" if "PPL_LVL_RB_BAD" in lines else None))
+    ok = (code == 0 and readback == value and tcl_verdict != "BAD")
     res = {"status": "PASS" if ok else "FAIL", "exit_code": 0 if ok else 1,
-           "write_value": hex(value), "readback_raw": raw,
+           "write_value": hex(value), "readback_raw": raw, "tcl_verdict": tcl_verdict,
            "readback": hex(readback) if readback is not None else None,
            "xsdb_exit": code,
            "ug585_ref": ("v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、"
@@ -548,22 +580,41 @@ def offline_selftest() -> int:
                                   "no_system_reset": "rst -system -stop" not in tcl_b}})
 
         # (c) 读回 0xF → PASS；(d) 读回 0xA → 必须 FAIL（判别力两侧）
-        def _fake_xsdb_rb(value_hex: str):
+        # 日志按 **base.xsdb 真实形状** 造：首行是回显的整条 -eval（含标记字样），其后才是
+        # `PPL_LVL_RB` 标记行 + 十进制数值行 + TCL 侧 OK/BAD 判定行（窗口 #3 实测形状）
+        def _fake_xsdb_rb(dec_text: str, verdict: str = "OK", echo_marker: bool = True):
             def _f(eval_text, step, timeout=600):
                 RUN_DIR.mkdir(parents=True, exist_ok=True)
-                (RUN_DIR / f"{step}.log").write_text(
-                    f"$ fake\nexit=0\nPPL_LVL_RB={value_hex}\n", encoding="utf-8")
+                echo = ('$ cmd /c xsdb.bat -eval connect -url tcp:127.0.0.1:3121; ...; '
+                        'set _rb [mrd -value 0xf8000900]; puts "PPL_LVL_RB"; puts $_rb; '
+                        'disconnect; exit') if echo_marker else "$ cmd /c xsdb.bat"
+                body = f"{echo}\nexit=0 elapsed=0.778\nPPL_LVL_RB\n{dec_text}\n"
+                if verdict:
+                    body += f"PPL_LVL_RB_{verdict}\n"
+                (RUN_DIR / f"{step}.log").write_text(body + "\n", encoding="utf-8")
                 return 0
             return _f
 
-        base.xsdb = _fake_xsdb_rb("0x0000000F")
+        base.xsdb = _fake_xsdb_rb("15")
         r_on = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "SELFTEST_lvl_pass")
         checks.append({"name": "lvl_shifter_readback_0xF_pass", "ok": r_on["status"] == "PASS",
                        "detail": r_on})
-        base.xsdb = _fake_xsdb_rb("0x0000000A")
+        base.xsdb = _fake_xsdb_rb("10", verdict="BAD")
         r_bad = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "SELFTEST_lvl_fail")
         checks.append({"name": "lvl_shifter_readback_0xA_must_fail", "ok": r_bad["status"] == "FAIL",
                        "detail": r_bad})
+        # (e) 回归：真实日志形状（回显行含标记）必须解析到标记行之后的数值行；写 0xA 读 0xA → PASS
+        base.xsdb = _fake_xsdb_rb("10")
+        r_real = enable_ps_pl_level_shifters(LVL_SHFTR_CFG, "SELFTEST_lvl_cfg_real_shape")
+        checks.append({"name": "lvl_shifter_parses_real_log_shape(0xA)",
+                       "ok": r_real["status"] == "PASS" and r_real.get("readback") == "0xa",
+                       "detail": r_real})
+        # (f) 回归：回显行含标记、数值行不符 → 必须 FAIL，且 readback 必须是**数值行**的值（0xf）
+        base.xsdb = _fake_xsdb_rb("15")
+        r_echo = enable_ps_pl_level_shifters(LVL_SHFTR_CFG, "SELFTEST_lvl_echo_mismatch")
+        checks.append({"name": "lvl_shifter_echo_line_not_misparsed",
+                       "ok": r_echo["status"] == "FAIL" and r_echo.get("readback") == "0xf",
+                       "detail": r_echo})
     finally:
         base.xsdb = _orig_xsdb
         if _orig_ensure_uart is not None:
@@ -571,6 +622,15 @@ def offline_selftest() -> int:
         _PL_STATE["programmed"] = False
         _PL_STATE["lvl_readback"] = None
     src_v32 = Path(__file__).read_text(encoding="utf-8")
+    bad_chars = []
+    for tname, tcl_txt in (("lvl_shifter_tcl", lvl_shifter_tcl(LVL_SHFTR_ON)),
+                           ("inline_assert", lvl_shifter_inline_assert())):
+        for ch in ("%", "&"):
+            if ch in tcl_txt:
+                bad_chars.append({"tcl": tname, "char": ch})
+    checks.append({"name": "pspl_tcl_no_cmd_metachars", "ok": not bad_chars,
+                   "detail": {"bad": bad_chars,
+                              "rule": "经 cmd /c 传给 xsdb 的 TCL 不得含 % （被当 %0 展开）与 & （命令分隔符）"}})
     checks.append({"name": "pspl_stage_wires_lvl_shifter",
                    "ok": "def stage_pspl_setup_and_load" in src_v32
                          and "stage_pspl_setup_and_load(args)" in src_v32

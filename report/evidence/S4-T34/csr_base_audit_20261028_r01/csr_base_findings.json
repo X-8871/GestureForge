@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "csr_base_audit_20261028_r01",
+  "artifact": "2B 位流 CSR 基址与访问通路审计（离线只读）",
+  "generated_utc8": "2026-10-28T13:12:37+08:00",
+  "hardware_access": "NONE（未接触板卡；DAP 锁死待 POR）",
+  "audited_bitstream": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+    "sha256_prefix": "555a70c2",
+    "note": "窗口 #1/#2/#3 实际装载的位流；阶段4 4-D 设计若另有位流须独立重核"
+  },
+  "w2b_baseline_commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+  "findings": {
+    "csr_base_hex": "0x43C00000",
+    "csr_range_bytes": 65536,
+    "csr_range_hex": "0x00010000",
+    "csr_segment": "infer/S_AXI/reg0",
+    "address_space": "ps7/Data（PS M_AXI_GP0 侧）",
+    "matches_0x43C00000": true,
+    "correct_value_if_mismatch": null,
+    "path": {
+      "ps_master": "ps7/M_AXI_GP0",
+      "ps_master_attrs": "AXI3, 32-bit data, 12-bit ID（board/s2b_inference_platform.md:19）",
+      "converter": "axi_gp0_lite（AXI3→AXI4-Lite，TRANSLATION_MODE=0）",
+      "slave": "infer/S_AXI",
+      "pl_master": "infer/M_AXI（64-bit）→ ps7/S_AXI_HP0",
+      "uses_gp0_not_gp1": true,
+      "evidence": [
+        "s2b_inference_bd.tcl:388",
+        "s2b_inference_bd.tcl:384",
+        "s2b_inference_bd.tcl:385",
+        "s2b_inference_bd.tcl:325",
+        "s2b_inference_bd.tcl:330"
+      ]
+    },
+    "clock_reset": {
+      "clock": "FCLK_CLK0",
+      "freq_hz": 50000000,
+      "ps7_config": [
+        "CONFIG.PCW_FCLK_CLK0_BUF {TRUE} (bd.tcl:279)",
+        "CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50} (bd.tcl:280)",
+        "CONFIG.PCW_FPGA_FCLK0_ENABLE {1} (bd.tcl:281)"
+      ],
+      "clock_consumers": [
+        "ps7/M_AXI_GP0_ACLK",
+        "ps7/S_AXI_HP0_ACLK",
+        "axi_gp0_lite/aclk",
+        "rst_fclk0/slowest_sync_clk",
+        "infer/clk"
+      ],
+      "clock_evidence": "s2b_inference_bd.tcl:396-401",
+      "reset_path": "ps7/FCLK_RESET0_N → rst_fclk0/ext_reset_in；rst_fclk0/peripheral_aresetn → axi_gp0_lite/aresetn + infer/cold_resetn",
+      "reset_evidence": "s2b_inference_bd.tcl:402-406",
+      "post_config_actions_2b": [
+        {
+          "op": "WRITE",
+          "addr": "0xF8000008",
+          "value": "0xDF0D",
+          "meaning": "SLCR 解锁"
+        },
+        {
+          "op": "MASKWRITE",
+          "addr": "0xF8000900",
+          "mask": "0xF",
+          "value": "0xF",
+          "meaning": "LVL_SHFTR_EN 使能 PS-PL 电平转换"
+        },
+        {
+          "op": "MASKWRITE",
+          "addr": "0xF8000240",
+          "mask": "0xFFFFFFFF",
+          "value": "0x0",
+          "meaning": "FPGA_RST_CTRL=0，撤销全部 FPGA 软复位"
+        },
+        {
+          "op": "WRITE",
+          "addr": "0xF8000004",
+          "value": "0x767B",
+          "meaning": "SLCR 加锁"
+        }
+      ],
+      "post_config_evidence": [
+        "verification/s2b_board_jtag.py:199-200",
+        "verification/s2b_board_jtag.py:25-27",
+        "artifacts/ps7_init.tcl:544-561"
+      ],
+      "ug585_refs": [
+        {
+          "register": "slcr.FPGA_RST_CTRL",
+          "abs": "0xF8000240",
+          "rel": "0x00000240",
+          "access": "rw",
+          "doc_pages": "PDF 1412（汇总）/ 1454（详表）；语义见 PDF 47 §2.6"
+        },
+        {
+          "register": "slcr.LVL_SHFTR_EN",
+          "abs": "0xF8000900",
+          "access": "rw",
+          "doc_pages": "PDF 1522；语义 §2.4.8 PDF 46、§6 PDF 150"
+        },
+        {
+          "register": "slcr.SLCR_UNLOCK",
+          "abs": "0xF8000008",
+          "key": "0xDF0D",
+          "doc_pages": "PDF 1417"
+        },
+        {
+          "register": "slcr.SLCR_LOCK",
+          "abs": "0xF8000004",
+          "key": "0x767B",
+          "doc_pages": "PDF 1417"
+        }
+      ]
+    },
+    "two_b_access_method": {
+      "jtag_direct": true,
+      "jtag_requires_memory_map_registration": true,
+      "jtag_memory_map_evidence": [
+        "verification/test_s2b_visibility_probe.py:618（loadhw 传入 [[0x43C00000,0x43C0FFFF]]）",
+        "verification/test_s2b_visibility_probe.py:572-573（base/high/size/flags 自查）"
+      ],
+      "jtag_postconfig_executed": "verification/s2b_board_jtag.py:569-578（写前后读回 LOCKSTA/LVL_SHFTR_EN/FPGA_RST_CTRL）",
+      "ps_app_access": true,
+      "ps_app_evidence": [
+        "vitis/s2b_inference_app.c:36（#define CSR_BASE 0x43C00000U）",
+        "report/evidence/S2B-T20/bresp_composition_review_20261021_r01/analysis.md:22（CPU STR→0x43C00008 原生外部同步写异常：DFAR=0x43C00008、opcode 0xE5801000）"
+      ],
+      "ps_to_pl_proven_in_2b": true,
+      "ps_to_pl_proof_note": "PS 侧 CPU 访问到达从口并收到 SLVERR 级响应（原生异常分类），说明 PS→PL AXI 通路与地址映射在 2B 成立；不属于离线推断"
+    }
+  },
+  "gaps_vs_current_stage4_flow": [
+    {
+      "id": "G-A",
+      "gap": "驱动 v3.2.2 的 lvl_shifter_tcl() 缺 FPGA_RST_CTRL(0xF8000240)=0（2B ps7_post_config 的第 3 个动作）",
+      "impact": "若该寄存器残留非 0 软复位位，PL 侧 AXI 从口被按住 ⇒ PS 读 CSR 挂起/超时（与 M4B STEP=1 现象一致）",
+      "action": "窗口 #4 前补入并加自检（v3.2.3，需总控签发）"
+    },
+    {
+      "id": "G-B",
+      "gap": "JTAG mrd 直探 CSR 未登记调试器内存映射",
+      "impact": "r03 报 'This address has not been added to the memory map' —— 工具侧限制，非硬件故障",
+      "action": "不再以 JTAG mrd 作 CSR 判据；确需时先 loadhw/addreg 且禁用 -force"
+    },
+    {
+      "id": "G-C",
+      "gap": "mrd -force 用于无响应地址",
+      "impact": "AXI 超时导致 DAP 锁死（APB AP transaction error 0x30000021），需 POR",
+      "action": "总控已定规则：任何无响应 PL/AXI 地址禁用 -force"
+    }
+  ],
+  "citations": [
+    {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference_bd.tcl",
+      "lines": "279-281, 325, 330, 384-385, 388, 396-406, 409-410",
+      "hash_basis": "worktree_disk",
+      "sha256": "4e8c319f994378b72a853f670dd97f94c55c696a64c1191f93eb4af5a4d0ae0b",
+      "note": "随被审位流出厂的构建产物，**未被 Git 跟踪**（blob ebf62b453bac5ed47387aa230a58a43153c90d74 不在任何提交内），故只能按磁盘字节"
+    },
+    {
+      "path": "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/s2b_inference_bd.tcl",
+      "lines": "同三处关键赋值：`assign_bd_address -offset 0x43C00000 -range 0x00010000 … infer/S_AXI/reg0`（ps7/Data）、`PCW_FPGA0_PERIPHERAL_FREQMHZ {50}`、`ps7_FCLK_RESET0_N`/`infer/cold_resetn`",
+      "hash_basis": "commit_blob",
+      "commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+      "blob": "19ffc609dde2f2dceb2c82fb9936f6e97a3c7cce",
+      "note": "**佐证引用**：与 r04 副本非逐字节相同（不同构建），但上述三处赋值逐行一致，用于给关键语义提供 commit_blob 基座"
+    },
+    {
+      "path": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/artifacts/ps7_init.tcl",
+      "lines": "544-561（ps7_post_config 过程；分硅版本调用 _1_0/_2_0/_3_0 表）",
+      "hash_basis": "commit_blob",
+      "commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+      "blob": "053c979ba9bbf179fe6fea65fc4c748daed7e86f",
+      "byte_identical_to_audited_copy": true,
+      "audited_copy": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/ps7_init.tcl",
+      "note": "r04 副本未被 Git 跟踪；此处引用**已跟踪且逐字节相同（同 blob）**的副本作为 commit_blob 基座"
+    },
+    {
+      "path": "verification/s2b_board_jtag.py",
+      "lines": "25-27（寄存器常量）, 170-216（post_config 四动作与 FPGA0 clock 断言）, 569-578（写前后读回）",
+      "hash_basis": "commit_blob",
+      "commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+      "blob": "118b912a3a883e43e2dcf49f55d648ea84511b9d"
+    },
+    {
+      "path": "vitis/s2b_inference_app.c",
+      "lines": "36（#define CSR_BASE 0x43C00000U）",
+      "hash_basis": "commit_blob",
+      "commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+      "blob": "731284b24b719afdf7d01965c27bb6b72e5aeb7a"
+    },
+    {
+      "path": "board/s2b_inference_platform.json",
+      "lines": "17（\"base\": \"0x43C00000\"）",
+      "hash_basis": "commit_blob",
+      "commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+      "blob": "5fbabab2fb9e53bebfb09caadedd5f589a93c800"
+    },
+    {
+      "path": "board/s2b_inference_platform.md",
+      "lines": "19（GP0 AXI3→AXI4-Lite、0x43C00000/64 KiB、控制器自行校验完整地址）",
+      "hash_basis": "worktree_disk",
+      "note": "该文件在本次只读核对中直接读取；若需 commit_blob 基座由总控提交时补齐"
+    },
+    {
+      "path": "verification/test_s2b_visibility_probe.py",
+      "lines": "572-573（base/high/size/flags 自查）, 618（loadhw 内存映射 [[0x43C00000,0x43C0FFFF]]）",
+      "hash_basis": "worktree_disk",
+      "note": "只读引用；若需 commit_blob 基座由总控提交时补齐"
+    },
+    {
+      "path": "report/evidence/S2B-T20/bresp_composition_review_20261021_r01/analysis.md",
+      "lines": "22-23（CPU STR 到 0x43C00008 的原生异常分类：DFAR/opcode/PC）",
+      "hash_basis": "worktree_disk",
+      "note": "既有证据文档，本次只读引用"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\01_hardware\\hardware\\04_芯片手册\\ZYNQ7000\\ug585-Zynq-7000-TRM.pdf",
+      "lines": "PDF 47（§2.6 FPGA_RST_CTRL 语义）, PDF 1412/1454（FPGA_RST_CTRL 地址与详表）, PDF 1522（LVL_SHFTR_EN）, PDF 1417（SLCR_UNLOCK/LOCK 键）",
+      "hash_basis": "worktree_disk",
+      "note": "厂商原件，只读；未计算哈希（大文件），版本已记 UG585 v1.2 Aug 8 2012"
+    }
+  ],
+  "limitations": [
+    "审计对象为 2B 位流；4-D 设计若另有 BD/地址图须独立重核",
+    "未上板验证；FPGA_RST_CTRL 实际读值与 CSR 可达性的因果关系待 POR 后实测",
+    "不主张 G3/G4/G5；不改变 M3/M2 未闭合状态"
+  ],
+  "hash_basis_summary": {
+    "commit_blob_items": [
+      "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/s2b_inference_bd.tcl",
+      "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/artifacts/ps7_init.tcl",
+      "verification/s2b_board_jtag.py",
+      "vitis/s2b_inference_app.c",
+      "board/s2b_inference_platform.json"
+    ],
+    "worktree_disk_items": [
+      "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference_bd.tcl",
+      "board/s2b_inference_platform.md",
+      "verification/test_s2b_visibility_probe.py",
+      "report/evidence/S2B-T20/bresp_composition_review_20261021_r01/analysis.md",
+      "D:\\FPGA\\AX7Z020\\AX7Z020\\01_hardware\\hardware\\04_芯片手册\\ZYNQ7000\\ug585-Zynq-7000-TRM.pdf"
+    ],
+    "rule": "每个哈希项均显式声明 hash_basis；commit_blob 按 `git cat-file blob <commit>:<path>`；worktree_disk 仅作附注",
+    "self_files_note": "本目录 README.md / csr_base_findings.json 尚未提交，提交后由总控按 commit_blob 重算覆盖"
+  }
+}

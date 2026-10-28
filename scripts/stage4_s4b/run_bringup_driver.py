@@ -1,4 +1,4 @@
-"""阶段4 4-D bring-up 执行驱动 v3.2.2（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 电平转换器使能）。
+"""阶段4 4-D bring-up 执行驱动 v3.2.3（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 四动作使能）。
 
 v3.2 变更（2026-10-28，窗口 #2 根因修复）：
   1. **修复 NameError**：`load_elf_ddr()` 引用模块级 `INIT_ELF`，v3.1 从未赋值 ⇒ 装载阶段必抛
@@ -43,6 +43,14 @@ v3.2 变更（2026-10-28，窗口 #2 根因修复）：
      ⇒ `dow` 整条命令 `exit=255 "The syntax of the command is incorrect."`（M4-b 装载失败，应用根本没跑）。
      改为直接比较 `$_rb != <value>`（无 `&`）。**教训：经 `cmd /c` 传给 xsdb 的 TCL 里不得出现
      `%`（被当 `%0` 展开）、`&`（命令分隔符）**；已加自检 `pspl_tcl_no_cmd_metachars`。
+  6. **v3.2.3（CSR 通路审计后补入）**：2B XSA 的 `ps7_post_config` 是**四动作**
+     （`s2b_board_jtag.py:199-200`）：`SLCR_UNLOCK=0xDF0D → LVL_SHFTR_EN → **FPGA_RST_CTRL=0** → SLCR_LOCK=0x767B`；
+     v3.2.2 只做了两个，**缺 `mwr 0xF8000240 0x0`（撤销 FPGA 软复位）**。本版补齐并按 2B 顺序执行，
+     读回断言改为**两条**（`0xF8000900`=value 且 `0xF8000240`=0），新增自检
+     `pspl_four_actions_order`、`fpga_rst_ctrl_zero_readback`、`fpga_rst_ctrl_nonzero_must_fail`。
+     依据见 `docs/stage4/S4D_ps_pl_level_shifter_enable_20261028_r01.md` 与
+     `report/evidence/S4-T34/csr_base_audit_20261028_r01/`（UG585 §2.6 / PDF 页 1412、1454）。
+     **注意：仍不把 JTAG `mrd 0x43C00000` 作判据**（调试器需 `loadhw` 登记地址，属工具限制）。
 
 与 v2 的差别：
   1. 分段固定顺序：**S1 bisect → S2 DDR 位测试 → 装载 PS 应用 → M4-b → M4-a → M3 复检 →（可选 chain-lite）→ 收尾**；
@@ -104,6 +112,7 @@ INIT_ELF = W / "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/verified_payload
 SLCR_UNLOCK_ADDR = 0xF8000008   # SLCR_UNLOCK：UNLOCK_KEY[15:0]=0xDF0D 解除写保护（文档页 1411）
 SLCR_LOCK_ADDR = 0xF8000004     # SLCR_LOCK：LOCK_KEY[15:0]=0x767B 重新加锁（文档页 1411）
 LVL_SHFTR_EN_ADDR = 0xF8000900  # LVL_SHFTR_EN：bits[3:0]=INP/OUT_EN_0/1；bit4 保留勿改（文档页 1522）
+FPGA_RST_CTRL_ADDR = 0xF8000240  # FPGA_RST_CTRL：FPGA[3:0]_OUT_RST 等软复位，写 0 = 撤销（文档页 1412/1454）
 SLCR_UNLOCK_KEY = 0xDF0D
 SLCR_LOCK_KEY = 0x767B
 LVL_SHFTR_CFG = 0xA             # §2.4.8：PL 配置期间（关输入、防毛刺）
@@ -284,39 +293,58 @@ def parse_mrd_value(raw: str | None) -> int | None:
 
 
 def lvl_shifter_tcl(value: int, readback_hint: str = "PPL_LVL_RB") -> str:
-    """生成 PS-PL 电平转换器使能 TCL：SLCR 解锁 → 写 LVL_SHFTR_EN → 加锁 → 读回。
+    """生成 PS-PL 使能 TCL：**四动作**（与 2B `ps7_post_config` 一致）+ 双读回。
+
+    顺序（`s2b_board_jtag.py:199-200` 的四动作）：
+      1. `SLCR_UNLOCK  = 0xDF0D → 0xF8000008`
+      2. `LVL_SHFTR_EN = <value> → 0xF8000900`
+      3. `FPGA_RST_CTRL = 0x0 → 0xF8000240`（撤销 FPGA 软复位；**v3.2.2 遗漏，本版补入**）
+      4. `SLCR_LOCK    = 0x767B → 0xF8000004`
 
     依据 UG585 v1.2（厂商 TRM `ug585-Zynq-7000-TRM.pdf`，均为**原文核对**）：
       * §2.4.8（文档页 46）：配置期间 0xA / 配置完成后 0xF；
       * §2.5 注（文档页 46）、§5（文档页 106/112/113）：LVL_SHFTR_EN 必须在 PL 逻辑通信前使能；
       * §6 PL Reconfiguration flow（文档页 150）：步骤 2 写 0xA、步骤 10 写 0xF；
       * Appendix B.28（文档页 1411/1522）：SLCR_UNLOCK `0xF8000008`/`0xDF0D`、
-        SLCR_LOCK `0xF8000004`/`0x767B`、LVL_SHFTR_EN `0xF8000900`（bits[3:0]）。
-    **加锁必须写 0x767B 到 0xF8000004**（不是写 0 到 0xF8000008）。
+        SLCR_LOCK `0xF8000004`/`0x767B`、LVL_SHFTR_EN `0xF8000900`（bits[3:0]）；
+      * **`slcr.FPGA_RST_CTRL` = `0xF8000240`**（rw，"FPGA Software Reset Control"，汇总文档页 1412、
+        详表页 1454；语义 §2.6 文档页 47：控制 `FPGA[3:0]_OUT_RST`，异步于 FCLK），写 0 = 撤销软复位。
+
+    读回断言**两条**：`0xF8000900` 必须 = value、`0xF8000240` 必须 = 0；任一不符即 FAIL。
+    注意：经 `cmd /c` 传给 xsdb 的 TCL **不得含 `%`（会被当 `%0` 展开）与 `&`（命令分隔符）**。
     """
     return (
         f"connect -url {base.HW_URL}; {base.select_core()}"
         f"mwr {hex(SLCR_UNLOCK_ADDR)} {hex(SLCR_UNLOCK_KEY)}; "
         f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
+        f"mwr {hex(FPGA_RST_CTRL_ADDR)} 0x0; "
         f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
         f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
+        f"set _rb2 [mrd -value {hex(FPGA_RST_CTRL_ADDR)}]; "
         f"puts \"{readback_hint}\"; puts $_rb; "
+        f"puts \"{readback_hint}_RST\"; puts $_rb2; "
         f"if {{$_rb == {value}}} {{ puts \"{readback_hint}_OK\" }} "
         f"else {{ puts \"{readback_hint}_BAD\" }}; "
+        f"if {{$_rb2 == 0}} {{ puts \"{readback_hint}_RST_OK\" }} "
+        f"else {{ puts \"{readback_hint}_RST_BAD\" }}; "
         f"disconnect; exit"
     )
 
 
 def lvl_shifter_inline_assert(value: int = LVL_SHFTR_ON, hint: str = "PPL_LVL_RB") -> str:
-    """装载/启动前的**内联**断言片段（不含 connect/disconnect）；读回不符即 error 终止。"""
+    """装载/启动前的**内联**断言片段（四动作 + 双读回）；任一读回不符即 `error` 终止该步。"""
     return (
         f"mwr {hex(SLCR_UNLOCK_ADDR)} {hex(SLCR_UNLOCK_KEY)}; "
         f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
+        f"mwr {hex(FPGA_RST_CTRL_ADDR)} 0x0; "
         f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
         f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
-        f"puts \"{hint}\"; puts $_rb; "
+        f"set _rb2 [mrd -value {hex(FPGA_RST_CTRL_ADDR)}]; "
+        f"puts \"{hint}\"; puts $_rb; puts \"{hint}_RST\"; puts $_rb2; "
         f"if {{$_rb != {value}}} "
         f"{{ error \"PS-PL level shifters readback not equal to {hex(value)}\" }}; "
+        f"if {{$_rb2 != 0}} "
+        f"{{ error \"FPGA_RST_CTRL readback not zero (FPGA soft reset still asserted)\" }}; "
     )
 
 
@@ -331,39 +359,52 @@ def _read_step_log(tag: str) -> str:
     return ""
 
 
-def enable_ps_pl_level_shifters(value: int = LVL_SHFTR_ON, tag: str = "PPL_lvl_shifter") -> dict:
-    """写 LVL_SHFTR_EN 并**读回断言**：读回必须等于写入值，否则 FAIL（不得继续）。
+def _log_marker_value(lines: list[str], marker: str) -> str | None:
+    """取"独占一行的 marker"之后的第一个非空行（xsdb 把 puts 的每行单独输出）。"""
+    for i, ln in enumerate(lines):
+        if ln == marker:
+            for nxt in lines[i + 1:]:
+                if nxt:
+                    return nxt
+            return None
+    return None
 
-    v3.2.1 修正（窗口 #3 r01 实测暴露）：xsdb 日志首行是**回显的整条 `-eval` 命令**，其中也含
-    `PPL_LVL_RB` 字样；旧正则 `PPL_LVL_RB=([^\\r\\n]+)` 会匹配到回显行（抓到 `$_rb"; disconnect; exit`）
-    造成假 FAIL。现改为：输出用 `[format "PPL_LVL_RB %08X" [expr {$_rb}]]`（强制 8 位十六进制、不用 `=`
-    作分隔符——实测 xsdb 会把 `=` 吞掉），解析按**行首锚定**并取**最后一个**匹配。
+
+def enable_ps_pl_level_shifters(value: int = LVL_SHFTR_ON, tag: str = "PPL_lvl_shifter") -> dict:
+    """执行四动作并**双读回断言**：`0xF8000900`=value **且** `0xF8000240`=0，任一不符即 FAIL。
+
+    v3.2.1 修正：xsdb 日志首行是回显的整条 `-eval`（含同样标记字样），旧正则误匹配 ⇒ 现按
+    "独占一行的 marker + 下一个非空行"解析（回显行不会整行等于 marker）。
+    v3.2.3：补 `FPGA_RST_CTRL=0` 并纳入断言（2B `ps7_post_config` 四动作之一）。
     """
     code = base.xsdb(lvl_shifter_tcl(value), tag)
     txt = _read_step_log(tag)
     lines = [ln.strip() for ln in txt.replace("\r\n", "\n").split("\n")]
-    raw = None
-    for i, ln in enumerate(lines):
-        if ln == "PPL_LVL_RB":          # 标记行必须独占一行（回显命令行不会整行等于它）
-            for nxt in lines[i + 1:]:
-                if nxt:
-                    raw = nxt
-                    break
-            break
+    raw = _log_marker_value(lines, "PPL_LVL_RB")
+    raw_rst = _log_marker_value(lines, "PPL_LVL_RB_RST")
     readback = parse_mrd_value(raw)
+    rst_readback = parse_mrd_value(raw_rst)
     tcl_verdict = ("OK" if "PPL_LVL_RB_OK" in lines
                    else ("BAD" if "PPL_LVL_RB_BAD" in lines else None))
-    ok = (code == 0 and readback == value and tcl_verdict != "BAD")
+    rst_verdict = ("OK" if "PPL_LVL_RB_RST_OK" in lines
+                   else ("BAD" if "PPL_LVL_RB_RST_BAD" in lines else None))
+    ok = (code == 0 and readback == value and rst_readback == 0
+          and tcl_verdict != "BAD" and rst_verdict != "BAD")
     res = {"status": "PASS" if ok else "FAIL", "exit_code": 0 if ok else 1,
+           "actions": ["SLCR_UNLOCK=0xDF0D", f"LVL_SHFTR_EN={hex(value)}",
+                       "FPGA_RST_CTRL=0x0", "SLCR_LOCK=0x767B"],
            "write_value": hex(value), "readback_raw": raw, "tcl_verdict": tcl_verdict,
            "readback": hex(readback) if readback is not None else None,
+           "fpga_rst_ctrl_raw": raw_rst, "fpga_rst_ctrl_verdict": rst_verdict,
+           "fpga_rst_ctrl_readback": hex(rst_readback) if rst_readback is not None else None,
            "xsdb_exit": code,
            "ug585_ref": ("v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、"
                          "Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；"
-                         "LVL_SHFTR_EN 0xF8000900 bits[3:0]）"),
-           "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"}
+                         "LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）"),
+           "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"}
     if ok:
         _PL_STATE["lvl_readback"] = readback
+        _PL_STATE["fpga_rst_ctrl_readback"] = rst_readback
     return res
 
 
@@ -582,15 +623,20 @@ def offline_selftest() -> int:
         # (c) 读回 0xF → PASS；(d) 读回 0xA → 必须 FAIL（判别力两侧）
         # 日志按 **base.xsdb 真实形状** 造：首行是回显的整条 -eval（含标记字样），其后才是
         # `PPL_LVL_RB` 标记行 + 十进制数值行 + TCL 侧 OK/BAD 判定行（窗口 #3 实测形状）
-        def _fake_xsdb_rb(dec_text: str, verdict: str = "OK", echo_marker: bool = True):
+        def _fake_xsdb_rb(dec_text: str, verdict: str = "OK", rst_dec: str = "0",
+                          rst_verdict: str = "OK", echo_marker: bool = True):
             def _f(eval_text, step, timeout=600):
                 RUN_DIR.mkdir(parents=True, exist_ok=True)
                 echo = ('$ cmd /c xsdb.bat -eval connect -url tcp:127.0.0.1:3121; ...; '
                         'set _rb [mrd -value 0xf8000900]; puts "PPL_LVL_RB"; puts $_rb; '
+                        'set _rb2 [mrd -value 0xf8000240]; puts "PPL_LVL_RB_RST"; puts $_rb2; '
                         'disconnect; exit') if echo_marker else "$ cmd /c xsdb.bat"
                 body = f"{echo}\nexit=0 elapsed=0.778\nPPL_LVL_RB\n{dec_text}\n"
                 if verdict:
                     body += f"PPL_LVL_RB_{verdict}\n"
+                body += f"PPL_LVL_RB_RST\n{rst_dec}\n"
+                if rst_verdict:
+                    body += f"PPL_LVL_RB_RST_{rst_verdict}\n"
                 (RUN_DIR / f"{step}.log").write_text(body + "\n", encoding="utf-8")
                 return 0
             return _f
@@ -615,6 +661,20 @@ def offline_selftest() -> int:
         checks.append({"name": "lvl_shifter_echo_line_not_misparsed",
                        "ok": r_echo["status"] == "FAIL" and r_echo.get("readback") == "0xf",
                        "detail": r_echo})
+        # (g) v3.2.3：FPGA_RST_CTRL 读回 0 → PASS（另一条读回断言的正例）
+        base.xsdb = _fake_xsdb_rb("15", rst_dec="0")
+        r_rst_ok = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "SELFTEST_rst_zero_pass")
+        checks.append({"name": "fpga_rst_ctrl_zero_readback",
+                       "ok": r_rst_ok["status"] == "PASS"
+                             and r_rst_ok.get("fpga_rst_ctrl_readback") == "0x0",
+                       "detail": r_rst_ok})
+        # (h) v3.2.3：FPGA_RST_CTRL 读回非 0 → 必须 FAIL（说明仍有 FPGA 软复位被按住）
+        base.xsdb = _fake_xsdb_rb("15", rst_dec="1", rst_verdict="BAD")
+        r_rst_bad = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "SELFTEST_rst_nonzero_fail")
+        checks.append({"name": "fpga_rst_ctrl_nonzero_must_fail",
+                       "ok": r_rst_bad["status"] == "FAIL"
+                             and r_rst_bad.get("fpga_rst_ctrl_readback") == "0x1",
+                       "detail": r_rst_bad})
     finally:
         base.xsdb = _orig_xsdb
         if _orig_ensure_uart is not None:
@@ -622,6 +682,18 @@ def offline_selftest() -> int:
         _PL_STATE["programmed"] = False
         _PL_STATE["lvl_readback"] = None
     src_v32 = Path(__file__).read_text(encoding="utf-8")
+    # v3.2.3：四动作顺序必须是 unlock → LVL_SHFTR_EN → FPGA_RST_CTRL → lock（与 2B ps7_post_config 一致）
+    tcl_four = lvl_shifter_tcl(LVL_SHFTR_ON).lower()
+    idx = [tcl_four.find(f"mwr {hex(SLCR_UNLOCK_ADDR)}"),
+           tcl_four.find(f"mwr {hex(LVL_SHFTR_EN_ADDR)}"),
+           tcl_four.find(f"mwr {hex(FPGA_RST_CTRL_ADDR)} 0x0"),
+           tcl_four.find(f"mwr {hex(SLCR_LOCK_ADDR)}")]
+    checks.append({"name": "pspl_four_actions_order",
+                   "ok": all(i >= 0 for i in idx) and idx == sorted(idx),
+                   "detail": {"order_index": idx,
+                              "expected": ["SLCR_UNLOCK=0xDF0D", "LVL_SHFTR_EN", "FPGA_RST_CTRL=0x0",
+                                           "SLCR_LOCK=0x767B"],
+                              "ref": "2B verification/s2b_board_jtag.py:199-200 的四动作顺序"}})
     bad_chars = []
     for tname, tcl_txt in (("lvl_shifter_tcl", lvl_shifter_tcl(LVL_SHFTR_ON)),
                            ("inline_assert", lvl_shifter_inline_assert())):

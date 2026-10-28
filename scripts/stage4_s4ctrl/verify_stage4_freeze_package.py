@@ -103,9 +103,10 @@ def check_members(repo: Path, fs: dict, disk: bool = False) -> tuple[int, list[s
     commit = fs.get("hash_basis_commit", "")
     if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
         return EXIT_INPUT, [f"hash_basis_commit 非 40 位小写 SHA：{commit!r}"], []
-    code, _ = git(repo, "rev-parse", "--verify", f"{commit}^{{commit}}")
-    if code != 0:
-        return EXIT_INPUT, [f"hash_basis_commit 在仓库中不存在：{commit}"], []
+    if not disk:
+        code, _ = git(repo, "rev-parse", "--verify", f"{commit}^{{commit}}")
+        if code != 0:
+            return EXIT_INPUT, [f"hash_basis_commit 在仓库中不存在：{commit}"], []
 
     seen: dict[str, str] = {}
     duplicate = False

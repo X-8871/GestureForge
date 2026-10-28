@@ -543,3 +543,15 @@
   + supersession.json + manifest.json + delivery_evidence.json；F1–F7 逐条处置；**原文件与冻结文档零修改**；
   `check_manifest_hash_basis --strict` **0**、`check_stage_delivery --mode evidence` **0**（CHECKS_OK）。
 - 边界：`ENABLE=0`、未烧 QSPI、未改线、未 push；不主张 G3/G4/G5；M3/M2 未闭合。
+## Codex 驳回后的修复（2026-10-29 00:0x–01:4x）
+
+- **A 异常链**：注册移入 `s4d_longrun_selfcheck()` 入口（`Xil_ExceptionInit` + RegisterHandler + noinline/used）；8 字记录区
+  `0x11B00000`（magic 0x53344C01/step/done/CSR addr+val/DFSR/DFAR/commit），每次 CSR 访问前写入并 flush+DSB；正常收尾清零。
+  nm：handler `t 0x10418c`、longrun `s4d_longrun_selfcheck.isra.0`、`_vector_table T 0x100000`；objdump：两个调用点均在 longrun 内。
+  负控（注册移回 chainb）⇒ 检查器 **FAIL**（discriminative=True）✓
+- **B S1**：`s1_verdict` 长度前置（INVALID_LENGTH）、`_dump` 三重判定（exit/长度/错误文本）、D2 拆 `d2_keep_pl`（无 rst -system）
+  与 `d2_system_reset` 两分支；driver selftest **57/57 PASS exit 0**。
+- **C 对比**：旧 `infer.elf a5149989…` vs 新 `longrunK b7a654aa…`：cache/异常指令计数对比 + 源码事务入口对比；
+  限制已记（偏移提取不稳、旧源码封装）⇒ 以 r06 的 error_code/last_reject/status 三读作判别。
+- 撤回首轮 RCA 的错误推断："2B 未验过 ≥40 次连续 START"；实际同 bit 跑过 1109 RUN。
+- 新 ELF `b7a654aa…`（登记 r8）；执行器 v2 已加入"停核→两核 PC/CPSR→记录区→loadhw+三 CSR→才恢复"。

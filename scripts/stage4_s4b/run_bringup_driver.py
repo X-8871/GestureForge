@@ -91,6 +91,7 @@ import argparse
 import hashlib
 import json
 import re
+import re
 import struct
 import subprocess
 import sys
@@ -241,12 +242,21 @@ def make_pattern(name: str, nbytes: int) -> bytes:
     raise ValueError(f"未知图样 {name}")
 
 
-def s1_verdict(dumps: list[tuple[str, bytes]]) -> tuple[str, dict]:
-    """S1 bisect 判定：两两比较 D0/D1/D2。"""
+def s1_verdict(dumps: list[tuple[str, bytes]], expected_len: int | None = None) -> tuple[str, dict]:
+    """S1 bisect 判定：两两比较 D0/D1/D2。
+
+    长度前置：给定 expected_len 时，任一 dump 长度不等 ⇒ INVALID_LENGTH（禁止用 zip 截断产生假 0 diff）。
+    """
     if len(dumps) != 3:
         raise ValueError("S1 需要 D0/D1/D2 三份 dump")
     names = [d[0] for d in dumps]
     datas = [d[1] for d in dumps]
+    if expected_len is not None:
+        lens = {n: len(d) for n, d in zip(names, datas)}
+        if any(v != expected_len for v in lens.values()):
+            return "INVALID_LENGTH", {"labels": names, "lengths": lens,
+                                      "expected_len": expected_len,
+                                      "rule": "长度不等 ⇒ 不得比较、不得判 0 diff"}
     same01 = datas[0] == datas[1]
     same12 = datas[1] == datas[2]
     same02 = datas[0] == datas[2]
@@ -293,6 +303,14 @@ def s1_tcl(step: str, action: str, init_elf: Path | None = None) -> str:
         # DDR 控制器复位时不可读；init.elf 自带 ps7_init，先运行它把 DDR 配置起来再停核
         return pre + f"rst -system -stop; dow {Path(init_elf).as_posix()}; con; after 2000; " \
                      "rst -processor -stop; puts \"S1_PS7_INIT_DONE\"; disconnect; exit"
+    if action == "d2_keep_pl":
+        # 分支①：**保持 PL 配置**，只停核 + 装 init（不 rst -system，不清 PL）
+        return pre + f"rst -processor -stop; dow {Path(init_elf).as_posix()}; con; after 2000; " \
+                     "rst -processor -stop; puts \"S1_D2_KEEP_PL\"; disconnect; exit"
+    if action == "d2_system_reset":
+        # 分支②：系统复位后重新初始化（含 DDR 重新初始化）
+        return pre + f"rst -system -stop; dow {Path(init_elf).as_posix()}; con; after 2000; " \
+                     "rst -processor -stop; puts \"S1_D2_SYSTEM_RESET\"; disconnect; exit"
     if action == "init_con":
         return pre + f"rst -system -stop; dow {Path(init_elf).as_posix()}; con; after 3000; " \
                      "rst -processor -stop; puts \"S1_INIT_RUNNING\"; disconnect; exit"
@@ -639,6 +657,39 @@ def offline_selftest() -> int:
     st, reason = chain_lite_available(app_prints_boxes=False)
     checks.append({"name": "chain_lite_honest_NOT_RUN", "ok": st == "NOT_RUN" and bool(reason), "detail": {"status": st, "reason": reason}})
 
+    # ---- B 段：长度前置 / D2 双分支 / dump 负面控制 ----
+    v, d = s1_verdict([("D0", bytes(64)), ("D1", bytes(63)), ("D2", bytes(64))], expected_len=64)
+    checks.append({"name": "s1_verdict_INVALID_LENGTH", "ok": v == "INVALID_LENGTH", "detail": d})
+    v, d = s1_verdict([("D0", bytes(64)), ("D1", bytes(64)), ("D2", bytes(64))], expected_len=64)
+    checks.append({"name": "s1_verdict_length_ok_NEITHER_STAGE", "ok": v == "NEITHER_STAGE", "detail": d})
+    v, d = s1_verdict([("D0", bytes(64)), ("D1", bytes(64)), ("D2", bytes(64))])
+    checks.append({"name": "s1_verdict_no_expected_len_legacy_ok", "ok": v == "NEITHER_STAGE", "detail": "legacy 调用不受影响"})
+    s1_len_guard = "INVALID_LENGTH" in Path(__file__).read_text(encoding="utf-8")
+    checks.append({"name": "s1_verdict_len_guard_present", "ok": s1_len_guard, "detail": "源码含 INVALID_LENGTH 分支"})
+
+    t_keep = s1_tcl("D2", "d2_keep_pl", INIT_ELF)
+    t_sys = s1_tcl("D2", "d2_system_reset", INIT_ELF)
+    checks.append({"name": "d2_branch_keep_pl_contract",
+                   "ok": ("rst -processor" in t_keep) and ("rst -system" not in t_keep)
+                         and ("dow" in t_keep) and ("S1_D2_KEEP_PL" in t_keep),
+                   "detail": {"no_system_reset": "rst -system" not in t_keep}})
+    checks.append({"name": "d2_branch_system_reset_contract",
+                   "ok": ("rst -system" in t_sys) and ("dow" in t_sys) and ("S1_D2_SYSTEM_RESET" in t_sys),
+                   "detail": {"has_system_reset": "rst -system" in t_sys}})
+    checks.append({"name": "d2_branches_distinct", "ok": t_keep != t_sys and "S1_D2_KEEP_PL" in t_keep,
+                   "detail": "两分支 TCL 必须互异且各自有标记"})
+
+    ok, why = dump_verdict("exit=0\nMemory read error at 0x11B00000. Cannot access DDR: the controller is held in reset", 32, 32, 0)
+    checks.append({"name": "dump_nc_error_text_not_pass", "ok": (not ok) and "错误文本" in why, "detail": why})
+    ok, why = dump_verdict("exit=0\n", 31, 32, 0)
+    checks.append({"name": "dump_nc_short_bin_not_pass", "ok": (not ok) and "长度" in why, "detail": why})
+    ok, why = dump_verdict("exit=0\n", None, 32, 0)
+    checks.append({"name": "dump_nc_missing_bin_not_pass", "ok": (not ok) and "缺失" in why, "detail": why})
+    ok, why = dump_verdict("exit=0\n", 32, 32, 0)
+    checks.append({"name": "dump_nc_clean_pass", "ok": ok, "detail": why})
+    ok, why = dump_verdict("Blocked address 0x43c00010", 32, 32, 0)
+    checks.append({"name": "dump_nc_blocked_address_not_pass", "ok": not ok, "detail": why})
+
     tcl_s1 = s1_tcl("D0", "dump")
     checks.append({"name": "s1_tcl_read_only", "ok": "mrd" in tcl_s1 and "mwr" not in tcl_s1, "detail": tcl_s1[:120]})
     tcl_s2w = s2_tcl("write", TEST_BASE, TEST_BYTES, Path("p.bin"))
@@ -840,13 +891,32 @@ def offline_selftest() -> int:
 
 # ---------------------------------------------------------------- 硬件分段（窗口内执行）
 
+DUMP_ERROR_PATTERNS = ("Memory read error", "Blocked address", "Cannot access DDR",
+                       "no targets found", "Memory access error", "read error")
+
+
+def dump_verdict(log_text: str, file_size: int | None, nbytes: int, exit_code: int) -> tuple[bool, str]:
+    """纯函数：dump 是否可信。exit0 不足以判 PASS（xsdb fail-open）。"""
+    if exit_code != 0:
+        return False, f"xsdb_exit={exit_code}"
+    if file_size is None:
+        return False, "bin 缺失"
+    if file_size != nbytes:
+        return False, f"bin 长度 {file_size} != {nbytes}"
+    if not re.search(r"(?i)Memory (read|access) error|Blocked address|no targets found|Cannot access DDR",
+                     log_text or ""):
+        return True, "ok"
+    return False, "日志含目标错误文本"
+
+
 def _dump(tag: str, addr: int, nbytes: int, out: Path) -> int:
-    """JTAG 只读 dump：不仅看 xsdb 退出码，还校验产出文件存在且长度正确。"""
+    """JTAG 只读 dump：退出码 + 产出文件长度 + 日志错误文本三重判定。"""
     code = base.jtag_read(addr, nbytes, out, tag)
-    if code != 0:
-        return code
-    if not out.is_file() or out.stat().st_size != nbytes:
-        log(f"[FAIL] {tag}: dump 文件缺失或长度不符（期望 {nbytes} B）")
+    logp = base.RUN_DIR / f"{tag}.log"
+    text = logp.read_text(encoding="utf-8", errors="replace") if logp.is_file() else ""
+    ok, why = dump_verdict(text, out.stat().st_size if out.is_file() else None, nbytes, code)
+    if not ok:
+        log(f"[FAIL] {tag}: {why}")
         return 1
     return 0
 

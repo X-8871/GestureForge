@@ -1,0 +1,102 @@
+{
+  "checker": "instrumentation_reachability_v3",
+  "source": "tmp\\4\\S4-T34\\nc_app_unreachable.c",
+  "source_sha256": "964d105d7c338b8a3e315e1bec084ea540b25a882a11fa9a4397852a07ef507a",
+  "elf": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\longrunK\\s4d_ps_app_sw0_longrunK.elf",
+  "elf_sha256": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+  "checks": [
+    {
+      "id": "R1a",
+      "name": "longrun_function_found",
+      "ok": true,
+      "detail": {
+        "found": true
+      }
+    },
+    {
+      "id": "R1b",
+      "name": "registration_inside_longrun_body",
+      "ok": false,
+      "detail": {
+        "pos": -1,
+        "body_len": 10895
+      }
+    },
+    {
+      "id": "R1c",
+      "name": "registration_before_first_csr_or_preproc",
+      "ok": false,
+      "detail": {
+        "reg_pos": -1,
+        "first_csr_pos": 784
+      }
+    },
+    {
+      "id": "R1d",
+      "name": "exception_init_called",
+      "ok": true,
+      "detail": {
+        "init_pos": 467,
+        "first_csr_pos": 784
+      }
+    },
+    {
+      "id": "R2",
+      "name": "record_layout_and_handler",
+      "ok": true,
+      "detail": {
+        "rec_addr": true,
+        "rec_bytes_32": true,
+        "magic": true,
+        "commit_valid": true,
+        "commit_abort": true,
+        "read_sentinel": true,
+        "mark_signature": true,
+        "done_signature": true,
+        "handler_writes_dfsr": true,
+        "handler_writes_dfar": true,
+        "handler_sets_commit": true
+      }
+    },
+    {
+      "id": "R5",
+      "name": "registration_declared_once",
+      "ok": true,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "id": "R3",
+      "name": "elf_symbols",
+      "ok": true,
+      "detail": {
+        "handler_retained": true,
+        "longrun_symbol": true,
+        "vector_table": true
+      }
+    },
+    {
+      "id": "R4",
+      "name": "registration_call_site_in_longrun",
+      "ok": true,
+      "detail": {
+        "sites": [
+          "s4d_longrun_selfcheck.isra.0"
+        ]
+      }
+    },
+    {
+      "id": "R6",
+      "name": "evidence_matches_elf",
+      "ok": true,
+      "detail": {
+        "evidence_elf": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+        "actual": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665"
+      }
+    }
+  ],
+  "verdict": "FAIL",
+  "expect": "FAIL",
+  "discriminative": true
+}

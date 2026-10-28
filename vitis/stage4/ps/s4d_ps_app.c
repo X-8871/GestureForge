@@ -722,10 +722,6 @@ static int s4d_chainb_selfcheck(void)
     epoch = epoch_before + 1u;
 
     /* ---- SW 预处理：RAW BGR888(640x480) -> INT8 CHW(416x416x3) 写入 arena ---- */
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,
-                                 (Xil_ExceptionHandler)s4d_lr_data_abort_handler, NULL);
-    s4d_lr_mark(0u, 0u);
-
     prc = s4d_sw_preproc_bgr888_to_chw_int8((const uint8_t *)(uintptr_t)S4D_RAW_BASE, 640, 480,
                                             (int8_t *)(uintptr_t)S4D_TENSOR_BASE);
     s4d_region_flush(S4D_TENSOR_BASE, S4D_INPUT_BYTES);
@@ -818,39 +814,78 @@ static int s4d_chainb_selfcheck(void)
 
 
 #if defined(S4D_LONGRUN_SELFCHECK) && S4D_LONGRUN_SELFCHECK
-/* ---- 仪表化：每步魔数 + 数据中止捕获（仅写 0x11B00000 的 5 个字，不触候选区） ---- */
-#define S4D_LR_MAGIC_ADDR   0x11B00000u
-#define S4D_LR_MAGIC_VAL    0x4C524D47u   /* "LRMG" */
-#define S4D_LR_ABORT_VAL    0xAB0AB70Bu
+/* ---- 仪表化 v2：32 B 记录区（8 字）+ 数据中止捕获 ----
+ * 布局（精确 32 B，只写 0x11B00000 的 8 个字；不触候选区、不触冻结对象）：
+ *   [0] MAGIC 0x53344C01（版本 1）
+ *   [1] step_id | iter<<8          —— 即将进入的步骤
+ *   [2] done_step_id | iter<<8     —— 最后**成功完成**的步骤
+ *   [3] 即将访问的 CSR 地址（0=非 CSR/纯 CPU 步）
+ *   [4] 写入值；读访问用 0xFFFFFFFF 哨兵
+ *   [5] DFSR（仅在捕获中止时写入）
+ *   [6] DFAR（仅在捕获中止时写入；先解 DFSR，异步中止时 DFAR 不可靠）
+ *   [7] COMMIT：0xC0DEC0DE=记录有效；0xAB0AB70B=已捕获中止
+ * 说明：记录**在每次 CSR 访问之前**写入并 flush+DSB；若总线挂死导致记录不可见，
+ *       只能说“无法取证”，不能解释为“没有发生”。
+ */
+#define S4D_LR_REC_ADDR      0x11B00000u
+#define S4D_LR_REC_BYTES     32u
+#define S4D_LR_MAGIC_VAL     0x53344C01u
+#define S4D_LR_COMMIT_VALID  0xC0DEC0DEu
+#define S4D_LR_COMMIT_ABORT  0xAB0AB70Bu
+#define S4D_LR_READ_SENTINEL 0xFFFFFFFFu
 
-static void s4d_lr_mark(uint32_t step_id, uint32_t iter)
+static void s4d_lr_rec_flush(void)
 {
-    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_MAGIC_ADDR;
-    m[0] = S4D_LR_MAGIC_VAL;
+    Xil_DCacheFlushRange((UINTPTR)S4D_LR_REC_ADDR, S4D_LR_REC_BYTES);
+    s4d_dsb();
+}
+
+static void s4d_lr_rec_init(void)
+{
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_REC_ADDR;
+    m[0] = S4D_LR_MAGIC_VAL; m[1] = 0u; m[2] = 0u; m[3] = 0u;
+    m[4] = 0u; m[5] = 0u; m[6] = 0u; m[7] = S4D_LR_COMMIT_VALID;
+    s4d_lr_rec_flush();
+}
+
+/* 进入某步之前调用：记录“即将访问”的 CSR 地址与写入值 */
+static void s4d_lr_mark(uint32_t step_id, uint32_t iter, uint32_t csr_addr, uint32_t csr_val)
+{
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_REC_ADDR;
     m[1] = (step_id & 0xFFu) | (iter << 8);
-    Xil_DCacheFlushRange((UINTPTR)S4D_LR_MAGIC_ADDR, 64);
+    m[3] = csr_addr;
+    m[4] = csr_val;
+    s4d_lr_rec_flush();
 }
 
-static void s4d_lr_clear_magic(void)
+/* 某步成功完成后调用：记录“最后成功步骤” */
+static void s4d_lr_done(uint32_t step_id, uint32_t iter)
 {
-    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_MAGIC_ADDR;
-    int i;
-    for (i = 0; i < 16; i++) { m[i] = 0u; }
-    Xil_DCacheFlushRange((UINTPTR)S4D_LR_MAGIC_ADDR, 64);
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_REC_ADDR;
+    m[2] = (step_id & 0xFFu) | (iter << 8);
+    s4d_lr_rec_flush();
 }
 
-/* 数据中止处理器：记录 DFSR/DFAR + 当前 step 后停机（主机用普通 mrd 读魔数区即可定位） */
-static void s4d_lr_data_abort_handler(void *arg)
+static void s4d_lr_rec_clear(void)
 {
-    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_MAGIC_ADDR;
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_REC_ADDR;
+    uint32_t i;
+    for (i = 0u; i < (S4D_LR_REC_BYTES / 4u); i++) { m[i] = 0u; }
+    s4d_lr_rec_flush();
+}
+
+/* 数据中止处理器：记录 DFSR/DFAR + 提交标记后停机（主机用普通 mrd 读记录区即可定位） */
+static __attribute__((noinline, used)) void s4d_lr_data_abort_handler(void *arg)
+{
+    volatile uint32_t *m = (volatile uint32_t *)(uintptr_t)S4D_LR_REC_ADDR;
     uint32_t dfsr = 0u, dfar = 0u;
     (void)arg;
     __asm__ volatile("mrc p15, 0, %0, c5, c0, 0" : "=r"(dfsr));
     __asm__ volatile("mrc p15, 0, %0, c6, c0, 0" : "=r"(dfar));
-    m[2] = dfsr;
-    m[3] = dfar;
-    m[4] = S4D_LR_ABORT_VAL;
-    Xil_DCacheFlushRange((UINTPTR)S4D_LR_MAGIC_ADDR, 64);
+    m[5] = dfsr;
+    m[6] = dfar;
+    m[7] = S4D_LR_COMMIT_ABORT;
+    s4d_lr_rec_flush();
     for (;;) { }
 }
 
@@ -880,7 +915,7 @@ static int s4d_lr_box_equal(const s4d_lr_box *a, const s4d_lr_box *b)
         && a->x2.u == b->x2.u && a->y2.u == b->y2.u;
 }
 
-static int s4d_longrun_selfcheck(void)
+static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
 {
     uint32_t st = 0, err = 0, tcr = 0, prc;
     uint64_t t_start = 0, t_now = 0, wall_ms = 0;
@@ -891,6 +926,13 @@ static int s4d_longrun_selfcheck(void)
     s4d_lr_box first;
     int first_valid = 0;
     int exit_code = 0;
+
+    /* 异常链：必须在 longrun **实际入口**注册（历史缺陷：注册曾位于不可达的 chainb 分支）。
+     * VBAR 指向 BSP 的 _vector_table；显式 Xil_ExceptionInit 保证已设置。 */
+    Xil_ExceptionInit();
+    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_DATA_ABORT_INT,
+                                 (Xil_ExceptionHandler)s4d_lr_data_abort_handler, NULL);
+    s4d_lr_rec_init();
 
     s4d_cur_src_w = 640u;
     s4d_cur_src_h = 480u;
@@ -928,17 +970,18 @@ static int s4d_longrun_selfcheck(void)
         XTime_GetTime(&t_now);
         wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
         if (wall_ms >= S4D_LR_WALL_MS) { break; }
-        s4d_lr_mark(8u, iter);   /* 8 = 下一轮开始 */
+        s4d_lr_mark(8u, iter, 0u, 0u);   /* 8 = 下一轮开始（纯 CPU） */
 
         /* STEP A：epoch */
-        s4d_lr_mark(1u, iter);   /* 1 = 读 epoch */
+        s4d_lr_mark(1u, iter, S4D_CSR_EPOCH_LO, S4D_LR_READ_SENTINEL);   /* 1 = 读 epoch */
         if (!s4d_read_epoch(&e_before)) { round_fail = 1; fail_why = "epoch_read_fail"; }
         e_expect = e_before + 1u;
         if (round_fail == 0 && !s4d_is_idle()) { round_fail = 1; fail_why = "not_idle_before_round"; }
+        if (round_fail == 0) { s4d_lr_done(1u, iter); }
 
         /* STEP B：配置 + START */
         if (round_fail == 0) {
-            s4d_lr_mark(2u, iter);   /* 2 = 配置 CSR */
+            s4d_lr_mark(2u, iter, S4D_CSR_FRAME_W, iter);   /* 2 = 配置 CSR（首写 FRAME） */
             s4d_wr(S4D_CSR_FRAME_W, iter);
             s4d_wr(S4D_CSR_INADDR_W, 0u);
             s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
@@ -946,14 +989,16 @@ static int s4d_longrun_selfcheck(void)
             s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
             s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
             s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
+            s4d_lr_done(2u, iter);
             XTime_GetTime(&t0);
-            s4d_lr_mark(3u, iter);   /* 3 = 写 START */
+            s4d_lr_mark(3u, iter, S4D_CSR_CMD, S4D_CMD_START);   /* 3 = 写 START */
             s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
+            s4d_lr_done(3u, iter);
         }
 
         /* STEP C：等 DONE_SAFE */
         if (round_fail == 0) {
-            s4d_lr_mark(4u, iter);   /* 4 = 等 DONE_SAFE */
+            s4d_lr_mark(4u, iter, S4D_CSR_STATUS, S4D_LR_READ_SENTINEL);   /* 4 = 等 DONE_SAFE */
             for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
                 int r = s4d_safe_done(&st, &err);
                 XTime_GetTime(&t1);
@@ -966,21 +1011,24 @@ static int s4d_longrun_selfcheck(void)
             if (done != 1) { round_fail = 1; fail_why = "not_done_safe"; }
             else if (st != 0x00000E04u) { round_fail = 1; fail_why = "status_not_0E04"; }
             else if (err != 0u) { round_fail = 1; fail_why = "error_nonzero"; }
+            if (round_fail == 0) { s4d_lr_done(4u, iter); }
         }
 
         /* STEP D：invalidate + 解码 */
         if (round_fail == 0) {
-            s4d_lr_mark(5u, iter);   /* 5 = invalidate head */
+            s4d_lr_mark(5u, iter, 0u, 0u);   /* 5 = invalidate head（纯 cache 维护） */
             s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
             s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
-            s4d_lr_mark(6u, iter);   /* 6 = 解码 */
+            s4d_lr_mark(6u, iter, 0u, 0u);   /* 6 = 解码（纯 CPU） */
             decode_rc = s2a_decode_nms_reference(
                 (const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF), (uint32_t)iter, (uint32_t)iter,
                 det, &count);
             raw = s4d_last_raw_candidates;
+            s4d_lr_done(5u, iter);
             if (decode_rc != 0) { round_fail = 1; fail_why = "decode_rc_nonzero"; }
             else if (count != 1u) { round_fail = 1; fail_why = "count_not_1"; }
             else if (raw != 2u) { round_fail = 1; fail_why = "raw_not_2"; }
+            if (round_fail == 0) { s4d_lr_done(6u, iter); }
         }
 
         /* STEP E：核对框是否与第一轮逐位一致 */
@@ -1009,7 +1057,7 @@ static int s4d_longrun_selfcheck(void)
 
         /* STEP F：ACK 回 idle */
         if (round_fail == 0) {
-            s4d_lr_mark(7u, iter);   /* 7 = ACK */
+            s4d_lr_mark(7u, iter, S4D_CSR_CMD, S4D_CMD_ACK);   /* 7 = ACK */
             if (s4d_read_epoch(&e_after) && e_after == e_expect && s4d_rd(S4D_CSR_FRAME_R) == (uint32_t)iter) {
                 s4d_wr(S4D_CSR_ACKLO_W, (uint32_t)e_expect);
                 s4d_wr(S4D_CSR_ACKHI_W, (uint32_t)(e_expect >> 32));
@@ -1017,6 +1065,7 @@ static int s4d_longrun_selfcheck(void)
                 ack_idle = s4d_is_idle();
             }
             if (ack_idle != 1) { round_fail = 1; fail_why = "ack_not_idle"; }
+            if (round_fail == 0) { s4d_lr_done(7u, iter); }
         }
 
         /* STEP G：epoch 单调 */
@@ -1045,7 +1094,7 @@ static int s4d_longrun_selfcheck(void)
                    (unsigned)(uint32_t)e_expect, (unsigned)(uint32_t)(e_expect >> 32), (unsigned)st);
     }
 
-    s4d_lr_clear_magic();   /* 收尾清零魔数区（W4 校验全 0） */
+    s4d_lr_rec_clear();   /* 收尾清零记录区（W4 校验全 0） */
     XTime_GetTime(&t_now);
     wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
     {

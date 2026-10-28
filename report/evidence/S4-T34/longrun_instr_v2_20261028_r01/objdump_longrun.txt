@@ -1,0 +1,895 @@
+  1043d0:	push	{r4, r5, r6, r7, r8, r9, sl, fp, lr}
+  1043d4:	mov	r3, #0
+  1043d8:	mov	r4, #0
+  1043dc:	sub	sp, sp, #1020	; 0x3fc
+  1043e0:	mov	r2, #0
+  1043e4:	strd	r2, [sp, #216]	; 0xd8
+  1043e8:	strd	r2, [sp, #224]	; 0xe0
+  1043ec:	str	r4, [sp, #204]	; 0xcc
+  1043f0:	str	r4, [sp, #208]	; 0xd0
+  1043f4:	bl	100e10 <Xil_ExceptionInit>
+  1043f8:	movw	r1, #16780	; 0x418c
+  1043fc:	mov	r2, r4
+  104400:	movt	r1, #16
+  104404:	mov	r0, #4
+  104408:	bl	100e14 <Xil_ExceptionRegisterHandler>
+  10440c:	mov	r0, r4
+  104410:	movw	r3, #19457	; 0x4c01
+  104414:	movt	r0, #4528	; 0x11b0
+  104418:	movt	r3, #21300	; 0x5334
+  10441c:	str	r3, [r0]
+  104420:	movw	r3, #49374	; 0xc0de
+  104424:	movt	r3, #49374	; 0xc0de
+  104428:	str	r4, [r0, #4]
+  10442c:	mov	r1, #32
+  104430:	str	r4, [r0, #8]
+  104434:	str	r4, [r0, #12]
+  104438:	str	r4, [r0, #16]
+  10443c:	str	r4, [r0, #20]
+  104440:	str	r4, [r0, #24]
+  104444:	str	r3, [r0, #28]
+  104448:	bl	1010dc <Xil_DCacheFlushRange>
+  10444c:	dsb	sy
+  104450:	movw	r3, #30224	; 0x7610
+  104454:	mov	r5, #640	; 0x280
+  104458:	movt	r3, #16
+  10445c:	mov	r1, r4
+  104460:	str	r5, [r3]
+  104464:	movw	r3, #30220	; 0x760c
+  104468:	movt	r3, #16
+  10446c:	mov	r4, #480	; 0x1e0
+  104470:	mov	r2, #48	; 0x30
+  104474:	add	r0, sp, #248	; 0xf8
+  104478:	str	r4, [r3]
+  10447c:	blx	1030e8 <memset>
+  104480:	movw	r2, #30528	; 0x7740
+  104484:	movw	r0, #27548	; 0x6b9c
+  104488:	movt	r2, #27
+  10448c:	movt	r0, #16
+  104490:	mov	r3, #160	; 0xa0
+  104494:	mov	r1, #301989888	; 0x12000000
+  104498:	bl	100dd4 <xil_printf>
+  10449c:	mov	r2, r4
+  1044a0:	mov	r1, r5
+  1044a4:	mov	r3, #268435456	; 0x10000000
+  1044a8:	mov	r0, #301989888	; 0x12000000
+  1044ac:	bl	106218 <s4d_sw_preproc_bgr888_to_chw_int8>
+  1044b0:	mov	r1, #60416	; 0xec00
+  1044b4:	mov	r8, r0
+  1044b8:	movt	r1, #7
+  1044bc:	mov	r0, #268435456	; 0x10000000
+  1044c0:	bl	1010dc <Xil_DCacheFlushRange>
+  1044c4:	dsb	sy
+  1044c8:	mov	r1, #4864	; 0x1300
+  1044cc:	mov	r0, #0
+  1044d0:	movt	r1, #90	; 0x5a
+  1044d4:	movt	r0, #4112	; 0x1010
+  1044d8:	bl	1010dc <Xil_DCacheFlushRange>
+  1044dc:	dsb	sy
+  1044e0:	dsb	sy
+  1044e4:	mov	r1, #60416	; 0xec00
+  1044e8:	mov	r0, #268435456	; 0x10000000
+  1044ec:	movt	r1, #7
+  1044f0:	bl	104370 <s4d_crc32>
+  1044f4:	mov	r6, r0
+  1044f8:	movw	r0, #27620	; 0x6be4
+  1044fc:	movt	r0, #16
+  104500:	mov	r2, r6
+  104504:	mov	r1, r8
+  104508:	bl	100dd4 <xil_printf>
+  10450c:	cmp	r8, #0
+  104510:	bne	1051b8 <s4d_longrun_selfcheck.isra.0+0xde8>
+  104514:	mov	r2, #0
+  104518:	movw	r1, #16135	; 0x3f07
+  10451c:	movt	r2, #17344	; 0x43c0
+  104520:	ldr	r3, [r2, #12]
+  104524:	and	r3, r3, r1
+  104528:	cmp	r3, #1024	; 0x400
+  10452c:	bne	1051a4 <s4d_longrun_selfcheck.isra.0+0xdd4>
+  104530:	add	r0, sp, #216	; 0xd8
+  104534:	mov	fp, #1
+  104538:	bl	101d50 <XTime_GetTime>
+  10453c:	movw	r3, #61823	; 0xf17f
+  104540:	mov	sl, r6
+  104544:	movt	r3, #36818	; 0x8fd2
+  104548:	str	r8, [sp, #140]	; 0x8c
+  10454c:	str	r3, [sp, #148]	; 0x94
+  104550:	movw	r3, #34505	; 0x86c9
+  104554:	movt	r3, #8
+  104558:	str	r8, [sp, #124]	; 0x7c
+  10455c:	str	r3, [sp, #152]	; 0x98
+  104560:	mov	r3, #80	; 0x50
+  104564:	movt	r3, #17344	; 0x43c0
+  104568:	str	r8, [sp, #144]	; 0x90
+  10456c:	str	r3, [sp, #184]	; 0xb8
+  104570:	movw	r3, #53632	; 0xd180
+  104574:	movt	r3, #2288	; 0x8f0
+  104578:	str	r8, [sp, #188]	; 0xbc
+  10457c:	str	r3, [sp, #196]	; 0xc4
+  104580:	mvn	r3, #0
+  104584:	str	r3, [sp, #120]	; 0x78
+  104588:	str	r8, [sp, #100]	; 0x64
+  10458c:	str	r8, [sp, #108]	; 0x6c
+  104590:	str	r8, [sp, #112]	; 0x70
+  104594:	str	r8, [sp, #92]	; 0x5c
+  104598:	mov	r2, #0
+  10459c:	mov	r3, #0
+  1045a0:	add	r0, sp, #224	; 0xe0
+  1045a4:	mov	r4, #0
+  1045a8:	strd	r2, [sp, #232]	; 0xe8
+  1045ac:	strd	r2, [sp, #240]	; 0xf0
+  1045b0:	str	r4, [sp, #212]	; 0xd4
+  1045b4:	bl	101d50 <XTime_GetTime>
+  1045b8:	ldr	r3, [sp, #216]	; 0xd8
+  1045bc:	ldr	r2, [sp, #224]	; 0xe0
+  1045c0:	ldr	r6, [sp, #228]	; 0xe4
+  1045c4:	subs	r2, r2, r3
+  1045c8:	ldr	r3, [sp, #220]	; 0xdc
+  1045cc:	lsl	r5, r2, #5
+  1045d0:	sbc	r6, r6, r3
+  1045d4:	subs	r5, r5, r2
+  1045d8:	lsl	r3, r6, #5
+  1045dc:	orr	r3, r3, r2, lsr #27
+  1045e0:	sbc	r3, r3, r6
+  1045e4:	lsl	r3, r3, #2
+  1045e8:	orr	r3, r3, r5, lsr #30
+  1045ec:	lsl	r5, r5, #2
+  1045f0:	adds	r5, r5, r2
+  1045f4:	adc	r6, r6, r3
+  1045f8:	add	r3, pc, #784	; 0x310
+  1045fc:	ldrd	r2, [r3]
+  104600:	lsl	r6, r6, #3
+  104604:	orr	r6, r6, r5, lsr #29
+  104608:	lsl	r5, r5, #3
+  10460c:	mov	r1, r6
+  104610:	mov	r0, r5
+  104614:	blx	1023a4 <__aeabi_uldivmod>
+  104618:	ldr	r3, [sp, #148]	; 0x94
+  10461c:	str	r0, [sp, #104]	; 0x68
+  104620:	cmp	r3, r5
+  104624:	ldr	r3, [sp, #152]	; 0x98
+  104628:	sbcs	r6, r3, r6
+  10462c:	bcc	104bd8 <s4d_longrun_selfcheck.isra.0+0x808>
+  104630:	lsl	r8, fp, #8
+  104634:	mov	r5, r4
+  104638:	movt	r5, #4528	; 0x11b0
+  10463c:	orr	r3, r8, #8
+  104640:	mov	r1, #32
+  104644:	str	r3, [r5, #4]
+  104648:	mov	r0, r5
+  10464c:	str	r4, [r5, #12]
+  104650:	str	r4, [r5, #16]
+  104654:	bl	1010dc <Xil_DCacheFlushRange>
+  104658:	dsb	sy
+  10465c:	orr	r2, r8, #1
+  104660:	mvn	r3, #0
+  104664:	str	r2, [r5, #4]
+  104668:	mov	r0, r5
+  10466c:	ldr	r2, [sp, #184]	; 0xb8
+  104670:	mov	r1, #32
+  104674:	str	r2, [r5, #12]
+  104678:	str	r3, [r5, #16]
+  10467c:	bl	1010dc <Xil_DCacheFlushRange>
+  104680:	dsb	sy
+  104684:	mov	r6, r4
+  104688:	mov	r7, #8
+  10468c:	movt	r6, #17344	; 0x43c0
+  104690:	ldr	r4, [r6, #84]	; 0x54
+  104694:	ldr	r5, [r6, #80]	; 0x50
+  104698:	ldr	r3, [r6, #84]	; 0x54
+  10469c:	cmp	r4, r3
+  1046a0:	beq	1048c0 <s4d_longrun_selfcheck.isra.0+0x4f0>
+  1046a4:	subs	r7, r7, #1
+  1046a8:	bne	104690 <s4d_longrun_selfcheck.isra.0+0x2c0>
+  1046ac:	mov	r6, sl
+  1046b0:	ldr	r8, [sp, #92]	; 0x5c
+  1046b4:	ldr	lr, [sp, #212]	; 0xd4
+  1046b8:	movw	r2, #27500	; 0x6b6c
+  1046bc:	ldr	sl, [sp, #208]	; 0xd0
+  1046c0:	movt	r2, #16
+  1046c4:	mov	r9, r7
+  1046c8:	mvn	r3, #98	; 0x62
+  1046cc:	str	r7, [sp, #136]	; 0x88
+  1046d0:	str	r7, [sp, #156]	; 0x9c
+  1046d4:	str	r3, [sp, #96]	; 0x60
+  1046d8:	ldr	r3, [sp, #156]	; 0x9c
+  1046dc:	movw	r0, #27952	; 0x6d30
+  1046e0:	movt	r0, #16
+  1046e4:	mov	r1, fp
+  1046e8:	str	r7, [sp, #20]
+  1046ec:	str	r3, [sp, #24]
+  1046f0:	ldr	r3, [sp, #136]	; 0x88
+  1046f4:	str	r9, [sp, #16]
+  1046f8:	str	lr, [sp, #8]
+  1046fc:	str	r3, [sp, #12]
+  104700:	ldr	r3, [sp, #96]	; 0x60
+  104704:	str	sl, [sp]
+  104708:	str	r3, [sp, #4]
+  10470c:	ldr	r3, [sp, #204]	; 0xcc
+  104710:	bl	100dd4 <xil_printf>
+  104714:	mov	r3, #2
+  104718:	str	r3, [sp, #96]	; 0x60
+  10471c:	mov	r3, #1
+  104720:	str	r3, [sp, #192]	; 0xc0
+  104724:	mov	r0, #0
+  104728:	mov	r3, #0
+  10472c:	movt	r0, #4528	; 0x11b0
+  104730:	mov	r1, #32
+  104734:	str	r3, [r0]
+  104738:	str	r3, [r0, #4]
+  10473c:	str	r3, [r0, #8]
+  104740:	str	r3, [r0, #12]
+  104744:	str	r3, [r0, #16]
+  104748:	str	r3, [r0, #20]
+  10474c:	str	r3, [r0, #24]
+  104750:	str	r3, [r0, #28]
+  104754:	bl	1010dc <Xil_DCacheFlushRange>
+  104758:	dsb	sy
+  10475c:	add	r0, sp, #224	; 0xe0
+  104760:	bl	101d50 <XTime_GetTime>
+  104764:	ldrd	r0, [sp, #224]	; 0xe0
+  104768:	ldr	r3, [sp, #216]	; 0xd8
+  10476c:	ldr	r2, [sp, #220]	; 0xdc
+  104770:	subs	r0, r0, r3
+  104774:	sbc	r1, r1, r2
+  104778:	lsl	r3, r0, #5
+  10477c:	lsl	r2, r1, #5
+  104780:	subs	r3, r3, r0
+  104784:	orr	r2, r2, r0, lsr #27
+  104788:	sbc	r2, r2, r1
+  10478c:	lsl	r2, r2, #2
+  104790:	orr	r2, r2, r3, lsr #30
+  104794:	lsl	r3, r3, #2
+  104798:	adds	r3, r3, r0
+  10479c:	adc	r1, r1, r2
+  1047a0:	lsl	r4, r3, #3
+  1047a4:	lsl	r5, r1, #3
+  1047a8:	mov	r0, r4
+  1047ac:	orr	r5, r5, r3, lsr #29
+  1047b0:	add	r3, pc, #344	; 0x158
+  1047b4:	ldrd	r2, [r3]
+  1047b8:	mov	r1, r5
+  1047bc:	blx	1023a4 <__aeabi_uldivmod>
+  1047c0:	ldr	r3, [sp, #192]	; 0xc0
+  1047c4:	mov	r7, r0
+  1047c8:	mov	r9, r1
+  1047cc:	cmp	r3, #0
+  1047d0:	ldr	r3, [sp, #120]	; 0x78
+  1047d4:	beq	104b78 <s4d_longrun_selfcheck.isra.0+0x7a8>
+  1047d8:	adds	r3, r3, #1
+  1047dc:	movne	r3, #1
+  1047e0:	subs	fp, fp, #1
+  1047e4:	moveq	r3, #0
+  1047e8:	andne	r3, r3, #1
+  1047ec:	cmp	r3, #0
+  1047f0:	beq	104c44 <s4d_longrun_selfcheck.isra.0+0x874>
+  1047f4:	ldr	r0, [sp, #140]	; 0x8c
+  1047f8:	mov	r1, fp
+  1047fc:	blx	101e78 <__udivsi3>
+  104800:	mov	ip, r7
+  104804:	mov	r8, r0
+  104808:	mov	r3, #0
+  10480c:	ldr	r0, [sp, #256]	; 0x100
+  104810:	mov	r2, fp
+  104814:	str	r3, [sp, #80]	; 0x50
+  104818:	ldr	r3, [sp, #100]	; 0x64
+  10481c:	str	r0, [sp, #44]	; 0x2c
+  104820:	ldr	r0, [sp, #260]	; 0x104
+  104824:	str	r3, [sp, #24]
+  104828:	ldr	r3, [sp, #144]	; 0x90
+  10482c:	str	r0, [sp, #40]	; 0x28
+  104830:	ldr	r0, [sp, #264]	; 0x108
+  104834:	str	r3, [sp, #20]
+  104838:	ldr	r3, [sp, #124]	; 0x7c
+  10483c:	str	r0, [sp, #52]	; 0x34
+  104840:	ldr	r0, [sp, #268]	; 0x10c
+  104844:	str	r3, [sp, #16]
+  104848:	ldr	r3, [sp, #120]	; 0x78
+  10484c:	str	r0, [sp, #48]	; 0x30
+  104850:	ldr	r0, [sp, #272]	; 0x110
+  104854:	str	r3, [sp, #8]
+  104858:	ldr	r1, [sp, #96]	; 0x60
+  10485c:	str	r0, [sp, #60]	; 0x3c
+  104860:	ldr	r0, [sp, #276]	; 0x114
+  104864:	ldr	r3, [sp, #192]	; 0xc0
+  104868:	str	r6, [sp, #28]
+  10486c:	str	r0, [sp, #56]	; 0x38
+  104870:	ldr	r0, [sp, #280]	; 0x118
+  104874:	str	r8, [sp, #12]
+  104878:	str	r9, [sp, #4]
+  10487c:	str	r0, [sp, #68]	; 0x44
+  104880:	ldr	r0, [sp, #284]	; 0x11c
+  104884:	str	r0, [sp, #64]	; 0x40
+  104888:	ldr	r0, [sp, #288]	; 0x120
+  10488c:	str	r0, [sp, #76]	; 0x4c
+  104890:	ldr	r0, [sp, #292]	; 0x124
+  104894:	str	ip, [sp]
+  104898:	str	r0, [sp, #72]	; 0x48
+  10489c:	ldr	r0, [sp, #252]	; 0xfc
+  1048a0:	str	r0, [sp, #36]	; 0x24
+  1048a4:	ldr	r0, [sp, #248]	; 0xf8
+  1048a8:	str	r0, [sp, #32]
+  1048ac:	movw	r0, #28160	; 0x6e00
+  1048b0:	movt	r0, #16
+  1048b4:	bl	100dd4 <xil_printf>
+  1048b8:	add	sp, sp, #1020	; 0x3fc
+  1048bc:	pop	{r4, r5, r6, r7, r8, r9, sl, fp, pc}
+  1048c0:	ldr	r3, [r6, #12]
+  1048c4:	movw	r2, #16135	; 0x3f07
+  1048c8:	and	r3, r3, r2
+  1048cc:	cmp	r3, #1024	; 0x400
+  1048d0:	beq	104918 <s4d_longrun_selfcheck.isra.0+0x548>
+  1048d4:	mov	r3, #0
+  1048d8:	movw	r2, #27476	; 0x6b54
+  1048dc:	mov	r7, r3
+  1048e0:	mov	r9, r3
+  1048e4:	str	r3, [sp, #136]	; 0x88
+  1048e8:	mov	r6, sl
+  1048ec:	str	r3, [sp, #156]	; 0x9c
+  1048f0:	mvn	r3, #98	; 0x62
+  1048f4:	ldr	r8, [sp, #92]	; 0x5c
+  1048f8:	movt	r2, #16
+  1048fc:	ldr	lr, [sp, #212]	; 0xd4
+  104900:	ldr	sl, [sp, #208]	; 0xd0
+  104904:	str	r3, [sp, #96]	; 0x60
+  104908:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  10490c:	nop	{0}
+  104910:	.word	0x4f790d7e
+  104914:	.word	0x00000000
+  104918:	mov	r1, fp
+  10491c:	mov	r0, #1
+  104920:	bl	1041c4 <s4d_lr_done>
+  104924:	mov	r7, #0
+  104928:	mov	r3, #20
+  10492c:	movt	r7, #4528	; 0x11b0
+  104930:	movt	r3, #17344	; 0x43c0
+  104934:	orr	r2, r8, #2
+  104938:	mov	r1, #32
+  10493c:	str	r2, [r7, #4]
+  104940:	mov	r0, r7
+  104944:	str	r3, [r7, #12]
+  104948:	str	fp, [r7, #16]
+  10494c:	bl	1010dc <Xil_DCacheFlushRange>
+  104950:	dsb	sy
+  104954:	str	fp, [r6, #20]
+  104958:	dsb	sy
+  10495c:	mov	r3, #0
+  104960:	str	r3, [r6, #24]
+  104964:	dsb	sy
+  104968:	mov	r3, #60416	; 0xec00
+  10496c:	movt	r3, #7
+  104970:	str	r3, [r6, #28]
+  104974:	dsb	sy
+  104978:	mov	r3, #1048576	; 0x100000
+  10497c:	str	r3, [r6, #32]
+  104980:	dsb	sy
+  104984:	movw	r3, #4860	; 0x12fc
+  104988:	movt	r3, #90	; 0x5a
+  10498c:	str	r3, [r6, #36]	; 0x24
+  104990:	dsb	sy
+  104994:	mvn	r9, #0
+  104998:	str	r9, [r6, #40]	; 0x28
+  10499c:	dsb	sy
+  1049a0:	str	r9, [r6, #44]	; 0x2c
+  1049a4:	dsb	sy
+  1049a8:	mov	r0, #2
+  1049ac:	mov	r1, fp
+  1049b0:	bl	1041c4 <s4d_lr_done>
+  1049b4:	add	r0, sp, #232	; 0xe8
+  1049b8:	bl	101d50 <XTime_GetTime>
+  1049bc:	mov	r3, #8
+  1049c0:	orr	r2, r8, #3
+  1049c4:	movt	r3, #17344	; 0x43c0
+  1049c8:	str	r2, [r7, #4]
+  1049cc:	str	r3, [r7, #12]
+  1049d0:	mov	r3, #1
+  1049d4:	mov	r1, #32
+  1049d8:	mov	r0, r7
+  1049dc:	str	r3, [r7, #16]
+  1049e0:	bl	1010dc <Xil_DCacheFlushRange>
+  1049e4:	dsb	sy
+  1049e8:	mov	r3, #1
+  1049ec:	str	r3, [r6, #8]
+  1049f0:	dsb	sy
+  1049f4:	mov	r0, #3
+  1049f8:	mov	r1, fp
+  1049fc:	bl	1041c4 <s4d_lr_done>
+  104a00:	mov	r3, #12
+  104a04:	orr	r2, r8, #4
+  104a08:	movt	r3, #17344	; 0x43c0
+  104a0c:	str	r2, [r7, #4]
+  104a10:	mov	r0, r7
+  104a14:	str	r3, [r7, #12]
+  104a18:	mov	r1, #32
+  104a1c:	str	r9, [r7, #16]
+  104a20:	bl	1010dc <Xil_DCacheFlushRange>
+  104a24:	dsb	sy
+  104a28:	mov	r3, #0
+  104a2c:	movw	r6, #54463	; 0xd4bf
+  104a30:	str	r4, [sp, #96]	; 0x60
+  104a34:	movt	r6, #1
+  104a38:	ldr	r7, [sp, #196]	; 0xc4
+  104a3c:	mov	r4, r3
+  104a40:	b	104a70 <s4d_longrun_selfcheck.isra.0+0x6a0>
+  104a44:	cmp	r9, #2
+  104a48:	ldr	r3, [sp, #204]	; 0xcc
+  104a4c:	beq	104b40 <s4d_longrun_selfcheck.isra.0+0x770>
+  104a50:	and	r3, r3, #7
+  104a54:	cmp	r3, #6
+  104a58:	beq	104b40 <s4d_longrun_selfcheck.isra.0+0x770>
+  104a5c:	cmp	r0, r6
+  104a60:	bhi	104b40 <s4d_longrun_selfcheck.isra.0+0x770>
+  104a64:	add	r4, r4, #1
+  104a68:	cmp	r4, r7
+  104a6c:	beq	104b40 <s4d_longrun_selfcheck.isra.0+0x770>
+  104a70:	add	r1, sp, #208	; 0xd0
+  104a74:	add	r0, sp, #204	; 0xcc
+  104a78:	bl	10410c <s4d_safe_done>
+  104a7c:	mov	r9, r0
+  104a80:	add	r0, sp, #240	; 0xf0
+  104a84:	bl	101d50 <XTime_GetTime>
+  104a88:	ldr	r3, [sp, #232]	; 0xe8
+  104a8c:	ldr	r2, [sp, #240]	; 0xf0
+  104a90:	ldr	r1, [sp, #244]	; 0xf4
+  104a94:	subs	r2, r2, r3
+  104a98:	ldr	r3, [sp, #236]	; 0xec
+  104a9c:	lsl	r0, r2, #5
+  104aa0:	sbc	r1, r1, r3
+  104aa4:	subs	r0, r0, r2
+  104aa8:	lsl	r3, r1, #5
+  104aac:	orr	r3, r3, r2, lsr #27
+  104ab0:	sbc	r3, r3, r1
+  104ab4:	lsl	r3, r3, #2
+  104ab8:	orr	r3, r3, r0, lsr #30
+  104abc:	lsl	r0, r0, #2
+  104ac0:	adds	r0, r0, r2
+  104ac4:	adc	r1, r1, r3
+  104ac8:	sub	r3, pc, #448	; 0x1c0
+  104acc:	ldrd	r2, [r3]
+  104ad0:	lsl	r1, r1, #3
+  104ad4:	orr	r1, r1, r0, lsr #29
+  104ad8:	lsl	r0, r0, #3
+  104adc:	blx	1023a4 <__aeabi_uldivmod>
+  104ae0:	cmp	r9, #1
+  104ae4:	bne	104a44 <s4d_longrun_selfcheck.isra.0+0x674>
+  104ae8:	ldrd	r2, [sp, #204]	; 0xcc
+  104aec:	mov	r7, r0
+  104af0:	str	r4, [sp, #156]	; 0x9c
+  104af4:	ldr	r4, [sp, #96]	; 0x60
+  104af8:	mov	r1, r3
+  104afc:	str	r3, [sp, #128]	; 0x80
+  104b00:	movw	r3, #3588	; 0xe04
+  104b04:	str	r1, [sp, #192]	; 0xc0
+  104b08:	cmp	r2, r3
+  104b0c:	beq	104c6c <s4d_longrun_selfcheck.isra.0+0x89c>
+  104b10:	mov	r3, #0
+  104b14:	movw	r2, #27532	; 0x6b8c
+  104b18:	mov	r9, r3
+  104b1c:	str	r3, [sp, #136]	; 0x88
+  104b20:	mvn	r3, #98	; 0x62
+  104b24:	mov	r6, sl
+  104b28:	ldr	r8, [sp, #92]	; 0x5c
+  104b2c:	mov	sl, r1
+  104b30:	ldr	lr, [sp, #212]	; 0xd4
+  104b34:	movt	r2, #16
+  104b38:	str	r3, [sp, #96]	; 0x60
+  104b3c:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104b40:	mov	r3, #0
+  104b44:	movw	r2, #27516	; 0x6b7c
+  104b48:	mov	r9, r3
+  104b4c:	str	r3, [sp, #136]	; 0x88
+  104b50:	mvn	r3, #98	; 0x62
+  104b54:	mov	r6, sl
+  104b58:	ldr	r8, [sp, #92]	; 0x5c
+  104b5c:	mov	r7, r0
+  104b60:	ldr	lr, [sp, #212]	; 0xd4
+  104b64:	movt	r2, #16
+  104b68:	ldr	sl, [sp, #208]	; 0xd0
+  104b6c:	str	r4, [sp, #156]	; 0x9c
+  104b70:	str	r3, [sp, #96]	; 0x60
+  104b74:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104b78:	cmn	r3, #1
+  104b7c:	beq	104bec <s4d_longrun_selfcheck.isra.0+0x81c>
+  104b80:	ldr	r0, [sp, #140]	; 0x8c
+  104b84:	mov	r1, fp
+  104b88:	blx	101e78 <__udivsi3>
+  104b8c:	movw	r3, #61824	; 0xf180
+  104b90:	mov	r8, r0
+  104b94:	movt	r3, #36818	; 0x8fd2
+  104b98:	cmp	r4, r3
+  104b9c:	movw	r3, #34505	; 0x86c9
+  104ba0:	movt	r3, #8
+  104ba4:	sbcs	r3, r5, r3
+  104ba8:	movcs	r3, #1
+  104bac:	movcc	r3, #0
+  104bb0:	cmp	fp, #139	; 0x8b
+  104bb4:	movls	r3, #0
+  104bb8:	andhi	r3, r3, #1
+  104bbc:	cmp	r3, #0
+  104bc0:	beq	104c5c <s4d_longrun_selfcheck.isra.0+0x88c>
+  104bc4:	ldr	r2, [sp, #192]	; 0xc0
+  104bc8:	mov	ip, r7
+  104bcc:	mov	r3, #1
+  104bd0:	str	r2, [sp, #96]	; 0x60
+  104bd4:	b	10480c <s4d_longrun_selfcheck.isra.0+0x43c>
+  104bd8:	ldr	r8, [sp, #92]	; 0x5c
+  104bdc:	mov	r6, sl
+  104be0:	str	r4, [sp, #192]	; 0xc0
+  104be4:	str	r4, [sp, #96]	; 0x60
+  104be8:	b	104724 <s4d_longrun_selfcheck.isra.0+0x354>
+  104bec:	movw	r3, #61824	; 0xf180
+  104bf0:	ldr	r1, [sp, #192]	; 0xc0
+  104bf4:	movt	r3, #36818	; 0x8fd2
+  104bf8:	mov	ip, r0
+  104bfc:	cmp	r4, r3
+  104c00:	movw	r3, #34505	; 0x86c9
+  104c04:	movt	r3, #8
+  104c08:	mov	r8, r1
+  104c0c:	sbcs	r3, r5, r3
+  104c10:	str	r1, [sp, #120]	; 0x78
+  104c14:	movcs	r2, #1
+  104c18:	movcc	r2, #0
+  104c1c:	cmp	fp, #139	; 0x8b
+  104c20:	movls	r2, #0
+  104c24:	andhi	r2, r2, #1
+  104c28:	cmp	r2, #0
+  104c2c:	movne	r2, r1
+  104c30:	moveq	r2, #3
+  104c34:	moveq	r3, r1
+  104c38:	movne	r3, #1
+  104c3c:	str	r2, [sp, #96]	; 0x60
+  104c40:	b	10480c <s4d_longrun_selfcheck.isra.0+0x43c>
+  104c44:	ldr	r2, [sp, #120]	; 0x78
+  104c48:	mov	ip, r0
+  104c4c:	cmn	r2, #1
+  104c50:	streq	r3, [sp, #120]	; 0x78
+  104c54:	bne	104808 <s4d_longrun_selfcheck.isra.0+0x438>
+  104c58:	b	10480c <s4d_longrun_selfcheck.isra.0+0x43c>
+  104c5c:	mov	r3, #3
+  104c60:	mov	ip, r7
+  104c64:	str	r3, [sp, #96]	; 0x60
+  104c68:	b	104808 <s4d_longrun_selfcheck.isra.0+0x438>
+  104c6c:	ldr	r3, [sp, #128]	; 0x80
+  104c70:	cmp	r3, #0
+  104c74:	beq	104ca8 <s4d_longrun_selfcheck.isra.0+0x8d8>
+  104c78:	mov	r6, sl
+  104c7c:	mov	sl, r3
+  104c80:	mov	r3, #0
+  104c84:	movw	r2, #27428	; 0x6b24
+  104c88:	mov	r9, r3
+  104c8c:	str	r3, [sp, #136]	; 0x88
+  104c90:	mvn	r3, #98	; 0x62
+  104c94:	ldr	r8, [sp, #92]	; 0x5c
+  104c98:	ldr	lr, [sp, #212]	; 0xd4
+  104c9c:	movt	r2, #16
+  104ca0:	str	r3, [sp, #96]	; 0x60
+  104ca4:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104ca8:	mov	r1, fp
+  104cac:	mov	r0, #4
+  104cb0:	mov	r6, #0
+  104cb4:	bl	1041c4 <s4d_lr_done>
+  104cb8:	movt	r6, #4528	; 0x11b0
+  104cbc:	orr	r3, r8, #5
+  104cc0:	str	r3, [sp, #160]	; 0xa0
+  104cc4:	mov	r1, #32
+  104cc8:	str	r3, [r6, #4]
+  104ccc:	mov	r0, r6
+  104cd0:	ldr	r3, [sp, #128]	; 0x80
+  104cd4:	str	r3, [r6, #12]
+  104cd8:	str	r3, [sp, #128]	; 0x80
+  104cdc:	str	r3, [r6, #16]
+  104ce0:	bl	1010dc <Xil_DCacheFlushRange>
+  104ce4:	dsb	sy
+  104ce8:	mov	r0, #24832	; 0x6100
+  104cec:	mov	r1, #5120	; 0x1400
+  104cf0:	movt	r0, #4516	; 0x11a4
+  104cf4:	bl	100f1c <Xil_DCacheInvalidateRange>
+  104cf8:	dsb	sy
+  104cfc:	movw	r0, #24192	; 0x5e80
+  104d00:	movw	r1, #20288	; 0x4f40
+  104d04:	movt	r0, #4525	; 0x11ad
+  104d08:	bl	100f1c <Xil_DCacheInvalidateRange>
+  104d0c:	dsb	sy
+  104d10:	orr	r3, r8, #6
+  104d14:	mov	r1, #32
+  104d18:	str	r3, [r6, #4]
+  104d1c:	mov	r0, r6
+  104d20:	ldr	r3, [sp, #128]	; 0x80
+  104d24:	str	r3, [r6, #12]
+  104d28:	str	r3, [sp, #128]	; 0x80
+  104d2c:	str	r3, [r6, #16]
+  104d30:	bl	1010dc <Xil_DCacheFlushRange>
+  104d34:	dsb	sy
+  104d38:	mov	r0, #24832	; 0x6100
+  104d3c:	add	r3, sp, #212	; 0xd4
+  104d40:	add	r1, sp, #296	; 0x128
+  104d44:	mov	r2, fp
+  104d48:	str	r3, [sp]
+  104d4c:	movt	r0, #4516	; 0x11a4
+  104d50:	mov	r3, r1
+  104d54:	mov	r1, fp
+  104d58:	bl	1041e8 <s2a_decode_nms_reference>
+  104d5c:	movw	r3, #49632	; 0xc1e0
+  104d60:	ldr	r2, [sp, #160]	; 0xa0
+  104d64:	movt	r3, #16
+  104d68:	str	r0, [sp, #96]	; 0x60
+  104d6c:	ldr	r1, [r3]
+  104d70:	mov	r0, r6
+  104d74:	str	r1, [sp, #136]	; 0x88
+  104d78:	mov	r1, #32
+  104d7c:	str	r2, [r6, #8]
+  104d80:	bl	1010dc <Xil_DCacheFlushRange>
+  104d84:	dsb	sy
+  104d88:	ldr	r2, [sp, #96]	; 0x60
+  104d8c:	cmp	r2, #0
+  104d90:	beq	104db8 <s4d_longrun_selfcheck.isra.0+0x9e8>
+  104d94:	mov	r6, sl
+  104d98:	ldr	sl, [sp, #128]	; 0x80
+  104d9c:	movw	r2, #27444	; 0x6b34
+  104da0:	ldr	r8, [sp, #92]	; 0x5c
+  104da4:	ldr	lr, [sp, #212]	; 0xd4
+  104da8:	movt	r2, #16
+  104dac:	mov	r9, sl
+  104db0:	ldr	sl, [sp, #208]	; 0xd0
+  104db4:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104db8:	ldr	r6, [sp, #212]	; 0xd4
+  104dbc:	cmp	r6, #1
+  104dc0:	beq	104de4 <s4d_longrun_selfcheck.isra.0+0xa14>
+  104dc4:	movw	r2, #27464	; 0x6b48
+  104dc8:	mov	lr, r6
+  104dcc:	ldr	r8, [sp, #92]	; 0x5c
+  104dd0:	mov	r6, sl
+  104dd4:	ldr	r9, [sp, #96]	; 0x60
+  104dd8:	movt	r2, #16
+  104ddc:	ldr	sl, [sp, #208]	; 0xd0
+  104de0:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104de4:	ldr	r3, [sp, #136]	; 0x88
+  104de8:	cmp	r3, #2
+  104dec:	beq	104e10 <s4d_longrun_selfcheck.isra.0+0xa40>
+  104df0:	movw	r2, #27416	; 0x6b18
+  104df4:	mov	lr, r6
+  104df8:	ldr	r8, [sp, #92]	; 0x5c
+  104dfc:	mov	r6, sl
+  104e00:	ldr	r9, [sp, #96]	; 0x60
+  104e04:	movt	r2, #16
+  104e08:	ldr	sl, [sp, #208]	; 0xd0
+  104e0c:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104e10:	mov	r1, fp
+  104e14:	mov	r0, #6
+  104e18:	bl	1041c4 <s4d_lr_done>
+  104e1c:	vldr	d16, [sp, #304]	; 0x130
+  104e20:	ldr	r3, [sp, #112]	; 0x70
+  104e24:	ldr	r2, [sp, #296]	; 0x128
+  104e28:	vstr	d16, [sp, #112]	; 0x70
+  104e2c:	cmp	r3, #0
+  104e30:	ldr	r3, [sp, #300]	; 0x12c
+  104e34:	vldr	d16, [sp, #312]	; 0x138
+  104e38:	vstr	d16, [sp, #128]	; 0x80
+  104e3c:	vldr	d16, [sp, #320]	; 0x140
+  104e40:	vstr	d16, [sp, #160]	; 0xa0
+  104e44:	vldr	d16, [sp, #328]	; 0x148
+  104e48:	vstr	d16, [sp, #168]	; 0xa8
+  104e4c:	vldr	d16, [sp, #336]	; 0x150
+  104e50:	vstr	d16, [sp, #176]	; 0xb0
+  104e54:	beq	104e84 <s4d_longrun_selfcheck.isra.0+0xab4>
+  104e58:	ldr	ip, [sp, #248]	; 0xf8
+  104e5c:	cmp	r2, ip
+  104e60:	beq	104fa8 <s4d_longrun_selfcheck.isra.0+0xbd8>
+  104e64:	movw	r2, #27404	; 0x6b0c
+  104e68:	mov	lr, r6
+  104e6c:	ldr	r8, [sp, #92]	; 0x5c
+  104e70:	mov	r6, sl
+  104e74:	ldr	r9, [sp, #96]	; 0x60
+  104e78:	movt	r2, #16
+  104e7c:	ldr	sl, [sp, #208]	; 0xd0
+  104e80:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104e84:	vldr	d16, [sp, #112]	; 0x70
+  104e88:	ldrd	r0, [sp, #112]	; 0x70
+  104e8c:	strd	r2, [sp, #248]	; 0xf8
+  104e90:	vstr	d16, [sp, #256]	; 0x100
+  104e94:	str	r0, [sp, #4]
+  104e98:	vldr	d16, [sp, #128]	; 0x80
+  104e9c:	ldr	r0, [sp, #132]	; 0x84
+  104ea0:	str	r1, [sp]
+  104ea4:	ldr	r1, [sp, #128]	; 0x80
+  104ea8:	vstr	d16, [sp, #264]	; 0x108
+  104eac:	vldr	d16, [sp, #160]	; 0xa0
+  104eb0:	strd	r0, [sp, #8]
+  104eb4:	ldr	r1, [sp, #160]	; 0xa0
+  104eb8:	ldr	r0, [sp, #164]	; 0xa4
+  104ebc:	vstr	d16, [sp, #272]	; 0x110
+  104ec0:	vldr	d16, [sp, #168]	; 0xa8
+  104ec4:	strd	r0, [sp, #16]
+  104ec8:	ldr	r1, [sp, #168]	; 0xa8
+  104ecc:	ldr	r0, [sp, #172]	; 0xac
+  104ed0:	vstr	d16, [sp, #280]	; 0x118
+  104ed4:	vldr	d16, [sp, #176]	; 0xb0
+  104ed8:	strd	r0, [sp, #24]
+  104edc:	ldrd	r0, [sp, #176]	; 0xb0
+  104ee0:	vstr	d16, [sp, #288]	; 0x120
+  104ee4:	str	r0, [sp, #36]	; 0x24
+  104ee8:	movw	r0, #27796	; 0x6c94
+  104eec:	str	r1, [sp, #32]
+  104ef0:	movt	r0, #16
+  104ef4:	mov	r1, fp
+  104ef8:	bl	100dd4 <xil_printf>
+  104efc:	mov	r0, #0
+  104f00:	orr	r3, r8, #7
+  104f04:	movt	r0, #4528	; 0x11b0
+  104f08:	mov	r1, #32
+  104f0c:	str	r3, [r0, #4]
+  104f10:	mov	r3, #8
+  104f14:	movt	r3, #17344	; 0x43c0
+  104f18:	str	r3, [r0, #12]
+  104f1c:	mov	r3, #4
+  104f20:	str	r3, [r0, #16]
+  104f24:	bl	1010dc <Xil_DCacheFlushRange>
+  104f28:	dsb	sy
+  104f2c:	mov	r3, #0
+  104f30:	mov	r2, #8
+  104f34:	movt	r3, #17344	; 0x43c0
+  104f38:	ldr	r1, [r3, #84]	; 0x54
+  104f3c:	ldr	ip, [r3, #80]	; 0x50
+  104f40:	ldr	r0, [r3, #84]	; 0x54
+  104f44:	cmp	r1, r0
+  104f48:	beq	104f74 <s4d_longrun_selfcheck.isra.0+0xba4>
+  104f4c:	subs	r2, r2, #1
+  104f50:	bne	104f38 <s4d_longrun_selfcheck.isra.0+0xb68>
+  104f54:	mov	r9, r2
+  104f58:	movw	r2, #27388	; 0x6afc
+  104f5c:	mov	r6, sl
+  104f60:	ldr	r8, [sp, #92]	; 0x5c
+  104f64:	ldr	lr, [sp, #212]	; 0xd4
+  104f68:	movt	r2, #16
+  104f6c:	ldr	sl, [sp, #208]	; 0xd0
+  104f70:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104f74:	adds	r5, r5, #1
+  104f78:	adc	r4, r4, #0
+  104f7c:	cmp	r4, r1
+  104f80:	cmpeq	r5, ip
+  104f84:	beq	104fd4 <s4d_longrun_selfcheck.isra.0+0xc04>
+  104f88:	movw	r2, #27388	; 0x6afc
+  104f8c:	mov	r6, sl
+  104f90:	ldr	r8, [sp, #92]	; 0x5c
+  104f94:	movt	r2, #16
+  104f98:	ldr	lr, [sp, #212]	; 0xd4
+  104f9c:	mov	r9, #0
+  104fa0:	ldr	sl, [sp, #208]	; 0xd0
+  104fa4:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104fa8:	ldr	r2, [sp, #252]	; 0xfc
+  104fac:	cmp	r2, r3
+  104fb0:	beq	105118 <s4d_longrun_selfcheck.isra.0+0xd48>
+  104fb4:	movw	r2, #27404	; 0x6b0c
+  104fb8:	mov	lr, r6
+  104fbc:	ldr	r8, [sp, #92]	; 0x5c
+  104fc0:	mov	r6, sl
+  104fc4:	movt	r2, #16
+  104fc8:	ldr	sl, [sp, #208]	; 0xd0
+  104fcc:	mov	r9, #0
+  104fd0:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  104fd4:	ldr	r2, [r3, #20]
+  104fd8:	cmp	r2, fp
+  104fdc:	bne	104f88 <s4d_longrun_selfcheck.isra.0+0xbb8>
+  104fe0:	str	r5, [r3, #92]	; 0x5c
+  104fe4:	dsb	sy
+  104fe8:	str	r4, [r3, #96]	; 0x60
+  104fec:	dsb	sy
+  104ff0:	mov	r2, #4
+  104ff4:	str	r2, [r3, #8]
+  104ff8:	dsb	sy
+  104ffc:	ldr	r3, [r3, #12]
+  105000:	movw	r2, #16135	; 0x3f07
+  105004:	and	r3, r3, r2
+  105008:	cmp	r3, #1024	; 0x400
+  10500c:	bne	104f88 <s4d_longrun_selfcheck.isra.0+0xbb8>
+  105010:	mov	r1, fp
+  105014:	mov	r0, #7
+  105018:	bl	1041c4 <s4d_lr_done>
+  10501c:	ldr	r3, [sp, #124]	; 0x7c
+  105020:	ldr	r2, [sp, #100]	; 0x64
+  105024:	ldr	r1, [sp, #108]	; 0x6c
+  105028:	cmp	r3, r7
+  10502c:	movcc	r3, r7
+  105030:	str	r3, [sp, #124]	; 0x7c
+  105034:	ldr	r3, [sp, #120]	; 0x78
+  105038:	cmp	r3, r7
+  10503c:	movcs	r3, r7
+  105040:	str	r3, [sp, #120]	; 0x78
+  105044:	orrs	r3, r2, r1
+  105048:	ldr	r3, [sp, #140]	; 0x8c
+  10504c:	add	r3, r3, r7
+  105050:	str	r3, [sp, #140]	; 0x8c
+  105054:	movne	r3, #1
+  105058:	moveq	r3, #0
+  10505c:	cmp	r2, r5
+  105060:	sbcs	r2, r1, r4
+  105064:	movcc	r3, #0
+  105068:	andcs	r3, r3, #1
+  10506c:	cmp	r3, #0
+  105070:	bne	1050d0 <s4d_longrun_selfcheck.isra.0+0xd00>
+  105074:	ldr	r3, [sp, #144]	; 0x90
+  105078:	movw	r0, #28072	; 0x6da8
+  10507c:	ldr	r2, [sp, #188]	; 0xbc
+  105080:	movt	r0, #16
+  105084:	ldr	r1, [sp, #204]	; 0xcc
+  105088:	str	r4, [sp, #4]
+  10508c:	orrs	r3, r3, r2
+  105090:	str	r5, [sp]
+  105094:	str	r1, [sp, #8]
+  105098:	mov	r2, r7
+  10509c:	mov	r1, fp
+  1050a0:	ldr	r3, [sp, #104]	; 0x68
+  1050a4:	add	fp, fp, #1
+  1050a8:	streq	r5, [sp, #144]	; 0x90
+  1050ac:	streq	r4, [sp, #188]	; 0xbc
+  1050b0:	bl	100dd4 <xil_printf>
+  1050b4:	cmp	fp, #161	; 0xa1
+  1050b8:	beq	105194 <s4d_longrun_selfcheck.isra.0+0xdc4>
+  1050bc:	mov	r3, #1
+  1050c0:	str	r5, [sp, #100]	; 0x64
+  1050c4:	str	r4, [sp, #108]	; 0x6c
+  1050c8:	str	r3, [sp, #112]	; 0x70
+  1050cc:	b	104598 <s4d_longrun_selfcheck.isra.0+0x1c8>
+  1050d0:	ldr	r3, [sp, #144]	; 0x90
+  1050d4:	mov	r6, sl
+  1050d8:	ldr	r2, [sp, #188]	; 0xbc
+  1050dc:	ldr	r8, [sp, #92]	; 0x5c
+  1050e0:	ldr	lr, [sp, #212]	; 0xd4
+  1050e4:	orrs	r3, r3, r2
+  1050e8:	beq	105100 <s4d_longrun_selfcheck.isra.0+0xd30>
+  1050ec:	movw	r2, #27368	; 0x6ae8
+  1050f0:	ldr	sl, [sp, #208]	; 0xd0
+  1050f4:	movt	r2, #16
+  1050f8:	str	r5, [sp, #100]	; 0x64
+  1050fc:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  105100:	movw	r2, #27368	; 0x6ae8
+  105104:	ldr	sl, [sp, #208]	; 0xd0
+  105108:	movt	r2, #16
+  10510c:	str	r5, [sp, #100]	; 0x64
+  105110:	str	r5, [sp, #144]	; 0x90
+  105114:	b	1046d8 <s4d_longrun_selfcheck.isra.0+0x308>
+  105118:	ldr	r2, [sp, #256]	; 0x100
+  10511c:	ldr	r3, [sp, #260]	; 0x104
+  105120:	ldrd	r0, [sp, #112]	; 0x70
+  105124:	cmp	r3, r1
+  105128:	cmpeq	r2, r0
+  10512c:	bne	104fb4 <s4d_longrun_selfcheck.isra.0+0xbe4>
+  105130:	ldr	r2, [sp, #264]	; 0x108
+  105134:	ldr	r3, [sp, #268]	; 0x10c
+  105138:	ldrd	r0, [sp, #128]	; 0x80
+  10513c:	cmp	r3, r1
+  105140:	cmpeq	r2, r0
+  105144:	bne	104fb4 <s4d_longrun_selfcheck.isra.0+0xbe4>
+  105148:	ldr	r2, [sp, #272]	; 0x110
+  10514c:	ldr	r3, [sp, #276]	; 0x114
+  105150:	ldrd	r0, [sp, #160]	; 0xa0
+  105154:	cmp	r3, r1
+  105158:	cmpeq	r2, r0
+  10515c:	bne	104fb4 <s4d_longrun_selfcheck.isra.0+0xbe4>
+  105160:	ldr	r2, [sp, #280]	; 0x118
+  105164:	ldr	r3, [sp, #284]	; 0x11c
+  105168:	ldrd	r0, [sp, #168]	; 0xa8
+  10516c:	cmp	r3, r1
+  105170:	cmpeq	r2, r0
+  105174:	bne	104fb4 <s4d_longrun_selfcheck.isra.0+0xbe4>
+  105178:	ldr	r2, [sp, #288]	; 0x120
+  10517c:	ldr	r3, [sp, #292]	; 0x124
+  105180:	ldrd	r0, [sp, #176]	; 0xb0
+  105184:	cmp	r3, r1
+  105188:	cmpeq	r2, r0
+  10518c:	bne	104fb4 <s4d_longrun_selfcheck.isra.0+0xbe4>
+  105190:	b	104efc <s4d_longrun_selfcheck.isra.0+0xb2c>
+  105194:	ldr	r8, [sp, #92]	; 0x5c
+  105198:	mov	r6, sl
+  10519c:	str	r5, [sp, #100]	; 0x64
+  1051a0:	b	104724 <s4d_longrun_selfcheck.isra.0+0x354>
+  1051a4:	movw	r0, #27736	; 0x6c58
+  1051a8:	ldr	r1, [r2, #12]
+  1051ac:	movt	r0, #16
+  1051b0:	bl	100dd4 <xil_printf>
+  1051b4:	b	1048b8 <s4d_longrun_selfcheck.isra.0+0x4e8>
+  1051b8:	movw	r0, #27676	; 0x6c1c
+  1051bc:	mov	r1, r8
+  1051c0:	movt	r0, #16
+  1051c4:	bl	100dd4 <xil_printf>
+  1051c8:	b	1048b8 <s4d_longrun_selfcheck.isra.0+0x4e8>

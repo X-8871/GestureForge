@@ -1,0 +1,67 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "longrun_instr_v2_20261028_r01",
+  "artifact": "仪表化 v2：异常链可达性证据（nm/objdump），针对 longrun 实际可执行路径",
+  "elf": {
+    "path": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunK/s4d_ps_app_sw0_longrunK.elf",
+    "sha256": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+    "size": 278332
+  },
+  "map_sha256": "27a0f3306df4211c227283a224b73de2e64eac1cd35263313331d5628e12ee13",
+  "source": {
+    "path": "vitis/stage4/ps/s4d_ps_app.c",
+    "sha256_worktree_disk": "61bd848a497e0955df7d09d27d4cb4c234818521f9c9b1eeab3efc54ebd6b26a"
+  },
+  "nm": {
+    "handler": {
+      "addr": "0010418c",
+      "type": "t"
+    },
+    "handler_retained": true,
+    "longrun": {
+      "name": "s4d_longrun_selfcheck.isra.0",
+      "addr": "001043d0",
+      "type": "t"
+    },
+    "longrun_emitted": true,
+    "vector_table": {
+      "addr": "00100000",
+      "type": "T"
+    },
+    "vector_table_present": true,
+    "xil_exception_init": {
+      "addr": "00100e10",
+      "type": "T"
+    },
+    "xil_exception_register": {
+      "addr": "00100e14",
+      "type": "T"
+    }
+  },
+  "objdump": {
+    "longrun_block_sha256": "3c2149cab924960db3463eca2ac6b60bf9935414f43c2b4811597928bb478f65",
+    "longrun_calls_Xil_ExceptionInit": true,
+    "longrun_calls_Xil_ExceptionRegisterHandler": true,
+    "longrun_refs_handler": false,
+    "handler_block_has_mrc": true,
+    "handler_block_sha256": "78c5ac1e5ea308356ceab5d8968ad6e9b8e07d3d970de52c52ec822ec3d6ba67"
+  },
+  "call_sites": {
+    "Xil_ExceptionRegisterHandler": [
+      {
+        "enclosing": "s4d_longrun_selfcheck.isra.0"
+      }
+    ],
+    "Xil_ExceptionInit": [
+      {
+        "enclosing": "s4d_longrun_selfcheck.isra.0"
+      }
+    ]
+  },
+  "verdict_inputs": {
+    "handler_retained": true,
+    "registration_in_longrun": true,
+    "vbar_table_present": true
+  },
+  "verdict": "PASS"
+}

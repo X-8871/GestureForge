@@ -1,0 +1,14 @@
+  10418c:	push	{r4, lr}
+  104190:	mrc	15, 0, r1, cr5, cr0, {0}
+  104194:	mrc	15, 0, r2, cr6, cr0, {0}
+  104198:	mov	r0, #0
+  10419c:	movw	r3, #46859	; 0xb70b
+  1041a0:	movt	r0, #4528	; 0x11b0
+  1041a4:	movt	r3, #43786	; 0xab0a
+  1041a8:	str	r1, [r0, #20]
+  1041ac:	mov	r1, #32
+  1041b0:	str	r2, [r0, #24]
+  1041b4:	str	r3, [r0, #28]
+  1041b8:	bl	1010dc <Xil_DCacheFlushRange>
+  1041bc:	dsb	sy
+  1041c0:	b	1041c0 <s4d_lr_data_abort_handler+0x34>

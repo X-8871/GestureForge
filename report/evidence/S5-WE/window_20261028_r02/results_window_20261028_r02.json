@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "artifact": "s5_we_board_window_results",
+  "run_id": "window_20261028_r02",
+  "window_open_utc8": "2026-10-28 11:06:35",
+  "deployment_identity": {
+    "elf": {
+      "path": "report/evidence/S5-WE/rebuild_20261028_r01/s5_overlay_we_rebuild_r01.elf",
+      "sha256": "6a521a60f9245976409a3f18c31d2eb522c94dd30dc3d842fe9cb48e026ecc1b",
+      "match": true
+    },
+    "xsa": {
+      "path": "report/evidence/S5-WE/prep_20261028_r01/design_1_wrapper.xsa",
+      "sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+      "match": true
+    },
+    "bit_from_xsa": {
+      "path": "tmp/5/S5-WE/window_20261028_r02/design_1_wrapper.bit",
+      "sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+      "match": true,
+      "bytes": 1572373
+    },
+    "ps7_init_tcl": {
+      "path": "report/evidence/S5-WE/prep_20261028_r01/ps7_init.tcl",
+      "sha256": "4fc101938cf5aae4ea646e219e9e55c4ebcb837f35f40b3e922f3a1e2e5e6faa",
+      "match": true
+    }
+  },
+  "loaded": {
+    "bit": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "elf": "6a521a60f9245976409a3f18c31d2eb522c94dd30dc3d842fe9cb48e026ecc1b",
+    "method": "既有流程 scripts/stage5_t01/jtag_download_port.tcl（PS_RESET→FPGA_PROGRAM→PS7_INIT→DOW→RUN；仅易失）"
+  },
+  "items": {
+    "B1": {
+      "verdict": "PASS",
+      "basis": "四项身份 SHA 全等（ELF/XSA/XSA 内 bit/ps7_init.tcl）+ 设备 xc7z020/DAP 4ba00477 + 装载后 A9 #0/#1 Running",
+      "evidence": [
+        "console/00_prewindow_identity.txt",
+        "console/03_download.txt",
+        "console/04_readback.txt"
+      ]
+    },
+    "B2": {
+      "verdict": "NOT_RUN",
+      "basis": "Wong 未确认在场；真彩目视不得用截图替代（窗口计划 §3）"
+    },
+    "B3": {
+      "verdict": "BLOCKED_BY_DEPLOYMENT",
+      "basis": "无真实摄像头→PL→结果显示链；离线 240 帧不能替代板上五元组"
+    },
+    "B4": {
+      "verdict": "BLOCKED_BY_DEPLOYMENT",
+      "basis": "显示叠加部署（真实链）未就绪"
+    },
+    "B5": {
+      "verdict": "BLOCKED_BY_DEPLOYMENT",
+      "basis": "无真实结果发布节奏，无法验证过期边界"
+    },
+    "B6": {
+      "verdict": "BLOCKED_BY_DEPLOYMENT",
+      "basis": "无真实链，30 分钟长跑不成立"
+    },
+    "B7": {
+      "verdict": "NOT_RUN",
+      "basis": "HUD 屏上视觉需 Wong 在场"
+    },
+    "B8": {
+      "verdict": "BLOCKED_BY_DEPLOYMENT",
+      "basis": "异常注入（断流/超时）需真实链"
+    },
+    "B9": {
+      "verdict": "PASS",
+      "basis": "disconnect→reconnect 后目标树 16 个、A9 #0 Running（console/05_b9_reconnect.txt，exit 0）"
+    },
+    "B10": {
+      "verdict": "BLOCKED_BY_DEPLOYMENT",
+      "basis": "采集 FPS/端到端延迟需真实链与时钟口径"
+    }
+  },
+  "safety": {
+    "qspi_written": false,
+    "candidate_region_written": false,
+    "candidate_region": "[0x12000000,0x12C08000)",
+    "elf_load_range": "[0x100000, 0x130ad40)",
+    "candidate_overlap": false,
+    "wires_or_enable_changed": false
+  },
+  "not_claimed": [
+    "G5",
+    "B1–B10 全部完成",
+    "任何板级/实时/实物结论超出上表逐项判定"
+  ]
+}

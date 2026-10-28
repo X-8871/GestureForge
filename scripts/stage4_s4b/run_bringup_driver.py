@@ -1,4 +1,33 @@
-"""阶段4 4-D bring-up 执行驱动 v3.1（S4-T34，离线就绪版；S1 候选区口径 + 快照恢复）。
+"""阶段4 4-D bring-up 执行驱动 v3.2（S4-T34；S1 候选区口径 + 快照恢复 + PS-PL 电平转换器使能）。
+
+v3.2 变更（2026-10-28，窗口 #2 根因修复）：
+  1. **修复 NameError**：`load_elf_ddr()` 引用模块级 `INIT_ELF`，v3.1 从未赋值 ⇒ 装载阶段必抛
+     `NameError`；v3.2 定义 `INIT_ELF`（registry 内 verified_payload/init.elf）并新增自检
+     `init_elf_constant_defined` 与**真实执行 `load_elf_ddr()` 路径**的 mock 自检。
+  2. **PS-PL 电平转换器使能**（窗口 #2 证据：`mrd 0x43C00000` 先报 `Bitstream is not programmed`，
+     装 PL 后报 `Level shifters are not enabled` ⇒ PS 访问 PL AXI-Lite 被拒，M4-b 卡在 `M4B STEP=1`）：
+     新增 `enable_ps_pl_level_shifters()`（SLCR 解锁→写 LVL_SHFTR_EN→加锁→**读回断言**）与
+     `stage_pspl_setup_and_load()`（复位→0xA→装 PL→0xF+读回→装 init/app），并在每次 ELF 装载后
+     **内联重断言 0xF 且读回校验**；`_PL_STATE["programmed"]` 为真时装载改用 `rst -processor -stop`，
+     避免 `rst -system -stop` 清空 PL（v3.1 的三个装载点都会清 PL）。
+     **UG585 v1.2（厂商 TRM，`ug585-Zynq-7000-TRM.pdf`）依据**：
+       * §2.4.8 PS–PL Voltage Level Shifter Enables（文档页 46）："If the PL is being configured, the
+         level shifters should be set to 0xA … Once the PL is fully configured, the level shifter
+         enables should be set to 0xF."
+       * §2.5 注（文档页 46）／§5 Interconnect（文档页 106/112/113）："The PL level shifters must be
+         enabled via LVL_SHFTR_EN before PL logic communication can occur."
+       * §6 Boot and Configuration，PL Reconfiguration flow（文档页 150）：步骤 2 写 0xA 关闭、
+         步骤 10 写 0xF 使能。
+       * Appendix B.28 System Level Control Registers (slcr)：SLCR 基址 0xF8000000；
+         **SLCR_UNLOCK** abs `0xF8000008`（`UNLOCK_KEY[15:0]=0xDF0D` 解除写保护，文档页 1411）；
+         **SLCR_LOCK** abs `0xF8000004`（`LOCK_KEY[15:0]=0x767B` 重新加锁，文档页 1411）；
+         **LVL_SHFTR_EN** abs `0xF8000900`，rw，reset `0x00000000`，bit3 `USER_LVL_INP_EN_0`、
+         bit2 `USER_LVL_OUT_EN_0`、bit1 `USER_LVL_INP_EN_1`、bit0 `USER_LVL_OUT_EN_1`，
+         bit4 reserved“Do not modify”、31:5 reserved（文档页 1522）。
+       * 注：**重新加锁是写 `0x767B` 到 `0xF8000004`**，不是写 0 到 `0xF8000008`。
+  3. 自检新增：`init_elf_constant_defined`、`load_elf_ddr_*`（mock 硬件真实跑装载路径）、
+     `lvl_shifter_tcl_exact`、`lvl_shifter_readback_0xF_pass`、`lvl_shifter_readback_0xA_must_fail`、
+     `pspl_stage_wires_lvl_shifter`。
 
 与 v2 的差别：
   1. 分段固定顺序：**S1 bisect → S2 DDR 位测试 → 装载 PS 应用 → M4-b → M4-a → M3 复检 →（可选 chain-lite）→ 收尾**；
@@ -30,6 +59,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import struct
 import subprocess
 import sys
@@ -51,6 +81,19 @@ BIT_REGISTERED_PREFIX = "555a70c2"
 APP_SW_SHA = "4fc095ae6283a893960d77d607c8e0471b5787e639e6f072383fb41f34c0aaba"
 APP_SW_PREFIX = "4fc095ae"
 APP_SW_SHA_R1 = "1224f04891bfc9229d361a55d73932a4200eafc33918d859d418a0b5f32f8b34"
+
+# ---- v3.2：init.elf（v3.1 缺失导致 load_elf_ddr NameError）----
+INIT_ELF = W / "report/evidence/S4-B/s4b_ps_tensor_20261023_r13/verified_payload/init.elf"
+
+# ---- v3.2：PS-PL 电平转换器（UG585 v1.2 Appendix B.28；见模块 docstring 的章节/位定义引用）----
+SLCR_UNLOCK_ADDR = 0xF8000008   # SLCR_UNLOCK：UNLOCK_KEY[15:0]=0xDF0D 解除写保护（文档页 1411）
+SLCR_LOCK_ADDR = 0xF8000004     # SLCR_LOCK：LOCK_KEY[15:0]=0x767B 重新加锁（文档页 1411）
+LVL_SHFTR_EN_ADDR = 0xF8000900  # LVL_SHFTR_EN：bits[3:0]=INP/OUT_EN_0/1；bit4 保留勿改（文档页 1522）
+SLCR_UNLOCK_KEY = 0xDF0D
+SLCR_LOCK_KEY = 0x767B
+LVL_SHFTR_CFG = 0xA             # §2.4.8：PL 配置期间（关输入、防毛刺）
+LVL_SHFTR_ON = 0xF              # §2.4.8/§6：PL 配置完成后使能全部
+_PL_STATE = {"programmed": False, "lvl_readback": None}
 
 # 候选区（S1 dump / 恢复；12,615,680 B）
 CAND_BASE = 0x12000000
@@ -203,6 +246,93 @@ def s2_tcl(action: str, addr: int, nbytes: int, pattern: Path | None = None) -> 
         return (pre + f"mwr -bin -file {Path(pattern).as_posix()} {hex(addr)} {nbytes // 4}; "
                       "puts \"S2_WRITTEN\"; disconnect; exit")
     raise ValueError(f"未知 S2 动作 {action}")
+
+
+# ---------------------------------------------------------------- v3.2 PS-PL 电平转换器
+def parse_mrd_value(raw: str | None) -> int | None:
+    """解析 xsdb `mrd -value` 的读回值（可能是 `0x…`、8 位十六进制、或十进制）。"""
+    s = (raw or "").strip()
+    if not s:
+        return None
+    if s.lower().startswith("0x"):
+        try:
+            return int(s, 16)
+        except ValueError:
+            return None
+    if re.fullmatch(r"[0-9a-fA-F]{8}", s):
+        return int(s, 16)
+    if re.fullmatch(r"[0-9a-fA-F]+", s) and re.search(r"[a-fA-F]", s):
+        return int(s, 16)
+    if re.fullmatch(r"[0-9]+", s):
+        return int(s, 10)
+    return None
+
+
+def lvl_shifter_tcl(value: int, readback_hint: str = "PPL_LVL_RB") -> str:
+    """生成 PS-PL 电平转换器使能 TCL：SLCR 解锁 → 写 LVL_SHFTR_EN → 加锁 → 读回。
+
+    依据 UG585 v1.2（厂商 TRM `ug585-Zynq-7000-TRM.pdf`，均为**原文核对**）：
+      * §2.4.8（文档页 46）：配置期间 0xA / 配置完成后 0xF；
+      * §2.5 注（文档页 46）、§5（文档页 106/112/113）：LVL_SHFTR_EN 必须在 PL 逻辑通信前使能；
+      * §6 PL Reconfiguration flow（文档页 150）：步骤 2 写 0xA、步骤 10 写 0xF；
+      * Appendix B.28（文档页 1411/1522）：SLCR_UNLOCK `0xF8000008`/`0xDF0D`、
+        SLCR_LOCK `0xF8000004`/`0x767B`、LVL_SHFTR_EN `0xF8000900`（bits[3:0]）。
+    **加锁必须写 0x767B 到 0xF8000004**（不是写 0 到 0xF8000008）。
+    """
+    return (
+        f"connect -url {base.HW_URL}; {base.select_core()}"
+        f"mwr {hex(SLCR_UNLOCK_ADDR)} {hex(SLCR_UNLOCK_KEY)}; "
+        f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
+        f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
+        f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
+        f"puts \"{readback_hint}=$_rb\"; "
+        f"disconnect; exit"
+    )
+
+
+def lvl_shifter_inline_assert(value: int = LVL_SHFTR_ON, hint: str = "PPL_LVL_RB") -> str:
+    """装载/启动前的**内联**断言片段（不含 connect/disconnect）；读回不符即 error 终止。"""
+    return (
+        f"mwr {hex(SLCR_UNLOCK_ADDR)} {hex(SLCR_UNLOCK_KEY)}; "
+        f"mwr {hex(LVL_SHFTR_EN_ADDR)} {hex(value)}; "
+        f"mwr {hex(SLCR_LOCK_ADDR)} {hex(SLCR_LOCK_KEY)}; "
+        f"set _rb [mrd -value {hex(LVL_SHFTR_EN_ADDR)}]; "
+        f"puts \"{hint}=$_rb\"; "
+        f"if {{[expr {{$_rb & 0xF}}] != {value}}} "
+        f"{{ error \"PS-PL level shifters readback != {hex(value)}\" }}; "
+    )
+
+
+def _read_step_log(tag: str) -> str:
+    """读 `<tag>.log`：优先驱动 RUN_DIR，其次 base.RUN_DIR（base.xsdb 的落盘位置）。"""
+    for root in (RUN_DIR, getattr(base, "RUN_DIR", None)):
+        if not root:
+            continue
+        p = Path(root) / f"{tag}.log"
+        if p.is_file():
+            return p.read_text(encoding="utf-8", errors="replace")
+    return ""
+
+
+def enable_ps_pl_level_shifters(value: int = LVL_SHFTR_ON, tag: str = "PPL_lvl_shifter") -> dict:
+    """写 LVL_SHFTR_EN 并**读回断言**：读回必须等于写入值，否则 FAIL（不得继续）。"""
+    code = base.xsdb(lvl_shifter_tcl(value), tag)
+    txt = _read_step_log(tag)
+    m = re.search(r"PPL_LVL_RB=([^\r\n]+)", txt)
+    raw = m.group(1).strip() if m else None
+    readback = parse_mrd_value(raw)
+    ok = (code == 0 and readback == value)
+    res = {"status": "PASS" if ok else "FAIL", "exit_code": 0 if ok else 1,
+           "write_value": hex(value), "readback_raw": raw,
+           "readback": hex(readback) if readback is not None else None,
+           "xsdb_exit": code,
+           "ug585_ref": ("v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、"
+                         "Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；"
+                         "LVL_SHFTR_EN 0xF8000900 bits[3:0]）"),
+           "note": "读回必须等于写入值；不符即 FAIL，不继续（避免把不可访问当成可用）"}
+    if ok:
+        _PL_STATE["lvl_readback"] = readback
+    return res
 
 
 def no_hardcoded_status(source: str) -> tuple[bool, dict]:
@@ -371,6 +501,82 @@ def offline_selftest() -> int:
     checks.append({"name": "ps_result_parse", "ok": parsed["box_count"] == 1 and parsed["raw_candidate_count"] == 2,
                    "detail": parsed})
 
+    # ---- v3.2 新增：INIT_ELF 缺陷回归 + load_elf_ddr 真实执行路径（mock 硬件）+ PS-PL 电平转换器 ----
+    checks.append({"name": "init_elf_constant_defined",
+                   "ok": isinstance(INIT_ELF, Path) and INIT_ELF.is_file(),
+                   "detail": {"path": str(INIT_ELF), "exists": INIT_ELF.is_file()}})
+    tcl_lvl = lvl_shifter_tcl(LVL_SHFTR_ON)
+    need = ("mwr 0xf8000008 0xdf0d", "mwr 0xf8000900 0xf", "mwr 0xf8000004 0x767b", "ppl_lvl_rb")
+    checks.append({"name": "lvl_shifter_tcl_exact",
+                   "ok": all(k in tcl_lvl.lower() for k in need),
+                   "detail": {"missing": [k for k in need if k not in tcl_lvl.lower()], "tcl": tcl_lvl[:260]}})
+    checks.append({"name": "lvl_shifter_lock_key_is_0x767b_not_zero",
+                   "ok": "mwr 0xf8000004 0x767b" in tcl_lvl.lower() and "mwr 0xf8000008 0x0;" not in tcl_lvl.lower(),
+                   "detail": "UG585 B.28：加锁是写 0x767B 到 0xF8000004（不是写 0 到 0xF8000008）"})
+    checks.append({"name": "lvl_shifter_inline_assert_readback",
+                   "ok": "mrd -value 0xf8000900" in lvl_shifter_inline_assert().lower()
+                         and "error" in lvl_shifter_inline_assert().lower(),
+                   "detail": "装载期内联断言必须读回并在不符时 error"})
+    _orig_xsdb = base.xsdb
+    _orig_ensure_uart = globals().get("ensure_uart")
+    _captured: dict = {}
+    try:
+        def _fake_xsdb(eval_text, step, timeout=600):
+            _captured[step] = eval_text
+            return 0
+
+        base.xsdb = _fake_xsdb
+        globals()["ensure_uart"] = lambda: None
+        # (a) PL 未装载：必须用 rst -system -stop，且含 init.elf 路径与装载期 0xF 断言
+        _PL_STATE["programmed"] = False
+        code_a = load_elf_ddr(INIT_ELF, "SELFTEST_load_unprogrammed")
+        tcl_a = _captured.get("SELFTEST_load_unprogrammed", "")
+        checks.append({"name": "load_elf_ddr_runs_no_nameerror(system_reset)",
+                       "ok": code_a == 0 and "rst -system -stop" in tcl_a
+                             and INIT_ELF.as_posix() in tcl_a and "0xf8000900" in tcl_a.lower(),
+                       "detail": {"exit": code_a, "has_system_reset": "rst -system -stop" in tcl_a,
+                                  "has_init_elf": INIT_ELF.as_posix() in tcl_a,
+                                  "has_lvl_assert": "0xf8000900" in tcl_a.lower()}})
+        # (b) PL 已装载：必须改用 rst -processor -stop，且**不得**出现 rst -system（否则清 PL）
+        _PL_STATE["programmed"] = True
+        code_b = load_elf_ddr(Path("SELFTEST_app.elf"), "SELFTEST_load_programmed")
+        tcl_b = _captured.get("SELFTEST_load_programmed", "")
+        checks.append({"name": "load_elf_ddr_preserves_pl(rst -processor)",
+                       "ok": code_b == 0 and "rst -processor -stop" in tcl_b
+                             and "rst -system -stop" not in tcl_b,
+                       "detail": {"exit": code_b, "processor_reset": "rst -processor -stop" in tcl_b,
+                                  "no_system_reset": "rst -system -stop" not in tcl_b}})
+
+        # (c) 读回 0xF → PASS；(d) 读回 0xA → 必须 FAIL（判别力两侧）
+        def _fake_xsdb_rb(value_hex: str):
+            def _f(eval_text, step, timeout=600):
+                RUN_DIR.mkdir(parents=True, exist_ok=True)
+                (RUN_DIR / f"{step}.log").write_text(
+                    f"$ fake\nexit=0\nPPL_LVL_RB={value_hex}\n", encoding="utf-8")
+                return 0
+            return _f
+
+        base.xsdb = _fake_xsdb_rb("0x0000000F")
+        r_on = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "SELFTEST_lvl_pass")
+        checks.append({"name": "lvl_shifter_readback_0xF_pass", "ok": r_on["status"] == "PASS",
+                       "detail": r_on})
+        base.xsdb = _fake_xsdb_rb("0x0000000A")
+        r_bad = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "SELFTEST_lvl_fail")
+        checks.append({"name": "lvl_shifter_readback_0xA_must_fail", "ok": r_bad["status"] == "FAIL",
+                       "detail": r_bad})
+    finally:
+        base.xsdb = _orig_xsdb
+        if _orig_ensure_uart is not None:
+            globals()["ensure_uart"] = _orig_ensure_uart
+        _PL_STATE["programmed"] = False
+        _PL_STATE["lvl_readback"] = None
+    src_v32 = Path(__file__).read_text(encoding="utf-8")
+    checks.append({"name": "pspl_stage_wires_lvl_shifter",
+                   "ok": "def stage_pspl_setup_and_load" in src_v32
+                         and "stage_pspl_setup_and_load(args)" in src_v32
+                         and "LVL_SHFTR_EN_ADDR = 0xF8000900" in src_v32,
+                   "detail": "装载段必须调用新 stage 且 SLCR 地址常量为 0xF8000900"})
+
     fails = [c for c in checks if not c["ok"]]
     payload = {"task_id": "S4-T34", "run_id": RUN_DIR.name, "generated_utc8": now_cn(),
                "checks": checks, "fail": [c["name"] for c in fails],
@@ -473,12 +679,20 @@ def uart_open_preopened():
 
 
 def load_elf_ddr(elf, tag, hold_reset=True):
-    """先跑 init.elf 的 ps7_init 恢复 DDR，再 dow 目标 ELF；dow 后不再 rst（会把入口重置掉）。"""
+    """先跑 init.elf 的 ps7_init 恢复 DDR，再 dow 目标 ELF；dow 后不再 rst（会把入口重置掉）。
+
+    v3.2：`_PL_STATE["programmed"]` 为真时改用 `rst -processor -stop`——**不再 `rst -system -stop`**，
+    因为系统复位会清空 PL 配置（窗口 #2 证据：复位后 `mrd 0x43C00000` 报 `Bitstream is not programmed`）；
+    并在 `dow` 应用之后、`con` 之前**重新写 0xF 并读回断言**（ps7_init 可能改写 SLCR；UG585 §2.4.8）。
+    """
     ensure_uart()
+    reset = "rst -processor -stop; " if _PL_STATE["programmed"] else "rst -system -stop; "
     cmds = (
         "connect -url %s; %s" % (base.HW_URL, base.select_core())
-        + "rst -system -stop; dow %s; con; after 2500; " % INIT_ELF.as_posix()
+        + reset
+        + "dow %s; con; after 2500; " % INIT_ELF.as_posix()
         + "rst -processor -stop; dow %s; " % Path(elf).as_posix()
+        + lvl_shifter_inline_assert(LVL_SHFTR_ON)
         + 'after 200; puts "HOLD_STATE=[state]"; '
         + 'con; after 2000; puts "RUN_STATE=[state]"; disconnect; exit'
     )
@@ -643,6 +857,39 @@ def stage_load_app(args) -> dict:
     return {"status": "PASS", "banner": line, "elf_sha256": app_sha}  # offline-selftest 允许：判定后返回（PASS 由上文判据产生）
 
 
+def stage_pspl_setup_and_load(args) -> dict:
+    """v3.2 的装载段：复位 → 0xA → 装 PL → 0xF+读回 → 装 init/app（装载期再断言 0xF）→ 收横幅。
+
+    依据 UG585 v1.2 §2.4.8/§2.5/§6/Appendix B.28（见模块与 `lvl_shifter_tcl` 的引用）。
+    任一步失败即返回 FAIL 并保留子步退出码；**不把读回不符当成可用**。
+    """
+    RUN_DIR.mkdir(parents=True, exist_ok=True)
+    out: dict = {}
+    c0 = base.xsdb(s1_tcl("PPL", "reset_stop"), "PPL_reset_stop")
+    out["reset_stop_exit"] = c0
+    if c0 != 0:
+        return {"status": "FAIL", "reason": "复位停止失败", "exit_code": c0, "detail": out}
+    _PL_STATE["programmed"] = False
+    a = enable_ps_pl_level_shifters(LVL_SHFTR_CFG, "PPL_lvl_0xA_cfg")
+    out["lvl_0xA"] = a
+    if a["status"] != "PASS":
+        return {"status": "FAIL", "reason": "配置期 LVL_SHFTR_EN=0xA 写入/读回失败", "exit_code": 1, "detail": out}
+    cp = base.program_pl(Path(args.bit), BIT_REGISTERED_PREFIX)
+    out["program_pl_exit"] = cp
+    if cp != 0:
+        return {"status": "FAIL", "reason": "PL 装载失败", "exit_code": cp, "detail": out}
+    _PL_STATE["programmed"] = True
+    f = enable_ps_pl_level_shifters(LVL_SHFTR_ON, "PPL_lvl_0xF_after_cfg")
+    out["lvl_0xF"] = f
+    if f["status"] != "PASS":
+        return {"status": "FAIL", "reason": "配置后 LVL_SHFTR_EN=0xF 写入/读回失败", "exit_code": 1, "detail": out}
+    app = stage_load_app(args)
+    out["app_load"] = app
+    status = "PASS" if app.get("status") == "PASS" else "FAIL"
+    return {"status": status, "exit_code": 0 if status == "PASS" else 1, "detail": out,
+            "note": "装载段已内联重断言 PS-PL 电平转换器（读回必须 0xF）"}
+
+
 def stage_chain_lite(args, app_prints_boxes: bool = False) -> dict:
     """S3：可选 chain-lite；应用未输出框 JSON 时如实 NOT_RUN。"""
     st, reason = chain_lite_available(app_prints_boxes)
@@ -714,10 +961,10 @@ def main() -> int:
             if s2["status"] != "PASS":
                 results["stop_reason"] = f"S2 {s2.get('verdict', 'FAIL')}"
         if results["stop_reason"] is None:
-            p2 = stage_load_app(args)
+            p2 = stage_pspl_setup_and_load(args)
             results["steps"]["P2_load_app"] = p2
             if p2["status"] != "PASS":
-                results["stop_reason"] = "PS 应用装载/横幅失败"
+                results["stop_reason"] = "PS 应用装载/横幅失败（含 PS-PL 电平转换器使能）"
         m4_args = SimpleNamespace(m4b_elf=args.m4b_elf, m4b_input=args.m4b_input,
                                   m4b_weights=args.m4b_weights, m4b_head13=args.m4b_head13,
                                   m4b_head26=args.m4b_head26, skip_m4b=False)

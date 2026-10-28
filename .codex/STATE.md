@@ -443,3 +443,14 @@
 - 窗口内 3 次尝试均为**工具缺陷**并已修（v3.2.4 错误文本守卫 → v3.2.5 去双引号 → v3.2.6 去 `!`），
   每次 45/45 离线自检 exit 0；**v3.2.6 SHA `311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855`**。
 - 清理：3121 无 LISTENING、无残留、无 `index.lock`。**不主张 G3/G4/G5**；M3/M2 未闭合。
+## 窗口#6 结果（2026-10-28 19:10–19:14，RunId `bringup_window6_20261028_r03`）—— **M4-b PASS + M4-a PASS**
+
+- **M4-b PASS（判据未改）**：`pass=1, done=1(DONE_SAFE, status=0xE04), error=0, diff13=0, diff26=0, stale=1, gate=1, ack_idle=1, elapsed_ms=11821, spin=80,833,781`。
+- **M4-a PASS**：`M4A OK R … crc=0x19D280B0` 与源一致、`M4A OK F … crc=0xFE55DA7C` 匹配、恢复后 `restored_byte_equal=true`。
+- W0 `initial_diff=0 / restore_diff=0`；W1 四动作双读回 `0xF8000900=0xf`、`0xF8000240=0x0`；W4 `initial_diff=25219 → restore_diff=0`；
+  清理 3121=0 / 无残留 / 无锁；wrapper exit 0（`results_window6.json` = `WINDOW6_ALL_PASS`）。
+- **两处宿主侧修正（应用/ELF/判据未动，ELF 仍 `2404a74e…`）**：
+  1) preload 尾部补齐：head13 `5,070→5,072 B` 写 1,268 字（pad 2 B，SHA `ad45b1cc…`）；
+  2) M4b-4 前置投毒：两 head 输出区首 64 B 写"参考首字节取反"，使 `stale` 可判定（r02 因干净恢复导致 `stale=0`，按判据判 FAIL 正确）。
+- 脚本口径 bug 已修并留痕（`window_close.txt.orig`、`results_window5.json` 保留；另写 `results_window6.json`、`W2_M4b_preload_details.json`）。
+- 边界：**M4-b/M4-a 的 PASS 仅覆盖 2B 平台位流上的 4-D PS 侧行为**；不主张 G3/G4/G5；M3/M2 未闭合；`ENABLE=0`、未烧 QSPI、未改线、未 push。

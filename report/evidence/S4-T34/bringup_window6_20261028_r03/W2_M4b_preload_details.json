@@ -1,0 +1,102 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_window6_20261028_r03",
+  "artifact": "W2 M4-b 预置/投毒明细（补齐成功路径未记录的哈希与尺寸）",
+  "preload": {
+    "W2_pre_head13": {
+      "source_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head13.raw",
+      "source_size": 5070,
+      "source_sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+      "written_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_window6_20261028_r03\\W2_pre_head13_padded.bin",
+      "size": 5070,
+      "padded_size": 5072,
+      "words": 1268,
+      "pad_bytes": 2,
+      "written_sha256": "ad45b1cce3e1f45ceeb4955f4b8aaf2021ba778d78554e5a096ec50aacae8895",
+      "addr": "0x12000000",
+      "end_exclusive": "0x120013d0",
+      "words4_ge_size": true,
+      "overlaps_next_block": false,
+      "exit_code": "exit=0"
+    },
+    "W2_pre_head26": {
+      "source_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head26.raw",
+      "source_size": 20280,
+      "source_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+      "written_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head26.raw",
+      "size": 20280,
+      "padded_size": 20280,
+      "words": 5070,
+      "pad_bytes": 0,
+      "written_sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+      "addr": "0x12002000",
+      "end_exclusive": "0x12006f38",
+      "words4_ge_size": true,
+      "overlaps_next_block": false,
+      "exit_code": "exit=0"
+    },
+    "W2_pre_input": {
+      "source_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_layer_divergence_20261026_r02\\bridge_input_postquant_int8_chw.bin",
+      "source_size": 519168,
+      "source_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+      "written_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_layer_divergence_20261026_r02\\bridge_input_postquant_int8_chw.bin",
+      "size": 519168,
+      "padded_size": 519168,
+      "words": 129792,
+      "pad_bytes": 0,
+      "written_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+      "addr": "0x10000000",
+      "end_exclusive": "0x1007ec00",
+      "words4_ge_size": true,
+      "overlaps_next_block": false,
+      "exit_code": "exit=0"
+    },
+    "W2_pre_weights": {
+      "source_file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+      "source_size": 5903100,
+      "source_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+      "written_file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+      "size": 5903100,
+      "padded_size": 5903100,
+      "words": 1475775,
+      "pad_bytes": 0,
+      "written_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+      "addr": "0x10100000",
+      "end_exclusive": "0x106a12fc",
+      "words4_ge_size": true,
+      "overlaps_next_block": false,
+      "exit_code": "exit=0"
+    }
+  },
+  "poison": {
+    "W2_poison_head13_out": {
+      "addr": "0x11a46100",
+      "bytes": 64,
+      "value": "0xfc",
+      "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_window6_20261028_r03\\W2_poison_head13_out_poison.bin",
+      "sha256": "8e40242783d4fcaead590083e8b73494c7a08eae0504ed5f9ff114f316d6ca86",
+      "purpose": "M4b-4 前置：使运行前 head 与参考可分辨（stale=1）；PL 运行时会覆盖",
+      "exit_code": "exit=0"
+    },
+    "W2_poison_head26_out": {
+      "addr": "0x11ad5e80",
+      "bytes": 64,
+      "value": "0xfd",
+      "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_window6_20261028_r03\\W2_poison_head26_out_poison.bin",
+      "sha256": "6cbdb55142e8f695567cdea44234d8f843575b193d3620928f387abfb894a7fb",
+      "purpose": "M4b-4 前置：使运行前 head 与参考可分辨（stale=1）；PL 运行时会覆盖",
+      "exit_code": "exit=0"
+    }
+  },
+  "structural_assertions": {
+    "head13_words4_ge_size": true,
+    "head13_ref_does_not_touch_head26_ref": true,
+    "head13_out_range_in_feature_envelope": true,
+    "head13_out_does_not_touch_head26_out": true,
+    "head26_words4_ge_size": true,
+    "input_words4_ge_size": true,
+    "weights_words4_ge_size": true
+  },
+  "note": "窗口 #6 r02 曾出现 diff13=0/diff26=0 但 stale=0（恢复后基线恰与参考首字节相同）⇒ 按 M4b-4 判 FAIL；本 RunId（r03）加入投毒后 stale=1，两 diff 均为 0 才具判别力。",
+  "boundary": "离线补齐记录；不改任何实测值；不主张 G3/G4/G5"
+}

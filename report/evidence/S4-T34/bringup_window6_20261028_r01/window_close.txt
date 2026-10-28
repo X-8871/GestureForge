@@ -1,0 +1,23 @@
+# 阶段4 4-D bring-up 窗口 #5（记录）
+
+- RunId：`bringup_window6_20261028_r01`
+- 开窗：2026-10-28T19:00:16+08:00；收窗：2026-10-28T19:02:02+08:00
+- 用时：1.8 min
+- 结论：**WINDOW6_STOPPED_ON_FAILURE**
+- stop_reason：异常：0
+- 驱动：v3.2.6 SHA-256 `311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855`
+- M4-b ELF：`s4d_ps_app_sw0_m4b_r3.elf` SHA-256 `2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46`；UART 采集上限 130 s
+- 收尾：3121 LISTENING=0；residual=[]
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 不主张 G3/G4/G5；`ENABLE=0` 未碰；未写 QSPI；未改线；未发独立 `stop`；未 push。
+- 未做 JTAG `mrd` CSR 直探；`-force` 全程禁用。
+- M4-b 结论仅限 **2B 平台位流上的 4-D PS 侧行为**，不覆盖 4-D 自建位流。

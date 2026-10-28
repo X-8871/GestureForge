@@ -1,0 +1,30 @@
+# 阶段4 4-D bring-up 窗口 #6（记录，r03）
+
+- RunId：`bringup_window6_20261028_r03`
+- 开窗：2026-10-28T19:10:05+08:00；收窗：2026-10-28T19:14:28+08:00
+- 用时：4.4 min
+- 结论：**WINDOW6_ALL_PASS**（W0/W1/W2 M4-b/W3 M4-a/W4/P4 全部 PASS）
+- 驱动：v3.2.6 SHA-256 `311ef177f28f02923be719fba96e6e17d8b3793b76271f3682e4e288f4b2e855`
+- M4-b ELF：`s4d_ps_app_sw0_m4b_r3.elf` SHA-256 `2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46`
+- M4-b 判据（未改）：`pass==1`（含 done==1、两 diff==0、stale==1、gate==1、ack_idle==1）
+- 宿主侧前置：preload 尾部补齐（head13 5,070→5,072 B / 1,268 字）+ 两 head 输出区投毒（使 stale 可判定）
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_M4b：`PASS` exit=`0`
+- W3_M4a：`PASS` exit=`0`
+- W4_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 说明
+- `window_close.txt.orig` 为脚本首版输出（conclusion 因统计口径 bug 误记）。
+- `W2_M4b_preload_details.json` 补齐成功路径未记录的 preload/投毒 SHA 与尺寸。
+
+## 边界
+- 不主张 G3/G4/G5；`ENABLE=0` 未碰；未写 QSPI；未改线；未 push。
+- 未做 JTAG `mrd` CSR 直探；`-force` 全程禁用。
+- 本轮结论仅覆盖 **2B 平台位流上的 4-D PS 侧行为**。

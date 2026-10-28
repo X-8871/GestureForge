@@ -1,0 +1,66 @@
+{
+  "task_id": "S4-T34",
+  "checker": "verify_m4b_timeout_v3.py",
+  "checks": [
+    {
+      "id": "C1",
+      "name": "strong_symbol[sw0_m4b_r3]",
+      "ok": true,
+      "detail": "s4d_ps_app_sw0_m4b_r3.elf: type=T"
+    },
+    {
+      "id": "C1",
+      "name": "strong_symbol[pl_m4b_r3]",
+      "ok": true,
+      "detail": "s4d_ps_app_pl_m4b_r3.elf: type=T"
+    },
+    {
+      "id": "C2",
+      "name": "timeout_const_0xFFFFFFFF",
+      "ok": true,
+      "detail": {
+        "define": true,
+        "coreto_lines": [
+          "s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);",
+          "s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);"
+        ],
+        "drainto_lines": [
+          "s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);",
+          "s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);"
+        ],
+        "no_400u": true
+      }
+    },
+    {
+      "id": "C3",
+      "name": "spin_budget_and_elapsed",
+      "ok": true,
+      "detail": {
+        "spin_max_1_5e8": true,
+        "wall_ms_120000": true,
+        "loop_uses_both": true,
+        "result_has_elapsed_ms": true
+      }
+    },
+    {
+      "id": "C4",
+      "name": "elf_sha_matches_registration[sw0_m4b_r3]",
+      "ok": true,
+      "detail": {
+        "expected": "2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46",
+        "actual": "2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46"
+      }
+    },
+    {
+      "id": "C4",
+      "name": "elf_sha_matches_registration[pl_m4b_r3]",
+      "ok": true,
+      "detail": {
+        "expected": "41e23283e82470976c6736359f0ef5d8a51f780562b435a3c0554dc0a17484b1",
+        "actual": "41e23283e82470976c6736359f0ef5d8a51f780562b435a3c0554dc0a17484b1"
+      }
+    }
+  ],
+  "fail": [],
+  "verdict": "PASS"
+}

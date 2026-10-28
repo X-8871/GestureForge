@@ -24,6 +24,10 @@
 
 #include "s4d_geometry.h"   /* 唯一几何参数表 + 最近邻 letterbox（PL/SW 共用，禁止另写字面量） */
 #include "s2a_ps_decode_nms_reference.h"   /* r13 冻结解码参考：强符号 s2a_t62_decode_nms */
+#include "xiltimer.h"      /* COUNTS_PER_SECOND（BSP xtimer_config.h：CPU_CORE_CLOCK/2） */
+
+/* SDT BSP 未随附 xtime_l.h；libxiltimer.a 已导出 XTime_GetTime（arm-none-eabi-nm 已核），此处按 BSP 原型声明 */
+extern void XTime_GetTime(uint64_t *Result);
 
 /* ---------------- 地址与 ABI 常量（冻结，ADR §8.2/§8.4） ---------------- */
 static const void *const s4d_keep_strong_symbols[3];
@@ -292,6 +296,12 @@ __attribute__((unused)) static int s4d_preproc_sw(const s4d_host_req_t *req)
 #define S4D_HEAD13_OFF    0x01A46100u
 #define S4D_HEAD13_BYTES  5070u
 #define S4D_HEAD26_OFF    0x01AD5E80u
+
+/* 网络启动超时（正常推理路径与 M4-b 自检共用）：窗口 #4 实测旧值 400 周期 ≈ 8 µs，
+ * 而 2B 实测整帧 START 需 47.4017962 s ⇒ 取 2B 冻结部署值 0xFFFFFFFF（名义 85.8993459 s @50MHz）。 */
+#define S4D_NET_TIMEOUT_CYCLES  0xFFFFFFFFu
+#define S4D_M4B_WALL_MS         120000u       /* 墙钟预算 120 s：主判据 */
+#define S4D_M4B_SPIN_MAX        150000000u    /* 轮询次数安全网（>=1.5e8） */
 #define S4D_HEAD26_BYTES  20280u
 #define S4D_INPUT_BASE    0x00100000u
 
@@ -397,8 +407,8 @@ int s2b_network_start_from_tensor(uint32_t session_id, uint32_t frame_id)
     s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
     s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
     s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
-    s4d_wr(S4D_CSR_CORETO_W, 400u);
-    s4d_wr(S4D_CSR_DRAINTO_W, 400u);
+    s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
+    s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
     s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
     for (spin = 0u; spin < 200000000u; spin++) {
         uint32_t st = s4d_rd(S4D_CSR_STATUS);
@@ -463,8 +473,11 @@ int s4d_m4b_selfcheck(void)
     s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
     s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
     s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
-    s4d_wr(S4D_CSR_CORETO_W, 400u);
-    s4d_wr(S4D_CSR_DRAINTO_W, 400u);
+    s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
+    s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
+    uint64_t t0 = 0, t1 = 0;
+    uint32_t elapsed_ms = 0;
+    XTime_GetTime(&t0);
     s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
 
     xil_printf("M4B STEP=5 START cmd written\r\n");
@@ -478,18 +491,37 @@ int s4d_m4b_selfcheck(void)
     }
 
     /* 等待安全终态（超时即 FAIL，不重试） */
-    for (spin = 0; spin < 50000000u; spin++) {
-        int r = s4d_safe_done(&st, &err);
-        if (r == 1) { done = 1; break; }
-    if (done == 0) {
-        xil_printf("M4B STEP=6 TIMEOUT wait spin=%u status=0x%08x error=0x%08x\r\n",
-                   (unsigned)spin, (unsigned)st, (unsigned)err);
-    } else {
-        xil_printf("M4B STEP=6 wait done=%d status=0x%08x error=0x%08x\r\n",
-                   done, (unsigned)st, (unsigned)err);
-    }
-        if (r == 2) { done = 2; break; }
-        if ((st & 7u) == S4D_ST_FAULT) break;
+    /* 等待安全终态：**120 s 墙钟为主判据**，spin<1.5e8 为安全网；每 5 s 打一行进度。
+       注：窗口 #4 实测旧实现在**每轮**都打印，长等待会刷屏，故改为只在进度/终态打印。 */
+    {
+        uint32_t last_progress_ms = 0;
+        for (spin = 0; spin < S4D_M4B_SPIN_MAX; spin++) {
+            int r = s4d_safe_done(&st, &err);
+            XTime_GetTime(&t1);
+            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+            if (r == 1) { done = 1; break; }
+            if (r == 2) { done = 2; break; }
+            if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
+            if (elapsed_ms >= S4D_M4B_WALL_MS) { done = 0; break; }
+            if (elapsed_ms - last_progress_ms >= 5000u) {
+                last_progress_ms = elapsed_ms;
+                xil_printf("M4B STEP=6 progress elapsed_ms=%u status=0x%08x error=0x%08x\r\n",
+                           (unsigned)elapsed_ms, (unsigned)st, (unsigned)err);
+            }
+        }
+        if (done == 1) {
+            xil_printf("M4B STEP=6 wait done=1 elapsed_ms=%u spin=%u status=0x%08x error=0x%08x\r\n",
+                       (unsigned)elapsed_ms, (unsigned)spin, (unsigned)st, (unsigned)err);
+        } else if (done == 2) {
+            xil_printf("M4B STEP=6 terminal done=2 elapsed_ms=%u spin=%u status=0x%08x error=0x%08x\r\n",
+                       (unsigned)elapsed_ms, (unsigned)spin, (unsigned)st, (unsigned)err);
+        } else if (done == 3) {
+            xil_printf("M4B STEP=6 FAULT elapsed_ms=%u spin=%u status=0x%08x error=0x%08x\r\n",
+                       (unsigned)elapsed_ms, (unsigned)spin, (unsigned)st, (unsigned)err);
+        } else {
+            xil_printf("M4B STEP=6 TIMEOUT elapsed_ms=%u spin=%u status=0x%08x error=0x%08x\r\n",
+                       (unsigned)elapsed_ms, (unsigned)spin, (unsigned)st, (unsigned)err);
+        }
     }
 
     /* PL→PS 可见性：invalidate 后逐字节比对 head13/head26 */
@@ -520,12 +552,14 @@ int s4d_m4b_selfcheck(void)
 
     xil_printf("M4B RESULT={\"pass\":%d,\"done\":%d,\"diff13\":%u,\"diff26\":%u,"
                "\"first13\":%d,\"first26\":%d,\"stale\":%d,\"gate\":%d,"
-               "\"ack_idle\":%d,\"epoch\":%u,\"status\":%u,\"error\":%u}\r\n",
+               "\"ack_idle\":%d,\"epoch\":%u,\"status\":%u,\"error\":%u,"
+               "\"elapsed_ms\":%u,\"spin\":%u}\r\n",
                (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 1 : 0,
                done, (unsigned)d13, (unsigned)d26,
                (d13 == 0u) ? -1 : (int)f13, (d26 == 0u) ? -1 : (int)f26,
                stale, gate, idle_after_ack,
-               (unsigned)(uint32_t)epoch, (unsigned)st, (unsigned)err);
+               (unsigned)(uint32_t)epoch, (unsigned)st, (unsigned)err,
+               (unsigned)elapsed_ms, (unsigned)spin);
     return (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 0 : -2;
 }
 

@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "m4b_status_decode_20261028_r01",
+  "artifact": "M4-b preload 地址 vs 2B 冻结对象 + PL HP0 写出地址归属 核对（离线）",
+  "boundary": "离线；w2b 只读；不改判据；不主张 G3/G4/G5",
+  "drivers": {
+    "preload_performed_by": "window driver（base.jtag_write_file）：head13→RAW+0x0000、head26→RAW+0x2000、input→ARENA+0、weights→ARENA+0x00100000",
+    "ref_window4_r05_preload_exits": {"jtag_ref_head13": 0, "jtag_ref_head26": 0, "jtag_input": 0, "jtag_weights": 0}
+  },
+  "items": [
+    {
+      "name": "input_tensor",
+      "actual": {"input_addr_written": "0x00000000", "input_bytes": 519168, "absolute_range": "[0x10000000, 0x1007EC00)"},
+      "frozen_2b_object": {"name": "tensor", "range": "[0x10000000, 0x1007EC00)", "length_bytes": 519168},
+      "match": true,
+      "evidence": ["s4d_ps_app.c:462-463（INADDR_W=0, INBYTES_W=519168）", "w2b/docs/.../s2b_physical_interface_candidate.md 冻结对象表", "docs/stage4/S4D_4d_address_allocation_20261027_r01.json frozen_2b_objects"]
+    },
+    {
+      "name": "weights_gf8",
+      "actual": {"weight_addr_written": "0x00100000", "weight_bytes": 5903100, "absolute_range": "[0x10100000, 0x106A12FC)"},
+      "frozen_2b_object": {"name": "gf8", "range": "[0x10100000, 0x106A12FC)", "length_bytes": 5903100},
+      "match": true,
+      "note": "5903100 = 0x5A12FC，0x10100000+0x5A12FC = 0x106A12FC 精确对齐冻结上界",
+      "evidence": ["s4d_ps_app.c:464-465", "docs/stage4/S4D_4d_address_allocation_20261027_r01.json frozen_2b_objects"]
+    },
+    {
+      "name": "head13_output",
+      "produced_by": "PL 经 HP0 写入",
+      "actual_address": "arena + 0x01A46100 = 0x11A46100",
+      "length_bytes": 5070,
+      "end_exclusive": "0x11A474CE",
+      "frozen_feature_envelope": "[0x11000000, 0x11ADADB8)",
+      "inside_envelope": true,
+      "offset_source": "CSR 只读 0x040/0x044（head13 offset/bytes）；应用常量 s4d_ps_app.c:292",
+      "match": true
+    },
+    {
+      "name": "head26_output",
+      "produced_by": "PL 经 HP0 写入",
+      "actual_address": "arena + 0x01AD5E80 = 0x11AD5E80",
+      "length_bytes": 20280,
+      "end_exclusive": "0x11ADADA8",
+      "frozen_feature_envelope": "[0x11000000, 0x11ADADB8)",
+      "inside_envelope": true,
+      "headroom_bytes": 16,
+      "offset_source": "CSR 只读 0x048/0x04C；应用常量 s4d_ps_app.c:294",
+      "match": true
+    },
+    {
+      "name": "reference_heads_for_comparison",
+      "actual": {"ref_base": "0x12000000", "head13_ref": "0x12000000", "head26_ref": "0x12002000"},
+      "app_code": "const uint8_t *ref = (const uint8_t *)(uintptr_t)S4D_RAW_BASE;（s4d_ps_app.c:428）；compare arena+HEAD13_OFF vs ref、arena+HEAD26_OFF vs ref+0x2000（:500-501）",
+      "driver_preload": "head13→CAND_BASE(0x12000000)、head26→CAND_BASE+0x2000（run_window4 preload）",
+      "match": true,
+      "note": "0x12000000 是 RAW 参考区，不是 PL 输出；应用读它作参考是正确的"
+    }
+  ],
+  "who_decides_pl_write_address": {
+    "answer": "PL 侧（适配器/内核）在运行期经 HP0 直接写入 arena 固定偏移；PS 仅通过 CSR 只读寄存器 0x040/0x044/0x048/0x04C 获知偏移与长度，不配置写地址",
+    "refs": ["docs/stage4/S4D_m4b_csr_semantics_20261027_r01.md §1（0x040..0x04C 为 R）", "w2b/src/s2b_control_csr.sv:364-374（读映射）", "s4d_ps_app.c:292-294（常量与 CSR 一致）"],
+    "hash_basis": "混合：sv 与语义文档见 README §6"
+  },
+  "cross_check_config_validation": {
+    "rtl_rule": "START 时校验 input_addr==0 && weight_addr==0x00100000 && input_bytes==519168 && weight_bytes==5903100 && core_timeout!=0 && drain_timeout!=0，否则立即 ERROR_SAFE 且 error_code∈{1,2,3}",
+    "rtl_ref": "w2b/src/s2b_control_csr.sv:253-257",
+    "observed": "实测 spin=0 状态 = 0x1102（state=RUN）⇒ 配置校验全部通过",
+    "conclusion": "由 RTL 校验反证：preload 地址、字节数、超时非零全部符合 ⇒ **无地址错误**",
+    "hash_basis": "commit_blob",
+    "blob": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6"
+  },
+  "overall_verdict": {
+    "addressing_conforms": true,
+    "correct_value_if_mismatch": null,
+    "reason": "五项（输入/权重/head13 输出/head26 输出/参考 head）地址与 2B 冻结对象逐项一致；且 RTL START 配置校验实测通过"
+  },
+  "hashes": {
+    "w2b_head": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+    "w4_head": "3e83900e421948789db089c4fdc782e2af72a8fd",
+    "w4_app_source_blob": "564b1a64c4ff4a302f4842cd1028bec63c4f4be9",
+    "w2b_csr_rtl_blob": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6"
+  },
+  "limitations": [
+    "未上板验证；未改动任何预置地址",
+    "2B 冻结对象范围取自 docs/stage4/S4D_4d_address_allocation_20261027_r01.json 与 w2b 接口文档；如 4-D 位流另有地址图须独立重核",
+    "M4-b 判据不变；不主张 G3/G4/G5；M3/M2 未闭合"
+  ]
+}

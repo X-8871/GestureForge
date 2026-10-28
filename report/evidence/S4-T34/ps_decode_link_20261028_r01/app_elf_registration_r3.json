@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "ps_decode_link_20261028_r01",
+  "artifact": "PS 应用 r3 登记（M4-b 超时修正：2B 冻结部署值 0xFFFFFFFF + 120 s 墙钟 + elapsed_ms）",
+  "supersedes": "app_elf_registration_r2.json（**旧 SHA 不得复用**；r2 的 400 周期超时已证实必然 CORE_TIMEOUT）",
+  "reason": "窗口 #4 r05 实测：core_timeout=400 周期(≈8 µs) 远小于 2B 实测整帧 47.4017962 s ⇒ error=5(CORE_TIMEOUT) 立即安全终态",
+  "source": {
+    "path": "vitis/stage4/ps/s4d_ps_app.c",
+    "sha256_worktree_disk": "9eb6c1704ade32264dc499a1714ff6ee035b84087cf372237d5cfcb18963fc5a",
+    "hash_basis": "worktree_disk",
+    "note": "本轮修改未提交；提交后由总控按 `git cat-file blob <commit>:vitis/stage4/ps/s4d_ps_app.c` 重算 commit_blob 基座"
+  },
+  "changes": [
+    "core_timeout / drain_timeout: 400u → S4D_NET_TIMEOUT_CYCLES(0xFFFFFFFFu)（正常推理路径与 M4-b 自检两处都改）",
+    "完成等待：墙钟 120 s 为主判据 + spin<150000000(1.5e8) 安全网；不再 50000000(≈50 s)",
+    "去掉每轮打印（旧实现每轮一行会刷屏，导致长等待时 UART 被淹没）→ 改 5 s 一次 progress 行 + 终态一行",
+    "M4B RESULT 增加 elapsed_ms 与 spin 字段（便于与 2B 47.4017962 s 口径对账）",
+    "判据未改：两 head 逐字节 diff=0、first 必须有效、门控、ACK 回 idle"
+  ],
+  "build": {
+    "command": "python -B scripts/stage4_s4b/build_s4d_ps_app_v2.py --define S4D_M4B_SELFCHECK=1 --out-tag m4b_r3",
+    "script": "scripts/stage4_s4b/build_s4d_ps_app_v2.py",
+    "toolchain": {
+      "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "gcc_version_family": "arm-none-eabi (GCC, Vitis 2026.1 bundled)",
+      "size": "arm-none-eabi-size.exe",
+      "nm": "arm-none-eabi-nm.exe",
+      "flags": "-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -DSDT -DPREPROC_SRC={0,1} -DS4D_M4B_SELFCHECK=1 -O2 -g3 -std=gnu11"
+    },
+    "bsp": "tmp/4/S4-B-REAL-01/s4b_ps_tensor_20261023_r13/bundle_extract/bundle/workspace/ps7/export/ps7/sw/cpu0（include/lib/Xilinx.spec）",
+    "linked_libs": [
+      "xilstandalone",
+      "xiltimer",
+      "xil",
+      "gcc",
+      "c",
+      "m"
+    ],
+    "exit_code": 0
+  },
+  "outputs": {
+    "sw0_m4b_r3": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/m4b_r3/s4d_ps_app_sw0_m4b_r3.elf",
+      "elf_sha256": "2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46",
+      "elf_size": 240984,
+      "map": "report/evidence/S4-T34/ps_decode_link_20261028_r01/m4b_r3/s4d_ps_app_sw0_m4b_r3.map",
+      "map_sha256": "eed94ab7b16036e1e94c68a3242317c6bf8e2f9497102f5fa366179f0b675225",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk",
+      "note": "提交后由总控重算 commit_blob"
+    },
+    "pl_m4b_r3": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/m4b_r3/s4d_ps_app_pl_m4b_r3.elf",
+      "elf_sha256": "41e23283e82470976c6736359f0ef5d8a51f780562b435a3c0554dc0a17484b1",
+      "elf_size": 240984,
+      "map": "report/evidence/S4-T34/ps_decode_link_20261028_r01/m4b_r3/s4d_ps_app_pl_m4b_r3.map",
+      "map_sha256": "560f6b7ac1351991e2fa4ff0b0c821440b36f3453eb0422a6f5a97af70f94e3b",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "license_basis": {
+    "app_source": "本项目仓库内源码（沿用既有许可）",
+    "bsp_and_libs": "AMD/Xilinx BSP 与库；其头文件含 SPDX-License-Identifier（MIT/Apache-2.0 依组件）",
+    "toolchain": "AMD Vitis 2026.1 自带 arm-none-eabi 工具链（受 AMD 许可约束，不随仓库分发）",
+    "note": "登记只记录来源与工具版本，不再分发第三方二进制"
+  },
+  "expected_window_use": {
+    "window": 5,
+    "m4b_elf": "s4d_ps_app_sw0_m4b_r3.elf",
+    "m4b_elf_sha256": "2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46",
+    "preload_unchanged": {
+      "head13": "0x12000000",
+      "head26": "0x12002000",
+      "input": "0x10000000",
+      "weights": "0x10100000"
+    },
+    "uart_collection_seconds_min": 130,
+    "note": "推理实测 ~47.4 s + 余量；应用自身 120 s 墙钟为准，驱动侧采集窗口不得小于 130 s"
+  },
+  "verification": {
+    "script": "scripts/stage4_s4b/verify_m4b_timeout_v3.py",
+    "checks": [
+      "C1 新 ELF 中 s2a_t62_decode_nms 仍为强符号 T（两变体）",
+      "C2 源码超时常量为 0xFFFFFFFFu，且不存在 400u 超时写入",
+      "C3 spin 预算 S4D_M4B_SPIN_MAX=150000000(>=1.5e8)、墙钟 S4D_M4B_WALL_MS=120000，且循环使用它们；RESULT 含 elapsed_ms",
+      "C4 ELF SHA-256 与本登记一致"
+    ],
+    "result": {
+      "script": "scripts/stage4_s4b/verify_m4b_timeout_v3.py",
+      "verdict": "PASS",
+      "checks": 6,
+      "fail": [],
+      "exit_code": 0,
+      "evidence": "report/evidence/S4-T34/ps_decode_link_20261028_r01/m4b_r3/verify_m4b_timeout_v3.json",
+      "also_run": {
+        "script": "scripts/stage4_s4ctrl/verify_ps_decode_link.py",
+        "verdict": "PS_DECODE_LINK_VERIFIED",
+        "checks": "23/23",
+        "exit_code": 0
+      }
+    }
+  },
+  "boundary": "离线构建；未接触板卡；ENABLE=0；不构成 G3/G4/G5；M3/M2 未闭合"
+}

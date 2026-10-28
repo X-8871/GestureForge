@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "m4b_status_decode_20261028_r01",
+  "artifact": "M4-b status=0x0C05 / error=5 / 两次 spin 的解码（离线，依据 2B RTL 与冻结文档）",
+  "source_run": "report/evidence/S4-T34/bringup_window4_20261028_r05/（M4-b UART 实测）",
+  "boundary": "离线分析；未接触板卡；不改判据；不主张 G3/G4/G5；M3/M2 未闭合",
+  "status_bit_definition_ref": {
+    "file": "w2b/src/s2b_control_csr.sv",
+    "lines": "43-44（state 枚举）, 359-363（0x00C 位映射）",
+    "hash_basis": "commit_blob",
+    "w2b_head": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+    "blob": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6"
+  },
+  "spin0_0x1102": {
+    "raw": "0x00001102",
+    "bits": {
+      "state_2_0": {"value": 2, "name": "RUN"},
+      "bit8_owner_pl": 1,
+      "bit9_head_valid": 0,
+      "bit10_safe_reuse": 0,
+      "bit11_terminal": 0,
+      "bit12_not_ledger_empty_next": 1,
+      "bit13_first_pending": 0
+    },
+    "interpretation": "START 已被接收：PL 持有总线(owner=1)、事务在飞(账本非空)、尚无有效 head、非终态 ⇒ 不是\"没启动\""
+  },
+  "spin1_0x0C05": {
+    "raw": "0x00000C05",
+    "bits": {
+      "state_2_0": {"value": 5, "name": "ERROR_SAFE"},
+      "bit8_owner_pl": 0,
+      "bit9_head_valid": 0,
+      "bit10_safe_reuse": 1,
+      "bit11_terminal": 1,
+      "bit12_not_ledger_empty_next": 0,
+      "bit13_first_pending": 0
+    },
+    "interpretation": "PL 以\"安全终态\"结束：owner 释放、账本已空、safe_reuse+terminal 置位、无有效 head ⇒ 属 PL 主动上报的终态，不是轮询超时"
+  },
+  "error_code": {
+    "raw": "0x00000005",
+    "meaning": "CORE_TIMEOUT（核心期限超时）",
+    "evidence": [
+      {"file": "w2b/docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md", "line": 73, "text": "0x010 ERROR_CODE：0 NONE、1..7 保留 2A 码、8 ABORTED、9 AXI_S…", "hash_basis": "commit_blob", "blob": "682b96f165708c0f1aa62cf9032dcdac97a7ad5c"},
+      {"file": "w2b/docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md", "line": 22, "text": "R12 正常 START、CORE=10000/DRAIN 最大值错误5安全ACK", "hash_basis": "commit_blob", "blob": "e75560c2faca57649cef0437619f38b7a2922ed9"},
+      {"file": "w2b/.codex/STATE.md", "line": 25, "text": "R12 真实完成正常 START 47.4058308s、CORE10000/DRAIN 最大值→ERROR_SAFE5/ACK", "hash_basis": "commit_blob", "blob": "da6ae3b10775c7d65764e2d4e2b32df403645f6b"},
+      {"file": "w2b/src/s2b_control_csr.sv", "line": 209, "text": "error_code = (core_csr_rdata 1..7) ? core_csr_rdata : 6 ⇒ 1..7 由 PL 内核/适配器上报", "hash_basis": "commit_blob", "blob": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6"}
+    ],
+    "not_config_error": {
+      "config_error_codes": {"1": "core_timeout==0 或 drain_timeout==0", "2": "input_addr!=0 或 weight_addr!=0x00100000", "3": "input_bytes!=519168 或 weight_bytes!=5903100"},
+      "ref": "w2b/src/s2b_control_csr.sv:253-255",
+      "note": "实测 spin0 已 RUN ⇒ 配置校验全部通过；error=5 不属配置类"
+    },
+    "confidence": "HIGH（有 2B R12 的 CORE 超时实测 + RTL 透传 1..7 两重支撑）；2A 侧对 5 的逐字定义未在 w2b 文档逐字给出（见 limitations）"
+  },
+  "root_cause": {
+    "code_line": "vitis/stage4/ps/s4d_ps_app.c:466-467",
+    "written_values": {"core_timeout": 400, "drain_timeout": 400},
+    "unit": "周期数（RTL 计数）",
+    "wall_time_at_50MHz_us": 8,
+    "reference_measured": {"2b_r11_start_wall_seconds": 47.4017962, "source": "w2b/.codex/STATE.md:24"},
+    "reference_frozen_deployment": {
+      "value": "CORE_TIMEOUT_CYCLES = DRAIN_TIMEOUT_CYCLES = 0xFFFFFFFF",
+      "nominal_seconds_at_50MHz": 85.8993459,
+      "source": "w2b/docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md:41"
+    },
+    "envelope_estimate_cycles": 2962864425,
+    "envelope_source": "w2b/.codex/STATE.md:28",
+    "conclusion": "400 周期 ≈ 8 µs 远小于整帧 47.4 s ⇒ START 后立即 CORE_TIMEOUT ⇒ RUN 一拍后即 ERROR_SAFE(5)，与实测完全一致"
+  },
+  "verdict": {
+    "is_timeout_problem": true,
+    "is_kernel_function_error": false,
+    "is_addressing_error": false,
+    "reason": "RTL 配置校验通过(已 RUN) + status 为 ERROR_SAFE(safe_reuse|terminal) + error=5=CORE_TIMEOUT + core_timeout=400 与 47.4 s 实测严重不匹配"
+  },
+  "recommendation": {
+    "change_scope": "只调超时与轮询预算，不动判据",
+    "steps": [
+      "core_timeout = drain_timeout = 0xFFFFFFFF（2B 冻结部署值，名义 85.8993459 s @50MHz）",
+      "轮询预算：s4d_ps_app.c:481 当前 spin<50000000u（单次快照约 1 µs ⇒ 上限约 50 s）→ 提至 ≥1.5e8 次或显式 120 s 墙钟",
+      "M4B RESULT 增加实际耗时字段（便于与 2B 47.4 s 口径对账）",
+      "判据（两 diff 逐字节相等 / 完成序门控 / ACK 回 idle）保持不变"
+    ]
+  },
+  "limitations": [
+    "未在板上验证改值后能否 DONE_SAFE",
+    "error=5 的 2A 侧逐字定义未在 w2b 文档逐字给出；CORE_TIMEOUT 判定依据 R12 实测 + RTL 透传",
+    "不改 M4-b 判据；不主张 G3/G4/G5；M3/M2 未闭合"
+  ]
+}

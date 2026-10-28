@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "app_diff_20261028_r01",
+  "artifact": "旧/新应用事务差异（反汇编级，离线）",
+  "old": {
+    "elf": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+    "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+    "size": 389216
+  },
+  "new": {
+    "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunK/s4d_ps_app_sw0_longrunK.elf",
+    "sha256": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+    "size": 278332
+  },
+  "csr_offsets": {
+    "old_only": {},
+    "new_only": {
+      "0xd180": 1
+    },
+    "common": {},
+    "old_offset_count": 0,
+    "new_offset_count": 1
+  },
+  "cache_and_exception_ops": {
+    "old": {
+      "dc_clean_c7_10": 2,
+      "dc_clean_inval_c7_14": 10,
+      "dc_inval_c7_6": 8,
+      "dc_inval_c7_5": 17,
+      "ic_inval_c7_5": 7,
+      "tlb_c8": 4,
+      "dfsr_c5": 0,
+      "dfar_c6": 0,
+      "dsb": 78,
+      "dmb": 0
+    },
+    "new": {
+      "dc_clean_c7_10": 2,
+      "dc_clean_inval_c7_14": 10,
+      "dc_inval_c7_6": 8,
+      "dc_inval_c7_5": 14,
+      "ic_inval_c7_5": 7,
+      "tlb_c8": 1,
+      "dfsr_c5": 1,
+      "dfar_c6": 1,
+      "dsb": 74,
+      "dmb": 0
+    }
+  },
+  "symbol_sizes": {
+    "old": {
+      "stack": null,
+      "heap": null,
+      "bss_end": null,
+      "text_size": null
+    },
+    "new": {
+      "stack": null,
+      "heap": null,
+      "bss_end": null,
+      "text_size": null
+    }
+  },
+  "interpretation": [
+    "旧应用 = 2B 正式 infer 应用（a5149989…，T18 1109 RUN 用的部署可执行）；新应用 = 阶段4 长跑应用（longrunK）。",
+    "只比较**静态可观测**差异：CSR 偏移集合、cache/异常指令计数、符号尺寸；不推断运行时行为。",
+    "候选触发点需结合 r06 窗口的 loadhw 三 CSR 只读（error_code/last_reject/status）判定。"
+  ],
+  "boundary": "离线；未上板；不改判据；不主张 G3/G4/G5",
+  "C_section_conclusion": {
+    "delivered": [
+      "cache/异常指令计数对比（反汇编级，真实数据）",
+      "旧应用源码快照入口（s2b_inference_app.c）与新应用事务序列对比（源码级）",
+      "限制与下一步"
+    ],
+    "solid_findings": [
+      "旧应用同样大量使用 dc clean/inval 与 dsb（c7,c14=10；c7,c6=8；dsb=78）⇒ **cache 维护不是新应用独有风险**",
+      "新应用额外出现 DFSR/DFAR 读（各 1 次，来自本轮新增中止处理器）",
+      "两应用共享同一 2B 位流 555a70c2…；旧应用在该位流上跑过 1109 RUN"
+    ],
+    "limitations": [
+      "反汇编字面量提取无法稳定还原 CSR 偏移（编译器用 movw/movt 组合，本工具输出未给偏移字面量）",
+      "旧应用源码用访问器封装，偏移未在调用点出现 ⇒ 源码级序列对比只到“事务入口”粒度"
+    ],
+    "next_step_advice": [
+      "以 r06 窗口的 error_code/last_reject/status 三读作为判别（外部仿真已给码值语义）",
+      "若需要事务级对比，需对旧应用做符号级访问器定位（后续可离线补）"
+    ]
+  }
+}

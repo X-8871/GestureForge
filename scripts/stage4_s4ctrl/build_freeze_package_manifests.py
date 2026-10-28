@@ -129,30 +129,13 @@ def main() -> int:
         landing_files.append({"path": rel, "sha256": h, "hash_basis": "commit_blob",
                               "source_commit": commit, "size_bytes": p.stat().st_size})
 
-    # ---- delivery：除自身外的全部包内文件 + 验证器源码 ----
-    delivery_files = []
-    for p in package_files:
-        if p.name == "delivery_manifest.json":
-            continue
-        rel = str(p.relative_to(repo)).replace("\\", "/")
-        h = blob_sha256(repo, commit, rel)
-        if h is None:
-            # 不在提交内：必须显式 worktree_disk 且并列 blob 不可得
-            delivery_files.append({"path": rel, "sha256": disk_sha256(p), "role": "result",
-                                   "hash_basis": "worktree_disk", "blob_available": False})
-        else:
-            role = "artifact" if p.name in ("frozen_set.json", "results_freeze.json",
-                                            "frozen_set_report.json") else "result"
-            delivery_files.append({"path": rel, "sha256": h, "role": role,
-                                   "hash_basis": "commit_blob", "source_commit": commit,
-                                   "size_bytes": p.stat().st_size})
+    # ---- 先写 landing，再据"写后的 landing"建 delivery（避免自我引用导致的哈希漂移） ----
     ver_h = blob_sha256(repo, commit, VERIFIER)
     if ver_h is None:
         print(f"[FAIL] 验证器不在提交树内：{VERIFIER}", file=sys.stderr)
         return 3
-    delivery_files.append({"path": VERIFIER, "sha256": ver_h, "role": "source",
-                           "hash_basis": "commit_blob", "source_commit": commit,
-                           "keep_reason": "冻结包验证器源码"})
+    landing_files.append({"path": VERIFIER, "sha256": ver_h, "hash_basis": "commit_blob",
+                          "source_commit": commit, "size_bytes": (repo / VERIFIER).stat().st_size})
 
     if args.checks:
         checks = json.loads(Path(args.checks).read_text(encoding="utf-8"))
@@ -183,6 +166,30 @@ def main() -> int:
         "files": landing_files,
         "boundary": "全离线；未接触板卡；ENABLE=0；不主张 G3/G4/G5。",
     }
+    landing_path = ev / "landing_manifest.json"
+    delivery_path = ev / "delivery_manifest.json"
+    # 先写 landing：delivery 需要引用"写后"的 landing 字节，否则会漂移
+    dump(landing_path, landing)
+
+    # ---- delivery：除自身外的全部运行目录文件（含 landing）+ 验证器源码 ----
+    delivery_files = []
+    for p in sorted(ev.rglob("*")):
+        if not p.is_file() or p.name == "delivery_manifest.json":
+            continue
+        rel = str(p.relative_to(repo)).replace("\\", "/")
+        h = blob_sha256(repo, commit, rel)
+        if h is not None:
+            role = "artifact" if p.name in ("frozen_set.json", "results_freeze.json",
+                                            "frozen_set_report.json") else "result"
+            delivery_files.append({"path": rel, "sha256": h, "role": role,
+                                   "hash_basis": "commit_blob"})
+        else:
+            # 生成后才出现（如 landing 清单本身）：显式 worktree_disk，不混入 blob 基座
+            delivery_files.append({"path": rel, "sha256": disk_sha256(p), "role": "result",
+                                   "hash_basis": "worktree_disk"})
+    delivery_files.append({"path": VERIFIER, "sha256": ver_h, "role": "source",
+                           "hash_basis": "commit_blob", "keep_reason": "冻结包验证器源码"})
+
     delivery = {
         "schema_version": 1, "stage": "4", "task_id": "S4-FREEZE", "run_id": ev.name,
         "source_commit": commit,
@@ -201,10 +208,6 @@ def main() -> int:
                           "vivado": "2026.1（仅历史登记）"},
         "hash_basis": "commit_blob", "hash_basis_commit": commit,
     }
-
-    landing_path = ev / "landing_manifest.json"
-    delivery_path = ev / "delivery_manifest.json"
-    dump(landing_path, landing)
     dump(delivery_path, delivery)
 
     if not args.no_selfcheck:

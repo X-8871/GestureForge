@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "ps_decode_link_20261028_r01",
+  "artifact": "PS 应用 chain-lite-B 候选（CHAINB 分支：RAW 640x480 BGR888 -> SW 预处理 -> 网络 -> 解码 -> 框 JSON）",
+  "source": {
+    "app": {
+      "path": "vitis/stage4/ps/s4d_ps_app.c",
+      "sha256_worktree_disk": "fc292622e044a3f50d1aae558c5ecaf08c0265efc1006c4539214c0d7512d725",
+      "hash_basis": "worktree_disk"
+    },
+    "sw_preproc": {
+      "path": "vitis/stage4/ps/s4d_sw_preproc.c",
+      "sha256_worktree_disk": "2c645e201785eb5ff1af88fb8723cb96f8bfdc1fc00b399499ccdf7fa87c647a",
+      "hash_basis": "worktree_disk"
+    },
+    "note": "未提交；提交后按 commit_blob 重算。文件模块禁止另写字面量：几何/量化口径见 docs/stage4/S4D_sw_preprocess_design_20261028_r01.md"
+  },
+  "changes": [
+    "新增 `#if defined(S4D_CHAINB_SELFCHECK)` 分支（独立标记 CHAINB，不与 M4-b / CHAIN 判据混用）",
+    "接入 SW 预处理 `s4d_sw_preproc_bgr888_to_chw_int8()`（D2 冻结口径，离线逐字节对拍通过）",
+    "预处理后打印张量 CRC-32（s4d_crc32 = zlib crc32），供离线同输入比对，自证板上实现",
+    "构建脚本 build_s4d_ps_app_v2.py 增加编译/链接 vitis/stage4/ps/s4d_sw_preproc.c"
+  ],
+  "build": {
+    "command": "python -B scripts/stage4_s4b/build_s4d_ps_app_v2.py --define S4D_CHAINB_SELFCHECK=1 --out-tag chainB",
+    "toolchain": {
+      "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "flags": "-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -DSDT -DPREPROC_SRC={0,1} -DS4D_CHAINB_SELFCHECK=1 -O2 -g3 -std=gnu11"
+    },
+    "exit_code": 0
+  },
+  "outputs": {
+    "sw0_chainB": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/chainB/s4d_ps_app_sw0_chainB.elf",
+      "elf_sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+      "elf_size": 262496,
+      "map_sha256": "386fbdc96dac02017635b90f9cc116c6038b17d34427a38db634b4aebdf9598e",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk",
+      "note": "bss 增至 2,707,976 B（预处理 double 缓冲 ≈1.38 MB，位于 DDR）"
+    },
+    "pl_chainB": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/chainB/s4d_ps_app_pl_chainB.elf",
+      "elf_sha256": "ae8e24085e3b25a2a311a7374d2f254b3da2d8dc885278f0fadf98e277fc3f57",
+      "elf_size": 262496,
+      "map_sha256": "6a793604e69ba828bfa855f3ee050b9cc5ddb992be7778ab0dc7ebb68595b94a",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "sw_preproc_pairing": {
+    "doc": "docs/stage4/S4D_sw_preprocess_design_20261028_r01.md",
+    "evidence": "report/evidence/S4-T34/sw_preproc_pairing_20261028_r01/",
+    "verdict": "BYTE_EXACT_MATCH",
+    "artifact_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "frozen_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "diff_count": 0,
+    "entries_checked": [
+      "rgb888",
+      "bgr888"
+    ],
+    "source_image_sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "source_image_size": "1440x1920",
+    "note": "D2 冻结口径（双线性 + v/255 + 对称量化 1/127 + pad 0.5→64 + CHW）；与 s4d_geometry.h 的 NN + v-128 + pad0 存在规范冲突，待裁决"
+  },
+  "version_mapping_and_rebuild_drift": {
+    "r3_m4b_elf": {
+      "sha256": "2404a74e766de3742b87769dab7a2507bd61088f6fa190da326597603030ad46",
+      "built_from_source_sha256": "9eb6c1704ade32264dc499a1714ff6ee035b84087cf372237d5cfcb18963fc5a",
+      "frozen_note": "窗口 #6 实际运行并 PASS 的产物；作为冻结产物按 SHA 引用"
+    },
+    "r4_chaina_elf": {
+      "sha256": "740815e218486bce52eadf1acf087db933c1a799fd3c73c0944eacaf62ae80a8",
+      "built_from_source_sha256": "4c209ce76dd00a916b1dc6638ca94e7a0ab581f7699a720608bc7ee9a80ba8e0"
+    },
+    "r5_chainb_elf": {
+      "sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+      "built_from_source_sha256": "fc292622e044a3f50d1aae558c5ecaf08c0265efc1006c4539214c0d7512d725"
+    },
+    "rebuild_drift": {
+      "what": "用当前源码以 `--define S4D_M4B_SELFCHECK=1` 重建 M4-b 变体，得到 da22cb3e…，与 r3 冻结的 2404a74e… 不同",
+      "why": "-g3 调试信息随源码行号变化 + 新增分支代码；属预期漂移，不代表 r3 产物失效",
+      "rule": "**冻结产物按 SHA 引用，不以重建等价性作为验收条件**；如需可重建，应在 ELF 登记时同步提交对应源码快照",
+      "evidence": "report/evidence/S4-T34/ps_decode_link_20261028_r01/m4bchk/（重建对照，不用于板上）"
+    }
+  },
+  "boundary": "离线构建 + 离线对拍；未上板 chain-lite-B；ENABLE=0；未写 QSPI；未改线；未 push；不主张 G3/G4/G5；M3/M2 未闭合；结论仅覆盖 2B 平台位流适用性"
+}

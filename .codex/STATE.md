@@ -454,3 +454,30 @@
   2) M4b-4 前置投毒：两 head 输出区首 64 B 写"参考首字节取反"，使 `stale` 可判定（r02 因干净恢复导致 `stale=0`，按判据判 FAIL 正确）。
 - 脚本口径 bug 已修并留痕（`window_close.txt.orig`、`results_window5.json` 保留；另写 `results_window6.json`、`W2_M4b_preload_details.json`）。
 - 边界：**M4-b/M4-a 的 PASS 仅覆盖 2B 平台位流上的 4-D PS 侧行为**；不主张 G3/G4/G5；M3/M2 未闭合；`ENABLE=0`、未烧 QSPI、未改线、未 push。
+## chain-lite-A + SW 预处理（2026-10-28 20:36–21:30）
+
+- **chain-lite-A PASS**（`bringup_chainlite_a_20261028_r03`）：注入张量 `da26d385…` → PL 网络 → PS 解码/NMS → UART 1 框；
+  `CHAIN RESULT pass=1, done=1(DONE_SAFE), error=0, decode_rc=0, count=1, raw=2, ack_idle=1, elapsed_ms=11821`；
+  与 r13 冻结参考 8 字段 **abs diff 全 0.0**（容差 1e-9）。ELF `s4d_ps_app_sw0_chainA3.elf` `740815e2…`（登记 r4）。
+  过程中修我方两处缺陷：`heads` 传 NULL 被拒、`xil_printf` 不支持浮点（改 IEEE-754 位模式输出）。
+- **SW 预处理（离线）**：`vitis/stage4/ps/s4d_sw_preproc.{h,c}` 按**冻结 D2 口径**实现
+  （Darknet letterbox + 端点对齐双线性 + `v/255` + 对称量化 1/127 + pad 0.5→64 + CHW）；
+  **逐字节对拍 `da26d385…` = BYTE_EXACT_MATCH（diff=0，SHA 完全相同，RGB/BGR 两入口）**；
+  设计文档 `docs/stage4/S4D_sw_preprocess_design_20261028_r01.md`；证据 `sw_preproc_pairing_20261028_r01/`。
+- **待裁决**：①`s4d_geometry.h`（最近邻 + v-128 + pad0）与冻结 D2 口径**冲突**，未擅自改文件；②源码演进导致
+  M4-b 变体重建 SHA 漂移（r3 `2404a74e…` 为冻结产物，按 SHA 引用，不要求可重建同 SHA）。
+- chain-lite-B 候选 ELF `s4d_ps_app_sw0_chainB.elf` `fe5bf69d…`（登记 r5），未上板；等 lead 签发窗口。
+- 边界：`ENABLE=0`、未烧 QSPI、未改线、未 push、不主张 G3/G4/G5；M3/M2 未闭合。
+## chain-lite-B（2026-10-28 21:00–21:05，RunId `bringup_chainlite_b_20261028_r01`）—— **PASS**
+
+- **W2 chainB PASS**：SW 预处理（PS 实现）`tensor_crc32=0x5B183B50`、`bytes=519168`；`done=1(DONE_SAFE)`、`error=0`、
+  `decode_rc=0`、`count=1`、`raw=2`、`ack_idle=1`、`elapsed_ms=11821`。
+- **W3a**：板上张量 CRC-32 == 离线同一 C 预处理同一 RAW 的 CRC（`0x5B183B50`，519,168 B 全等）。
+- **W3b**：框 JSON 与离线参考（同 RAW → 同 C 预处理 → T29 宿主前向 layer 29/36 → 冻结解码）**全字段 abs diff = 0.0**
+  （score `0.49468568228974247`、xyxy `[0.22001036858036768, 0.37966094334502554, 0.35691270834270916, 0.4436271183223601]`、order 6930、raw 2）。
+- W0 `diff=0`；W1 四动作双读回 `0xa/0x0`、`0xf/0x0`；W4 `initial_diff=918130 → restore_diff=0`；清理 3121=0。
+- 窗口内 W3b 参考未就绪曾记 `W3A_PASS_W3B_PENDING`；参考生成后用**已落盘板上 UART** 补做（未重跑），最终 `CHAINLITE_B_PASS`。
+- 裁决落实：**D2 权威**写入设计文档顶部，`s4d_geometry.h` 加 `LEGACY_4B_SUPERSEDED_BY_D2` 注释（历史保留）；
+  **冻结产物按 SHA 引用**（r3/r4/r5 版本映射已在 `app_elf_registration_r5.json`）。
+- 边界：覆盖 **2B 平台位流 + SW 预处理（PS 实现）**；fixture `FIXTURE_GENERATED`（非实拍）；
+  不主张 G3/G4/G5；M3/M2 未闭合；`ENABLE=0`、未烧 QSPI、未改线、未 push。

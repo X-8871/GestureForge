@@ -1,0 +1,60 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "sw_preproc_pairing_20261028_r01",
+  "artifact": "SW 预处理（C 实现）vs 冻结 D2 张量逐字节对拍",
+  "boundary": "离线；ENABLE=0；不主张 G3/G4/G5",
+  "image": {
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\dataset\\fist\\fist\\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+    "sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "expect": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "match": true
+  },
+  "source": {
+    "width": 1440,
+    "height": 1920,
+    "rgb_raw": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\sw_preproc_pairing_20261028_r01\\source_rgb_1440x1920.raw",
+    "rgb_sha256": "6866008588a1fab8e22176b19b244cddc55cfdb6605879f17e6ceea9ca66e170",
+    "bgr_raw": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\sw_preproc_pairing_20261028_r01\\source_bgr_1440x1920.raw",
+    "bgr_sha256": "64532f9c4ea4b7b9f67104928c70f51f0b1208813da9f46fe66227a51bdf5fb3"
+  },
+  "compile": {
+    "exit": 0,
+    "stderr": ""
+  },
+  "run_rgb_entry": {
+    "exit": 0
+  },
+  "run_bgr_entry": {
+    "exit": 0
+  },
+  "frozen": {
+    "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_layer_divergence_20261026_r02\\bridge_input_postquant_int8_chw.bin",
+    "size": 519168,
+    "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "expect": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "match_expected": true
+  },
+  "rgb_entry": {
+    "size": 519168,
+    "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "byte_equal": true,
+    "diff_count": 0,
+    "first_diff_index": null,
+    "first_diff_artifact": null,
+    "first_diff_frozen": null,
+    "max_abs_diff": 0
+  },
+  "bgr_entry": {
+    "size": 519168,
+    "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+    "byte_equal": true,
+    "diff_count": 0,
+    "first_diff_index": null,
+    "first_diff_artifact": null,
+    "first_diff_frozen": null,
+    "max_abs_diff": 0
+  },
+  "verdict": "BYTE_EXACT_MATCH",
+  "note": "rgb_entry 走 RGB888 入口（与冻结参考同一输入口径）；bgr_entry 验证 PS 侧 BGR 入口等价性。若 bgr_entry 与 rgb_entry 输出一致，说明 BGR→RGB 通道映射正确。",
+  "bgr_equals_rgb": true
+}

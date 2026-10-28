@@ -1,0 +1,25 @@
+# chain-lite-B（SW 预处理链路）记录
+
+- RunId：`bringup_chainlite_b_20261028_r01`
+- 开窗：2026-10-28T21:00:38+08:00；收窗：2026-10-28T21:04:53+08:00
+- 用时：4.3 min
+- 结论：**W3A_PASS_W3B_PENDING**
+- stop_reason：W3b 离线参考未就绪（未判 PASS）
+- chainB ELF `fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0`；fixture `ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4`（FIXTURE_GENERATED 非实拍）
+- 离线张量 CRC-32 `0x5b183b50` / SHA `6c03f2af9a861e08414735b3a1185fbebddc0b1e5f503b6f4f65e5dc9903418e`
+- 判据：W2 `pass==1`；W3a 板上 CRC == 离线 CRC；W3b 框 JSON vs 离线参考 abs<=1e-9
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_chainb：`PASS` exit=`0`
+- W3_compare：`W3A_PASS_W3B_PENDING` exit=`1`
+- W4_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 覆盖 2B 平台位流 + **SW 预处理（PS 实现）**，非 PL 预处理；fixture 为生成样例（非摄像头实拍）。
+- 不主张 G3/G4/G5；M3/M2 未闭合；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`。

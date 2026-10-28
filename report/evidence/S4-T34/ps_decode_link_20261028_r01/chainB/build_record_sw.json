@@ -1,0 +1,68 @@
+{
+  "task_id": "S4-T34",
+  "phase": "PS 应用真实解码接线（v2）",
+  "purpose": "去掉 weak 桩：s2a_decode_nms_reference 直调 r13 冻结参考；s2b_network_start_from_tensor 按 2B CSR 冻结语义实现",
+  "variant": "sw",
+  "preproc_src": 0,
+  "preproc_src_meaning": "PS 软件预处理（兜底）",
+  "built_utc8": "2026-10-28T20:55:08+08:00",
+  "toolchain": {
+    "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "gcc_version": "arm-none-eabi (GCC)",
+    "size_exit": 0,
+    "size_output": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  42904\t   1416\t2707976\t2752296\t 29ff28\tD:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\s4d_ps_app_sw0_chainB.elf"
+  },
+  "inputs": {
+    "source": {
+      "path": "vitis/stage4/ps/s4d_ps_app.c",
+      "sha256": "fc292622e044a3f50d1aae558c5ecaf08c0265efc1006c4539214c0d7512d725"
+    },
+    "decode_reference_c": {
+      "path": "verification/s2a_ps_decode_nms_reference.c",
+      "sha256": "cf1904da1b6f9110a957ea788cdb7f9c6b7773d2fd8b7b61779063e5f995d845"
+    },
+    "decode_reference_h": {
+      "path": "verification/s2a_ps_decode_nms_reference.h",
+      "sha256": "edd61d7f47e2681ebd3b21f599c9637d41b257f5e0fc7b9b909f7962d758ce47"
+    },
+    "linker_script": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+      "sha256": "c0350ef1c1ebee0b6b672189c0046a37f6b9d0f90f67cd4dbb66a4224e239048"
+    }
+  },
+  "nm": {
+    "exit": 0,
+    "symbol": "s2a_t62_decode_nms",
+    "lines": [
+      "00104fa8 T s2a_t62_decode_nms"
+    ],
+    "is_strong_T": true,
+    "weak_W_present": false
+  },
+  "outputs": {
+    "elf": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\chainB\\s4d_ps_app_sw0_chainB.elf",
+      "sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+      "size_bytes": 262496
+    },
+    "map": {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\chainB\\s4d_ps_app_sw0_chainB.map",
+      "sha256": "386fbdc96dac02017635b90f9cc116c6038b17d34427a38db634b4aebdf9598e"
+    }
+  },
+  "exit_codes": {
+    "compile_app": 0,
+    "compile_ref": 0,
+    "link": 0,
+    "size": 0,
+    "nm": 0
+  },
+  "limitations": [
+    "网络启动强实现按冻结 CSR 语义编写，**未上板**验证（板卡归阶段5）",
+    "SW 预处理仍未实现几何 resize/pad（仅 BGR→RGB + INT8 打包最小路径）",
+    "解码输入取自 arena 固定偏移（head13 0x01A46100 / head26 0x01AD5E80，非连续）",
+    "链接脚本沿用 r13 infer 工程（text/data/bss 位于 DDR 0x00100000 起）；权重区 0x00100000 与代码的相对布局须在 bring-up 窗口核对（离线不判）",
+    "未在板上运行；不属于 G3"
+  ],
+  "boundary": "离线编译；未接触板卡；ENABLE=0；不构成任何关口通过。"
+}

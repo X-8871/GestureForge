@@ -1115,12 +1115,12 @@
     {
       "tag": "stage4-offline-freeze-20261028-r3",
       "commit": "5bed04f5bb96415316f028c6f66f53411f1055c7",
-      "reason": "交付清单 files[] 收录 6 个被 .gitignore 忽略的 *.log（git cat-file -e 6/6 失败、check-ignore 6/6 命中），清单不可从 tag 复现"
+      "reason": "交付清单含 6 个未入库 gitignore 日志（git cat-file -e 6/6 失败、check-ignore 6/6 命中），且退出码文件与清单绑定同一提交造成自指"
     },
     {
       "tag": "stage4-offline-freeze-20261028-r2",
       "commit": "a5f5485695e4ba681c2cd144e6c29ce42e1c3c13",
-      "reason": "CRITICAL-1 干净导出结论不可复现（disk 模式仍强制解析 commit，且证据为 r1 遗留）；CRITICAL-2 frozen_set_report 为 r1 遗留；MAJOR-3 工作区 33 项脏未声明、未做清单数量不符"
+      "reason": "CRITICAL：干净导出结论不可复现（disk 模式强制解析 commit、证据为 r1 遗留）、frozen_set_report 为 r1 遗留、脏项未声明"
     },
     {
       "tag": "stage4-offline-freeze-20261028-r1",
@@ -1129,15 +1129,16 @@
     },
     {
       "commit": "83c9284ad2296b9b2c836250cee615e255533615",
-      "reason": "更早的阶段4 离线冻结，已被 r1/r2/r3 取代"
+      "reason": "更早的阶段4 离线冻结，已被 r1..r4 取代"
     },
     {
       "commit": "4e0b03dd7090c7dc5615a4cd1e40bd193715faff",
-      "reason": "更早的阶段4 离线冻结，已被 r1/r2/r3 取代"
+      "reason": "更早的阶段4 离线冻结，已被 r1..r4 取代"
     }
   ],
   "excluded_self": [
     "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/*"
   ],
-  "excluded_self_reason": "冻结包自身由 annotated tag 绑定，不作成员自指哈希。"
+  "excluded_self_reason": "冻结包自身由 annotated tag 绑定，不作成员自指哈希。",
+  "design_principle": "被描述对象与描述分离：冻结包只含输入类成员（不记录冻结提交/树哈希，不承载退出码）；退出码/日志/导出证据放在 post-freeze 的兄弟 RunId，绑定其自身验证提交。哈希基座：声明值唯一来源=commit blob；写盘 LF；同项禁混基座；生成后自检两条门禁；确定性双跑。"
 }

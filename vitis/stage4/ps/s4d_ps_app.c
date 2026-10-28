@@ -9,9 +9,9 @@
  *   · pixel_format_code=1 → BGR888 必须经**显式映射表**，禁止直接 cast 到 s4_inject_pixel_format。
  *
  * 诚实边界（不得夸大）：
- *   · 本文件是**可编译骨架**：网络/解码入口用 weak 桩，完整 Vitis 应用链接 r13 既有目标文件后才具备推理能力；
- *   · SW 预处理只实现 BGR→RGB 与 INT8 打包的**最小路径**，几何 resize/pad 未实现（编译期标记 S4D_SW_GEOM_TODO）；
- *   · 未在板上运行过；不属于 G3。
+ *   · 解码入口：强实现，直调 r13 冻结参考 s2a_t62_decode_nms（head13/head26 取 arena 固定偏移）；
+ *   · 网络启动入口：强实现，按冻结 2B CSR 语义写影子寄存器 + START 并轮询 TERMINAL/FAULT；
+ *   · 仍未上板（板卡归阶段5）；不属于 G3。
  */
 
 #include <stdint.h>
@@ -23,6 +23,7 @@
 #include "xparameters.h"
 
 #include "s4d_geometry.h"   /* 唯一几何参数表 + 最近邻 letterbox（PL/SW 共用，禁止另写字面量） */
+#include "s2a_ps_decode_nms_reference.h"   /* r13 冻结解码参考：强符号 s2a_t62_decode_nms */
 
 /* ---------------- 地址与 ABI 常量（冻结，ADR §8.2/§8.4） ---------------- */
 #define S4D_RAW_BASE      0x12000000u
@@ -189,25 +190,6 @@ void s4d_region_flush_invalidate(uint32_t addr, uint32_t len)
     __asm__ volatile("dsb sy" ::: "memory");
 }
 
-/* ---------------- 网络/解码入口（完整 Vitis 应用提供；此处 weak 桩） ---------------- */
-extern int s2b_network_start_from_tensor(uint32_t session_id, uint32_t frame_id);
-extern int s2a_decode_nms_reference(const int8_t *heads, uint32_t session_id,
-                                    uint32_t frame_id, void *out_boxes, uint32_t *out_count);
-
-__attribute__((weak)) int s2b_network_start_from_tensor(uint32_t session_id, uint32_t frame_id)
-{
-    (void)session_id; (void)frame_id;
-    return -1;   /* 桩：未链接 r13 网络目标文件 */
-}
-
-__attribute__((weak)) int s2a_decode_nms_reference(const int8_t *heads, uint32_t session_id,
-                                                   uint32_t frame_id, void *out_boxes, uint32_t *out_count)
-{
-    (void)heads; (void)session_id; (void)frame_id; (void)out_boxes;
-    if (out_count) { *out_count = 0; }
-    return -1;
-}
-
 /* ---------------- 预处理 ---------------- */
 #if PREPROC_SRC
 /* PL 路径：写 CSR shadows 并触发 START_PREPROC，等待 tensor-valid（不见高端"HP0 安静"） */
@@ -310,6 +292,51 @@ __attribute__((unused)) static int s4d_preproc_sw(const s4d_host_req_t *req)
 #define S4D_HEAD26_BYTES  20280u
 #define S4D_INPUT_BASE    0x00100000u
 
+/* ---------------- 解码入口：强实现（r13 冻结参考；head13/head26 取自 arena 固定偏移） ---------------- */
+#define S4D_DEC_SCORE_TH   0.25
+#define S4D_DEC_MAX_BOX    15u
+#define S4D_HEAD13_SCALE   (0.24267549589862975)
+#define S4D_HEAD26_SCALE   (0.30223452951025775)
+
+static double s4d_logits13[S4D_HEAD13_BYTES];
+static double s4d_logits26[S4D_HEAD26_BYTES];
+static uint32_t s4d_cur_src_w = 640u;
+static uint32_t s4d_cur_src_h = 480u;
+uint32_t s4d_last_box_count;
+uint32_t s4d_last_raw_candidates;
+
+int s2a_decode_nms_reference(const int8_t *heads, uint32_t session_id, uint32_t frame_id,
+                             void *out_boxes, uint32_t *out_count)
+{
+    s2a_t62_detection det[S4D_DEC_MAX_BOX];
+    const int8_t *h13 = (const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF);
+    const int8_t *h26 = (const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD26_OFF);
+    size_t count = 0u, raw = 0u;
+    int rc;
+    uint32_t i;
+    if (heads == NULL) { if (out_count) { *out_count = 0u; } return S2A_T62_INVALID_ARGUMENT; }
+    (void)heads;   /* 语义：head13/head26 由 arena 固定偏移给出（r13 同源） */
+    for (i = 0u; i < S4D_HEAD13_BYTES; i++) {
+        s4d_logits13[i] = (double)h13[i] * S4D_HEAD13_SCALE;
+    }
+    for (i = 0u; i < S4D_HEAD26_BYTES; i++) {
+        s4d_logits26[i] = (double)h26[i] * S4D_HEAD26_SCALE;
+    }
+    rc = s2a_t62_decode_nms(s4d_logits13, S4D_HEAD13_BYTES, s4d_logits26, S4D_HEAD26_BYTES,
+                            s4d_cur_src_w, s4d_cur_src_h, S4D_DEC_SCORE_TH,
+                            det, S4D_DEC_MAX_BOX, &count, &raw);
+    s4d_last_box_count = (uint32_t)count;
+    s4d_last_raw_candidates = (uint32_t)raw;
+    if (rc == S2A_T62_OK && out_boxes != NULL && count > 0u) {
+        memcpy(out_boxes, det, count * sizeof(det[0]));
+    }
+    if (out_count) { *out_count = (uint32_t)count; }
+    (void)session_id; (void)frame_id;
+    return rc;
+}
+
+
+
 static inline uint32_t s4d_rd(uint32_t addr) { return Xil_In32(addr); }
 static inline void s4d_wr(uint32_t addr, uint32_t v)
 {
@@ -353,6 +380,33 @@ static int s4d_safe_done(uint32_t *status_out, uint32_t *error_out)
     if (error_out) *error_out = err;
     if (state == S4D_ST_DONE) return ((st & S4D_HEAD_VALID) != 0u && err == 0u) ? 1 : 0;
     return ((st & S4D_HEAD_VALID) == 0u && err != 0u) ? 2 : 0;   /* 2 = 合法 ERROR_SAFE */
+}
+
+/* ---------------- 网络启动入口：强实现（2B CSR 冻结语义；替换 weak 桩） ---------------- */
+int s2b_network_start_from_tensor(uint32_t session_id, uint32_t frame_id)
+{
+    uint64_t epoch = 0u;
+    uint32_t spin;
+    if (!s4d_is_idle()) { return -2; }
+    if (!s4d_read_epoch(&epoch) || epoch == UINT64_MAX) { return -3; }
+    s4d_wr(S4D_CSR_FRAME_W, frame_id);
+    s4d_wr(S4D_CSR_INADDR_W, 0u);
+    s4d_wr(S4D_CSR_INBYTES_W, S4D_INPUT_BYTES);
+    s4d_wr(S4D_CSR_WADDR_W, S4D_INPUT_BASE);
+    s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
+    s4d_wr(S4D_CSR_CORETO_W, 400u);
+    s4d_wr(S4D_CSR_DRAINTO_W, 400u);
+    s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
+    for (spin = 0u; spin < 200000000u; spin++) {
+        uint32_t st = s4d_rd(S4D_CSR_STATUS);
+        uint32_t state = st & 7u;
+        if ((st & S4D_TERMINAL) != 0u) {
+            return (state == S4D_ST_DONE) ? 0 : -4;
+        }
+        if (state == S4D_ST_FAULT) { return -5; }
+    }
+    (void)session_id;
+    return -6;
 }
 
 static uint32_t s4d_count_diff(const uint8_t *a, const uint8_t *b, uint32_t n, uint32_t *first)
@@ -460,14 +514,22 @@ int s4d_m4b_selfcheck(void)
 /* ---------------- infer_one_from_pl_tensor：跳过 CPU memcpy / 输入写回 ---------------- */
 int infer_one_from_pl_tensor(const s4d_host_req_t *req)
 {
-    /* 1) PL 已写 tensor：只做 invalidate + DSB，绝不 memcpy 覆盖 */
+    int rc;
+    /* 1) PL 已写 tensor：只做 invalidate，绝不 memcpy 覆盖 */
     s4d_region_invalidate(S4D_TENSOR_BASE, S4D_TENSOR_BYTES);
-    /* 2) 冻结网络启动入口（复用既有权重/feature/head 语义） */
-    int rc = s2b_network_start_from_tensor(req->session_id, req->frame_id);
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, S4D_HEAD13_BYTES);
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD26_OFF, S4D_HEAD26_BYTES);
+    /* 2) 源图尺寸用于解码裁剪/坐标还原（ABI 未给时用 640x480 约定） */
+    if (req->width != 0u && req->height != 0u) {
+        s4d_cur_src_w = req->width; s4d_cur_src_h = req->height;
+    }
+    /* 3) 强实现：冻结 2B CSR 语义启动网络（不再返回 -1 桩值） */
+    rc = s2b_network_start_from_tensor(req->session_id, req->frame_id);
     if (rc != 0) { return rc; }
-    /* 3) feature flush+invalidate、head 输出 invalidate 由网络层按既有语义完成；
-          此处只做一次全量 DSB，确保可见性顺序 */
     __asm__ volatile("dsb sy" ::: "memory");
+    /* 4) 复用 r13 冻结解码参考；head13/head26 来自 arena 固定偏移（非连续） */
+    (void)s2a_decode_nms_reference((const int8_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF),
+                                  req->session_id, req->frame_id, NULL, NULL);
     return 0;
 }
 
@@ -511,6 +573,8 @@ int main(void)
         res->frame_id = req->frame_id;
         res->result_seq = (rc == 0) ? ++result_seq : result_seq;
         res->phys_status = (rc == 0) ? 0u : 1u;
+        res->raw_candidate_count = s4d_last_raw_candidates;
+        res->box_count = s4d_last_box_count;
         res->error_code = (uint32_t)(rc < 0 ? -rc : rc);
         res->tensor_sha_prefix[0] = (uint64_t)s4d_crc32((const void *)(uintptr_t)S4D_TENSOR_BASE, S4D_TENSOR_BYTES);
         res->crc32 = 0;

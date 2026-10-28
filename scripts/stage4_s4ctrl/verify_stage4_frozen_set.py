@@ -46,6 +46,17 @@ def blob_bytes(repo: Path, commit: str, rel: str) -> bytes | None:
     return out if code == 0 else None
 
 
+def disk_candidates(path: Path) -> list[bytes]:
+    """磁盘字节候选（原始 + CRLF→LF 归一化），用于无 .git 的干净导出校验。"""
+    if not path.is_file():
+        return []
+    raw = path.read_bytes()
+    cands = [raw]
+    if b"\r\n" in raw:
+        cands.append(raw.replace(b"\r\n", b"\n"))
+    return cands
+
+
 def sha256(data: bytes) -> str:
     """字节 SHA-256。"""
     return hashlib.sha256(data).hexdigest()
@@ -67,7 +78,7 @@ def is_safe_relpath(rel: str) -> tuple[bool, str]:
     return True, ""
 
 
-def check_members(repo: Path, fs: dict) -> tuple[int, list[str], list[dict]]:
+def check_members(repo: Path, fs: dict, disk: bool = False) -> tuple[int, list[str], list[dict]]:
     """逐成员校验；返回 (退出码, 错误, 明细)。"""
     errors: list[str] = []
     details: list[dict] = []
@@ -104,6 +115,18 @@ def check_members(repo: Path, fs: dict) -> tuple[int, list[str], list[dict]]:
             continue
         if not isinstance(declared, str) or len(declared) != 64:
             errors.append(f"{mid}: sha256 非 64 位十六进制")
+            continue
+        if disk:
+            cands = disk_candidates(repo / rel)
+            if not cands:
+                errors.append(f"{mid}: 干净导出中缺件：{rel}")
+                continue
+            matched = next((c for c in cands if sha256(c) == declared), None)
+            actual = sha256(matched) if matched is not None else sha256(cands[0])
+            details.append({"id": mid, "path": rel, "declared": declared, "actual": actual,
+                            "bytes": len(cands[0]), "ok": matched is not None, "mode": "disk"})
+            if matched is None:
+                errors.append(f"{mid}: sha256 不符 {rel}（disk/CRLF 归一化后仍不一致）")
             continue
         data = blob_bytes(repo, commit, rel)
         if data is None:
@@ -200,6 +223,7 @@ def main() -> int:
     ap.add_argument("--frozen-set",
                     default="report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set.json")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--disk", action="store_true", help="无 .git 的干净导出模式（磁盘字节 + CRLF 归一化）")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
@@ -222,12 +246,14 @@ def main() -> int:
         print("[FAIL] frozen_set 顶层必须是对象", file=sys.stderr)
         return EXIT_INPUT
 
-    code, errors, details = check_members(repo, fs)
+    disk_mode = args.disk or not (repo / ".git").exists()
+    code, errors, details = check_members(repo, fs, disk=disk_mode)
     total = len(fs.get("members", []))
     checked = sum(1 for d in details if d["ok"])
     if args.json:
         print(json.dumps({"frozen_set": str(fs_path), "hash_basis_commit": fs.get("hash_basis_commit"),
                           "members_total": total, "members_checked": checked,
+                          "mode": "disk" if disk_mode else "commit_blob",
                           "errors": errors, "exit_code": code}, ensure_ascii=False, indent=2))
     if code == EXIT_OK:
         print(f"FROZEN_SET_VERIFIED ({checked}/{total})")

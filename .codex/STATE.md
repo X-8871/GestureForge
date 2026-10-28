@@ -95,4 +95,4 @@
 - **阶段4 离线冻结**：tag stage4-offline-freeze-20261028-r5 -> a0ecc71（tree 5b6fc279）；冻结包 6 个输入类文件（tag 树内 _verification/ 计数=0）；115 成员（17/5/8/85）+ 11 项真实产物身份；真 git archive 导出 4359 文件 -> --disk 115/115 exit 0；五项退出码全 0；验证包为 post-freeze 提交 3ddb0af（不在 tag 内）。
 - **未主张**：G3/G4/G5、阶段4/5 验收通过、板级 B1-B10、ENABLE=1（仍 0）；阶段4 未闭合项与阶段5 板级项见 decisions/freeze_declaration_stage4_r5_stage5_r3_20261028_r01.md。
 - 迭代中被拦下的真缺陷（r1 假哈希 / r2 导出不可复现 / r3 gitignore 日志入清单 / r4 tag 树含旧验证包）均已记录在该决策文件中。
-- **阶段4 冻结勘误（2026-10-28）**：r5 包  记录 35 实为 32；errata RunId （ERRATA.md ），tag r5  与冻结包 6 文件字节未动；生成器改为由 len(not_frozen) 计数并加 exit 8/9 断言。
+- **阶段4 冻结勘误（2026-10-28）**：r5 包的 `not_frozen_count` 记录 35、实为 32（`not_frozen` 32 条 = `git status` 32 项）；errata RunId = `stage4_freeze_20261028_r05_errata_20261028_r01`（`ERRATA.md` sha256 `dc7f1b94ebac25c0…32cf3`）；**tag r5 `a0ecc71` 与冻结包 6 文件字节未动**；生成器改为由 `len(frozen_set.not_frozen)` 计数并加 exit 8/9 断言（统计不符/磁盘与 blob 不一致即拒）。

@@ -3,22 +3,23 @@
   "stage": "4",
   "task_id": "S4-T33",
   "run_id": "stage4_freeze_20261028_r01",
-  "purpose": "阶段4 离线冻结 r2：115 成员 + 11 项真实产物身份（含 2B XSA 真值）+ 验证器占位拒绝 + 五项真实退出码",
+  "purpose": "阶段4 离线冻结 r3：115 成员 + 11 项真实产物身份 + 真实导出复跑 + 脏项声明 + 旧语义验证器真实结论",
   "hash_basis": "commit_blob",
-  "hash_basis_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+  "hash_basis_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
   "hash_basis_note": "files[].sha256 取自 `git cat-file blob <hash_basis_commit>:<path>`；提交后新增证据标 worktree_disk。",
-  "freeze_id": "stage4-offline-freeze-20261028-r2",
-  "freeze_tag": "stage4-offline-freeze-20261028-r2",
+  "freeze_id": "stage4-offline-freeze-20261028-r3",
+  "freeze_tag": "stage4-offline-freeze-20261028-r3",
   "excluded_from_manifest": {
     "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/delivery_manifest.json",
-    "reason": "交付清单被本冻结清单排除以避免两份清单互相引用的哈希环；其自身由 git 提交与 tag 绑定，并由 check_stage_delivery 校验。"
+    "reason": "两份清单互相引用会形成哈希环；交付清单由 git 提交与 tag 绑定，并由 check_stage_delivery 校验。"
   },
   "exit_codes": {
     "selftest": 0,
     "verifier_repo": 0,
     "clean_export": 0,
     "check_stage_delivery": 0,
-    "manifest_gate": 0
+    "manifest_gate": 0,
+    "legacy_f1f8": 1
   },
   "files": [
     {
@@ -37,77 +38,84 @@
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_check_stage_delivery.txt",
       "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 8
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_clean_export.txt",
       "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 8
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_final_recheck.txt",
       "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 8
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_manifest_gate.txt",
       "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 8
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_selftest.txt",
       "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 8
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/exit_verifier_repo.txt",
       "sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 8
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/final_recheck.stdout.txt",
-      "sha256": "dd6a4db962a0a7b24f3f3384dd9b6483013d5bf17f18fd31a3bddd3283a931ba",
-      "hash_basis": "worktree_disk",
+      "sha256": "46ec95abd96bf195225e78eb9990167d7e11d5a1843d3e970148e51dfe97f95d",
+      "hash_basis": "commit_blob",
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
       "size_bytes": 31
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set.json",
-      "sha256": "9ff8c78b524149d189b4fd27047965c2f0a6a046f093fee8566b39b866992aa6",
+      "sha256": "0af401d52d403fb3c25d817aa19019ba08baa6b5b5ec683cdc496edf3880edcb",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
-      "size_bytes": 56925
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
+      "size_bytes": 64161
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/frozen_set_report.json",
       "sha256": "db94c3590bb375d5bbbd44d0fa825f242bffd15b41a09d7a500f59d7404ad660",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
-      "size_bytes": 1568
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
+      "size_bytes": 1922
+    },
+    {
+      "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/legacy_f1f8_verifier.log",
+      "sha256": "ce25b82ec7d8a5dd9b8427165a6e7c33b4eb67d2569075506de902197487eae3",
+      "hash_basis": "worktree_disk",
+      "size_bytes": 590
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/README.md",
-      "sha256": "a870ed42cf4ac98f96b29d7fe71a287f5d7b84c82477df588295e27f41f6ecb8",
+      "sha256": "c4b4f23bb18f3294828d88561617be4d019c7e3d6d82ccafbd91c771c5452984",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
-      "size_bytes": 2777
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
+      "size_bytes": 3078
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/results_freeze.json",
-      "sha256": "388ca7ecf489ac612a261f18d706624c1808a4a2fe23ac2bdfe633ab72cbbf35",
+      "sha256": "c0f11b4231373640a05da1349b3dfa20abfc693e94092b84e2d35ae07dd8e167",
       "hash_basis": "commit_blob",
-      "source_commit": "6f85b19d619ecc12b781328c3b61cd4eaa3a1ad9",
-      "size_bytes": 4452
+      "source_commit": "6cb6f73dd2445266b2df0a276085856eee6493e3",
+      "size_bytes": 5263
     },
     {
       "path": "report/evidence/S4-FREEZE/stage4_freeze_20261028_r01/selftest.log",

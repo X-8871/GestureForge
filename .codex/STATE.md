@@ -129,6 +129,14 @@
 - 复跑：`python -B verification/verify_stage5_frozen_set.py --root . --frozen-set report/evidence/S5-T04/s5_freeze_20261027_r05/frozen_set.json` → 期望 `FROZEN_SET_VERIFIED` / exit 0；加 `--selftest tmp/5/S5-T04/selftest` → 期望 0/1/2。
 - 恢复命令：`git -C D:/codex-worktrees/w5 rev-parse HEAD; git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 tag --list "stage5-offline-freeze*"`
 
-## 交接行（11 字段，2026-10-27 19:55 UTC+8）
+## W-E 板级窗口接管（2026-10-28，DSH 项目总控直接指令接管）
 
-任务=`task-27 阶段5 回放/彩色输入路径实现 + 离线动态显示回归（已交付 r01；S5-T04 离线冻结复审 PASS 保持）` | 负责人=`DSH 阶段5 总控（2026-10-26 21:21 起正式认领）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`2a2d2cc01cd31444a1a854115d99a31cbe8499bf` | 允许修改范围=`scripts/stage5_t03/s5t03_replay_colour_input.py、s5t03_replay_colour_regression.py、test_s5t03_replay_colour.py、scripts/stage5_t27/**、docs/stage5/S5T27_*、report/evidence/S5-T27/**、.codex/STATE.md` | 未提交改动归属=`本轮全部为本卡产物，随后续提交同批入库；S5-T04 冻结成员未改` | 让出声明=`本卡为**离线回放**：未连接/未加载位流/未烧录/未占用 JTAG 串口；板级 B1–B10 仍暂停（需 Wong 开工信号 + 第 0 步，真彩目视需 Wong 在场）` | 心跳(UTC+8)=`2026-10-27 19:55` | 证据入口=`report/evidence/S5-T27/s5t27_replay_colour_20261027_r01/`、`docs/stage5/S5T27_replay_colour_input_path_v1.md`、`report/evidence/S5-T04/s5_freeze_20261027_r05/` | 恢复命令=`python -B D:/codex-worktrees/w5/scripts/stage5_t03/s5t03_replay_colour_input.py --binding D:/codex-worktrees/dbdf/report/evidence/S3-T05/t05_replay_binding_20261025_r01/replay_input_binding.json` | 状态/下一接手方=`TASK27_DELIVERED（实现层＋离线回归 PASS：30 断言/0 失败、长跑 106 573 帧、B1–B10 对齐已交；待 DSH 项目总控核收/派审）→ 下一步：W-E 板级窗口待 Wong 信号；重冻结时一并修 S5-T04 复审 F1–F5 / 本阶段总控`
+- **接管性质**：原阶段5 执行体因**上下文耗尽自行停写**，经 DSH 项目总控转交执行体 `stage6-lead2`（临时）；**非 OFFERED 交接**，属直接指令接管（与阶段4 曾用口径一致）。
+- **授权范围**：`report/evidence/S5-WE/**`、本文件、`docs/stage5/S5WE_*`；**不改** `report/evidence/S5-T04/**`、不改 r1/r2/r3 tag、不改 `frozen_set.json`。
+- **离线重建**：`report/evidence/S5-WE/rebuild_20261028_r01/`（新 ELF + `build_record.json` + 清单；prep 旧 ELF provenance 不实，未装载）。
+- **板级执行**：`report/evidence/S5-B*/` 与 `report/evidence/S5-WE/results_*.json`（若开窗）；未做项一律 `NOT_RUN`。
+- **纪律**：不 push、`ENABLE=0`、不烧 QSPI、不改线、**不写 `[0x12000000,0x12C08000)`**、不发独立 stop、不结束 `vivado-mcp-server-*`。
+
+## 交接行（11 字段，2026-10-28 11:1x UTC+8；W-E 接管）
+
+任务=`阶段5 W-E（B1–B10 板级项）` | 负责人=`DSH 项目总控 → 执行体 stage6-lead2（临时）` | 工作树/分支=`D:\codex-worktrees\w5` / `stage5-display-prep` | 起始提交=`cee575a87e474366307a6ede806180d6044f1e75` | 允许修改范围=`report/evidence/S5-WE/**` + `.codex/STATE.md` + `docs/stage5/S5WE_*` | 未提交改动归属=`w5 现有脏项/未跟踪项保持原归属，不清不提交；本执行体只新增 S5-WE 证据与 STATE 交接` | 让出声明=`原阶段5 执行体因上下文耗尽自行停写，经 DSH 项目总控转交；非 OFFERED 交接，属直接指令接管` | 心跳(UTC+8)=`2026-10-28 11:1x` | 证据入口=`report/evidence/S5-WE/` | 恢复命令=`git -C D:/codex-worktrees/w5 status --short; git -C D:/codex-worktrees/w5 log --oneline -3; python -B D:/FPGA_Competition/verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S5-WE/rebuild_20261028_r01/delivery_manifest.json --project-root D:/codex-worktrees/w5` | 状态/下一接手方=`IN_PROGRESS / stage6-lead2（W-E 板级窗口执行中）`

@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "artifact": "s5we_elf_rebuild_record",
+  "task_id": "S5-WE",
+  "run_id": "rebuild_20261028_r01",
+  "stage": "5",
+  "worktree": "D:\\codex-worktrees\\w5",
+  "branch": "stage5-display-prep",
+  "source_commit": "cee575a87e474366307a6ede806180d6044f1e75",
+  "purpose": "离线重建 W-E 窗口装载用 Cortex-A9 ELF（不装载 prep 中 provenance 不实的旧 ELF）",
+  "scope": "OFFLINE_BUILD_ONLY：本记录不构成板上结论；板上执行见 report/evidence/S5-B*/ 与 S5-WE results。",
+  "deployment_identity": {
+    "xsa_path": "report/evidence/S5-WE/prep_20261028_r01/design_1_wrapper.xsa",
+    "xsa_sha256": "90e1bdee1f5baaf9e772edcddc800aab6927d2099b54a45bc020025d82ccb1c4",
+    "xsa_zip_integrity": "zipfile.testzip() == None",
+    "bit_extracted_path": "report/evidence/S5-WE/rebuild_20261028_r01/design_1_wrapper.bit",
+    "bit_sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+    "bit_bytes": 1572373,
+    "bit_origin": "从 prep 已登记 XSA 内 design_1_wrapper.bit 解出（二进制读取，无转换）",
+    "bit_identity_crosscheck": "与阶段3 收尾记录中的交付基线 bit 44e609cc… 一致（stage3 closeout 记录口径，见 dbdf STATE）"
+  },
+  "toolchain": {
+    "arm_gcc": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "make": "GNU Make 4.2.1",
+    "vitis": "Vitis v2026.1 (64-bit), SW Build 6511674 2026-06-16",
+    "xsct_status": "DISABLED：Vitis 2026.1 报 'XSCT is disabled in Vitis 2026.1 release'，无法从 XSA 生成 BSP"
+  },
+  "license": {
+    "env": [
+      "XILINXD_LICENSE_FILE",
+      "LM_LICENSE_FILE"
+    ],
+    "path": "C:\\Users\\22061\\Documents\\s15_appdata_56C955A6_5bcd56b837931ca1a05d6293153a3476\\basic_only.lic",
+    "sha256": "59679b8df9163d7da0b1b7e9d111850494debabaa366e1b08489e4608c356582",
+    "used_for_build_only": true
+  },
+  "bsp": {
+    "path": "tmp/5/S5-WE/rebuild_20261028_r01/work/empty_application_bsp",
+    "method": "FALLBACK_COPY_EXTERNAL_READONLY",
+    "origin": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\empty_application_bsp",
+    "origin_note": "Vitis 2026.1 已禁用 xsct，无法用已登记 XSA 现场生成 BSP；该 BSP 是既有部署 ELF 构建所用同一 BSP（build.log 可证），按只读输入复制",
+    "file_count": 1136,
+    "total_bytes": 11293811,
+    "libxil_sha256": "8185dcb110944ab1cd687ae6b7a40aafc070725e1d1e1076c27ef1196779dd0a"
+  },
+  "inputs": [
+    {
+      "kind": "git_tracked_app_source",
+      "path": "scripts/stage5_t01/p1_app/s5_overlay.c",
+      "sha256_worktree_disk": "1df69dfee9a00dfc50106c446c23d485859ebde66e0449290e794b98b66f8fe6",
+      "sha256_commit_blob": "1df69dfee9a00dfc50106c446c23d485859ebde66e0449290e794b98b66f8fe6",
+      "source_commit": "cee575a87e474366307a6ede806180d6044f1e75",
+      "compiled_into_elf": true,
+      "note": "host-side 生成器，仅登记为证据来源，不编入 ARM ELF（含独立 main，首次链接因此失败）"
+    },
+    {
+      "kind": "git_tracked_app_source",
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.c",
+      "sha256_worktree_disk": "799b3626a63cc3501fc6ee2d5b14b9426cf2910f21cc19e5ede03b298dec2105",
+      "sha256_commit_blob": "799b3626a63cc3501fc6ee2d5b14b9426cf2910f21cc19e5ede03b298dec2105",
+      "source_commit": "cee575a87e474366307a6ede806180d6044f1e75",
+      "compiled_into_elf": true,
+      "note": "host-side 生成器，仅登记为证据来源，不编入 ARM ELF（含独立 main，首次链接因此失败）"
+    },
+    {
+      "kind": "git_tracked_app_source",
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map.h",
+      "sha256_worktree_disk": "85edd69bd250b4786f0b2f10ccf6b6c1fb7e78e85ab0b7916d9956f33b207340",
+      "sha256_commit_blob": "85edd69bd250b4786f0b2f10ccf6b6c1fb7e78e85ab0b7916d9956f33b207340",
+      "source_commit": "cee575a87e474366307a6ede806180d6044f1e75",
+      "compiled_into_elf": true,
+      "note": "host-side 生成器，仅登记为证据来源，不编入 ARM ELF（含独立 main，首次链接因此失败）"
+    },
+    {
+      "kind": "git_tracked_app_source",
+      "path": "scripts/stage5_t01/p1_app/s5_dynamic_map_host.c",
+      "sha256_worktree_disk": "8abe3acc96edb39bc3c072aed6ba17f04148ca6cbc8b411c927986f4598b998f",
+      "sha256_commit_blob": "8abe3acc96edb39bc3c072aed6ba17f04148ca6cbc8b411c927986f4598b998f",
+      "source_commit": "cee575a87e474366307a6ede806180d6044f1e75",
+      "compiled_into_elf": false,
+      "note": "host-side 生成器，仅登记为证据来源，不编入 ARM ELF（含独立 main，首次链接因此失败）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/display_demo.c",
+      "sha256_worktree_disk": "de848b11c950e160600987adb42d07b69348489a951aac1e0e753844a23af3f2",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/display_demo.h",
+      "sha256_worktree_disk": "0a215a3018d1220617ffce051a33b05c3357678957784d9a2e58c11bf28aa85a",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/vdma.c",
+      "sha256_worktree_disk": "f5757b4e57119e434cfbdeb9840d1e9d6469a3705ecc74a08297d0dd9f4546c0",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/vdma.h",
+      "sha256_worktree_disk": "27b43e3886903306fea7ab4f65f06036110ad2b4a21942709b27c5533d654640",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/ov5640.c",
+      "sha256_worktree_disk": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/ov5640.h",
+      "sha256_worktree_disk": "9f971011b74db5451eab61acca7733890e18cc8ac159d0bbf27b1bf0a8ba875f",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/s5_overlay_cases.h",
+      "sha256_worktree_disk": "8e81f380931aee466dda3bbd4d7732040a730200f0f7f81c48047e2891c20073",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/lscript.ld",
+      "sha256_worktree_disk": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/Xilinx.spec",
+      "sha256_worktree_disk": "f100af82b444989adf5aad4ad612b9ae3b4ddac007f5d9653f1abf254235b085",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/Makefile.app",
+      "sha256_worktree_disk": "526bef3ce4861293a0ec9297fdf7c79cd868a5c10ef7e0d30e72cfe9f7d090b1",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/display_ctrl/display_ctrl.c",
+      "sha256_worktree_disk": "fb6a377b7ed0766c485158d4994e8cc6837fb504ae7e56e41412ee3f23a695d2",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/display_ctrl/display_ctrl.h",
+      "sha256_worktree_disk": "296656dc26de65ecf50f089ca74fc93eb5a9ae890fdcb622fb3782d567a5ccff",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/display_ctrl/vga_modes.h",
+      "sha256_worktree_disk": "8544a68f725f04001d82881bec21435f27fe39b52b54227d75d77ec75ec5f57f",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/dynclk/dynclk.c",
+      "sha256_worktree_disk": "be827313363baad59d1693c8e7b1894ab6c0aacc569934ea85919abe73846e14",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/dynclk/dynclk.h",
+      "sha256_worktree_disk": "62d8815ce504ea1bda24b23aa404a860d59b6bf96d98a91a2519b16ede437ed3",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/i2c/PS_i2c.c",
+      "sha256_worktree_disk": "273aefe9716df3c6f00d31eb63711babb509861c70351687b3dfc553afd3b675",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    },
+    {
+      "kind": "recipe_input_from_w5_tmp",
+      "path": "tmp/5/S5-T01/p1_app/build/i2c/PS_i2c.h",
+      "sha256_worktree_disk": "6f019fac2a941af27e07e2a5be89c7350d09fdaedf9a105db4eefb04baeaf693",
+      "source_commit": null,
+      "provenance": "w5 既有 tmp 配方目录（S5-T01 构建产物；非 r3 冻结集；工作树未跟踪）"
+    }
+  ],
+  "commands": [
+    {
+      "name": "xsct generate BSP from registered XSA",
+      "command": "xsct gen_bsp.tcl",
+      "workdir": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-WE\\rebuild_20261028_r01",
+      "exit_code": 0,
+      "observed": "[ERROR] XSCT is disabled in Vitis 2026.1 release; libxil.a not produced",
+      "result": "BLOCKED_BY_TOOLCHAIN（不改用其它 MCP/会话，按 fallback 记录）"
+    },
+    {
+      "name": "copy BSP (read-only external)",
+      "command": "Copy-Item <dbdf BSP> work/empty_application_bsp -Recurse",
+      "exit_code": 0,
+      "result": "PASS：1136 files / 11293811 bytes / libxil.a 8185dcb110944ab1cd687ae6b7a40aafc070725e1d1e1076c27ef1196779dd0a"
+    },
+    {
+      "name": "make attempt 1 (all *.c including host-side generator)",
+      "command": "make.exe -f Makefile.app EXEC=s5_overlay_we_rebuild_r01.elf CC='arm-none-eabi-gcc -DS5_DYNAMIC_MAP=1 -DS5_SINGLE_CASE=5'",
+      "workdir": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-WE\\rebuild_20261028_r01\\work",
+      "exit_code": 2,
+      "observed": "ld: multiple definition of `main'（s5_dynamic_map_host.c 为 host 程序）",
+      "result": "FAIL（真实失败保留）"
+    },
+    {
+      "name": "make attempt 2 (host-side generator moved out of compile dir)",
+      "command": "同上（s5_dynamic_map_host.c 移至 ../sources_host/）",
+      "workdir": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-WE\\rebuild_20261028_r01\\work",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "output": {
+    "path": "report/evidence/S5-WE/rebuild_20261028_r01/s5_overlay_we_rebuild_r01.elf",
+    "sha256": "6a521a60f9245976409a3f18c31d2eb522c94dd30dc3d842fe9cb48e026ecc1b",
+    "bytes": 360548,
+    "defines": [
+      "S5_DYNAMIC_MAP=1",
+      "S5_SINGLE_CASE=5"
+    ],
+    "link_flags": "-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec -Wl,--start-group,-lxil,-lgcc,-lc,-lm,--end-group -Wl,--gc-sections -Tlscript.ld",
+    "byte_identity_vs_prep": {
+      "prep_s5_diag_elf_sha256": "bcd8ef23439d0a451f52efdd8285f353aa6c616c32252b32f93838711c483b78",
+      "identical": false,
+      "reason": "独立重建：源码集合/编译命令/路径不同（本包排除 host 生成器、经 Makefile.app 自动发现子目录；prep 旧 ELF provenance 不实，未沿用）"
+    }
+  },
+  "reproduce": [
+    "复制 work/ 源与 Recipe（见 inputs[]）",
+    "BSP fallback：复制既有 BSP 至 work/empty_application_bsp（xsct 在 2026.1 禁用）",
+    "cd work && PATH=<arm gcc bin>;<vitis gnuwin bin>; make -f Makefile.app EXEC=s5_overlay_we_rebuild_r01.elf CC='arm-none-eabi-gcc -DS5_DYNAMIC_MAP=1 -DS5_SINGLE_CASE=5'"
+  ],
+  "limitations": [
+    "OFFLINE_BUILD_ONLY：本包未连接板卡、未装载、未产生任何板上结论。",
+    "BSP 为外部只读 fallback 复制（xsct 禁用）；BSP 与已登记 XSA 的一致性未在本轮用工具现场重建验证，属已知限制。",
+    "ELF 与 prep 的 s5_diag.elf 非逐字节相同；prep 旧 ELF provenance 不实，本包不沿用。",
+    "s5_dynamic_map_host.c 只作证据登记，不编入 ARM ELF。"
+  ]
+}

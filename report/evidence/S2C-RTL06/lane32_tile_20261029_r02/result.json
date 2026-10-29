@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "task_id": "S2C-RTL06",
+  "run_id": "lane32_tile_20261029_r02",
+  "status": "PASS_SHORT_LAYER0_16X16_TILE_GOLDEN",
+  "baseline_commit": "f1a136ec1ec6548c8774a1269b49ff91349b85b0",
+  "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+  "simulator_build": "XSim SW Build 6511674, 64-bit",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL06/lane32_tile_20261029_r02",
+  "source_binding": {
+    "hash_basis": "worktree_disk",
+    "captured_before_xvlog": true,
+    "files": [
+      {
+        "path": "src/s2a_network_descriptor_pkg.sv",
+        "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183"
+      },
+      {
+        "path": "src/s2c_feature_patch_bank32.sv",
+        "sha256": "a8c2f1cc01abeeea529a289479e0564c1e5f46b57dd2dbb97224ec482f7067b1"
+      },
+      {
+        "path": "src/s2b_conv_tile_engine.sv",
+        "sha256": "eaf52d736f4e14db3c063880a47bf71fb74448177b6923bb3359b3cd34f5a861"
+      },
+      {
+        "path": "sim/tb_s2c_rtl06_lane32_tile.sv",
+        "sha256": "755f9344e84bc885f379f25ab6b2855c87c0030945585bd25e031a9970754847"
+      }
+    ]
+  },
+  "fixtures": [
+    {
+      "path": "D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_input_chw_int8.bin",
+      "size_bytes": 519168,
+      "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+      "hash_basis": "worktree_disk",
+      "oracle_provenance_commit": "9fb9ab7b380430c22bf147654157858b52151dad",
+      "role": "历史输入fixture，仅为本次仿真的输入"
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_gf8_weights.bin",
+      "size_bytes": 864,
+      "sha256": "df49b5d3aeaebd6b4107b99d83ffa791d7a7e24bd7b26df0815c246e5717e633",
+      "hash_basis": "worktree_disk",
+      "oracle_provenance_commit": "9fb9ab7b380430c22bf147654157858b52151dad",
+      "role": "历史权重fixture，仅为本次仿真的输入"
+    },
+    {
+      "path": "D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_expected_nchw_int8.bin",
+      "size_bytes": 1384448,
+      "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+      "hash_basis": "worktree_disk",
+      "oracle_provenance_commit": "9fb9ab7b380430c22bf147654157858b52151dad",
+      "role": "历史golden oracle，不代表本次候选的仿真记录"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xvlog.bat",
+        "-sv",
+        "D:/FPGA_Competition/w2c/src/s2a_network_descriptor_pkg.sv",
+        "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv",
+        "D:/FPGA_Competition/w2c/src/s2b_conv_tile_engine.sv",
+        "D:/FPGA_Competition/w2c/sim/tb_s2c_rtl06_lane32_tile.sv"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.128,
+      "log_path": "tmp/S2C/RTL06/lane32_tile_20261029_r02/xvlog_console.log",
+      "log_sha256": "576c1414e1e90f049abf93bb282aa59d5bbf73682de2a4ab75fcf91fb5ccb7b7"
+    },
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xelab.bat",
+        "tb_s2c_rtl06_lane32_tile",
+        "-s",
+        "s2c_rtl06_lane32_tile_sim"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 8.633,
+      "log_path": "tmp/S2C/RTL06/lane32_tile_20261029_r02/xelab_console.log",
+      "log_sha256": "5bd9c4663d31d0c4b96cca615205522de259856fa559fefdc9ded37ead94b209"
+    },
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xsim.bat",
+        "s2c_rtl06_lane32_tile_sim",
+        "-runall"
+      ],
+      "exit_code": 0,
+      "pass_marker": "PASS S2C-RTL06 lane32 layer0 tile0 golden match: ext_input=3072 weights=864 bank_wr=3267 bank_rd=6627 outputs=8192 cycles=52043",
+      "elapsed_seconds": 6.920,
+      "simulation_time_ns": 520465,
+      "log_path": "tmp/S2C/RTL06/lane32_tile_20261029_r02/xsim_console.log",
+      "log_sha256": "9ba4d31d5831ef1f04ad27dcb6704b7ed44b07543a5e4ae0f41367bd9ded26ce"
+    }
+  ],
+  "checks": {
+    "frozen_output_lanes": 32,
+    "tile_edge": 16,
+    "watchdog_cycles": 200000,
+    "cycles_measured_by_testbench_counter": 52043,
+    "external_feature_requests": 3072,
+    "weight_requests": 864,
+    "feature_bank_writes": 3267,
+    "feature_bank_valid_tap_reads": 6627,
+    "output_byte_writes": 8192,
+    "output_golden_byte_comparisons": 8192,
+    "output_coordinate_map": "8192-bit seen map indexed c*256+y*16+x; duplicate writes fatal and all 8192 entries verified present",
+    "golden_mismatches": 0,
+    "bank_bad_address_or_conflict": 0,
+    "random_seed": null,
+    "sample_count": 1
+  },
+  "comparison": {
+    "default8_result": "report/evidence/S2C-RTL06/default8_tile_20261029_r01/result.json",
+    "default8_cycles": 73559,
+    "lane32_cycles": 52043,
+    "cycle_ratio_32_to_8": 0.7075001,
+    "cycle_reduction_fraction": 0.2924999,
+    "speedup_for_this_tile_only": 1.4134274
+  },
+  "execution": {
+    "preflight_available_memory_mib": 5980.5,
+    "pre_xsim_available_memory_mib": 5954.4,
+    "xsim_reported_peak_memory_mib": null,
+    "peak_memory_status": "lane32 xsim transcript did not report peak memory; external RSS was not sampled",
+    "tool_wall_seconds_sum": 16.681
+  },
+  "limitations": [
+    "只验证layer0的一个16x16空间tile和输出通道0..31，不能代表整层或整帧cycles/fps。",
+    "T66 fixture及golden来自历史oracle基线9fb9ab7b380430c22bf147654157858b52151dad；它们不是本次候选运行记录。",
+    "32 lane仅通过新实例参数显式启用；network top未传FROZEN_OUTPUT_LANES，平台默认仍为8 lane。",
+    "generic模式仍固定8 lane，但本轮未运行generic0专用回归；现有tb_s2a_conv_tile_unit绑定独立s2a_conv_tile_engine，不作为本候选回归。",
+    "没有集成burst、全帧测试、综合资源报告、100MHz时序或板级结果；不能将本仿真换算为板上帧率。"
+  ]
+}

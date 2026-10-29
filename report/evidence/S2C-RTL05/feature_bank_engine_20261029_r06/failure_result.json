@@ -1,0 +1,9 @@
+{
+  "task_id": "S2C-RTL05",
+  "run_id": "feature_bank_engine_20261029_r06",
+  "status": "FAIL_PACKAGING_TRUNCATED_OUTPUT",
+  "cause": "总控生成commit_blob补证时给读取命令的输出预算过小，将截断提示连同不完整JSON误写为manifest.json。此文件不是有效清单，原字节保留，不作为交付通过依据。",
+  "checker_limitation": "校验器对无法解析的JSON跳过，曾返回exit0但manifests_seen=0、entries_checked=0；这不是通过，不能作为证据。",
+  "functional_impact": "未运行仿真，未改业务源码，不改变r04的真实结果。",
+  "repair": "新r07重新完整生成、先解析JSON与核对条目数量，再作严格哈希核验；绑定本失败原件。"
+}

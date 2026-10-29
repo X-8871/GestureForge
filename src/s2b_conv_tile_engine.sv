@@ -1,7 +1,8 @@
-// S2A-T66：以 8×8 空间 tile 和 8 个输出通道并行完成一个卷积层。
+// S2A-T66：通用模式为8×8空间tile和8路；冻结模式为16×16空间tile，可选8路或32路。
 module s2b_conv_tile_engine #(
     // 仅冻结network实例启用；默认保留原通用参数域和错误判据。
-    parameter bit FROZEN_CONV_DESCRIPTOR = 1'b0
+    parameter bit FROZEN_CONV_DESCRIPTOR = 1'b0,
+    parameter integer FROZEN_OUTPUT_LANES = 8
 ) (
     input  logic        clk,
     input  logic        hard_reset,
@@ -67,11 +68,20 @@ module s2b_conv_tile_engine #(
     localparam logic [2:0] INTERNAL = 3'd6;
     localparam logic [2:0] ACCUMULATOR_OVERFLOW = 3'd7;
     localparam integer TILE_EDGE = FROZEN_CONV_DESCRIPTOR ? 16 : 8;
-    localparam integer LANE_COUNT = 8;
+    localparam integer LANE_COUNT = FROZEN_CONV_DESCRIPTOR ? FROZEN_OUTPUT_LANES : 8;
     localparam integer MAX_FEATURE_PATCH_BYTES = FROZEN_CONV_DESCRIPTOR ? 124416 : 51200;
-    localparam integer MAX_WEIGHT_GROUP_BYTES = 36864;
     localparam integer MAX_WEIGHT_REDUCTION_COUNT = 4608;
-    localparam integer OUTPUT_BLOCK_BYTES = FROZEN_CONV_DESCRIPTOR ? 2048 : 512;
+    localparam integer MAX_WEIGHT_GROUP_BYTES = LANE_COUNT * MAX_WEIGHT_REDUCTION_COUNT;
+    localparam integer OUTPUT_BLOCK_BYTES = LANE_COUNT * TILE_EDGE * TILE_EDGE;
+
+    generate
+        if (FROZEN_CONV_DESCRIPTOR &&
+            (FROZEN_OUTPUT_LANES != 8) && (FROZEN_OUTPUT_LANES != 32)) begin : gen_invalid_frozen_output_lanes
+            initial begin
+                $fatal(1, "冻结卷积输出lane数只允许8或32");
+            end
+        end
+    endgenerate
 
     typedef enum logic [4:0] {
         ST_IDLE,

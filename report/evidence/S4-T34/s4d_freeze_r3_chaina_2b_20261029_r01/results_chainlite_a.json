@@ -1,0 +1,356 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "s4d_freeze_r3_chaina_2b_20261029_r01",
+  "phase": "chain-lite-A（PS 侧链路，不含预处理）",
+  "driver_sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+  "chain_elf_sha256": "87e049b4db8f7debd212f91b354648c2e83f845d419048ae5783d1a9923bdc52",
+  "input_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+  "started_utc8": "2026-10-30T00:15:29+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "file": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+          "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+          "expect": "555a70c2",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "chain_elf",
+          "file": "D:\\tmp\\lead\\tailfix_20261029_r01\\build\\s4d_ps_app_sw0_chainA.elf",
+          "sha256": "87e049b4db8f7debd212f91b354648c2e83f845d419048ae5783d1a9923bdc52",
+          "expect": "87e049b4db8f7debd212f91b354648c2e83f845d419048ae5783d1a9923bdc52",
+          "match": true
+        },
+        {
+          "tag": "m3_snapshot",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_a_20261027_r01\\m3_snapshot_orig.bin",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver_v326",
+          "file": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "expect": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "match": true
+        },
+        {
+          "tag": "input_tensor",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_layer_divergence_20261026_r02\\bridge_input_postquant_int8_chw.bin",
+          "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+          "expect": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+          "match": true
+        },
+        {
+          "tag": "weights",
+          "file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "exists": true,
+          "bytes": 5903100,
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        },
+        {
+          "tag": "reference_json",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\host_result_test_fist_000.json",
+          "exists": true,
+          "bytes": 2190,
+          "sha256": "0c793dafc3660a22f80499088053a57c5fd73d8521ce5fdbf6bc0377065c7fc0"
+        }
+      ],
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "real_index_lock_present": false,
+      "exit_code": 0
+    },
+    "P1_hw_server": {
+      "ok": true,
+      "pid": 19108,
+      "exit_code": 0
+    },
+    "W0_restore_candidate": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0
+    },
+    "W1_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xa",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xa",
+        "readback_raw": "10",
+        "tcl_verdict": "OK",
+        "readback": "0xa",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      },
+      "program_pl_exit": 0,
+      "lvl_0xF": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xf",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xf",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      }
+    },
+    "W2_chain_a": {
+      "status": "PASS",
+      "exit_code": 0,
+      "verdict": "PASS",
+      "C1_result_pass": true,
+      "C2_reference_match": true,
+      "C3_no_preproc": true,
+      "result_line": "CHAIN RESULT={\"pass\":1,\"done\":1,\"status\":3588,\"error\":0,\"decode_rc\":0,\"count\":1,\"raw\":2,\"ack_idle\":1,\"elapsed_ms\":47287,\"spin\":77366929}",
+      "parsed": {
+        "pass": 1,
+        "done": 1,
+        "status": 3588,
+        "error": 0,
+        "decode_rc": 0,
+        "count": 1,
+        "raw": 2,
+        "ack_idle": 1,
+        "elapsed_ms": 47287,
+        "spin": 77366929
+      },
+      "det_parse_error": null,
+      "detections": [
+        {
+          "idx": 0,
+          "class_id": 0,
+          "score": 0.7697084233252404,
+          "xyxy": [
+            0.2481297045148163,
+            0.3713942307692308,
+            0.34786113088325127,
+            0.4362980769230769
+          ],
+          "source_order": 6570
+        }
+      ],
+      "reference_compare": {
+        "ok": true,
+        "tolerance": 1e-09,
+        "reference_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\host_result_test_fist_000.json",
+        "reference_sha256": "0c793dafc3660a22f80499088053a57c5fd73d8521ce5fdbf6bc0377065c7fc0",
+        "fields": [
+          {
+            "field": "detection_count",
+            "artifact": 1,
+            "reference": 1,
+            "abs_diff": null,
+            "match": true
+          },
+          {
+            "field": "det[0].class_id",
+            "artifact": 0,
+            "reference": 0,
+            "abs_diff": null,
+            "match": true
+          },
+          {
+            "field": "det[0].score",
+            "artifact": 0.7697084233252404,
+            "reference": 0.7697084233252404,
+            "abs_diff": 0.0,
+            "match": true
+          },
+          {
+            "field": "det[0].x1",
+            "artifact": 0.2481297045148163,
+            "reference": 0.2481297045148163,
+            "abs_diff": 0.0,
+            "match": true
+          },
+          {
+            "field": "det[0].y1",
+            "artifact": 0.3713942307692308,
+            "reference": 0.3713942307692308,
+            "abs_diff": 0.0,
+            "match": true
+          },
+          {
+            "field": "det[0].x2",
+            "artifact": 0.34786113088325127,
+            "reference": 0.34786113088325127,
+            "abs_diff": 0.0,
+            "match": true
+          },
+          {
+            "field": "det[0].y2",
+            "artifact": 0.4362980769230769,
+            "reference": 0.4362980769230769,
+            "abs_diff": 0.0,
+            "match": true
+          },
+          {
+            "field": "det[0].source_order",
+            "artifact": 6570,
+            "reference": 6570,
+            "abs_diff": null,
+            "match": true
+          }
+        ],
+        "artifact_dets": [
+          {
+            "idx": 0,
+            "class_id": 0,
+            "score": 0.7697084233252404,
+            "xyxy": [
+              0.2481297045148163,
+              0.3713942307692308,
+              0.34786113088325127,
+              0.4362980769230769
+            ],
+            "source_order": 6570
+          }
+        ],
+        "reference_dets": [
+          {
+            "class_id": 0,
+            "class_name": "fist",
+            "score": 0.7697084233252404,
+            "xyxy": [
+              0.2481297045148163,
+              0.3713942307692308,
+              0.34786113088325127,
+              0.4362980769230769
+            ],
+            "xyxy_px": [
+              357.3067745013355,
+              713.0769230769231,
+              500.92002847188184,
+              837.6923076923077
+            ],
+            "source_order": 6570
+          }
+        ],
+        "reference_decode": {
+          "status": 0,
+          "score_threshold": 0.25,
+          "head13_scale": 0.24267549589862975,
+          "head26_scale": 0.30223452951025775,
+          "max_outputs": 15,
+          "nms_iou": 0.45,
+          "head13_len": 5070,
+          "head26_len": 20280
+        }
+      },
+      "uart_lines_total": 24,
+      "uart_result_seen": true,
+      "uart_log": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_freeze_r3_chaina_2b_20261029_r01\\chain_uart.log",
+      "step_lines": [
+        "CHAIN STEP=0 enter PREPROC=INJECTED_TENSOR geom=1440x1920",
+        "CHAIN STEP=1 read CSR_ID addr=0x43C00000",
+        "CHAIN STEP=2 check idle: status=0x00000400",
+        "CHAIN STEP=3 read epoch",
+        "CHAIN STEP=4 cache flush done",
+        "CHAIN STEP=5 START cmd written",
+        "CHAIN STEP=6 progress elapsed_ms=5000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=10000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=15000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=20000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=25000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=30000 status=0x00000102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=35000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=40000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 progress elapsed_ms=45000 status=0x00001102 error=0x00000000",
+        "CHAIN STEP=6 wait done=1 elapsed_ms=47287 spin=77366929 status=0x00000E04 error=0x00000000",
+        "CHAIN STEP=7 heads invalidated",
+        "CHAIN STEP=8 decode rc=0 count=1 raw=2",
+        "CHAIN STEP=9 ACK phase (idle_before=0)"
+      ],
+      "preload": {
+        "input_exit": 0,
+        "weights_exit": 0,
+        "input_bytes": 519168,
+        "weights_bytes": 5903100,
+        "input_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+        "weights_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+      },
+      "preproc": "INJECTED_TENSOR（不做 SW 预处理；不涉及 RAW 参考比较）"
+    },
+    "W4_final_restore": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 19108,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": null,
+  "judgement": {
+    "C1": "CHAIN RESULT.pass==1（done==1 && error==0 && decode_rc==0 && count>=1 && ack_idle==1）",
+    "C2": "CHAIN DET 与 host_result_test_fist_000.json 逐字段一致，abs 容差 <=1e-9",
+    "C3": "PREPROC=INJECTED_TENSOR；不与 0x12000000 RAW 参考比较"
+  },
+  "boundary": "2B 平台位流适用性；ENABLE=0；不烧 QSPI；不改线；不 push；不主张 G3/G4/G5",
+  "finished_utc8": "2026-10-30T00:18:33+08:00",
+  "elapsed_min": 3.1,
+  "failed_steps": [],
+  "conclusion": "CHAINLITE_A_PASS"
+}

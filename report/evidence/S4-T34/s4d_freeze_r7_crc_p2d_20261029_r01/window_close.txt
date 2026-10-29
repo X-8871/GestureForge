@@ -1,0 +1,26 @@
+# P2c 上板窗口（preproc→packer→DMA→张量 CRC 对拍）
+
+- RunId：`s4d_freeze_r7_crc_p2d_20261029_r01`；开窗 2026-10-30T00:41:15+08:00；收窗 2026-10-30T00:45:52+08:00；用时 4.6 min
+- 位流：r02 `58c66cdb53994d577156b4ff62eabc7187d2e88184ca965bb3395f63ec1a86a3`（前缀 58c66cdb）
+- 应用 ELF：`bff4b80ff8dea2771b66cf72690a9585cafcdef4b5d682be1eef611e4a1f5be6`
+- **结论：`P2C_TENSOR_CRC_MATCH`**
+- UART 采集：DONE（{"elapsed_s": 0.2, "lines": 21, "silence_s": 0.0}）
+- CRC 行：`PCB DMA tensor_crc32=0x5B183B50 expected=0x5B183B50 pass=1`
+- RESULT：`{"exit": 0, "preproc_rc": 0, "dma_rc": 0, "halt_rc": 0, "dmasr": 4098, "dmacr": 65538, "length_reg": 519168, "tensor_crc32": 1528314704, "crc_pass": 1, "pre_status": 2, "pre_done_ms": 45}`
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_enum：`PASS` exit=`0`
+- W2_w0_restore：`PASS` exit=`0`
+- W2_pspl_four_actions：`PASS` exit=`0`
+- W2_preload_raw：`PASS` exit=`0`
+- W2_load_app：`PASS` exit=`0`
+- W2_frame：`PASS` exit=`0`
+- W4_tensor_sample：`PASS` exit=`0`
+- W5_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- P2c 候选位流（未冻结）+ 应用变体；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`。
+- 不主张 G3/G4/G5；CRC 对拍只覆盖 SW 预载 fixture + PL 预处理 + DMA 数据面，不代表摄像头实拍链。

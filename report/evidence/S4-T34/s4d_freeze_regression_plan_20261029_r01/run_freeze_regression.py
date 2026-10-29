@@ -11,6 +11,7 @@ r"""冻结回归执行器（阶段4/5，2026-10-29 r01）：串行跑 7 个板�
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -34,9 +35,9 @@ STEPS = [
     ("R3", "2B 基线：chain-lite A", BOARD_DIR, "run_chainlite_a_2b.py",
      "s4d_freeze_r3_chaina_2b_20261029_r01", 5),
     ("R4", "2B 基线：chain-lite B", BOARD_DIR, "run_chainlite_b_2b.py",
-     "s4d_freeze_r4_chainb_2b_20261029_r01", 5),
-    ("R5", "P2d：2B 单帧性能（47000–48000 ms）", BOARD_DIR, "run_m4b_p2d.py",
-     "s4d_freeze_r5_m4b_p2d_20261029_r01", 6),
+     "s4d_freeze_r4_chainb_2b_20261029_r02", 5),
+    ("R5", "P2d：2B 单帧性能 + M4-b 收口（padded 参考 + 投毒）", CLOSE_DIR, "run_m4b_close_p2d.py",
+     "s4d_freeze_r5_m4b_p2d_20261029_r02", 6),
     ("R6", "P2d：chain-lite A", BOARD_DIR, "run_chainlite_a_p2d.py",
      "s4d_freeze_r6_chaina_p2d_20261029_r01", 6),
     ("R7", "P2d：preproc→DMA(HP1) 张量 CRC", BOARD_DIR, "run_p2c_crc_on_p2d.py",
@@ -53,6 +54,32 @@ PASS_CONCLUSIONS = {
     "R6": {"CHAINLITE_A_PASS"},
     "R7": {"P2C_TENSOR_CRC_MATCH"},
 }
+
+
+
+FIXTURE_SRC = EVID / "s4d_chainlite_b_2b_20261029_r03" / "fixture"
+
+
+def prepare_fixture(run_id: str) -> str:
+    """chain-lite B 的 fixture 不随 RunId 自动生成；缺就从 r03 的确定性副本复制（sha 固定 ce37aa77…）。"""
+    dst = EVID / run_id / "fixture"
+    if (dst / "fixture_fist_000_640x480_bgr888.raw").is_file():
+        return "already"
+    (EVID / run_id).mkdir(parents=True, exist_ok=True)
+    if not FIXTURE_SRC.is_dir():
+        return "missing_source"
+    dst.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for f in FIXTURE_SRC.iterdir():
+        if f.is_file():
+            (dst / f.name).write_bytes(f.read_bytes())
+            n += 1
+    # W3b 需要同 RAW → 同 C 预处理 → 宿主前向/冻结解码生成的离线参考框（确定性文件）
+    ref = FIXTURE_SRC.parent / "offline_reference_boxes.json"
+    if ref.is_file() and not (EVID / run_id / "offline_reference_boxes.json").is_file():
+        (EVID / run_id / "offline_reference_boxes.json").write_bytes(ref.read_bytes())
+        n += 1
+    return f"copied_{n}"
 
 
 def now() -> str:
@@ -98,8 +125,9 @@ def step_ok(step_id: str, run_id: str) -> tuple[bool, str]:
                 parsed = q
                 break
         el = parsed.get("elapsed_ms")
-        ok = parsed.get("done") == 1 and parsed.get("error") == 0 and isinstance(el, int) and 47000 <= el <= 48000
-        return ok, f"done={parsed.get('done')} error={parsed.get('error')} elapsed_ms={el}"
+        ok = (parsed.get("pass") == 1 and parsed.get("done") == 1 and parsed.get("error") == 0
+              and isinstance(el, int) and 47000 <= el <= 48000)
+        return ok, f"pass={parsed.get('pass')} done={parsed.get('done')} error={parsed.get('error')} elapsed_ms={el}"
     return concl in PASS_CONCLUSIONS.get(step_id, set()), concl
 
 
@@ -128,13 +156,17 @@ def main() -> int:
                 print(f"[{now()}] 跳过 {sid}（--start {start}）")
                 continue
             started = True
+        if sid == "R4":
+            print(f"[{now()}] R4 前置：fixture → {prepare_fixture(run_id)}", flush=True)
         cmd = [sys.executable, "-B", str(cwd / script), run_id]
         print(f"[{now()}] {sid} {desc} → {' '.join(cmd)}  (~{mins} min)", flush=True)
         if dry:
             report.append({"id": sid, "run_id": run_id, "desc": desc, "dry_run": True})
             continue
         t0 = time.time()
-        proc = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True)
+        env = dict(os.environ, PYTHONIOENCODING="utf-8", PYTHONUNBUFFERED="1")
+        proc = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True,
+                              encoding="utf-8", errors="replace", env=env)
         dt = round((time.time() - t0) / 60, 1)
         ok, detail = step_ok(sid, run_id)
         # runner 的 stdout 末尾几行落到报告里，便于现场判读

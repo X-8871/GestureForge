@@ -1,0 +1,47 @@
+{
+  "started_utc8": "2026-10-30T00:18:34+08:00",
+  "dry_run": false,
+  "steps": [
+    {
+      "id": "R1",
+      "run_id": "s4d_freeze_r1_m3_m4a_2b_20261029_r01",
+      "desc": "2B 基线：M3 只读复检 + M4-a",
+      "minutes": 4.5,
+      "runner_exit": 1,
+      "ok": true,
+      "detail": "m3=PASS m4a=PASS m4b_skipped_ok",
+      "tail": "[2026-10-30T00:10:48+08:00] W6_final_restore: PASS exit=0\n[2026-10-30T00:10:52+08:00] P4_teardown: PASS exit=0\n[2026-10-30T00:10:52+08:00] done conclusion=P2B_4D_STOPPED_ON_FAILURE"
+    },
+    {
+      "id": "R2",
+      "run_id": "s4d_freeze_r2_m4b_2b_20261029_r01",
+      "desc": "2B 基线：M4-b 收口（padded 参考 + 投毒）",
+      "minutes": 4.6,
+      "runner_exit": 0,
+      "ok": true,
+      "detail": "M4B_PASS_TAIL13_CLOSED",
+      "tail": "[2026-10-30T00:15:25+08:00] W6_final_restore: PASS exit=0\n[2026-10-30T00:15:28+08:00] P4_teardown: PASS exit=0\n[2026-10-30T00:15:28+08:00] done conclusion=M4B_PASS_TAIL13_CLOSED"
+    },
+    {
+      "id": "R3",
+      "run_id": "s4d_freeze_r3_chaina_2b_20261029_r01",
+      "desc": "2B 基线：chain-lite A",
+      "minutes": 3.1,
+      "runner_exit": 0,
+      "ok": true,
+      "detail": "CHAINLITE_A_PASS",
+      "tail": "[2026-10-30T00:18:29+08:00] W4_final_restore: PASS exit=0\n[2026-10-30T00:18:33+08:00] P4_teardown: PASS exit=0\n[2026-10-30T00:18:33+08:00] chainlite-a done conclusion=CHAINLITE_A_PASS stop=None elapsed=3.1min"
+    },
+    {
+      "id": "R4",
+      "run_id": "s4d_freeze_r4_chainb_2b_20261029_r01",
+      "desc": "2B 基线：chain-lite B",
+      "minutes": 0.0,
+      "runner_exit": 1,
+      "ok": false,
+      "detail": "CHAINLITE_B_STOPPED_ON_FAILURE",
+      "tail": ""
+    }
+  ],
+  "verdict": "FAIL"
+}

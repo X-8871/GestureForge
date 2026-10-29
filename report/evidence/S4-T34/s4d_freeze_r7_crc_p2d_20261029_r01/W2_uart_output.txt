@@ -1,0 +1,21 @@
+S4D PS APP: PREPROC_SRC=1 ABI=1
+S4D MODE=PREPROC_DMA_SELFCHECK geom=letterbox_640x480_to_416x416
+P2CDMA MODE=PREPROC_DMA_SELFCHECK dma_base=0x43C20000 preproc_base=0x43C10000 da=0x10000000 len=519168 crc_expect=0x5B183B50
+P2CDMA STEP=0 raw=0x12000000 raw_bytes=921600 tensor=0x10000000
+TIMEBASE CHECK xt_delta=3000122 gt_delta=3000071 ratio_x1000=999
+TIMEBASE DIVISOR old_expr_ms=2 gt_ms=9 (old/gt~250 => 旧分母4x，BSP宏缺括号)
+PREPL STEP=0b slcr lvl_shftr=0x0000000F fpga_rst_ctrl=0x00000000 fpga0_clk=0x00600600
+P2CDMA STEP=1 preproc_irq_clr status=0x00000000 dmasr_before=0x00000001
+P2CDMA STEP=2 halted_ok dmasr=0x00000001 elapsed_ms=0
+P2CDMA STEP=2b dmasr=0x00000001 (期望名义 0x1: halted=1, err=0, SGIncld=0)
+P2CDMA STEP=3 armed da=0x10000000 da_rb=0x10000000 cr=0x00010002 cr_rb=0x00010003 dmasr=0x00000000
+P2CDMA STEP=3b length_written=519168 len_reg=0x0007EC00 dmasr=0x00000000
+PREPL STEP=1 id=0x53344450 expect=0x53344450 bytes=519168 expect=519168
+PREPL STEP=2 geom=0x013801A0 geom2=0x00340000 status=0x00000000 done_cnt=0
+PREPL STEP=3 START written（仅启动；完成判据用 DMA IOC/Idle，不用 done_sticky）
+P2CDMA STEP=5 dma_done dmasr=0x00001002 ioc=1 idle=1 length_reg=519168 pre_status=0x00000002 pre_done_ms=45 elapsed_ms=45
+P2CDMA STEP=6 dma_halted dmasr=0x00001001 elapsed_ms=0
+P2CDMA STEP=6b dmacr=0x00010002 dmasr=0x00001001 length_reg=519168
+PCB DMA tensor_crc32=0x5B183B50 expected=0x5B183B50 pass=1
+P2CDMA RESULT={"exit":0,"preproc_rc":0,"dma_rc":0,"halt_rc":0,"dmasr":4098,"dmacr":65538,"length_reg":519168,"tensor_crc32":1528314704,"crc_pass":1,"pre_status":2,"pre_done_ms":45}
+P2CDMA DONE, halting

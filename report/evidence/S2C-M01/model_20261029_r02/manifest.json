@@ -1,0 +1,104 @@
+{
+  "schema_version": "s2c-model-evidence/1.0.0",
+  "task_id": "S2C-M01",
+  "run_id": "model_20261029_r02",
+  "status": "MODEL_ONLY_NOT_CYCLE_SIMULATION",
+  "source_identity": {
+    "frozen_2b_commit": "07c3d39 (2026-10-22 G4/G5 PASS)",
+    "worktree_head": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+    "branch": "codex/stage2c-throughput"
+  },
+  "hash_basis_policy": "每个hash条目显式标记worktree_disk；新工作树文件未提交，不能声明commit_blob。",
+  "artifacts": [
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\verification\\s2c_throughput_model.py",
+      "label": "模型脚本；新工作树未提交文件",
+      "sha256": "3782e66fb103d943f5d255aee05cb646cc1595fb289e8550f57dd66cf9f79c44",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\docs\\obsidian-project\\02-方案设计\\s2c_throughput_feasibility_20261029.md",
+      "label": "模型设计说明；新工作树未提交文件",
+      "sha256": "19267fb84a2dbc62d3dae09ec64c200206c647c68cc44b9ed618fe02b845a581",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:\\wb-out-r3\\task_l0\\profile.json",
+      "label": "L0模型输入；外部只读文件",
+      "sha256": "1318675585a618be650629efb6c83b125c5befb5dbfc691fc60759efaea00e73",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:\\wb-out-r3\\task_l0\\REPORT.md",
+      "label": "L0报告输入；外部只读文件",
+      "sha256": "15480ef03615186edcfe785a7b501a2c92b990d5b1abbd049934ab5338720b53",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\report\\evidence\\S2C-M01\\model_20261029_r02\\model_result.json",
+      "label": "模型运行结果",
+      "sha256": "5bb1897dd0ad8863af55395688f3c06d573a3900678247e834d110a6846b3e07",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\report\\evidence\\S2C-M01\\model_20261029_r01\\manifest.json",
+      "label": "先前r01失败运行记录",
+      "sha256": "f3bcb01124a8d00acc2d891e83ffcee893822bd292400644e2d6bfebc9454788",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\report\\evidence\\S2C-M01\\model_20261029_r02\\ERRATA.md",
+      "label": "r01哈希录入错误与校验结果勘误",
+      "sha256": "475b6568fbed81f9a567c9fe5a9035e677837ab8eb5319906c02a54686778cfd",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    }
+  ],
+  "errata": [
+    {
+      "source_run_id": "model_20261029_r01",
+      "issue": "原失败manifest的profile.json哈希转录错误；原manifest和门禁失败输出均原样保留。",
+      "record_path": "report/evidence/S2C-M01/model_20261029_r02/ERRATA.md"
+    }
+  ],
+  "prior_failed_run": {
+    "run_id": "model_20261029_r01",
+    "status": "FAILED",
+    "exit_code": 1,
+    "failure_summary": "输出连续段断言引用了main作用域外的writes变量；未生成result，详见r01 manifest和FAILURE_NOTE.md。"
+  },
+  "execution": {
+    "command_argv": [
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "-B",
+      "D:\\FPGA_Competition\\w2c\\verification\\s2c_throughput_model.py",
+      "--profile",
+      "D:\\wb-out-r3\\task_l0\\profile.json",
+      "--result-output",
+      "D:\\FPGA_Competition\\w2c\\report\\evidence\\S2C-M01\\model_20261029_r02\\model_result.json",
+      "--manifest-output",
+      "D:\\FPGA_Competition\\w2c\\report\\evidence\\S2C-M01\\model_20261029_r02\\manifest.json",
+      "--run-id",
+      "model_20261029_r02"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.079275,
+    "peak_memory_bytes": null,
+    "logs_manifested": false
+  },
+  "limitations": [
+    "权重与输出写事务按层/tile/输出组或连续平面分段，并对4KiB内起始对齐逐字节枚举；激活读取L0未提供逐层地址映射，只给全部连续聚合下界与每字节一请求上界。",
+    "候选字节载荷按traffic/8拍；单字节基线每个AXI请求按1个payload beat计。burst实际响应间隙、背压及各通路是否并发尚未验证。",
+    "基线单点残差含DDR往返、route/upsample状态机和PS观察，不能辨识其随事务数缩减的比例；结果同时列出全缩放与完全不缩减敏感性，二者不是置信区间。",
+    "激活读取量固定为L0逻辑读减8x8权重重读，假设扩大空间tile不改变总激活读取量。",
+    "仅基线拟合残差为零；候选帧时间尚无周期仿真或实测，±20%预测精度未验证。",
+    "未计层调度、BRAM端口冲突、tile预取、输出量化、PS解码/NMS和帧输入等待。",
+    "大tile和128 lane资源数、100MHz时序均未综合；模型预测不是板上帧率。"
+  ]
+}

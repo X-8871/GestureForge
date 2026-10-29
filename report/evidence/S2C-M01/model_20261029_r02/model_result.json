@@ -1,0 +1,308 @@
+{
+  "status": "MODEL_ONLY_NOT_CYCLE_SIMULATION",
+  "source_frozen_commit": "07c3d39 (2026-10-22 G4/G5 PASS)",
+  "source_frozen_clock_mhz": 50,
+  "target_frame_cycles_at_100mhz": 50000000,
+  "measured_frame_ms_user_supplied": 11821.0,
+  "measured_cycles_assuming_100mhz": 1182100000,
+  "frozen_budget_reproduced": {
+    "conv_iterations": 424506368,
+    "weight_reread_bytes": 69732736,
+    "output_write_bytes_independent_layer_sum": 11382150,
+    "output_write_bytes_l0": 11382150,
+    "logical_read_bytes": 84753811,
+    "logical_requests": 96135961,
+    "lower_bound_cycles": 616778290
+  },
+  "calibration_100mhz": {
+    "baseline_lanes": 8,
+    "baseline_tile_hw": [
+      8,
+      8
+    ],
+    "baseline_single_byte_transactions": 96135961,
+    "baseline_payload_beats": 96135961,
+    "baseline_residual_cycles": 661457671,
+    "fixed_cycles_per_transaction_fitted": 6.880439578692099,
+    "reproduced_baseline_cycles": 1182100000,
+    "reproduced_baseline_ms": 11821.0,
+    "user_measurement_residual_pct": 0.0,
+    "clock_basis_note": "基线每个单字节AXI请求按至少1个64-bit payload beat计；剩余周期残差包含DDR往返、route/upsample状态机和PS观察，不能辨识其哪些部分随事务数缩减。冻结2B平台记录为50MHz，11,821ms按100MHz换算只用于敏感性模型。"
+  },
+  "lane_compute_only": {
+    "8": {
+      "cycles": 424506368,
+      "seconds_at_100mhz": 4.24506368
+    },
+    "16": {
+      "cycles": 212253184,
+      "seconds_at_100mhz": 2.12253184
+    },
+    "32": {
+      "cycles": 106126592,
+      "seconds_at_100mhz": 1.06126592
+    },
+    "64": {
+      "cycles": 56892160,
+      "seconds_at_100mhz": 0.5689216
+    },
+    "96": {
+      "cycles": 50402560,
+      "seconds_at_100mhz": 0.5040256
+    },
+    "128": {
+      "cycles": 38851072,
+      "seconds_at_100mhz": 0.38851072
+    },
+    "160": {
+      "cycles": 38851072,
+      "seconds_at_100mhz": 0.38851072
+    },
+    "192": {
+      "cycles": 37682944,
+      "seconds_at_100mhz": 0.37682944
+    },
+    "220": {
+      "cycles": 37682944,
+      "seconds_at_100mhz": 0.37682944
+    }
+  },
+  "spatial_tile_weight_bytes": {
+    "8x8": 69732736,
+    "16x8": 36203712,
+    "16x16": 18849376,
+    "32x8": 22337088,
+    "32x16": 11561760
+  },
+  "scenarios": [
+    {
+      "lanes": 32,
+      "compute_parallelism": "32 output channels",
+      "tile_hw": [
+        32,
+        8
+      ],
+      "burst_bytes": 16,
+      "clock_hz": 100000000,
+      "compute_cycles": 106126592,
+      "weight_reread_bytes": 22337088,
+      "activation_read_bytes_assumed": 15021075,
+      "output_write_bytes": 11382150,
+      "logical_traffic_bytes": 48740313,
+      "transactions_by_category": {
+        "weight_segments": {
+          "segment_count": 988,
+          "segment_bytes": 22337088,
+          "axi3_transactions_min_by_alignment": 1396068,
+          "axi3_transactions_max_by_alignment": 1397056
+        },
+        "output_write_segments": {
+          "segment_count": 809180,
+          "segment_bytes": 11382150,
+          "axi3_transactions_min_by_alignment": 1134716,
+          "axi3_transactions_max_by_alignment": 1943896
+        },
+        "activation_reads_unknown_segmentation": {
+          "axi3_transactions_min_if_all_bytes_coalesce": 938818,
+          "axi3_transactions_max_if_byte_requests_remain": 15021075
+        },
+        "total_min": 3469602,
+        "total_max": 18362027
+      },
+      "payload_cycles_if_all_traffic_bursted": 6092540,
+      "payload_cycles_if_activation_reads_stay_bytewise": 19235980,
+      "residual_scaling_sensitivity": {
+        "baseline_residual_cycles": 661457671,
+        "fitted_residual_cycles_per_baseline_request": 6.880439578692099,
+        "optimistic_all_residual_scales_with_transactions_cycles": 136091518.92310926,
+        "conservative_segmenting_and_activation_bytewise_cycles": 251701389.31581295,
+        "sensitivity_if_residual_does_not_shrink_cycles": 786820243,
+        "range_is_not_a_confidence_interval": true
+      },
+      "estimated_cycles": 251701389.31581295,
+      "estimated_seconds_per_frame": 2.5170138931581296,
+      "estimated_fps": 0.3972961781094054,
+      "optimistic_seconds_per_frame": 1.3609151892310927,
+      "optimistic_fps": 0.7347996465268294,
+      "residual_unscaled_seconds_per_frame": 7.86820243,
+      "compute_only_seconds": 1.06126592,
+      "cross_row_optimistic_compute_cycles": null,
+      "cross_row_optimistic_seconds_per_frame": null,
+      "cross_row_conservative_sensitivity_seconds_per_frame": null
+    },
+    {
+      "lanes": 128,
+      "compute_parallelism": "128 output channels",
+      "tile_hw": [
+        32,
+        8
+      ],
+      "burst_bytes": 128,
+      "clock_hz": 100000000,
+      "compute_cycles": 38851072,
+      "weight_reread_bytes": 22337088,
+      "activation_read_bytes_assumed": 15021075,
+      "output_write_bytes": 11382150,
+      "logical_traffic_bytes": 48740313,
+      "transactions_by_category": {
+        "weight_segments": {
+          "segment_count": 558,
+          "segment_bytes": 22337088,
+          "axi3_transactions_min_by_alignment": 174554,
+          "axi3_transactions_max_by_alignment": 175112
+        },
+        "output_write_segments": {
+          "segment_count": 809180,
+          "segment_bytes": 11382150,
+          "axi3_transactions_min_by_alignment": 849180,
+          "axi3_transactions_max_by_alignment": 1658360
+        },
+        "activation_reads_unknown_segmentation": {
+          "axi3_transactions_min_if_all_bytes_coalesce": 117353,
+          "axi3_transactions_max_if_byte_requests_remain": 15021075
+        },
+        "total_min": 1141087,
+        "total_max": 16854547
+      },
+      "payload_cycles_if_all_traffic_bursted": 6092540,
+      "payload_cycles_if_activation_reads_stay_bytewise": 19235980,
+      "residual_scaling_sensitivity": {
+        "baseline_residual_cycles": 661457671,
+        "fitted_residual_cycles_per_baseline_request": 6.880439578692099,
+        "optimistic_all_residual_scales_with_transactions_cycles": 52794792.15753103,
+        "conservative_segmenting_and_activation_bytewise_cycles": 174053744.25972617,
+        "sensitivity_if_residual_does_not_shrink_cycles": 719544723,
+        "range_is_not_a_confidence_interval": true
+      },
+      "estimated_cycles": 174053744.25972617,
+      "estimated_seconds_per_frame": 1.7405374425972617,
+      "estimated_fps": 0.5745351840910597,
+      "optimistic_seconds_per_frame": 0.5279479215753103,
+      "optimistic_fps": 1.8941262180106013,
+      "residual_unscaled_seconds_per_frame": 7.19544723,
+      "compute_only_seconds": 0.38851072,
+      "cross_row_optimistic_compute_cycles": null,
+      "cross_row_optimistic_seconds_per_frame": null,
+      "cross_row_conservative_sensitivity_seconds_per_frame": null
+    },
+    {
+      "lanes": 128,
+      "compute_parallelism": "128 output channels",
+      "tile_hw": [
+        32,
+        16
+      ],
+      "burst_bytes": 128,
+      "clock_hz": 100000000,
+      "compute_cycles": 38851072,
+      "weight_reread_bytes": 11561760,
+      "activation_read_bytes_assumed": 15021075,
+      "output_write_bytes": 11382150,
+      "logical_traffic_bytes": 37964985,
+      "transactions_by_category": {
+        "weight_segments": {
+          "segment_count": 293,
+          "segment_bytes": 11561760,
+          "axi3_transactions_min_by_alignment": 90349,
+          "axi3_transactions_max_by_alignment": 90642
+        },
+        "output_write_segments": {
+          "segment_count": 429502,
+          "segment_bytes": 11382150,
+          "axi3_transactions_min_by_alignment": 469502,
+          "axi3_transactions_max_by_alignment": 899004
+        },
+        "activation_reads_unknown_segmentation": {
+          "axi3_transactions_min_if_all_bytes_coalesce": 117353,
+          "axi3_transactions_max_if_byte_requests_remain": 15021075
+        },
+        "total_min": 677204,
+        "total_max": 16010721
+      },
+      "payload_cycles_if_all_traffic_bursted": 4745624,
+      "payload_cycles_if_activation_reads_stay_bytewise": 17889064,
+      "residual_scaling_sensitivity": {
+        "baseline_residual_cycles": 661457671,
+        "fitted_residual_cycles_per_baseline_request": 6.880439578692099,
+        "optimistic_all_residual_scales_with_transactions_cycles": 48256157.2044486,
+        "conservative_segmenting_and_activation_bytewise_cycles": 166900934.4517967,
+        "sensitivity_if_residual_does_not_shrink_cycles": 718197807,
+        "range_is_not_a_confidence_interval": true
+      },
+      "estimated_cycles": 166900934.4517967,
+      "estimated_seconds_per_frame": 1.669009344517967,
+      "estimated_fps": 0.5991578197477461,
+      "optimistic_seconds_per_frame": 0.482561572044486,
+      "optimistic_fps": 2.072274416222709,
+      "residual_unscaled_seconds_per_frame": 7.18197807,
+      "compute_only_seconds": 0.38851072,
+      "cross_row_optimistic_compute_cycles": null,
+      "cross_row_optimistic_seconds_per_frame": null,
+      "cross_row_conservative_sensitivity_seconds_per_frame": null
+    },
+    {
+      "lanes": 8,
+      "compute_parallelism": "8 output channels x 16 spatial points",
+      "tile_hw": [
+        16,
+        16
+      ],
+      "burst_bytes": 128,
+      "clock_hz": 100000000,
+      "compute_cycles": 31575232,
+      "weight_reread_bytes": 18849376,
+      "activation_read_bytes_assumed": 15021075,
+      "output_write_bytes": 11382150,
+      "logical_traffic_bytes": 45252601,
+      "transactions_by_category": {
+        "weight_segments": {
+          "segment_count": 3720,
+          "segment_bytes": 18849376,
+          "axi3_transactions_min_by_alignment": 147472,
+          "axi3_transactions_max_by_alignment": 151192
+        },
+        "output_write_segments": {
+          "segment_count": 429502,
+          "segment_bytes": 11382150,
+          "axi3_transactions_min_by_alignment": 469502,
+          "axi3_transactions_max_by_alignment": 899004
+        },
+        "activation_reads_unknown_segmentation": {
+          "axi3_transactions_min_if_all_bytes_coalesce": 117353,
+          "axi3_transactions_max_if_byte_requests_remain": 15021075
+        },
+        "total_min": 734327,
+        "total_max": 16071271
+      },
+      "payload_cycles_if_all_traffic_bursted": 5656576,
+      "payload_cycles_if_activation_reads_stay_bytewise": 18800016,
+      "residual_scaling_sensitivity": {
+        "baseline_residual_cycles": 661457671,
+        "fitted_residual_cycles_per_baseline_request": 6.880439578692099,
+        "optimistic_all_residual_scales_with_transactions_cycles": 42284300.554502234,
+        "conservative_segmenting_and_activation_bytewise_cycles": 160952657.06828654,
+        "sensitivity_if_residual_does_not_shrink_cycles": 711832919,
+        "range_is_not_a_confidence_interval": true
+      },
+      "estimated_cycles": 160952657.06828654,
+      "estimated_seconds_per_frame": 1.6095265706828654,
+      "estimated_fps": 0.621300709298471,
+      "optimistic_seconds_per_frame": 0.42284300554502235,
+      "optimistic_fps": 2.3649439316397176,
+      "residual_unscaled_seconds_per_frame": 7.11832919,
+      "compute_only_seconds": 0.31575232,
+      "cross_row_optimistic_compute_cycles": 26907840,
+      "cross_row_optimistic_seconds_per_frame": 0.3761690855450223,
+      "cross_row_conservative_sensitivity_seconds_per_frame": 1.5628526506828653
+    }
+  ],
+  "limitations": [
+    "权重与输出写事务按层/tile/输出组或连续平面分段，并对4KiB内起始对齐逐字节枚举；激活读取L0未提供逐层地址映射，只给全部连续聚合下界与每字节一请求上界。",
+    "候选字节载荷按traffic/8拍；单字节基线每个AXI请求按1个payload beat计。burst实际响应间隙、背压及各通路是否并发尚未验证。",
+    "基线单点残差含DDR往返、route/upsample状态机和PS观察，不能辨识其随事务数缩减的比例；结果同时列出全缩放与完全不缩减敏感性，二者不是置信区间。",
+    "激活读取量固定为L0逻辑读减8x8权重重读，假设扩大空间tile不改变总激活读取量。",
+    "仅基线拟合残差为零；候选帧时间尚无周期仿真或实测，±20%预测精度未验证。",
+    "未计层调度、BRAM端口冲突、tile预取、输出量化、PS解码/NMS和帧输入等待。",
+    "大tile和128 lane资源数、100MHz时序均未综合；模型预测不是板上帧率。"
+  ]
+}

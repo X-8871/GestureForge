@@ -35,6 +35,7 @@
 - RTL09 r02：旧word经新适配器8544向量/179定向检查PASS，seed=722472976，三工具exit0；r01参数传递失败保留。
 - RTL10 r01：engine经真实bulk适配器及AXI模型首Tile8192唯一字节黄金一致，36993 cycles；111AR/512AW/499R/1024W/512B精确匹配预测。三工具exit0；编译覆盖21个候选平台RTL源。不是整帧/板级结果。
 - 新顶层generic默认仍8/0，候选平台显式32/1、100MHz、visibility0，新身份不继承2B缓存/XSA/ELF证据；集成静态检查及独立源码审查限定通过，综合入口仅准备未执行。审查原件见S2C-REVIEW。
+- `3dfac02277c13d68c1adcfc4ea057025179c62b2`已提交上述原型/成功与失败证据。S2C-BIND/lane32_bulk_commit_20261030_r01补充140项commit_blob绑定，strict核验140项/0差异；未重跑实验。日志原件已入提交但不作manifest条目，退出码/日志SHA由result绑定。
 
 ## 风险与下一步
 

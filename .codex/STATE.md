@@ -129,6 +129,10 @@
 - **板卡现状：DAP 粘连，需再次整机断电（12V+USB ≥10 s）**；主机侧零残留。下一步顺序：断电 → 5 min 计时三方对照（修正版，先静态自检禁止 `rst -system`）
 - **A 项（长跑停住定位）按真实口径通过（2026-10-29 20:20）**：40 轮 / 真实 30.7 min / failures=0 / `exit=0 within_judgement=1` /
   每轮 47,287 ms 恒定 / tensor CRC 恒定；时间基座修复后 host/app=1.000。判据常量 140→38 勘误（140 是旧 4× 口径值）。
+- **M4-b `error=5` 已定因并验证（21:5x）**：旧 ELF 的 `core_timeout=0x40000000`（50 MHz 下 21.47 s）< 单帧 47.3 s ⇒ 必然超时；
+  重建 ELF（0xFFFFFFFF）后 2B 基线位流上 **引擎 DONE_SAFE、error=0、47,287 ms**。M4-b 只剩 head13 末尾 2 字节（尾字 lane）差异 ⇒ 一个窄修复即可 PASS。
+- **P2b 集成事实（阶段5）**：同一重建 ELF 在 P2b 上 >85.9 s 才超时 ⇒ P2b 的 2B 核比 2B 基线慢约 2×（疑与 preproc 共用数据 smartconnect/HP0），
+  这是阶段5 合并体的关键性能事实，需专项测量。
 - **M4-b 根因（离线，21:3x）**：`error=5` = 2B 内核 **TIMEOUT**（`s2a_control_csr.sv:59`）；但 timeout 已设 0xFFFFFFFF（85.9 s @50 MHz）、
   实测 47.3 s/帧且 heads 与参考 0 差异 ⇒ 证据不自洽，判 **BLOCKED**，需 2B 侧 ILA/回读（2B 归 Codex）。已发信箱 `DSH-20261029-006`。
 - **阶段5 范围收缩（Wong 指示）**：帧率/吞吐任务移交 Codex（不追 5 fps）；视频链移阶段6；

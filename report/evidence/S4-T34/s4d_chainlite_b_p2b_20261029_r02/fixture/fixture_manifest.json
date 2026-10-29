@@ -1,0 +1,46 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_chainlite_b_20261028_r01",
+  "artifact": "chain-lite-B fixture 与离线张量基准",
+  "label": "FIXTURE_GENERATED（非摄像头实拍）",
+  "source_image": {
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\dataset\\fist\\fist\\c39c0301-d0ed-4d34-97a0-84c93dd0f515.jpg",
+    "sha256": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "expect": "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e",
+    "match": true,
+    "width": 1440,
+    "height": 1920
+  },
+  "generation": {
+    "method": "cv2.imread(IMREAD_COLOR) -> cv2.resize(INTER_AREA) -> (640,480) -> .tobytes() (BGR888 HWC)",
+    "interpolation": "cv2.INTER_AREA",
+    "command": "python -B tmp/4/S4-T34/make_fixture_640x480.py",
+    "script": "tmp/4/S4-T34/make_fixture_640x480.py",
+    "deterministic": true,
+    "note": "确定性重跑同机同版本 cv2 应得相同 SHA；已落盘"
+  },
+  "fixture": {
+    "bgr888_raw": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_chainlite_b_20261028_r01\\fixture\\fixture_fist_000_640x480_bgr888.raw",
+    "bgr888_size": 921600,
+    "bgr888_sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+    "rgb888_raw": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_chainlite_b_20261028_r01\\fixture\\fixture_fist_000_640x480_rgb888.raw",
+    "rgb888_sha256": "4da4d10b1aa9b0e02d5877832f97d2f770b609ff9984a97466e44774e9b478f8"
+  },
+  "offline_tensor": {
+    "producer": "vitis/stage4/ps/s4d_sw_preproc.c（与 PS 同一份，主机 gcc -O2 编译）",
+    "harness": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\sw_preproc_hosttest.exe",
+    "entry": "bgr888",
+    "tensor": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\bringup_chainlite_b_20261028_r01\\fixture\\fixture_tensor_int8_chw.bin",
+    "size": 519168,
+    "sha256": "6c03f2af9a861e08414735b3a1185fbebddc0b1e5f503b6f4f65e5dc9903418e",
+    "crc32_zlib": 1528314704,
+    "crc32_hex": "0x5b183b50",
+    "note": "板上 CHAINB 打印的 tensor_crc32 必须与此相等（W3a）"
+  },
+  "weights": {
+    "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+    "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+    "size": 5903100
+  },
+  "boundary": "FIXTURE_GENERATED 非实拍；离线；ENABLE=0；不主张 G3/G4/G5"
+}

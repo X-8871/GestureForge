@@ -1,0 +1,266 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "s4d_chainlite_b_p2b_20261029_r02",
+  "phase": "chain-lite-B（SW 预处理链路）",
+  "driver_sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+  "chainb_elf_sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+  "fixture_sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+  "offline_tensor_crc32": "0x5b183b50",
+  "started_utc8": "2026-10-29T22:13:46+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\pl_v2_p2b_bitstream_20261029_r01\\s4d_p2b.bit",
+          "sha256": "47472d2db6e2a7cb5ff3ed2d0196c6dd5b3eb39f7b5ee7b30ed34254494a41e8",
+          "expect": "47472d2d",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "chainb_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\chainB\\s4d_ps_app_sw0_chainB.elf",
+          "sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+          "expect": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+          "match": true
+        },
+        {
+          "tag": "m3_snapshot",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_a_20261027_r01\\m3_snapshot_orig.bin",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver_v326",
+          "file": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "expect": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "match": true
+        },
+        {
+          "tag": "fixture_raw",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_chainlite_b_p2b_20261029_r02\\fixture\\fixture_fist_000_640x480_bgr888.raw",
+          "sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "expect": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "match": true
+        },
+        {
+          "tag": "weights",
+          "file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "exists": true,
+          "bytes": 5903100,
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        }
+      ],
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "real_index_lock_present": false,
+      "exit_code": 0
+    },
+    "P1_hw_server": {
+      "ok": true,
+      "pid": 43400,
+      "exit_code": 0
+    },
+    "W0_restore_candidate": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0
+    },
+    "W1_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xa",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xa",
+        "readback_raw": "10",
+        "tcl_verdict": "OK",
+        "readback": "0xa",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      },
+      "program_pl_exit": 0,
+      "lvl_0xF": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xf",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xf",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      }
+    },
+    "W2_chainb": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "verdict": "FAIL",
+      "C1_result_pass": false,
+      "result_line": "CHAINB RESULT={\"pass\":0,\"reason\":\"not_done_safe\",\"done\":2,\"status\":3077,\"error\":5,\"tensor_crc32\":1528314704,\"elapsed_ms\":21474,\"spin\":88267795}",
+      "parsed": {
+        "pass": 0,
+        "reason": "not_done_safe",
+        "done": 2,
+        "status": 3077,
+        "error": 5,
+        "tensor_crc32": 1528314704,
+        "elapsed_ms": 21474,
+        "spin": 88267795
+      },
+      "det_parse_error": null,
+      "detections": [],
+      "uart_lines_total": 14,
+      "uart_result_seen": true,
+      "uart_log": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_chainlite_b_p2b_20261029_r02\\chainb_uart.log",
+      "step_lines": [
+        "CHAINB STEP=0 enter PREPROC=SW RAW=0x12000000 letterbox_640x480_to_416x416",
+        "CHAINB STEP=1 read CSR_ID addr=0x43C00000",
+        "CHAINB STEP=2 sw_preproc rc=0 tensor_crc32=0x5B183B50 bytes=519168",
+        "CHAINB STEP=3 read epoch ok",
+        "CHAINB STEP=4 START cmd written",
+        "CHAINB STEP=5 progress elapsed_ms=5000 status=0x00001102 error=0x00000000",
+        "CHAINB STEP=5 progress elapsed_ms=10000 status=0x00001102 error=0x00000000",
+        "CHAINB STEP=5 progress elapsed_ms=15000 status=0x00001102 error=0x00000000",
+        "CHAINB STEP=5 progress elapsed_ms=20000 status=0x00001102 error=0x00000000",
+        "CHAINB STEP=5 wait done=2 elapsed_ms=21474 spin=88267795 status=0x00000C05 error=0x00000005"
+      ],
+      "preload": {
+        "raw": {
+          "exit": 0,
+          "err": null,
+          "size": 921600,
+          "words": 230400,
+          "addr": "0x12000000",
+          "sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "padded_sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4"
+        },
+        "weights": {
+          "exit": 0,
+          "err": null,
+          "size": 5903100,
+          "addr": "0x10100000",
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        }
+      },
+      "preproc": "SW（PS 实现，非 PL）"
+    },
+    "W3_compare": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "W3a_tensor_crc": {
+        "board_tensor_crc32": 1528314704,
+        "offline_tensor_crc32": "0x5b183b50",
+        "offline_tensor_sha256": "6c03f2af9a861e08414735b3a1185fbebddc0b1e5f503b6f4f65e5dc9903418e",
+        "match": true
+      },
+      "W3b_boxes": {
+        "status": "FAIL",
+        "reference_file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_chainlite_b_p2b_20261029_r02\\offline_reference_boxes.json",
+        "reference_sha256": "6ef19763a1e4fcbdb58933487201c34de5747ce0355b610dd2da730babbaa5b4",
+        "compare": {
+          "ok": false,
+          "tolerance": 1e-09,
+          "fields": [
+            {
+              "field": "detection_count",
+              "artifact": 0,
+              "reference": 1,
+              "abs_diff": null,
+              "match": false
+            },
+            {
+              "field": "det[0]",
+              "artifact": null,
+              "reference": "present",
+              "match": false
+            }
+          ]
+        }
+      },
+      "artifact_dets": []
+    },
+    "W4_final_restore": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 918133,
+      "sha256": "26b542bfa858252e9d86fed2837a1f0ee7d1e32a22963300850aa88b52f0aeb1",
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": true,
+      "write_exit": 0,
+      "write_err": null,
+      "restore_diff": 0
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 43400,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": "chain-lite-B FAIL（按规则停，保原文）",
+  "judgement": {
+    "W3a": "板上 tensor_crc32 == 0x5b183b50（离线同一 C 预处理同一 RAW）",
+    "W3b": "框 JSON vs 离线参考 abs<=1e-9；参考未就绪则记 W3B_BLOCKED（不记 PASS）",
+    "W2": "CHAINB RESULT.pass==1"
+  },
+  "boundary": "FIXTURE_GENERATED 非实拍；SW 预处理（非 PL）；2B 平台位流适用性；ENABLE=0；不烧 QSPI；不改线；不 push；不主张 G3/G4/G5",
+  "finished_utc8": "2026-10-29T22:18:32+08:00",
+  "elapsed_min": 4.8,
+  "failed_steps": [
+    "W2_chainb",
+    "W3_compare"
+  ],
+  "conclusion": "CHAINLITE_B_STOPPED_ON_FAILURE"
+}

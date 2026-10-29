@@ -1,0 +1,47 @@
+# 证据清单
+
+| 文件 | 字节 | sha256 |
+|---|---|---|
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/chain_uart_output.txt` | 1822 | `d7051c0af7e3733346980fd467ee15fce446921905a7b48fde5cf049a4c5c1c2` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/IDENT.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/IDENT.json` | 2508 | `f22077f7c8e723d5d8b72cbfc110d954baee48731053d4a2d4dd78746de81003` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/P0_gate.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/P0_gate.json` | 212 | `5af8dc3c47401400f9fa02ff520fd35cde0573e280bd0a33df0acdce2712bba1` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/P1_hw_server.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/P1_hw_server.json` | 51 | `628bbc0de563afc184b4882aa1338ae46e95c3865494422a298e5c74c29f3ca7` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/P4_teardown.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/P4_teardown.json` | 197 | `0ac256fcfa6e0ad2b6e8a5f21b82e34befa2ac416c1fdda6d2a829da3f0bf086` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/PL_program.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/PL_program_output.txt` | 3416 | `be622acb2d139e23798fe63318991a9e0e245ab8d0b40d9031091ec7bfecfaaf` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/results_chainlite_a.json` | 11687 | `cb6cf6b51ea3496f337a6ed59797908a3b67723c834a7d86b418fd6029e52a3f` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_dump.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_dump_output.txt` | 301 | `f972f667e03dcb7079e05ac9e4a46bbf289a39246cc7ce8bb547a30711a89f7f` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_ps7_init.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_ps7_init_output.txt` | 377 | `67638d0407ed84638af404fe6ce05c1630aa75712929a977a4e8bc453db875fd` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_reset_stop.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_reset_stop_output.txt` | 233 | `1202749a9d8e78219111c920b98159ba08dc0cacd4a4f3734bb3eedcfd2950d6` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_restore_candidate.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W0_restore_candidate.json` | 249 | `7cb8cc6f31e8d110dadf2f9e184e47a79d7946704667bbef64f773fafa0b483b` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W1_lvl_0xA_cfg.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W1_lvl_0xA_cfg_output.txt` | 616 | `e1883c3f922a2101cac4505cb76d04dabb79b08512d724283db24f5591ed732e` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W1_lvl_0xF_after_cfg.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W1_lvl_0xF_after_cfg_output.txt` | 616 | `af9618109307050bc1a5dbaf83fb62d702b16cd3a7cc2e18770ee6a9e0c2418e` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W1_pspl_four_actions.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W1_pspl_four_actions.json` | 1755 | `7b9fd382329cfa4f8c7605b9de39dc126e802f6c45d79befa76ef0363969f5b2` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_chain_a.exit_code.txt` | 2 | `4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_chain_a.json` | 4161 | `b26ede64c1da57f5b3baec9e9ef6ae33fcfdba9726e7379c56e6698b480a4f99` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_load_chainA.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_load_chainA_output.txt` | 989 | `a262b93abf4316ef06267fe47b8c4a8cc8145f55fbea5704702f85155ca31ef6` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_pre_input.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_pre_input_output.txt` | 327 | `e1a736319b0157aa74727124ff441119ba3890a3c302df8311b11801d29042b1` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_pre_weights.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W2_pre_weights_output.txt` | 327 | `8179988b01d19bef12fa01073ad958b0647d0d7f908ff7f0d88721e0ebf85715` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_dump.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_dump_output.txt` | 301 | `f24523032ee0355695d69652e3e5adb869c868cac77277a695e8139349dcca37` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_final_restore.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_final_restore.json` | 249 | `7cb8cc6f31e8d110dadf2f9e184e47a79d7946704667bbef64f773fafa0b483b` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_ps7_init.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_ps7_init_output.txt` | 377 | `89f62474c83dfb328908068d847cd549f735b443d06a8fb631954db634334f9c` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_reset_stop.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/W4_reset_stop_output.txt` | 233 | `32128fd65970048e76ffd5835e7379cf4710df4f64201923645e41d761ae4342` |
+| `report/evidence/S4-T34/s4d_chainlite_a_p2b_20261029_r04/window_close.txt` | 1161 | `827c93aafbc0526cf5ec3c83447dc48f1b59834dbf6f2b21755751f23d69c522` |

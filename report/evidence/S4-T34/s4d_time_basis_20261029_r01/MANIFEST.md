@@ -1,5 +1,7 @@
 # 时间基座定因 证据清单
 
+> 原结论已被 `ERRATUM_ROOT_CAUSE.md` 更正：4× 在分母，不是计数器。
+
 | 文件 | 字节 | sha256 |
 |---|---|---|
 | `report/evidence/S4-T34/s4d_time_basis_20261029_r01/ANALYSIS.md` | 3195 | `05de564914072ad5add7e2b539be51587e711921d6fa001bdcfc9d83e8c1015a` |
@@ -39,3 +41,4 @@
 | `report/evidence/S4-T34/s4d_time_basis_20261029_r01/W3_uart_stamped_output.txt` | 1303 | `061062ebeafd200f116f1bbc638bc7dfee9e64bd3c4bb0d006ce56d157791b5c` |
 | `report/evidence/S4-T34/s4d_time_basis_20261029_r01/W4_stop.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
 | `report/evidence/S4-T34/s4d_time_basis_20261029_r01/W4_stop_output.txt` | 946 | `e772de00b2c47c7139c2864723c02f6e2a2506ca460641c1ae168729fdc185d7` |
+| `report/evidence/S4-T34/s4d_time_basis_20261029_r01/ERRATUM_ROOT_CAUSE.md` | 3068 | `80af2e62a1596f7d1207058d897211885b4bb9b5278ad29001bb615f6465dd46` |

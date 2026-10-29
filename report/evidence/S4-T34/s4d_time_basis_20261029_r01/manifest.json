@@ -4,7 +4,7 @@
   "phase": "时间基座定因：host 时间戳 vs 应用 XTime_GetTime vs 全局定时器",
   "hash_basis": "commit_blob",
   "path_convention": "仓库相对路径",
-  "conclusion": "XTime_GetTime 时基为全局定时器的 1/4（host 32.18 s vs app 8.096 s，比值 3.975）；全局定时器≈333 MHz 与 BSP 常量一致",
+  "conclusion": "原结论（XTime_GetTime 时基 1/4）已由 ERRATUM_ROOT_CAUSE.md 更正：计数器与 XTime_GetTime 均正常，4× 来自 xtimer_config.h 无括号宏 + (uint64_t) 强转优先级 ⇒ 有效分母 1,333,333,374 = 4×GT",
   "impact": [
     "A 项 30 min 判据实际≈2 h",
     "历史 11.8 s/帧按真实时间≈47 s/帧",
@@ -234,6 +234,17 @@
       "kind": "evidence",
       "bytes": 946,
       "sha256": "e772de00b2c47c7139c2864723c02f6e2a2506ca460641c1ae168729fdc185d7"
+    },
+    {
+      "path": "report/evidence/S4-T34/s4d_time_basis_20261029_r01/ERRATUM_ROOT_CAUSE.md",
+      "kind": "erratum",
+      "bytes": 3068,
+      "sha256": "80af2e62a1596f7d1207058d897211885b4bb9b5278ad29001bb615f6465dd46"
     }
-  ]
+  ],
+  "entanglement": {
+    "corrected_by": "ERRATUM_ROOT_CAUSE.md",
+    "corrective_evidence": "D:\\tmp\\lead\\s4t35_pl_preproc_20261029_r01\\logs\\timebase_evidence.txt",
+    "new_app_elf": "bff4b80ff8dea2771b66cf72690a9585cafcdef4b5d682be1eef611e4a1f5be6"
+  }
 }

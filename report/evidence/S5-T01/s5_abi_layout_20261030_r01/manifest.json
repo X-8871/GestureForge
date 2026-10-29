@@ -1,0 +1,155 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_abi_layout_20261030_r01",
+  "phase": "阶段5 显示 ABI / 帧缓冲布局 / VTC+VDMA 寄存器表 / 地址总表增补（离线文档）",
+  "hash_basis": "commit_blob",
+  "hash_basis_note": "本卡未执行 git 提交。因本目录 .gitattributes 为 `* -text`（禁止换行转换），工作树磁盘字节与提交后 blob 内容逐字节相同，故所列 sha256 = sha256(blob 内容)。提交后必须用 `git cat-file blob <commit>:<path>` 逐项复核；未复核前本字段为预计算值。",
+  "path_convention": "仓库相对路径",
+  "evidence_repo": "D:/codex-worktrees/w4",
+  "doc_repo": "D:/FPGA_Competition",
+  "conclusion": "S5_DISPLAY_ABI_DOC_WITH_LEAD_RULINGS",
+  "scope": {
+    "resolution": "1280x720p60",
+    "pixel_clock_hz": 74218750,
+    "pclk_derivation": "VCO=100MHz/8*59.375=742.1875MHz; /10=74.21875MHz",
+    "framebuffer": {
+      "a": "0x13000000",
+      "b": "0x13384000",
+      "bytes_per_frame": 3686400,
+      "stride_bytes": 5120,
+      "buffers": 2,
+      "end_exclusive": "0x13708000"
+    },
+    "pl_mmio": {
+      "vtc": "0x43C30000",
+      "vdma": "0x43C40000",
+      "infer_2b": "0x43C00000",
+      "preproc": "0x43C10000",
+      "axi_dma": "0x43C20000"
+    },
+    "hp_ports": {
+      "HP0": "2B infer M_AXI (直连)",
+      "HP1": "smc_data: preproc + AXI DMA",
+      "HP2": "smc_vid: VDMA MM2S"
+    },
+    "layout": "L0 无黑边：视频 x=0..959（960x720, 640x480 x1.5 最近邻）+ 信息栏 x=960..1279"
+  },
+  "register_table_basis": [
+    {
+      "table": "VTC 偏移/位域",
+      "source": "D:/Xilinx/2026.1/data/embeddedsw/XilinxProcessorIPLib/drivers/vtc_v8_8/src/xvtc_hw.h",
+      "lines": "150,151,154,156,186,188,189,190,192,194,197,199,201,206,210,253,306,307,308,420,449,466,468,470,472,474,485,495,500"
+    },
+    {
+      "table": "VTC 同步编码公式",
+      "source": "D:/Xilinx/2026.1/data/embeddedsw/XilinxProcessorIPLib/drivers/vtc_v8_8/src/xvtc.c",
+      "lines": "1358 (GHSYNC=HSyncStart+hactive), 1366 (GVSYNC=V0SyncStart+vactive-1)"
+    },
+    {
+      "table": "VDMA 偏移/位域",
+      "source": "D:/Xilinx/2026.1/data/embeddedsw/XilinxProcessorIPLib/drivers/axivdma_v6_17/src/xaxivdma_hw.h",
+      "lines": "109,110,111,112,118,119,120,121,122,123,124,125,141,142,143,144,145,153,154,155,157,160,164,172,173,231,276,277,278,279,281"
+    },
+    {
+      "table": "VDMA 频道基址/写序列",
+      "source": "D:/Xilinx/2026.1/data/embeddedsw/XilinxProcessorIPLib/drivers/axivdma_v6_17/src/xaxivdma.c",
+      "lines": "166-167 (StartAddrBase = Base + MM2S_ADDR_OFFSET 0x50)"
+    },
+    {
+      "table": "VDMA 写序列(HSIZE/STRD/VSIZE/帧存地址)",
+      "source": "D:/Xilinx/2026.1/data/embeddedsw/XilinxProcessorIPLib/drivers/axivdma_v6_17/src/xaxivdma_channel.c",
+      "lines": "828-829, 831-834, 925-928, 1014-1019"
+    },
+    {
+      "table": "720p60 IP 参数与地址分配",
+      "source": "report/evidence/S5-T01/s5_p3a_video_bd_20261030_r01/bd_p3a.tcl",
+      "lines": "144-148 (clk_wiz), 158-178 (VTC), 183-191 (VDMA), 349-350 (地址)"
+    },
+    {
+      "table": "PS 侧实现事实/布局裁决",
+      "source": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/S5_P3B_SW_REPORT.md",
+      "lines": "§2.2 VDMA 偏移表, §2.4 VTC 实际写入值, §3.1 帧缓冲, §3.2 布局裁决, §4.4 信息栏, §5 测量口径"
+    }
+  ],
+  "consistency_findings": {
+    "address_regions_overlap": "NONE（与既有 region 逐对不相交）",
+    "declaration_conflicts": [
+      {
+        "id": "I-1",
+        "what": "display_buffer 落在既有 DDR 禁区 gaps[0x12C08000,0x20000000) 内",
+        "action_required": "按 D1 先例把该 gap 缩减为 [0x12C08000,0x13000000) + [0x13708000,0x20000000)；缩减量 7,372,800 B；需裁决记录",
+        "arithmetic": "222,265,344 - 7,372,800 = 214,892,544 B"
+      },
+      {
+        "id": "I-2",
+        "what": "stage4 地址图 unresolved_regions.display_buffer 为 UNRESOLVED_DO_NOT_GUESS",
+        "action_required": "阶段5 G0 已冻结地址/深度/格式/口径，B6 JSON 需由 w4 写入方更新为已解析（本卡不改）"
+      },
+      {
+        "id": "I-3",
+        "what": "stage4 地址图 pl_mmio gap [0x43C10000,0x80000000) 已过期（未含 AXI DMA/VTC/VDMA）",
+        "action_required": "按 §7.1 登记补记（不改任何地址）"
+      }
+    ],
+    "spec_conflicts": [
+      {
+        "id": "K6/T-07",
+        "what": "G0 §10.1 写左右各 160px 黑边，后续裁决为无黑边",
+        "resolution": "以无黑边为准"
+      },
+      {
+        "id": "K7/T-06",
+        "what": "G0 年龄门槛 47.3s+16.7ms vs P3b 实现 33ms",
+        "resolution": "以 G0 为准，SW 判据需改"
+      },
+      {
+        "id": "K8/T-01",
+        "what": "ABI 要求 VDMA 2 帧存，P3a BD 未设 c_num_fstores",
+        "resolution": "待 lead 确认"
+      }
+    ]
+  },
+  "open_items_count": 12,
+  "open_items": [
+    "T-01 VDMA c_num_fstores 未在 P3a BD 显式设置（ABI 要求 2）",
+    "T-02 PARKPTR.READSTR 在 circular 模式的语义（待核对 pg020 表 2-x）",
+    "T-03 HSIZE 单位（字节 vs 像素；待核对 pg020 表 2-1）",
+    "T-04 0x18 FRMSTORE 可读性依赖调试参数 Mm2SFrmStoreRegEn",
+    "T-05 cache 口径：SCTLR.C 与 flush 耗时未确认/未测",
+    "T-06 结果年龄门槛口径冲突（47.3167 s vs 33 ms）",
+    "T-07 布局黑边冲突（G0 §10.1 未回写无黑边裁决）",
+    "T-08 VDMA MM 50 MHz < 流 74.21875 MHz，带宽占用 74.2%",
+    "T-09 像素时钟与 TMDS 实链未实测（rgb2dvi 尚未接入）",
+    "T-10 FRMDLY=0 与 circular 的交互（待核对 pg020）",
+    "T-11 帧缓冲 vs 既有禁区需裁决（I-1）",
+    "T-12 像素字高 8 位 alpha 约定"
+  ],
+  "not_done": [
+    "未上板、未综合、未实现、未生成 bit/XSA",
+    "未运行 Vivado/Vitis 编译；未改动 w4 源码或历史证据目录；未 git 提交",
+    "未复跑 P3a validate / P3b 主机自检（只引用其既有证据）",
+    "本文件不构成 G0-G5 任何关口结论"
+  ],
+  "cross_repo_deliverable": {
+    "path": "docs/obsidian-project/02-方案设计/阶段5_显示ABI与帧缓冲布局_20261030.md",
+    "repo": "D:/FPGA_Competition",
+    "bytes": 34182,
+    "sha256": "4c667333b5d8d8da78d9ee8a468fcd3abfe2b4379e4db03ad26ad5639d72cc3b",
+    "note": "与 evidence/SPEC.md 逐字节相同（同 sha256），任一侧被改动即可由哈希不等检出漂移"
+  },
+  "items": [
+    {
+      "path": "report/evidence/S5-T01/s5_abi_layout_20261030_r01/.gitattributes",
+      "bytes": 41,
+      "sha256": "161d4fc3fc645d35e126e4ee4badaab15cc28a339831082c9f33490211f027b9"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_abi_layout_20261030_r01/SPEC.md",
+      "bytes": 35205,
+      "sha256": "498eb087f03e1d7c888c8d1a0628f588137de85ddff1955e780e20b4bf4bc19d"
+    }
+  ],
+  "items_note": "manifest.json / MANIFEST.md / .gitattributes 为清单自身与存储属性，按既有 S5-T01 约定不列入 items（自指哈希无意义）",
+  "hash_basis_state": "COMMITTED",
+  "note": "SPEC.md 与主文档 docs/obsidian-project/02-方案设计/阶段5_显示ABI与帧缓冲布局_20261030.md 逐字节同源"
+}

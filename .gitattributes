@@ -737,3 +737,15 @@ verification/test_s2b_control_csr_rtl.py -text
 verification/check_s2b_inference_mmu.py -text
 verification/test_s2b_inference_mmu.py -text
 vitis/build_s2b_inference.py -text
+
+# S2C本轮新运行保存原始证据字节；INT8二进制不可作文本或换行转换。
+report/evidence/S2C-M02/serial_lower_bound_20261030_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/rtl10_static_review_20261030_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL0[789]/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL10/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/rtl10_static_review_20261030_r01/fixture_snapshot/*.bin binary
+# 原生工具日志与已冻结源码快照中的既存空白保持原样，不改写其SHA。
+report/evidence/S2C-RTL0[789]/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-RTL10/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/rtl10_static_review_20261030_r01/source_snapshot/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL10/**/source_snapshot/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol

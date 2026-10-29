@@ -1,0 +1,56 @@
+{
+  "schema_version": "s2c-serial-lower-bound-evidence/1.0.0",
+  "task_id": "S2C-M02",
+  "run_id": "serial_lower_bound_20261030_r01",
+  "status": "PASS_MODEL_CROSSCHECK_ONLY",
+  "source_identity": {
+    "worktree_head": "756f5828fd1d8356f4f51a21b52554aa1f48d6a7",
+    "branch": "codex/stage2c-throughput"
+  },
+  "hash_basis_policy": "本RunId所有文件哈希均显式标记worktree_disk；根目录源码和设计文档尚未提交，外部L0 profile只读。提交后由root补充commit_blob绑定。",
+  "artifacts": [
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\docs\\obsidian-project\\02-方案设计\\s2c_throughput_feasibility_20261029.md",
+      "label": "经独立复算的设计文档",
+      "sha256": "216d02611dc6f667dcd6bf81e7fc05f2aa9082f5f4d6a7023288a4caca0a1ede",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\src\\s2b_conv_tile_engine.sv",
+      "label": "串行FSM阶段顺序核对源码",
+      "sha256": "2c7f2d216b251791e8e87f8d5bbeeaec04b6cd546ae64ff725ba1c531919d918",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "D:\\wb-out-r3\\task_l0\\profile.json",
+      "label": "L0逐层模型输入；外部只读",
+      "sha256": "1318675585a618be650629efb6c83b125c5befb5dbfc691fc60759efaea00e73",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2c\\report\\evidence\\S2C-M02\\serial_lower_bound_20261030_r01\\result.json",
+      "label": "独立串行下界复算与RTL阶段互斥核验结果",
+      "sha256": "2fbdc5d2a443d3c77b9990431bc5f1b688c2104abaa61f0044337848652a1912",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "calculation_summary": {
+    "compute32_cycles": 106126592,
+    "weight16_tile_bytes_and_min_cycles": 18849376,
+    "requantization_cycles": 6147206,
+    "local_output_collection_min_cycles": 6147206,
+    "serialized_lower_bound_cycles": 137270380,
+    "seconds_at_100mhz_lower_bound": 1.3727038,
+    "fps_upper_at_100mhz": 0.7284892778762614
+  },
+  "execution": {
+    "calculation_exit_code": 0,
+    "logs_manifested": false,
+    "simulator_or_synthesis_run": false
+  },
+  "limitations": [
+    "仅为profile复算及RTL阶段顺序核查，不是周期仿真、综合时序或板级测试。",
+    "下界未计特征读取、padding、AXI协议、命令切换、反压、非卷积操作、PS处理及帧输入等待。",
+    "100MHz为离线候选换算假设；该fps上限不是实现预测或实测。"
+  ]
+}

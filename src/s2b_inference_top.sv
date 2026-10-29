@@ -2,16 +2,18 @@
 // 2B 全核心集成层：仅连接冻结公共 CSR/memory 接口，不读取核心内部状态。
 module s2b_inference_top #(
     // 只有独立审阅且与实际网表、源码和缓存证据绑定的构建可改为 1。
-    parameter bit PROFILE_VISIBILITY_PROVEN = 1'b0
+    parameter bit PROFILE_VISIBILITY_PROVEN = 1'b0,
+    parameter integer CONV_OUTPUT_LANES = 8,
+    parameter bit ENABLE_BULK = 1'b0
 ) (
     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 clk CLK",
-       X_INTERFACE_PARAMETER = "XIL_INTERFACENAME clk, ASSOCIATED_BUSIF S_AXI:M_AXI, ASSOCIATED_RESET cold_resetn, FREQ_HZ 50000000" *)
+       X_INTERFACE_PARAMETER = "XIL_INTERFACENAME clk, ASSOCIATED_BUSIF S_AXI:M_AXI, ASSOCIATED_RESET cold_resetn, FREQ_HZ 100000000" *)
     input logic clk,
     (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 cold_resetn RST",
        X_INTERFACE_PARAMETER = "XIL_INTERFACENAME cold_resetn, POLARITY ACTIVE_LOW" *)
     input logic cold_resetn,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI AWADDR" *)
-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, PROTOCOL AXI4LITE, ADDR_WIDTH 32, DATA_WIDTH 32, READ_WRITE_MODE READ_WRITE, HAS_PROT 1, HAS_WSTRB 1, FREQ_HZ 50000000" *)
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, PROTOCOL AXI4LITE, ADDR_WIDTH 32, DATA_WIDTH 32, READ_WRITE_MODE READ_WRITE, HAS_PROT 1, HAS_WSTRB 1, FREQ_HZ 100000000" *)
     input logic [31:0] s_axi_awaddr,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI AWPROT" *)
     input logic [2:0] s_axi_awprot,
@@ -50,7 +52,7 @@ module s2b_inference_top #(
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI RREADY" *)
     input logic s_axi_rready,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI AWID" *)
-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXI, PROTOCOL AXI3, ADDR_WIDTH 32, DATA_WIDTH 64, ID_WIDTH 6, HAS_BURST 1, HAS_LOCK 1, HAS_CACHE 1, HAS_PROT 1, HAS_QOS 1, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1, FREQ_HZ 50000000" *)
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXI, PROTOCOL AXI3, ADDR_WIDTH 32, DATA_WIDTH 64, ID_WIDTH 6, HAS_BURST 1, HAS_LOCK 1, HAS_CACHE 1, HAS_PROT 1, HAS_QOS 1, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1, FREQ_HZ 100000000" *)
     output logic [5:0] m_axi_awid,
     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI AWADDR" *)
     output logic [31:0] m_axi_awaddr,
@@ -135,6 +137,20 @@ module s2b_inference_top #(
     logic [31:0] mem_addr, mem_wdata, mem_rdata;
     logic [3:0] mem_rstrb, mem_wstrb;
     logic [2:0] mem_error_code;
+    logic bulk_cmd_valid;
+    logic bulk_cmd_ready;
+    logic bulk_cmd_write;
+    logic [31:0] bulk_cmd_addr;
+    logic [7:0] bulk_cmd_bytes;
+    logic bulk_wvalid;
+    logic bulk_wready;
+    logic [7:0] bulk_wdata;
+    logic bulk_rvalid;
+    logic bulk_rready;
+    logic [7:0] bulk_rdata;
+    logic bulk_done_valid;
+    logic bulk_done_ready;
+    logic [2:0] bulk_done_error;
     logic run_enable, cancel, clear_safe;
     logic [63:0] run_epoch, ledger_epoch;
     logic ledger_empty, ledger_empty_next, req_withdrawn, protocol_isolated;
@@ -154,7 +170,23 @@ module s2b_inference_top #(
     // PROT 和旧诊断保留公开口/实现兼容，当前控制层不消费它们。
     assign unused_axi_prot = {s_axi_awprot, s_axi_arprot};
 
-    s2b_stage2b_core core (
+    s2b_stage2b_core #(
+        .CONV_OUTPUT_LANES(CONV_OUTPUT_LANES), .ENABLE_BULK(ENABLE_BULK)
+    ) core (
+        .bulk_cmd_valid(bulk_cmd_valid),
+        .bulk_cmd_ready(bulk_cmd_ready),
+        .bulk_cmd_write(bulk_cmd_write),
+        .bulk_cmd_addr(bulk_cmd_addr),
+        .bulk_cmd_bytes(bulk_cmd_bytes),
+        .bulk_wvalid(bulk_wvalid),
+        .bulk_wready(bulk_wready),
+        .bulk_wdata(bulk_wdata),
+        .bulk_rvalid(bulk_rvalid),
+        .bulk_rready(bulk_rready),
+        .bulk_rdata(bulk_rdata),
+        .bulk_done_valid(bulk_done_valid),
+        .bulk_done_ready(bulk_done_ready),
+        .bulk_done_error(bulk_done_error),
         .clk(clk), .hard_reset(cold_reset),
         .csr_valid(core_csr_valid), .csr_ready(core_csr_ready),
         .csr_write(core_csr_write), .csr_addr(core_csr_addr),
@@ -187,7 +219,8 @@ module s2b_inference_top #(
         .core_csr_valid(core_csr_valid), .core_csr_ready(core_csr_ready),
         .core_csr_write(core_csr_write), .core_csr_addr(core_csr_addr),
         .core_csr_wdata(core_csr_wdata), .core_csr_rdata(core_csr_rdata),
-        .core_mem_valid(mem_valid), .ledger_empty(ledger_empty), .ledger_epoch(ledger_epoch),
+        .core_mem_valid(mem_valid || (ENABLE_BULK && bulk_cmd_valid)),
+        .ledger_empty(ledger_empty), .ledger_epoch(ledger_epoch),
         .axi_progress_next(axi_progress_next),
         .ledger_empty_next(ledger_empty_next), .req_withdrawn(req_withdrawn),
         .protocol_isolated(protocol_isolated), .fault_event_valid(fault_event_valid),
@@ -200,8 +233,22 @@ module s2b_inference_top #(
         .run_enable(run_enable), .cancel(cancel), .clear_safe(clear_safe), .run_epoch(run_epoch)
     );
 
-    // adapter 已包含逐对象 request_guard；物理 HP0 不插入额外桥接或缓冲器。
-    s2b_hp0_word_adapter adapter (
+    // 新旧事务物理互斥，合并全部bulk责任后才向原控制层报告SAFE。
+    s2c_hp0_bulk_adapter #(.ENABLE_BULK(ENABLE_BULK)) adapter (
+        .bulk_cmd_valid(bulk_cmd_valid),
+        .bulk_cmd_ready(bulk_cmd_ready),
+        .bulk_cmd_write(bulk_cmd_write),
+        .bulk_cmd_addr(bulk_cmd_addr),
+        .bulk_cmd_bytes(bulk_cmd_bytes),
+        .bulk_wvalid(bulk_wvalid),
+        .bulk_wready(bulk_wready),
+        .bulk_wdata(bulk_wdata),
+        .bulk_rvalid(bulk_rvalid),
+        .bulk_rready(bulk_rready),
+        .bulk_rdata(bulk_rdata),
+        .bulk_done_valid(bulk_done_valid),
+        .bulk_done_ready(bulk_done_ready),
+        .bulk_done_error(bulk_done_error),
         .clk(clk), .cold_reset(cold_reset), .run_enable(run_enable),
         .cancel(cancel), .clear_safe(clear_safe), .run_epoch(run_epoch),
         .mem_valid(mem_valid), .mem_ready(mem_ready), .mem_write(mem_write),

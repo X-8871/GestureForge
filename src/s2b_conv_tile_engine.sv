@@ -2,7 +2,8 @@
 module s2b_conv_tile_engine #(
     // 仅冻结network实例启用；默认保留原通用参数域和错误判据。
     parameter bit FROZEN_CONV_DESCRIPTOR = 1'b0,
-    parameter integer FROZEN_OUTPUT_LANES = 8
+    parameter integer FROZEN_OUTPUT_LANES = 8,
+    parameter bit ENABLE_BULK = 1'b0
 ) (
     input  logic        clk,
     input  logic        hard_reset,
@@ -54,6 +55,21 @@ module s2b_conv_tile_engine #(
     input  logic [31:0] backend_rsp_rdata,
     input  logic [2:0]  backend_rsp_error,
 
+    output logic        bulk_cmd_valid,
+    input  logic        bulk_cmd_ready,
+    output logic        bulk_cmd_write,
+    output logic [31:0] bulk_cmd_addr,
+    output logic [7:0]  bulk_cmd_bytes,
+    output logic        bulk_wvalid,
+    input  logic        bulk_wready,
+    output logic [7:0]  bulk_wdata,
+    input  logic        bulk_rvalid,
+    output logic        bulk_rready,
+    input  logic [7:0]  bulk_rdata,
+    input  logic        bulk_done_valid,
+    output logic        bulk_done_ready,
+    input  logic [2:0]  bulk_done_error,
+
     output logic        busy,
     output logic        result_valid,
     input  logic        result_ready,
@@ -73,8 +89,17 @@ module s2b_conv_tile_engine #(
     localparam integer MAX_WEIGHT_REDUCTION_COUNT = 4608;
     localparam integer MAX_WEIGHT_GROUP_BYTES = LANE_COUNT * MAX_WEIGHT_REDUCTION_COUNT;
     localparam integer OUTPUT_BLOCK_BYTES = LANE_COUNT * TILE_EDGE * TILE_EDGE;
+    localparam bit BULK_ACTIVE = FROZEN_CONV_DESCRIPTOR && ENABLE_BULK;
+    localparam logic [1:0] BULK_FEATURE = 2'd0;
+    localparam logic [1:0] BULK_WEIGHT = 2'd1;
+    localparam logic [1:0] BULK_OUTPUT = 2'd2;
 
     generate
+        if (ENABLE_BULK && !FROZEN_CONV_DESCRIPTOR) begin : gen_invalid_generic_bulk
+            initial begin
+                $fatal(1, "bulk通道仅允许冻结卷积描述符启用");
+            end
+        end
         if (FROZEN_CONV_DESCRIPTOR &&
             (FROZEN_OUTPUT_LANES != 8) && (FROZEN_OUTPUT_LANES != 32)) begin : gen_invalid_frozen_output_lanes
             initial begin
@@ -103,7 +128,10 @@ module s2b_conv_tile_engine #(
         ST_OUTPUT_REQUEST,
         ST_OUTPUT_RESPONSE,
         ST_ADVANCE,
-        ST_RESULT
+        ST_RESULT,
+        ST_BULK_COMMAND,
+        ST_BULK_READ,
+        ST_BULK_WRITE
     } state_t;
 
     state_t state;
@@ -190,6 +218,20 @@ module s2b_conv_tile_engine #(
     logic [31:0] output_address_latched;
     logic [7:0] output_value_latched;
     logic [2:0] result_error_latched;
+    logic [1:0] bulk_kind;
+    logic [31:0] bulk_address_latched;
+    logic [7:0] bulk_length_latched;
+    logic [7:0] bulk_bytes_remaining;
+    logic [31:0] feature_bulk_row_bytes;
+    logic [31:0] feature_bulk_length;
+    logic [31:0] weight_bulk_remaining;
+    logic [31:0] weight_bulk_length;
+    logic [31:0] output_bulk_row_bytes;
+    logic [31:0] output_bulk_length;
+    logic bulk_read_fire;
+    logic bulk_write_fire;
+    logic bulk_done_fire;
+    logic [31:0] bulk_output_block_index;
 
     logic [127:0] input_elements_wide;
     logic [127:0] output_elements_wide;
@@ -242,6 +284,10 @@ module s2b_conv_tile_engine #(
     logic [63:0] feature_row_offset;
     logic [63:0] feature_source_offset;
     logic [63:0] feature_source_address_wide;
+    logic [31:0] feature_patch_row_remaining;
+    logic [31:0] feature_input_row_remaining;
+    logic [18:0] weight_group_bytes_narrow;
+    logic [18:0] weight_group_offset_narrow;
 
     logic [31:0] current_weight_output_channel;
     logic [63:0] weight_source_address_wide;
@@ -2400,6 +2446,10 @@ module s2b_conv_tile_engine #(
         feature_row_offset = 64'd0;
         feature_source_offset = 64'd0;
         feature_source_address_wide = 64'd0;
+        feature_patch_row_remaining = 32'd0;
+        feature_input_row_remaining = 32'd0;
+        feature_bulk_row_bytes = 32'd0;
+        feature_bulk_length = 32'd0;
         if ((patch_plane_bytes != 64'd0) && (patch_width != 32'd0)) begin
             feature_input_y =
                 tile_origin_y + $signed({32'd0, feature_scan_y});
@@ -2418,6 +2468,14 @@ module s2b_conv_tile_engine #(
                 feature_source_offset = feature_channel_plane_offset + feature_row_offset +
                                         feature_input_x[63:0];
                 feature_source_address_wide = {32'd0, input_base_latched} + feature_source_offset;
+                feature_patch_row_remaining = patch_width - feature_scan_x;
+                feature_input_row_remaining = input_width_latched - feature_input_x[31:0];
+                feature_bulk_row_bytes = (feature_patch_row_remaining < feature_input_row_remaining) ?
+                                         feature_patch_row_remaining : feature_input_row_remaining;
+                feature_bulk_length = (feature_bulk_row_bytes / 32'd8) * 32'd8;
+                if (feature_bulk_length > 32'd128) begin
+                    feature_bulk_length = 32'd128;
+                end
             end
         end
 
@@ -2426,6 +2484,19 @@ module s2b_conv_tile_engine #(
             {32'd0, quantized_weight_offset_latched} +
             ({32'd0, current_weight_output_channel} * {32'd0, reduction_count_latched}) +
             {32'd0, weight_reduction_index};
+        weight_group_bytes_narrow = group_lane_count[5:0] * reduction_count_latched[12:0];
+        weight_group_offset_narrow =
+            (weight_lane_index[5:0] * reduction_count_latched[12:0]) +
+            weight_reduction_index[12:0];
+        weight_bulk_remaining = 32'd0;
+        weight_bulk_length = 32'd0;
+        if (weight_group_bytes_narrow >= weight_group_offset_narrow) begin
+            weight_bulk_remaining = weight_group_bytes_narrow - weight_group_offset_narrow;
+            weight_bulk_length = (weight_bulk_remaining / 32'd8) * 32'd8;
+            if (weight_bulk_length > 32'd128) begin
+                weight_bulk_length = 32'd128;
+            end
+        end
 
         compute_kernel_area = kernel_height_latched * kernel_width_latched;
         compute_next_input_channel = compute_input_channel;
@@ -2532,6 +2603,13 @@ module s2b_conv_tile_engine #(
         output_byte_offset_wide = output_channel_plane_offset + output_row_offset +
                                   {32'd0, output_global_x};
         output_address_wide = {32'd0, output_base_latched} + output_byte_offset_wide;
+        output_bulk_row_bytes = (tile_width > output_point_scan_x) ?
+                                tile_width - output_point_scan_x : 32'd0;
+        output_bulk_length = (output_bulk_row_bytes / 32'd8) * 32'd8;
+        if (output_bulk_length > 32'd128) begin
+            output_bulk_length = 32'd128;
+        end
+        bulk_output_block_index = (output_lane_index * (TILE_EDGE * TILE_EDGE)) + output_point_index;
 
         mq_prefetch_index = 32'd0;
         mq_prefetch_parameter = 80'd0;
@@ -2618,7 +2696,19 @@ module s2b_conv_tile_engine #(
         end else if ((state == ST_FEATURE_RESPONSE) && backend_rsp_valid &&
                      (mapped_response_error == NONE)) begin
             feature_scan_advance = 1'b1;
+        end else if (BULK_ACTIVE && (state == ST_BULK_READ) &&
+                     (bulk_kind == BULK_FEATURE) && bulk_rvalid &&
+                     (bulk_bytes_remaining != 8'd0) && !hard_reset && !abort) begin
+            feature_scan_advance = 1'b1;
         end
+
+        bulk_read_fire = BULK_ACTIVE && (state == ST_BULK_READ) && bulk_rvalid &&
+                         (bulk_bytes_remaining != 8'd0) && !hard_reset && !abort;
+        bulk_write_fire = BULK_ACTIVE && (state == ST_BULK_WRITE) && bulk_wready &&
+                          (bulk_bytes_remaining != 8'd0) && !hard_reset && !abort;
+        bulk_done_fire = BULK_ACTIVE && bulk_done_valid &&
+                         ((state == ST_BULK_READ) || (state == ST_BULK_WRITE)) &&
+                         !hard_reset && !abort;
 
         request_byte_lane = 2'd0;
         case (request_strobe_latched)
@@ -2640,6 +2730,14 @@ module s2b_conv_tile_engine #(
         backend_req_wdata = request_wdata_latched;
         backend_req_rstrb = 4'd0;
         backend_req_wstrb = 4'd0;
+        bulk_cmd_valid = 1'b0;
+        bulk_cmd_write = 1'b0;
+        bulk_cmd_addr = bulk_address_latched;
+        bulk_cmd_bytes = bulk_length_latched;
+        bulk_wvalid = 1'b0;
+        bulk_wdata = 8'd0;
+        bulk_rready = 1'b0;
+        bulk_done_ready = 1'b0;
         if (!hard_reset && !abort) begin
             case (state)
                 ST_FEATURE_REQUEST, ST_WEIGHT_REQUEST: begin
@@ -2651,6 +2749,27 @@ module s2b_conv_tile_engine #(
                     backend_req_valid = 1'b1;
                     backend_req_write = 1'b1;
                     backend_req_wstrb = request_strobe_latched;
+                end
+                ST_BULK_COMMAND: begin
+                    if (BULK_ACTIVE) begin
+                        bulk_cmd_valid = 1'b1;
+                        bulk_cmd_write = (bulk_kind == BULK_OUTPUT);
+                    end
+                end
+                ST_BULK_READ: begin
+                    if (BULK_ACTIVE) begin
+                        bulk_rready = (bulk_bytes_remaining != 8'd0);
+                        bulk_done_ready = 1'b1;
+                    end
+                end
+                ST_BULK_WRITE: begin
+                    if (BULK_ACTIVE) begin
+                        bulk_wvalid = (bulk_bytes_remaining != 8'd0);
+                        if (bulk_bytes_remaining != 8'd0) begin
+                            bulk_wdata = output_block[bulk_output_block_index];
+                        end
+                        bulk_done_ready = 1'b1;
+                    end
                 end
                 default: begin end
             endcase
@@ -2672,6 +2791,9 @@ module s2b_conv_tile_engine #(
                          (mapped_response_error == NONE)) begin
                 feature_bank_wr_en = 1'b1;
                 feature_bank_wr_data = backend_rsp_rdata >> (request_byte_lane * 8);
+            end else if (bulk_read_fire && (bulk_kind == BULK_FEATURE)) begin
+                feature_bank_wr_en = 1'b1;
+                feature_bank_wr_data = bulk_rdata;
             end
             if (compute_read_enable && compute_read_tap_in_bounds) begin
                 feature_bank_rd_en = 1'b1;
@@ -2801,6 +2923,10 @@ module s2b_conv_tile_engine #(
             request_wdata_latched <= 32'd0;
             output_address_latched <= 32'd0;
             output_value_latched <= 8'd0;
+            bulk_kind <= BULK_FEATURE;
+            bulk_address_latched <= 32'd0;
+            bulk_length_latched <= 8'd0;
+            bulk_bytes_remaining <= 8'd0;
             result_error_latched <= NONE;
             for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
                 lane_mq_parameter[seq_lane] <= 80'd0;
@@ -2841,6 +2967,10 @@ module s2b_conv_tile_engine #(
             request_wdata_latched <= 32'd0;
             output_address_latched <= 32'd0;
             output_value_latched <= 8'd0;
+            bulk_kind <= BULK_FEATURE;
+            bulk_address_latched <= 32'd0;
+            bulk_length_latched <= 8'd0;
+            bulk_bytes_remaining <= 8'd0;
             result_error_latched <= NONE;
             for (seq_lane = 0; seq_lane < LANE_COUNT; seq_lane = seq_lane + 1) begin
                 lane_mq_parameter[seq_lane] <= 80'd0;
@@ -2931,6 +3061,7 @@ module s2b_conv_tile_engine #(
                         output_point_index <= 32'd0;
                         output_point_scan_y <= 32'd0;
                         output_point_scan_x <= 32'd0;
+                        bulk_bytes_remaining <= 8'd0;
                         result_error_latched <= NONE;
                         state <= ST_VALIDATE;
                     end
@@ -2984,6 +3115,13 @@ module s2b_conv_tile_engine #(
                     end else if (feature_source_address_wide > 64'h0000_0000_FFFF_FFFF) begin
                         result_error_latched <= BAD_RANGE;
                         state <= ST_RESULT;
+                    end else if (BULK_ACTIVE && (feature_bulk_length >= 32'd8) &&
+                                 (feature_source_address_wide[2:0] == 3'd0)) begin
+                        bulk_kind <= BULK_FEATURE;
+                        bulk_address_latched <= feature_source_address_wide[31:0];
+                        bulk_length_latched <= feature_bulk_length[7:0];
+                        bulk_bytes_remaining <= feature_bulk_length[7:0];
+                        state <= ST_BULK_COMMAND;
                     end else begin
                         request_address_latched <= {feature_source_address_wide[31:2], 2'b00};
                         request_strobe_latched <= 4'b0001 << feature_source_address_wide[1:0];
@@ -3036,6 +3174,13 @@ module s2b_conv_tile_engine #(
                     end else if (weight_source_address_wide > 64'h0000_0000_FFFF_FFFF) begin
                         result_error_latched <= BAD_RANGE;
                         state <= ST_RESULT;
+                    end else if (BULK_ACTIVE && (weight_bulk_length >= 32'd8) &&
+                                 (weight_source_address_wide[2:0] == 3'd0)) begin
+                        bulk_kind <= BULK_WEIGHT;
+                        bulk_address_latched <= weight_source_address_wide[31:0];
+                        bulk_length_latched <= weight_bulk_length[7:0];
+                        bulk_bytes_remaining <= weight_bulk_length[7:0];
+                        state <= ST_BULK_COMMAND;
                     end else begin
                         request_address_latched <= {weight_source_address_wide[31:2], 2'b00};
                         request_strobe_latched <= 4'b0001 << weight_source_address_wide[1:0];
@@ -3174,6 +3319,13 @@ module s2b_conv_tile_engine #(
                                  (output_byte_offset_wide >= output_elements_wide)) begin
                         result_error_latched <= BAD_RANGE;
                         state <= ST_RESULT;
+                    end else if (BULK_ACTIVE && (output_bulk_length >= 32'd8) &&
+                                 (output_address_wide[2:0] == 3'd0)) begin
+                        bulk_kind <= BULK_OUTPUT;
+                        bulk_address_latched <= output_address_wide[31:0];
+                        bulk_length_latched <= output_bulk_length[7:0];
+                        bulk_bytes_remaining <= output_bulk_length[7:0];
+                        state <= ST_BULK_COMMAND;
                     end else begin
                         output_address_latched <= output_address_wide[31:0];
                         output_value_latched <= output_block[
@@ -3235,6 +3387,86 @@ module s2b_conv_tile_engine #(
                         state <= ST_IDLE;
                     end
                 end
+                ST_BULK_COMMAND: begin
+                    if (bulk_cmd_valid && bulk_cmd_ready) begin
+                        if (bulk_kind == BULK_OUTPUT) begin
+                            state <= ST_BULK_WRITE;
+                        end else if ((bulk_kind == BULK_FEATURE) || (bulk_kind == BULK_WEIGHT)) begin
+                            state <= ST_BULK_READ;
+                        end else begin
+                            result_error_latched <= INTERNAL;
+                            state <= ST_RESULT;
+                        end
+                    end
+                end
+                ST_BULK_READ: begin
+                    if (bulk_read_fire) begin
+                        bulk_bytes_remaining <= bulk_bytes_remaining - 8'd1;
+                        if (bulk_kind == BULK_FEATURE) begin
+                            feature_scan_index <= feature_scan_index + 32'd1;
+                        end else if (bulk_kind == BULK_WEIGHT) begin
+                            if ((weight_lane_index < group_lane_count) &&
+                                (weight_reduction_index < reduction_count_latched)) begin
+                                if (weight_reduction_index + 32'd1 >= reduction_count_latched) begin
+                                    weight_lane_index <= weight_lane_index + 32'd1;
+                                    weight_reduction_index <= 32'd0;
+                                end else begin
+                                    weight_reduction_index <= weight_reduction_index + 32'd1;
+                                end
+                            end else begin
+                                result_error_latched <= INTERNAL;
+                                state <= ST_RESULT;
+                            end
+                        end else begin
+                            result_error_latched <= INTERNAL;
+                            state <= ST_RESULT;
+                        end
+                    end
+                    if (bulk_done_fire) begin
+                        if (bulk_done_error != NONE) begin
+                            result_error_latched <= bulk_done_error;
+                            state <= ST_RESULT;
+                        end else if ((bulk_bytes_remaining != 8'd0) &&
+                                     !(bulk_read_fire && (bulk_bytes_remaining == 8'd1))) begin
+                            result_error_latched <= INTERNAL;
+                            state <= ST_RESULT;
+                        end else if (bulk_kind == BULK_FEATURE) begin
+                            state <= ST_FEATURE_SCAN;
+                        end else if (bulk_kind == BULK_WEIGHT) begin
+                            state <= ST_WEIGHT_SCAN;
+                        end else begin
+                            result_error_latched <= INTERNAL;
+                            state <= ST_RESULT;
+                        end
+                    end
+                end
+                ST_BULK_WRITE: begin
+                    if (bulk_write_fire) begin
+                        bulk_bytes_remaining <= bulk_bytes_remaining - 8'd1;
+                        output_point_index <= output_point_index + 32'd1;
+                        if (output_point_scan_x + 32'd1 >= tile_width) begin
+                            output_point_scan_x <= 32'd0;
+                            output_point_scan_y <= output_point_scan_y + 32'd1;
+                        end else begin
+                            output_point_scan_x <= output_point_scan_x + 32'd1;
+                        end
+                    end
+                    if (bulk_done_fire) begin
+                        if (bulk_done_error != NONE) begin
+                            result_error_latched <= bulk_done_error;
+                            state <= ST_RESULT;
+                        end else if ((bulk_bytes_remaining != 8'd0) &&
+                                     !(bulk_write_fire && (bulk_bytes_remaining == 8'd1))) begin
+                            result_error_latched <= INTERNAL;
+                            state <= ST_RESULT;
+                        end else if (bulk_kind == BULK_OUTPUT) begin
+                            state <= ST_OUTPUT_SCAN;
+                        end else begin
+                            result_error_latched <= INTERNAL;
+                            state <= ST_RESULT;
+                        end
+                    end
+                end
                 default: begin
                     result_error_latched <= INTERNAL;
                     state <= ST_RESULT;
@@ -3258,6 +3490,10 @@ module s2b_conv_tile_engine #(
                         (weight_reduction_index < MAX_WEIGHT_REDUCTION_COUNT)) begin
                         lane_weight_memory[weight_reduction_index] <=
                             $signed(backend_rsp_rdata[(request_byte_lane * 8) +: 8]);
+                    end else if (bulk_read_fire && (bulk_kind == BULK_WEIGHT) &&
+                                 (weight_lane_index == weight_bank_index) &&
+                                 (weight_reduction_index < MAX_WEIGHT_REDUCTION_COUNT)) begin
+                        lane_weight_memory[weight_reduction_index] <= $signed(bulk_rdata);
                     end
                     if (compute_read_enable && (weight_bank_index < group_lane_count)) begin
                         weight_read_byte[weight_bank_index] <=

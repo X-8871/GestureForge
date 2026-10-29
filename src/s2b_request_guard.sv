@@ -6,6 +6,8 @@ module s2b_request_guard (
     input  logic [3:0]  mem_wstrb,
     output logic        request_allowed,
     output logic [31:0] physical_addr,
+    output logic [32:0] region_begin_phys,
+    output logic [32:0] region_end_phys_exclusive,
     output logic [2:0]  error_code
 );
     localparam logic [2:0] BAD_ARGUMENT = 3'd1;
@@ -40,6 +42,9 @@ module s2b_request_guard (
     logic [32:0] lane_addr;
     logic object_matches;
     logic range_allowed;
+    logic matched_object_valid;
+    logic [31:0] matched_object_begin;
+    logic [31:0] matched_object_end;
 
     always_comb begin
         selected = mem_write ? mem_wstrb : mem_rstrb;
@@ -47,8 +52,13 @@ module s2b_request_guard (
         lane_addr = 33'd0;
         object_matches = 1'b0;
         range_allowed = 1'b0;
+        matched_object_valid = 1'b0;
+        matched_object_begin = 32'd0;
+        matched_object_end = 32'd0;
         request_allowed = 1'b0;
         physical_addr = 32'd0;
+        region_begin_phys = 33'd0;
+        region_end_phys_exclusive = 33'd0;
         error_code = BAD_RANGE;
         // 每个选中字节都要落入同一对象；未选 lane 不要求对象覆盖。
         for (int object_index = 0; object_index < 38; object_index++) begin
@@ -60,6 +70,11 @@ module s2b_request_guard (
                      (lane_addr >= {1'b0, OBJECT_END[object_index]})))
                     object_matches = 1'b0;
             end
+            if (object_matches && !matched_object_valid) begin
+                matched_object_valid = 1'b1;
+                matched_object_begin = OBJECT_BEGIN[object_index];
+                matched_object_end = OBJECT_END[object_index];
+            end
             range_allowed = range_allowed || object_matches;
         end
         if ((mem_addr[1:0] != 2'b00) || (selected == 4'b0000) ||
@@ -70,6 +85,8 @@ module s2b_request_guard (
                      (translated < 33'h012000000)) begin
             request_allowed = 1'b1;
             physical_addr = translated[31:0];
+            region_begin_phys = 33'h010000000 + {1'b0, matched_object_begin};
+            region_end_phys_exclusive = 33'h010000000 + {1'b0, matched_object_end};
             error_code = 3'd0;
         end
     end

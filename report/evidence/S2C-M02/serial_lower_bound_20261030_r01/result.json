@@ -1,0 +1,99 @@
+{
+  "schema_version": "s2c-serial-lower-bound-review/1.0.0",
+  "task_id": "S2C-M02",
+  "run_id": "serial_lower_bound_20261030_r01",
+  "status": "PASS_MODEL_CROSSCHECK_ONLY",
+  "source_identity": {
+    "worktree_head": "756f5828fd1d8356f4f51a21b52554aa1f48d6a7",
+    "branch": "codex/stage2c-throughput",
+    "hash_basis": "worktree_disk"
+  },
+  "reviewer_agent": {
+    "identity": "/root/engine_bulk_fix",
+    "role": "由root委派的只读独立复算核验子代理",
+    "scope": "复算L0逐层下界，并核对当前engine阶段是否按单状态机串行",
+    "source_files_modified_by_this_review": false
+  },
+  "source_binding": {
+    "design_document": {
+      "path": "D:\\FPGA_Competition\\w2c\\docs\\obsidian-project\\02-方案设计\\s2c_throughput_feasibility_20261029.md",
+      "sha256": "216d02611dc6f667dcd6bf81e7fc05f2aa9082f5f4d6a7023288a4caca0a1ede",
+      "hash_basis": "worktree_disk"
+    },
+    "engine_rtl": {
+      "path": "D:\\FPGA_Competition\\w2c\\src\\s2b_conv_tile_engine.sv",
+      "sha256": "2c7f2d216b251791e8e87f8d5bbeeaec04b6cd546ae64ff725ba1c531919d918",
+      "hash_basis": "worktree_disk"
+    },
+    "l0_profile": {
+      "path": "D:\\wb-out-r3\\task_l0\\profile.json",
+      "sha256": "1318675585a618be650629efb6c83b125c5befb5dbfc691fc60759efaea00e73",
+      "hash_basis": "worktree_disk",
+      "access": "外部只读输入"
+    }
+  },
+  "profile_interpretation": {
+    "conv_layer_count": 21,
+    "per_layer_fields": "static.per_layer中out_hw为[Oh,Ow]，k字段为卷积核元素数K²（首层k=9），weight_bytes为该层完整权重字节数",
+    "frozen_8lane_conv_iterations": 424506368,
+    "computed_32lane_conv_iterations_times_four": 424506368,
+    "frozen_budget_match": true
+  },
+  "calculation": {
+    "formulas": {
+      "compute32_cycles": "sum_conv(ceil(out_ch/32) * Oh * Ow * in_ch * k)",
+      "weight16_tile_bytes_and_min_cycles": "sum_conv(ceil(Oh/16) * ceil(Ow/16) * weight_bytes)",
+      "requantization_cycles": "sum_conv(out_ch * Oh * Ow)",
+      "local_output_collection_min_cycles": "sum_conv(out_ch * Oh * Ow)",
+      "serialized_lower_bound_cycles": "compute32_cycles + weight16_tile_bytes_and_min_cycles + requantization_cycles + local_output_collection_min_cycles"
+    },
+    "results": {
+      "compute32_cycles": 106126592,
+      "weight16_tile_bytes_and_min_cycles": 18849376,
+      "requantization_cycles": 6147206,
+      "local_output_collection_min_cycles": 6147206,
+      "serialized_lower_bound_cycles": 137270380,
+      "clock_hz_assumption": 100000000,
+      "lower_bound_seconds_at_assumed_clock": 1.3727038,
+      "fps_upper_at_assumed_clock": 0.7284892778762614
+    },
+    "assertions": {
+      "conv_layer_count_is_21": true,
+      "four_stage_sum_matches_137270380": true,
+      "profile_frozen_conv_budget_match": true
+    }
+  },
+  "engine_sequencing_review": {
+    "rtl_sha256": "2c7f2d216b251791e8e87f8d5bbeeaec04b6cd546ae64ff725ba1c531919d918",
+    "single_state_register_and_enum": "src/s2b_conv_tile_engine.sv:107-134",
+    "weight_delivery": "ST_WEIGHT_SCAN enters ST_BULK_COMMAND/ST_BULK_READ; ST_BULK_READ accepts one byte per bulk_read_fire: lines 3167-3190, 3402-3423",
+    "compute_then_requantize": "ST_COMPUTE performs one reduction step per visit and transitions to ST_COMPUTE_REQUANT only when reduction completes: lines 3255-3282",
+    "requantization": "ST_COMPUTE_REQUANT writes one output lane value per visit and increments requant_lane_index: lines 3283-3308",
+    "output_after_requantization": "all requant lanes/points complete before ST_OUTPUT_SCAN; output bulk goes through ST_BULK_COMMAND then ST_BULK_WRITE: lines 3288-3295, 3310-3343, 3443-3468",
+    "local_output_rate": "ST_BULK_WRITE consumes one byte per bulk_write_fire and increments output_point_index by one: lines 3443-3452",
+    "mutually_exclusive": true,
+    "basis": "These are successive values of the single engine FSM state; no overlap between the four counted stages is implemented in this RTL snapshot. Per-byte local stream handshakes impose at least one cycle per delivered/collected byte."
+  },
+  "execution": {
+    "tool_versions": {
+      "python": "Python 3.12.14"
+    },
+    "command_argv": [
+      "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "-c",
+      "import hashlib,json,math,pathlib; profile=pathlib.Path(\"D:/wb-out-r3/task_l0/profile.json\"); doc=pathlib.Path(\"D:/FPGA_Competition/w2c/docs/obsidian-project/02-方案设计/s2c_throughput_feasibility_20261029.md\"); engine=pathlib.Path(\"D:/FPGA_Competition/w2c/src/s2b_conv_tile_engine.sv\"); data=json.loads(profile.read_text(encoding=\"utf-8\")); conv=[layer for layer in data[\"static\"][\"per_layer\"] if layer[\"op\"]==\"conv\"]; compute=sum(math.ceil(layer[\"out_ch\"]/32)*layer[\"out_hw\"][0]*layer[\"out_hw\"][1]*layer[\"in_ch\"]*layer[\"k\"] for layer in conv); weight=sum(math.ceil(layer[\"out_hw\"][0]/16)*math.ceil(layer[\"out_hw\"][1]/16)*layer[\"weight_bytes\"] for layer in conv); outputs=sum(layer[\"out_ch\"]*layer[\"out_hw\"][0]*layer[\"out_hw\"][1] for layer in conv); total=compute+weight+2*outputs; assert len(conv)==21; assert (compute,weight,outputs,total)==(106126592,18849376,6147206,137270380); assert total==data[\"frozen_budget_t07\"][\"conv_iterations\"]//4+weight+2*outputs; print(json.dumps({\"conv_layers\":len(conv),\"compute32_cycles\":compute,\"weight16_tile_bytes_and_cycles\":weight,\"conv_output_bytes\":outputs,\"serialized_lower_bound_cycles\":total,\"seconds_at_100mhz\":total/100000000,\"fps_upper_at_100mhz\":100000000/total,\"frozen_conv_iterations_8lane\":data[\"frozen_budget_t07\"][\"conv_iterations\"],\"source_hashes\":{\"profile_sha256\":hashlib.sha256(profile.read_bytes()).hexdigest(),\"design_doc_sha256\":hashlib.sha256(doc.read_bytes()).hexdigest(),\"engine_sha256\":hashlib.sha256(engine.read_bytes()).hexdigest()}},ensure_ascii=False,sort_keys=True))"
+    ],
+    "exit_code": 0,
+    "exec_command_wall_seconds": 0.304,
+    "tool": "Python 3 bundled runtime; invoked from PowerShell",
+    "logs_manifested": false,
+    "simulator_or_synthesis_run": false
+  },
+  "limitations": [
+    "该证据是逐层profile复算与RTL状态顺序核查，不是仿真、综合、实现或板级测量。",
+    "100MHz是该离线候选换算假设，不代表2B冻结平台时钟；未证明100MHz时序收敛。",
+    "此和式仅包含计算、权重字节交付、逐输出量化及本地输出字节收集四项必要工作，未计特征读取、padding、物理AXI拍、命令/响应、反压、旧路径前后缀、其他算子、PS处理或帧输入时间；真实帧周期会更大。",
+    "profile与未提交的工作树源码/文档使用worktree_disk哈希；后续提交后需另行补充commit_blob绑定。",
+    "0.72849 fps是本四项串行下界推导的理论帧率上限，不是预测帧率或板上结果。"
+  ]
+}

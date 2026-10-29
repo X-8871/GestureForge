@@ -1,6 +1,6 @@
 # S2B-T13：隔离目录重建全模型 PS/PL 平台；不启动综合、实现或板卡操作。
 namespace eval ::s2b_inference_platform {
-    variable version 0.1.13
+    variable version 0.2.0
     variable part xc7z020clg400-2
     variable bd_name s2b_inference
     variable rtl_sources {
@@ -21,6 +21,8 @@ namespace eval ::s2b_inference_platform {
         src/s2a_control_csr.sv
         src/s2b_request_guard.sv
         src/s2b_hp0_word_adapter.sv
+        src/s2c_axi3_bulk_bridge.sv
+        src/s2c_hp0_bulk_adapter.sv
         src/s2b_control_csr.sv
         src/s2b_inference_top.sv
     }
@@ -104,7 +106,7 @@ proc ::s2b_inference_platform::path_preflight {repo_root project_dir evidence_di
     reject_overlap $project_dir $evidence_dir
     set checked [concat $checked [new_directory $project_dir] [new_directory $evidence_dir]]
     set files [list $helper $native_log [file join $repo_root vivado/s2b_ps_platform.tcl] \
-        [file join $repo_root verification/check_s2b_inference_platform.py]]
+        [file join $repo_root verification/check_s2c_inference_platform.py]]
     if {$proof ne "" || $review ne ""} {
         if {$proof eq "" || $review eq ""} {error "可见性证明和独立审查必须成对提供"}
         lappend files $proof $review
@@ -237,7 +239,7 @@ proc ::s2b_inference_platform::construct {evidence_dir visibility} {
     set ps_request [dict replace [::s2b_ps_platform::requested] \
         CONFIG.PCW_USE_M_AXI_GP0 1 CONFIG.PCW_USE_S_AXI_HP0 1 \
         CONFIG.PCW_S_AXI_HP0_DATA_WIDTH 64 CONFIG.PCW_EN_CLK0_PORT 1 \
-        CONFIG.PCW_EN_RST0_PORT 1 CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ 50]
+        CONFIG.PCW_EN_RST0_PORT 1 CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ 100]
     create_ip $evidence_dir ps7 xilinx.com:ip:processing_system7 $ps_request
     create_ip $evidence_dir axi_gp0_lite xilinx.com:ip:axi_protocol_converter \
         [dict create CONFIG.SI_PROTOCOL AXI3 CONFIG.MI_PROTOCOL AXI4LITE \
@@ -278,13 +280,18 @@ proc ::s2b_inference_platform::externalize_unique {pin_path name} {
 
 proc ::s2b_inference_platform::connect {visibility} {
     create_bd_cell -type module -reference s2b_inference_top infer
+    set_property -dict [list CONFIG.CONV_OUTPUT_LANES 32 CONFIG.ENABLE_BULK 1] [get_bd_cells infer]
+    if {[get_property CONFIG.CONV_OUTPUT_LANES [get_bd_cells infer]] != 32 ||
+        ![get_property CONFIG.ENABLE_BULK [get_bd_cells infer]]} {
+        error "S2C_CANDIDATE_PARAMETER_READBACK_FAIL"
+    }
     set_property CONFIG.PROFILE_VISIBILITY_PROVEN $visibility [get_bd_cells infer]
     if {[get_property CONFIG.PROFILE_VISIBILITY_PROVEN [get_bd_cells infer]] != $visibility} {
         error "VISIBILITY_PARAMETER_READBACK_FAIL"
     }
     connect_bd_intf_net [get_bd_intf_pins ps7/M_AXI_GP0] [get_bd_intf_pins axi_gp0_lite/S_AXI]
     connect_bd_intf_net [get_bd_intf_pins axi_gp0_lite/M_AXI] [get_bd_intf_pins infer/S_AXI]
-    # HP0 原生 AXI3 直接连接；任何额外 bridge/buffer 都使当前可见性证明失效。
+    # HP0原生AXI3直接连接；新bulk内部缓冲由合并账本覆盖，不继承旧可见性证明。
     connect_bd_intf_net [get_bd_intf_pins infer/M_AXI] [get_bd_intf_pins ps7/S_AXI_HP0]
     connect_bd_net [get_bd_pins ps7/FCLK_CLK0] \
         [get_bd_pins ps7/M_AXI_GP0_ACLK] [get_bd_pins ps7/S_AXI_HP0_ACLK] \
@@ -360,7 +367,7 @@ proc ::s2b_inference_platform::audit {evidence_dir visibility} {
     set physical_ports [physical_port_members]
     set expected_cells [lsort [list /ps7 /axi_gp0_lite /rst_fclk0 /const_zero /const_one /infer]]
     if {[lsort [get_bd_cells]] ne $expected_cells} {error "PLATFORM_CELL_CLOSURE_FAIL"}
-    assert_property [get_bd_pins ps7/FCLK_CLK0] CONFIG.FREQ_HZ 50000000
+    assert_property [get_bd_pins ps7/FCLK_CLK0] CONFIG.FREQ_HZ 100000000
     assert_property [get_bd_pins infer/clk] CONFIG.ASSOCIATED_BUSIF S_AXI:M_AXI
     set clock_net [get_bd_nets -of_objects [get_bd_pins ps7/FCLK_CLK0]]
     foreach pin {ps7/M_AXI_GP0_ACLK ps7/S_AXI_HP0_ACLK axi_gp0_lite/aclk rst_fclk0/slowest_sync_clk infer/clk} {
@@ -444,7 +451,7 @@ proc ::s2b_inference_platform::run {repo_root project_dir evidence_dir helper na
     if {![string match {PYTHON:OK *} $python]} {error $python}
     puts $python
     puts [ipcfg::python_exec -c {import argparse, hashlib, json, pathlib, re, sys; print("PYTHON_IMPORTS:OK")}]
-    set checker [file join $repo_root verification/check_s2b_inference_platform.py]
+    set checker [file join $repo_root verification/check_s2c_inference_platform.py]
     puts [ipcfg::python_script $checker --root $repo_root]
     set visibility 0
     if {$proof ne "" || $review ne ""} {

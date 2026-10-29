@@ -7,7 +7,9 @@ module s2b_stage2b_core #(
     parameter logic [31:0] INPUT_LENGTH_BYTES = 32'd519168,
     // 默认值逐项绑定同一冻结清单 address_map.weight_package.address/length_bytes。
     parameter logic [31:0] WEIGHT_PACKAGE_BASE_ADDRESS = 32'h00100000,
-    parameter logic [31:0] WEIGHT_PACKAGE_LENGTH_BYTES = 32'd5903100
+    parameter logic [31:0] WEIGHT_PACKAGE_LENGTH_BYTES = 32'd5903100,
+    parameter integer CONV_OUTPUT_LANES = 8,
+    parameter bit ENABLE_BULK = 1'b0
 ) (
     input  logic        clk,
     input  logic        hard_reset,
@@ -27,7 +29,21 @@ module s2b_stage2b_core #(
     output logic [3:0]  mem_rstrb,
     output logic [3:0]  mem_wstrb,
     input  logic [31:0] mem_rdata,
-    input  logic [2:0]  mem_error_code
+    input  logic [2:0]  mem_error_code,
+    output logic bulk_cmd_valid,
+    input logic bulk_cmd_ready,
+    output logic bulk_cmd_write,
+    output logic [31:0] bulk_cmd_addr,
+    output logic [7:0] bulk_cmd_bytes,
+    output logic bulk_wvalid,
+    input logic bulk_wready,
+    output logic [7:0] bulk_wdata,
+    input logic bulk_rvalid,
+    output logic bulk_rready,
+    input logic [7:0] bulk_rdata,
+    input logic bulk_done_valid,
+    output logic bulk_done_ready,
+    input logic [2:0] bulk_done_error
 );
     logic backend_req_valid;
     logic backend_req_ready;
@@ -110,7 +126,23 @@ module s2b_stage2b_core #(
     assign backend_req_rstrb = backend_mem_rstrb;
     assign backend_req_wstrb = backend_mem_wstrb;
 
-    s2b_network_backend u_network_backend (
+    s2b_network_backend #(
+        .CONV_OUTPUT_LANES(CONV_OUTPUT_LANES), .ENABLE_BULK(ENABLE_BULK)
+    ) u_network_backend (
+        .bulk_cmd_valid(bulk_cmd_valid),
+        .bulk_cmd_ready(bulk_cmd_ready),
+        .bulk_cmd_write(bulk_cmd_write),
+        .bulk_cmd_addr(bulk_cmd_addr),
+        .bulk_cmd_bytes(bulk_cmd_bytes),
+        .bulk_wvalid(bulk_wvalid),
+        .bulk_wready(bulk_wready),
+        .bulk_wdata(bulk_wdata),
+        .bulk_rvalid(bulk_rvalid),
+        .bulk_rready(bulk_rready),
+        .bulk_rdata(bulk_rdata),
+        .bulk_done_valid(bulk_done_valid),
+        .bulk_done_ready(bulk_done_ready),
+        .bulk_done_error(bulk_done_error),
         .clk(clk),
         .hard_reset(hard_reset),
         .abort(backend_abort),

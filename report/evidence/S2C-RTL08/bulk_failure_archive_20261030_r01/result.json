@@ -1,0 +1,268 @@
+{
+  "task_id": "S2C-RTL08",
+  "run_id": "bulk_failure_archive_20261030_r01",
+  "hash_basis": "worktree_disk",
+  "status": "ARCHIVED_FAILURE_NOT_PASS",
+  "baseline_commit": "756f5828fd1d8356f4f51a21b52554aa1f48d6a7",
+  "r01_recorded_result": {
+    "schema_version": 1,
+    "task_id": "S2C-RTL08",
+    "run_id": "bulk_tile_20261030_r01",
+    "status": "FAIL_GOLDEN_FIRST_OUTPUT_X",
+    "baseline_commit": "756f5828fd1d8356f4f51a21b52554aa1f48d6a7",
+    "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+    "simulator_build": "XSim SW Build 6511674, 64-bit",
+    "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL08/bulk_tile_20261030_r01",
+    "source_binding": {
+      "hash_basis": "worktree_disk",
+      "captured_before_xvlog": true,
+      "files": [
+        {
+          "path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/source_snapshot/s2a_network_descriptor_pkg.sv",
+          "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183"
+        },
+        {
+          "path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/source_snapshot/s2c_feature_patch_bank32.sv",
+          "sha256": "a8c2f1cc01abeeea529a289479e0564c1e5f46b57dd2dbb97224ec482f7067b1"
+        },
+        {
+          "path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/source_snapshot/s2b_conv_tile_engine.sv",
+          "sha256": "2c7f2d216b251791e8e87f8d5bbeeaec04b6cd546ae64ff725ba1c531919d918"
+        },
+        {
+          "path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/source_snapshot/tb_s2c_rtl08_bulk_tile.sv",
+          "sha256": "ce962e00e2a3e1001339e38c078025b332b255746366951029a558958e734f92"
+        },
+        {
+          "path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/source_snapshot/tb_s2c_rtl06_lane32_tile.sv",
+          "sha256": "755f9344e84bc885f379f25ab6b2855c87c0030945585bd25e031a9970754847"
+        }
+      ]
+    },
+    "fixtures": [
+      {
+        "path": "D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_input_chw_int8.bin",
+        "size_bytes": 519168,
+        "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+        "hash_basis": "worktree_disk",
+        "oracle_provenance_commit": "9fb9ab7b380430c22bf147654157858b52151dad",
+        "role": "T66输入fixture"
+      },
+      {
+        "path": "D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_gf8_weights.bin",
+        "size_bytes": 864,
+        "sha256": "df49b5d3aeaebd6b4107b99d83ffa791d7a7e24bd7b26df0815c246e5717e633",
+        "hash_basis": "worktree_disk",
+        "oracle_provenance_commit": "9fb9ab7b380430c22bf147654157858b52151dad",
+        "role": "T66权重fixture"
+      },
+      {
+        "path": "D:/FPGA_Competition/report/evidence/S2A-T66/tile01/fixture/sample0_layer0_expected_nchw_int8.bin",
+        "size_bytes": 1384448,
+        "sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+        "hash_basis": "worktree_disk",
+        "oracle_provenance_commit": "9fb9ab7b380430c22bf147654157858b52151dad",
+        "role": "历史输出golden，不是本轮RTL仿真记录"
+      }
+    ],
+    "commands": [
+      {
+        "argv": [
+          "D:/Xilinx/2026.1/Vivado/bin/xvlog.bat",
+          "-sv",
+          "D:/FPGA_Competition/w2c/src/s2a_network_descriptor_pkg.sv",
+          "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv",
+          "D:/FPGA_Competition/w2c/src/s2b_conv_tile_engine.sv",
+          "D:/FPGA_Competition/w2c/sim/tb_s2c_rtl08_bulk_tile.sv"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.216,
+        "log_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/rtl08/xvlog_console.log",
+        "log_sha256": "0245e261efcbd77800b8e3a40966634da27fb74ea4e07380a3150caefcc78c85"
+      },
+      {
+        "argv": [
+          "D:/Xilinx/2026.1/Vivado/bin/xelab.bat",
+          "tb_s2c_rtl08_bulk_tile",
+          "-s",
+          "s2c_rtl08_bulk_tile_sim"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 7.058,
+        "log_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/rtl08/xelab_console.log",
+        "log_sha256": "fb6313ece0ba76797f71487ebd1b1a554c16178e6edd3343f5b683426806eede"
+      },
+      {
+        "argv": [
+          "D:/Xilinx/2026.1/Vivado/bin/xsim.bat",
+          "s2c_rtl08_bulk_tile_sim",
+          "-runall"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 4.316,
+        "log_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/rtl08/xsim_console.log",
+        "log_sha256": "2c8e754043b2f5f1410a35c5f47d71334895c78df914a85ef6b7dfaf7c9afbf4",
+        "pass_marker": null,
+        "failure": "仿真器退出码0，但仿真日志在214285 ns报首个输出golden差异后$finish：offset=0,c=0,y=0,x=0, expected=ff, actual=xx。按功能失败处理。"
+      },
+      {
+        "argv": [
+          "D:/Xilinx/2026.1/Vivado/bin/xvlog.bat",
+          "-sv",
+          "D:/FPGA_Competition/w2c/src/s2a_network_descriptor_pkg.sv",
+          "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv",
+          "D:/FPGA_Competition/w2c/src/s2b_conv_tile_engine.sv",
+          "D:/FPGA_Competition/w2c/sim/tb_s2c_rtl06_lane32_tile.sv"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.095,
+        "log_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/legacy32/xvlog_console.log",
+        "log_sha256": "576c1414e1e90f049abf93bb282aa59d5bbf73682de2a4ab75fcf91fb5ccb7b7"
+      },
+      {
+        "argv": [
+          "D:/Xilinx/2026.1/Vivado/bin/xelab.bat",
+          "tb_s2c_rtl06_lane32_tile",
+          "-s",
+          "s2c_rtl06_lane32_tile_sim"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 5.852,
+        "log_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/legacy32/xelab_console.log",
+        "log_sha256": "79af174a409fcf1467b7c30a3d478e847a395d45ffed1329037c441fc9febcd8"
+      },
+      {
+        "argv": [
+          "D:/Xilinx/2026.1/Vivado/bin/xsim.bat",
+          "s2c_rtl06_lane32_tile_sim",
+          "-runall"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 5.724,
+        "log_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/legacy32/xsim_console.log",
+        "log_sha256": "1604b49dedc66553aa484ca0722b1da9c974ccdda51f0947927a7dc6d9f52d27"
+      }
+    ],
+    "checks": {
+      "rtl08_status": "FAIL",
+      "rtl08_first_golden_comparison": {
+        "offset": 0,
+        "coordinate": "c0/y0/x0",
+        "expected_hex": "ff",
+        "actual_hex": "xx",
+        "comparisons_before_stop": 1,
+        "mismatches": 1
+      },
+      "rtl08_counts_at_failure": "testbench未在fatal前打印计数；不从进度推算请求/写入计数",
+      "legacy32_status": "PASS_LEGACY_PATH_UNCHANGED",
+      "legacy32_pass_marker": "PASS S2C-RTL06 lane32 layer0 tile0 golden match: ext_input=3072 weights=864 bank_wr=3267 bank_rd=6627 outputs=8192 cycles=52043",
+      "legacy32_cycles_measured_by_testbench_counter": 52043,
+      "watchdog_cycles": 200000,
+      "random_seed_rtl08": "32'h32B0_1C08",
+      "random_sample_count_rtl08": 1
+    },
+    "execution": {
+      "preflight_available_memory_bytes": 4646395904,
+      "preflight_matching_processes": [
+        "vivado-mcp-server-windows-amd64-2026.9.1.exe x4; 未发现Vivado/XSim/xelab/xvlog计算进程"
+      ],
+      "xsim_reported_peak_memory": null,
+      "peak_memory_status": "未采集"
+    },
+    "limitations": [
+      "RTL08是理想bulk字节流memory行为模型，不是AXI3桥实测。",
+      "RTL08未通过golden比较；XSim退出码0不能覆盖日志中的Fatal及PASS缺失。",
+      "本run未验证请求数预测、feature/weight bank总量或8192输出覆盖；相关计数fatal前未打印。",
+      "bulkoff原32-lane旧路径回归通过，但不验证ENABLE_BULK路径。",
+      "无综合资源、100MHz时序、全帧仿真或板级结果。"
+    ]
+  },
+  "r02": {
+    "xvlog_exit_code": null,
+    "xelab_exit_code": null,
+    "xsim_exit_code": 0,
+    "compile_exit_limitation": "开发代理中断前未持久记录编译/展开进程退出码；完成文本不能代替退出码。",
+    "xsim_exit_provenance": "总控本轮exec命令运行既存快照，明确输出XSIM_EXIT=0。",
+    "functional_status": "FAIL_GOLDEN_FIRST_OUTPUT_X",
+    "first_output_expected": "ff",
+    "first_output_actual": "xx",
+    "first_failure_cycle": 21425,
+    "feature_commands": 96,
+    "weight_commands": 7,
+    "feature_bytes": 3072,
+    "weight_bulk_bytes": 856,
+    "legacy_requests": 8,
+    "bank_writes": 3267,
+    "bank_reads": 6627
+  },
+  "logs": [
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r01/rtl08/xelab_console.log",
+      "sha256": "fb6313ece0ba76797f71487ebd1b1a554c16178e6edd3343f5b683426806eede",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/rtl08/xelab_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r01/rtl08/xsim_console.log",
+      "sha256": "2c8e754043b2f5f1410a35c5f47d71334895c78df914a85ef6b7dfaf7c9afbf4",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/rtl08/xsim_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r01/rtl08/xvlog_console.log",
+      "sha256": "0245e261efcbd77800b8e3a40966634da27fb74ea4e07380a3150caefcc78c85",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/rtl08/xvlog_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r01/legacy32/xelab_console.log",
+      "sha256": "79af174a409fcf1467b7c30a3d478e847a395d45ffed1329037c441fc9febcd8",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/legacy32/xelab_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r01/legacy32/xsim_console.log",
+      "sha256": "1604b49dedc66553aa484ca0722b1da9c974ccdda51f0947927a7dc6d9f52d27",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/legacy32/xsim_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r01/legacy32/xvlog_console.log",
+      "sha256": "576c1414e1e90f049abf93bb282aa59d5bbf73682de2a4ab75fcf91fb5ccb7b7",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r01/legacy32/xvlog_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r02/rtl08/xelab_console.log",
+      "sha256": "fb6313ece0ba76797f71487ebd1b1a554c16178e6edd3343f5b683426806eede",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r02/rtl08/xelab_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r02/rtl08/xsim_console.log",
+      "sha256": "c62b9ebd9590ca7f6619a4a6b276af1d10ca2a6b09c00aa3ae791c829a197bad",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r02/rtl08/xsim_console.log",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2C-RTL08/bulk_failure_archive_20261030_r01/bulk_tile_20261030_r02/rtl08/xvlog_console.log",
+      "sha256": "0245e261efcbd77800b8e3a40966634da27fb74ea4e07380a3150caefcc78c85",
+      "hash_basis": "worktree_disk",
+      "original_path": "tmp/S2C/RTL08/bulk_tile_20261030_r02/rtl08/xvlog_console.log",
+      "role": "log"
+    }
+  ],
+  "limitations": [
+    "保留原始失败，不以工具退出0替代功能成功。",
+    "归档不补造旧运行缺失的退出码。",
+    "没有整帧、综合或板级证据。"
+  ]
+}

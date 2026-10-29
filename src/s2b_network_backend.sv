@@ -1,5 +1,8 @@
 // S2A-T64：按冻结 descriptor ROM 串行复用四类算子引擎。
-module s2b_network_backend (
+module s2b_network_backend #(
+    parameter integer CONV_OUTPUT_LANES = 8,
+    parameter bit ENABLE_BULK = 1'b0
+) (
     input  logic        clk,
     input  logic        hard_reset,
     input  logic        abort,
@@ -23,7 +26,21 @@ module s2b_network_backend (
     output logic        backend_memory_error_valid,
     output logic [2:0]  backend_memory_error_code,
     output logic        operator_result_valid,
-    output logic [2:0]  operator_error_code
+    output logic [2:0]  operator_error_code,
+    output logic bulk_cmd_valid,
+    input logic bulk_cmd_ready,
+    output logic bulk_cmd_write,
+    output logic [31:0] bulk_cmd_addr,
+    output logic [7:0] bulk_cmd_bytes,
+    output logic bulk_wvalid,
+    input logic bulk_wready,
+    output logic [7:0] bulk_wdata,
+    input logic bulk_rvalid,
+    output logic bulk_rready,
+    input logic [7:0] bulk_rdata,
+    input logic bulk_done_valid,
+    output logic bulk_done_ready,
+    input logic [2:0] bulk_done_error
 );
     import s2a_network_descriptor_pkg::*;
 
@@ -131,6 +148,28 @@ module s2b_network_backend (
     logic [2:0] selected_result_error;
     logic memory_handshake;
     logic selected_start_ready;
+
+    logic conv_bulk_cmd_valid;
+    logic conv_bulk_cmd_write;
+    logic [31:0] conv_bulk_cmd_addr;
+    logic [7:0] conv_bulk_cmd_bytes;
+    logic conv_bulk_wvalid;
+    logic [7:0] conv_bulk_wdata;
+    logic conv_bulk_rready;
+    logic conv_bulk_done_ready;
+    logic bulk_conv_selected;
+
+    // bulk仅由当前冻结卷积使用，取消时内部valid按契约撤回。
+    assign bulk_conv_selected = ENABLE_BULK && (state == ST_WAIT_CONV) &&
+        buffer_owner_pl && !hard_reset && !abort;
+    assign bulk_cmd_valid = bulk_conv_selected ? conv_bulk_cmd_valid : '0;
+    assign bulk_cmd_write = bulk_conv_selected ? conv_bulk_cmd_write : '0;
+    assign bulk_cmd_addr = bulk_conv_selected ? conv_bulk_cmd_addr : '0;
+    assign bulk_cmd_bytes = bulk_conv_selected ? conv_bulk_cmd_bytes : '0;
+    assign bulk_wvalid = bulk_conv_selected ? conv_bulk_wvalid : '0;
+    assign bulk_wdata = bulk_conv_selected ? conv_bulk_wdata : '0;
+    assign bulk_rready = bulk_conv_selected ? conv_bulk_rready : '0;
+    assign bulk_done_ready = bulk_conv_selected ? conv_bulk_done_ready : '0;
 
     function automatic logic [2:0] normalize_engine_error(input logic [2:0] code);
         begin
@@ -444,7 +483,24 @@ module s2b_network_backend (
     end
 
     // 私有稳定descriptor模式只绑定冻结ROM的CONV派发。
-    s2b_conv_tile_engine #(.FROZEN_CONV_DESCRIPTOR(1'b1)) u_conv_engine (
+    s2b_conv_tile_engine #(
+        .FROZEN_CONV_DESCRIPTOR(1'b1), .FROZEN_OUTPUT_LANES(CONV_OUTPUT_LANES),
+        .ENABLE_BULK(ENABLE_BULK)
+    ) u_conv_engine (
+        .bulk_cmd_valid(conv_bulk_cmd_valid),
+        .bulk_cmd_ready((bulk_conv_selected && bulk_cmd_ready)),
+        .bulk_cmd_write(conv_bulk_cmd_write),
+        .bulk_cmd_addr(conv_bulk_cmd_addr),
+        .bulk_cmd_bytes(conv_bulk_cmd_bytes),
+        .bulk_wvalid(conv_bulk_wvalid),
+        .bulk_wready((bulk_conv_selected && bulk_wready)),
+        .bulk_wdata(conv_bulk_wdata),
+        .bulk_rvalid((bulk_conv_selected && bulk_rvalid)),
+        .bulk_rready(conv_bulk_rready),
+        .bulk_rdata(bulk_rdata),
+        .bulk_done_valid((bulk_conv_selected && bulk_done_valid)),
+        .bulk_done_ready(conv_bulk_done_ready),
+        .bulk_done_error(bulk_done_error),
         .clk(clk), .hard_reset(hard_reset), .abort(abort),
         .buffer_owner_pl(buffer_owner_pl),
         .start_valid(conv_start_valid), .start_ready(conv_start_ready),

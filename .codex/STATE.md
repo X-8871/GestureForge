@@ -126,5 +126,5 @@
    - 地址空间：现应用 ELF 跨度 18.04 MiB，第三方给的 `0x02000000–0x03000000` 仅 16 MiB ⇒ 需扩到 ≥20 MiB。
    - 数据通路：preproc `M_AXIS`（519,168 B/帧 INT8 CHW）在任何冻结位流里**无消费者** ⇒ 必须先裁决 DMA（AXIS→MM2S/S2MM→HP0）与 S2MM 中断归属。
    - 资源仅"相加看起来装得下"（≈LUT 50%/BRAM 33%/DSP 66.8%，DSP 余 73），**未实构建**。
-3. **C（PL 预处理上板）不可按原口径执行**：P2a/P2b 的 `M_AXIS` 无消费者 + 引擎源图基址固定 DDR `0x0`（≠ ABI `0x12000000`）⇒ 冻结位流上 `tensor_crc32=0x5B183B50` 不可达；需新位流（AXIS→DMA→HP0 写 + 源图基址方案），属重型任务，待批。变体 ELF 与寄存器映射已备好（`D:\tmp\lead\s4t35_pl_preproc_20261029_r01\`，寄存器表逐项带 RTL 行号）。
+3. **C（PL 预处理上板）已有可用候选位流，但未上板**：P2a/P2b 的 `M_AXIS` 无消费者 + 引擎源图基址固定 DDR `0x0` ⇒ 冻结位流上 `tensor_crc32=0x5B183B50` 不可达。已离线构建 **P2c r02**（`w4/report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r02/`，bit `022f48fb…d52ca4`、XSA `8051dd48…61bf4c`；preproc `M_AXIS`→64b 打包→AXI DMA S2MM→HP0，DMA 长 23 bit；50 MHz WNS +0.039/WHS +0.042，DSP 71.82%），配套应用变体（含 LENGTH 回读自检、IOC 完成判据、每帧重武装、IRQ_CLR 顺序）。独立复审 rev-s5：初审 CHANGES_REQUIRED（其中 AXI DMA 长度 14 bit 会截断 519,168 B —— 构建/DRC/时序全绿也发现不了）→ 修复后**增量复审 PASS**；manifest 过统一门禁（strict，26 条 0 不符）。**仍未上板**；板卡恢复且 Wong 批准后，可做"真彩/注入 RAW 预载 + P2c 位流 + 张量 CRC 对拍"。r01 位流已作废（ERRATUM）。
 4. **第三方地址表纠正**：真表是 `D:\wb-out\task3\address_table.json`（`wc_merged_address_table_v1`）；`D:\wb-out-r2\task3` 是 AXI-Lite 超时守卫 IP，非地址表。

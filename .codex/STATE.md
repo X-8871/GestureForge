@@ -57,8 +57,15 @@
   `0x30000021` 粘连；`r02` 窗口因补丁未生效 + 板卡已挂死而 FAIL。两份目录均标 `INVALID_RUN_ORDERING_BUG` 并附 `ERRATA_TWO_INVALID_WINDOWS.md`。
   **硬教训（执行器必须内置）**：①编程 PL 后任何装载路径禁止 `rst -system`；②命令串静态自检：已 `PROGRAM_OK` 且串内出现 `rst -system` 即拒跑；
   ③核挂在 AXI 读时不要用 `rst -system`/反复 `mrd` 救场（两次实测都会把 DAP 推入粘连）；④任何补丁式改运行参数后必须回读文件确认生效。
-- **板卡现状**：DAP 粘连（`0x30000021`），需**再次** 12V+USB 断电 ≥10 s；收窗后主机侧零残留（无 hw_server/xsdb/vivado）。
+- **板卡现状**：18:18 的粘连已由 Wong 第二次整机断电清除；18:24 窗口内 DAP 正常（枚举/读寄存器均通过），收窗后零残留（无 hw_server/xsdb/vivado、3121 仅 TIME_WAIT）。
   r03 的 `W5_final_restore` 因保全阶段 **DAP_WEDGED 误判**（`state/rrd` 在 `-eval` 下需 `puts` 才输出）而未执行 ⇒ 下窗口必须 W0 式复核候选区 diff==0。
+- **2026-10-29 18:24 第二次断电后复跑（`s4d_time_basis_20261029_r01`）：时间基座已定因**。同一段 DONE 等待
+  **主机 32.18 s / 应用 `elapsed_ms` 8.096 s = 3.975**；JTAG 直读全局定时器 ≈333 MHz，BSP `COUNTS_PER_SECOND=333,333,343`
+  二者一致 ⇒ **坏的是 `XTime_GetTime`：其时基约为全局定时器的 1/4（等效 ≈83 MHz）**（`report/evidence/S4-T34/s4d_time_basis_20261029_r01/ANALYSIS.md`，门禁 37 条 0 不符）。
+  **口径影响**：① A 项"30 min"判据实际≈2 h 真实时间；按真实时间 ≈47.4 s/轮，真实 30 min ≈38 轮（历史停住点 23/24/40 轮 ≈18/19/32 min 真实）；
+  ② 历史"11.8 s/帧"按真实时间≈47 s/帧；③ 2B BD 的 FCLK0 设计值是 **50 MHz**（非 L0 剖析假设的 100 MHz）⇒ 产品吞吐与 L0 剖析需重算。
+  本窗口未预载权重（引擎走 `error=1`/`0x0C05` 错误路径），**仅用于计时对照**。修复方向：应用改为直接读全局定时器（PS-only，不重建位流），
+  修后同窗口复核 host/app 比值≈1.00，再按**真实** 30 min 重跑 A 项；判据文本须同步勘误，不得静默改判据（已委派 stage4-lead 实现）。
 
 ## 本轮结果（四项实测窗口；P1 smoke 失败已收窗，2026-10-27 20:44 UTC+8）
 

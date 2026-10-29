@@ -1,0 +1,17 @@
+P2c r02 DMA LENGTH 位宽核对（B1 关闭证据）
+生成文件: D:\tmp\lead\p2c_20261029_r02\out\proj\s4d_p2c_r02.gen\sources_1\bd\s4d_p2c\ip\s4d_p2c_axi_dma_0_0\s4d_p2c_axi_dma_0_0_sim_netlist.v
+sha256: cffa929e566e6b666cf528eed053113ec1dc99125e6595c84d54113c8d3b468c
+
+命中行（s2mm_length 相关）:
+  L25567: wire [22:0]s2mm_length;
+  L25568: wire s2mm_length_wren;
+  L25966: .\GEN_CMD_BTT_LESS_23.cmnd_data_reg[22] (s2mm_length),
+  L25990: .s2mm_length_wren(s2mm_length_wren),
+  L26016: .Q(s2mm_length),
+  L26034: .s2mm_length_wren(s2mm_length_wren),
+
+判据: 519168 = 0x7EC00 需要 >=19 bit；实测 wire [22:0] = 23 bit（最大 8,388,607）⇒ 覆盖。
+对照: r01（已作废）为 wire [13:0] = 14 bit（最大 16,383）⇒ 会截断成 11,264 B。
+
+XCI 说明: r02 的 .xci 位于 out/proj/s4d_p2c_r02.srcs/sources_1/bd/s4d_p2c/ip/ 下（构建目录布局），
+本文件以**生成 netlist**（实现真正使用的网表）为准；构建日志中 c_sg_length_width {23} 在 bd_p2c.tcl 内可核。

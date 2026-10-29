@@ -1,0 +1,240 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "pl_v2_p2c_dma_bitstream_20261029_r02",
+  "title": "P2c r02 候选位流：preproc（SRC_BASE 可参数化）+ AXIS→64b 打包 + AXI DMA S2MM（LENGTH 23 bit）→ HP0 + 2B 推理",
+  "generated_utc8": "2026-10-29T16:30:26+08:00",
+  "hash_basis": "commit_blob",
+  "hash_basis_note": "本目录随 w4 提交进入 git，按 commit blob 校验；source 仅 provenance",
+  "candidate": true,
+  "not_frozen": true,
+  "status": "BUILD_ONLY_NOT_BOARD_TESTED",
+  "supersedes": "pl_v2_p2c_dma_bitstream_20261029_r01（其 DMA LENGTH 位宽 14 bit，功能不可用，见其 ERRATUM）",
+  "fixes": {
+    "B1": "CONFIG.c_sg_length_width {23}（519168 = 0x7EC00 需 19 bit）；XCI 与生成 netlist 已核对",
+    "B2": "SRC_BASE 改为可参数化（默认 0，与冻结基线一致；BD 覆盖为 0x12000000），3 个冻结 TB 原样复跑逐项一致"
+  },
+  "address_map": {
+    "preproc_csr": "0x43C10000 (range 0x80)",
+    "infer_2b_csr": "0x43C00000 (range 0x10000)",
+    "axi_dma_s2mm_regs": "0x43C20000 (range 0x10000)",
+    "tensor_dest": "0x10000000 (DMA S2MM DA)",
+    "raw_source": "0x12000000 (RTL 参数 SRC_BASE，BD 覆盖)"
+  },
+  "clock": "FCLK0 = 50 MHz",
+  "boundary": [
+    "仅构建产物；未上板；不主张 G3/G4/G5",
+    "应用侧 DMA 编程（DMACR/DA/LENGTH/状态轮询）不在本证据内",
+    "无整链（引擎→打包→DMA→DDR）仿真；依据为单元 TB + 冻结 TB 回归 + 64/64 位宽",
+    "非 SG 模式下 DMA 有效长度位宽由 c_sg_length_width 决定，本版 23 bit（可覆盖 519168）"
+  ],
+  "items": [
+    {
+      "path": "s4d_p2c.bit",
+      "kind": "bitstream",
+      "bytes": 4045770,
+      "sha256": "022f48fbf78722424a7c10a3b2fca6c26d2ce7cbc89e0f8dd1dbd02a99d52ca4",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\out\\s4d_p2c_r02.bit",
+      "note": ""
+    },
+    {
+      "path": "s4d_p2c.xsa",
+      "kind": "xsa",
+      "bytes": 353213,
+      "sha256": "8051dd485d9c76fdbc00dff99dbf1716d1f613cebdee40975ec85469de61bf4c",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\out\\s4d_p2c_r02.xsa",
+      "note": ""
+    },
+    {
+      "path": "reports/timing_route.rpt",
+      "kind": "report",
+      "bytes": 270273,
+      "sha256": "8478bd8da3ee1a32b061606a469dc4c95b572831330dcd33ec79db5774a19c07",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\out\\timing_route.rpt",
+      "note": ""
+    },
+    {
+      "path": "reports/util_route.rpt",
+      "kind": "report",
+      "bytes": 11894,
+      "sha256": "5f1bade1fa22cc5ce1f2dc23b86c961f0fadbca72213de8b6038b047b189fd18",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\out\\util_route.rpt",
+      "note": ""
+    },
+    {
+      "path": "logs/build_p2c_r02_output.txt",
+      "kind": "log",
+      "bytes": 147622,
+      "sha256": "1db5668ebfbf565152b792f5e72cbb3bdf15b9ded622a291eb7a28058700d367",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\out\\build_p2c_r02.stdout",
+      "note": "gitignore 规避：明文 output"
+    },
+    {
+      "path": "inputs/bd_p2c.tcl",
+      "kind": "build_input",
+      "bytes": 9164,
+      "sha256": "ff8b7d2f9a52d34167a8b4f5ac178c35b07a15344789718a50628e1f5eea9b87",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\bd_p2c.tcl",
+      "note": "含 c_sg_length_width=23 与 CONFIG.SRC_BASE=0x12000000"
+    },
+    {
+      "path": "inputs/P2C_R02_vs_frozen.patch",
+      "kind": "build_input",
+      "bytes": 6356,
+      "sha256": "454603612ecfc3d0dad38cafa71ef162a7781dafef0a774a492657f752cc4bf2",
+      "source": "diff of archived frozen RTL vs r02",
+      "note": "全部 RTL 语义差：SRC_BASE 参数（3 处 rd_addr）+ wrapper 参数透传"
+    },
+    {
+      "path": "inputs/rtl/s4d_axi4_rd_shim.sv",
+      "kind": "build_input",
+      "bytes": 7207,
+      "sha256": "8bcf1c1d124a96a7a7cc3c47e802d2fc5cfba851655e11aae9d1ae8686fc0d59",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_axi4_rd_shim.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_axis8_to_axis64.sv",
+      "kind": "build_input",
+      "bytes": 4541,
+      "sha256": "0078dbf69bbe1a8416497434a5eac2bb3e83b90bf9c5118401251e5079e98d04",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_axis8_to_axis64.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_coord_tables.svh",
+      "kind": "build_input",
+      "bytes": 30288,
+      "sha256": "42ebbd8f879df9f539f78d29adcd04c43c7bf605d84db71f67ce0712329d9883",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_coord_tables.svh",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_axi_wrapper.sv",
+      "kind": "build_input",
+      "bytes": 6547,
+      "sha256": "670f12ba1d2175aa4069f568b18872aed6c2d5476f65c11c804437dd91eb2a9b",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_axi_wrapper.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_csr.sv",
+      "kind": "build_input",
+      "bytes": 11850,
+      "sha256": "38afc806db1624dc6d6ff96860a4318604b05fed35552c17fded5b43577256a8",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_csr.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_engine_v2.sv",
+      "kind": "build_input",
+      "bytes": 24650,
+      "sha256": "a4391b10c748569321715278c37f65a2710c35f9b1e9f1c4f11986ad4c5d2565",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_engine_v2.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_letterbox.sv",
+      "kind": "build_input",
+      "bytes": 11336,
+      "sha256": "439ceae066af5e8ac133c18c251803698042bf8085c7e9a65fe1f7817dd4d9e0",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_letterbox.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_out_axis.sv",
+      "kind": "build_input",
+      "bytes": 3778,
+      "sha256": "a27828e842e31198e2f300ff3f6e683d7f49c0bdc36566181d1a1fad0d14d1b4",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_out_axis.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_v2_wrap.sv",
+      "kind": "build_input",
+      "bytes": 9845,
+      "sha256": "b074ff6380c715247365d5eb9206b9b69d5f28b2f6f298affa3582ced0dfb00c",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_v2_wrap.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/tb/tb_s4d_axis8_to_axis64.sv",
+      "kind": "testbench",
+      "bytes": 3642,
+      "sha256": "f2127e893244c1351138b687464e5e805b1f0ad9e92c37a8cd298722558cb08b",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\tb\\tb_s4d_axis8_to_axis64.sv",
+      "note": ""
+    },
+    {
+      "path": "logs/packer_tb_output.txt",
+      "kind": "log",
+      "bytes": 737,
+      "sha256": "b31fd5bc424d5c56c8e5adbf37333dff92f7d50b4f9ba8ea74ef0c08acc31408",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\packer_tb_output.txt",
+      "note": ""
+    },
+    {
+      "path": "regression/results.tsv",
+      "kind": "regression",
+      "bytes": 562,
+      "sha256": "e0bd9cb90f1d74138e958c801740d3c445d442b0b4856576f316c70fa133aaad",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\regression\\results.tsv",
+      "note": "3 个冻结 TB 对 P2c RTL（SRC_BASE=0）逐项对照 planA2 基线"
+    },
+    {
+      "path": "regression/work_engine_v2.result.txt",
+      "kind": "regression",
+      "bytes": 140,
+      "sha256": "992fe2ee73048c7e8f214e4626c3a6ac66954131f597d000b7aa35027e196e61",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\regression\\work_engine_v2\\xsim.log",
+      "note": "只抽取 RESULT/FNV 行"
+    },
+    {
+      "path": "regression/work_v2_axi.result.txt",
+      "kind": "regression",
+      "bytes": 191,
+      "sha256": "6a5164752c73d6fe6e9a6e6b8c6356eadabbd82ba4554eeaee7bc2c34ef8e4fe",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\regression\\work_v2_axi\\xsim.log",
+      "note": "只抽取 RESULT/FNV 行"
+    },
+    {
+      "path": "regression/work_v2_axis.result.txt",
+      "kind": "regression",
+      "bytes": 99,
+      "sha256": "08b85120e1790430c17815ff89384524997e5def59008cf62f27231ad3184737",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\regression\\work_v2_axis\\xsim.log",
+      "note": "只抽取 RESULT/FNV 行"
+    },
+    {
+      "path": "regression/run_tb_regression.py",
+      "kind": "regression",
+      "bytes": 3884,
+      "sha256": "ff43b2ce1d1abe624796f5efa0f024ac81e845e460fe5b67152d94171e2441de",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\run_tb_regression.py",
+      "note": "回归执行器"
+    },
+    {
+      "path": "logs/dma_length_width_check.txt",
+      "kind": "log",
+      "bytes": 1021,
+      "sha256": "cd081fe64cc746379a00ff75ee05bc43d7dc6e96b1e3fdbf5cb95dd9b59b5b59",
+      "source": "generated",
+      "note": "B1 关闭证据：生成 netlist 里 s2mm_length 为 23 bit"
+    },
+    {
+      "path": "MANIFEST.md",
+      "kind": "doc",
+      "bytes": 2772,
+      "sha256": "f062d6ea400c939593fff47e4abd733a0ca310e978c2ff44519ec74ed92ab8a4",
+      "source": "generated",
+      "note": ""
+    },
+    {
+      "path": "README.md",
+      "kind": "doc",
+      "bytes": 3171,
+      "sha256": "8c413daf174e504cd0b11ba6fa567f7b7406c8f5aa79f313a8f9fce0b7ff6e2c",
+      "source": "generated",
+      "note": ""
+    }
+  ]
+}

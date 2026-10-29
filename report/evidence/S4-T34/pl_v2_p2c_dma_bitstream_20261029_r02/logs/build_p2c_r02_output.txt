@@ -1,0 +1,1740 @@
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Oct 29 16:15:21 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] could not open socket on 127.0.0.1:7654 -> couldn't open socket: address already in use
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source bd_p2c.tcl
+# set root "D:/tmp/lead/p2c_20261029_r02/src"
+# set out  "D:/tmp/lead/p2c_20261029_r02/out"
+# set do_build [expr {$argc > 0 && [lindex $argv 0] eq "build"}]
+# file mkdir $out
+# set part_name "xc7z020clg400-2"
+# create_project -force s4d_p2c_r02 $out/proj -part $part_name
+# set_property target_language Verilog [current_project]
+# set_property include_dirs "$root/rtl" [get_filesets sources_1]
+# add_files -fileset sources_1 -norecurse "$root/rtl/s4d_coord_tables.svh"
+# foreach f [list \
+#     "$root/rtl/s4d_preproc_csr.sv" \
+#     "$root/rtl/s4d_preproc_engine_v2.sv" \
+#     "$root/rtl/s4d_axi4_rd_shim.sv" \
+#     "$root/rtl/s4d_preproc_out_axis.sv" \
+#     "$root/rtl/s4d_preproc_v2_wrap.sv" \
+#     "$root/rtl/s4d_axis8_to_axis64.sv" ] {
+#     read_verilog -sv $f
+# }
+# set W2B "D:/FPGA_Competition/w2b"
+# foreach rel [list \
+#     src/s2a_network_descriptor_pkg.sv src/s2b_maxpool_geometry.sv src/int8_maxpool_window.sv \
+#     src/s2b_route_query.sv src/int8_upsample_query.sv src/s2b_conv_tile_engine.sv \
+#     src/s2b_maxpool_engine.sv src/s2b_route_engine.sv src/s2b_upsample_engine.sv \
+#     src/s2b_network_backend.sv src/s2a_memory_master.sv src/s2a_runtime_shell.sv \
+#     src/s2b_stage2b_core.sv src/s2a_control_csr.sv src/s2b_request_guard.sv \
+#     src/s2b_hp0_word_adapter.sv src/s2b_control_csr.sv src/s2b_inference_top.sv ] {
+#     read_verilog -sv "$W2B/$rel"
+# }
+# set_property top s4d_preproc_v2_wrap [get_filesets sources_1]
+# update_compile_order -fileset sources_1
+# create_bd_design s4d_p2c
+Wrote  : <D:\tmp\lead\p2c_20261029_r02\out\proj\s4d_p2c_r02.srcs\sources_1\bd\s4d_p2c\s4d_p2c.bd> 
+# create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7 ps7_0
+# set_property -dict [list \
+#     CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {50} \
+#     CONFIG.PCW_USE_M_AXI_GP0 {1} \
+#     CONFIG.PCW_USE_S_AXI_HP0 {1} \
+#     CONFIG.PCW_S_AXI_HP0_DATA_WIDTH {64} \
+#     CONFIG.PCW_USE_S_AXI_HP1 {0} \
+# ] [get_bd_cells ps7_0]
+# make_bd_intf_pins_external [get_bd_intf_pins ps7_0/DDR]
+# make_bd_intf_pins_external [get_bd_intf_pins ps7_0/FIXED_IO]
+# create_bd_cell -type module -reference s4d_preproc_v2_wrap s4d_0
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'rstn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'rstn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI_RD' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI_RD' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXIS' of definition 'xilinx.com:interface:axis:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXIS' of definition 'xilinx.com:interface:axis:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXI'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'rstn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'PHASE' with value '0.000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'rstn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ADDR_WIDTH' with value '6'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ID_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'AWUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ARUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'WUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'RUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'BUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_BURST' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_LOCK' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_PROT' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_CACHE' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_QOS' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_REGION' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'SUPPORTS_NARROW_BURST' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'MAX_BURST_LENGTH' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'PROTOCOL' with value 'AXI4'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'READ_WRITE_MODE' with value 'READ_ONLY'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'DATA_WIDTH' with value '64'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'ID_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'AWUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'ARUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'WUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'RUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'BUSER_WIDTH' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'HAS_LOCK' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'HAS_PROT' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'HAS_CACHE' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'HAS_QOS' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'HAS_REGION' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'SUPPORTS_NARROW_BURST' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'MAX_BURST_LENGTH' with value '256'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI_RD': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'TDATA_NUM_BYTES' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'TUSER_WIDTH' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TLAST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TUSER' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TREADY' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXI_RD' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXIS' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+# set_property -dict [list CONFIG.SRC_BASE {32'h12000000}] [get_bd_cells s4d_0]
+# puts "P2C_SRC_BASE_BD=[get_property CONFIG.SRC_BASE [get_bd_cells s4d_0]]"
+P2C_SRC_BASE_BD=0x12000000
+# create_bd_cell -type module -reference s2b_inference_top infer_0
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-4821] For module 's2b_inference_top', parameter 'PROFILE_VISIBILITY_PROVEN' is inferred to be bitString format.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'cold_resetn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXI' of definition 'xilinx.com:interface:aximm:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXI'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'cold_resetn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'cold_resetn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'PROTOCOL' with value 'AXI4LITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'DATA_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'READ_WRITE_MODE' with value 'READ_WRITE'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'HAS_WSTRB' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'PROTOCOL' with value 'AXI3'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ADDR_WIDTH' with value '32'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'DATA_WIDTH' with value '64'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'ID_WIDTH' with value '6'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_BURST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_LOCK' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_CACHE' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_PROT' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'HAS_QOS' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_READ_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'NUM_WRITE_OUTSTANDING' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXI': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXI' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+# create_bd_cell -type module -reference s4d_axis8_to_axis64 pack_0
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'rstn' of definition 'xilinx.com:signal:reset:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'rstn' of definition 'xilinx.com:signal:reset:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXIS' of definition 'xilinx.com:interface:axis:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'S_AXIS' of definition 'xilinx.com:interface:axis:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXIS' of definition 'xilinx.com:interface:axis:1.0' (from X_INTERFACE_INFO parameter from HDL file).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'M_AXIS' of definition 'xilinx.com:interface:axis:1.0' (from 'X_INTERFACE_INFO' attribute).
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'S_AXIS'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'rstn'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'PHASE' with value '0.000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'rstn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'TDATA_NUM_BYTES' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'HAS_TLAST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'HAS_TUSER' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'TUSER_WIDTH' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'HAS_TKEEP' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'HAS_TSTRB' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'S_AXIS': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'TDATA_NUM_BYTES' with value '8'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TLAST' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TUSER' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TKEEP' with value '1'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'HAS_TSTRB' with value '0'.
+INFO: [IP_Flow 19-4728] Bus Interface 'M_AXIS': Added interface parameter 'FREQ_HZ' with value '50000000'.
+INFO: [IP_Flow 19-7067] Note that bus interface 'clk' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'S_AXIS' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+INFO: [IP_Flow 19-7067] Note that bus interface 'M_AXIS' has a fixed FREQ_HZ of '50000000'. This value will be respected whenever this IP is instantiated in IP Integrator.
+# create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma axi_dma_0
+# set_property -dict [list \
+#     CONFIG.c_include_sg {0} \
+#     CONFIG.c_sg_include_stscntrl_strm {0} \
+#     CONFIG.c_include_mm2s {0} \
+#     CONFIG.c_include_s2mm {1} \
+#     CONFIG.c_m_axi_s2mm_data_width {64} \
+#     CONFIG.c_s_axis_s2mm_tdata_width {64} \
+#     CONFIG.c_sg_length_width {23} \
+#     CONFIG.c_addr_width {32} \
+# ] [get_bd_cells axi_dma_0]
+# create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset rst_all
+# connect_bd_net [get_bd_pins ps7_0/FCLK_CLK0]     [get_bd_pins rst_all/slowest_sync_clk]
+# connect_bd_net [get_bd_pins ps7_0/FCLK_RESET0_N] [get_bd_pins rst_all/ext_reset_in]
+# foreach p [get_bd_pins -quiet {ps7_0/M_AXI_GP0_ACLK ps7_0/S_AXI_HP0_ACLK s4d_0/clk infer_0/clk pack_0/clk axi_dma_0/*aclk*}] {
+#     connect_bd_net [get_bd_pins ps7_0/FCLK_CLK0] $p
+# }
+# create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smc_ctrl
+# set_property -dict [list CONFIG.NUM_SI {1} CONFIG.NUM_MI {3}] [get_bd_cells smc_ctrl]
+# connect_bd_intf_net [get_bd_intf_pins ps7_0/M_AXI_GP0] [get_bd_intf_pins smc_ctrl/S00_AXI]
+# connect_bd_intf_net [get_bd_intf_pins smc_ctrl/M00_AXI] [get_bd_intf_pins s4d_0/S_AXI]
+# connect_bd_intf_net [get_bd_intf_pins smc_ctrl/M01_AXI] [get_bd_intf_pins infer_0/S_AXI]
+# connect_bd_intf_net [get_bd_intf_pins smc_ctrl/M02_AXI] [get_bd_intf_pins axi_dma_0/S_AXI_LITE]
+# create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smc_data
+# set_property -dict [list CONFIG.NUM_SI {3} CONFIG.NUM_MI {1}] [get_bd_cells smc_data]
+# connect_bd_intf_net [get_bd_intf_pins smc_data/M00_AXI] [get_bd_intf_pins ps7_0/S_AXI_HP0]
+# connect_bd_intf_net [get_bd_intf_pins s4d_0/M_AXI_RD] [get_bd_intf_pins smc_data/S00_AXI]
+# connect_bd_intf_net [get_bd_intf_pins infer_0/M_AXI] [get_bd_intf_pins smc_data/S01_AXI]
+# connect_bd_intf_net [get_bd_intf_pins axi_dma_0/M_AXI_S2MM] [get_bd_intf_pins smc_data/S02_AXI]
+# connect_bd_intf_net [get_bd_intf_pins s4d_0/M_AXIS] [get_bd_intf_pins pack_0/S_AXIS]
+# connect_bd_intf_net [get_bd_intf_pins pack_0/M_AXIS] [get_bd_intf_pins axi_dma_0/S_AXIS_S2MM]
+# connect_bd_net [get_bd_pins ps7_0/FCLK_CLK0] [get_bd_pins smc_ctrl/aclk]
+# connect_bd_net [get_bd_pins ps7_0/FCLK_CLK0] [get_bd_pins smc_data/aclk]
+# connect_bd_net [get_bd_pins rst_all/peripheral_aresetn] [get_bd_pins s4d_0/rstn]
+# connect_bd_net [get_bd_pins rst_all/peripheral_aresetn] [get_bd_pins infer_0/cold_resetn]
+# connect_bd_net [get_bd_pins rst_all/peripheral_aresetn] [get_bd_pins pack_0/rstn]
+# connect_bd_net [get_bd_pins rst_all/peripheral_aresetn] [get_bd_pins smc_ctrl/aresetn]
+# connect_bd_net [get_bd_pins rst_all/peripheral_aresetn] [get_bd_pins smc_data/aresetn]
+# connect_bd_net [get_bd_pins rst_all/peripheral_aresetn] [get_bd_pins axi_dma_0/axi_resetn]
+# set_property CONFIG.PROFILE_VISIBILITY_PROVEN {1} [get_bd_cells infer_0]
+# assign_bd_address -offset 0x43C10000 -range 0x00000080 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs -of_objects [get_bd_intf_pins s4d_0/S_AXI]]
+Slave segment '/s4d_0/S_AXI/reg0' is being assigned into address space '/ps7_0/Data' at <0x43C1_0000 [ 128 ]>.
+# assign_bd_address -offset 0x43C00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs -of_objects [get_bd_intf_pins infer_0/S_AXI]]
+Slave segment '/infer_0/S_AXI/reg0' is being assigned into address space '/ps7_0/Data' at <0x43C0_0000 [ 64K ]>.
+# assign_bd_address -offset 0x43C20000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ps7_0/Data] [get_bd_addr_segs -of_objects [get_bd_intf_pins axi_dma_0/S_AXI_LITE]]
+Slave segment '/axi_dma_0/S_AXI_LITE/Reg' is being assigned into address space '/ps7_0/Data' at <0x43C2_0000 [ 64K ]>.
+# foreach ip {s4d_0/M_AXI_RD infer_0/M_AXI axi_dma_0/M_AXI_S2MM} {
+#     assign_bd_address -offset 0x00000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces $ip] [get_bd_addr_segs ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM]
+# }
+Slave segment '/ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/s4d_0/M_AXI_RD' at <0x0000_0000 [ 1G ]>.
+Slave segment '/ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/infer_0/M_AXI' at <0x0000_0000 [ 1G ]>.
+WARNING: [BD 5-700] No address spaces matched 'get_bd_addr_spaces axi_dma_0/M_AXI_S2MM'
+Slave segment '/ps7_0/S_AXI_HP0/HP0_DDR_LOWOCM' is being assigned into address space '/axi_dma_0/Data_S2MM' at <0x0000_0000 [ 1G ]>.
+# regenerate_bd_layout
+# validate_bd_design
+WARNING: [BD 41-3281] Instance '/s4d_0' is connected on both sides by SmartConnects and cannot automatically configure itself to match the endpoints. Please manually configure its AXI interfaces as required for the design.
+WARNING: [BD 41-3281] Instance '/axi_dma_0' is connected on both sides by SmartConnects and cannot automatically configure itself to match the endpoints. Please manually configure its AXI interfaces as required for the design.
+WARNING: [BD 41-3281] Instance '/infer_0' is connected on both sides by SmartConnects and cannot automatically configure itself to match the endpoints. Please manually configure its AXI interfaces as required for the design.
+WARNING: [BD 41-3281] Instance '/ps7_0' is connected on both sides by SmartConnects and cannot automatically configure itself to match the endpoints. Please manually configure its AXI interfaces as required for the design.
+INFO: [BD 5-943] Reserving offset range <0x43C1_0000 [ 128 ]> from slave interface '/smc_ctrl/S00_AXI' to master interface '/smc_ctrl/M00_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x43C0_0000 [ 64K ]> from slave interface '/smc_ctrl/S00_AXI' to master interface '/smc_ctrl/M01_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x43C2_0000 [ 64K ]> from slave interface '/smc_ctrl/S00_AXI' to master interface '/smc_ctrl/M02_AXI'. This will be used by smartconnect on path for routing.
+INFO: [xilinx.com:ip:smartconnect:1.0-1] s4d_p2c_smc_ctrl_0: SmartConnect s4d_p2c_smc_ctrl_0 is in Ultralite mode.
+INFO: [BD 5-943] Reserving offset range <0x0000_0000 [ 1G ]> from slave interface '/smc_data/S00_AXI' to master interface '/smc_data/M00_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x0000_0000 [ 1G ]> from slave interface '/smc_data/S01_AXI' to master interface '/smc_data/M00_AXI'. This will be used by smartconnect on path for routing.
+INFO: [BD 5-943] Reserving offset range <0x0000_0000 [ 1G ]> from slave interface '/smc_data/S02_AXI' to master interface '/smc_data/M00_AXI'. This will be used by smartconnect on path for routing.
+INFO: [xilinx.com:ip:smartconnect:1.0-1] s4d_p2c_smc_data_0: SmartConnect s4d_p2c_smc_data_0 is in High-performance Mode.
+validate_bd_design: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 845.480 ; gain = 121.742
+# save_bd_design
+Wrote  : <D:\tmp\lead\p2c_20261029_r02\out\proj\s4d_p2c_r02.srcs\sources_1\bd\s4d_p2c\s4d_p2c.bd> 
+# puts "==== P2C_R02 BD VALIDATED ===="
+==== P2C_R02 BD VALIDATED ====
+# foreach seg [get_bd_addr_segs] {
+#     set off [get_property OFFSET $seg]
+#     if {$off ne ""} { puts "  [get_property NAME $seg]  offset=$off  range=[get_property RANGE $seg]" }
+# }
+  SEG_ps7_0_HP0_DDR_LOWOCM  offset=0x00000000  range=0x40000000
+  SEG_ps7_0_HP0_DDR_LOWOCM  offset=0x00000000  range=0x40000000
+  SEG_axi_dma_0_Reg  offset=0x43C20000  range=0x00010000
+  SEG_infer_0_reg0  offset=0x43C00000  range=0x00010000
+  SEG_s4d_0_reg0  offset=0x43C10000  range=0x00000080
+  SEG_ps7_0_HP0_DDR_LOWOCM  offset=0x00000000  range=0x40000000
+# if {!$do_build} {
+#     puts "==== P2C VALIDATE_ONLY DONE（未综合�? ===="
+#     exit 0
+# }
+# generate_target all [get_files s4d_p2c.bd]
+INFO: [BD 41-1662] The design 's4d_p2c.bd' is already validated. Therefore parameter propagation will not be re-run.
+Verilog Output written to : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v
+Verilog Output written to : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/sim/s4d_p2c.v
+Verilog Output written to : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/hdl/s4d_p2c_wrapper.v
+INFO: [IP_Flow 19-5611] Unable to find an associated reset port for the interface 'M_AXI_GP0'. A default connection has been created.
+INFO: [IP_Flow 19-5611] Unable to find an associated reset port for the interface 'S_AXI_HP0'. A default connection has been created.
+INFO: [BD 41-1029] Generation completed for the IP Integrator block ps7_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block s4d_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block infer_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block pack_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_dma_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_all .
+Exporting to file d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/bd_0/hw_handoff/s4d_p2c_smc_ctrl_0.hwh
+Generated Hardware Definition File d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/bd_0/synth/s4d_p2c_smc_ctrl_0.hwdef
+INFO: [BD 41-1029] Generation completed for the IP Integrator block smc_ctrl .
+Exporting to file d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/bd_0/hw_handoff/s4d_p2c_smc_data_0.hwh
+Generated Hardware Definition File d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/bd_0/synth/s4d_p2c_smc_data_0.hwdef
+INFO: [BD 41-1029] Generation completed for the IP Integrator block smc_data .
+Exporting to file D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/hw_handoff/s4d_p2c.hwh
+Generated Hardware Definition File D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.hwdef
+INFO: [BD 41-3262] Generated VHDL Instantiation Template file d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/s4d_p2c.vho
+INFO: [BD 41-3262] Generated Verilog Instantiation Template file d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/s4d_p2c.veo
+INFO: [BD 41-3262] Generated System Verilog Instantiation Template file d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/s4d_p2c_sv.sveo
+generate_target: Time (s): cpu = 00:00:14 ; elapsed = 00:00:16 . Memory (MB): peak = 904.742 ; gain = 59.262
+# make_wrapper -files [get_files s4d_p2c.bd] -top -import
+# set_property top s4d_p2c_wrapper [get_filesets sources_1]
+# update_compile_order -fileset sources_1
+# launch_runs synth_1 -jobs 2
+[Thu Oct 29 16:16:00 2026] Launched s4d_p2c_s4d_0_0_synth_1, s4d_p2c_infer_0_0_synth_1, s4d_p2c_pack_0_0_synth_1, s4d_p2c_ps7_0_0_synth_1, s4d_p2c_axi_dma_0_0_synth_1, s4d_p2c_rst_all_0_synth_1, s4d_p2c_smc_ctrl_0_synth_1, s4d_p2c_smc_data_0_synth_1...
+Run output will be captured here:
+s4d_p2c_s4d_0_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_s4d_0_0_synth_1/runme.log
+s4d_p2c_infer_0_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_infer_0_0_synth_1/runme.log
+s4d_p2c_pack_0_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_pack_0_0_synth_1/runme.log
+s4d_p2c_ps7_0_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_ps7_0_0_synth_1/runme.log
+s4d_p2c_axi_dma_0_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_axi_dma_0_0_synth_1/runme.log
+s4d_p2c_rst_all_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_rst_all_0_synth_1/runme.log
+s4d_p2c_smc_ctrl_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_smc_ctrl_0_synth_1/runme.log
+s4d_p2c_smc_data_0_synth_1: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/s4d_p2c_smc_data_0_synth_1/runme.log
+
+[Thu Oct 29 16:16:00 2026] Launched synth_1...
+Run output will be captured here: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/runme.log
+# wait_on_run synth_1
+[Thu Oct 29 16:16:00 2026] Waiting for synth_1 to finish...
+
+*** Running vivado
+    with args -log s4d_p2c_wrapper.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source s4d_p2c_wrapper.tcl
+
+
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Oct 29 16:22:12 2026
+# Process ID         : 5828
+# Current directory  : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1
+# Command line       : vivado.exe -log s4d_p2c_wrapper.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source s4d_p2c_wrapper.tcl
+# Log file           : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/s4d_p2c_wrapper.vds
+# Journal file       : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1\vivado.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 12833 MB
+#-----------------------------------------------------------
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Oct 29 16:22:12 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] could not open socket on 127.0.0.1:7654 -> couldn't open socket: address already in use
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source s4d_p2c_wrapper.tcl -notrace
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Xilinx/2026.1/Vivado/data/ip'.
+Command: synth_design -top s4d_p2c_wrapper -part xc7z020clg400-2
+Starting synth_design
+Attempting to get a license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Synthesis' and/or device 'xc7z020'
+INFO: [Device 21-403] Loading part xc7z020clg400-2
+INFO: [Designutils 20-5008] Incremental synthesis strategy default
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 19848
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1478.520 ; gain = 578.062
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_wrapper' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.srcs/sources_1/imports/hdl/s4d_p2c_wrapper.v:13]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:13]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_axi_dma_0_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_axi_dma_0_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_axi_dma_0_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_axi_dma_0_0_stub.v:6]
+WARNING: [Synth 8-7071] port 's2mm_prmry_reset_out_n' of module 's4d_p2c_axi_dma_0_0' is unconnected for instance 'axi_dma_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:281]
+WARNING: [Synth 8-7071] port 's2mm_introut' of module 's4d_p2c_axi_dma_0_0' is unconnected for instance 'axi_dma_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:281]
+WARNING: [Synth 8-7071] port 'axi_dma_tstvec' of module 's4d_p2c_axi_dma_0_0' is unconnected for instance 'axi_dma_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:281]
+WARNING: [Synth 8-7023] instance 'axi_dma_0' of module 's4d_p2c_axi_dma_0_0' has 43 connections declared, but only 40 given [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:281]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_infer_0_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_infer_0_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_infer_0_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_infer_0_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_pack_0_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_pack_0_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_pack_0_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_pack_0_0_stub.v:6]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_ps7_0_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_ps7_0_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_ps7_0_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_ps7_0_0_stub.v:6]
+WARNING: [Synth 8-7071] port 'S_AXI_HP0_BID' of module 's4d_p2c_ps7_0_0' is unconnected for instance 'ps7_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+WARNING: [Synth 8-7071] port 'S_AXI_HP0_RID' of module 's4d_p2c_ps7_0_0' is unconnected for instance 'ps7_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+WARNING: [Synth 8-7071] port 'S_AXI_HP0_RCOUNT' of module 's4d_p2c_ps7_0_0' is unconnected for instance 'ps7_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+WARNING: [Synth 8-7071] port 'S_AXI_HP0_WCOUNT' of module 's4d_p2c_ps7_0_0' is unconnected for instance 'ps7_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+WARNING: [Synth 8-7071] port 'S_AXI_HP0_RACOUNT' of module 's4d_p2c_ps7_0_0' is unconnected for instance 'ps7_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+WARNING: [Synth 8-7071] port 'S_AXI_HP0_WACOUNT' of module 's4d_p2c_ps7_0_0' is unconnected for instance 'ps7_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+WARNING: [Synth 8-7023] instance 'ps7_0' of module 's4d_p2c_ps7_0_0' has 107 connections declared, but only 101 given [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:395]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_rst_all_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_rst_all_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_rst_all_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_rst_all_0_stub.v:6]
+WARNING: [Synth 8-7071] port 'mb_reset' of module 's4d_p2c_rst_all_0' is unconnected for instance 'rst_all' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:497]
+WARNING: [Synth 8-7071] port 'bus_struct_reset' of module 's4d_p2c_rst_all_0' is unconnected for instance 'rst_all' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:497]
+WARNING: [Synth 8-7071] port 'peripheral_reset' of module 's4d_p2c_rst_all_0' is unconnected for instance 'rst_all' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:497]
+WARNING: [Synth 8-7071] port 'interconnect_aresetn' of module 's4d_p2c_rst_all_0' is unconnected for instance 'rst_all' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:497]
+WARNING: [Synth 8-7023] instance 'rst_all' of module 's4d_p2c_rst_all_0' has 10 connections declared, but only 6 given [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:497]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_s4d_0_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_s4d_0_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_s4d_0_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_s4d_0_0_stub.v:6]
+WARNING: [Synth 8-7071] port 'busy_o' of module 's4d_p2c_s4d_0_0' is unconnected for instance 's4d_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:504]
+WARNING: [Synth 8-7071] port 'done_o' of module 's4d_p2c_s4d_0_0' is unconnected for instance 's4d_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:504]
+WARNING: [Synth 8-7071] port 'done_count_o' of module 's4d_p2c_s4d_0_0' is unconnected for instance 's4d_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:504]
+WARNING: [Synth 8-7071] port 'byte_count_o' of module 's4d_p2c_s4d_0_0' is unconnected for instance 's4d_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:504]
+WARNING: [Synth 8-7071] port 'rd_err_o' of module 's4d_p2c_s4d_0_0' is unconnected for instance 's4d_0' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:504]
+WARNING: [Synth 8-7023] instance 's4d_0' of module 's4d_p2c_s4d_0_0' has 40 connections declared, but only 35 given [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:504]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_smc_ctrl_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_smc_ctrl_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_smc_ctrl_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_smc_ctrl_0_stub.v:6]
+WARNING: [Synth 8-7071] port 'M00_AXI_awprot' of module 's4d_p2c_smc_ctrl_0' is unconnected for instance 'smc_ctrl' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:540]
+WARNING: [Synth 8-7071] port 'M00_AXI_arprot' of module 's4d_p2c_smc_ctrl_0' is unconnected for instance 'smc_ctrl' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:540]
+WARNING: [Synth 8-7071] port 'M02_AXI_awprot' of module 's4d_p2c_smc_ctrl_0' is unconnected for instance 'smc_ctrl' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:540]
+WARNING: [Synth 8-7071] port 'M02_AXI_wstrb' of module 's4d_p2c_smc_ctrl_0' is unconnected for instance 'smc_ctrl' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:540]
+WARNING: [Synth 8-7071] port 'M02_AXI_arprot' of module 's4d_p2c_smc_ctrl_0' is unconnected for instance 'smc_ctrl' [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:540]
+WARNING: [Synth 8-7023] instance 'smc_ctrl' of module 's4d_p2c_smc_ctrl_0' has 97 connections declared, but only 92 given [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:540]
+INFO: [Synth 8-6157] synthesizing module 's4d_p2c_smc_data_0' [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_smc_data_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_smc_data_0' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/.Xil/Vivado-5828-HAO/realtime/s4d_p2c_smc_data_0_stub.v:6]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c' (0#1) [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/synth/s4d_p2c.v:13]
+INFO: [Synth 8-6155] done synthesizing module 's4d_p2c_wrapper' (0#1) [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.srcs/sources_1/imports/hdl/s4d_p2c_wrapper.v:13]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.004 . Memory (MB): peak = 1609.137 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0_in_context.xdc] for cell 's4d_p2c_i/ps7_0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0_in_context.xdc] for cell 's4d_p2c_i/ps7_0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_s4d_0_0/s4d_p2c_s4d_0_0/s4d_p2c_s4d_0_0_in_context.xdc] for cell 's4d_p2c_i/s4d_0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_s4d_0_0/s4d_p2c_s4d_0_0/s4d_p2c_s4d_0_0_in_context.xdc] for cell 's4d_p2c_i/s4d_0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_infer_0_0/s4d_p2c_infer_0_0/s4d_p2c_infer_0_0_in_context.xdc] for cell 's4d_p2c_i/infer_0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_infer_0_0/s4d_p2c_infer_0_0/s4d_p2c_infer_0_0_in_context.xdc] for cell 's4d_p2c_i/infer_0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_pack_0_0/s4d_p2c_pack_0_0/s4d_p2c_pack_0_0_in_context.xdc] for cell 's4d_p2c_i/pack_0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_pack_0_0/s4d_p2c_pack_0_0/s4d_p2c_pack_0_0_in_context.xdc] for cell 's4d_p2c_i/pack_0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0_in_context.xdc] for cell 's4d_p2c_i/axi_dma_0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0_in_context.xdc] for cell 's4d_p2c_i/axi_dma_0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0_in_context.xdc] for cell 's4d_p2c_i/rst_all'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0_in_context.xdc] for cell 's4d_p2c_i/rst_all'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/s4d_p2c_smc_ctrl_0/s4d_p2c_smc_ctrl_0_in_context.xdc] for cell 's4d_p2c_i/smc_ctrl'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/s4d_p2c_smc_ctrl_0/s4d_p2c_smc_ctrl_0_in_context.xdc] for cell 's4d_p2c_i/smc_ctrl'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/s4d_p2c_smc_data_0/s4d_p2c_smc_data_0_in_context.xdc] for cell 's4d_p2c_i/smc_data'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/s4d_p2c_smc_data_0/s4d_p2c_smc_data_0_in_context.xdc] for cell 's4d_p2c_i/smc_data'
+Parsing XDC File [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/dont_touch.xdc]
+Finished Parsing XDC File [D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/dont_touch.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1609.137 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.010 . Memory (MB): peak = 1609.137 ; gain = 0.000
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg400-2
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:11 ; elapsed = 00:00:12 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:11 ; elapsed = 00:00:13 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:11 ; elapsed = 00:00:13 . Memory (MB): peak = 1609.137 ; gain = 708.680
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:13 ; elapsed = 00:00:14 . Memory (MB): peak = 1634.090 ; gain = 733.633
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:17 ; elapsed = 00:00:19 . Memory (MB): peak = 1805.781 ; gain = 905.324
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:17 ; elapsed = 00:00:19 . Memory (MB): peak = 1806.414 ; gain = 905.957
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:17 ; elapsed = 00:00:19 . Memory (MB): peak = 1816.672 ; gain = 916.215
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++------+--------------------+----------+
+|      |BlackBox name       |Instances |
++------+--------------------+----------+
+|1     |s4d_p2c_axi_dma_0_0 |         1|
+|2     |s4d_p2c_infer_0_0   |         1|
+|3     |s4d_p2c_pack_0_0    |         1|
+|4     |s4d_p2c_ps7_0_0     |         1|
+|5     |s4d_p2c_rst_all_0   |         1|
+|6     |s4d_p2c_s4d_0_0     |         1|
+|7     |s4d_p2c_smc_ctrl_0  |         1|
+|8     |s4d_p2c_smc_data_0  |         1|
++------+--------------------+----------+
+
+Report Cell Usage: 
++------+------------------+------+
+|      |Cell              |Count |
++------+------------------+------+
+|1     |s4d_p2c_axi_dma_0 |     1|
+|2     |s4d_p2c_infer_0   |     1|
+|3     |s4d_p2c_pack_0    |     1|
+|4     |s4d_p2c_ps7_0     |     1|
+|5     |s4d_p2c_rst_all   |     1|
+|6     |s4d_p2c_s4d_0     |     1|
+|7     |s4d_p2c_smc_ctrl  |     1|
+|8     |s4d_p2c_smc_data  |     1|
++------+------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 0 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:13 ; elapsed = 00:00:20 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+Synthesis Optimization Complete : Time (s): cpu = 00:00:20 ; elapsed = 00:00:22 . Memory (MB): peak = 2091.703 ; gain = 1191.246
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 2091.703 ; gain = 0.000
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2104.453 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Synth Design complete | Checksum: d73bb7bb
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+36 Infos, 28 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:23 ; elapsed = 00:00:28 . Memory (MB): peak = 2108.445 ; gain = 1460.605
+INFO: [Common 17-1381] The checkpoint 'D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/synth_1/s4d_p2c_wrapper.dcp' has been generated.
+INFO: [Vivado 12-24828] Executing command : report_utilization -file s4d_p2c_wrapper_utilization_synth.rpt -pb s4d_p2c_wrapper_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Thu Oct 29 16:22:51 2026...
+[Thu Oct 29 16:22:53 2026] synth_1 finished
+wait_on_runs: Time (s): cpu = 00:00:01 ; elapsed = 00:06:52 . Memory (MB): peak = 918.109 ; gain = 0.000
+# if {[get_property PROGRESS [get_runs synth_1]] ne "100%"} { error "SYNTH_FAILED" }
+# set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]
+# launch_runs impl_1 -to_step write_bitstream -jobs 2
+[Thu Oct 29 16:22:55 2026] Launched impl_1...
+Run output will be captured here: D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/runme.log
+# wait_on_run impl_1
+[Thu Oct 29 16:22:55 2026] Waiting for impl_1 to finish...
+
+ERROR: Exception caught trying to open file D:\tmp\lead\p2c_20261029_r02\out\proj\s4d_p2c_r02.runs\impl_1/runme.log
+See file D:\tmp\lead\p2c_20261029_r02\out\proj\s4d_p2c_r02.runs\impl_1/exception.log for details.
+D:\tmp\lead\p2c_20261029_r02\out\proj\s4d_p2c_r02.runs\impl_1\rundef.js(261, 9) JavaScript runtime error: Permission denied
+
+
+*** Running vivado
+    with args -log s4d_p2c_wrapper.vdi -applog -m64 -product Vivado -messageDb vivado.pb -mode batch -source s4d_p2c_wrapper.tcl -notrace
+
+
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+#-----------------------------------------------------------
+# Vivado v2026.1 (64-bit)
+# SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+# IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+# SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+# Start of session at: Thu Oct 29 16:23:01 2026
+# Process ID         : 40876
+# Current directory  : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1
+# Command line       : vivado.exe -log s4d_p2c_wrapper.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source s4d_p2c_wrapper.tcl -notrace
+# Log file           : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper.vdi
+# Journal file       : D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1\vivado.jou
+# Running On         : HAO
+# Platform           : Windows 11
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13620H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 16
+# Host memory        : 16858 MB
+# Swap memory        : 21474 MB
+# Total Virtual      : 38333 MB
+# Available Virtual  : 12770 MB
+#-----------------------------------------------------------
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Oct 29 16:23:01 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] could not open socket on 127.0.0.1:7654 -> couldn't open socket: address already in use
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source s4d_p2c_wrapper.tcl -notrace
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository 'D:/Xilinx/2026.1/Vivado/data/ip'.
+Command: link_design -top s4d_p2c_wrapper -part xc7z020clg400-2
+Design is defaulting to srcset: sources_1
+Design is defaulting to constrset: constrs_1
+INFO: [Device 21-403] Loading part xc7z020clg400-2
+INFO: [Project 1-5699] Read binary netlist with skipMacroContent - 1
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0.dcp' for cell 's4d_p2c_i/axi_dma_0'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_infer_0_0/s4d_p2c_infer_0_0.dcp' for cell 's4d_p2c_i/infer_0'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_pack_0_0/s4d_p2c_pack_0_0.dcp' for cell 's4d_p2c_i/pack_0'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0.dcp' for cell 's4d_p2c_i/ps7_0'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0.dcp' for cell 's4d_p2c_i/rst_all'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_s4d_0_0/s4d_p2c_s4d_0_0.dcp' for cell 's4d_p2c_i/s4d_0'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/s4d_p2c_smc_ctrl_0.dcp' for cell 's4d_p2c_i/smc_ctrl'
+INFO: [Project 1-454] Reading design checkpoint 'd:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/s4d_p2c_smc_data_0.dcp' for cell 's4d_p2c_i/smc_data'
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.243 . Memory (MB): peak = 1008.188 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 6113 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0.xdc] for cell 's4d_p2c_i/ps7_0/inst'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_ps7_0_0/s4d_p2c_ps7_0_0.xdc] for cell 's4d_p2c_i/ps7_0/inst'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0.xdc] for cell 's4d_p2c_i/axi_dma_0/U0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0.xdc] for cell 's4d_p2c_i/axi_dma_0/U0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0_board.xdc] for cell 's4d_p2c_i/rst_all/U0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_rst_all_0/s4d_p2c_rst_all_0_board.xdc] for cell 's4d_p2c_i/rst_all/U0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/bd_0/ip/ip_0/bd_86bb_sc_ul_0_cdc.xdc] for cell 's4d_p2c_i/smc_ctrl/inst/sc_ul/inst'
+WARNING: [Vivado_Tcl 4-921] Waiver ID 'CDC-7' -to list should not be empty. [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/bd_0/ip/ip_0/bd_86bb_sc_ul_0_cdc.xdc:22]
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/bd_0/ip/ip_0/bd_86bb_sc_ul_0_cdc.xdc] for cell 's4d_p2c_i/smc_ctrl/inst/sc_ul/inst'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/smartconnect.xdc] for cell 's4d_p2c_i/smc_ctrl/inst'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_ctrl_0/smartconnect.xdc] for cell 's4d_p2c_i/smc_ctrl/inst'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/bd_0/ip/ip_1/bd_b926_psr_aclk_0_board.xdc] for cell 's4d_p2c_i/smc_data/inst/clk_map/psr_aclk/U0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/bd_0/ip/ip_1/bd_b926_psr_aclk_0_board.xdc] for cell 's4d_p2c_i/smc_data/inst/clk_map/psr_aclk/U0'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/smartconnect.xdc] for cell 's4d_p2c_i/smc_data/inst'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_smc_data_0/smartconnect.xdc] for cell 's4d_p2c_i/smc_data/inst'
+Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0_clocks.xdc] for cell 's4d_p2c_i/axi_dma_0/U0'
+Finished Parsing XDC File [d:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.gen/sources_1/bd/s4d_p2c/ip/s4d_p2c_axi_dma_0_0/s4d_p2c_axi_dma_0_0_clocks.xdc] for cell 's4d_p2c_i/axi_dma_0/U0'
+INFO: [Project 1-1714] 70 XPM XDC files have been applied to the design.
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+INFO: [Project 1-1687] 4 scoped IP constraints or related sub-commands were skipped due to synthesis logic optimizations usually triggered by constant connectivity or unconnected output pins. To review the skipped constraints and messages, run the command 'set_param netlist.IPMsgFiltering false' before opening the design.
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.014 . Memory (MB): peak = 1818.969 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 357 instances were transformed.
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 145 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 184 instances
+
+21 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+link_design completed successfully
+link_design: Time (s): cpu = 00:00:18 ; elapsed = 00:00:19 . Memory (MB): peak = 1818.969 ; gain = 1143.270
+Command: opt_design
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.701 . Memory (MB): peak = 1818.969 ; gain = 0.000
+
+Starting Cache Timing Information Task
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Ending Cache Timing Information Task | Checksum: 213155521
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 1818.969 ; gain = 0.000
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: 213155521
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.032 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: 213155521
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.058 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Phase 1 Initialization | Checksum: 213155521
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.061 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Detect if minReqCache needed
+Phase 2.1 Detect if minReqCache needed | Checksum: 213155521
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.093 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Phase 2.2 Timer Update
+Phase 2.2 Timer Update | Checksum: 213155521
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.854 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Phase 2.3 Timing Data Collection
+Phase 2.3 Timing Data Collection | Checksum: 213155521
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.876 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Phase 2 Timer Update And Timing Data Collection | Checksum: 213155521
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.880 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Phase 3 Retarget
+INFO: [Opt 31-1851] Number of loadless carry chains removed were: 0
+INFO: [Opt 31-1834] Total Chains To Be Transformed Were: 0 AND Number of Transformed insts Created are: 0
+INFO: [Opt 31-1566] Pulled 13 inverters resulting in an inversion of 93 pins
+INFO: [Opt 31-138] Pushed 22 inverter(s) to 128 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: 1bbee4064
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:02 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Retarget | Checksum: 1bbee4064
+INFO: [Opt 31-389] Phase Retarget created 126 cells and removed 253 cells
+INFO: [Opt 31-1021] In phase Retarget, 60 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 14 inverter(s) to 68 load pin(s).
+Phase 4 Constant propagation | Checksum: 2337b0f7d
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:03 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Constant propagation | Checksum: 2337b0f7d
+INFO: [Opt 31-389] Phase Constant propagation created 997 cells and removed 2998 cells
+INFO: [Opt 31-1021] In phase Constant propagation, 60 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 5 Sweep
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.020 . Memory (MB): peak = 2289.492 ; gain = 0.000
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.018 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Phase 5 Sweep | Checksum: 23b9ef104
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Sweep | Checksum: 23b9ef104
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 656 cells
+INFO: [Opt 31-1021] In phase Sweep, 76 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 6 BUFG optimization
+Phase 6 BUFG optimization | Checksum: 23b9ef104
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2289.492 ; gain = 0.000
+BUFG optimization | Checksum: 23b9ef104
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 23b9ef104
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Shift Register Optimization | Checksum: 23b9ef104
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+
+Phase 8 Post Processing Netlist
+Phase 8 Post Processing Netlist | Checksum: 20ab487fc
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Post Processing Netlist | Checksum: 20ab487fc
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+INFO: [Opt 31-1021] In phase Post Processing Netlist, 60 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 9 Finalization
+
+Phase 9.1 Finalizing Design Cores and Updating Shapes
+Phase 9.1 Finalizing Design Cores and Updating Shapes | Checksum: 21f5fa896
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Phase 9.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.058 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Phase 9.2 Verifying Netlist Connectivity | Checksum: 21f5fa896
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Phase 9 Finalization | Checksum: 21f5fa896
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2289.492 ; gain = 0.000
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |             126  |             253  |                                             60  |
+|  Constant propagation         |             997  |            2998  |                                             60  |
+|  Sweep                        |               0  |             656  |                                             76  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Post Processing Netlist      |               0  |               0  |                                             60  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 21f5fa896
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2289.492 ; gain = 0.000
+
+Starting Power Optimization Task
+INFO: [Pwropt 34-132] Skipping clock gating for clocks with a period < 2.00 ns.
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Running Vector-less Activity Propagation...
+INFO: [Pwropt 34-9] Applying IDT optimizations ...
+INFO: [Pwropt 34-10] Applying ODC optimizations ...
+
+Finished Running Vector-less Activity Propagation
+
+
+Starting PowerOpt Patch Enables Task
+INFO: [Pwropt 34-162] WRITE_MODE attribute of 0 BRAM(s) out of a total of 34 has been updated to save power. Run report_power_opt to get a complete listing of the BRAMs updated.
+INFO: [Pwropt 34-201] Structural ODC has moved 1 WE to EN ports
+Number of BRAM Ports augmented: 34 newly gated: 1 Total Ports: 68
+Ending PowerOpt Patch Enables Task | Checksum: 1471bda9d
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.192 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Ending Power Optimization Task | Checksum: 1471bda9d
+
+Time (s): cpu = 00:00:27 ; elapsed = 00:00:20 . Memory (MB): peak = 2362.668 ; gain = 73.176
+
+Starting Final Cleanup Task
+Ending Final Cleanup Task | Checksum: 1471bda9d
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.003 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.060 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+52 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:00:38 ; elapsed = 00:00:30 . Memory (MB): peak = 2362.668 ; gain = 543.699
+INFO: [Vivado 12-24828] Executing command : report_drc -file s4d_p2c_wrapper_drc_opted.rpt -pb s4d_p2c_wrapper_drc_opted.pb -rpx s4d_p2c_wrapper_drc_opted.rpx
+Command: report_drc -file s4d_p2c_wrapper_drc_opted.rpt -pb s4d_p2c_wrapper_drc_opted.pb -rpx s4d_p2c_wrapper_drc_opted.rpx
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_drc_opted.rpt.
+report_drc completed successfully
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.055 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Wrote PlaceStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.006 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.077 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.080 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_opt.dcp' has been generated.
+Command: place_design
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 2 CPUs
+
+Starting Placer Task
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 104659dc1
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.022 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device | Checksum: c27ecdbe
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 1.3 Build Placer Netlist Model
+Phase 1.3 Build Placer Netlist Model | Checksum: 12be591ad
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:11 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 1.4 Constrain Clocks/Macros
+Phase 1.4 Constrain Clocks/Macros | Checksum: 12be591ad
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:11 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 1 Placer Initialization | Checksum: 12be591ad
+
+Time (s): cpu = 00:00:16 ; elapsed = 00:00:11 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 2 Global Placement
+
+Phase 2.1 Floorplanning
+Phase 2.1 Floorplanning | Checksum: 145b683d1
+
+Time (s): cpu = 00:00:23 ; elapsed = 00:00:15 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 2.2 Update Timing before SLR Path Opt
+Phase 2.2 Update Timing before SLR Path Opt | Checksum: 182be906a
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:19 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 2.3 Post-Processing in Floorplanning
+Phase 2.3 Post-Processing in Floorplanning | Checksum: 182be906a
+
+Time (s): cpu = 00:00:30 ; elapsed = 00:00:19 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 2.4 Global Place Phase1
+Phase 2.4 Global Place Phase1 | Checksum: 128ce96d7
+
+Time (s): cpu = 00:01:10 ; elapsed = 00:00:45 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 2.5 Global Place Phase2
+
+Phase 2.5.1 UpdateTiming Before Physical Synthesis
+Phase 2.5.1 UpdateTiming Before Physical Synthesis | Checksum: ddf6f4e0
+
+Time (s): cpu = 00:01:16 ; elapsed = 00:00:49 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 2.5.2 Physical Synthesis In Placer
+INFO: [Physopt 32-1035] Found 21 LUTNM shape to break, 1890 LUT instances to create LUTNM shape
+INFO: [Physopt 32-1044] Break lutnm for timing: one critical 18, two critical 3, total 21, new lutff created 0
+INFO: [Physopt 32-1138] End 1 Pass. Optimized 846 nets or LUTs. Breaked 21 LUTs, combined 825 existing LUTs and moved 0 existing LUT
+INFO: [Physopt 32-65] No nets found for high-fanout optimization.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-457] Pass 1. Identified 2 candidate cells for DSP register optimization.
+INFO: [Physopt 32-665] Processed cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_conv_engine/feature_source_address_wide3__9. 17 registers were pushed out.
+INFO: [Physopt 32-665] Processed cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_conv_engine/feature_source_address_wide3__8. 15 registers were pushed out.
+INFO: [Physopt 32-775] End 2 Pass. Optimized 2 nets or cells. Created 32 new cells, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.072 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Physopt 32-1123] No candidate cells found for Shift Register to Pipeline optimization
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1401] No candidate cells found for Shift Register optimization.
+INFO: [Physopt 32-677] No candidate cells for Shift Register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-949] No candidate nets found for dynamic/static region interface net replication
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.015 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization                                     |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT Combining                                    |           21  |            825  |                   846  |           0  |           1  |  00:00:01  |
+|  Retime                                           |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Very High Fanout                                 |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  DSP Register                                     |           32  |              0  |                     2  |           0  |           1  |  00:00:00  |
+|  Shift Register to Pipeline                       |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register                                   |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  BRAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  URAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Dynamic/Static Region Interface Net Replication  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                                            |           53  |            825  |                   848  |           0  |           9  |  00:00:01  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Phase 2.5.2 Physical Synthesis In Placer | Checksum: 190297929
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:00:55 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 2.5 Global Place Phase2 | Checksum: 21e6d8ebb
+
+Time (s): cpu = 00:01:25 ; elapsed = 00:00:56 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 2 Global Placement | Checksum: 21e6d8ebb
+
+Time (s): cpu = 00:01:25 ; elapsed = 00:00:56 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 23409f594
+
+Time (s): cpu = 00:01:31 ; elapsed = 00:00:59 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 207926b1b
+
+Time (s): cpu = 00:01:42 ; elapsed = 00:01:07 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.3 Area Swap Optimization
+Phase 3.3 Area Swap Optimization | Checksum: 2552662ae
+
+Time (s): cpu = 00:01:42 ; elapsed = 00:01:07 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.4 Pipeline Register Optimization
+Phase 3.4 Pipeline Register Optimization | Checksum: 2b686d040
+
+Time (s): cpu = 00:01:42 ; elapsed = 00:01:07 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.5 Fast Optimization
+Phase 3.5 Fast Optimization | Checksum: 2b878bb99
+
+Time (s): cpu = 00:01:53 ; elapsed = 00:01:13 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.6 Small Shape Detail Placement
+Phase 3.6 Small Shape Detail Placement | Checksum: 25f25ec53
+
+Time (s): cpu = 00:02:01 ; elapsed = 00:01:23 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.7 Re-assign LUT pins
+Phase 3.7 Re-assign LUT pins | Checksum: 27947e4f3
+
+Time (s): cpu = 00:02:03 ; elapsed = 00:01:26 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.8 Pipeline Register Optimization
+Phase 3.8 Pipeline Register Optimization | Checksum: 1b3d9ebc8
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:01:26 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 3.9 Fast Optimization
+Phase 3.9 Fast Optimization | Checksum: 1e00b60f7
+
+Time (s): cpu = 00:02:16 ; elapsed = 00:01:33 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 3 Detail Placement | Checksum: 1e00b60f7
+
+Time (s): cpu = 00:02:16 ; elapsed = 00:01:33 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 4 Post Placement Optimization and Clean-Up
+
+Phase 4.1 Post Commit Optimization
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Phase 4.1.1 Post Placement Optimization
+Post Placement Optimization Initialization | Checksum: 19a28cf15
+
+Phase 4.1.1.1 BUFG Insertion
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 2 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.889 | TNS=-44.438 |
+Phase 1 Physical Synthesis Initialization | Checksum: ee423837
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.476 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Place 46-33] Processed net s4d_p2c_i/infer_0/inst/core/u_runtime_shell/u_control/response_target_latched[0], BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-33] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_conv_engine/cold_resetn_0, BUFG insertion was skipped due to placement/routing conflicts.
+INFO: [Place 46-56] BUFG insertion identified 2 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 2, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 174212370
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 4.1.1.1 BUFG Insertion | Checksum: 19a28cf15
+
+Time (s): cpu = 00:02:28 ; elapsed = 00:01:42 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 4.1.1.2 Post Placement Timing Optimization
+INFO: [Place 30-746] Post Placement Timing Summary WNS=-0.424. For the most accurate timing information please run report_timing.
+Phase 4.1.1.2 Post Placement Timing Optimization | Checksum: 213c66b86
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:04 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:04 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 4.1 Post Commit Optimization | Checksum: 213c66b86
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:04 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 4.2 Post Placement Cleanup
+Phase 4.2 Post Placement Cleanup | Checksum: 213c66b86
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:04 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 4.3 Placer Reporting
+
+Phase 4.3.1 Print Estimated Congestion
+INFO: [Place 30-612] Post-Placement Estimated Congestion 
+ ____________________________________________________
+|           | Global Congestion | Short Congestion  |
+| Direction | Region Size       | Region Size       |
+|___________|___________________|___________________|
+|      North|                1x1|                2x2|
+|___________|___________________|___________________|
+|      South|                2x2|                4x4|
+|___________|___________________|___________________|
+|       East|                1x1|                2x2|
+|___________|___________________|___________________|
+|       West|                1x1|                1x1|
+|___________|___________________|___________________|
+
+Phase 4.3.1 Print Estimated Congestion | Checksum: 213c66b86
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:05 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 4.3 Placer Reporting | Checksum: 213c66b86
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:05 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Phase 4.4 Final Placement Cleanup
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.057 . Memory (MB): peak = 2362.668 ; gain = 0.000
+
+Time (s): cpu = 00:02:54 ; elapsed = 00:02:05 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Phase 4 Post Placement Optimization and Clean-Up | Checksum: 2b5b0885c
+
+Time (s): cpu = 00:02:55 ; elapsed = 00:02:05 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Ending Placer Task | Checksum: 1c54ca308
+
+Time (s): cpu = 00:02:55 ; elapsed = 00:02:05 . Memory (MB): peak = 2362.668 ; gain = 0.000
+96 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+place_design completed successfully
+place_design: Time (s): cpu = 00:02:58 ; elapsed = 00:02:08 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Vivado 12-24838] Running report commands "report_control_sets, report_io, report_utilization" in parallel.
+Running report generation with 2 threads.
+INFO: [Vivado 12-24828] Executing command : report_io -file s4d_p2c_wrapper_io_placed.rpt
+report_io: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.081 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_control_sets -verbose -file s4d_p2c_wrapper_control_sets_placed.rpt
+report_control_sets: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.076 . Memory (MB): peak = 2362.668 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_utilization -file s4d_p2c_wrapper_utilization_placed.rpt -pb s4d_p2c_wrapper_utilization_placed.pb
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2362.668 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.050 . Memory (MB): peak = 2363.359 ; gain = 0.691
+Write ShapeDB Complete: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.108 . Memory (MB): peak = 2371.703 ; gain = 9.035
+Wrote PlaceStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:01 . Memory (MB): peak = 2376.895 ; gain = 13.535
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.040 . Memory (MB): peak = 2376.895 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 2376.895 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:04 ; elapsed = 00:00:01 . Memory (MB): peak = 2376.895 ; gain = 14.227
+INFO: [Common 17-1381] The checkpoint 'D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_placed.dcp' has been generated.
+Command: phys_opt_design
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:08 ; elapsed = 00:00:05 . Memory (MB): peak = 2376.895 ; gain = 0.000
+INFO: [Vivado_Tcl 4-1435] PhysOpt_Tcl_Interface Runtime Before Starting Physical Synthesis Task | CPU: 9.00s |  WALL: 4.86s
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.014 . Memory (MB): peak = 2376.895 ; gain = 0.000
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 2 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.424 | TNS=-12.570 |
+Phase 1 Physical Synthesis Initialization | Checksum: 1afe719ca
+
+Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 2390.707 ; gain = 13.812
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.424 | TNS=-12.570 |
+
+Phase 2 DSP Register Optimization
+INFO: [Physopt 32-456] No candidate cells for DSP register optimization found in the design.
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Phase 2 DSP Register Optimization | Checksum: 1afe719ca
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:04 . Memory (MB): peak = 2390.707 ; gain = 13.812
+
+Phase 3 Critical Path Optimization
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.424 | TNS=-12.570 |
+INFO: [Physopt 32-702] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/route_result_error[1]. Optimizations did not improve timing on the net.
+INFO: [Physopt 32-702] Processed net s4d_p2c_i/ps7_0/inst/FCLK_CLK_unbuffered[0]. Optimizations did not improve timing on the net.
+INFO: [Physopt 32-710] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[1]_i_1__2_n_0. Critical path length was reduced through logic transformation on cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[1]_i_1__2_comp.
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[2]_i_2__2_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.415 | TNS=-12.404 |
+INFO: [Physopt 32-702] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/route_result_error[2]. Optimizations did not improve timing on the net.
+INFO: [Physopt 32-710] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[2]_i_1__2_n_0. Critical path length was reduced through logic transformation on cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[2]_i_1__2_comp.
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[2]_i_2__2_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.305 | TNS=-11.989 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[17].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[17]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[17]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.305 | TNS=-11.785 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[18].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[18]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[18]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.305 | TNS=-11.635 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[27].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[27]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[27]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.305 | TNS=-11.513 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[28].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[28]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[28]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.295 | TNS=-11.395 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched_reg_n_0_[6].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched_reg[6]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched_reg_n_0_[6]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.295 | TNS=-11.287 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched_reg_n_0_[7].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched_reg[7]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched_reg_n_0_[7]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.273 | TNS=-11.179 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[10].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[10]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[10]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.273 | TNS=-11.093 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[25].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[25]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[25]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.273 | TNS=-11.008 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[26].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[26]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[26]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.273 | TNS=-10.925 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[29].  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg[29]
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[29]. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.273 | TNS=-10.875 |
+INFO: [Physopt 32-702] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/output_address_latched_reg_n_0_[30]. Optimizations did not improve timing on the net.
+INFO: [Physopt 32-710] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched[31]_i_1_n_0. Critical path length was reduced through logic transformation on cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched[31]_i_1_comp.
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[2]_i_2_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.134 | TNS=-2.300 |
+INFO: [Physopt 32-663] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[2]_i_4_n_0.  Re-placed instance s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[2]_i_4
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[2]_i_4_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.118 | TNS=-0.160 |
+INFO: [Physopt 32-702] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/route_result_error[0]. Optimizations did not improve timing on the net.
+INFO: [Physopt 32-710] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[0]_i_1__2_n_0. Critical path length was reduced through logic transformation on cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[0]_i_1__2_comp.
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[7]_i_8_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.016 | TNS=-0.046 |
+INFO: [Physopt 32-710] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[2]_i_1__2_n_0. Critical path length was reduced through logic transformation on cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/result_error_latched[2]_i_1__2_comp_1.
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[2]_i_2_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.015 | TNS=-0.059 |
+INFO: [Physopt 32-710] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched[31]_i_1_n_0. Critical path length was reduced through logic transformation on cell s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/source_address_latched[31]_i_1_comp_1.
+INFO: [Physopt 32-735] Processed net s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state[2]_i_4_n_0. Optimization improves timing on the net.
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.052 | TNS=0.000 |
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.052 | TNS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.021 . Memory (MB): peak = 2398.172 ; gain = 0.000
+Phase 3 Critical Path Optimization | Checksum: 1afe719ca
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:06 . Memory (MB): peak = 2398.172 ; gain = 21.277
+
+Phase 4 Critical Path Optimization
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.052 | TNS=0.000 |
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.052 | TNS=0.000 |
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.014 . Memory (MB): peak = 2398.172 ; gain = 0.000
+Phase 4 Critical Path Optimization | Checksum: 1afe719ca
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:06 . Memory (MB): peak = 2398.172 ; gain = 21.277
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 2398.172 ; gain = 0.000
+INFO: [Physopt 32-603] Post Physical Optimization Timing Summary | WNS=0.052 | TNS=0.000 |
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization   |  WNS Gain (ns)  |  TNS Gain (ns)  |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  DSP Register   |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Critical Path  |          0.476  |         12.570  |            0  |              0  |                    17  |           0  |           2  |  00:00:02  |
+|  Total          |          0.476  |         12.570  |            0  |              0  |                    17  |           0  |           3  |  00:00:02  |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 2398.172 ; gain = 0.000
+Ending Physical Synthesis Task | Checksum: 1ba23a5f1
+
+Time (s): cpu = 00:00:07 ; elapsed = 00:00:06 . Memory (MB): peak = 2398.172 ; gain = 21.277
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+171 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+phys_opt_design: Time (s): cpu = 00:00:17 ; elapsed = 00:00:11 . Memory (MB): peak = 2398.172 ; gain = 21.277
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2398.172 ; gain = 0.000
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2398.172 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.046 . Memory (MB): peak = 2398.172 ; gain = 0.000
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.074 . Memory (MB): peak = 2399.883 ; gain = 1.711
+Wrote PlaceStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:01 . Memory (MB): peak = 2409.273 ; gain = 11.102
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.039 . Memory (MB): peak = 2409.273 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2409.273 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:03 ; elapsed = 00:00:01 . Memory (MB): peak = 2409.273 ; gain = 11.102
+INFO: [Common 17-1381] The checkpoint 'D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_physopt.dcp' has been generated.
+Command: route_design
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+
+Starting Routing Task
+INFO: [Route 35-254] Multithreading enabled for route_design using a maximum of 2 CPUs
+
+Phase 1 Build RT Design
+Checksum: PlaceDB: 78594dc9 ConstDB: 0 ShapeSum: e1891111 RouteDB: 15f972f0
+Post Restoration Checksum: NetGraph: 7c9e95ed | NumContArr: 94e2c2cd | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 1 Build RT Design | Checksum: 296d34df4
+
+Time (s): cpu = 00:00:29 ; elapsed = 00:00:23 . Memory (MB): peak = 2409.273 ; gain = 0.000
+
+Phase 2 Router Initialization
+
+Phase 2.1 Fix Topology Constraints
+Phase 2.1 Fix Topology Constraints | Checksum: 296d34df4
+
+Time (s): cpu = 00:00:29 ; elapsed = 00:00:23 . Memory (MB): peak = 2409.289 ; gain = 0.016
+
+Phase 2.2 Pre Route Cleanup
+Phase 2.2 Pre Route Cleanup | Checksum: 296d34df4
+
+Time (s): cpu = 00:00:29 ; elapsed = 00:00:23 . Memory (MB): peak = 2409.289 ; gain = 0.016
+ Number of Nodes with overlaps = 0
+
+Phase 2.3 Update Timing
+Phase 2.3 Update Timing | Checksum: 2bba306f4
+
+Time (s): cpu = 00:00:42 ; elapsed = 00:00:31 . Memory (MB): peak = 2480.094 ; gain = 70.820
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.064  | TNS=0.000  | WHS=-0.255 | THS=-777.089|
+
+
+Phase 2.4 Soft Constraint Pins - Fast Budgeting
+Phase 2.4 Soft Constraint Pins - Fast Budgeting | Checksum: 318a2c737
+
+Time (s): cpu = 00:00:46 ; elapsed = 00:00:33 . Memory (MB): peak = 2507.191 ; gain = 97.918
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 0 %
+  Global Horizontal Routing Utilization  = 0 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 40914
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 40913
+  Number of Partially Routed Nets     = 1
+  Number of Node Overlaps             = 0
+
+Phase 2 Router Initialization | Checksum: 331cca98c
+
+Time (s): cpu = 00:00:46 ; elapsed = 00:00:34 . Memory (MB): peak = 2507.191 ; gain = 97.918
+
+Phase 3 Global Routing
+Phase 3 Global Routing | Checksum: 331cca98c
+
+Time (s): cpu = 00:00:46 ; elapsed = 00:00:34 . Memory (MB): peak = 2507.191 ; gain = 97.918
+
+Phase 4 Initial Routing
+
+Phase 4.1 Initial Net Routing Pass
+Phase 4.1 Initial Net Routing Pass | Checksum: 234c8a8bf
+
+Time (s): cpu = 00:01:02 ; elapsed = 00:00:43 . Memory (MB): peak = 2530.457 ; gain = 121.184
+Phase 4 Initial Routing | Checksum: 234c8a8bf
+
+Time (s): cpu = 00:01:02 ; elapsed = 00:00:43 . Memory (MB): peak = 2530.457 ; gain = 121.184
+INFO: [Route 35-580] Design has 1 pins with tight setup and hold constraints.
+
+The top 5 pins with tight setup and hold constraints:
+
++====================+===================+========================================================================================+
+| Launch Setup Clock | Launch Hold Clock | Pin                                                                                    |
++====================+===================+========================================================================================+
+| clk_fpga_0         | clk_fpga_0        | s4d_p2c_i/infer_0/inst/core/u_network_backend/u_route_engine/FSM_onehot_state_reg[7]/D |
++--------------------+-------------------+----------------------------------------------------------------------------------------+
+
+File with complete list of pins: tight_setup_hold_pins.txt
+
+
+Phase 5 Rip-up And Reroute
+
+Phase 5.1 Global Iteration 0
+ Number of Nodes with overlaps = 10113
+ Number of Nodes with overlaps = 1495
+ Number of Nodes with overlaps = 357
+ Number of Nodes with overlaps = 101
+ Number of Nodes with overlaps = 44
+ Number of Nodes with overlaps = 27
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.283 | TNS=-7.559 | WHS=N/A    | THS=N/A    |
+
+Phase 5.1 Global Iteration 0 | Checksum: 24d166cc5
+
+Time (s): cpu = 00:01:47 ; elapsed = 00:01:24 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 5.2 Global Iteration 1
+ Number of Nodes with overlaps = 1265
+ Number of Nodes with overlaps = 273
+ Number of Nodes with overlaps = 149
+ Number of Nodes with overlaps = 32
+ Number of Nodes with overlaps = 6
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.016  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 5.2 Global Iteration 1 | Checksum: 25bbc27ec
+
+Time (s): cpu = 00:02:04 ; elapsed = 00:01:36 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 5.3 Global Iteration 2
+ Number of Nodes with overlaps = 1137
+ Number of Nodes with overlaps = 171
+ Number of Nodes with overlaps = 70
+ Number of Nodes with overlaps = 25
+ Number of Nodes with overlaps = 6
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.078 | TNS=-0.479 | WHS=N/A    | THS=N/A    |
+
+Phase 5.3 Global Iteration 2 | Checksum: 236d3b515
+
+Time (s): cpu = 00:02:18 ; elapsed = 00:01:47 . Memory (MB): peak = 2530.457 ; gain = 121.184
+Phase 5 Rip-up And Reroute | Checksum: 236d3b515
+
+Time (s): cpu = 00:02:18 ; elapsed = 00:01:47 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 6 Delay and Skew Optimization
+
+Phase 6.1 Delay CleanUp
+
+Phase 6.1.1 Update Timing
+Phase 6.1.1 Update Timing | Checksum: 2272f8fe5
+
+Time (s): cpu = 00:02:20 ; elapsed = 00:01:48 . Memory (MB): peak = 2530.457 ; gain = 121.184
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.028  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 6.1 Delay CleanUp | Checksum: 2272f8fe5
+
+Time (s): cpu = 00:02:20 ; elapsed = 00:01:48 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 6.2 Clock Skew Optimization
+Phase 6.2 Clock Skew Optimization | Checksum: 2272f8fe5
+
+Time (s): cpu = 00:02:20 ; elapsed = 00:01:48 . Memory (MB): peak = 2530.457 ; gain = 121.184
+Phase 6 Delay and Skew Optimization | Checksum: 2272f8fe5
+
+Time (s): cpu = 00:02:20 ; elapsed = 00:01:48 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 7 Post Hold Fix
+
+Phase 7.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.028  | TNS=0.000  | WHS=0.042  | THS=0.000  |
+
+Phase 7.1 Hold Fix Iter | Checksum: 28e96d723
+
+Time (s): cpu = 00:02:22 ; elapsed = 00:01:49 . Memory (MB): peak = 2530.457 ; gain = 121.184
+Phase 7 Post Hold Fix | Checksum: 28e96d723
+
+Time (s): cpu = 00:02:22 ; elapsed = 00:01:49 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 8 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 12.1724 %
+  Global Horizontal Routing Utilization  = 14.3121 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 8 Route finalize | Checksum: 28e96d723
+
+Time (s): cpu = 00:02:22 ; elapsed = 00:01:49 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 9 Verifying routed nets
+
+ Verification completed successfully
+Phase 9 Verifying routed nets | Checksum: 28e96d723
+
+Time (s): cpu = 00:02:22 ; elapsed = 00:01:49 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 10 Depositing Routes
+Phase 10 Depositing Routes | Checksum: 248fc73f9
+
+Time (s): cpu = 00:02:26 ; elapsed = 00:01:53 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 11 Post Process Routing
+Phase 11 Post Process Routing | Checksum: 248fc73f9
+
+Time (s): cpu = 00:02:26 ; elapsed = 00:01:53 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Phase 12 Post Router Timing
+INFO: [Route 35-57] Estimated Timing Summary | WNS=0.028  | TNS=0.000  | WHS=0.042  | THS=0.000  |
+
+INFO: [Route 35-327] The final timing numbers are based on the router estimated timing analysis. For a complete and accurate timing signoff, please run report_timing_summary.
+Phase 12 Post Router Timing | Checksum: 248fc73f9
+
+Time (s): cpu = 00:02:27 ; elapsed = 00:01:53 . Memory (MB): peak = 2530.457 ; gain = 121.184
+Total Elapsed time in route_design: 112.861 secs
+
+Phase 13 Post-Route Event Processing
+Phase 13 Post-Route Event Processing | Checksum: 1faccb45b
+
+Time (s): cpu = 00:02:27 ; elapsed = 00:01:53 . Memory (MB): peak = 2530.457 ; gain = 121.184
+INFO: [Route 35-16] Router Completed Successfully
+Ending Routing Task | Checksum: 1faccb45b
+
+Time (s): cpu = 00:02:27 ; elapsed = 00:01:53 . Memory (MB): peak = 2530.457 ; gain = 121.184
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+189 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:02:28 ; elapsed = 00:01:53 . Memory (MB): peak = 2530.457 ; gain = 121.184
+INFO: [Vivado 12-24828] Executing command : report_drc -file s4d_p2c_wrapper_drc_routed.rpt -pb s4d_p2c_wrapper_drc_routed.pb -rpx s4d_p2c_wrapper_drc_routed.rpx
+Command: report_drc -file s4d_p2c_wrapper_drc_routed.rpt -pb s4d_p2c_wrapper_drc_routed.pb -rpx s4d_p2c_wrapper_drc_routed.rpx
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 2-168] The results of DRC are in file D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_drc_routed.rpt.
+report_drc completed successfully
+INFO: [Vivado 12-24828] Executing command : report_methodology -file s4d_p2c_wrapper_methodology_drc_routed.rpt -pb s4d_p2c_wrapper_methodology_drc_routed.pb -rpx s4d_p2c_wrapper_methodology_drc_routed.rpx
+Command: report_methodology -file s4d_p2c_wrapper_methodology_drc_routed.rpt -pb s4d_p2c_wrapper_methodology_drc_routed.pb -rpx s4d_p2c_wrapper_methodology_drc_routed.rpx
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [DRC 23-133] Running Methodology with 2 threads
+INFO: [Vivado_Tcl 2-1520] The results of Report Methodology are in file D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_methodology_drc_routed.rpt.
+report_methodology completed successfully
+report_methodology: Time (s): cpu = 00:00:18 ; elapsed = 00:00:10 . Memory (MB): peak = 2530.457 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_timing_summary -max_paths 10 -routable_nets -report_unconstrained -file s4d_p2c_wrapper_timing_summary_routed.rpt -pb s4d_p2c_wrapper_timing_summary_routed.pb -rpx s4d_p2c_wrapper_timing_summary_routed.rpx -warn_on_violation 
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+INFO: [Vivado 12-24838] Running report commands "report_incremental_reuse, report_route_status" in parallel.
+Running report generation with 2 threads.
+INFO: [Vivado 12-24828] Executing command : report_incremental_reuse -file s4d_p2c_wrapper_incremental_reuse_routed.rpt
+INFO: [Vivado_Tcl 4-1062] Incremental flow is disabled. No incremental reuse Info to report.
+INFO: [Vivado 12-24828] Executing command : report_route_status -file s4d_p2c_wrapper_route_status.rpt -pb s4d_p2c_wrapper_route_status.pb
+INFO: [Vivado 12-24828] Executing command : report_power -file s4d_p2c_wrapper_power_routed.rpt -pb s4d_p2c_wrapper_power_summary_routed.pb -rpx s4d_p2c_wrapper_power_routed.rpx
+Command: report_power -file s4d_p2c_wrapper_power_routed.rpt -pb s4d_p2c_wrapper_power_summary_routed.pb -rpx s4d_p2c_wrapper_power_routed.rpx
+Running Vector-less Activity Propagation...
+
+Finished Running Vector-less Activity Propagation
+WARNING: [Power 33-332] Found switching activity that implies high-fanout reset nets being asserted for excessive periods of time which may result in inaccurate power analysis.
+Resolution: To review and fix problems, please run Power Constraints Advisor in the GUI from Tools > Power Constraints Advisor or run report_power with the -advisory option to generate a text report.
+206 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+report_power completed successfully
+report_power: Time (s): cpu = 00:00:13 ; elapsed = 00:00:10 . Memory (MB): peak = 2530.457 ; gain = 0.000
+INFO: [Vivado 12-24828] Executing command : report_clock_utilization -file s4d_p2c_wrapper_clock_utilization_routed.rpt
+INFO: [Vivado 12-24828] Executing command : report_bus_skew -warn_on_violation -file s4d_p2c_wrapper_bus_skew_routed.rpt -pb s4d_p2c_wrapper_bus_skew_routed.pb -rpx s4d_p2c_wrapper_bus_skew_routed.rpx
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+generate_parallel_reports: Time (s): cpu = 00:00:43 ; elapsed = 00:00:29 . Memory (MB): peak = 2530.457 ; gain = 0.000
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2530.457 ; gain = 0.000
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2530.457 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.070 . Memory (MB): peak = 2530.457 ; gain = 0.000
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.339 . Memory (MB): peak = 2530.457 ; gain = 0.000
+Wrote PlaceStorage: Time (s): cpu = 00:00:03 ; elapsed = 00:00:00.985 . Memory (MB): peak = 2532.340 ; gain = 1.883
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.039 . Memory (MB): peak = 2532.340 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 2532.340 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:04 ; elapsed = 00:00:01 . Memory (MB): peak = 2532.340 ; gain = 1.883
+INFO: [Common 17-1381] The checkpoint 'D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper_routed.dcp' has been generated.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s02_nodes/s02_w_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s02_nodes/s02_w_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s02_nodes/s02_w_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s02_nodes/s02_w_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s02_nodes/s02_b_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s02_nodes/s02_b_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s02_nodes/s02_aw_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s02_nodes/s02_aw_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s01_nodes/s01_w_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s01_nodes/s01_w_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s01_nodes/s01_w_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s01_nodes/s01_w_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s01_nodes/s01_r_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s01_nodes/s01_r_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s01_nodes/s01_b_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s01_nodes/s01_b_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s01_nodes/s01_aw_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s01_nodes/s01_aw_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s01_nodes/s01_ar_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s01_nodes/s01_ar_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s00_nodes/s00_r_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s00_nodes/s00_r_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/s00_nodes/s00_ar_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/s00_nodes/s00_ar_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_w_node/inst/inst_si_handler/gen_si_handler.gen_request_fifos.gen_req_fifo[2].inst_req_fifo/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_w_node/inst/inst_si_handler/gen_si_handler.gen_request_fifos.gen_req_fifo[2].inst_req_fifo/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_w_node/inst/inst_si_handler/gen_si_handler.gen_request_fifos.gen_req_fifo[1].inst_req_fifo/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_w_node/inst/inst_si_handler/gen_si_handler.gen_request_fifos.gen_req_fifo[1].inst_req_fifo/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_w_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_w_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_r_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_r_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_r_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_r_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_b_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_b_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_b_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_b_node/inst/inst_mi_handler/gen_normal_area.gen_fifo_req.inst_fifo_req/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_aw_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_aw_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/smc_data/inst/m00_nodes/m00_ar_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to distributed. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/smc_data/inst/m00_nodes/m00_ar_node/inst/inst_mi_handler/gen_normal_area.inst_fifo_node_payld/gen_xpm_memory_fifo.inst_fifo/gen_mem_rep[0].inst_xpm_memory/xpm_memory_base_inst block.
+INFO: [Memdata 28-167] Found XPM memory block s4d_p2c_i/axi_dma_0/U0/I_PRMRY_DATAMOVER/GEN_S2MM_FULL.I_S2MM_FULL_WRAPPER/GEN_ENABLE_INDET_BTT_SF.I_INDET_BTT/I_XD_FIFO/NON_BLK_MEM.I_SYNC_FIFOGEN_FIFO/xpm_fifo_base_inst/gen_sdpram.xpm_memory_base_inst with a P_MEMORY_PRIMITIVE property set to auto. A value of block is required. You will not be able to use the updatemem program to update the bitstream with new data for the s4d_p2c_i/axi_dma_0/U0/I_PRMRY_DATAMOVER/GEN_S2MM_FULL.I_S2MM_FULL_WRAPPER/GEN_ENABLE_INDET_BTT_SF.I_INDET_BTT/I_XD_FIFO/NON_BLK_MEM.I_SYNC_FIFOGEN_FIFO/xpm_fifo_base_inst/gen_sdpram.xpm_memory_base_inst block.
+INFO: [Memdata 28-208] The XPM instance: <s4d_p2c_i/axi_dma_0/U0/I_PRMRY_DATAMOVER/GEN_S2MM_FULL.I_S2MM_FULL_WRAPPER/GEN_ENABLE_INDET_BTT_SF.I_INDET_BTT/I_DATA_FIFO/BLK_MEM.I_SYNC_FIFOGEN_FIFO/xpm_fifo_base_inst/gen_sdpram.xpm_memory_base_inst> is part of IP: <s4d_p2c_i/axi_dma_0>. This XPM instance will be excluded from the .mmi because updatemem is prohibited from making changes to an XPM that is part of an IP.
+Command: write_bitstream -force s4d_p2c_wrapper.bit -bin_file
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7z020'
+Running DRC as a precondition to command write_bitstream
+INFO: [IP_Flow 19-1839] IP Catalog is up to date.
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado 12-3199] DRC finished with 0 Errors
+INFO: [Vivado 12-3200] Please refer to the DRC report (report_drc) for more information.
+Integrating Hard IP ELF/MEM with the PDI.
+INFO: [Designutils 20-2272] Running write_bitstream with 2 threads.
+Initializing bitstream generation complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.566 . Memory (MB): peak = 2689.934 ; gain = 74.973
+Loading data files...
+Loading site data...
+Loading route data...
+Processing options...
+Creating bitmap...
+Creating bitstream...
+Writing bitstream ./s4d_p2c_wrapper.bit...
+Writing bitstream ./s4d_p2c_wrapper.bin...
+Generate Bitstream complete. Time (s): cpu = 00:00:21 ; elapsed = 00:00:14 . Memory (MB): peak = 2971.734 ; gain = 356.773
+INFO: [Vivado 12-1842] Bitgen Completed Successfully.
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+243 Infos, 2 Warnings, 0 Critical Warnings and 0 Errors encountered.
+write_bitstream completed successfully
+write_bitstream: Time (s): cpu = 00:00:27 ; elapsed = 00:00:28 . Memory (MB): peak = 2971.734 ; gain = 439.395
+INFO: [Common 17-206] Exiting Vivado at Thu Oct 29 16:29:25 2026...
+[Thu Oct 29 16:29:27 2026] impl_1 finished
+wait_on_runs: Time (s): cpu = 00:00:01 ; elapsed = 00:06:32 . Memory (MB): peak = 918.109 ; gain = 0.000
+# if {[get_property PROGRESS [get_runs impl_1]] ne "100%"} { error "IMPL_FAILED" }
+# open_run impl_1
+INFO: [Device 21-403] Loading part xc7z020clg400-2
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.215 . Memory (MB): peak = 1205.465 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 5928 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2026.1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Read ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.076 . Memory (MB): peak = 1353.801 ; gain = 12.387
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+INFO: [Designutils 20-5722] Start Reading Physical Databases.
+Reading placement.
+Read Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.042 . Memory (MB): peak = 2039.078 ; gain = 0.000
+Reading placer database...
+Read Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.010 . Memory (MB): peak = 2039.078 ; gain = 0.000
+Read PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.001 . Memory (MB): peak = 2039.078 ; gain = 0.000
+Read placeStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.799 . Memory (MB): peak = 2073.980 ; gain = 34.902
+Read PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2073.980 ; gain = 0.000
+Reading routing.
+Read RouteStorage: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.385 . Memory (MB): peak = 2073.980 ; gain = 0.000
+Read Physdb Files: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2073.980 ; gain = 34.902
+Restored from archive | CPU: 1.000000 secs | Memory: 0.000000 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2073.980 ; gain = 35.543
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.014 . Memory (MB): peak = 2106.277 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 357 instances were transformed.
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 2 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 145 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 26 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 184 instances
+
+open_run: Time (s): cpu = 00:00:12 ; elapsed = 00:00:14 . Memory (MB): peak = 2106.277 ; gain = 1188.168
+# report_timing_summary -delay_type min_max -max_paths 10 -file "$out/timing_route.rpt"
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+report_timing_summary: Time (s): cpu = 00:00:15 ; elapsed = 00:00:09 . Memory (MB): peak = 2224.715 ; gain = 118.438
+# report_utilization -file "$out/util_route.rpt"
+# set wns [get_property SLACK [get_timing_paths -delay_type max -max_paths 1 -nworst 1]]
+# set whs [get_property SLACK [get_timing_paths -delay_type min -max_paths 1 -nworst 1]]
+# puts "P2C_R02_SUMMARY WNS=$wns WHS=$whs"
+P2C_R02_SUMMARY WNS=0.039 WHS=0.042
+# set bits [glob -nocomplain "$out/proj/s4d_p2c_r02.runs/impl_1/*.bit"]
+# puts "P2C_BITS=$bits"
+P2C_BITS=D:/tmp/lead/p2c_20261029_r02/out/proj/s4d_p2c_r02.runs/impl_1/s4d_p2c_wrapper.bit
+# if {[llength $bits] > 0} { file copy -force [lindex $bits 0] "$out/s4d_p2c_r02.bit"; puts "P2C_R02_BIT_OK" }
+P2C_R02_BIT_OK
+# write_hw_platform -fixed -force -file "$out/s4d_p2c_r02.xsa"
+INFO: [Project 1-1918] Creating Hardware Platform: D:/tmp/lead/p2c_20261029_r02/out/s4d_p2c_r02.xsa ...
+INFO: [Project 1-1943] The Hardware Platform can be used for Hardware
+INFO: [Project 1-1941] Successfully created Hardware Platform: D:/tmp/lead/p2c_20261029_r02/out/s4d_p2c_r02.xsa
+INFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vivado/data/embeddedsw) loading 0 seconds
+write_hw_platform: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 2548.445 ; gain = 323.688
+# puts "P2C_R02_XSA_OK"
+P2C_R02_XSA_OK
+# puts "==== P2C_R02 DONE ===="
+==== P2C_R02 DONE ====
+INFO: [Common 17-206] Exiting Vivado at Thu Oct 29 16:29:56 2026...

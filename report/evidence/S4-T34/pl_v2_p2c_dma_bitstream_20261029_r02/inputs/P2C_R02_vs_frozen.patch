@@ -1,0 +1,94 @@
+--- frozen/s4d_preproc_engine_v2.sv
++++ p2c_r02/s4d_preproc_engine_v2.sv
+@@ -37,7 +37,8 @@
+     parameter integer NEW_W  = 416,
+     parameter integer NEW_H  = 312,
+     parameter integer OFF_Y  = 52,
+-    parameter integer BEATS_PER_ROW = 240    // 1920 B / 8 B
++    parameter integer BEATS_PER_ROW = 240,   // 1920 B / 8 B
++    parameter logic [31:0] SRC_BASE = 32'h0000_0000  // P2c：源图基址（默认 0 = 与冻结 TB 基线一致；P2c BD 覆盖为 0x12000000）
+ ) (
+     input  logic        clk,
+     input  logic        rstn,
+@@ -325,7 +326,7 @@
+                         load_row    <= sy1_int;
+                         load_base   <= sel_flip ? 2'd2 : 2'd0;
+                         wr_px       <= 10'd0;
+-                        rd_addr     <= sy1_int * ROW_BYTES;
++                        rd_addr     <= SRC_BASE + sy1_int * ROW_BYTES;
+                         rd_beats    <= BEATS_PER_ROW;
+                         rd_req      <= 1'b1;
+                         st          <= S_LOAD_REQ;
+@@ -336,7 +337,7 @@
+                         load_row    <= sy_int;
+                         load_base   <= 2'd0;
+                         wr_px       <= 10'd0;
+-                        rd_addr     <= sy_int * ROW_BYTES;
++                        rd_addr     <= SRC_BASE + sy_int * ROW_BYTES;
+                         rd_beats    <= BEATS_PER_ROW;
+                         rd_req      <= 1'b1;
+                         st          <= S_LOAD_REQ;
+@@ -372,7 +373,7 @@
+                             load_base  <= 2'd2;
+                             wr_px      <= 10'd0;
+                             hcnt       <= 5'd0;
+-                            rd_addr    <= sy1_int * ROW_BYTES;
++                            rd_addr    <= SRC_BASE + sy1_int * ROW_BYTES;
+                             rd_beats   <= BEATS_PER_ROW;
+                             rd_req     <= 1'b1;
+                             st         <= S_LOAD_REQ;
+
+--- frozen/s4d_preproc_v2_wrap.sv
++++ p2c_r02/s4d_preproc_v2_wrap.sv
+@@ -17,9 +17,12 @@
+ 
+ `timescale 1ns / 1ps
+ 
+-module s4d_preproc_v2_wrap (
++module s4d_preproc_v2_wrap #(
++    parameter logic [31:0] SRC_BASE = 32'h0000_0000   // 源图基址（P2c BD 覆盖为 0x12000000）
++) (
++
+     (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 clk CLK" *)
+-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME clk, ASSOCIATED_BUSIF S_AXI:M_AXI_RD:M_AXIS, ASSOCIATED_RESET rstn, FREQ_HZ 100000000, PHASE 0.000" *)
++    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME clk, ASSOCIATED_BUSIF S_AXI:M_AXI_RD:M_AXIS, ASSOCIATED_RESET rstn, FREQ_HZ 50000000, PHASE 0.000" *)
+     input  logic        clk,
+     (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 rstn RST" *)
+     (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME rstn, POLARITY ACTIVE_LOW" *)
+@@ -27,7 +30,7 @@
+ 
+     // ---------------- AXI4-Lite 从端（控制，基址 0x43C10000） ----------------
+     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI AWADDR" *)
+-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 6, FREQ_HZ 100000000, ID_WIDTH 0, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, READ_WRITE_MODE READ_WRITE, HAS_BURST 0, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, SUPPORTS_NARROW_BURST 0, MAX_BURST_LENGTH 1, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1" *)
++    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME S_AXI, PROTOCOL AXI4LITE, DATA_WIDTH 32, ADDR_WIDTH 6, FREQ_HZ 50000000, ID_WIDTH 0, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, READ_WRITE_MODE READ_WRITE, HAS_BURST 0, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, SUPPORTS_NARROW_BURST 0, MAX_BURST_LENGTH 1, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 1" *)
+     input  logic [5:0]  s_axi_awaddr,
+     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI AWVALID" *) input  logic        s_axi_awvalid,
+     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 S_AXI AWREADY" *) output logic        s_axi_awready,
+@@ -48,7 +51,7 @@
+ 
+     // ---------------- AXI4 读主口（数据面，64 bit / INCR） ----------------
+     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI_RD ARADDR" *)
+-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXI_RD, PROTOCOL AXI4, READ_WRITE_MODE READ_ONLY, DATA_WIDTH 64, ADDR_WIDTH 32, FREQ_HZ 100000000, ID_WIDTH 0, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, HAS_BURST 1, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, SUPPORTS_NARROW_BURST 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 0" *)
++    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXI_RD, PROTOCOL AXI4, READ_WRITE_MODE READ_ONLY, DATA_WIDTH 64, ADDR_WIDTH 32, FREQ_HZ 50000000, ID_WIDTH 0, AWUSER_WIDTH 0, ARUSER_WIDTH 0, WUSER_WIDTH 0, RUSER_WIDTH 0, BUSER_WIDTH 0, HAS_BURST 1, HAS_LOCK 0, HAS_PROT 0, HAS_CACHE 0, HAS_QOS 0, HAS_REGION 0, SUPPORTS_NARROW_BURST 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 1, NUM_WRITE_OUTSTANDING 0" *)
+     output logic [31:0] m_axi_rd_araddr,
+     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI_RD ARLEN"    *) output logic [7:0]  m_axi_rd_arlen,
+     (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 M_AXI_RD ARSIZE"   *) output logic [2:0]  m_axi_rd_arsize,
+@@ -67,7 +70,7 @@
+     (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TREADY" *) input  logic       m_axis_tready,
+     (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TLAST"  *) output logic       m_axis_tlast,
+     (* X_INTERFACE_INFO = "xilinx.com:interface:axis:1.0 M_AXIS TUSER"  *)
+-    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXIS, TDATA_NUM_BYTES 1, TUSER_WIDTH 1, HAS_TLAST 1, HAS_TUSER 1, HAS_TREADY 1, FREQ_HZ 100000000" *)
++    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME M_AXIS, TDATA_NUM_BYTES 1, TUSER_WIDTH 1, HAS_TLAST 1, HAS_TUSER 1, HAS_TREADY 1, FREQ_HZ 50000000" *)
+     output logic        m_axis_tuser,
+ 
+     // ---------------- 状态 ----------------
+@@ -111,7 +114,7 @@
+ 
+     assign eng_start = start_pulse & ~busy;
+ 
+-    s4d_preproc_engine_v2 u_eng (
++    s4d_preproc_engine_v2 #(.SRC_BASE(SRC_BASE)) u_eng (
+         .clk(clk), .rstn(rstn),
+         .start(eng_start), .busy(busy), .done(done),
+         .rd_req(b_req), .rd_addr(b_addr), .rd_beats(b_beats),
+

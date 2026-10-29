@@ -116,3 +116,15 @@
 - 该窗口另两件事实：① W0 打开时候选区与 M3 快照差异 11,850,821 B（已按快照重写、diff 0）；② **W4 收尾恢复未完成** ⇒ 下个窗口第一步必须做 W0 式 dump 对比。
 - 已备好、**未执行**的修正执行器：`D:\tmp\lead\probe_long_20261029_r03\run_probe_longrun_r03.py`（sha256 `f525ac03…7d7aeb`）、`D:\tmp\lead\p2b_board_20261029_r01\run_p2b_4d.py`（sha256 `9be5e855…d7fb95`）。已发 `dsh_mailbox/DSH-20261029-005`（回 CDX-20261029-001）。
 - 边界：未主张 G3/G4/G5，未写 QSPI、未改线、`ENABLE=0`、未 push。
+
+### 待 Wong 裁决（2026-10-29；板卡恢复后执行）
+
+1. **R0 断电重启（唯一板级前置）**：板卡 DAP 粘连，需 12V + USB 同时断电 ≥10 s 再上电；未断电前不再连 JTAG。
+2. **E（阶段5 总闸）合并部署硬冲突**（离线设计包 `D:\tmp\stage5\merged_deploy_20261029_r01\`）：
+   - 地址：2B CSR `0x43C00000` 撞阶段3 冻结 `v_tc_0`；preproc CSR `0x43C10000` 撞 `axi_dynclk_0`。建议 `v_tc_0→0x43C20000`、`axi_dynclk_0→0x43C30000`（代价：阶段5 冻结集需修订并重做 F6 导出）。
+   - 时钟：第三方表写单域 100 MHz，但 2B/preproc 元数据写死 50 MHz（P2b 实测 FCLK0=50 MHz）。建议仅 FCLK0=50 + FCLK1=150，全程无 CDC。
+   - 地址空间：现应用 ELF 跨度 18.04 MiB，第三方给的 `0x02000000–0x03000000` 仅 16 MiB ⇒ 需扩到 ≥20 MiB。
+   - 数据通路：preproc `M_AXIS`（519,168 B/帧 INT8 CHW）在任何冻结位流里**无消费者** ⇒ 必须先裁决 DMA（AXIS→MM2S/S2MM→HP0）与 S2MM 中断归属。
+   - 资源仅"相加看起来装得下"（≈LUT 50%/BRAM 33%/DSP 66.8%，DSP 余 73），**未实构建**。
+3. **C（PL 预处理上板）不可按原口径执行**：P2a/P2b 的 `M_AXIS` 无消费者 + 引擎源图基址固定 DDR `0x0`（≠ ABI `0x12000000`）⇒ 冻结位流上 `tensor_crc32=0x5B183B50` 不可达；需新位流（AXIS→DMA→HP0 写 + 源图基址方案），属重型任务，待批。变体 ELF 与寄存器映射已备好（`D:\tmp\lead\s4t35_pl_preproc_20261029_r01\`，寄存器表逐项带 RTL 行号）。
+4. **第三方地址表纠正**：真表是 `D:\wb-out\task3\address_table.json`（`wc_merged_address_table_v1`）；`D:\wb-out-r2\task3` 是 AXI-Lite 超时守卫 IP，非地址表。

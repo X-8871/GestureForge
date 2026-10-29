@@ -129,6 +129,9 @@
 - **板卡现状：DAP 粘连，需再次整机断电（12V+USB ≥10 s）**；主机侧零残留。下一步顺序：断电 → 5 min 计时三方对照（修正版，先静态自检禁止 `rst -system`）
 - **A 项（长跑停住定位）按真实口径通过（2026-10-29 20:20）**：40 轮 / 真实 30.7 min / failures=0 / `exit=0 within_judgement=1` /
   每轮 47,287 ms 恒定 / tensor CRC 恒定；时间基座修复后 host/app=1.000。判据常量 140→38 勘误（140 是旧 4× 口径值）。
+- **M4-b 收口 PASS（22:3x）**：2B 基线上 `pass=1 / diff13=0 / diff26=0 / stale=1 / error=0 / 47,287 ms`；尾字探针 `before=0x5A5A5A5A after=0x5A5A0506`、
+  `lane01_ok=1 lane23_ok=1` ⇒ PL 尾字 lane 正确且未越界。关闭方式=参考预置补齐 1268 字 + 输出区投毒。
+- **同 ELF A/B（22:4x）**：2B 基线 47,287 ms 完成 vs P2b 85,899 ms 超时 ⇒ **P2b ≥1.82× 慢**（SmartConnect 串行化）；修复方向 A 只改 BD、不需 Codex。
 - **head13 尾字已定案（22:2x）**：差异来自**参考预置漏写尾 2 字节**（`run_window_b_driver.py:355` 用 1267 字=5068 B，
   而 head13=5070 B），非 PL 尾字缺陷；补齐 5072 B/1268 字 + 强制 `stale=1` 后即可 PASS（收口窗口已排）。
 - **P2b 慢 2× 归因（22:2x）**：主因是 P2b 把 2B 核 `M_AXI` 改经 SmartConnect，而该主端单 outstanding/单 beat ⇒ 串行化，实测 ≥1.817×；

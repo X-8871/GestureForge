@@ -1,0 +1,68 @@
+{
+  "task_id": "S2C-RTL05",
+  "run_id": "feature_bank_engine_20261029_r03",
+  "status": "FAIL_TB_BANK_READ_COUNT_EXPECTED_SINGLE_GROUP",
+  "baseline_commit": "340aa2d9e1bb1431b378197e846877967eeb9a2a",
+  "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL05/feature_bank_engine_20261029_03",
+  "commands": [
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xvlog.bat",
+        "-sv",
+        "D:/FPGA_Competition/w2c/src/s2a_network_descriptor_pkg.sv",
+        "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv",
+        "D:/FPGA_Competition/w2c/src/s2b_conv_tile_engine.sv",
+        "D:/FPGA_Competition/w2c/sim/tb_s2c_rtl05_feature_bank_engine.sv"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.904,
+      "log_path": "tmp/S2C/RTL05/feature_bank_engine_20261029_03/xvlog_console.log",
+      "log_sha256": "7b371c45d12ebeb9b998fd8de6b7247dc90924af4102e0ea3285cd9faaf48120"
+    },
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xelab.bat", "tb_s2c_rtl05_feature_bank_engine", "-s", "s2c_rtl05_feature_bank_engine_sim"],
+      "exit_code": 0,
+      "elapsed_seconds": 9.511,
+      "log_path": "tmp/S2C/RTL05/feature_bank_engine_20261029_03/xelab_console.log",
+      "log_sha256": "adcaee329d8aa7182cfe400ae4daa87a59fa971c12693f0c6ae1c1d3897dfc80"
+    },
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xsim.bat", "s2c_rtl05_feature_bank_engine_sim", "-runall"],
+      "exit_code": 0,
+      "pass_marker": null,
+      "fatal": "首tilebank有效tap读取数错误：26508，期望值错误",
+      "simulation_time_ns": 735625,
+      "elapsed_seconds": 8.841,
+      "log_path": "tmp/S2C/RTL05/feature_bank_engine_20261029_03/xsim_console.log",
+      "log_sha256": "fd81f68a1c10f47044daf8c860da8d20828ace0a8226d36f8b6a17e88cd81a6d"
+    }
+  ],
+  "checks_reached": {
+    "external_feature_requests": 3072,
+    "weight_requests": 864,
+    "feature_bank_writes": 3267,
+    "output_byte_writes": 8192,
+    "output_golden_byte_comparisons": 8192,
+    "output_duplicate_checks": 8192,
+    "output_coordinates": "8192 writes, each in bounds and no duplicate; therefore full 32x16x16 set by cardinality. Explicit final bitmap sweep was not reached.",
+    "feature_bank_valid_tap_reads": 26508,
+    "feature_bank_tap_read_expected_actual_error": "TB expected 6627 total; actual 26508 = 6627 per each of four 8-lane output groups."
+  },
+  "cycles": {
+    "counter_value": null,
+    "status": "not emitted because the tap-count assertion terminated the test before the PASS marker"
+  },
+  "execution": {
+    "preflight_available_memory_mib": 6331.6,
+    "postrun_available_memory_mib": 6106.0,
+    "xsim_reported_peak_memory_mib": 230.73,
+    "active_vivado_xsim_processes_after_run": 0,
+    "tool_wall_seconds_sum": 19.256
+  },
+  "limitations": [
+    "XSim batch process returned exit 0 but emitted a functional Fatal and no PASS marker; result is FAIL.",
+    "The expected valid-tap read count omitted four output-channel groups; candidate RTL still requires a fresh run after test correction.",
+    "T66 fixtures are legacy golden oracle inputs from baseline 9fb9ab7b380430c22bf147654157858b52151dad, not current-run simulation evidence."
+  ]
+}

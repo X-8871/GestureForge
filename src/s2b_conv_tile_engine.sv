@@ -133,8 +133,22 @@ module s2b_conv_tile_engine #(
     logic signed [7:0] output_block [0:OUTPUT_BLOCK_BYTES-1];
     logic signed [31:0] lane_accumulator [0:LANE_COUNT-1];
     logic signed [7:0] feature_read_data;
+    logic signed [7:0] feature_patch_read_data;
     logic feature_read_in_bounds;
     logic signed [7:0] weight_read_byte [0:LANE_COUNT-1];
+
+    logic feature_bank_wr_en;
+    logic [16:0] feature_bank_wr_addr;
+    logic [7:0] feature_bank_wr_data;
+    logic feature_bank_rd_en;
+    logic [15:0] feature_bank_rd_lane_active;
+    logic [16*17-1:0] feature_bank_rd_addr_flat;
+    logic feature_bank_rd_valid;
+    logic [16*8-1:0] feature_bank_rd_data_flat;
+    logic [15:0] feature_bank_rd_lane_valid;
+    logic feature_bank_rd_conflict;
+    logic feature_bank_rd_bad_address;
+    logic feature_bank_wr_bad_address;
 
     logic [31:0] reduction_count_latched;
     logic [31:0] output_group_base;
@@ -2633,6 +2647,73 @@ module s2b_conv_tile_engine #(
         end
     end
 
+    always_comb begin
+        feature_bank_wr_en = 1'b0;
+        feature_bank_wr_addr = feature_scan_index[16:0];
+        feature_bank_wr_data = 8'd0;
+        feature_bank_rd_en = 1'b0;
+        feature_bank_rd_lane_active = 16'd0;
+        feature_bank_rd_addr_flat = '0;
+        if (FROZEN_CONV_DESCRIPTOR) begin
+            if ((state == ST_FEATURE_SCAN) &&
+                (feature_scan_index < patch_byte_count) && !feature_scan_in_bounds) begin
+                feature_bank_wr_en = 1'b1;
+            end else if ((state == ST_FEATURE_RESPONSE) && backend_rsp_valid &&
+                         (mapped_response_error == NONE)) begin
+                feature_bank_wr_en = 1'b1;
+                feature_bank_wr_data = backend_rsp_rdata >> (request_byte_lane * 8);
+            end
+            if (compute_read_enable && compute_read_tap_in_bounds) begin
+                feature_bank_rd_en = 1'b1;
+                feature_bank_rd_lane_active[0] = 1'b1;
+                feature_bank_rd_addr_flat[0 +: 17] = compute_read_feature_index[16:0];
+            end
+        end
+    end
+
+    always_comb begin
+        if (FROZEN_CONV_DESCRIPTOR) begin
+            if (feature_bank_rd_valid && feature_bank_rd_lane_valid[0] &&
+                !feature_bank_rd_conflict && !feature_bank_rd_bad_address) begin
+                feature_read_data = $signed(feature_bank_rd_data_flat[7:0]);
+            end else begin
+                feature_read_data = 8'sd0;
+            end
+        end else begin
+            feature_read_data = feature_patch_read_data;
+        end
+    end
+
+    generate
+        if (FROZEN_CONV_DESCRIPTOR) begin : gen_feature_patch_bank
+            s2c_feature_patch_bank32 feature_patch_bank (
+                .clk(clk),
+                .rst(hard_reset || abort),
+                .wr_en(feature_bank_wr_en),
+                .wr_addr(feature_bank_wr_addr),
+                .wr_data(feature_bank_wr_data),
+                .rd_en(feature_bank_rd_en),
+                .rd_lane_active(feature_bank_rd_lane_active),
+                .rd_addr_flat(feature_bank_rd_addr_flat),
+                .rd_valid(feature_bank_rd_valid),
+                .rd_data_flat(feature_bank_rd_data_flat),
+                .rd_lane_valid(feature_bank_rd_lane_valid),
+                .rd_conflict(feature_bank_rd_conflict),
+                .rd_bad_address(feature_bank_rd_bad_address),
+                .wr_bad_address(feature_bank_wr_bad_address)
+            );
+        end else begin : gen_no_feature_patch_bank
+            always_comb begin
+                feature_bank_rd_valid = 1'b0;
+                feature_bank_rd_data_flat = '0;
+                feature_bank_rd_lane_valid = '0;
+                feature_bank_rd_conflict = 1'b0;
+                feature_bank_rd_bad_address = 1'b0;
+                feature_bank_wr_bad_address = 1'b0;
+            end
+        end
+    endgenerate
+
     always_ff @(posedge clk) begin
         if (hard_reset) begin
             state <= ST_IDLE;
@@ -2687,7 +2768,7 @@ module s2b_conv_tile_engine #(
             feature_scan_channel <= 32'd0;
             feature_scan_y <= 32'd0;
             feature_scan_x <= 32'd0;
-            feature_read_data <= 8'sd0;
+            feature_patch_read_data <= 8'sd0;
             feature_read_in_bounds <= 1'b0;
             weight_lane_index <= 32'd0;
             weight_reduction_index <= 32'd0;
@@ -2728,7 +2809,7 @@ module s2b_conv_tile_engine #(
             feature_scan_channel <= 32'd0;
             feature_scan_y <= 32'd0;
             feature_scan_x <= 32'd0;
-            feature_read_data <= 8'sd0;
+            feature_patch_read_data <= 8'sd0;
             feature_read_in_bounds <= 1'b0;
             weight_lane_index <= 32'd0;
             weight_reduction_index <= 32'd0;
@@ -2758,10 +2839,12 @@ module s2b_conv_tile_engine #(
         end else begin
             if (compute_read_enable) begin
                 feature_read_in_bounds <= compute_read_tap_in_bounds;
-                if (compute_read_tap_in_bounds) begin
-                    feature_read_data <= feature_patch[compute_read_feature_index];
-                end else begin
-                    feature_read_data <= 8'sd0;
+                if (!FROZEN_CONV_DESCRIPTOR) begin
+                    if (compute_read_tap_in_bounds) begin
+                        feature_patch_read_data <= feature_patch[compute_read_feature_index];
+                    end else begin
+                        feature_patch_read_data <= 8'sd0;
+                    end
                 end
             end
             if (feature_scan_advance) begin
@@ -2884,7 +2967,9 @@ module s2b_conv_tile_engine #(
                         output_group_base <= 32'd0;
                         state <= ST_WEIGHT_PREP;
                     end else if (!feature_scan_in_bounds) begin
-                        feature_patch[feature_scan_index] <= 8'sd0;
+                        if (!FROZEN_CONV_DESCRIPTOR) begin
+                            feature_patch[feature_scan_index] <= 8'sd0;
+                        end
                         feature_scan_index <= feature_scan_index + 32'd1;
                     end else if (feature_source_address_wide > 64'h0000_0000_FFFF_FFFF) begin
                         result_error_latched <= BAD_RANGE;
@@ -2908,8 +2993,10 @@ module s2b_conv_tile_engine #(
                             result_error_latched <= mapped_response_error;
                             state <= ST_RESULT;
                         end else begin
-                            feature_patch[feature_scan_index] <=
-                                $signed(backend_rsp_rdata >> (request_byte_lane * 8));
+                            if (!FROZEN_CONV_DESCRIPTOR) begin
+                                feature_patch[feature_scan_index] <=
+                                    $signed(backend_rsp_rdata >> (request_byte_lane * 8));
+                            end
                             feature_scan_index <= feature_scan_index + 32'd1;
                             state <= ST_FEATURE_SCAN;
                         end

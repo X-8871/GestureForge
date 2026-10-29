@@ -1,0 +1,78 @@
+{
+  "task_id": "S2C-RTL05",
+  "run_id": "feature_bank_engine_20261029_r04",
+  "status": "PASS_SHORT_LAYER0_16X16_TILE_GOLDEN",
+  "baseline_commit": "340aa2d9e1bb1431b378197e846877967eeb9a2a",
+  "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL05/feature_bank_engine_20261029_04",
+  "commands": [
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xvlog.bat",
+        "-sv",
+        "D:/FPGA_Competition/w2c/src/s2a_network_descriptor_pkg.sv",
+        "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv",
+        "D:/FPGA_Competition/w2c/src/s2b_conv_tile_engine.sv",
+        "D:/FPGA_Competition/w2c/sim/tb_s2c_rtl05_feature_bank_engine.sv"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.938,
+      "log_path": "tmp/S2C/RTL05/feature_bank_engine_20261029_04/xvlog_console.log",
+      "log_sha256": "7b371c45d12ebeb9b998fd8de6b7247dc90924af4102e0ea3285cd9faaf48120"
+    },
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xelab.bat",
+        "tb_s2c_rtl05_feature_bank_engine",
+        "-s",
+        "s2c_rtl05_feature_bank_engine_sim"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.745,
+      "log_path": "tmp/S2C/RTL05/feature_bank_engine_20261029_04/xelab_console.log",
+      "log_sha256": "adcaee329d8aa7182cfe400ae4daa87a59fa971c12693f0c6ae1c1d3897dfc80"
+    },
+    {
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xsim.bat",
+        "s2c_rtl05_feature_bank_engine_sim",
+        "-runall"
+      ],
+      "exit_code": 0,
+      "pass_marker": "PASS S2C-RTL05 layer0 tile0 golden match: ext_input=3072 weights=864 bank_wr=3267 bank_rd=26508 outputs=8192 cycles=73559",
+      "elapsed_seconds": 7.797,
+      "simulation_time_ns": 735625,
+      "log_path": "tmp/S2C/RTL05/feature_bank_engine_20261029_04/xsim_console.log",
+      "log_sha256": "598348ab63bc0cc1bacba89ee632d028c9793887064159a22e711a428ab8d6d5"
+    }
+  ],
+  "checks": {
+    "deterministic": true,
+    "random_seed": null,
+    "watchdog_cycles": 200000,
+    "cycles_measured_by_testbench_counter": 73559,
+    "external_feature_requests": 3072,
+    "weight_requests": 864,
+    "feature_bank_writes": 3267,
+    "feature_bank_valid_tap_reads": 26508,
+    "output_byte_writes": 8192,
+    "output_golden_byte_comparisons": 8192,
+    "output_coordinate_map": "8192-bit seen map indexed c*256+y*16+x; duplicate writes fatal and all 8192 entries verified present",
+    "golden_mismatches": 0,
+    "bank_bad_address_or_conflict": 0
+  },
+  "execution": {
+    "preflight_available_memory_mib": 6052.0,
+    "pre_xsim_available_memory_mib": 6050.6,
+    "postrun_available_memory_mib": 5951.4,
+    "xsim_reported_peak_rss_mib": null,
+    "peak_rss_status": "XSim transcript did not report peak memory; no external RSS sampler was running",
+    "active_vivado_xsim_processes_after_run": 0,
+    "tool_wall_seconds_sum": 15.480
+  },
+  "limitations": [
+    "This is one short first-layer 16x16 spatial tile for output channels 0..31 using one frozen T66 sample, not a full 416x416 network frame.",
+    "T66 input/weight/golden files are legacy reference oracle inputs from baseline 9fb9ab7b380430c22bf147654157858b52151dad; they are not a simulation result from that baseline or the current candidate.",
+    "No complete head13/head26 equivalence, full-frame cycles/fps, synthesis resources, 100MHz timing, bitstream, or board result is established."
+  ]
+}

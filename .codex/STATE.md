@@ -72,6 +72,11 @@
     `TAIL13 before=0x5A5A5A5A after=0x5A5A0506 ref=0x00000506 lane01_ok=1 lane23_ok=1` ⇒ PL 尾字 lane 正确且未越界）。
   ⇒ **P2d = 2B + preproc + 打包器 + AXI DMA 的合并计算体，在板上同时满足：时序（WNS +0.128）、2B 单帧 47.3 s、链路解码正确、预处理数据面 CRC 正确**。
   阶段5 剩收尾：文档/地址表归档、P2d 证据清单收口（不做视频链——归阶段6）。
+- **冻结回归清单已就绪（2026-10-29 23:5x，`s4d_freeze_regression_plan_20261029_r01`，未开板）**：
+  `FROZEN_INPUTS.json` = 19 项冻结输入（P2d/2B 位流、5 个 ELF、fixture/weights/input/head13(+padded)/head26/M3 快照、驱动 v3.2.7），
+  `gen_frozen_inputs.py --check` = **OK 19/0**（fail-closed）；`run_freeze_regression.py` 串行 7 窗口（2B 基线：M3+M4-a / M4-b 收口 / chainA / chainB；
+  P2d：2B 性能 / chainA / preproc-DMA CRC），**dry-run 已通过**（预计 44 min，命令与判据已冻结）。
+  `PLAN.md` 写死判据、停止条件（含 DAP/无输出/`rst -system` 三类）、风险缓解与外部依赖（M3→Codex、吞吐→Codex）。
 - **阶段5 收口文档已出（2026-10-29 23:5x，`s4d_p2d_stage5_close_20261029_r01`）**：`README.md`（构成/与 P2c 差异/实现结果/四窗验证/上板约定/边界）、
   `ADDRESS_MAP.md`（HP0=2B 直连、HP1=preproc+DMA；控制面 0x43C00000/0x43C10000/0x43C20000；DDR 0x10000000/0x10100000/0x12000000；时钟复位；每帧数据通路；已知约束）、
   `EVIDENCE_INDEX.md`（阶段5 全部 RunId + 未做项 + 恢复入口）。位流身份只认 bit `58c66cdb…` / XSA `4ebc631e…`。

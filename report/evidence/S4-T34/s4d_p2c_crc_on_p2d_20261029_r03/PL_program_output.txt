@@ -1,0 +1,73 @@
+$ cmd /c D:\Xilinx\2026.1\Vivado\bin\vivado.bat -mode batch -source D:\codex-worktrees\w4\scripts\stage4_s4b\program_2b_bit.tcl -tclargs D:/tmp/lead/p2d_merged_20261029_r01/out/s4d_p2d_r01.bit 58c66cdb
+exit=0 elapsed=35.597
+INFO: [Common 17-3922] A valid Vivado Design Suite BASIC license has been detected. Your current license is active and will expire on 07-aug-2027.
+
+****** Vivado v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Oct 29 23:24:59 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+Sourcing tcl script 'C:/Users/22061/AppData/Roaming/Xilinx/Vivado/2026.1/Vivado_init.tcl'
+[vmcp] server listening on 127.0.0.1:7654
+vivado-mcp-server: plugin loaded. Commands: ::vmcp::server::start / ::vmcp::server::stop / ::vmcp::server::reload
+source {D:\codex-worktrees\w4\scripts\stage4_s4b\program_2b_bit.tcl}
+# set bit    [lindex $argv 0]
+# set expect [lindex $argv 1]
+# if {![file isfile $bit]} {
+#     puts "PROGRAM_FAIL=bit_missing:$bit"
+#     exit 2
+# }
+# puts "PROGRAM_BIT=$bit"
+PROGRAM_BIT=D:/tmp/lead/p2d_merged_20261029_r01/out/s4d_p2d_r01.bit
+# puts "PROGRAM_SHA_EXPECT=$expect"
+PROGRAM_SHA_EXPECT=58c66cdb
+# open_hw_manager
+# connect_hw_server -url localhost:3121
+INFO: [Labtools 27-2285] Connecting to hw_server url TCP:localhost:3121
+INFO: [Labtools 27-3415] Connecting to cs_server url TCP:localhost:0
+INFO: [Labtools 27-3417] Launching cs_server...
+INFO: [Labtools 27-2221] Launch Output:
+
+****** Xilinx cs_server v2026.1
+  **** Build Info : #60 | 2026-06-15 19:15 UTC | a9691a9
+    ** Copyright 2017-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+
+
+# open_hw_target
+INFO: [Labtoolstcl 44-466] Opening hw_target localhost:3121/xilinx_tcf/Digilent/210512180081
+# set devs [get_hw_devices xc7z020*]
+# if {[llength $devs] == 0} {
+#     puts "PROGRAM_FAIL=no_xc7z020_device"
+#     exit 3
+# }
+# set dev [lindex $devs 0]
+# current_hw_device $dev
+# set_property PROGRAM.FILE $bit $dev
+# if {[catch {program_hw_devices $dev} prog_err]} {
+#     puts "PROGRAM_FAIL=program_hw_devices_error:$prog_err"
+#     exit 4
+# }
+INFO: [Labtools 27-3164] End of startup status: HIGH
+# refresh_hw_device -update_hw_probes false $dev
+INFO: [Labtools 27-1434] Device xc7z020 (JTAG device index = 1) is programmed with a design that has no supported soft debug core(s) in it.
+# set prog_file [get_property PROGRAM.FILE $dev]
+# puts "PROGRAM_FILE_READBACK=$prog_file"
+PROGRAM_FILE_READBACK=D:/tmp/lead/p2d_merged_20261029_r01/out/s4d_p2d_r01.bit
+# close_hw_target
+INFO: [Labtoolstcl 44-464] Closing hw_target localhost:3121/xilinx_tcf/Digilent/210512180081
+# disconnect_hw_server
+# close_hw_manager
+# if {$prog_file eq ""} {
+#     puts "PROGRAM_FAIL=program_file_empty"
+#     exit 5
+# }
+# puts "PROGRAM_OK"
+PROGRAM_OK
+# exit 0
+INFO: [Common 17-206] Exiting Vivado at Thu Oct 29 23:25:14 2026...
+

@@ -1,0 +1,166 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "s4d_m4b_p2d_20261029_r01",
+  "phase": "M4-b 在 P2d 合并位流上的冒烟（方向 A：infer 直连 HP0）",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit_2b",
+          "path": "D:\\tmp\\lead\\p2d_merged_20261029_r01\\out\\s4d_p2d_r01.bit",
+          "sha256": "58c66cdb53994d577156b4ff62eabc7187d2e88184ca965bb3395f63ec1a86a3",
+          "expect": "58c66cdb",
+          "match": true
+        },
+        {
+          "tag": "m4b_elf",
+          "path": "D:\\tmp\\lead\\rebuild_timeout_20261029_r01\\build\\s4d_ps_app_sw0_m4b.elf",
+          "sha256": "aaedaf3c99cd6d015c2bfa53f8399c3f75fcea1e9b720e870863d2513a4fb339",
+          "expect": "aaedaf3c",
+          "match": true
+        },
+        {
+          "tag": "input",
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-CTRL\\s4t26_layer_divergence_20261026_r02\\bridge_input_postquant_int8_chw.bin",
+          "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+          "expect": null,
+          "match": true
+        },
+        {
+          "tag": "head13",
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head13.raw",
+          "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6",
+          "expect": null,
+          "match": true
+        },
+        {
+          "tag": "head26",
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\20261021_r01\\test_fist_000_head26.raw",
+          "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e",
+          "expect": null,
+          "match": true
+        },
+        {
+          "tag": "weights",
+          "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+          "expect": null,
+          "match": true
+        }
+      ],
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "exit_code": 0
+    },
+    "P1_enum": {
+      "status": "PASS",
+      "exit_code": 0,
+      "used_attempt": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "utc8": "2026-10-29T23:14:14+08:00",
+          "xsdb_exit": 0,
+          "targets_raw": "1  APU\n     2  ARM Cortex-A9 MPCore #0 (Running)\n     3  ARM Cortex-A9 MPCore #1 (Running)\n  4  xc7z020",
+          "a9_present": true
+        }
+      ]
+    },
+    "W2_w0_restore": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0
+    },
+    "W2_pspl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "W3_m4b_baseline": {
+      "exit_code": 1,
+      "status": "FAIL",
+      "preload": {
+        "jtag_ref_head13": 0,
+        "jtag_ref_head26": 0,
+        "jtag_input": 0,
+        "jtag_weights": 0,
+        "load_exit": 0,
+        "uart_bytes": 1368
+      },
+      "result_line": "M4B RESULT={\"pass\":0,\"done\":1,\"diff13\":2,\"diff26\":0,\"first13\":5068,\"first26\":-1,\"stale\":1,\"gate\":1,\"ack_idle\":1,\"epoch\":1,\"status\":3588,\"error\":0,\"elapsed_ms\":47287,\"spin\":49429140}",
+      "parsed": {
+        "pass": 0,
+        "done": 1,
+        "diff13": 2,
+        "diff26": 0,
+        "first13": 5068,
+        "first26": -1,
+        "stale": 1,
+        "gate": 1,
+        "ack_idle": 1,
+        "epoch": 1,
+        "status": 3588,
+        "error": 0,
+        "elapsed_ms": 47287,
+        "spin": 49429140
+      },
+      "rule": "pass==1 才 PASS；gate==2 记 INCONCLUSIVE；等待窗口 150 s（放宽只是等待，不改判据）"
+    },
+    "W4_final_restore": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 25168,
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": true,
+      "write_exit": 0,
+      "write_err": null,
+      "restore_diff": 0,
+      "record_clear": {
+        "status": "PASS",
+        "exit_code": 0,
+        "write_exit": 0,
+        "write_err": null,
+        "readback": [
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000"
+        ],
+        "all_zero": true
+      }
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "killed_pids": [
+          "45080"
+        ],
+        "listening_3121": 0
+      }
+    }
+  },
+  "stop_reason": "M4-b 基线未通过",
+  "boundary": "对照窗口；ENABLE=0；不主张 G3/G4/G5",
+  "finished_utc8": "2026-10-29T23:18:29+08:00",
+  "conclusion": "M4B_ON_P2B_FAIL"
+}

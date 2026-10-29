@@ -1,0 +1,9 @@
+$ cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ "*Cortex-A9*#0*"}; rst -processor -stop; dow D:/tmp/lead/s4t35_pl_preproc_20261029_r01/build/s4d_ps_app_pl_dma.elf; mwr 0xf8000008 0xdf0d; mwr 0xf8000900 0xf; mwr 0xf8000240 0x0; mwr 0xf8000004 0x767b; set _rb [mrd -value 0xf8000900]; set _rb2 [mrd -value 0xf8000240]; puts {PPL_LVL_RB}; puts $_rb; puts {PPL_LVL_RB_RST}; puts $_rb2; if {$_rb == 15} {} else { error {PS-PL level shifters readback not equal to 0xf} }; if {$_rb2 == 0} {} else { error {FPGA_RST_CTRL readback not zero, FPGA soft reset still asserted} }; after 200; puts "HOLD_STATE=[state]"; con; after 2000; puts "RUN_STATE=[state]"; disconnect; exit
+exit=0 elapsed=3.334
+PPL_LVL_RB
+15
+PPL_LVL_RB_RST
+0
+HOLD_STATE Stopped: (Vector Catch)
+RUN_STATE Running
+

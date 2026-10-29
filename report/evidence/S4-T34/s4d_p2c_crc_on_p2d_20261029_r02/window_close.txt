@@ -1,0 +1,18 @@
+# P2c 上板窗口（preproc→packer→DMA→张量 CRC 对拍）
+
+- RunId：`s4d_p2c_crc_on_p2d_20261029_r02`；开窗 2026-10-29T23:23:43+08:00；收窗 2026-10-29T23:23:48+08:00；用时 0.1 min
+- 位流：r02 `58c66cdb53994d577156b4ff62eabc7187d2e88184ca965bb3395f63ec1a86a3`（前缀 58c66cdb）
+- 应用 ELF：`bff4b80ff8dea2771b66cf72690a9585cafcdef4b5d682be1eef611e4a1f5be6`
+- **结论：`P2C_FAIL_OTHER`**
+- UART 采集：None（{}）
+- CRC 行：`None`
+- RESULT：`{}`
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`1`
+- P4_teardown：`FAIL` exit=`1`
+
+## 边界
+- P2c 候选位流（未冻结）+ 应用变体；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`。
+- 不主张 G3/G4/G5；CRC 对拍只覆盖 SW 预载 fixture + PL 预处理 + DMA 数据面，不代表摄像头实拍链。

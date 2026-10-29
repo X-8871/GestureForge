@@ -1,0 +1,87 @@
+{
+  "task": "M2 判据基座勘误",
+  "run_id": "s4d_m2_erratum_20261029_r01",
+  "basis": {
+    "pcfg_done_register": "0xF800700C INT_STS",
+    "pcfg_done_bit": 2,
+    "citation": "UG585 v1.2 p.150 'PL reconfiguration flow' step 5: Wait for PCFG_DONE (INT_STS-bit[2])",
+    "wrong_in_old_record": "0xF8007014 STATUS bit[1]（记录缺陷，不得作判据）"
+  },
+  "readings": {
+    "DEVCGF_CTRL_0xF8007000": {
+      "decimal": 1308680319,
+      "hex_correct": "0x4e00e07f",
+      "bits_0_4": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "bits_27_30_31": [
+        1,
+        1,
+        0
+      ]
+    },
+    "DEVCGF_INT_STS_0xF800700C": {
+      "decimal": 2818703370,
+      "hex_correct": "0xa802000a",
+      "bits_0_4": [
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "bits_27_30_31": [
+        1,
+        0,
+        1
+      ]
+    },
+    "DEVCGF_STATUS_0xF8007014": {
+      "decimal": 1073744432,
+      "hex_correct": "0x40000a30",
+      "bits_0_4": [
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "bits_27_30_31": [
+        0,
+        1,
+        0
+      ]
+    }
+  },
+  "hex_correction": {
+    "DEVCGF_CTRL_0xF8007000": {
+      "old_recorded": "0x4E00FFFF",
+      "correct": "0x4e00e07f",
+      "old_was_correct": false
+    },
+    "DEVCGF_STATUS_0xF8007014": {
+      "old_recorded": "0x40000010",
+      "correct": "0x40000a30",
+      "old_was_correct": false
+    }
+  },
+  "verdict": {
+    "pcfg_done_int_sts_bit2": 0,
+    "old_basis_status_bit1": 0,
+    "status_bit4_pcfg_init_driver_view": 1,
+    "conclusion_pl_configured_this_round": "NO",
+    "wording_required": "本轮未见 PCFG_DONE 置位（INT_STS[2]=0）⇒ 构造性推断 PL 未配置；不得表述为『排除其他 DDR consumer』或『从未配置』",
+    "old_hex_annotations_were_wrong": true,
+    "erratum_self_check": "PASS"
+  },
+  "limitation": "INT_STS 为 W1C：单次读到 PCFG_DONE=0 只能支持『本轮未见 PCFG_DONE 置位』的构造性推断，不能证明『从未配置过』",
+  "sources_read_only": [
+    "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\execution_20261027_r05\\M2_consumer_check.log",
+    "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\execution_20261027_r04\\M2_result.json",
+    "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4_ddr_four_measurements_20261027_r01\\execution_20261027_r05\\M2_result.json"
+  ]
+}

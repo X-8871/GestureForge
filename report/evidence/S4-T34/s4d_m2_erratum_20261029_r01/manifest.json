@@ -1,0 +1,36 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "s4d_m2_erratum_20261029_r01",
+  "phase": "M2 判据基座勘误（按复审 4 条关闭条件）",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "conclusion": "M2_ERRATUM_RECORDED_PASS_SELFCHECK",
+  "basis": {
+    "pcfg_done": "INT_STS(0xF800700C) bit[2]; UG585 v1.2 p.150 step 5",
+    "int_sts_value": "0xA802000A",
+    "pcfg_done_bit2": 0,
+    "hex_fixed": {
+      "STATUS": "0x40000010 -> 0x40000A30",
+      "CTRL": "0x4E00FFFF -> 0x4E00E07F"
+    },
+    "limitation": "INT_STS W1C：单次 0 只能支持构造性推断，不能证明从未配置"
+  },
+  "not_done": "同窗口 INT_STS 读→写1清→再读（可选取证）未执行，需板级窗口",
+  "items": [
+    {
+      "path": "report/evidence/S4-T34/s4d_m2_erratum_20261029_r01/ERRATUM_M2.md",
+      "bytes": 2502,
+      "sha256": "68af5bd41afa6be7a1eb09b0300c13df2c8d0d87cfc775c66b9625228ef44364"
+    },
+    {
+      "path": "report/evidence/S4-T34/s4d_m2_erratum_20261029_r01/verify_m2_basis_r02.py",
+      "bytes": 4103,
+      "sha256": "66e68c3af3ba24840f45c1b807aa89130e3247ce9e351944bcf7d4f93c79ef61"
+    },
+    {
+      "path": "report/evidence/S4-T34/s4d_m2_erratum_20261029_r01/verify_m2_basis_r02_output.json",
+      "bytes": 2481,
+      "sha256": "2bef2b966aa8a4b982e8554bd4562b5c0e5eb0255ad31e14926963bc4b9b5178"
+    }
+  ]
+}

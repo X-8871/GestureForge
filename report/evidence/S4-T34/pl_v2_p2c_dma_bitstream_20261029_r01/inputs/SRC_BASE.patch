@@ -1,0 +1,39 @@
+--- p2a_20261029_r01/src/rtl/s4d_preproc_engine_v2.sv
++++ p2c_20261029_r01/src/rtl/s4d_preproc_engine_v2.sv
+@@ -37,7 +37,8 @@
+     parameter integer NEW_W  = 416,
+     parameter integer NEW_H  = 312,
+     parameter integer OFF_Y  = 52,
+-    parameter integer BEATS_PER_ROW = 240    // 1920 B / 8 B
++    parameter integer BEATS_PER_ROW = 240,   // 1920 B / 8 B
++    parameter logic [31:0] SRC_BASE = 32'h1200_0000  // P2c：源图基址（ABI raw_frame）
+ ) (
+     input  logic        clk,
+     input  logic        rstn,
+@@ -325,7 +326,7 @@
+                         load_row    <= sy1_int;
+                         load_base   <= sel_flip ? 2'd2 : 2'd0;
+                         wr_px       <= 10'd0;
+-                        rd_addr     <= sy1_int * ROW_BYTES;
++                        rd_addr     <= SRC_BASE + sy1_int * ROW_BYTES;
+                         rd_beats    <= BEATS_PER_ROW;
+                         rd_req      <= 1'b1;
+                         st          <= S_LOAD_REQ;
+@@ -336,7 +337,7 @@
+                         load_row    <= sy_int;
+                         load_base   <= 2'd0;
+                         wr_px       <= 10'd0;
+-                        rd_addr     <= sy_int * ROW_BYTES;
++                        rd_addr     <= SRC_BASE + sy_int * ROW_BYTES;
+                         rd_beats    <= BEATS_PER_ROW;
+                         rd_req      <= 1'b1;
+                         st          <= S_LOAD_REQ;
+@@ -372,7 +373,7 @@
+                             load_base  <= 2'd2;
+                             wr_px      <= 10'd0;
+                             hcnt       <= 5'd0;
+-                            rd_addr    <= sy1_int * ROW_BYTES;
++                            rd_addr    <= SRC_BASE + sy1_int * ROW_BYTES;
+                             rd_beats   <= BEATS_PER_ROW;
+                             rd_req     <= 1'b1;
+                             st         <= S_LOAD_REQ;

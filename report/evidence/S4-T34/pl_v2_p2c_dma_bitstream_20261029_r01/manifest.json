@@ -1,0 +1,203 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "pl_v2_p2c_dma_bitstream_20261029_r01",
+  "title": "P2c 候选位流：preproc（源图基址 0x12000000）+ AXIS→64b 打包 + AXI DMA S2MM→HP0 + 2B 推理",
+  "generated_utc8": "2026-10-29T16:00:45+08:00",
+  "hash_basis": "commit_blob",
+  "hash_basis_note": "本目录内文件随本次提交进入 w4 git，按 commit_blob 校验；source 字段仅 provenance",
+  "candidate": true,
+  "not_frozen": true,
+  "status": "BUILD_ONLY_NOT_BOARD_TESTED",
+  "address_map": {
+    "preproc_csr": "0x43C10000 (range 0x80)",
+    "infer_2b_csr": "0x43C00000 (range 0x10000)",
+    "axi_dma_s2mm_regs": "0x43C20000 (range 0x10000)",
+    "tensor_dest": "0x10000000 (2B 冻结张量基址，DMA S2MM DA)",
+    "raw_source": "0x12000000 (preproc 源图基址，RTL 参数 SRC_BASE)"
+  },
+  "clock": "FCLK0 = 50 MHz（与 P2b 一致）",
+  "boundary": [
+    "仅构建产物；未上板、未做任何板级判据；不主张 G3/G4/G5",
+    "AXI DMA 为 S2MM-only 简单模式；PS 侧寄存器编程未在本轮验证",
+    "packer 仅经 xsim TB 自检（3 beat），未在整链仿真中验证",
+    "preproc 源图基址为 RTL 参数常量，非可编程寄存器"
+  ],
+  "items": [
+    {
+      "path": "s4d_p2c.bit",
+      "kind": "bitstream",
+      "bytes": 4045770,
+      "sha256": "0c8ec47660057da8d89a3a0b22ced2b04ba23a4f7a2ba3e51157fe97e2e8352f",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\s4d_p2c.bit",
+      "note": ""
+    },
+    {
+      "path": "s4d_p2c.xsa",
+      "kind": "xsa",
+      "bytes": 353184,
+      "sha256": "3f0ed9eab27cc84790b884d14174b668024ba3e9fc0d05925908a4d19207e38e",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\s4d_p2c.xsa",
+      "note": ""
+    },
+    {
+      "path": "reports/timing_route.rpt",
+      "kind": "report",
+      "bytes": 259849,
+      "sha256": "8ea66b6122a22086ed11c40ac4f4d4a913a6bc3b96890816b0e2a54a74fa3b12",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\timing_route.rpt",
+      "note": ""
+    },
+    {
+      "path": "reports/util_route.rpt",
+      "kind": "report",
+      "bytes": 11894,
+      "sha256": "34161b1951d55e63a9b327e6fcd7a6f8b6d6daa37a14bd8ee6bbec57be58c085",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\util_route.rpt",
+      "note": ""
+    },
+    {
+      "path": "logs/build_p2c.stdout",
+      "kind": "log",
+      "bytes": 144855,
+      "sha256": "785fff1a50c653c7dec0ca8939816eee3f237cfaa8e7880119f6e4eb8271217f",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\build_p2c.stdout",
+      "note": "Vivado 原始日志（.log 不入 git 的规则按 *_output 命名另存）"
+    },
+    {
+      "path": "logs/build_p2c_output.txt",
+      "kind": "log",
+      "bytes": 143156,
+      "sha256": "898eccb19988c363b49811a12b651ea000c5d05532ae0b7c53000739b04b902d",
+      "source": "derived from build_p2c.stdout",
+      "note": "gitignore 规避：明文 output"
+    },
+    {
+      "path": "inputs/bd_p2c.tcl",
+      "kind": "build_input",
+      "bytes": 8824,
+      "sha256": "bad5cb10a102d9c9baaa9f390f603251f596bed147be51326949368ca4c78d9d",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\bd_p2c.tcl",
+      "note": ""
+    },
+    {
+      "path": "inputs/SRC_BASE.patch",
+      "kind": "build_input",
+      "bytes": 1901,
+      "sha256": "2255e06eabc764d79cc8fc9d120dab717b25d1ae8e06b7406c3495ae97bf73d6",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\SRC_BASE.patch",
+      "note": "唯一 RTL 语义差：源图基址 0x12000000"
+    },
+    {
+      "path": "inputs/rtl/s4d_axi4_rd_shim.sv",
+      "kind": "build_input",
+      "bytes": 7207,
+      "sha256": "8bcf1c1d124a96a7a7cc3c47e802d2fc5cfba851655e11aae9d1ae8686fc0d59",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_axi4_rd_shim.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_axis8_to_axis64.sv",
+      "kind": "build_input",
+      "bytes": 4541,
+      "sha256": "0078dbf69bbe1a8416497434a5eac2bb3e83b90bf9c5118401251e5079e98d04",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_axis8_to_axis64.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_coord_tables.svh",
+      "kind": "build_input",
+      "bytes": 30288,
+      "sha256": "42ebbd8f879df9f539f78d29adcd04c43c7bf605d84db71f67ce0712329d9883",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_coord_tables.svh",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_axi_wrapper.sv",
+      "kind": "build_input",
+      "bytes": 6547,
+      "sha256": "670f12ba1d2175aa4069f568b18872aed6c2d5476f65c11c804437dd91eb2a9b",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_preproc_axi_wrapper.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_csr.sv",
+      "kind": "build_input",
+      "bytes": 11850,
+      "sha256": "38afc806db1624dc6d6ff96860a4318604b05fed35552c17fded5b43577256a8",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_preproc_csr.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_engine_v2.sv",
+      "kind": "build_input",
+      "bytes": 24597,
+      "sha256": "06be0fcaf2a21e8c1715a722959f2b71a3784be7bf7eb82025687c64f070e8ae",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_preproc_engine_v2.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_letterbox.sv",
+      "kind": "build_input",
+      "bytes": 11336,
+      "sha256": "439ceae066af5e8ac133c18c251803698042bf8085c7e9a65fe1f7817dd4d9e0",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_preproc_letterbox.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_out_axis.sv",
+      "kind": "build_input",
+      "bytes": 3778,
+      "sha256": "a27828e842e31198e2f300ff3f6e683d7f49c0bdc36566181d1a1fad0d14d1b4",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_preproc_out_axis.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/rtl/s4d_preproc_v2_wrap.sv",
+      "kind": "build_input",
+      "bytes": 9713,
+      "sha256": "a84eeb55158907f7a1c05638aa085cef31b5a7ad0b3e0f353fbd987bfc60865a",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\rtl\\s4d_preproc_v2_wrap.sv",
+      "note": ""
+    },
+    {
+      "path": "inputs/tb/tb_s4d_axis8_to_axis64.sv",
+      "kind": "testbench",
+      "bytes": 3642,
+      "sha256": "f2127e893244c1351138b687464e5e805b1f0ad9e92c37a8cd298722558cb08b",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\src\\tb\\tb_s4d_axis8_to_axis64.sv",
+      "note": ""
+    },
+    {
+      "path": "logs/xvlog.log",
+      "kind": "log",
+      "bytes": 379,
+      "sha256": "09962bdbf21fa85a6ddab12ef0422230829e7b4e5fec5742b08b4c526b909c71",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\xvlog.log",
+      "note": ""
+    },
+    {
+      "path": "logs/xelab.log",
+      "kind": "log",
+      "bytes": 622,
+      "sha256": "3b824bacb8550f042a4b6fa8c3da735314db3f0889b1fa9122c0415bbe4336b3",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\xelab.log",
+      "note": ""
+    },
+    {
+      "path": "logs/xsim.log",
+      "kind": "log",
+      "bytes": 1349,
+      "sha256": "22dfada35556f18e41446599a266db86d8ceb1642ebe0faa62b769007e63505f",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\xsim.log",
+      "note": ""
+    },
+    {
+      "path": "logs/packer_tb_output.txt",
+      "kind": "log",
+      "bytes": 737,
+      "sha256": "b31fd5bc424d5c56c8e5adbf37333dff92f7d50b4f9ba8ea74ef0c08acc31408",
+      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\packer_tb_output.txt",
+      "note": ""
+    }
+  ]
+}

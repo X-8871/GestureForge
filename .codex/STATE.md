@@ -18,6 +18,16 @@
 - 已归档 preproc v2 构建输入 RTL（原先只在 `D:\tmp\lead\p2a_20261029_r01\src\rtl`，**不在任何 git 树** ⇒ 冻结位流不可复现）：`report/evidence/S4-T34/pl_v2_rtl_archive_20261029_r01/`（9 文件，`manifest.json` 声明 `hash_basis=commit_blob`，与原构建输入逐字节相同）。
 - **S4-T35 离线结论（preproc 上板前置，未上板）**：P2a/P2b 的 `s4d_0/M_AXIS` **无消费者**（BD `interface_nets` 无该网）⇒ 引擎 FIFO 满后停在 `S_XQ`，`busy` 常 1、`done` 不来、张量不落 DDR；且引擎源图基址固定 DDR `0x0` ≠ ABI `0x12000000` ⇒ **冻结位流上 `tensor_crc32=0x5B183B50` 不可达**，C 项需新位流（AXIS→DMA/HP0 写通路 + 源图基址方案），属重型任务、待 Wong 裁决。另：旧基线 `PREPROC_SRC=1` 写的是 `0x43C00000+0x200..0x27C`（在 P2a/P2b 里是 2B infer 空间）⇒ 不会启动预处理且会写 2B CSR，变体已删除。变体 ELF：`D:\tmp\lead\s4t35_pl_preproc_20261029_r01\build\s4d_ps_app_pl_selfcheck.elf` sha256 `a577a5cb…9fa01d`（带 SLCR 前置闸，防读挂死）。
 - r02 保全阶段的 CSR 三读**无效**（`loadhw -memrange` 为无效选项；解析把回显地址当值）⇒ 判读时丢弃；r03 已修。
+- **C 项解阻进展（离线，未上板）**：已构建 **P2c 候选位流** `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/`
+  —— preproc 源图基址改 `0x12000000`（RTL 参数 `SRC_BASE`，仅 3 处 `rd_addr`）+ 新增 `s4d_axis8_to_axis64` 打包器 +
+  **AXI DMA S2MM（非 SG，MM/STREAM 均 64b）→ smc_data → HP0**，DMA 寄存器 `0x43C20000`。
+  构建：bit sha256 `0c8ec476…e8352f`（4,045,770 B）、XSA `3f0ed9ea…07e38e`；50 MHz 下 **WNS +0.226 / WHS +0.036**；
+  LUT 46.54%、FF 10.90%、BRAM 23.93%、**DSP 71.82%（仅余 62）**。打包器 xsim 自检 `PACKER_TB_RESULT=PASS beats=3`。
+  **未上板、无整链仿真、应用侧 DMA 编程未验证、未冻结**；`ENABLE=0`。
+- **M2 复审（D 项）= CHANGES_REQUIRED**（`report/evidence/S4-T34/m2_review_20261029_r01/`，含可复算脚本）：
+  ① 归档记录把 PCFG_DONE 归到 `STATUS(0xF8007014) bit1`，而 UG585 v1.2 p.150 step 5 明确 **PCFG_DONE = `INT_STS(0xF800700C) bit[2]`**；
+  ② 两处 hex 注释与原始十进制不符（STATUS 实为 `0x40000A30` 而非 `0x40000010`；CTRL 实为 `0x4E00E07F` 而非 `0x4E00FFFF`）。
+  结论"PL 未配置"换用 `INT_STS[2]=0` 后仍成立，但须以**勘误**重记，且表述降为"构造性推断"；`INT_STS` 可被写 1 清除，单次为 0 ≠ 从未配置。**旧记录未改写。**
 - 边界：以上均未主张 G3/G4/G5；未写 QSPI、未改线、`ENABLE=0`、未 push。
 
 ## 本轮结果（四项实测窗口；P1 smoke 失败已收窗，2026-10-27 20:44 UTC+8）

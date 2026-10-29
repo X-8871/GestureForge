@@ -1,0 +1,76 @@
+{
+  "task_id": "S2C-RTL04",
+  "run_id": "route_query_module_attr_20261029_r02",
+  "status": "PARTIAL_OOC_REPORTS_EQUIVALENCE_BLOCKED",
+  "tool": "Vivado 2026.1 / XSim",
+  "baseline_commit": "6ac0dbfc422dcbfa42ce83e35844d0013925441d",
+  "evidence_bundle_kind": "prior_run_artifact_capture_no_tool_rerun",
+  "source_tool_run_id": "route_query_module_20261029_r01",
+  "source_tool_run_path": "tmp/S2C/RTL04/route_query_module_20261029_r01",
+  "ooc": {
+    "target": "xc7z020clg400-2",
+    "mode": "out_of_context",
+    "baseline": {
+      "source": "source_baseline.sv",
+      "lut": 1245,
+      "dsp": 7,
+      "ff": 0,
+      "bram36": 0,
+      "bram18": 0,
+      "reported_max_data_path_ns": 15.879,
+      "reported_slack": "inf"
+    },
+    "candidate": {
+      "source": "source_candidate_module_attr.sv",
+      "lut": 2484,
+      "dsp": 0,
+      "ff": 0,
+      "bram36": 0,
+      "bram18": 0,
+      "reported_max_data_path_ns": 14.541,
+      "reported_slack": "inf"
+    },
+    "resource_delta_candidate_minus_baseline": {
+      "lut": 1239,
+      "dsp": -7
+    },
+    "exit_code": null,
+    "exit_code_status": "未保存Vivado进程退出码；报告存在不代表已核实进程退出码"
+  },
+  "equivalence": {
+    "testbench": "tb_s2c_rtl04_route_query_equiv.sv",
+    "seed": "0x04292026",
+    "intended_samples": 1025,
+    "completed_samples": null,
+    "pass_marker": null,
+    "status": "FAIL_ENVIRONMENT_XSIM_ENGINE_START",
+    "xvlog_exit_code": 0,
+    "xelab_exit_code": 0,
+    "xsim_wrapper_exit_code": 0,
+    "xsim_engine_exit_code": -1073741502,
+    "xsim_engine_exit_hex": "0xC0000142",
+    "limitations": [
+      "XSim日志报告仿真引擎启动失败，不能认定任何样本已运行或功能等价。",
+      "本RunId仅归档已有r01离线输出，没有重新调用工具。"
+    ]
+  },
+  "timing_limitations": [
+    "OOC timing.rpt为无时钟约束的输入到输出组合路径分析，Slack=inf不是WNS时序收敛证据。",
+    "候选将7个DSP映射为LUT，但LUT从1245增至2484；它仅作用于route_query模块，不足以弥补128MAC方案的约43个DSP缺口。",
+    "候选module级use_dsp属性尚未进入业务RTL，等待XSim逐位等价通过后再评估。"
+  ],
+  "logs": [
+    {
+      "path": "tmp/S2C/RTL04/route_query_module_20261029_r01/xvlog_console.log",
+      "sha256": "FE5BE2FDCB2083DB46860E5F260277E1785297BB856B75DA3FFE54FF2DFD4BFE"
+    },
+    {
+      "path": "tmp/S2C/RTL04/route_query_module_20261029_r01/xelab_console.log",
+      "sha256": "992245E0FBAB82CCDAFC7A224EA0630FD148E7EBE21395B2218411A34D97AE94"
+    },
+    {
+      "path": "tmp/S2C/RTL04/route_query_module_20261029_r01/xsim_console.log",
+      "sha256": "455E40FB6141C37E749965A1C7510E2EC9DBA4CCA884C24926FEDC89643EBFC4"
+    }
+  ]
+}

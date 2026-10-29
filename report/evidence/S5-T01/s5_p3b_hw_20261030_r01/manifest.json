@@ -42,6 +42,11 @@
   "note": "*.bit/*.xsa 被 gitignore，sha 记录于 manifest；构建日志另存 build_console_output.txt",
   "items": [
     {
+      "path": "report/evidence/S5-T01/s5_p3b_hw_20261030_r01/.gitattributes",
+      "bytes": 41,
+      "sha256": "161d4fc3fc645d35e126e4ee4badaab15cc28a339831082c9f33490211f027b9"
+    },
+    {
       "path": "report/evidence/S5-T01/s5_p3b_hw_20261030_r01/bd_p3b.tcl",
       "bytes": 30504,
       "sha256": "fc4da51e9a1831dea3d1be0b17265393e707bd9694717f8876c340b14f84717f"
@@ -53,8 +58,8 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_hw_20261030_r01/P3B_BUILD_REPORT.md",
-      "bytes": 13543,
-      "sha256": "0410be349d7f0042994f05550a35108bf3c01369fdc75bb4babe6f719ae9cc2c"
+      "bytes": 18312,
+      "sha256": "3b3b5ab4e8993110fcc2004227a947a3418e003f8bdbee3812afb3520ada8348"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_hw_20261030_r01/p3b_tmds.xdc",
@@ -88,8 +93,16 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_hw_20261030_r01/XDC_GUIDELINES.md",
-      "bytes": 7160,
-      "sha256": "7117dcf97e903635054e9768f0702ff6e3976f1063425b4f88175057a470f357"
+      "bytes": 8749,
+      "sha256": "7a26775995d596959ce1d3501c0b3a6e2982fa2035a8c3f276ebc5c1d23435de"
     }
-  ]
+  ],
+  "facts_corrections": {
+    "xdc_processing_order": "PROCESSING_ORDER {LATE} 实测未修复 12-4739（仍有 6 条，get_clocks 为空）；改用路由后补加时钟组（P3B_POST_CLKGRP=APPLIED），WNS/WHS 不变 ⇒ 关键路径不跨域，缺异步组只使数字更保守",
+    "hdmi_oen_polarity": "厂商 rgb2dvi.vhd:192 oen<=\\'1\\'、top.v:47 直连 ⇒ 本设计驱动 1；若上板有信号但不亮，第一处置点为顶层反相（1 行）",
+    "clocks_verified": "report_clocks：像素 13.474 ns(74.21875 MHz)、5× 2.695 ns(371.09375 MHz)、50/100 MHz 20.000/10.000 ns",
+    "oserdes": "OSERDESE2 8 个（4 通道×主从），MMCM 未增 ⇒ 走外部 5× 路线",
+    "drc": "429 条 / 0 error：DPIP-1 129、DPOP-1 147、DPOP-2 148、DPREG-4 2、REQP 3；无 NSTD-1/UCIO-1",
+    "whs_margin": "WHS 余量仅 +0.022 ns，后续加叠加需重点盯"
+  }
 }

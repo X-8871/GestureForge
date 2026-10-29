@@ -130,6 +130,8 @@
 - **A 项（长跑停住定位）按真实口径通过（2026-10-29 20:20）**：40 轮 / 真实 30.7 min / failures=0 / `exit=0 within_judgement=1` /
   每轮 47,287 ms 恒定 / tensor CRC 恒定；时间基座修复后 host/app=1.000。判据常量 140→38 勘误（140 是旧 4× 口径值）。
 - **G4 已由 Wong 认可（00:5x）**：阶段4 G4 通过（跟踪遗留 R-01=M3）、阶段5 当前范围 G4 通过；G5 不主张；正式记录已填签署。
+- **P3a BD validate 0 error（01:1x）**：FCLK1=100、clk_wiz 74.21875/371.09375、VTC `0x43C30000`、VDMA `0x43C40000`→HP2、26 端口；
+  证据已提交（S6-T01）。P3a+（补 XDC + 综合实现 + 资源/时序报告）已派子 agent，预计 25–35 min。
 - **阶段6 G0 已冻结（01:0x）**：Wong 确认 D1=720p60、D2=框+置信度、D3=PS 画帧、D4=RGB888；VTC `0x43C30000`、VDMA `0x43C40000`、FCLK1=100、VDMA→HP2。
   分 P3a（validate）→P3a+（综合）→P3b（叠加+TMDS）→P3c（回归）；P3a BD 子 agent 进行中。
 - **阶段6 G0 方案已出（00:5x）**：厂商原件确认 HDMI TX（U13/W14/Y18/Y16/V16、sys_clk U18 50 MHz、rgb2dvi_v1_3、clk_wiz 100→74.25）；

@@ -64,6 +64,14 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **P2d 上板四窗全绿（2026-10-29 23:1x–23:4x）** —— 阶段5 方向 A 板上验证完成：
+  · **2B 恢复**：同一重建 M4-b ELF 在 P2d 上 `done=1 error=0 elapsed_ms=47287`（P2b 同 ELF 是 85,899 ms 超时）⇒ **方向 A 修复成立**，慢 2× 问题消失。
+  · **chain-lite A**：`s4d_chainlite_a_p2d_20261029_r01` **PASS**（`pass=1/done=1/error=0/decode_rc=0/count=1/ack_idle=1/47,287 ms`，检测框与 r13 冻结参考逐字段一致）。
+  · **preproc→DMA 在 HP1**：`s4d_p2c_crc_on_p2d_20261029_r03` **P2C_TENSOR_CRC_MATCH**（`tensor_crc32=0x5B183B50 pass=1`、`length_reg=519168`；同窗口 `TIMEBASE CHECK ratio_x1000=999` 证明时间基座修复生效）。
+  · **M4-b 收口**：`s4d_m4b_close_p2d_20261029_r02` **PASS**（`pass=1/diff13=0/diff26=0/stale=1/gate=1/ack_idle=1/error=0/47,287 ms`；
+    `TAIL13 before=0x5A5A5A5A after=0x5A5A0506 ref=0x00000506 lane01_ok=1 lane23_ok=1` ⇒ PL 尾字 lane 正确且未越界）。
+  ⇒ **P2d = 2B + preproc + 打包器 + AXI DMA 的合并计算体，在板上同时满足：时序（WNS +0.128）、2B 单帧 47.3 s、链路解码正确、预处理数据面 CRC 正确**。
+  阶段5 剩收尾：文档/地址表归档、P2d 证据清单收口（不做视频链——归阶段6）。
 - **阶段5 方向 A 合并位流 P2d 已构建（2026-10-29 23:00–23:12，`s4d_p2d_merged_bitstream_20261029_r01`）**：
   相对 P2c r02 只改数据面拓扑：**2B 推理核 `M_AXI` 直连 `ps7_0/S_AXI_HP0`**（不经 smc_data）、
   `smc_data` 改 2S/1M（preproc 读 + DMA 写 → `ps7_0/S_AXI_HP1`）、PS7 使能 HP1 64-bit。

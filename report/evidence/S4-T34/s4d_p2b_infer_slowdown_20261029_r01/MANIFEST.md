@@ -4,7 +4,6 @@
 |---|---|---|
 | `report/evidence/S4-T34/s4d_p2b_infer_slowdown_20261029_r01/ANALYSIS.md` | 29298 | `ba5d9c96cdce3b593c4f72e110d4145c3898f7e0415e702befad6afadcece30d` |
 | `report/evidence/S4-T34/s4d_p2b_infer_slowdown_20261029_r01/LEAD_NOTE.md` | 1571 | `bdd467b4134bb093ff0895886e5c2432645deb7e1b2cafddad78cc5eb4bfb305` |
-| `report/evidence/S4-T34/s4d_p2b_infer_slowdown_20261029_r01/s4d_p2b.xsa` | 317623 | `ddb65f19842bc928df7df3f3712012d695801dd7cd07b671c87f0e2e12c0385a` |
 | `report/evidence/S4-T34/s4d_p2b_infer_slowdown_20261029_r01/xsa_p2b/hwdef.xml` | 1672 | `614f4cc252799e65cfcda04e22bfb7366619ca75cbebc90bdf362da380145a12` |
 | `report/evidence/S4-T34/s4d_p2b_infer_slowdown_20261029_r01/xsa_p2b/s4d_p2b.bda` | 8700 | `5a7d17c7f9aa5d133cd2f9bfa28f37c3cfe551eb6459fd19622bacc2b3e9907f` |
 | `report/evidence/S4-T34/s4d_p2b_infer_slowdown_20261029_r01/xsa_p2b/s4d_p2b.hwh` | 206864 | `188b7fea718d29f6da33be6868e4e4fd5a51f56d8113f6f3a7fab66bbea36bf5` |

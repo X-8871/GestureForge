@@ -129,6 +129,11 @@
 - **板卡现状：DAP 粘连，需再次整机断电（12V+USB ≥10 s）**；主机侧零残留。下一步顺序：断电 → 5 min 计时三方对照（修正版，先静态自检禁止 `rst -system`）
 - **A 项（长跑停住定位）按真实口径通过（2026-10-29 20:20）**：40 轮 / 真实 30.7 min / failures=0 / `exit=0 within_judgement=1` /
   每轮 47,287 ms 恒定 / tensor CRC 恒定；时间基座修复后 host/app=1.000。判据常量 140→38 勘误（140 是旧 4× 口径值）。
+- **head13 尾字已定案（22:2x）**：差异来自**参考预置漏写尾 2 字节**（`run_window_b_driver.py:355` 用 1267 字=5068 B，
+  而 head13=5070 B），非 PL 尾字缺陷；补齐 5072 B/1268 字 + 强制 `stale=1` 后即可 PASS（收口窗口已排）。
+- **P2b 慢 2× 归因（22:2x）**：主因是 P2b 把 2B 核 `M_AXI` 改经 SmartConnect，而该主端单 outstanding/单 beat ⇒ 串行化，实测 ≥1.817×；
+  修复方向 A（只改 BD，infer 直连 HP0、preproc 走 HP1）不需 Codex，方向 B/C 需 Codex。
+- **阶段5 范围已定稿**：视频链归阶段6、吞吐归 Codex；P2c r02 即合并体；阶段5 只剩冒烟+收口。
 - **M4-b `error=5` 已定因并验证（21:5x）**：旧 ELF 的 `core_timeout=0x40000000`（50 MHz 下 21.47 s）< 单帧 47.3 s ⇒ 必然超时；
   重建 ELF（0xFFFFFFFF）后 2B 基线位流上 **引擎 DONE_SAFE、error=0、47,287 ms**。M4-b 只剩 head13 末尾 2 字节（尾字 lane）差异 ⇒ 一个窄修复即可 PASS。
 - **P2b 集成事实（阶段5）**：同一重建 ELF 在 P2b 上 >85.9 s 才超时 ⇒ P2b 的 2B 核比 2B 基线慢约 2×（疑与 preproc 共用数据 smartconnect/HP0），

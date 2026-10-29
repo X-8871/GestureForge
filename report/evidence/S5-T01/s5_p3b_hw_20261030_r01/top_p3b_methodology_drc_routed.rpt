@@ -1,0 +1,69 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (win64) Build 6511674 Tue Jun 16 11:02:23 MDT 2026
+| Date         : Fri Oct 30 02:11:24 2026
+| Host         : HAO running 64-bit major release  (build 9200)
+| Command      : report_methodology -file top_p3b_methodology_drc_routed.rpt -pb top_p3b_methodology_drc_routed.pb -rpx top_p3b_methodology_drc_routed.rpx
+| Design       : top_p3b
+| Device       : xc7z020clg400-2
+| Speed File   : -2
+| Design State : Fully Routed
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Report Methodology
+
+Table of Contents
+-----------------
+1. REPORT SUMMARY
+2. REPORT DETAILS
+
+1. REPORT SUMMARY
+-----------------
+            Netlist: netlist
+          Floorplan: design_1
+      Design limits: <entire design considered>
+             Max checks: <unlimited>
+             Checks found: 6
++-----------+------------------+----------------------------------------------------+--------+
+| Rule      | Severity         | Description                                        | Checks |
++-----------+------------------+----------------------------------------------------+--------+
+| TIMING-2  | Critical Warning | Invalid primary clock source pin                   | 1      |
+| TIMING-4  | Critical Warning | Invalid primary clock redefinition on a clock tree | 1      |
+| LUTAR-1   | Warning          | LUT drives async reset alert                       | 2      |
+| TIMING-24 | Warning          | Overridden Max delay datapath only                 | 2      |
++-----------+------------------+----------------------------------------------------+--------+
+
+2. REPORT DETAILS
+-----------------
+TIMING-2#1 Critical Warning
+Invalid primary clock source pin  
+A primary clock u_bd/s4d_p3b_i/clk_wiz_0/inst/clk_in1 is created on an inappropriate pin u_bd/s4d_p3b_i/clk_wiz_0/inst/clk_in1. It is recommended to create a primary clock only on a proper clock source (input port or primitive output pin with no timing arc)
+Related violations: <none>
+
+TIMING-4#1 Critical Warning
+Invalid primary clock redefinition on a clock tree  
+Invalid clock redefinition on a clock tree. The primary clock u_bd/s4d_p3b_i/clk_wiz_0/inst/clk_in1 is defined downstream of clock clk_fpga_1 and overrides its insertion delay and/or waveform definition
+Related violations: <none>
+
+LUTAR-1#1 Warning
+LUT drives async reset alert  
+LUT cell u_bd/s4d_p3b_i/vdma_0/U0/GEN_SPRT_FOR_MM2S.MM2S_LINEBUFFER_I/GEN_LINEBUF_NO_SOF.GEN_LINEBUFFER.GEN_ASYNC_FIFO.LB_BUILT_IN.I_LINEBUFFER_FIFO/fg_builtin_fifo_inst/inst_fifo_gen/gconvfifo.rf/gbi.bi/g7ser_birst.rstbt/gf36e1_inst.sngfifo36e1_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) u_bd/s4d_p3b_i/vdma_0/U0/GEN_SPRT_FOR_MM2S.MM2S_LINEBUFFER_I/GEN_LINEBUF_NO_SOF.GEN_LINEBUFFER.GEN_ASYNC_FIFO.LB_BUILT_IN.I_LINEBUFFER_FIFO/fg_builtin_fifo_inst/inst_fifo_gen/gconvfifo.rf/gbi.bi/v7_bi_fifo.fblk/gextw[1].gnll_fifo.inst_extd/gonep.inst_prim/gf36e1_inst.sngfifo36e1/RST. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+LUTAR-1#2 Warning
+LUT drives async reset alert  
+LUT cell u_rgb2dvi/Inst_rgb2dvi/LockLostReset/aRst_int_inferred_i_1, with 2 or more inputs, drives asynchronous preset/clear pin(s) u_rgb2dvi/Inst_rgb2dvi/LockLostReset/SyncAsyncx/oSyncStages_reg[0]/PRE
+u_rgb2dvi/Inst_rgb2dvi/LockLostReset/SyncAsyncx/oSyncStages_reg[1]/PRE. The LUT may glitch and trigger an unexpected reset, even if it is a properly timed path.
+Related violations: <none>
+
+TIMING-24#1 Warning
+Overridden Max delay datapath only  
+An asynchronous set_clock_groups or a set_false path (see constraint position 13 in the Timing Constraints window in Vivado IDE) between clocks clk_fpga_0 and clk_out1_s4d_p3b_clk_wiz_0_0 overrides a set_max_delay -datapath_only (position 12). It is not recommended to override a set_max_delay -datapath_only constraint. Replace the set_clock_groups or set_false_path between clocks with point-to-point set_false_path constraints
+Related violations: <none>
+
+TIMING-24#2 Warning
+Overridden Max delay datapath only  
+An asynchronous set_clock_groups or a set_false path (see constraint position 13 in the Timing Constraints window in Vivado IDE) between clocks clk_out1_s4d_p3b_clk_wiz_0_0 and clk_fpga_0 overrides a set_max_delay -datapath_only (position 11). It is not recommended to override a set_max_delay -datapath_only constraint. Replace the set_clock_groups or set_false_path between clocks with point-to-point set_false_path constraints
+Related violations: <none>
+
+

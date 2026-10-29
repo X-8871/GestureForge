@@ -64,6 +64,19 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **head13 尾字差异已定案（`s4d_m4b_tailword_20261029_r01`，tail-fix 子 agent + lead 复核）**：
+  不是 PL 尾字 lane 缺陷，而是**参考预置口径缺陷**——`scripts/stage4_s4b/run_window_b_driver.py:355` 用
+  `HEAD13_BYTES//4 = 1267` 个 32-bit 字预置 head13 参考（`mwr -bin -file` 的 count 是**字数**）⇒ 5070 B 只写进 5068 B，
+  byte 5068/5069 从未写入（该处 W0/W4 dump 为旧值 `FF 8F`）；反证：`bringup_window6_20261028_r03` 用补齐 5072 B/1268 字时 `diff13=0 diff26=0 stale=1 pass=1`。
+  应用比较范围正确（逐字节 5070 B，符合 2A lane `0011`）。已加 TAIL13 诊断字段并重建 m4b/chainA/chainB（`553fbf7e…`/`87e049b4…`/`06bb0209…`）。
+  关闭条件（收口窗口 `s4d_m4b_close_20261029_r01`）：补齐参考 1268 字 + 输出区投毒强制 `stale=1` + 尾 word 投毒 0x5A5A5A5A，期望 `pass=1`、`TAIL13 after` 低 16 位 `0x0506`、`lane23_ok=1`。
+- **P2b 慢 2× 的离线归因（`s4d_p2b_infer_slowdown_20261029_r01`，perf-analyst）**：**H1 成立（主因）**——P2b 把 2B 核 `M_AXI` 从直连 HP0
+  改为经 `smc_data` SmartConnect(2S/1M)，而 2B 核是单 outstanding / 单 beat(arlen=0) / ID=0 的"延迟完全暴露"型主端 ⇒ SMC 流水全串在 AR→R 往返上，
+  实测 ≥**1.817×**、多出的 ≥1.93e9 周期全是内存等待；H2 位宽/时钟域、H3 preproc 仲裁、H4 时钟≠50 MHz 均被反证；H5 为非整字读逐 lane 单拍 + 32-bit 周期超时把可测上限钉在 85.899 s。
+  修复方向 A（只改 BD：infer 直连 HP0、preproc 走 HP1）**不需 Codex**；方向 B/C（adapter 加 burst/多 outstanding、超时改 ms/64-bit）属 w2b，需 Codex。
+  **lead 更正**：`LEAD_NOTE.md` 指出"同 ELF A/B 不存在"不成立——M4-b 重建 ELF 在 2B 基线 r03 已 `done=1 elapsed_ms=47287`；已排窗口 `s4d_m4b_p2b_20261029_r01` 做同 ELF 的 P2b 对照。
+- **阶段5 范围与默认裁决已定稿**（`s4d_stage5_scope_decision_20261029_r01/DECISION.md`）：视频链归阶段6、吞吐归 Codex、
+  地址/时钟/应用区/DMA 四项按默认定稿；P2c r02 即合并计算体，阶段5 只剩"合并体冒烟 + 文档收口"。
 - **error=5 真因已定位并验证（2026-10-29 21:3x–21:5x，`s4d_elf_rebuild_timeout_20261029_r01`）**：
   旧冻结 ELF 写 `core_timeout = 0x40000000`（2^30 周期）⇒ 50 MHz 下 **21.47 s**，短于 2B 单帧 **47.3 s** ⇒ 必然 `TIMEOUT(error=5)`。
   实测两条时间戳完全对上：旧 ELF 在 **21,474 ms** 超时、重建 ELF（0xFFFFFFFF=85.9 s）在 **85,899 ms** 超时（比值 4.00）。

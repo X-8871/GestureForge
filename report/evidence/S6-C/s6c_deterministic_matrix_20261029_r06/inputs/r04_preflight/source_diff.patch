@@ -1,0 +1,61 @@
+diff --git a/verification/test_s6b_core_regressions.py b/verification/test_s6b_core_regressions.py
+index 7e3ce0a..f3eb3e3 100644
+--- a/verification/test_s6b_core_regressions.py
++++ b/verification/test_s6b_core_regressions.py
+@@ -635,6 +635,56 @@ class S6BCoreRegressionTests(unittest.TestCase):
+         self.assertIsNotNone(at_boundary["action_request"])
+         self.assertEqual(at_boundary["log"]["timers"]["t_last_submit_ns"], 0)
+ 
++    def test_global_cooldown_boundary_minus_equal_plus_one_ns(self):
++        k01_ns = self.pack.threshold_bundle()["k01_ns"]
++
++        def stable_reacquisition():
++            core = GestureInteractionCore(self.pack)
++            core.step(self._target_event(1, 0, "first-session"))
++            core.state = "TRIGGERED"
++            core.note_action_ack({
++                "action_id": "cooldown-edge-anchor",
++                "submit_result": "success",
++                "effective_result": "observed",
++                "t_submit_ns": 0,
++                "t_effective_ns": 0,
++            })
++            core.step({
++                "kind": EV_TICK,
++                "session_id": "second-session",
++                "t_input_ns": 1,
++            })
++
++            frame_id = 1
++            timestamp = 2
++            while timestamp < k01_ns - 100_000_000:
++                core.step(self._target_event(frame_id, timestamp, "second-session"))
++                frame_id += 1
++                timestamp = 2 + (frame_id - 1) * 50_000_000
++
++            self.assertEqual(core.state, "STABLE")
++            return core, frame_id
++
++        for offset_ns, should_trigger in ((-1, False), (0, True), (1, True)):
++            with self.subTest(k01_offset_ns=offset_ns):
++                core, frame_id = stable_reacquisition()
++                before = core.step(
++                    self._target_event(frame_id, k01_ns - 1, "second-session")
++                )
++                self.assertIsNone(before["action_request"])
++                self.assertIn("S_COOLDOWN", before["log"]["suppression_events"])
++                self.assertEqual(core.state, "STABLE")
++
++                if offset_ns == -1:
++                    continue
++
++                at_or_after = core.step(
++                    self._target_event(frame_id + 1, k01_ns + offset_ns, "second-session")
++                )
++                self.assertEqual(at_or_after["log"]["transition"], "M5")
++                self.assertEqual(core.state, "TRIGGERED")
++                self.assertEqual(at_or_after["action_request"] is not None, should_trigger)
++
+     def test_backwards_time_on_session_change_is_transactional(self):
+         core = GestureInteractionCore(self.pack)
+         core.step(self._target_event(1, 100, "first-session"))

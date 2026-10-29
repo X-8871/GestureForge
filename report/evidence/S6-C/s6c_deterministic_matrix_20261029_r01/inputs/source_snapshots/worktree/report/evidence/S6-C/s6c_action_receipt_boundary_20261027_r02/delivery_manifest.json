@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-C",
+  "run_id": "s6c_action_receipt_boundary_20261027_r02",
+  "source_commit": "2cd8bc9a7fa158a86bde35bb60af8f056d134feb",
+  "evidence_dir": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02",
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "文件按采证时 w6 工作树磁盘字节绑定；源码未提交，证据不表示纳入 source_commit。",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "该包只核验阶段6内部 ACK 消费边界；没有冻结或消费阶段4/5真实输入、显示、动作后端或跨进程恢复接口。",
+  "files": [
+    {
+      "path": "src/stage6/s6_receipts.py",
+      "sha256": "3a14f04624fe828b2128105bfc92a8a4ac06539c13d41acb06b512dd05dfe5b1",
+      "role": "source",
+      "keep_reason": "本轮 S6-C ACK 边界适配实现。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "verification/test_s6c_receipt_boundary.py",
+      "sha256": "d5f366d96494f1d0903101cca65485d0d816ec0668bc6d5b5c3d72493da8c937",
+      "role": "source",
+      "keep_reason": "S6-C 边界、旁路检测和事务性离线回归。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "b75948f504fbf732958b16b14bb892de1865bd4defa97dc704bbb8dbf64ad9bc",
+      "role": "input",
+      "keep_reason": "当前核心 ACK/复位/事件实现；本轮未修改。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "input",
+      "keep_reason": "回归输入 ParamPack 实现；本轮未修改。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "实际测试加载的行为参数 JSON。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "input",
+      "keep_reason": "S6-A 行为规格只读输入；未由本轮修改。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/interface_boundary.md",
+      "sha256": "9029131d8e9657e8f1fdc225a259a9edb38e84340c0694919703c89fa4821e80",
+      "role": "result",
+      "keep_reason": "内部边界定义、旁路防护与无法保证事项。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/execution_record.md",
+      "sha256": "7a8479ba00a6094187b83a6ead5c93a82aa533c8d172a97b64fd9f1f6c28a42f",
+      "role": "result",
+      "keep_reason": "验证命令、结果、G0-G5 范围判定和限制。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/unit_test_final.log",
+      "sha256": "76eb55ebc4783cbfa7e2e06376429e7456ed3b28e9003503d2ed69686ef52692",
+      "role": "log",
+      "keep_reason": "最终源码版本的完整 45 项 unittest 输出。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/inputs_manifest.json",
+      "sha256": "30f59a4b8325837dd841f76507e15d014f7da38de6719cbfa88c47281f2e285e",
+      "role": "input",
+      "keep_reason": "本轮源码、测试及运行输入哈希绑定清单。",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "checks": [
+    {
+      "name": "S6-C 回执边界与 S6-B 核心离线回归",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary verification.test_s6b_core_regressions -v",
+      "exit_code": 0,
+      "reason": "45/45 通过；最终输出见本 RunId 的 unit_test_final.log。"
+    },
+    {
+      "name": "check_stage_delivery.py --mode inputs",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --manifest report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "主目录只读检查器对 w6 输入清单通过；CHECKS_OK 仅验证清单包装和文件绑定。"
+    },
+    {
+      "name": "check_stage_delivery.py --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --manifest report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "主目录只读检查器核验 RunId 文件枚举和哈希；不代表独立审查或阶段验收。"
+    },
+    {
+      "name": "check_manifest_hash_basis.py --mode strict",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6 --paths report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/inputs_manifest.json --paths report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02/delivery_manifest.json --mode strict --json",
+      "exit_code": 0,
+      "reason": "主目录只读检查器严格核验清单中所有哈希均使用声明的 worktree_disk 基座。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14 (64-bit)",
+    "git": "2.56.0.windows.2",
+    "check_stage_delivery.py": "D:\\FPGA_Competition\\verification\\check_stage_delivery.py；以 --project-root 指向 w6",
+    "check_manifest_hash_basis.py": "D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py"
+  },
+  "limitations": [
+    "阶段4真实输入/时间、阶段5显示/观测、真实动作后端及跨进程历史恢复均无本包可消费的冻结契约；真实集成保持 BLOCKED。",
+    "适配器未改 core 公共语义；检测串行 ACK 旁路，无法在没有核心共享锁的情况下保证与并发直接调用互斥或回滚。部署必须满足唯一 ACK 写入口约束。",
+    "不操作板卡、JTAG、串口、摄像头或 HDMI；不声称真实动作、实时性能、G3、G4 或 G5 结论。",
+    "本包未执行独立审查；r01 及 S6-A/S6-B/S6-E 其他工作区差异和证据均未修改。"
+  ]
+}

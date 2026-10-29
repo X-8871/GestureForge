@@ -1,0 +1,5015 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-C",
+  "run_id": "s6c_deterministic_matrix_20261029_r03",
+  "source_runbook": "inputs/formal_6c_runbook.md §4",
+  "existing_matrix": {
+    "run_id": "s6b_current_20261029_r08",
+    "source_run_id": "s6b_current_20261029_r03",
+    "status": "PASS",
+    "case_count": 26,
+    "core_sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+    "current_core_sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9"
+  },
+  "supplemental_matrix": {
+    "case_id": "C11-duplicate-ack",
+    "freeze_exit_code": 0,
+    "run_exit_code": 0,
+    "case_status": "PASS",
+    "assertions_failed": [],
+    "duplicate_ack_log_observed": true,
+    "log_path": "outputs/duplicate_ack_matrix/logs/C11-duplicate-ack.jsonl",
+    "execution_origin_run_id": "s6c_deterministic_matrix_20261029_r03",
+    "actual_action_submitted": 1,
+    "actual_action_effective": 1
+  },
+  "formal_11_rows": [
+    {
+      "runbook_row": "每类稳定输入",
+      "cases": [
+        "C1-fist-stable",
+        "C1-palm-stable",
+        "C1-one-stable",
+        "C1-two_up-stable",
+        "C1-three-stable"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C1-fist-stable",
+          "matrix_class": "每类稳定输入",
+          "description": "class_id=0（fist）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_UI/UI_MENU。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-fist-stable.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C1-palm-stable",
+          "matrix_class": "每类稳定输入",
+          "description": "class_id=1（palm）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_UI/UI_STATS。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-palm-stable.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C1-one-stable",
+          "matrix_class": "每类稳定输入",
+          "description": "class_id=2（one）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_1。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-one-stable.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C1-two_up-stable",
+          "matrix_class": "每类稳定输入",
+          "description": "class_id=3（two_up）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_2。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-two_up-stable.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C1-three-stable",
+          "matrix_class": "每类稳定输入",
+          "description": "class_id=4（three）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_3。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-three-stable.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "持续保持与冷却后保持",
+      "cases": [
+        "C2-hold-past-cooldown",
+        "C11-global-gate-second-acquisition"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C2-hold-past-cooldown",
+          "matrix_class": "持续保持与冷却后保持",
+          "description": "保持 20 帧（2 s）：第 7 帧触发一次；冷却在 t_last_submit+T6-K01=1600 ms 结束，第 17 帧走 M9 维持态，不再触发（B15/§10）。",
+          "expected": {
+            "final_state": "STABLE",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6",
+              "M9"
+            ]
+          },
+          "actual": {
+            "final_state": "STABLE",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6",
+              "M9"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            },
+            {
+              "frame_id": 9,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 800000000
+            },
+            {
+              "frame_id": 10,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 900000000
+            },
+            {
+              "frame_id": 11,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1000000000
+            },
+            {
+              "frame_id": 12,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1100000000
+            },
+            {
+              "frame_id": 13,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1200000000
+            },
+            {
+              "frame_id": 14,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1300000000
+            },
+            {
+              "frame_id": 15,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1400000000
+            },
+            {
+              "frame_id": 16,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1500000000
+            },
+            {
+              "frame_id": 17,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1600000000
+            },
+            {
+              "frame_id": 18,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1700000000
+            },
+            {
+              "frame_id": 19,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1800000000
+            },
+            {
+              "frame_id": 20,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1900000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C2-hold-past-cooldown.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C11-global-gate-second-acquisition",
+          "matrix_class": "冷却后保持 / 全局冷却门",
+          "description": "第 12 帧触发（t_submit=220 ms）；目标丢失后重获并再次满足窗口（第 29 帧 M3），但 t_now−t_submit=360 ms < T6-K01=1000 ms → M5 被 H-10 抑制（S_COOLDOWN），全程只提交一次。",
+          "expected": {
+            "final_state": "STABLE",
+            "action_submitted": 1,
+            "window_complete_ns": 200000000,
+            "submitted_at_frames": [
+              12
+            ],
+            "transitions": null
+          },
+          "actual": {
+            "final_state": "STABLE",
+            "action_submitted": 1,
+            "window_complete_ns": 200000000,
+            "submitted_at_frames": [
+              12
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6",
+              "M10",
+              "M11",
+              "M1",
+              "M3"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 20000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 40000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 60000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 80000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 120000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 140000000
+            },
+            {
+              "frame_id": 9,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 160000000
+            },
+            {
+              "frame_id": 10,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 180000000
+            },
+            {
+              "frame_id": 11,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 12,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 220000000
+            },
+            {
+              "frame_id": 13,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 240000000
+            },
+            {
+              "frame_id": 14,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 260000000
+            },
+            {
+              "frame_id": 15,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 280000000
+            },
+            {
+              "frame_id": 16,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 17,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 320000000
+            },
+            {
+              "frame_id": 18,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 340000000
+            },
+            {
+              "frame_id": 19,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 340000000
+            },
+            {
+              "frame_id": 20,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 360000000
+            },
+            {
+              "frame_id": 21,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 380000000
+            },
+            {
+              "frame_id": 22,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 23,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 420000000
+            },
+            {
+              "frame_id": 24,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 440000000
+            },
+            {
+              "frame_id": 25,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 460000000
+            },
+            {
+              "frame_id": 26,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 480000000
+            },
+            {
+              "frame_id": 27,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 28,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 520000000
+            },
+            {
+              "frame_id": 29,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 540000000
+            },
+            {
+              "frame_id": 30,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 560000000
+            },
+            {
+              "frame_id": 31,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 580000000
+            },
+            {
+              "frame_id": 32,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C11-global-gate-second-acquisition.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "手离开再出现",
+      "cases": [
+        "C3-lost-then-reappear"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C3-lost-then-reappear",
+          "matrix_class": "手离开再出现",
+          "description": "触发后手离开：第 8 帧仍为 OK（刷新 t_last_target_continues=700 ms），第 9–11 帧 NO_HAND 且第 11 帧距锚点满 T6-L02=300 ms → M10→LOST；第 12 帧先按丢失态走 M11→IDLE（清空目标与证据）；同目标自第 13 帧起重新累积窗口 → 第 18 帧 M3、第 19 帧第二次触发（新获取，门已结束）。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 2,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7,
+              19
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6",
+              "M10",
+              "M11",
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 2,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7,
+              19
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6",
+              "M10",
+              "M11",
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            },
+            {
+              "frame_id": 9,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 800000000
+            },
+            {
+              "frame_id": 10,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 900000000
+            },
+            {
+              "frame_id": 11,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1000000000
+            },
+            {
+              "frame_id": 12,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1100000000
+            },
+            {
+              "frame_id": 13,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1200000000
+            },
+            {
+              "frame_id": 14,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1300000000
+            },
+            {
+              "frame_id": 15,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1400000000
+            },
+            {
+              "frame_id": 16,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1500000000
+            },
+            {
+              "frame_id": 17,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1600000000
+            },
+            {
+              "frame_id": 18,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1700000000
+            },
+            {
+              "frame_id": 19,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1800000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C3-lost-then-reappear.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "两类快速切换/短暂抖动",
+      "cases": [
+        "C4-jitter-reset",
+        "C4-quick-switch"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C4-jitter-reset",
+          "matrix_class": "短暂抖动",
+          "description": "5 帧稳定后连续 2 帧 score<P02：第 1 帧容忍（≤T6-J01），第 2 帧重置窗口；候选停留已达 T6-S04=500 ms → M4→IDLE，不触发。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "M4"
+            ]
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "M4"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C4-jitter-reset.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C4-quick-switch",
+          "matrix_class": "两类快速切换",
+          "description": "fist/palm 逐帧交替：每帧都是目标切换（TARGET_CONTINUES 不成立），连续同目标帧数达不到 T6-C01=2 → 不进入 CANDIDATE、不触发。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": []
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": []
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C4-quick-switch.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "多目标/同分/目标跳变",
+      "cases": [
+        "C5-tie-source-order",
+        "C5-held-priority",
+        "C5-target-jump"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C5-tie-source-order",
+          "matrix_class": "多目标/同分",
+          "description": "每帧两框同分 0.90（fist order=5、palm order=2）：同分按 source_order 权威解析 → 选中 palm（order 2），稳定后动作为 UI_STATS；记录 S_CONFLICT_RESOLVED。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C5-tie-source-order.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C5-held-priority",
+          "matrix_class": "多目标/维持优先",
+          "description": "当前 fist 0.40（≥T6-P02）持续成立，另有 palm 0.95 异类高分框：按 B03 维持 fist（记录 S_TARGET_HELD），稳定后动作仍是 UI_MENU。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C5-held-priority.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C5-target-jump",
+          "matrix_class": "多目标/目标跳变",
+          "description": "第 1–3 帧 fist，第 4 帧起换成远处 palm：切换结束当前获取并清空窗口证据，新目标重新累积 6 帧 → 第 9 帧 M3、第 10 帧触发 UI_STATS。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 800000000,
+            "submitted_at_frames": [
+              10
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 800000000,
+            "submitted_at_frames": [
+              10
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            },
+            {
+              "frame_id": 9,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 800000000
+            },
+            {
+              "frame_id": 10,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 900000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C5-target-jump.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "NO_HAND / 场景未知 / 低分",
+      "cases": [
+        "C6-no-hand-unknown-lowscore",
+        "C6b-no-hand-with-detections"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C6-no-hand-unknown-lowscore",
+          "matrix_class": "NO_HAND / 未知类 / 低分",
+          "description": "4 帧 NO_HAND（合法零框）+ 1 帧 class_id=5（E_FRAME_INVALID，单独计 unknown_class_frames）+ 3 帧低分（<T6-P01）：全部不触发，分区计数不混用。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": []
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": []
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C6-no-hand-unknown-lowscore.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C6b-no-hand-with-detections",
+          "matrix_class": "NO_HAND / 未知类 / 低分",
+          "description": "state=NO_HAND 却携带 detections（§11.3 非法输入）：计 E_FRAME_INVALID 并丢弃该帧证据，**不**计入 no_hand_frames；2 帧未达异常窗口阈值（W=3）→ 不进入恢复态、无动作。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": []
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": []
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C6b-no-hand-with-detections.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "TIMEOUT / ERROR / DROPPED / stale",
+      "cases": [
+        "C7-timeout-error-dropped-stale"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C7-timeout-error-dropped-stale",
+          "matrix_class": "TIMEOUT / ERROR / DROPPED / stale",
+          "description": "3 个异常帧（TIMEOUT/ERROR/DROPPED）达 T6-U00 阈值 → M2→UNKNOWN_RECOVER 并清空目标；stale 帧不触发不计窗口；随后 5 帧合法结果 → M12→IDLE。全程无动作。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "M2",
+              "M12"
+            ]
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "M2",
+              "M12"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_TIMEOUT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_ERROR",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_DROPPED",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            },
+            {
+              "frame_id": 9,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 800000000
+            },
+            {
+              "frame_id": 10,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 900000000
+            },
+            {
+              "frame_id": 11,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 1000000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C7-timeout-error-dropped-stale.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "重复、倒序、缺帧、重启帧号",
+      "cases": [
+        "C8-duplicate-reorder-missing-restart"
+      ],
+      "status": "BLOCKED",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C8-duplicate-reorder-missing-restart",
+          "matrix_class": "重复 / 倒序 / 缺帧 / 重启帧号",
+          "description": "重复 frame_id 幂等丢弃；缺帧计 2；倒序计异常；session 变化 → 全量复位（RESET）并清空计数，不延续旧会话状态。全程无动作。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "RESET"
+            ]
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "RESET"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C8-duplicate-reorder-missing-restart.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ],
+      "row_complete_coverage": false,
+      "verified_subcases": [
+        "C8-duplicate-reorder-missing-restart：重复帧不重复计票、缺帧计数、倒序作为异常处理、session_id 变化输出 RESET 并清理旧会话状态；动作数为 0。"
+      ],
+      "blocked_subcases": [
+        {
+          "id": "B25-SAME-SESSION-LARGE-ROLLBACK",
+          "status": "BLOCKED",
+          "reason": "正式语义要求同会话 frame_id 大幅回退时复位，但未批准数值判据；现有实现按 B23 把同会话倒序作为 E_FRAME_OUT_OF_ORDER，不推断阈值。"
+        },
+        {
+          "id": "FRAME_ID_ROLLOVER-THRESHOLD",
+          "status": "BLOCKED",
+          "reason": "人类 S6-A 规格出现 0xFFFFFFFE 回绕边界，机器可读 JSON 没有与其一致的明确数值边界；本矩阵不推断或宣称验证该阈值。"
+        }
+      ],
+      "blocker_note": "会话变化 RESET 子案例通过；B25 同会话大回退及 frame_id 回绕阈值未决，故整行不通过。"
+    },
+    {
+      "runbook_row": "时间等于阈值、前后 1 个计时单位",
+      "cases": [
+        "C9c-30fps-later-of",
+        "C9-s01-equal",
+        "C9-s01-minus-1ns"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C9c-30fps-later-of",
+          "matrix_class": "低 FPS / 窗口完成取较晚",
+          "description": "30fps（P=33.3 ms，T6-S01=200 ms，T6-S02=6）：第 6 个 WINDOW_MATCH 帧只有 166.5 ms < 200 ms，按 T6-S03「取较晚」完成帧是第 8 帧（233.1 ms）→ 第 8 帧 M3、第 9 帧触发；若按旧口径（只数帧）会误判为第 6 帧完成。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 233100000,
+            "submitted_at_frames": [
+              9
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 233100000,
+            "submitted_at_frames": [
+              9
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 33300000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 66600000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 99900000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 133200000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 166500000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 199800000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 233100000
+            },
+            {
+              "frame_id": 9,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 266400000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C9c-30fps-later-of.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C9-s01-equal",
+          "matrix_class": "时间等于阈值",
+          "description": "周期 40 ms：第 6 个 WINDOW_MATCH 帧恰为 200 ms = T6-S01，含等号 → M3 在第 6 帧成立，第 7 帧触发。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 200000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 200000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 40000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 80000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 120000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 160000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 240000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C9-s01-equal.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C9-s01-minus-1ns",
+          "matrix_class": "时间阈值 −1 个计时单位",
+          "description": "第 6 帧落在 T6-S01−1 ns（199 999 999 ns）→ 帧数够但时长不足，不进入 STABLE；第 7 帧落在 T6-S01+1 ns → 成立；第 8 帧触发。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 200000001,
+            "submitted_at_frames": [
+              8
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 200000001,
+            "submitted_at_frames": [
+              8
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 40000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 80000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 120000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 160000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 199999999
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000001
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000001
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C9-s01-minus-1ns.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "无新结果但时间持续前进",
+      "cases": [
+        "C10-tick-time-advance"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C10-tick-time-advance",
+          "matrix_class": "无新结果但时间前进",
+          "description": "2 帧建立候选后只有时钟推进：距最近一次 TARGET_CONTINUES 成立达 T6-L02=300 ms → M10→LOST，下一 tick M11→IDLE；全程无动作。",
+          "expected": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "M10",
+              "M11"
+            ]
+          },
+          "actual": {
+            "final_state": "IDLE",
+            "action_submitted": 0,
+            "window_complete_ns": null,
+            "submitted_at_frames": [],
+            "transitions": [
+              "M1",
+              "M10",
+              "M11"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": null,
+              "kind": "E_TICK",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": null,
+              "kind": "E_TICK",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": null,
+              "kind": "E_TICK",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": null,
+              "kind": "E_TICK",
+              "t_input_ns": 500000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C10-tick-time-advance.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "runbook_row": "动作失败/未观察/重复ACK",
+      "cases": [
+        "C11-fail-then-success",
+        "C11-unobserved",
+        "C11-duplicate-ack"
+      ],
+      "status": "PASS",
+      "each_case_records_expected_state_action_time_actual_log_and_assertions": true,
+      "case_details": [
+        {
+          "case_id": "C11-fail-then-success",
+          "matrix_class": "动作失败 / 未观察",
+          "description": "第 1 次提交执行层返回 fail：不产生 ACTION_SUBMITTED、不更新冷却锚点、不计成功；下一窗口推进帧重新提交成功 → 恰好一次成功。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": null,
+            "submitted_at_frames": [
+              8
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              8
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C11-fail-then-success.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C11-unobserved",
+          "matrix_class": "动作未观察",
+          "description": "提交成功但未观察到生效：ACTION_SUBMITTED 计入、ACTION_EFFECTIVE 不计入、可见状态不变（H-8/B28）。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": null,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C11-unobserved.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        },
+        {
+          "case_id": "C11-duplicate-ack",
+          "matrix_class": "动作失败/未观察/重复 ACK",
+          "description": "复用已冻结的fist稳定输入与独立expected；在首次成功回执后重放同一ACK一次，重复回执不得重复提交、生效或迁移。",
+          "expected": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "actual": {
+            "final_state": "COOLDOWN",
+            "action_submitted": 1,
+            "window_complete_ns": 500000000,
+            "submitted_at_frames": [
+              7
+            ],
+            "transitions": [
+              "M1",
+              "M3",
+              "M5",
+              "M6"
+            ]
+          },
+          "fixed_virtual_input_times": [
+            {
+              "frame_id": 1,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 0
+            },
+            {
+              "frame_id": 2,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 100000000
+            },
+            {
+              "frame_id": 3,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 200000000
+            },
+            {
+              "frame_id": 4,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 300000000
+            },
+            {
+              "frame_id": 5,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 400000000
+            },
+            {
+              "frame_id": 6,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 500000000
+            },
+            {
+              "frame_id": 7,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 600000000
+            },
+            {
+              "frame_id": 8,
+              "kind": "E_FRAME_RESULT",
+              "t_input_ns": 700000000
+            }
+          ],
+          "actual_log_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r03/outputs/duplicate_ack_matrix/logs/C11-duplicate-ack.jsonl",
+          "assertions_failed": [],
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "case_records": [
+    {
+      "case_id": "C1-fist-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=0（fist）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_UI/UI_MENU。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-fist-stable.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C1-palm-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=1（palm）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_UI/UI_STATS。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-palm-stable.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C1-one-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=2（one）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_1。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-one-stable.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C1-two_up-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=3（two_up）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_2。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-two_up-stable.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C1-three-stable",
+      "matrix_class": "每类稳定输入",
+      "description": "class_id=4（three）连续 8 帧稳定：第 6 帧满足窗口（M3），第 7 帧触发（M5→M6），动作映射为 A_SWITCH_CHANNEL/CH_3。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C1-three-stable.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C2-hold-past-cooldown",
+      "matrix_class": "持续保持与冷却后保持",
+      "description": "保持 20 帧（2 s）：第 7 帧触发一次；冷却在 t_last_submit+T6-K01=1600 ms 结束，第 17 帧走 M9 维持态，不再触发（B15/§10）。",
+      "expected": {
+        "final_state": "STABLE",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M9"
+        ]
+      },
+      "actual": {
+        "final_state": "STABLE",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M9"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1000000000
+        },
+        {
+          "frame_id": 12,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1100000000
+        },
+        {
+          "frame_id": 13,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1200000000
+        },
+        {
+          "frame_id": 14,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1300000000
+        },
+        {
+          "frame_id": 15,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1400000000
+        },
+        {
+          "frame_id": 16,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1500000000
+        },
+        {
+          "frame_id": 17,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1600000000
+        },
+        {
+          "frame_id": 18,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1700000000
+        },
+        {
+          "frame_id": 19,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1800000000
+        },
+        {
+          "frame_id": 20,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1900000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C2-hold-past-cooldown.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C3-lost-then-reappear",
+      "matrix_class": "手离开再出现",
+      "description": "触发后手离开：第 8 帧仍为 OK（刷新 t_last_target_continues=700 ms），第 9–11 帧 NO_HAND 且第 11 帧距锚点满 T6-L02=300 ms → M10→LOST；第 12 帧先按丢失态走 M11→IDLE（清空目标与证据）；同目标自第 13 帧起重新累积窗口 → 第 18 帧 M3、第 19 帧第二次触发（新获取，门已结束）。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 2,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          19
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 2,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          19
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1000000000
+        },
+        {
+          "frame_id": 12,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1100000000
+        },
+        {
+          "frame_id": 13,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1200000000
+        },
+        {
+          "frame_id": 14,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1300000000
+        },
+        {
+          "frame_id": 15,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1400000000
+        },
+        {
+          "frame_id": 16,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1500000000
+        },
+        {
+          "frame_id": 17,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1600000000
+        },
+        {
+          "frame_id": 18,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1700000000
+        },
+        {
+          "frame_id": 19,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1800000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C3-lost-then-reappear.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C4-jitter-reset",
+      "matrix_class": "短暂抖动",
+      "description": "5 帧稳定后连续 2 帧 score<P02：第 1 帧容忍（≤T6-J01），第 2 帧重置窗口；候选停留已达 T6-S04=500 ms → M4→IDLE，不触发。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "M4"
+        ]
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "M4"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C4-jitter-reset.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C4-quick-switch",
+      "matrix_class": "两类快速切换",
+      "description": "fist/palm 逐帧交替：每帧都是目标切换（TARGET_CONTINUES 不成立），连续同目标帧数达不到 T6-C01=2 → 不进入 CANDIDATE、不触发。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": []
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": []
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C4-quick-switch.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C5-tie-source-order",
+      "matrix_class": "多目标/同分",
+      "description": "每帧两框同分 0.90（fist order=5、palm order=2）：同分按 source_order 权威解析 → 选中 palm（order 2），稳定后动作为 UI_STATS；记录 S_CONFLICT_RESOLVED。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C5-tie-source-order.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C5-held-priority",
+      "matrix_class": "多目标/维持优先",
+      "description": "当前 fist 0.40（≥T6-P02）持续成立，另有 palm 0.95 异类高分框：按 B03 维持 fist（记录 S_TARGET_HELD），稳定后动作仍是 UI_MENU。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C5-held-priority.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C5-target-jump",
+      "matrix_class": "多目标/目标跳变",
+      "description": "第 1–3 帧 fist，第 4 帧起换成远处 palm：切换结束当前获取并清空窗口证据，新目标重新累积 6 帧 → 第 9 帧 M3、第 10 帧触发 UI_STATS。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 800000000,
+        "submitted_at_frames": [
+          10
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 800000000,
+        "submitted_at_frames": [
+          10
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C5-target-jump.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C6-no-hand-unknown-lowscore",
+      "matrix_class": "NO_HAND / 未知类 / 低分",
+      "description": "4 帧 NO_HAND（合法零框）+ 1 帧 class_id=5（E_FRAME_INVALID，单独计 unknown_class_frames）+ 3 帧低分（<T6-P01）：全部不触发，分区计数不混用。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": []
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": []
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C6-no-hand-unknown-lowscore.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C6b-no-hand-with-detections",
+      "matrix_class": "NO_HAND / 未知类 / 低分",
+      "description": "state=NO_HAND 却携带 detections（§11.3 非法输入）：计 E_FRAME_INVALID 并丢弃该帧证据，**不**计入 no_hand_frames；2 帧未达异常窗口阈值（W=3）→ 不进入恢复态、无动作。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": []
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": []
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C6b-no-hand-with-detections.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C7-timeout-error-dropped-stale",
+      "matrix_class": "TIMEOUT / ERROR / DROPPED / stale",
+      "description": "3 个异常帧（TIMEOUT/ERROR/DROPPED）达 T6-U00 阈值 → M2→UNKNOWN_RECOVER 并清空目标；stale 帧不触发不计窗口；随后 5 帧合法结果 → M12→IDLE。全程无动作。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "M2",
+          "M12"
+        ]
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "M2",
+          "M12"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_TIMEOUT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_ERROR",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_DROPPED",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1000000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C7-timeout-error-dropped-stale.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C8-duplicate-reorder-missing-restart",
+      "matrix_class": "重复 / 倒序 / 缺帧 / 重启帧号",
+      "description": "重复 frame_id 幂等丢弃；缺帧计 2；倒序计异常；session 变化 → 全量复位（RESET）并清空计数，不延续旧会话状态。全程无动作。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "RESET"
+        ]
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "RESET"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C8-duplicate-reorder-missing-restart.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C9c-30fps-later-of",
+      "matrix_class": "低 FPS / 窗口完成取较晚",
+      "description": "30fps（P=33.3 ms，T6-S01=200 ms，T6-S02=6）：第 6 个 WINDOW_MATCH 帧只有 166.5 ms < 200 ms，按 T6-S03「取较晚」完成帧是第 8 帧（233.1 ms）→ 第 8 帧 M3、第 9 帧触发；若按旧口径（只数帧）会误判为第 6 帧完成。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 233100000,
+        "submitted_at_frames": [
+          9
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 233100000,
+        "submitted_at_frames": [
+          9
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 33300000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 66600000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 99900000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 133200000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 166500000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 199800000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 233100000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 266400000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C9c-30fps-later-of.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C9-s01-equal",
+      "matrix_class": "时间等于阈值",
+      "description": "周期 40 ms：第 6 个 WINDOW_MATCH 帧恰为 200 ms = T6-S01，含等号 → M3 在第 6 帧成立，第 7 帧触发。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 200000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 200000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 40000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 80000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 120000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 160000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 240000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C9-s01-equal.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C9-s01-minus-1ns",
+      "matrix_class": "时间阈值 −1 个计时单位",
+      "description": "第 6 帧落在 T6-S01−1 ns（199 999 999 ns）→ 帧数够但时长不足，不进入 STABLE；第 7 帧落在 T6-S01+1 ns → 成立；第 8 帧触发。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 200000001,
+        "submitted_at_frames": [
+          8
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 200000001,
+        "submitted_at_frames": [
+          8
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 40000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 80000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 120000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 160000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 199999999
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000001
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000001
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C9-s01-minus-1ns.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C10-tick-time-advance",
+      "matrix_class": "无新结果但时间前进",
+      "description": "2 帧建立候选后只有时钟推进：距最近一次 TARGET_CONTINUES 成立达 T6-L02=300 ms → M10→LOST，下一 tick M11→IDLE；全程无动作。",
+      "expected": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "M10",
+          "M11"
+        ]
+      },
+      "actual": {
+        "final_state": "IDLE",
+        "action_submitted": 0,
+        "window_complete_ns": null,
+        "submitted_at_frames": [],
+        "transitions": [
+          "M1",
+          "M10",
+          "M11"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": null,
+          "kind": "E_TICK",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": null,
+          "kind": "E_TICK",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": null,
+          "kind": "E_TICK",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": null,
+          "kind": "E_TICK",
+          "t_input_ns": 500000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C10-tick-time-advance.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C11-fail-then-success",
+      "matrix_class": "动作失败 / 未观察",
+      "description": "第 1 次提交执行层返回 fail：不产生 ACTION_SUBMITTED、不更新冷却锚点、不计成功；下一窗口推进帧重新提交成功 → 恰好一次成功。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": null,
+        "submitted_at_frames": [
+          8
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          8
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C11-fail-then-success.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C11-unobserved",
+      "matrix_class": "动作未观察",
+      "description": "提交成功但未观察到生效：ACTION_SUBMITTED 计入、ACTION_EFFECTIVE 不计入、可见状态不变（H-8/B28）。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": null,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C11-unobserved.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C11-global-gate-second-acquisition",
+      "matrix_class": "冷却后保持 / 全局冷却门",
+      "description": "第 12 帧触发（t_submit=220 ms）；目标丢失后重获并再次满足窗口（第 29 帧 M3），但 t_now−t_submit=360 ms < T6-K01=1000 ms → M5 被 H-10 抑制（S_COOLDOWN），全程只提交一次。",
+      "expected": {
+        "final_state": "STABLE",
+        "action_submitted": 1,
+        "window_complete_ns": 200000000,
+        "submitted_at_frames": [
+          12
+        ],
+        "transitions": null
+      },
+      "actual": {
+        "final_state": "STABLE",
+        "action_submitted": 1,
+        "window_complete_ns": 200000000,
+        "submitted_at_frames": [
+          12
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 20000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 40000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 60000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 80000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 120000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 140000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 160000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 180000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 12,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 220000000
+        },
+        {
+          "frame_id": 13,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 240000000
+        },
+        {
+          "frame_id": 14,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 260000000
+        },
+        {
+          "frame_id": 15,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 280000000
+        },
+        {
+          "frame_id": 16,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 17,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 320000000
+        },
+        {
+          "frame_id": 18,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 340000000
+        },
+        {
+          "frame_id": 19,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 340000000
+        },
+        {
+          "frame_id": 20,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 360000000
+        },
+        {
+          "frame_id": 21,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 380000000
+        },
+        {
+          "frame_id": 22,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 23,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 420000000
+        },
+        {
+          "frame_id": 24,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 440000000
+        },
+        {
+          "frame_id": 25,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 460000000
+        },
+        {
+          "frame_id": 26,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 480000000
+        },
+        {
+          "frame_id": 27,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 28,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 520000000
+        },
+        {
+          "frame_id": 29,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 540000000
+        },
+        {
+          "frame_id": 30,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 560000000
+        },
+        {
+          "frame_id": 31,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 580000000
+        },
+        {
+          "frame_id": 32,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C11-global-gate-second-acquisition.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C12-m8-two-acquisitions",
+      "matrix_class": "id 生命周期",
+      "description": "BLK-r03-1：M8（COOLDOWN 结束且目标缺失、M10 未先命中）结束一次获取并分配新 acquisition_id；该路径两次触发应得 [0,1]。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 2,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          28
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M8",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 2,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          28
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M8",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1000000000
+        },
+        {
+          "frame_id": 12,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1100000000
+        },
+        {
+          "frame_id": 13,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1200000000
+        },
+        {
+          "frame_id": 14,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1300000000
+        },
+        {
+          "frame_id": 15,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1400000000
+        },
+        {
+          "frame_id": 16,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1500000000
+        },
+        {
+          "frame_id": 17,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1600000000
+        },
+        {
+          "frame_id": 18,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1700000000
+        },
+        {
+          "frame_id": 19,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1800000000
+        },
+        {
+          "frame_id": 20,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1900000000
+        },
+        {
+          "frame_id": 21,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2000000000
+        },
+        {
+          "frame_id": 22,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2100000000
+        },
+        {
+          "frame_id": 23,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2200000000
+        },
+        {
+          "frame_id": 24,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2300000000
+        },
+        {
+          "frame_id": 25,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2400000000
+        },
+        {
+          "frame_id": 26,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2500000000
+        },
+        {
+          "frame_id": 27,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2600000000
+        },
+        {
+          "frame_id": 28,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2700000000
+        },
+        {
+          "frame_id": 29,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2800000000
+        },
+        {
+          "frame_id": 30,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2900000000
+        },
+        {
+          "frame_id": 31,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3000000000
+        },
+        {
+          "frame_id": 32,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3100000000
+        },
+        {
+          "frame_id": 33,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3200000000
+        },
+        {
+          "frame_id": 34,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3300000000
+        },
+        {
+          "frame_id": 35,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3400000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C12-m8-two-acquisitions.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C12-m2-m12-new-target",
+      "matrix_class": "id 生命周期",
+      "description": "BLK-r03-1：M5→M2（恢复态）→M12（恢复出口）→新目标→M5 必须使用新的 acquisition_id（两个出口各分配一次）。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 2,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          27
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M2",
+          "M12",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 2,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          27
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M2",
+          "M12",
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1000000000
+        },
+        {
+          "frame_id": 12,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1100000000
+        },
+        {
+          "frame_id": 13,
+          "kind": "E_FRAME_TIMEOUT",
+          "t_input_ns": 1200000000
+        },
+        {
+          "frame_id": 14,
+          "kind": "E_FRAME_ERROR",
+          "t_input_ns": 1300000000
+        },
+        {
+          "frame_id": 15,
+          "kind": "E_FRAME_DROPPED",
+          "t_input_ns": 1400000000
+        },
+        {
+          "frame_id": 16,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1500000000
+        },
+        {
+          "frame_id": 17,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1600000000
+        },
+        {
+          "frame_id": 18,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1700000000
+        },
+        {
+          "frame_id": 19,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1800000000
+        },
+        {
+          "frame_id": 20,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1900000000
+        },
+        {
+          "frame_id": 21,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2000000000
+        },
+        {
+          "frame_id": 22,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2000000000
+        },
+        {
+          "frame_id": 23,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2100000000
+        },
+        {
+          "frame_id": 24,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2200000000
+        },
+        {
+          "frame_id": 25,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2300000000
+        },
+        {
+          "frame_id": 26,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2400000000
+        },
+        {
+          "frame_id": 27,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2500000000
+        },
+        {
+          "frame_id": 28,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2600000000
+        },
+        {
+          "frame_id": 29,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2700000000
+        },
+        {
+          "frame_id": 30,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2800000000
+        },
+        {
+          "frame_id": 31,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2900000000
+        },
+        {
+          "frame_id": 32,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3000000000
+        },
+        {
+          "frame_id": 33,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3100000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C12-m2-m12-new-target.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C12-gate-reopen-new-acquisition",
+      "matrix_class": "id 生命周期",
+      "description": "BLK-r03-1：三段获取（首触发 → M8 结束 → 再触发 → M10/M11 结束 → 再触发）的 acquisition_id 必须逐段独立，不得复用。",
+      "expected": {
+        "final_state": "STABLE",
+        "action_submitted": 3,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          28,
+          48
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M8",
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M9"
+        ]
+      },
+      "actual": {
+        "final_state": "STABLE",
+        "action_submitted": 3,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7,
+          28,
+          48
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M8",
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M10",
+          "M11",
+          "M1",
+          "M3",
+          "M5",
+          "M6",
+          "M9"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        },
+        {
+          "frame_id": 9,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 800000000
+        },
+        {
+          "frame_id": 10,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 900000000
+        },
+        {
+          "frame_id": 11,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1000000000
+        },
+        {
+          "frame_id": 12,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1100000000
+        },
+        {
+          "frame_id": 13,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1200000000
+        },
+        {
+          "frame_id": 14,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1300000000
+        },
+        {
+          "frame_id": 15,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1400000000
+        },
+        {
+          "frame_id": 16,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1500000000
+        },
+        {
+          "frame_id": 17,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1600000000
+        },
+        {
+          "frame_id": 18,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1700000000
+        },
+        {
+          "frame_id": 19,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1800000000
+        },
+        {
+          "frame_id": 20,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 1900000000
+        },
+        {
+          "frame_id": 21,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2000000000
+        },
+        {
+          "frame_id": 22,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2100000000
+        },
+        {
+          "frame_id": 23,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2200000000
+        },
+        {
+          "frame_id": 24,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2300000000
+        },
+        {
+          "frame_id": 25,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2400000000
+        },
+        {
+          "frame_id": 26,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2500000000
+        },
+        {
+          "frame_id": 27,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2600000000
+        },
+        {
+          "frame_id": 28,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2700000000
+        },
+        {
+          "frame_id": 29,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2800000000
+        },
+        {
+          "frame_id": 30,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 2900000000
+        },
+        {
+          "frame_id": 31,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3000000000
+        },
+        {
+          "frame_id": 32,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3100000000
+        },
+        {
+          "frame_id": 33,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3200000000
+        },
+        {
+          "frame_id": 34,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3300000000
+        },
+        {
+          "frame_id": 35,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3400000000
+        },
+        {
+          "frame_id": 36,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3500000000
+        },
+        {
+          "frame_id": 37,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3600000000
+        },
+        {
+          "frame_id": 38,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3700000000
+        },
+        {
+          "frame_id": 39,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3800000000
+        },
+        {
+          "frame_id": 40,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 3900000000
+        },
+        {
+          "frame_id": 41,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4000000000
+        },
+        {
+          "frame_id": 42,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4100000000
+        },
+        {
+          "frame_id": 43,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4200000000
+        },
+        {
+          "frame_id": 44,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4300000000
+        },
+        {
+          "frame_id": 45,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4400000000
+        },
+        {
+          "frame_id": 46,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4500000000
+        },
+        {
+          "frame_id": 47,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4600000000
+        },
+        {
+          "frame_id": 48,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4700000000
+        },
+        {
+          "frame_id": 49,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4800000000
+        },
+        {
+          "frame_id": 50,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 4900000000
+        },
+        {
+          "frame_id": 51,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5000000000
+        },
+        {
+          "frame_id": 52,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5100000000
+        },
+        {
+          "frame_id": 53,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5200000000
+        },
+        {
+          "frame_id": 54,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5300000000
+        },
+        {
+          "frame_id": 55,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5400000000
+        },
+        {
+          "frame_id": 56,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5500000000
+        },
+        {
+          "frame_id": 57,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5600000000
+        },
+        {
+          "frame_id": 58,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5700000000
+        },
+        {
+          "frame_id": 59,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 5800000000
+        }
+      ],
+      "actual_log_path": "report/evidence/S6-B/s6b_current_20261029_r08/matrix_source_r03/logs/C12-gate-reopen-new-acquisition.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    },
+    {
+      "case_id": "C11-duplicate-ack",
+      "matrix_class": "动作失败/未观察/重复 ACK",
+      "description": "复用已冻结的fist稳定输入与独立expected；在首次成功回执后重放同一ACK一次，重复回执不得重复提交、生效或迁移。",
+      "expected": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "actual": {
+        "final_state": "COOLDOWN",
+        "action_submitted": 1,
+        "window_complete_ns": 500000000,
+        "submitted_at_frames": [
+          7
+        ],
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ]
+      },
+      "fixed_virtual_input_times": [
+        {
+          "frame_id": 1,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 0
+        },
+        {
+          "frame_id": 2,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 100000000
+        },
+        {
+          "frame_id": 3,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 200000000
+        },
+        {
+          "frame_id": 4,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 300000000
+        },
+        {
+          "frame_id": 5,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 400000000
+        },
+        {
+          "frame_id": 6,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 500000000
+        },
+        {
+          "frame_id": 7,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 600000000
+        },
+        {
+          "frame_id": 8,
+          "kind": "E_FRAME_RESULT",
+          "t_input_ns": 700000000
+        }
+      ],
+      "actual_log_path": "outputs/duplicate_ack_matrix/logs/C11-duplicate-ack.jsonl",
+      "assertions_failed": [],
+      "status": "PASS"
+    }
+  ],
+  "approved_decisions": {
+    "U6-02": "s6a_u6_02_decision_20261025_r07；保持一次触发，重获/切换需再次满足稳定窗且全局冷却门已开。",
+    "B22": "Wong在本对话批准按业务结果字段比较；接收时刻/传输上下文不冲突，业务状态/检测/错误变化冲突。"
+  },
+  "coverage_verdict": "BLOCKED",
+  "scope_note": "S6-B r08 的 26 个既有冻结案例及其日志按当前核心哈希匹配后消费；本 RunId 重新运行 C11 duplicate-ACK 单案例。11 行矩阵中 10 行完整 PASS，行8 的 session-change/duplicate/reorder/missing 子案例 PASS，但 B25 与回绕边界未闭合，整体 BLOCKED。不得据此声称摄像头、板级 G3、阶段4/5真实集成、6-E、G4 或 G5 通过。",
+  "full_pass_rows": 10,
+  "blocked_rows": [
+    {
+      "row": "重复、倒序、缺帧、重启帧号",
+      "status": "BLOCKED",
+      "reason": "B25 同会话大回退判据和 frame_id 回绕数值边界未决。"
+    }
+  ]
+}

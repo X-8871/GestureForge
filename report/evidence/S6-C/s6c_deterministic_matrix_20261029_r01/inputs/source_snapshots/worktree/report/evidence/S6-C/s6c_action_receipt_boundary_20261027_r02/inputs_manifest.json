@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-C",
+  "run_id": "s6c_action_receipt_boundary_20261027_r02",
+  "source_commit": "2cd8bc9a7fa158a86bde35bb60af8f056d134feb",
+  "evidence_dir": "report/evidence/S6-C/s6c_action_receipt_boundary_20261027_r02",
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "源码和输入按本轮验证时 w6 工作树磁盘字节绑定；源码未提交，不声称属于 source_commit 的 Git blob。",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅适配阶段6内部 GestureInteractionCore.note_action_ack() 当前实现；未消费或定义未冻结的阶段4/5真实接口。",
+  "files": [
+    {
+      "path": "src/stage6/s6_receipts.py",
+      "sha256": "3a14f04624fe828b2128105bfc92a8a4ac06539c13d41acb06b512dd05dfe5b1",
+      "role": "source",
+      "keep_reason": "本轮 S6-C ACK 边界适配实现。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "verification/test_s6c_receipt_boundary.py",
+      "sha256": "d5f366d96494f1d0903101cca65485d0d816ec0668bc6d5b5c3d72493da8c937",
+      "role": "source",
+      "keep_reason": "本轮 S6-C ACK 边界与旁路 fail-closed 离线测试。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "b75948f504fbf732958b16b14bb892de1865bd4defa97dc704bbb8dbf64ad9bc",
+      "role": "input",
+      "keep_reason": "当前 note_action_ack、reset_session 和 E_TICK 行为输入；本轮未修改。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_params.py",
+      "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+      "role": "input",
+      "keep_reason": "离线回归实际使用的 ParamPack 实现；本轮未修改。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "role": "input",
+      "keep_reason": "离线测试加载的阶段6行为参数 JSON；以本轮工作树磁盘字节绑定。",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "role": "input",
+      "keep_reason": "S6-A 现行行为规格只读依据；已有差异未由本轮改写。",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "checks": [
+    {
+      "name": "S6-C 回执边界与 S6-B 核心离线回归",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary verification.test_s6b_core_regressions -v",
+      "exit_code": 0,
+      "reason": "本包源码最终快照 45/45 通过；仅为离线合成 ACK 验证。"
+    }
+  ],
+  "limitations": [
+    "阶段4实时输入和时间契约、阶段5显示/观测及真实动作后端接口未冻结；真实集成不在本包范围内且保持 BLOCKED。",
+    "核心公开方法仍可被其他调用方直接调用；本边界检测串行旁路并在调用前后核验，但不能在没有核心共享锁的前提下保证与并发旁路互斥或回滚。",
+    "S6-A 行为规格和参数 JSON 在本轮开始前已有工作树差异；按 worktree_disk 绑定消费内容，本轮未修改。"
+  ]
+}

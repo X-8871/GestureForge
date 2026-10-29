@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_decision_20261025_r07",
+  "decision_id": "U6-02",
+  "recorded_on_utc8": "2026-10-25",
+  "decision_status": "APPROVED_20261025",
+  "approval_source": "Wong 在当前任务中的明确回复",
+  "approval_text": "批准当前语义（推荐）",
+  "approved_semantics": [
+    "确认并批准 §10 当前定义：在一个获取区间内，无论目标保持多久、冷却是否结束或窗口是否再次满足，恰好产生一次 ACTION_SUBMITTED。",
+    "只有以下任一新获取重新满足稳定窗口，且提交时全局冷却门已结束，才允许产生下一次 ACTION_SUBMITTED：(a) 目标丢失确认后重新获取该目标并再次满足 §9 稳定窗口；(b) 切换到另一合法目标并满足 §9 稳定窗口。提交时须满足 t_now − t_last_submit ≥ T6-K01。",
+    "目标持续保持、保持期间稳定窗口再次满足或冷却结束本身都不构成新的获取，也不产生重复提交。"
+  ],
+  "scope": "只确认 S6A §10 已声明的 U6-02 行为，不改写状态机或行为定义，不批准其他参数或阶段门。",
+  "supersedes_record": {
+    "run_id": "s6a_u6_02_decision_20261025_r05",
+    "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r05/decision_receipt.json",
+    "reason": "第二轮独立复审指出旧回执没有明确说明丢失确认后重获必须再次满足稳定窗口；本记录补齐 §9 的稳定窗口条件，并保留 r05 原始记录。"
+  },
+  "not_approved_or_not_claimed": [
+    "此项决定不代表阶段6 G0 或 G5 通过。",
+    "T6-A03 实测数值仍为 NOT_RUN，等待阶段4 实测帧周期 P。",
+    "阶段4/5 接口冻结、6-D 集成、6-E 回放/实物验收状态不因本决定改变。",
+    "本决定不授予板卡、JTAG、COM4、摄像头或 HDMI 操作权限。"
+  ]
+}

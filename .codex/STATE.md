@@ -1,5 +1,11 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## S6-C 离线矩阵进行中（2026-10-29，UTC+8）
+
+- 本轮新增 K01 冷却阈值前 1 ns、等于和后 1 ns 回归；独立复审单项 PASS。`report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/` 记录 40 项 S6-B、17 项回执单测和 C11 重复 ACK 回放退出 0；独立复跑 C11 PASS，先验 expected 以 r02 的较早冻结记录为依据。
+- S6-C 整体未通过：`report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/` 输入及 hash-basis 检查退出 0，但 evidence/closing 因 BLOCKED 项空命令字段退出 2；固定点未闭合，不能当完整交付。r01–r06 保留，r05 封包筛选重复帧错误。历史矩阵绑定的行为 JSON 哈希 `f44bd3…` 与当前 `dc1808…` 的可复核版本对应尚未建立，不声称语义等价。
+- B25 同会话大回退判据和 0xFFFFFFFE 回绕表述仍待决，第 8 行及整体矩阵 BLOCKED；其余行的本轮汇总仅供后续复审，不代表 G4/G5。r04–r06 含 Windows 默认路径长度限制下无法检出的深层副本，恢复须先配置 Git 的 core.longpaths=true；后续从 r04 原始日志、r06 失败检查及固定上游版本恢复，先闭合规格版本与封包问题，再重新独立审查；暂不上板。
+
 ## S6-B 离线核心核验（2026-10-29，UTC+8）
 
 - `report/evidence/S6-B/s6b_current_20261029_r08/` 绑定当前核心、测试、U6-02 r07 回执及阶段4离线冻结契约；frame_id 的 uint32 类型与范围在状态变化前校验。39 项回归、26 条矩阵、4 项探针及证据哈希检查通过；独立复审对本轮离线核心变更 PASS。r01–r05 和未运行的 r07 保留，r04/r05 包装失败不得当作交付通过。

@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-C",
+  "run_id": "s6c_deterministic_matrix_20261029_r06",
+  "source_commit": "52dc7618153eed61f49f4bca116755dde7a56ac4",
+  "branch": "stage6-interact-prep",
+  "started_at_utc8": "2026-10-29T15:47:02+08:00",
+  "builder_script_sha256": "5ee0e757a35d631d4bdf1db7b135c4d69ccf1cb337c22ab1e7a6f0c0433c43cd",
+  "hardware_access": "NOT_USED",
+  "test_execution_policy": "r04 真实命令输出为只读固定输入；本 RunId 不复跑单元/集成测试。",
+  "packaging_invocations": [
+    {
+      "stage": "prepare",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r06\\scripts\\build_s6c_bundle.py --stage prepare",
+      "exit_code": 0
+    },
+    {
+      "stage": "checks",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r06\\scripts\\build_s6c_bundle.py --stage checks",
+      "exit_code": 1
+    }
+  ],
+  "status": "FAILED_CHECKS",
+  "bound_r04_commands": [
+    {
+      "name": "S6-B regression unittest",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest discover -s verification -p test_s6b_*.py -v",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "source_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/s6b_unittest.log",
+      "source_output_sha256": "797a811cc2fe726a5b758611a25c0574af77669367c322eb6ee217df685079ee",
+      "copied_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/inputs/r04_preflight/outputs/s6b_unittest.log",
+      "copied_output_sha256": "797a811cc2fe726a5b758611a25c0574af77669367c322eb6ee217df685079ee"
+    },
+    {
+      "name": "S6-C receipt boundary unittest",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary -v",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "source_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/s6c_receipt_unittest.log",
+      "source_output_sha256": "0474c782a9eff1e63effb6af8051ce5740da4fb726eb46dbb0cc0ce6e7baab34",
+      "copied_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/inputs/r04_preflight/outputs/s6c_receipt_unittest.log",
+      "copied_output_sha256": "0474c782a9eff1e63effb6af8051ce5740da4fb726eb46dbb0cc0ce6e7baab34"
+    },
+    {
+      "name": "git diff check",
+      "command": "git diff --check -- verification/test_s6b_core_regressions.py",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "source_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/git_diff_check.log",
+      "source_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/inputs/r04_preflight/outputs/git_diff_check.log",
+      "copied_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "C11 expected freeze",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/duplicate_ack_matrix --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r04\\inputs\\C11_duplicate_ack_case.json --freeze-only",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "source_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/c11_duplicate_ack_freeze.log",
+      "source_output_sha256": "a2358d3ba29fa1b43fac0e9ef894fc973e987b64f3a81327aac438222f9ce4ef",
+      "copied_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/inputs/r04_preflight/outputs/c11_duplicate_ack_freeze.log",
+      "copied_output_sha256": "a2358d3ba29fa1b43fac0e9ef894fc973e987b64f3a81327aac438222f9ce4ef"
+    },
+    {
+      "name": "C11 duplicate ACK replay",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/duplicate_ack_matrix --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r04\\inputs\\C11_duplicate_ack_case.json",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "source_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r04/outputs/c11_duplicate_ack_replay.log",
+      "source_output_sha256": "ab22c079a425016fb1a1061a0d9d38fea8a2ecbde4993cc036c5d82d6f0c9a1a",
+      "copied_output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/inputs/r04_preflight/outputs/c11_duplicate_ack_replay.log",
+      "copied_output_sha256": "ab22c079a425016fb1a1061a0d9d38fea8a2ecbde4993cc036c5d82d6f0c9a1a"
+    }
+  ],
+  "r04_run_id": "s6c_deterministic_matrix_20261029_r04",
+  "r04_test_counts": {
+    "S6-B": 40,
+    "S6-C_receipt_boundary": 17,
+    "C11_duplicate_ack": 1
+  },
+  "r04_c11_result": {
+    "status": "PASS",
+    "assertions_failed": 0,
+    "duplicate_ack_ignored": true,
+    "action_submitted": 1,
+    "action_effective": 1
+  },
+  "source_bindings": {
+    "source_commit": "52dc7618153eed61f49f4bca116755dde7a56ac4",
+    "branch": "stage6-interact-prep",
+    "current_worktree_files": [
+      {
+        "path": "src/stage6/s6_core.py",
+        "sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "src/stage6/s6_actions.py",
+        "sha256": "0a3d7ad38252a01654ff0e7e92be8e1349317fec856dcea6c80c51b33f2eb8fa",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "src/stage6/s6_params.py",
+        "sha256": "5da6f864eeb6ba08c9de3405782ce5a2bd0263af9ecc1a5919155989fa49c5db",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "src/stage6/s6_receipts.py",
+        "sha256": "3a14f04624fe828b2128105bfc92a8a4ac06539c13d41acb06b512dd05dfe5b1",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "verification/s6b_run_cases.py",
+        "sha256": "4e6d0dbb4e7a6f654dfd7ba75cff7cb9c47a7d3517091fec01a39d3c687e016c",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "verification/test_s6b_core_regressions.py",
+        "sha256": "63cdb40865f257d9941fdbf83abbca1ed3c8be0575b2f0bf903de0a7349f73c0",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "verification/test_s6b_probe.py",
+        "sha256": "f8418b8109b9dc1d9319b3d3f9472e9435e2a9a1697a3c0bc30b09580d4d6b83",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "verification/test_s6b_build_evidence.py",
+        "sha256": "3b43f3f72a0412ea4b8ab425fd7839a67f50741d7c67b34b35bab6fccebc59ac",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "verification/test_s6c_receipt_boundary.py",
+        "sha256": "d5f366d96494f1d0903101cca65485d0d816ec0668bc6d5b5c3d72493da8c937",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+        "sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+        "sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "docs/stage6/s6b_frozen_interface_v1.json",
+        "sha256": "9f527c0567537a7457a31796cfde81674993664422947bc00b7ecd91cfcb7c60",
+        "hash_basis": "worktree_disk"
+      },
+      {
+        "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json",
+        "sha256": "f8b2cde23f11e132b7df62a7e60df6f6a5d560cf4b7d9a4efd464462b2ba7394",
+        "hash_basis": "worktree_disk"
+      }
+    ],
+    "head_blob_test_sha256": "8c37e67b30cbad770249f0f0664dc328250c63f060b6ccfe67e19186b04781c3",
+    "current_core_sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+    "current_test_sha256": "63cdb40865f257d9941fdbf83abbca1ed3c8be0575b2f0bf903de0a7349f73c0",
+    "historical_r08": {
+      "run_id": "s6b_current_20261029_r08",
+      "source_commit": "e735a5afb5b474793408ec1e61da111006c70e60",
+      "source_run_id": "s6b_current_20261029_r03",
+      "matrix_case_count": 26,
+      "matrix_status": "PASS",
+      "core_sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+      "historical_test_sha256": "8c37e67b30cbad770249f0f0664dc328250c63f060b6ccfe67e19186b04781c3",
+      "current_HEAD_test_blob_matches_historical": true
+    }
+  },
+  "matrix_status": "BLOCKED",
+  "matrix_case_count": 26,
+  "supplemental_case_count": 1,
+  "matrix_checks": {
+    "formal_rows": 11,
+    "pass": 10,
+    "blocked": [
+      8
+    ],
+    "overall": "BLOCKED"
+  },
+  "prepared_at_utc8": "2026-10-29T15:47:03+08:00",
+  "package_checks": {
+    "inputs": {
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r06\\inputs_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/outputs/check_inputs_mode_output.txt",
+      "output_sha256": "a4529651c9482c8856316b15b8322545e6a2d026341ae83f05ff73b20bc186a7"
+    },
+    "evidence": {
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r06\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 2,
+      "output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/outputs/check_evidence_mode_output.txt",
+      "output_sha256": "e77a9cbdbd802ca1786e2b1a6585c294f1e3ea583fbafb55e7e7312685c62f54"
+    },
+    "hash_basis": {
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6 --paths report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/inputs_manifest.json --paths report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/delivery_manifest.json --mode strict --json",
+      "exit_code": 0,
+      "output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/outputs/check_hash_basis_output.txt",
+      "output_sha256": "990e111b307960bc7c4f5019f49bb6dbf093b0047eeb956a2459b9574a465f6a"
+    },
+    "evidence_closing": {
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261029_r06\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 2,
+      "output_path": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/outputs/check_closing_evidence_mode_output.txt",
+      "output_sha256": "e77a9cbdbd802ca1786e2b1a6585c294f1e3ea583fbafb55e7e7312685c62f54"
+    }
+  },
+  "prepare_builder_script_sha256": "5ee0e757a35d631d4bdf1db7b135c4d69ccf1cb337c22ab1e7a6f0c0433c43cd",
+  "checks_builder_script_sha256": "38339105c40d5a5068b45df15a9dbff8a0ae380925df17a44d140a9119d2ffd2",
+  "prepare_builder_script_snapshot": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/scripts/build_s6c_bundle_prepare.py",
+  "failure_log": "report/evidence/S6-C/s6c_deterministic_matrix_20261029_r06/outputs/package_checks_error.txt",
+  "failure_sha256": "687447c729f5fde351772ebacef100bdddf57d908e4725a1545bdf898b18bf32",
+  "failed_at_utc8": "2026-10-29T15:53:00+08:00"
+}

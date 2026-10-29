@@ -413,8 +413,12 @@ class GestureInteractionCore:
         dropped_frames = 0
         if kind != EV_TICK:
             frame_id = event.get("frame_id")
-            if isinstance(frame_id, bool) or not isinstance(frame_id, int):
-                raise CoreInputError(f"frame_id 非法：{frame_id!r}")
+            # 阶段4共享契约 r07 将 frame_id 定义为 uint32；这是字段类型边界，不是行为参数。
+            if (isinstance(frame_id, bool) or not isinstance(frame_id, int)
+                    or not 0 <= frame_id <= 0xFFFFFFFF):
+                raise CoreInputError(
+                    f"frame_id 非法（需为 uint32）：{_safe_repr(frame_id)}"
+                )
             try:
                 dropped_frames = int(event.get("dropped_frames", 0))
             except (TypeError, ValueError, OverflowError) as exc:

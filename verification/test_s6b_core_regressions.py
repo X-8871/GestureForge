@@ -931,6 +931,33 @@ class S6BCoreRegressionTests(unittest.TestCase):
                 self.assertEqual(core.counters["invalid"], 1)
                 self.assertIsNone(core.current_target)
 
+    def test_frame_id_enforces_stage4_uint32_domain(self):
+        for frame_id in (0, 0xFFFFFFFE, 0xFFFFFFFF):
+            with self.subTest(frame_id=frame_id):
+                core = GestureInteractionCore(self.pack)
+                result = core.step(self._target_event(frame_id, 100, "current-session"))
+
+                self.assertEqual(result["log"]["input_state"], "OK")
+                self.assertEqual(core.last_frame_id, frame_id)
+                self.assertEqual(core.counters["invalid"], 0)
+
+        for label, frame_id in (
+            ("negative", -1),
+            ("past uint32 maximum", 0x1_0000_0000),
+            ("boolean", True),
+            ("float", 1.0),
+            ("huge integer", 10 ** 5000),
+        ):
+            with self.subTest(case=label):
+                core = GestureInteractionCore(self.pack)
+                core.step(self._target_event(1, 100, "current-session"))
+                before = self._step_snapshot(core)
+
+                with self.assertRaisesRegex(CoreInputError, "frame_id 非法（需为 uint32）"):
+                    core.step(self._target_event(frame_id, 101, "current-session"))
+
+                self.assertEqual(self._step_snapshot(core), before)
+
     def test_huge_score_duplicate_still_uses_b22_conflict_classification(self):
         core = GestureInteractionCore(self.pack)
         first = self._target_event(1, 100, "current-session")

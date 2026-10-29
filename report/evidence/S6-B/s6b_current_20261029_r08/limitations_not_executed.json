@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "artifact": "s6b_offline_limitations",
+  "task_id": "S6-B",
+  "run_id": "s6b_current_20261029_r08",
+  "not_run": [
+    {
+      "item": "阶段4/5 实际结果链路集成",
+      "status": "BLOCKED",
+      "reason": "本包只绑定阶段4 r07 离线共享契约快照及离线输入类型，不消费实时/板上数据链路。"
+    },
+    {
+      "item": "T6-A03 交互延迟门槛",
+      "status": "NOT_RUN",
+      "reason": "缺阶段4 实测帧周期 P，继续保持 NOT_RUN。"
+    },
+    {
+      "item": "6-E 摄像头实物验收",
+      "status": "NOT_RUN",
+      "reason": "本包是离线软件回归，没有摄像头或板级测量。"
+    },
+    {
+      "item": "板上操作、JTAG、串口、HDMI、真实时间长跑",
+      "status": "NOT_RUN",
+      "reason": "未执行任何硬件或实时会话。"
+    }
+  ],
+  "open_behavior_deviations": [
+    {
+      "id": "B25-SAME-SESSION-LARGE-ROLLBACK",
+      "status": "BLOCKED",
+      "reason": "S6-A v1.8 只称同会话 frame_id“大幅回退”需复位，未给数值判据；阶段4 r07 只定义 uint32 与 +1 单调分配，未定义回退量。不得猜阈值。核心当前按 B23 将任意同会话倒序帧作为 E_FRAME_OUT_OF_ORDER，不实现大回退复位。"
+    }
+  ],
+  "claim_limits": [
+    "矩阵、探针和单元测试只证明指定软件字节对离线输入的行为。",
+    "不声称板级 G3、阶段4/5 实际集成、G4 或阶段6 G5 通过。",
+    "阶段4 r07 的 reviewed_commit 是 5f9a04a045f4aaa7516759513f660f9872cbab61；冻结记录未提供独立 frozen_commit 字段。"
+  ]
+}

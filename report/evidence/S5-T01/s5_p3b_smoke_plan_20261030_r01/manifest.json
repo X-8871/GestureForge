@@ -1,0 +1,136 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_p3b_smoke_plan_20261030_r01",
+  "phase": "阶段5 P3b 上屏冒烟：窗口执行器脚本 + 操作单（离线产物，dry-run 通过）",
+  "generated_utc8": "2026-10-30T01:46:44+08:00",
+  "status": "PLAN_ONLY",
+  "hash_basis": "commit_blob",
+  "hash_basis_state": "PENDING_COMMIT",
+  "commit": null,
+  "hash_basis_note": "本会话禁止 git（任务边界），因此证据文件在生成时未提交；下面逐项 sha256 为磁盘字节（worktree_disk）。lead 提交本目录后，必须用 `python -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --worktree w4 --mode strict` 复核 commit_blob 与清单一致；不一致即不得作为交付物。",
+  "boundary": "离线：未碰板卡/JTAG/COM4/hw_server；未跑 Vivado；未 git；ENABLE=0；不主张 G3/G4/G5",
+  "artifacts": {
+    "script": "run_p3b_smoke.py（dry-run / self-test 均 exit=0）",
+    "plan": "P3B_SMOKE_PLAN.md（上板步骤/判据/停止点/降级建议）",
+    "offline_checks": [
+      "ast_check.log（ast.parse OK）",
+      "dry_run.log（12 条命令 / 8 条判据）",
+      "selftest.log（14 个判据正负例全 PASS）"
+    ]
+  },
+  "dependencies_missing": [
+    {
+      "item": "P3b 位流",
+      "path": "D:\\tmp\\lead\\p3b_video_20261030_r01\\out\\s4d_p3b_r01.bit",
+      "state": "NOT_YET_BUILT",
+      "effect": "真实窗口在 IDENT/X1 停止；dry-run 已报告缺失"
+    },
+    {
+      "item": "显示 ELF 的 S5DISP RESULT 打印",
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.c",
+      "state": "NOT_IMPLEMENTED（当前主循环 for(;;)，只打 frame 行）",
+      "effect": "重建前真实窗口会在 X6 停止（无结果行）"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/.gitattributes",
+      "bytes": 112,
+      "sha256": "88e50d81e3ca362827a3ddf429c41dbbd8f3551c70fcf876b9c101e4fcb59fa0",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/ast_check.log",
+      "bytes": 18,
+      "sha256": "455c95f4ce2193f8463b846baeabf45d9d3e430f13d3742d18f5f6e039c77f88",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/dry_run.log",
+      "bytes": 3765,
+      "sha256": "bef19aef8225e17a4339bae2453c46571cb4a9fb4bd65a651a15e756e5818b8a",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/make_evidence_manifest.py",
+      "bytes": 6343,
+      "sha256": "69b4092d63537ae6b6d32dc17f2ad8e4248b9310b3c7d2712380ec7d83465c48",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/P3B_SMOKE_PLAN.md",
+      "bytes": 11480,
+      "sha256": "13ac6662b2fb441eca78cf8d5160bad7eafb42057ba92495028f511c8b82a5b8",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/run_p3b_smoke.py",
+      "bytes": 29452,
+      "sha256": "c6cac07bfdfb8acf1cb3cb40690ee86724aeafbd88710c08127da9a0dc40d8c5",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/selftest.log",
+      "bytes": 865,
+      "sha256": "abe1995c2f00cbcb0f49e1fdb929af3d0a3a676242b1a01407918679cbe40bc3",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/verify_manifest.py",
+      "bytes": 1652,
+      "sha256": "5dddbcb28ba29eb6fd9733b98397bba9bc9947083b9f44f678fb4a87d692b3e8",
+      "hash_basis": "commit_blob",
+      "hash_basis_state": "PENDING_COMMIT"
+    }
+  ],
+  "external_tmp_artifacts": [
+    {
+      "path": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\run_p3b_smoke.py",
+      "bytes": 29452,
+      "sha256": "c6cac07bfdfb8acf1cb3cb40690ee86724aeafbd88710c08127da9a0dc40d8c5",
+      "hash_basis": "worktree_disk",
+      "copy_in_evidence": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/run_p3b_smoke.py",
+      "copy_sha256": "c6cac07bfdfb8acf1cb3cb40690ee86724aeafbd88710c08127da9a0dc40d8c5",
+      "copy_matches": true
+    },
+    {
+      "path": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\P3B_SMOKE_PLAN.md",
+      "bytes": 11480,
+      "sha256": "13ac6662b2fb441eca78cf8d5160bad7eafb42057ba92495028f511c8b82a5b8",
+      "hash_basis": "worktree_disk",
+      "copy_in_evidence": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/P3B_SMOKE_PLAN.md",
+      "copy_sha256": "13ac6662b2fb441eca78cf8d5160bad7eafb42057ba92495028f511c8b82a5b8",
+      "copy_matches": true
+    },
+    {
+      "path": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\make_evidence_manifest.py",
+      "bytes": 6343,
+      "sha256": "69b4092d63537ae6b6d32dc17f2ad8e4248b9310b3c7d2712380ec7d83465c48",
+      "hash_basis": "worktree_disk",
+      "copy_in_evidence": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/make_evidence_manifest.py",
+      "copy_sha256": "69b4092d63537ae6b6d32dc17f2ad8e4248b9310b3c7d2712380ec7d83465c48",
+      "copy_matches": true
+    },
+    {
+      "path": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\verify_manifest.py",
+      "bytes": 1652,
+      "sha256": "5dddbcb28ba29eb6fd9733b98397bba9bc9947083b9f44f678fb4a87d692b3e8",
+      "hash_basis": "worktree_disk",
+      "copy_in_evidence": "report/evidence/S5-T01/s5_p3b_smoke_plan_20261030_r01/verify_manifest.py",
+      "copy_sha256": "5dddbcb28ba29eb6fd9733b98397bba9bc9947083b9f44f678fb4a87d692b3e8",
+      "copy_matches": true
+    }
+  ],
+  "verification": {
+    "recompute": "python -B make_evidence_manifest.py（本文件由它生成）",
+    "commit_blob_gate": "python -B D:\\FPGA_Competition\\verification\\check_manifest_hash_basis.py --worktree w4 --mode strict",
+    "expected": "提交后 verdict OK / 0 不符；PENDING_COMMIT 期间不得声称已过该门禁"
+  }
+}

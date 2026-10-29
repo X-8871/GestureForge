@@ -1,0 +1,19 @@
+==== S5 真实数据源离线自检（ABI@0x20800000, raw@0x12000000）====
+raw fixture: fixtures/fixture_fist_000_640x480_bgr888.raw (921600 B)
+case1 (real): S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":29,"fps_dis":59,"latency_ms":7,"age_ms":31,"vdma_err":0,"frames":36,"vcnt":36,"src":"real"}
+case1 status=0x0003 det=3 age=31 lat=7
+wrote build/frame_real.ppm
+case: magic_bad=1 raw_blank=0 parse_rc=-1 reason=result_magic_mismatch
+case: S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":1,"vcnt":0,"src":"real_nobox","reason":"result_magic_mismatch"}
+wrote build/frame_real_nobox.ppm
+case: magic_bad=0 raw_blank=1 parse_rc=0 reason=(null)
+case3 det=1（测试图案上仍画框）
+case: S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":0,"latency_ms":7,"age_ms":31,"vdma_err":0,"frames":1,"vcnt":0,"src":"test","reason":"raw_frame_blank"}
+wrote build/frame_test_with_boxes.ppm
+case: magic_bad=1 raw_blank=1 parse_rc=-1 reason=result_magic_mismatch
+case: S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":1,"vcnt":0,"src":"test","reason":"result_magic_mismatch"}
+wrote build/frame_test_no_producer.ppm
+case5 (stale): status=0x004B stale_bit=1 age=49 ms
+wrote build/frame_stale.ppm
+case6 (ts=0): age=0 ms latency=0 ms（应为 0/0）
+==== real-source selftest: PASS ====

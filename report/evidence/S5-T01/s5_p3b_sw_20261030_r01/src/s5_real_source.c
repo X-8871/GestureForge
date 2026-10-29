@@ -12,6 +12,8 @@ const char *S5Src_Name(uint32_t kind)
     switch (kind) {
     case S5_SRC_REAL:
         return "real";
+    case S5_SRC_REAL_NOBOX:
+        return "real_nobox";
     case S5_SRC_SIM:
         return "sim";
     case S5_SRC_TEST:
@@ -131,9 +133,19 @@ void S5Real_ToFrameInfo(const S5RealBlock *b, uint64_t now_ticks, S5FrameInfo *i
     info->fps_inf_x10 = 0u;
     info->fps_dis_x10 = 0u;
 
-    /* 时间戳可能“在未来”（时钟还没走到）→ 按 0 处理，不产生回绕的巨大 ms */
-    age_ticks = (now_ticks >= b->cap_ticks) ? (now_ticks - b->cap_ticks) : 0u;
-    lat_ticks = (now_ticks >= b->inf_ticks) ? (now_ticks - b->inf_ticks) : 0u;
+    /* 时间戳语义（r05，lead 定）：
+ *   cap_ticks==0 → t_capture_end 未知 → age_ms=0（**不能**用 now−0 算成巨大值）；
+ *   inf_ticks==0 → t_infer_done 未知 → latency_ms=0；
+ *   时间戳在“未来”（时钟还没走到）→ 同样按 0 处理，避免无符号回绕。
+ * 生产端在拿到有效时间戳前应写 0，读端据此显示 0 而不是离谱的毫秒数。 */
+    age_ticks = 0u;
+    lat_ticks = 0u;
+    if (b->cap_ticks != 0u) {
+        age_ticks = (now_ticks >= b->cap_ticks) ? (now_ticks - b->cap_ticks) : 0u;
+    }
+    if (b->inf_ticks != 0u) {
+        lat_ticks = (now_ticks >= b->inf_ticks) ? (now_ticks - b->inf_ticks) : 0u;
+    }
 
     age_ms = S5Ticks_ToMs(age_ticks);
     lat_ms = S5Ticks_ToMs(lat_ticks);

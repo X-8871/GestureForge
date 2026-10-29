@@ -69,13 +69,18 @@
 #define S5_VDMA_CR_RUNSTOP  0x00000001u
 #define S5_VDMA_CR_TAIL_EN  0x00000002u /* 循环缓冲（SG 用尾指针；非 SG 置位表示 Circular 模式） */
 #define S5_VDMA_CR_RESET    0x00000004u
-#define S5_VDMA_CR_FRMCNT_EN 0x00000010u /* 帧计数使能：SR[23:16] 每完成一帧 +1（8 位，需 SW 累计回绕） */
 #define S5_VDMA_CR_RD_PTR_MASK 0x00000F00u
 #define S5_VDMA_CR_RD_PTR_SHIFT 8u
 
-/* 帧计数（SR bit[23:16]；仅当 CR.FRMCNT_EN=1 时有意义，8 位回绕） */
-#define S5_VDMA_SR_FRMCNT_MASK  0x00FF0000u
-#define S5_VDMA_SR_FRMCNT_SHIFT 16u
+/* ⚠ 关于“帧计数”（r05 结论，**不要再用 SR[23:16]**）：
+ *   查本机 axivdma_v6_17 驱动源码后确认：
+ *     · SR（0x04）只定义到 bit14（HALTED/IDLE/ERR[11:4]/IXR[14:12]），**没有帧计数字段**；
+ *     · 驱动里的 XAXIVDMA_FRMCNT_MASK(0x00FF0000) 是 **CR（0x00）的 bit[23:16]**，
+ *       且仅在 IP 打开调试特性时有效（XAxiVdma_ChannelGetFrmCnt 用 XAXIVDMA_ENABLE_DBG_FRM_CNTR 把关，
+ *       读的也是 CR 而不是 SR）；
+ *     · 那是“帧计数/延时计数”调试寄存器（配 genlock 用），**不是** MM2S 每帧递增的进度计数。
+ *   因此本模块不提供硬件帧计数：`vcnt` 由上层用软件观测（PARKPTR.READSTR 变化次数）统计。
+ *   板上 r04 曾读到 vcnt=1 —— 即 SR 保留位/未定义位被误当计数，现已删除该读法。 */
 
 /* ---- 状态位 ---- */
 #define S5_VDMA_SR_HALTED      0x00000001u
@@ -110,9 +115,6 @@ typedef struct S5Vdma {
     uint32_t version;                     /* 0x2C 版本寄存器 */
     uint32_t cr_last;                     /* 最近一次写/读的 CR */
     uint32_t sr_last;                     /* 最近一次读的 SR */
-    uint32_t frmcnt_last;                 /* 最近一次读到的 SR 帧计数（8 位） */
-    uint32_t frmcnt_total;                /* 累计帧计数（含 8 位回绕） */
-    uint32_t frmcnt_advancing;            /* 1=硬件计数确实在推进（否则调用方退回软件观测） */
 } S5Vdma;
 
 /* 寄存器读写（带内存屏障语义，见 .c） */
@@ -155,11 +157,10 @@ int S5Vdma_WaitNotReading(S5Vdma *dma, uint32_t addr, uint32_t timeout_us);
 /* 版本寄存器解码（major/minor/rev） */
 void S5Vdma_DecodeVersion(uint32_t ver, uint32_t *major, uint32_t *minor, uint32_t *rev);
 
-/* ---- 帧计数（用于结果行 vcnt）----
- * 硬件帧计数：CR.FRMCNT_EN=1 时 SR[23:16] 每完成一帧 +1（8 位回绕）。
- * 本接口累计回绕，返回“自上次 Reset 以来完成的帧数”；若 IP 未实现该计数（值恒 0）返回 0，
- * 调用方需退回“软件观测到的读帧存切换次数”。 */
-int S5Vdma_EnableFrameCounter(S5Vdma *dma);
-uint32_t S5Vdma_UpdateFrameCount(S5Vdma *dma); /* 每次调用读一次并累计，返回累计帧数 */
+/* ---- 帧计数说明（r05）----
+ * 本驱动不提供“每帧递增”的硬件帧计数（见文件头 ⚠ 段）：SR 无该字段，CR[23:16] 是调试用帧计数
+ * （需 IP 调试特性 + genlock 语义），不能当进度计数用。
+ * 上层 `vcnt` 一律用软件观测：主循环每帧读 PARKPTR.READSTR（当前读帧存号），变化次数即“VDMA 消耗帧数”
+ * 的代理指标（2 帧存时每个显示帧切换一次）。 */
 
 #endif /* VDMA_CTRL_H */

@@ -5,8 +5,8 @@
   "hash_basis": "commit_blob",
   "path_convention": "仓库相对路径",
   "conclusion": "P3B_SW_BUILT_SELFTEST_PASS",
-  "elf_sha256": "acca2cf7e22c496e0e0c14d68830029b23ac3daccfaec1143ef6b766e4c8ce9d",
-  "elf_bytes": 296352,
+  "elf_sha256": "8b40c3a8ab6ef2cad4ff89d01c269f53c65071b4d0a39782ad9cf34604e8164c",
+  "elf_bytes": 294932,
   "facts": {
     "layout": "L0 无黑边：视频 x=0..959 + 面板 960..1279",
     "vtc": "720p60，12/12 寄存器回读 OK；负例可检出 MISMATCH",
@@ -27,7 +27,15 @@
       "test": "raw frame 全 0 用测试图案",
       "stale": "status.bit2 → 面板 STALE"
     },
-    "sample_result_real": "S5DISP RESULT={\"pass\":1,\"fps_cap\":30,\"fps_inf\":29,\"fps_dis\":59,\"latency_ms\":7,\"age_ms\":31,\"vdma_err\":0,\"frames\":36,\"vcnt\":36,\"src\":\"real\"}"
+    "sample_result_real": "S5DISP RESULT={\"pass\":1,\"fps_cap\":30,\"fps_inf\":29,\"fps_dis\":59,\"latency_ms\":7,\"age_ms\":31,\"vdma_err\":0,\"frames\":36,\"vcnt\":36,\"src\":\"real\"}",
+    "fallback_priority": [
+      "real：结果块有效",
+      "real_nobox：结果块无效 + raw 有效（无框，pass=1）",
+      "test：raw 全 0（测试图案，pass=1）",
+      "sim：仅 S5_SOURCE_REAL=0 或测试图案失败（pass=0）"
+    ],
+    "vcnt": "axivdma SR 无帧计数字段；XAXIVDMA_FRMCNT_MASK 属 CR[23:16] 调试/genlock 语义 ⇒ vcnt 改为软件 PARKPTR.READSTR 切换计数",
+    "timestamp_zero": "cap/inf 全 0 ⇒ age_ms=0、latency_ms=0（未知语义）"
   },
   "open_risks": [
     "PARKPTR.READSTR 在 circular 模式随帧更新的语义未上板核实（联调第一优先）",
@@ -42,23 +50,23 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/build_record.json",
-      "bytes": 5712,
-      "sha256": "0aa0d530ed3e021ab60f089e354a33c41ebe85e460bfbfabd0b923aeef2f670c"
+      "bytes": 6155,
+      "sha256": "0832b59deca5269daa011511a3888bfd8d5cf374693bf2a5d46e2700c0cb10b9"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/build_s5_display_app_output.txt",
-      "bytes": 19787,
-      "sha256": "8f68ffdb942c85297f3b9d7d0e5979ee5ca373198b9c3405a1b9e09de0f29109"
+      "bytes": 19986,
+      "sha256": "57f3d140a1ce1b4ebbfb4c98445b69887cd075c1356e9dda4d719b255d835b74"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_age_over.png",
-      "bytes": 24436,
-      "sha256": "12254d26037c78a497d60a3b432c5659598b04cbdf63d9c2e4f527d54764b550"
+      "bytes": 24444,
+      "sha256": "6cf95d92d69ca3ee21318175255d5c3f8836cfcf437c5030d99957ba14274003"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_age_over_bars.png",
-      "bytes": 23409,
-      "sha256": "c8a7d33b451f3259ab9200fff14df17c459281cab132a6e02e2116aa52b4c3b1"
+      "bytes": 23417,
+      "sha256": "db2704dc31b3f6678f09cd3fbe5a13f84835961be8c7037bd39da1c0946258d8"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_fallback_sim.png",
@@ -67,28 +75,43 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_full.png",
-      "bytes": 24403,
-      "sha256": "c907f4be3107d4bf414618dcaf3a7a50fb6bd4574bb17a4f2594eb5830140354"
+      "bytes": 24410,
+      "sha256": "0614a2c39382e8b1810622386db1938a990f96e633c7ed473d3f40a683643793"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_full_bars.png",
-      "bytes": 23368,
-      "sha256": "e1127e2758be4307a2badf2f6a09ca574df6a242ba710c96c19b8ad267bcf9e5"
+      "bytes": 23376,
+      "sha256": "2385fc0d6a725b773c39997d77a3b24269a2b79ac2c954a94f8ca7517a71996e"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_real.png",
-      "bytes": 669816,
-      "sha256": "0d60fb290a3f1cf402fa1959f8b4155632cd5a4d0b2e9ceabb40964daf3813bf"
+      "bytes": 669821,
+      "sha256": "2fc44aeade3446430187fa49995597c51899707ee323f3568ca1a558386cf07a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_real_nobox.png",
+      "bytes": 670819,
+      "sha256": "93f875d7f3120ad810025fb37ef143f08fced1e08a33c6e28eaf067efe150a3d"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_stale.png",
-      "bytes": 22666,
-      "sha256": "8d8cb0e4527f7cbb4f41d953f222411cd53a9836a825ea9be4a56556caeacf60"
+      "bytes": 670443,
+      "sha256": "1f74cf56f3f798a148c5a4e3a4da3eaffa5f3631441a97ac8bc687600a2127d4"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_test_fallback.png",
       "bytes": 9826,
       "sha256": "7b7dae4cf4bfee1316fad1e6ff1362838e7c34afbea01ecf7da49889efdc1a29"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_test_no_producer.png",
+      "bytes": 9120,
+      "sha256": "952239d93c178f5832800cde349beab177e5011f6543fbcc3fa9571d5652d2fc"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_test_with_boxes.png",
+      "bytes": 9822,
+      "sha256": "2143d1ffe214009e90e8be24190218fdf5ee004bb480df9179a59eb993b0e4e0"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/pattern_checker.png",
@@ -121,9 +144,14 @@
       "sha256": "5cc8a17f1ae50d25d43f469b2b8c990d9c369f96b421d5a41dae559565e143c9"
     },
     {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/selftest_real_source.txt",
+      "bytes": 1398,
+      "sha256": "1bb5ad05e117964abe7874ff80b2ce134bc012eff591e2855c82e521d283e934"
+    },
+    {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/selftest_vtc_vdma.txt",
       "bytes": 1649,
-      "sha256": "d8bbe2014409babead5b4d03f910548d6c53a4d20fbd222eadd9d5a438ff4a17"
+      "sha256": "04547942d6f9d5fd611e442f180d241a52d483802de2c3435f93465a7135d8bb"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/fixtures/fixture_fist_000_640x480_bgr888.raw",
@@ -132,18 +160,18 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/S5_P3B_SW_REPORT.md",
-      "bytes": 49552,
-      "sha256": "aff37db8c33f061b80e877d81c2a2c1a62e172e08241cd92e765661a96d5def5"
+      "bytes": 53902,
+      "sha256": "164c43c26b957b7d243a51dbbcfdf3f513cb71ec9d66b017967bcd2c40a0f486"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.c",
-      "bytes": 39525,
-      "sha256": "51164a14494ee64f9ffb024f7bf1ff283c924397c7c8b78bda8f4d6ea059bfcc"
+      "bytes": 41401,
+      "sha256": "3056ede3785a4f5befa5a4d31c3470b7f3bd33d7963e14d2783c637db04ab432"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.h",
-      "bytes": 10956,
-      "sha256": "456f6b9da5cf089f6cc96d7ce5f9e72cf133b94a8867c47fa00525897ecb7ab0"
+      "bytes": 11255,
+      "sha256": "e5eb4f08a9eaaffcbae6792bf5354133915d24f201189b13e93c694336eacc6b"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_font8x16.h",
@@ -152,8 +180,8 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.c",
-      "bytes": 6961,
-      "sha256": "3e128ef610e38854050f5609242b61343bb076d82c972c1b11de0908d2720c24"
+      "bytes": 7445,
+      "sha256": "4fc1fc04a17e0d7289a2439958d79acc48ab824920276bb035ecbeae7f7a3521"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.h",
@@ -177,13 +205,13 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.c",
-      "bytes": 10002,
-      "sha256": "11478655196062585107515ec3a940fa61dbfb3b0dd0828be0a8b3944b2e2558"
+      "bytes": 8544,
+      "sha256": "7adba3a04113f17ec9bf093c35bc0a609be17025c5f13b4780fe6226ac56fd41"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.h",
-      "bytes": 9661,
-      "sha256": "e0bc10050626f665e5e89c0bf02cba2234c09d2af702117c08e4534c7a498bce"
+      "bytes": 9909,
+      "sha256": "3197a087595966a3200cee63380400ca7d6671382834b929d01e15d911d673c6"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.c",
@@ -212,8 +240,8 @@
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/real_source_selftest.c",
-      "bytes": 12696,
-      "sha256": "990a92e100660f3eb9dc8db160842070c054ed47775b09117168503ed558e0d8"
+      "bytes": 13832,
+      "sha256": "e141c68282327e8c847a3f03db592c59ae7bdb3463bf3044d16801726d816ca2"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/vtc_vdma_selftest.c",
@@ -221,11 +249,19 @@
       "sha256": "b8b546bfa08a910dd04b61075ebfecb05adc9e7feda8db0df0e247c0f7b8f808"
     }
   ],
-  "revision": "r04：新增真实数据源（结果块 0x20800000 + raw frame 0x12000000），含 sim/test 回退与 stale 标记",
+  "revision": "r05：回退优先级 real→real_nobox→test(pass=1)→sim；时间戳 0=未知；vcnt 改软件计数（原读 SR[23:16] 是保留位，已纠正）",
   "open_items": [
     "生产端（推理/解码应用）写结果块尚未实现 —— 联调第一步",
     "板上真实源：相机/DMA 填 raw、DMA 写→CPU 读的 D-cache 无效化时序未验证",
     "det 16 B 步进需与生产端一致（已裁 16 B）"
   ],
-  "note": "*.log 未入 git ⇒ *_output.txt；evidence 内 ELF 不入 git（sha 见 manifest）"
+  "note": "*.log 未入 git ⇒ *_output.txt；evidence 内 ELF 不入 git（sha 见 manifest）",
+  "board_observations": {
+    "run": "s5_p3b_smoke_20261030_r01（旧 ELF r04）",
+    "fps_dis": 59,
+    "frames": 180,
+    "vdma_err": 0,
+    "uart_result_seconds": 2.6,
+    "note": "链路在板跑通；当时 pass=0 仅因旧逻辑把无生产者落 SIM，已由 r05 修正"
+  }
 }

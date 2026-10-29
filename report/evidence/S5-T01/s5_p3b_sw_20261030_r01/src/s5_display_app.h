@@ -120,8 +120,15 @@ typedef struct S5DetBox {
 #define S5_FRAME_MS 17u
 
 /* 本帧数据来源（RESULT 的 src 字段 / 面板 SRC 行；ABI 见 s5_result_abi.h）
- *   REAL = 真实结果块 + 真实 raw 画面；SIM = 结果块无效时回退模拟源；
- *   TEST = 结果块可用但 raw 全 0（相机未启动）→ 视频区用测试图案。 */
+ *   REAL      = 真实结果块 + 真实 raw 画面（有框）
+ *   REAL_NOBOX= 结果块不可用但 raw 有效 → 只画真实画面、不画框（r05，pass 可为 1）
+ *   TEST      = raw 全 0 → 测试图案；无生产者时的合法上屏自检（pass=1）
+ *   SIM       = 仅当 S5_SOURCE_REAL=0（强制模拟）或测试图案也失败（pass=0） */
+#define S5_SRC_NONE 0u
+#define S5_SRC_REAL 1u
+#define S5_SRC_SIM 2u
+#define S5_SRC_TEST 3u
+#define S5_SRC_REAL_NOBOX 4u
 #define S5_SRC_NONE 0u
 #define S5_SRC_REAL 1u
 #define S5_SRC_SIM 2u

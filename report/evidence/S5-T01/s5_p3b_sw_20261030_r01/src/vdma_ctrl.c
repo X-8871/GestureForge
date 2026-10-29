@@ -115,15 +115,13 @@ int S5Vdma_Start(S5Vdma *dma)
     uint32_t cr;
     uint32_t sr;
 
-    /* 1) 重建 CR：只保留 RUNSTOP，清掉 TAIL_EN/SYNC/FRMCNT/RD_PTR，再按需置循环位。
+    /* 1) 重建 CR：只保留 RUNSTOP，清掉 TAIL_EN/SYNC/RD_PTR，再按需置循环位。
      *    与 XAxiVdma_ChannelDmaSetup() 的 CR 处理一致。 */
     cr = S5Vdma_Read(dma, S5_VDMA_MM2S_VDMACR);
     cr &= S5_VDMA_CR_RUNSTOP;
     /* 循环缓冲（circular）：等价于驱动的 EnableCircularBuf=1 → CR.TAIL_EN=1，
      * 帧存按 0..N-1 自动轮转，显示侧持续有数据。 */
     cr |= S5_VDMA_CR_TAIL_EN;
-    /* 帧计数使能：SR[23:16] 每完成一帧 +1，供结果行 vcnt 使用（驱动 EnableFrameCounter 同义）。 */
-    cr |= S5_VDMA_CR_FRMCNT_EN;
     cr |= S5_VDMA_CR_RUNSTOP;
     S5Vdma_Write(dma, S5_VDMA_MM2S_VDMACR, cr);
 
@@ -189,9 +187,6 @@ int S5Vdma_Init(S5Vdma *dma, const uint32_t *addrs, uint32_t n,
     dma->version = 0;
     dma->cr_last = 0;
     dma->sr_last = 0;
-    dma->frmcnt_last = 0;
-    dma->frmcnt_total = 0;
-    dma->frmcnt_advancing = 0;
 
     /* 0) 先读版本，确认 AXI-Lite 通路活着（全 1/全 0 基本可判为无 IP）。 */
     dma->version = S5Vdma_Read(dma, S5_VDMA_VERSION);
@@ -280,47 +275,6 @@ int S5Vdma_WaitNotReading(S5Vdma *dma, uint32_t addr, uint32_t timeout_us)
             return -1; /* 超时：VDMA 一直在读这个缓冲，继续写会撕裂 */
         }
     }
-}
-
-/* 帧计数：CR.FRMCNT_EN 已在 S5Vdma_Start() 里置位；这里只负责累计回绕。
- * SR[23:16] 是 8 位字段，每帧 +1，256 帧回绕一次 —— 用 (cur - last) & 0xFF 的
- * 无符号差累计，回绕时 delta 仍为 1（0→255 的差为 255，会被判为异常跳变丢弃）。 */
-uint32_t S5Vdma_UpdateFrameCount(S5Vdma *dma)
-{
-    uint32_t sr;
-    uint32_t cur;
-    uint32_t delta;
-
-    if (dma == 0) {
-        return 0u;
-    }
-    sr = S5Vdma_Read(dma, S5_VDMA_MM2S_VDMASR);
-    dma->sr_last = sr;
-    cur = (sr & S5_VDMA_SR_FRMCNT_MASK) >> S5_VDMA_SR_FRMCNT_SHIFT;
-    delta = (cur - dma->frmcnt_last) & 0xFFu;
-
-    if ((delta != 0u) && (delta < 128u)) {
-        dma->frmcnt_total += delta;
-        dma->frmcnt_advancing = 1u;
-    }
-    dma->frmcnt_last = cur;
-    return dma->frmcnt_total;
-}
-
-int S5Vdma_EnableFrameCounter(S5Vdma *dma)
-{
-    uint32_t cr;
-
-    if (dma == 0) {
-        return -9;
-    }
-    cr = S5Vdma_Read(dma, S5_VDMA_MM2S_VDMACR);
-    if ((cr & S5_VDMA_CR_RUNSTOP) == 0u) {
-        return -1; /* 通道没在跑：帧计数无意义 */
-    }
-    dma->cr_last = cr | S5_VDMA_CR_FRMCNT_EN;
-    S5Vdma_Write(dma, S5_VDMA_MM2S_VDMACR, dma->cr_last);
-    return 0;
 }
 
 void S5Vdma_DecodeVersion(uint32_t ver, uint32_t *major, uint32_t *minor, uint32_t *rev)

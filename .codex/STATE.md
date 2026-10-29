@@ -59,6 +59,19 @@
   ③核挂在 AXI 读时不要用 `rst -system`/反复 `mrd` 救场（两次实测都会把 DAP 推入粘连）；④任何补丁式改运行参数后必须回读文件确认生效。
 - **板卡现状**：18:18 的粘连已由 Wong 第二次整机断电清除；18:24 窗口内 DAP 正常（枚举/读寄存器均通过），收窗后零残留（无 hw_server/xsdb/vivado、3121 仅 TIME_WAIT）。
   r03 的 `W5_final_restore` 因保全阶段 **DAP_WEDGED 误判**（`state/rrd` 在 `-eval` 下需 `puts` 才输出）而未执行 ⇒ 下窗口必须 W0 式复核候选区 diff==0。
+- **A 项按真实口径通过（2026-10-29 20:20，`bringup_longrun_probe_20261029_r05`）**：应用 RESULT
+  `exit=0 / iterations=40 / failures=0 / wall_ms=1,844,812（真实 30.7 min）/ within_judgement=1`；每轮 `elapsed_ms=47,287` 恒定、
+  epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
+  判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
+  执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **B 项（P2b 4-D 复验）结果：M3 PASS、M4-a PASS、M4-b FAIL（2026-10-29 20:23–20:47）**：
+  · M3 只读复检：12,615,680 B dump sha256 = `41907f53…`，与登记快照逐字节相同（diff=0）。
+  · M4-a：R/F 应答与 CRC 全对（`0xCFB6FB9B` / `0xFE55DA7C`），恢复逐字节相等 ⇒ PASS。
+  · M4-b：`done=2 status=0x0C05 error=5`（ERROR_SAFE + 错误码 5），`diff13=0 diff26=0 first13/26=-1 stale=1 gate=1 ack_idle=0`。
+    **同一 ELF/同一预置在 2B 平台位流上复现完全相同结果** ⇒ 不是 P2b 特有回归；数据面疑已正确（运行前 stale=1、运行后 head 与参考 0 差异），
+    卡在终态/错误码语义。下一步需 2B 引擎错误码 5 的定义（在 2B RTL/规格里，w4/w2b 现有文档只到 1/2/6），再判是完成序、AXI 错误还是超时。
+  · 顺带修掉第三个同类缺陷：`run_window_b_driver.load_elf()` 硬编码 `rst -system -stop`（PL 编程后系统复位清 PL ⇒ 应用首读 CSR 挂死、60 s 无输出）；
+    窗口脚本改用 `drv.load_elf_ddr`（PL 保持分支）后才拿到上面的真实诊断。证据 4 个目录（r01/r02/r03/baseline）均过门禁。
 - **C 项数据面首次正证（2026-10-29 18:36–18:41，`s4d_p2c_board_20261029_r01`）：`P2C_TENSOR_CRC_MATCH`**。
   P2c r02 位流（`022f48fb…d52ca4`）+ 应用 ELF（`56c6967b…ac93100`）在板上完成
   `preproc(源图 0x12000000) → packer(8b→64b) → AXI DMA S2MM(23-bit len) → HP0 → 张量 0x10000000`，

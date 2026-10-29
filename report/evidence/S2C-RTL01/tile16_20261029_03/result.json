@@ -1,0 +1,41 @@
+{
+  "task_id": "S2C-RTL01",
+  "run_id": "tile16_20261029_03",
+  "status": "XVLOG_XELAB_PASS_XSIM_NOT_EXECUTED_APPROVAL_INFRA_ERROR",
+  "source_commit": "c03cc9bf53553fa8b823be5759114fea511af7c7",
+  "tool": "Vivado 2026.1",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL01/tile16_lookup_sim_20261029_02",
+  "preflight": {
+    "vivado_xsim_xelab_xvlog_processes_found": 0,
+    "available_memory_mb": 2542,
+    "process_check_exit_code": 0
+  },
+  "steps": [
+    {
+      "tool": "xvlog.bat",
+      "argv": ["-sv", "src/s2a_network_descriptor_pkg.sv", "src/s2b_conv_tile_engine.sv", "sim/tb_s2c_rtl01_tile16_lookup.sv"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL01/tile16_lookup_sim_20261029_02/xvlog_console.log"
+    },
+    {
+      "tool": "xelab.bat",
+      "argv": ["tb_s2c_rtl01_tile16_lookup", "-s", "s2c_rtl01_tile16_lookup_sim"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL01/tile16_lookup_sim_20261029_02/xelab_console.log"
+    },
+    {
+      "tool": "xsim.bat",
+      "argv": ["s2c_rtl01_tile16_lookup_sim", "-runall"],
+      "execution_status": "NOT_EXECUTED",
+      "process_exit_code": null,
+      "tool_error": "Automatic approval review could not be completed: HTTP 403 Forbidden; reviewer stated this was not a safety determination and the action was not executed."
+    }
+  ],
+  "assertions_executed": false,
+  "functional_equivalence": "NOT_ESTABLISHED",
+  "limitations": [
+    "本RunId仅补记新目录下语法与elaboration成功；没有新的XSim运行结果。",
+    "没有整帧cycles、逐位等价、100 MHz综合或板级结果。",
+    "日志保存在隔离tmp目录，不作为manifest清单项。"
+  ]
+}

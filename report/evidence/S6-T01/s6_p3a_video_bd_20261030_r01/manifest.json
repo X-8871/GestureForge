@@ -1,0 +1,62 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6_p3a_video_bd_20261030_r01",
+  "task_id_note": "S6-T01 为暂定编号；若正式阶段计划给出其它编号，后续 RunId 沿用并在此注明映射",
+  "phase": "阶段6 P3a：视频输出通路 BD（720p60 / VTC+VDMA+vid_out），validate 门",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "conclusion": "P3A_BD_VALIDATE_0_ERROR",
+  "facts": {
+    "validate": "0 ERROR / 0 CRITICAL WARNING / 14 WARNING（逐条解释见报告）",
+    "clk": {
+      "FCLK0": "50.000000 MHz",
+      "FCLK1": "100.000000 MHz",
+      "clk_out1": "74.21875 MHz (74.25 −0.042%)",
+      "clk_out2": "371.09375 MHz"
+    },
+    "addr": {
+      "2B": "0x43C00000",
+      "preproc": "0x43C10000",
+      "DMA": "0x43C20000",
+      "VTC": "0x43C30000",
+      "VDMA": "0x43C40000"
+    },
+    "vdma_path": "M_AXI_MM2S → smc_vid(AXI4→AXI3) → ps7_0/S_AXI_HP2",
+    "ports": [
+      "pixel_clk",
+      "vid_hsync",
+      "vid_vsync",
+      "vid_de",
+      "vid_data[23:0]"
+    ],
+    "gates_found": [
+      "PCW_EN_CLK1_PORT/PWC_CLK1_FREQ 是 FCLK1 真实门控",
+      "VDMA AXI4↔HP2 AXI3 需 smc_vid 转换",
+      "非 SG 模式无 c_sg_length_width"
+    ]
+  },
+  "open_items": [
+    "像素域 XDC 未写（综合前必须补）",
+    "未综合→资源/时序未知",
+    "TMDS/rgb2dvi 与引脚约束待 P3b",
+    "VDMA MM 侧 50 MHz 相对流 74.22 MHz 带宽占用 74.2%",
+    "vid_data 通道映射待与软件 ABI 对齐"
+  ],
+  "items": [
+    {
+      "path": "report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01/bd_p3a.bd",
+      "bytes": 84461,
+      "sha256": "289344d987f86f4290b88d8556ad1f2e26c30f8fba414690c9546f9f476b6c79"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01/bd_p3a.tcl",
+      "bytes": 24969,
+      "sha256": "778a423136f9769c13971ca3341ba82df22729074ddc8665c135bec82772c3b3"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01/P3A_BD_REPORT.md",
+      "bytes": 21045,
+      "sha256": "317e0e3cf028b7b0336017679deb7fb66b8ee4e1801de85f2de63e1464a4c5fc"
+    }
+  ]
+}

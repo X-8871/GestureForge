@@ -1,0 +1,32 @@
+=== 参考 head13 ===
+path=D:\codex-worktrees\w4\report\evidence\S4-B\20261021_r01\test_fist_000_head13.raw
+size=5070 sha256=07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6
+bytes 5056..5069: 5056:06 5057:01 5058:02 5059:ff 5060:fe 5061:ff 5062:02 5063:01 5064:01 5065:ff 5066:fe 5067:00 5068:06 5069:05
+最后完整 word 偏移 5,064: 01 ff fe 00 ⇒ LE=0x00feff01
+尾 word 偏移 5,068 仅有 2 字节: 06 05 ⇒ 期望 lane0/lane1 = 0x06/0x05
+
+=== 参考 head26（对照：长度 20,280 B，%4 == 0，无尾部半字） ===
+size=20280 sha256=7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e  len%4=0
+
+=== 宿主预置字数算术（xsdb mwr 的 count 是 32-bit 字数） ===
+head13: 5070 B ⇒ 1267 字 = 5068 B；覆盖 byte 0..5067，**tail 2 B 漏写**
+head26: 20280 B ⇒ 5070 字 = 20280 B；完整覆盖
+补齐后 head13: 5,072 B（+2 pad 0x00）⇒ 1268 字 = 5072 B
+
+=== window #6 r03 的补齐参考（唯一一次带 pad 的成功路径） ===
+padded size=5072 sha256=ad45b1cce3e1f45ceeb4955f4b8aaf2021ba778d78554e5a096ec50aacae8895
+padded[0:5070]==head13.raw: True  pad bytes: 0000
+尾部 8 字节: 01 ff fe 00 06 05 00 00 ⇒ 尾 word LE=0x00000506
+
+=== 基线 run r03 的候选区 dump：0x12000000+5,068 的实际内容 ===
+W0_dump.bin (运行前（预置之后、M4-b 之前）) size=12615680 sha256=41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf
+  bytes 5064..5071: 5064:fa 5065:4a 5066:40 5067:95 5068:ff 5069:8f 5070:2a 5071:e0
+  尾 word(5,068) LE=0xe02a8fff  期望(补齐参考)=0x00000506  ⇒ 不等（漏写证据）
+W4_dump.bin (运行后) size=12615680 sha256=580e9bb670a8a72c5ad56d1a0e86203cb8d3db84da628e5582feb39921ac5934
+  bytes 5064..5071: 5064:01 5065:ff 5066:fe 5067:00 5068:ff 5069:8f 5070:2a 5071:e0
+  尾 word(5,068) LE=0xe02a8fff  期望(补齐参考)=0x00000506  ⇒ 不等（漏写证据）
+
+=== 板上取证地址（供 board-runner 使用） ===
+arena 尾 word   = 0x11a474cc  (0x10000000+0x1A46100+5068)
+ref   尾 word   = 0x120013cc
+期望：arena 尾 word 低 16 位 = 0x0506（lane0=0x06, lane1=0x05）；高 16 位 = 运行前值（PL 不得越过逻辑张量尾部）

@@ -318,6 +318,11 @@ __attribute__((unused)) static int s4d_preproc_sw(const s4d_host_req_t *req)
 #define S4D_WEIGHT_BYTES  5903100u
 #define S4D_HEAD13_OFF    0x01A46100u
 #define S4D_HEAD13_BYTES  5070u
+/* head13 尾 word 偏移：5,070 % 4 = 2 ⇒ 最后一个 32-bit word 在偏移 5,068，
+ * 仅 lane 0/1（byte 5,068/5,069）属逻辑张量；lane 2/3（byte 5,070/5,071）在张量之外。
+ * 依据 2A-T01 冻结规格：“5,070-byte head13 尾 word 只选择 lane 0011；不得因为 word
+ * 对齐而越过其逻辑张量尾部”。M4-b 自检用该偏移做运行前后 lane 取证（不参与 pass 判据）。 */
+#define S4D_HEAD13_TAIL_OFF ((uint32_t)(S4D_HEAD13_BYTES & ~3u))   /* = 5,068 */
 #define S4D_HEAD26_OFF    0x01AD5E80u
 
 /* 网络启动超时（正常推理路径与 M4-b 自检共用）：窗口 #4 实测旧值 400 周期 ≈ 8 µs，
@@ -463,6 +468,8 @@ int s4d_m4b_selfcheck(void)
     uint32_t st = 0, err = 0, spin = 0;
     int stale = 0, gate = 0, done = 0, idle_after_ack = 0;
     uint32_t d13 = 0, d26 = 0, f13 = 0xFFFFFFFFu, f26 = 0xFFFFFFFFu;
+    uint32_t tail13_before = 0u, tail13_after = 0u, tail13_ref = 0u;
+    uint32_t lane01_ok = 0u, lane23_ok = 0u;
     uint32_t frame = 1u;
 
     xil_printf("M4B STEP=1 read CSR_ID addr=0x%08x\r\n", (unsigned)S4D_CSR_ID);
@@ -479,6 +486,16 @@ int s4d_m4b_selfcheck(void)
     /* 陈旧检测：运行前 head13 与参考不同才可判新旧 */
     s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF, 64);
     stale = (arena[S4D_HEAD13_OFF] != ref[0] || arena[S4D_HEAD13_OFF + 1] != ref[1]) ? 1 : 0;
+
+    /* 尾 word lane 取证（2026-10-29 定位 head13 byte 5,068/5,069 差异）：运行前快照
+     * arena 尾 word（偏移 5,068）。运行后该 word 的低 16 位应等于参考尾 2 字节
+     * （byte 5,068=0x06 / 5,069=0x05，见 test_fist_000_head13.raw），高 16 位
+     * （byte 5,070/5,071）在逻辑张量之外，按 2A 规格 PL 必须以 lane 0011 写、
+     * 不得产生副作用，故须与运行前一致。宿主侧若对该 word 投毒（如 0x5A5A5A5A），
+     * lane 2/3 是否被改写即成为“是否越过逻辑张量尾部”的直接证据。
+     * 该取证仅供诊断，不参与 pass 判据（避免改动已冻结的验收语义）。 */
+    s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF + S4D_HEAD13_TAIL_OFF, 4u);
+    tail13_before = *(const volatile uint32_t *)(uintptr_t)(S4D_TENSOR_BASE + S4D_HEAD13_OFF + S4D_HEAD13_TAIL_OFF);
 
     xil_printf("M4B STEP=3 read epoch\r\n");
     if (!s4d_read_epoch(&epoch_before)) { xil_printf("M4B RESULT={\"pass\":0,\"reason\":\"epoch_read_fail\"}\r\n"); return -1; }
@@ -557,6 +574,25 @@ int s4d_m4b_selfcheck(void)
         xil_printf("M4B HEADS diff13=%u first13=%d diff26=%u first26=%d\r\n",
                    (unsigned)d13, (d13 == 0u) ? -1 : (int)f13,
                    (unsigned)d26, (d26 == 0u) ? -1 : (int)f26);
+
+        /* 尾 word 取证（诊断字段，不参与 pass）：一次上板即可区分
+         *   (a) PL 尾字 lane/越界缺陷 与 (b) 参考预置未覆盖尾 2 字节。
+         * 判读：after 低 16 位 = 参考低 16 位（此处 0x0506）⇒ lane 0/1 正确；
+         *       after 高 16 位 = 运行前高 16 位 ⇒ PL 未越过逻辑张量尾部（lane 0011）。
+         * 若 after 高 16 位被改写 ⇒ 违 2A 规格，属 PL 侧缺陷。 */
+        s4d_region_invalidate(S4D_TENSOR_BASE + S4D_HEAD13_OFF + S4D_HEAD13_TAIL_OFF, 4u);
+        tail13_after = *(const volatile uint32_t *)(uintptr_t)
+                       (S4D_TENSOR_BASE + S4D_HEAD13_OFF + S4D_HEAD13_TAIL_OFF);
+        tail13_ref = (uint32_t)ref[S4D_HEAD13_TAIL_OFF]
+                   | ((uint32_t)ref[S4D_HEAD13_TAIL_OFF + 1u] << 8)
+                   | ((uint32_t)ref[S4D_HEAD13_TAIL_OFF + 2u] << 16)
+                   | ((uint32_t)ref[S4D_HEAD13_TAIL_OFF + 3u] << 24);
+        lane01_ok = ((tail13_after & 0xFFFFu) == (tail13_ref & 0xFFFFu)) ? 1u : 0u;
+        lane23_ok = ((tail13_after & 0xFFFF0000u) == (tail13_before & 0xFFFF0000u)) ? 1u : 0u;
+        xil_printf("M4B TAIL13 off=%u before=0x%08x after=0x%08x ref=0x%08x lane01_ok=%u lane23_ok=%u\r\n",
+                   (unsigned)S4D_HEAD13_TAIL_OFF, (unsigned)tail13_before,
+                   (unsigned)tail13_after, (unsigned)tail13_ref,
+                   (unsigned)lane01_ok, (unsigned)lane23_ok);
     }
 
     /* ACK 收尾：safe snapshot 匹配 → 0x05C/0x060 → 0x008=4 → is_idle */
@@ -576,13 +612,17 @@ int s4d_m4b_selfcheck(void)
     xil_printf("M4B RESULT={\"pass\":%d,\"done\":%d,\"diff13\":%u,\"diff26\":%u,"
                "\"first13\":%d,\"first26\":%d,\"stale\":%d,\"gate\":%d,"
                "\"ack_idle\":%d,\"epoch\":%u,\"status\":%u,\"error\":%u,"
-               "\"elapsed_ms\":%u,\"spin\":%u}\r\n",
+               "\"elapsed_ms\":%u,\"spin\":%u,"
+               "\"tail13_before\":%u,\"tail13_after\":%u,\"tail13_ref\":%u,"
+               "\"lane01_ok\":%u,\"lane23_ok\":%u}\r\n",
                (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 1 : 0,
                done, (unsigned)d13, (unsigned)d26,
                (d13 == 0u) ? -1 : (int)f13, (d26 == 0u) ? -1 : (int)f26,
                stale, gate, idle_after_ack,
                (unsigned)(uint32_t)epoch, (unsigned)st, (unsigned)err,
-               (unsigned)elapsed_ms, (unsigned)spin);
+               (unsigned)elapsed_ms, (unsigned)spin,
+               (unsigned)tail13_before, (unsigned)tail13_after, (unsigned)tail13_ref,
+               (unsigned)lane01_ok, (unsigned)lane23_ok);
     return (done == 1 && d13 == 0u && d26 == 0u && stale == 1 && gate == 1 && idle_after_ack == 1) ? 0 : -2;
 }
 

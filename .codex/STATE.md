@@ -24,6 +24,20 @@
   构建：bit sha256 `0c8ec476…e8352f`（4,045,770 B）、XSA `3f0ed9ea…07e38e`；50 MHz 下 **WNS +0.226 / WHS +0.036**；
   LUT 46.54%、FF 10.90%、BRAM 23.93%、**DSP 71.82%（仅余 62）**。打包器 xsim 自检 `PACKER_TB_RESULT=PASS beats=3`。
   **未上板、无整链仿真、应用侧 DMA 编程未验证、未冻结**；`ENABLE=0`。
+  **⚠ r01 已作废**：rev-s5 复审发现 AXI DMA `c_sg_length_width=14` ⇒ 519,168 B 被截断成 11,264 B（构建/DRC/时序全绿也发现不了）；
+  见该目录 `ERRATUM_DMA_LENGTH_WIDTH.md`。**不得把 r01 位流当 P2c 使用。**
+- **P2c r02（当前唯一可用候选，仍未上板）**：`report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r02/`
+  —— 修复 `c_sg_length_width=23`（生成 netlist 实测 `wire [22:0] s2mm_length`）+ 把 `SRC_BASE` 改成可参数化
+  （engine/wrapper 默认 0 = 冻结基线，BD 覆盖 `0x12000000`）。**3 个冻结 TB 原样复跑逐项一致**：
+  `cycles=2655174/2676472/2713979`、engine `FNV dut=gold=0x39a2a8950a11322e`、`P2C_TB_REGRESSION=PASS`（判据已强制 FNV）。
+  反压/多帧自检 TB：`PACKER_BP_TB_RESULT=PASS frames=8 bytes=104`。
+  构建：bit sha256 `022f48fb…d52ca4`、XSA `8051dd48…61bf4c`；**WNS +0.039 / WHS +0.042**（TNS/THS 0，⚠ 余量仅 39 ps）；
+  LUT 46.69%、FF 10.88%、BRAM 23.93%、DSP 71.82%；DRC 0 error。
+  **manifest 已过统一门禁**：`check_manifest_hash_basis.py --mode strict` = `entries_checked 26 / mismatched 0 / verdict OK / exit 0`（commit `c2b4ddd`）。
+  应用变体（stage4-lead）：`D:\tmp\lead\s4t35_pl_preproc_20261029_r01\build\s4d_ps_app_pl_dma.elf`
+  sha256 `56c6967b…ac93100`（267,904 B，6 项编译退出码全 0；含 LENGTH 回读自检、IOC 完成判据、每帧 halt/重武装、IRQ_CLR 顺序）。
+  **复审**：rev-s5 初复审 `CHANGES_REQUIRED`（B1/B2）→ 增量复审 **`PASS`**（`D:\tmp\reviews\p2c_design_20261029_r01\REVIEW_DELTA.md`）。
+  仍**未上板**：`tensor_crc32=0x5B183B50` 仍是目标；无整链仿真；`SRC_BASE` 是参数非寄存器；未冻结、不主张 G2–G5。
 - **M2 复审（D 项）= CHANGES_REQUIRED**（`report/evidence/S4-T34/m2_review_20261029_r01/`，含可复算脚本）：
   ① 归档记录把 PCFG_DONE 归到 `STATUS(0xF8007014) bit1`，而 UG585 v1.2 p.150 step 5 明确 **PCFG_DONE = `INT_STS(0xF800700C) bit[2]`**；
   ② 两处 hex 注释与原始十进制不符（STATUS 实为 `0x40000A30` 而非 `0x40000010`；CTRL 实为 `0x4E00E07F` 而非 `0x4E00FFFF`）。

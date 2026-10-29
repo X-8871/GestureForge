@@ -88,6 +88,12 @@
   已执行：G0 文档改名为 `docs/obsidian-project/02-方案设计/阶段5_HDMI显示链G0方案_20261030.md`（含勘误段）；
   证据目录 `report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01` → `report/evidence/S5-T01/s5_p3a_video_bd_20261030_r01`（task_id S5-T01 暂定）。
   P2d 合并计算体重新定位为**阶段3/4 集成（阶段5 前置平台）**，其既有"阶段5 收口"文档仅作历史记录，不再作为阶段5 交付定义。
+- **阶段5 P3b 硬件构建 PASS（2026-10-30 02:12，`s5_p3b_hw_20261030_r01`）**：rgb2dvi(VHDL) + TMDS + 顶层 `top_p3b.v` 完整显示链位流。
+  bit `1670b0b3…f572`（4,045,762 B）、XSA `2171583f…19d`；**WNS +0.544 / WHS +0.022、TNS=THS=0、失败端点 0/52,363、全部约束满足**、DRC 0 error（无 NSTD/UCIO）；
+  资源 LUT **25,967(48.81%)**、FF 14,892(14.00%)、BRAM 36.5(26.07%)、**DSP 158(71.82%，较 P3a+ +0)**、MMCM 1、BUFG 5。→ **阶段5 硬件设计完成**（上屏冒烟/回归待板卡）。
+- **M3 窗口被工具缺陷阻断（2026-10-30 02:2x）**：`m3_pair.py` 在真实 XSDB 2026.1 上取 `dict get … state` 失败（真实属性是 `state_reason/suspended`）⇒ `capture before` exit=2，
+  未进入 event/after/compare。**板卡侧已成功**：编程 2B 基线 + `d2_keep_pl` ps7_init + **按快照重建候选区（双读 sha=`41907f53…`=baseline）**、两核 Stopped、零残留。
+  已写信箱 `DSH-20261030-008` 请 Codex 修 + 重审；修好后重开窗口（约 9 min）。
 - **阶段6 P3a BD validate 通过（2026-10-30 01:0x，`report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01/`）**：
   `validate_bd_design` **0 ERROR / 0 CRITICAL WARNING / 14 WARNING**（逐条解释）；另跑通 IP 生成 + wrapper（证明 IP 参数组合合法）。
   PS7 新增 **FCLK1=100 MHz**（真实门控是 `PCW_EN_CLK1_PORT=1`+`PCW_CLK1_FREQ`）、**S_AXI_HP2(64-bit)**；

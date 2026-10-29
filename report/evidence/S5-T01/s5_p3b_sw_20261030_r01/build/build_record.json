@@ -1,0 +1,99 @@
+{
+  "task_id": "S5-P3B-SW",
+  "phase": "阶段5 HDMI 显示链 PS 侧显示软件（离线编译）",
+  "built_utc8": "2026-10-30T01:42:24+08:00",
+  "boundary": "离线编译 + 主机渲染自检；未接触板卡/JTAG/COM4/hw_server，未跑 Vivado，未 git 提交",
+  "toolchain": {
+    "arm_gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "arm_gcc_version": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "linker_script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+    "bsp": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0"
+  },
+  "inputs": {
+    "s5_display_app.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.c",
+      "sha256": "6ac01dc1b80d0734956c6833ce2a60ab365b55438e2dffd636343586fe85e498"
+    },
+    "vdma_ctrl.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vdma_ctrl.c",
+      "sha256": "b9792bce1eff5a7e5e049853b9f1d10388686684b967d371c73d078d7241b6b0"
+    },
+    "vtc_ctrl.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vtc_ctrl.c",
+      "sha256": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6"
+    },
+    "s5_timebase.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_timebase.c",
+      "sha256": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96"
+    },
+    "s5_font8x16.h": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_font8x16.h",
+      "sha256": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3"
+    },
+    "lscript": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+      "sha256": "c0350ef1c1ebee0b6b672189c0046a37f6b9d0f90f67cd4dbb66a4224e239048"
+    }
+  },
+  "outputs": {
+    "elf": {
+      "path": "s5_display_app.elf",
+      "sha256": "9fdec1d909054b1a08fdcd9a6b048fc8e0381327dc07e711e9c85d8de8790b38",
+      "size_bytes": 268184
+    },
+    "map": {
+      "path": "s5_display_app.map",
+      "sha256": "65a28a2c7fa0b223699f03b26a1447b49bb6feab573f99ef1a255ee78872a40f",
+      "size_bytes": 205570
+    },
+    "size_berkeley": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  40021\t     72\t2353184\t2393277\t 2484bd\tD:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf"
+  },
+  "symbol_check": {
+    "required": [
+      "main",
+      "S5Draw_Text",
+      "S5Draw_CameraLetterbox",
+      "S5Vdma_Init",
+      "S5Vdma_Start",
+      "S5Vdma_WaitNotReading",
+      "S5Vtc_Init",
+      "S5Ticks_Now"
+    ],
+    "missing": []
+  },
+  "exit_codes": {
+    "compile": 0,
+    "link": 0,
+    "size": 0,
+    "nm": 0
+  },
+  "host_render": {
+    "built": true,
+    "ran": true,
+    "exit": 0,
+    "pngs": [
+      "frame_age_over.png",
+      "frame_age_over_bars.png",
+      "frame_full.png",
+      "frame_full_bars.png",
+      "pattern_checker.png",
+      "pattern_checker_bars.png",
+      "pattern_colorbars.png",
+      "pattern_colorbars_bars.png",
+      "pattern_grayramp.png",
+      "pattern_grayramp_bars.png"
+    ],
+    "bars_variant_exit": 0
+  },
+  "reg_selftest_vtc_vdma": {
+    "built": true,
+    "ran": true,
+    "exit": 0
+  },
+  "limitations": [
+    "未上板：VDMA/VTC 时序、DDR 带宽、rgb2dvi/TMDS 均未与硬件联调",
+    "VDMA 2 帧存与 BD 的 c_num_fstores=2 一致；上板仍需读回 0x18 确认",
+    "VTC 生成器已按 720p60 编程并回读校验，但未上板验证实际时序输出（无示波器/无 TMDS）",
+    "显示延迟/结果年龄当前由模拟数据源给出；接真实推理后需替换 S5Sim_NextFrame"
+  ]
+}

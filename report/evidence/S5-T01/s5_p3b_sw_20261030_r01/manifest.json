@@ -1,0 +1,114 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_p3b_sw_20261030_r01",
+  "phase": "阶段5 P3b 显示软件（帧渲染/框与文字/信息栏/VTC+VDMA 控制/双缓冲）",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "conclusion": "P3B_SW_BUILT_SELFTEST_PASS",
+  "elf_sha256": "9fdec1d909054b1a08fdcd9a6b048fc8e0381327dc07e711e9c85d8de8790b38",
+  "elf_bytes": 268184,
+  "facts": {
+    "layout": "L0 无黑边：视频 x=0..959 + 面板 960..1279",
+    "vtc": "720p60，12/12 寄存器回读 OK；负例可检出 MISMATCH",
+    "vdma": "c_num_fstores=2，双缓冲 A=0x13000000 / B=0x13384000，离线自检 6/6 PASS",
+    "font": "8x16 ASCII（自带表）",
+    "scale": "640x480 → 960x720 3/2 最近邻"
+  },
+  "open_risks": [
+    "PARKPTR.READSTR 在 circular 模式随帧更新的语义未上板核实（联调第一优先）",
+    "DDR 带宽 / cache flush 耗时未测",
+    "VTC 仅验到寄存器层，未验实际时序与 vid_out locked"
+  ],
+  "items": [
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/build_record.json",
+      "bytes": 3702,
+      "sha256": "d7f46bb55f4e32018bc94ac3a8afb15894708f68148c912418d76b4589c1143a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_full.png",
+      "bytes": 24150,
+      "sha256": "28322557e020d4e8b41e29de07f4cffc9ce5877f549879df4ae4cd568a5b2afb"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_full_bars.png",
+      "bytes": 23230,
+      "sha256": "51ae24531ddabc4cabd6e4ea5ae635f8b000279a9aa75d7aa0dc856c891c6380"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/selftest_vtc_vdma.txt",
+      "bytes": 1649,
+      "sha256": "01e2a7bc515a3261f10c906a896b47068940de61dba313f06a084f4be2c9bb7b"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/S5_P3B_SW_REPORT.md",
+      "bytes": 32517,
+      "sha256": "400b8c92bab71ee089847abb26eb6518693c1ae9aea1fd37f5345dab5f359716"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.c",
+      "bytes": 25468,
+      "sha256": "6ac01dc1b80d0734956c6833ce2a60ab365b55438e2dffd636343586fe85e498"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.h",
+      "bytes": 7510,
+      "sha256": "fcedcdc3ad95b0157b468676908786e909a3462a8978effd8ab6b42b335de52d"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_font8x16.h",
+      "bytes": 12040,
+      "sha256": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_timebase.c",
+      "bytes": 1500,
+      "sha256": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_timebase.h",
+      "bytes": 2420,
+      "sha256": "3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.c",
+      "bytes": 8550,
+      "sha256": "b9792bce1eff5a7e5e049853b9f1d10388686684b967d371c73d078d7241b6b0"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.h",
+      "bytes": 8581,
+      "sha256": "1f23ef28a9df13afda8279577a11bf9c7583a529ba9b30b71f73e6cee5d76199"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.c",
+      "bytes": 12300,
+      "sha256": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.h",
+      "bytes": 7541,
+      "sha256": "68d1555cd3a78aff5d206a90229c1184cdd096b3c00f09b441ecb42c24162458"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/gen_font8x16.py",
+      "bytes": 6150,
+      "sha256": "b9c5a583435d7120f76ae36b17df4a761f347cd1983866fefc66a0b2e3c04b87"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_render_test.c",
+      "bytes": 4493,
+      "sha256": "aef11ef370ffd2e4000020eb7ef1b47e63d87536d4756240d7c99f1fde5fc00e"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_xil_shim/xil_io.h",
+      "bytes": 798,
+      "sha256": "1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/vtc_vdma_selftest.c",
+      "bytes": 8494,
+      "sha256": "3b5c7c1fdeac00d4c1b5c91bde7d29faf5551bf9a22aff72dc1372b3e2e412b7"
+    }
+  ]
+}

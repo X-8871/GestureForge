@@ -1,0 +1,30 @@
+==== S5 P3b-sw 离线自检：VTC 初始化 + VDMA 双缓冲 ====
+VTC: version=0x00060000
+  GHSIZE @43C30070 want=00000672 got=00000672 OK
+  GVSIZE @43C30074 want=02EE02EE got=02EE02EE OK
+  GASIZE @43C30060 want=02D00500 got=02D00500 OK
+  GASIZE_F1 @43C30094 want=02D00000 got=02D00000 OK
+  GHSYNC @43C30078 want=0596056E got=0596056E OK
+  GVSYNC @43C30080 want=02D902D4 got=02D902D4 OK
+  GVSYNC_F1 @43C3008C want=02D902D4 got=02D902D4 OK
+  GVBHOFF @43C3007C want=05000500 got=05000500 OK
+  GVSHOFF @43C30084 want=056E056E got=056E056E OK
+  GPOL @43C3006C want=0000003F got=0000003F OK
+  GFENC @43C30068 want=00000000 got=00000000 OK
+  CTL     @43C30000 want=00000005 got=00000005 OK
+  VTC verify: 12/12 OK
+  VTC timing 1280x720 Htotal=1650 Hsync=1390..1430 Vtotal=750 Vsync=724..729
+VTC: init OK (SW|GE enabled, 720p60 generator)
+VTC negative test: OK（检测到 1 项不一致）
+  GHSIZE @43C30070 want=00000672 got=00001234 **MISMATCH**
+VTC: re-init after negative test -> OK
+VDMA: init OK, version=0x60300000 (major 6 minor 3 rev 0), FRMSTORE readback=2 (expect 2)
+VDMA: CR=0x00000003 SR=0x00000002 HSIZE=5120 VSIZE=720 STRIDE=5120
+VDMA: store0=0x13000000 store1=0x13384000
+frame 0: VDMA reads B(0x13384000) -> draw into A(0x13000000) wait=ok PASS
+frame 1: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
+frame 2: VDMA reads B(0x13384000) -> draw into A(0x13000000) wait=ok PASS
+frame 3: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
+frame 4: VDMA reads B(0x13384000) -> draw into A(0x13000000) wait=ok PASS
+frame 5: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
+==== selftest: PASS ====

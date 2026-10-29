@@ -963,6 +963,14 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
         xil_printf("LONGRUN PROBE slcr shftr=0x%08x fclk0=0x%08x aper=0x%08x fpga_rst=0x%08x\r\n",
                    (unsigned)p_shftr, (unsigned)p_fclk0, (unsigned)p_aper, (unsigned)p_frst);
     }
+    /* 细分探针（2026-10-29）：把"整条 PS→PL 读通路挂"与"只有 STATUS 读挂"分开。
+     * 先读 ID(0x000)，再读 STATUS(0x00C)；两次之间都有打印，谁不打印就说明卡在哪一步。 */
+    {
+        uint32_t p_id = s4d_rd(S4D_CR(0x000u));
+        xil_printf("LONGRUN PROBE id=0x%08x\r\n", (unsigned)p_id);
+        uint32_t p_st = s4d_rd(S4D_CR(0x00Cu));
+        xil_printf("LONGRUN PROBE status=0x%08x\r\n", (unsigned)p_st);
+    }
     if (!s4d_is_idle()) {
         xil_printf("LONGRUN RESULT={\"exit\":1,\"reason\":\"not_idle\",\"status\":%u}\r\n",
                    (unsigned)s4d_rd(S4D_CSR_STATUS));
@@ -982,6 +990,7 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
         wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
         if (wall_ms >= S4D_LR_WALL_MS) { break; }
         s4d_lr_mark(8u, iter, 0u, 0u);   /* 8 = 下一轮开始（纯 CPU） */
+        xil_printf("LONGRUN PROBE iter=%u start\r\n", (unsigned)iter);
 
         /* STEP A：epoch */
         s4d_lr_mark(1u, iter, S4D_CSR_EPOCH_LO, S4D_LR_READ_SENTINEL);   /* 1 = 读 epoch */
@@ -989,6 +998,7 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
         e_expect = e_before + 1u;
         if (round_fail == 0 && !s4d_is_idle()) { round_fail = 1; fail_why = "not_idle_before_round"; }
         if (round_fail == 0) { s4d_lr_done(1u, iter); }
+        xil_printf("LONGRUN PROBE iter=%u epoch_ok e_before=%u\r\n", (unsigned)iter, (unsigned)e_before);
 
         /* STEP B：配置 + START */
         if (round_fail == 0) {
@@ -1005,11 +1015,13 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
             s4d_lr_mark(3u, iter, S4D_CSR_CMD, S4D_CMD_START);   /* 3 = 写 START */
             s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
             s4d_lr_done(3u, iter);
+            xil_printf("LONGRUN PROBE iter=%u start_written\r\n", (unsigned)iter);
         }
 
         /* STEP C：等 DONE_SAFE */
         if (round_fail == 0) {
             s4d_lr_mark(4u, iter, S4D_CSR_STATUS, S4D_LR_READ_SENTINEL);   /* 4 = 等 DONE_SAFE */
+            xil_printf("LONGRUN PROBE iter=%u wait_done_pre\r\n", (unsigned)iter);
             for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
                 int r = s4d_safe_done(&st, &err);
                 XTime_GetTime(&t1);
@@ -1022,6 +1034,8 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
             if (done != 1) { round_fail = 1; fail_why = "not_done_safe"; }
             else if (st != 0x00000E04u) { round_fail = 1; fail_why = "status_not_0E04"; }
             else if (err != 0u) { round_fail = 1; fail_why = "error_nonzero"; }
+            xil_printf("LONGRUN PROBE iter=%u done=%d st=0x%08x elapsed_ms=%u\r\n",
+                       (unsigned)iter, done, (unsigned)st, (unsigned)elapsed_ms);
             if (round_fail == 0) { s4d_lr_done(4u, iter); }
         }
 

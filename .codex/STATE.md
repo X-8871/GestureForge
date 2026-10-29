@@ -8,6 +8,16 @@
 
 任务=`S4-T30::d1a_address_landing` | 负责人=`DSH 项目总控（Wong 2026-10-27 直接指令接管）` | 工作树/分支=`D:\codex-worktrees\w4 / stage4-infer-prep` | 起始提交=`83c9284ad2296b9b2c836250cee615e255533615` | 允许修改范围=`docs/stage4/、scripts/stage4_s4ctrl/、report/evidence/S4-CTRL/、.codex/STATE.md` | 未提交改动归属=`原持有方 Workbuddy 的 25 项未提交改动：不清理/不暂存/不回退/不代提交` | 让出声明=`无书面 OFFERED 行（原持有方未出 OFFERED）；本次接管依据为 Wong 2026-10-27 直接指令，属直接指令接管，非 OFFER 交接` | 心跳(UTC+8)=`2026-10-27T20:00:09+08:00` | 证据入口=`report/evidence/S4-CTRL/s4_d1a_landing_20261027_r01/（复审 PASS）；修 4 项非阻断后见 s4_d1a_landing_20261027_r02/` | 恢复命令=`git --no-optional-locks -C D:/codex-worktrees/w4 rev-parse HEAD; python -B scripts/stage4_s4ctrl/verify_d1a_landing.py --run-dir <新RunId>` | 状态/下一接手方=`IN_PROGRESS DSH 项目总控（4 项非阻断已修，待同 Reviewer 增量核对）`
 
+## 2026-10-29 长跑停住定位（A 项）与 DAP 粘连（板级暂停）
+
+- **RunId `bringup_longrun_probe_20261029_r02` = INVALID_RUN（自伤，不作为任何证据）**：预载真实 fixture RAW（0x12000000）+ 权重 GF8（0x10100000）后，板上 **`tensor_crc32=0x5B183B50` 复现**（与离线一致）；但执行器复用 `load_elf_ddr` 时**未置位 `_PL_STATE["programmed"]`**，该函数走了 `rst -system -stop` → **清掉刚编程的 2B PL 配置** → 应用首次 `0x43C00000` 读永不完成（末行打印 `LONGRUN PROBE slcr shftr=0x0000000F fclk0=0x00600600 aper=0x1F000200 fpga_rst=0x00000000`，静默 150 s）→ 停核失败 → **DAP 粘连 `0x30000021/0xF0000021`**。作废与根因见 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r02/ERRATA_INVALID_RUN.md`；对照：14:38 同 ELF 窗口（init 先跑、后编程 PL、不再系统复位）首次 CSR 读成功。
+- 该窗口 W0 打开时候选区与 M3 快照差异 **11,850,821 B**（已按快照重写，`restore_diff=0`）；**W4 收尾恢复未完成**（DAP 粘连，dump/恢复均失败）⇒ 下个窗口第一步必须做 W0 式 dump 对比，不得默认候选区干净。
+- **板上现状：DAP 粘连，必须整机断电（12V+USB ≥10 s）才可能恢复；未用 `-force`、未尝试任何"清粘连"写操作。断电前不得再上板。** 收窗后进程已清零（hw_server/xsdb/vivado 0，3121 仅 TIME_WAIT）。
+- 已备好修正版执行器（**尚未执行**）：`D:\tmp\lead\probe_long_20261029_r03\run_probe_longrun_r03.py`（sha256 `f525ac03…7d7aeb`；编程 PL 后只 `rst -processor -stop`，含 state 可读性门禁、记录区 8 字、CSR `-mem-ranges` 修正、DevCfg 读、DAP 不可用即停）。
+- 已备好 P2b 4-D 复验执行器（**尚未执行**）：`D:\tmp\lead\p2b_board_20261029_r01\run_p2b_4d.py`（sha256 `9be5e855…d7fb95`；M3 只读复检 + M4-a + M4-b，装载不复跑 init、编程 PL 后不系统复位）。
+- r02 保全阶段的 CSR 三读**无效**（`loadhw -memrange` 为无效选项；解析把回显地址当值）⇒ 判读时丢弃；r03 已修。
+- 边界：以上均未主张 G3/G4/G5；未写 QSPI、未改线、`ENABLE=0`、未 push。
+
 ## 本轮结果（四项实测窗口；P1 smoke 失败已收窗，2026-10-27 20:44 UTC+8）
 
 - **窗口结论（lead 指定写入）**：`开窗 20:43:36 → 收窗 20:44:29（53 s）｜P0 PASS｜P1 smoke FAIL（脚本未选目标即 mrd）｜M1–M4a NOT_RUN｜未写 DDR、无副作用｜会话清理 PASS`。**不是 M1–M4 的技术结论，不构成任何通过。**

@@ -1,0 +1,25 @@
+# 长跑停住定位（预载真实 RAW+权重 + 五步探针）
+
+- RunId：`bringup_longrun_probe_20261029_r02`；开窗 2026-10-29T14:55:58+08:00；收窗 2026-10-29T15:02:05+08:00；用时 6.1 min
+- 探针 ELF：`f9095655bde0624d9844c4c60894b8366d6a874e900cbe7b6b220380c46c33dc`
+- 结论：**DIAG_NOT_CAPTURED**
+- W2：STALL（collect=STALL_EARLY，心跳 0，静默 150.0 s，tensor_crc32=0x5b183b50）
+- **最后一行打印**：`LONGRUN PROBE slcr shftr=0x0000000F fclk0=0x00600600 aper=0x1F000200 fpga_rst=0x00000000`
+- 记录区：magic=None valid=False step=None iter=None CSR=0x00000000 val=0x00000000 DFSR=0x00000000 DFAR=0x00000000 commit=0x00000000
+- 三 CSR：PASS {"error_code": 1136656400, "last_reject": 1136656484, "status": 1136656396}
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P2_enum_preflight：`PASS` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_preload：`PASS` exit=`0`
+- W2_longrun：`STALL` exit=`1`
+- W3_preserve：`PASS` exit=`0`
+- W4_final_restore：`FAIL` exit=`1`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 2B 平台位流 + SW 预处理 + fixture 非实拍；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`；CSR 三读仅作诊断，不作验收判据。
+- 不主张 G3/G4/G5；M3/M2 未闭合。

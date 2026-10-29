@@ -5,6 +5,11 @@
   "path_convention": "仓库相对路径",
   "items": [
     {
+      "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/.gitattributes",
+      "bytes": 41,
+      "sha256": "161d4fc3fc645d35e126e4ee4badaab15cc28a339831082c9f33490211f027b9"
+    },
+    {
       "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/bd_p3c.tcl",
       "bytes": 33470,
       "sha256": "bce7144cd584dbec4c7087fd525f0d5c6a4c1a9e5c827194d693cbbc173a0ad3"
@@ -13,6 +18,21 @@
       "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/build_console_output.txt",
       "bytes": 194180,
       "sha256": "91b892fef9bcb0fda194255ded8b289ef2a152a7d42cf48ad3cee4fbfb628b9f"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/P3C_BUILD_REPORT.md",
+      "bytes": 12012,
+      "sha256": "7fc3b05de4b3b7edd35099cfb773aba2aac8d1ee06b6ff3c831c4b1a84b2ed18"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/post_clkgrp_p3c.tcl",
+      "bytes": 2416,
+      "sha256": "30625cec31f9efba6a9a1cc114b265ef73605c06f19660ee98d0a797a4553a59"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/post_p3c_checks.tcl",
+      "bytes": 3414,
+      "sha256": "05f1d556fa2c5abc3eac5537161e2df218650cd7061c6c1cea2521ec7992d3a8"
     },
     {
       "path": "report/evidence/S5-T01/s5_p3c_hw_20261030_r01/top_p3c_clock_utilization_routed.rpt",
@@ -41,7 +61,7 @@
     }
   ],
   "phase": "阶段5 P3c：VDMA 数据面 100 MHz（AXI-Lite 保持 50 MHz）带宽修复位流",
-  "conclusion": "P3C_HW_BUILD_PASS",
+  "conclusion": "P3C_HW_BUILD_PASS_BANDWIDTH_UNVERIFIED",
   "bit_sha256": "f55a93706e2bbdb64f32d60947c4139ab0f2acba32861e14ac76ed0efcd31485",
   "bit_bytes": 4045762,
   "xsa_sha256": "1af694a08bcb2482e31ced3bf0dec5596f7fcc6d4c42a183b81e4c0c963c6d84",
@@ -55,10 +75,28 @@
     "total_endpoints": 52582
   },
   "delta_vs_p3b": {
-    "change": "vdma_0 m_axi_mm2s_aclk + smc_vid + S_AXI_HP2_ACLK -> FCLK1 100 MHz；s_axi_lite_aclk 保持 FCLK0 50 MHz（与 smc_ctrl 同域）"
+    "clocks": "s_axi_lite_aclk/axi_resetn 保持 50 MHz(FCLK0)；m_axi_mm2s_aclk+smc_vid+S_AXI_HP2_ACLK→100 MHz(FCLK1)；stream 仍 74.21875",
+    "timing": {
+      "P3b": "+0.544/+0.022",
+      "P3c": "+0.228/+0.036"
+    },
+    "resources": {
+      "LUT": "26,021 (48.91%, +54)",
+      "FF": "15,021 (14.12%, +129)",
+      "BRAM": "36.5 (+0)",
+      "DSP": "158 (+0)",
+      "MMCM": "1 (+0)",
+      "BUFG": "5 (+0)",
+      "OSERDESE2": "8 (+0)"
+    },
+    "drc": "435 条 / 0 error，无 NSTD-1/UCIO-1",
+    "async_groups": "12-4739 仍 6 条（已知读取顺序问题）；路由后补加时钟组 P3C_POST_CLKGRP=APPLIED，WNS/WHS 不变"
   },
   "open_items": [
-    "带宽是否达标（fps_dis 是否回到 ≥55）必须上板实测，未验证"
+    "**带宽是否达标未验证**（理论上限 800 MB/s vs 需求 221 MB/s，按同效率估 ~380 MB/s，属估算）",
+    "上屏/S6-C/D/E/F 未做",
+    "hdmi_oen 极性未确认",
+    "三时钟下 VDMA 欠载/溢出未观察"
   ],
   "boundary": "候选位流，未冻结；未主张 G3"
 }

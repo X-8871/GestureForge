@@ -952,6 +952,17 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
         xil_printf("LONGRUN RESULT={\"exit\":1,\"reason\":\"preproc_fail\",\"rc\":%d}\r\n", prc);
         return -1;
     }
+    /* 探针（2026-10-29）：首次 CSR 访问之前读 SLCR —— PS 内部寄存器，不依赖 PL。
+     * 目的：判定"首次 CSR 读挂住"是否因 PL 侧无时钟/无响应（长跑静默停住）。
+     * 只读、不写任何 SLCR、不改变任何判据。 */
+    {
+        uint32_t p_shftr = Xil_In32(0xF8000900u);   /* LVL_SHFTR_EN */
+        uint32_t p_fclk0 = Xil_In32(0xF8000170u);   /* FCLK_CTRL0 */
+        uint32_t p_aper  = Xil_In32(0xF8000120u);   /* APER_CLK_CTRL */
+        uint32_t p_frst  = Xil_In32(0xF8000240u);   /* FPGA_RST_CTRL */
+        xil_printf("LONGRUN PROBE slcr shftr=0x%08x fclk0=0x%08x aper=0x%08x fpga_rst=0x%08x\r\n",
+                   (unsigned)p_shftr, (unsigned)p_fclk0, (unsigned)p_aper, (unsigned)p_frst);
+    }
     if (!s4d_is_idle()) {
         xil_printf("LONGRUN RESULT={\"exit\":1,\"reason\":\"not_idle\",\"status\":%u}\r\n",
                    (unsigned)s4d_rd(S4D_CSR_STATUS));

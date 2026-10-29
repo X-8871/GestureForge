@@ -189,9 +189,9 @@ int main(void)
         }
     }
 
-    /* ---------- 2) VDMA 初始化（2 帧存，非 SG） ---------- */
-    addrs[0] = 0x13000000u;
-    addrs[1] = 0x13384000u;
+    /* ---------- 2) VDMA 初始化（2 帧存，非 SG；帧缓冲地址按 2026-10-30 裁决搬到 0x20000000） ---------- */
+    addrs[0] = 0x20000000u;
+    addrs[1] = 0x20384000u;
     rc = S5Vdma_Init(&dma, addrs, 2u, 1280u * 4u, 720u);
     if (rc == 0) {
         S5Vdma_DecodeVersion(dma.version, &major, &minor, &rev);

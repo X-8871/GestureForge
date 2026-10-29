@@ -1,7 +1,9 @@
 # S5 P3b-sw：HDMI 显示链 PS 侧显示软件报告
 
 - 任务：阶段5 HDMI 显示链 · PS 侧显示软件（P3b-sw）
-- 日期：2026-10-30（UTC+8）　版本：**r02**（r01 → r02：布局裁决落地、补 VTC 生成器初始化、帧存改 2）
+- 日期：2026-10-30（UTC+8）　版本：**r03**
+  （r01 → r02：布局裁决落地、补 VTC 生成器初始化、帧存改 2；
+   r02 → r03：**帧缓冲迁出 must_not_access 禁区到 0x20000000**、**有界运行 180 帧 + `S5DISP RESULT=` 结果行**）
 - 边界：**离线编写 + 编译通过 + 主机端自检（渲染 PNG / 假寄存器堆跑寄存器序列）**。未接触板卡 / JTAG / COM4 / hw_server，未运行 Vivado，未修改 `w4` 仓库文件（只读引用），未 git 提交。
 - 工作目录：`D:\tmp\lead\p3b_display_sw_20261030_r01\`
 
@@ -11,16 +13,18 @@
 
 | 项目 | 结果 |
 |---|---|
-| ARM 编译/链接 | **exit 0**（compile 0 / link 0 / size 0 / nm 0） |
-| ELF | `build/s5_display_app.elf`，**sha256 `9fdec1d909054b1a08fdcd9a6b048fc8e0381327dc07e711e9c85d8de8790b38`**（重建可复现，同 sha） |
-| ELF 大小 | **268,184 B**；text 40,021 / data 72 / bss 2,353,184（berkeley） |
+| ARM 编译/链接 | **exit 0**（compile 0 / link 0 / size 0 / nm 0；警告 0） |
+| ELF | `build/s5_display_app.elf`，**sha256 `2d120a125cb95535790fc4fe699aa035a1b3065647d8bb5f0327a5b31a00d5bb`**（重建可复现，同 sha） |
+| ELF 大小 | **279,960 B**；text 41,889 / data 72 / bss 2,353,200（berkeley） |
+| 帧缓冲地址 | **A=`0x20000000`、B=`0x20384000`**，终点 `0x20708000`（**已迁出 `[0x12C08000,0x20000000)` 禁区**，§3.1） |
+| 有界运行 + 结果行 | **已实现**：默认 180 帧或 60 s 先到者停机，结束打印单行 `S5DISP RESULT={...}`（失败带 `reason`），进度行 `S5DISP frame=` 独立（§5.3、§8.3） |
 | VTC 生成器 | **已实现**（VTC 6.2，720p60）：12/12 寄存器回读校验 OK，负例可检出 MISMATCH（§2.4） |
 | VDMA | **2 帧存**（与 BD `c_num_fstores=2` 一致），A/B 双缓冲，只写 0x5C/0x60 两个地址（§2.2） |
 | 布局 | **已裁决：无重叠方案**（视频 `x=0..959` + 信息栏 `x=960..1279`），字面 160 黑边方案仅作实验分支（§3.2） |
-| 主机渲染自检 | **PASS**，同一份绘图源码渲染出 10 张 1280×720 PNG（两套布局 ×5） |
+| 主机渲染自检 | **PASS**，同一份绘图源码渲染出 10 张 1280×720 PNG（两套布局 ×5）+ 180 帧有界运行 → 示例 RESULT |
 | 寄存器序列自检 | **PASS**（假寄存器堆跑 `vtc_ctrl.c` + `vdma_ctrl.c`：VTC 校验、负例、双缓冲 6 帧决策，§8.2） |
 | VDMA 寄存器用法 | **有把握**：逐条来自本机 Vitis 2026.1 的 `axivdma_v6_17` 驱动源码（`xaxivdma_hw.h` + `xaxivdma_channel.c`），非 SG 写序列与驱动实现一一对应；题面里两处猜测已被纠正（§2.3） |
-| 未验证 | 全部上板行为：VDMA 实际搬数、VTC 实际时序输出、rgb2dvi/TMDS、DDR 带宽、撕裂/闪烁、真实延迟数值 |
+| 未验证 | 全部上板行为：VDMA 实际搬数、VTC 实际时序输出、rgb2dvi/TMDS、DDR 带宽、撕裂/闪烁、真实延迟数值；RESULT 中的 fps/latency/age 目前来自**模拟源**（§5.3） |
 
 ---
 
@@ -28,17 +32,17 @@
 
 | 文件 | 作用 | sha256 |
 |---|---|---|
-| `src/s5_display_app.c` | 绘图核心（纯函数，可主机编译）+ 模拟数据源 + 裸机 `main()`（VTC→测试图→VDMA→乒乓） | `6ac01dc1b80d0734956c6833ce2a60ab365b55438e2dffd636343586fe85e498` |
-| `src/s5_display_app.h` | 布局/颜色/数据结构/API，G0 口径集中定义（含布局裁决宏） | `fcedcdc3ad95b0157b468676908786e909a3462a8978effd8ab6b42b335de52d` |
-| `src/vdma_ctrl.c` | axi_vdma 6.3 MM2S 非 SG 寄存器级初始化/启动/状态 | `b9792bce1eff5a7e5e049853b9f1d10388686684b967d371c73d078d7241b6b0` |
-| `src/vdma_ctrl.h` | 寄存器偏移表 + 依据注释 + API | `1f23ef28a9df13afda8279577a11bf9c7583a529ba9b30b71f73e6cee5d76199` |
+| `src/s5_display_app.c` | 绘图核心（纯函数）+ 模拟数据源 + 裸机 `main()`（VTC→测试图→VDMA→有界乒乓→RESULT 行） | `b3be49e1eee6a30c2098b951a05bd03119070392bfca090f6d51617ba4965302` |
+| `src/s5_display_app.h` | 布局/颜色/数据结构/API + 结果行契约（`S5RunStats`） | `4eba66179ef605bca3c9f84aedd4c587dcb25499721ae6c961cdd435db6d9a51` |
+| `src/vdma_ctrl.c` | axi_vdma 6.3 MM2S 非 SG 寄存器级初始化/启动/状态/帧计数 | `11478655196062585107515ec3a940fa61dbfb3b0dd0828be0a8b3944b2e2558` |
+| `src/vdma_ctrl.h` | 寄存器偏移表 + 依据注释 + API（含 FRMCNT_EN/帧计数） | `e0bc10050626f665e5e89c0bf02cba2234c09d2af702117c08e4534c7a498bce` |
 | `src/vtc_ctrl.c` | v_tc 6.2 生成器初始化（720p60）+ 回读校验 + 文本摘要 | `8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6` |
 | `src/vtc_ctrl.h` | VTC 寄存器偏移/位域/结构 + 依据注释 | `68d1555cd3a78aff5d206a90229c1184cdd096b3c00f09b441ecb42c24162458` |
 | `src/s5_timebase.h/.c` | 全局定时器 64 位读取、宏括号坑的编译期断言 | `3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a` / `47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96` |
 | `src/s5_font8x16.h` | 自带 8×16 ASCII 点阵字库（95 字符 ×16 B，自动生成） | `2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3` |
 | `tools/gen_font8x16.py` | 字库生成器（DejaVu Sans Mono 11 px 栅格化，可复现） | `b9c5a583435d7120f76ae36b17df4a761f347cd1983866fefc66a0b2e3c04b87` |
-| `tools/host_render_test.c` | 主机端离线渲染自检（同一份绘图源码） | `aef11ef370ffd2e4000020eb7ef1b47e63d87536d4756240d7c99f1fde5fc00e` |
-| `tools/vtc_vdma_selftest.c` | 假寄存器堆离线自检：VTC 校验 + 负例 + VDMA 双缓冲决策 | `3b5c7c1fdeac00d4c1b5c91bde7d29faf5551bf9a22aff72dc1372b3e2e412b7` |
+| `tools/host_render_test.c` | 主机端离线渲染自检 + 180 帧有界运行（同一份绘图/结果行代码） | `658b3beff0b92fcf8d9d5bbb308761372cd33a313fa55be2fc70424869012b7f` |
+| `tools/vtc_vdma_selftest.c` | 假寄存器堆离线自检：VTC 校验 + 负例 + VDMA 双缓冲决策 | `b8b546bfa08a910dd04b61075ebfecb05adc9e7feda8db0df0e247c0f7b8f808` |
 | `tools/host_xil_shim/xil_io.h` | 主机自检用 `Xil_In32/Xil_Out32` 替身声明（不进 ARM 构建） | `1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263` |
 | `build_s5_display_app.py` | 一键构建 + 三方自检 + 证据记录 | `e446e267e8c690feb0c7da5c20676fa83551f03586f184291a32bb157ce4258f` |
 | `build/` | ELF、map、build_record.json、构建日志、`selftest_vtc_vdma.txt`、10 张 PNG | — |
@@ -77,6 +81,10 @@
 `读 VERSION 判活 → 复位(CR.RESET=1 轮询自清) → 写帧存地址 → 写 HSIZE/STRD_FRMDLY → 读回 0x18 → CR=RUNSTOP|TAIL_EN → 写 VSIZE 触发 → 轮询 HALTED 清零（5 ms 超时）`。
 
 **帧存：2 个**（与 BD `c_num_fstores=2` 一致）—— 只写 `0x5C`（缓冲 A）与 `0x60`（缓冲 B），**不写** `0x64` 及以后；`0x18` 只读回记录（期望 2，不符则打印 WARN，不写）。
+
+**帧计数（结果行 `vcnt`）**：`S5Vdma_Start()` 在 CR 里置 `FRMCNT_EN`（bit4，依据 `XAXIVDMA_CR_FRMCNT_EN_MASK` + 驱动 `EnableFrameCounter`），
+之后 `SR[23:16]`（`XAXIVDMA_FRMCNT_MASK`）每完成一帧 +1（8 位回绕，SW 用无符号差累计）。若上板发现该字段恒 0（IP 未实现/被忽略），
+`vcnt` 自动退回“软件观测到的读帧存切换次数”，两条路径在 `S5Vdma_UpdateFrameCount()` 里已实现。
 
 ### 2.3 对题面中“待核对”猜测的纠正
 
@@ -140,18 +148,25 @@
 
 ## 3. 帧缓冲与画布布局
 
-### 3.1 冻结地址与尺寸
+### 3.1 帧缓冲地址（**r03 已迁出禁区**）与尺寸
+
+**为什么迁**：原定 `0x13000000` 落在阶段4 冻结的 `must_not_access` 禁区 `[0x12C08000, 0x20000000)` 内
+（依据 `report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_optionA_20261027_r01.md`：
+D1 只把禁区从 `[0x12000000,0x20000000)` 缩到 `[0x12C08000,0x20000000)`，`0x13000000` 仍在其中）。
+**lead 2026-10-30 裁决：帧缓冲迁到 `0x20000000`** —— 禁区上界之外、应用 ELF 之上（`end≈0x0034A840`）、PS DDR 低 1 GiB 内且空闲。
 
 | 项 | 值 | 计算 |
 |---|---|---|
 | 画布 | 1280×720，32-bit/像素，`0x00RRGGBB` | — |
 | 单帧字节 | **3,686,400 B = 0x384000** | 1280×720×4 |
-| 缓冲 A | `0x13000000` | 冻结 |
-| 缓冲 B | `0x13384000` | A + 0x384000 |
-| B 结束 | `0x13708000` | — |
+| 缓冲 A | **`0x20000000`** | lead 裁决 |
+| 缓冲 B | **`0x20384000`** | A + 0x384000 |
+| 两帧合计 | **7,372,800 B = 0x708000** | 2 × 0x384000 |
+| 终点 | **`0x20708000`** | B + 0x384000 |
+| 与禁区关系 | `[0x12C08000,0x20000000)` 之外 | 上界恰好 `0x20000000`，不重叠 |
 | 链接脚本内存区 | `0x00100000..0x01100000`（app）、`0x10000000..0x12000000`（r13 tensor） | 帧缓冲在两区之外，用绝对地址访问，链接器不分配 |
 
-实测 ELF 内存布局（`arm-none-eabi-nm`）：`__bss_start=0x0010C010`、`__bss_end=0x00239030`、`_heap_end=0x00339030`、`_stack=0x00349030`、`end=0x0034A830` —— 全部低于 `0x01100000`（链接脚本 `ASSERT(app budget)` 通过），与 `0x13000000` 帧缓冲无重叠。
+实测 ELF 内存布局（`arm-none-eabi-nm`）：`__bss_start=0x0010C010`、`__bss_end=0x0023903C`、`_heap_end=0x00339040`、`_stack=0x00349040`、`end=0x0034A840` —— 全部低于 `0x01100000`（链接脚本 `ASSERT(app budget)` 通过），与 `0x20000000` 帧缓冲无重叠。
 
 ### 3.2 布局裁决（已由 lead 2026-10-30 定案）
 
@@ -266,6 +281,51 @@ P3B-SW r01
 
 ---
 
+### 5.3 有界运行与结果行契约（**r03 新增，runner 判据写死**）
+
+**有界运行**（`main()`）：`while (frames < S5_RUN_FRAMES && elapsed < S5_RUN_MAX_MS)`，默认
+`S5_RUN_FRAMES = 180`、`S5_RUN_MAX_MS = 60000`（先到者停机，可用 `-DS5_RUN_FRAMES=N` 覆盖）。
+循环结束后先 `S5Vdma_Stop()` 停机，再打印结果行 —— UART 采集器可据此收尾，不会遇到无限运行。
+
+**结果行**（单行、固定前缀，**只由 `S5Display_FormatResult()` 产生**，主机自检与板上共用同一份实现）：
+
+```text
+S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"age_ms":31,"vdma_err":0,"frames":180,"vcnt":180}
+```
+
+| 字段 | 单位/取值 | 说明 |
+|---|---|---|
+| `pass` | 1 / 0 | 自检：VDMA 无错 + ≥1 帧完整显示 + 信息栏刷新成功 |
+| `fps_cap` | **整数 fps 0..60**（不是 ×10） | 采集口径 |
+| `fps_inf` | **整数 fps 0..60** | 推理口径；**本窗口无真实推理源 → 固定 0**（`S5_RESULT_FPS_INF_FROM_SIM=0`，契约允许） |
+| `fps_dis` | **整数 fps 0..60** | 显示口径 |
+| `latency_ms` | 整数毫秒 | 显示延迟；**当前取模拟源值** |
+| `age_ms` | 整数毫秒 | 结果年龄；**当前取模拟源值**（每 47 帧注入一次超龄，验证 AGE OVER 路径） |
+| `vdma_err` | 计数 | 运行期间 SR 错误位（`XAXIVDMA_SR_ERR_ALL`）累计次数 |
+| `frames` | 计数 | 实际渲染帧数 |
+| `vcnt` | 计数 | VDMA 消耗帧计数：优先硬件帧计数（SR[23:16]），读不到则软件观测读帧存切换次数 |
+| `reason` | 字符串（仅 `pass:0`） | 失败原因：`vdma_init_failed` / `vdma_error` / `no_frame_rendered` / `frame_check_failed` |
+
+**通过判据实现**（`S5Display_CheckFrame()` 抽点自检）：视频区（摄像头梯度）抽样 ≥8 个非黑点；
+信息栏**标题条**（y=6..20、x=970..1160）抽样 ≥20 个非面板底色点 —— 标题条是实心填色带，用它判断“信息栏确实刷新过”，
+比随机抽文字像素稳健（文字覆盖率低会误判）。
+
+**进度行**（与 RESULT 行分开，绝不拼在同一行）：
+```text
+S5DISP frame=60 lat=... age=... st=... sr=...
+```
+每 60 帧一行；结束后另有 `S5DISP done frames=... vcnt=... vdma_err=...` 一行，再打 RESULT 行。
+
+**失败也打 RESULT**（`pass:0` + `reason`，同样单行）：
+```text
+S5DISP RESULT={"pass":0,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"age_ms":31,"vdma_err":0,"frames":180,"vcnt":180,"reason":"vdma_init_failed"}
+```
+
+> 离线示例由 `tools/host_render_test.c` 跑满 180 帧（真渲染 + 抽点自检，无 MMIO）后用**同一函数**生成，见 §8.3；
+> 板上数值的 fps/latency/age 目前来自模拟源，接真实推理后按 §9 替换。
+
+---
+
 ## 6. 未验证项与风险
 
 ### 6.1 高风险（阻断上板联调）
@@ -274,8 +334,9 @@ P3B-SW r01
    - 本 SW 的防护：init 读回 `0x18`，不等于 2（且非 0）时打印 `WARN FRMSTORE readback != 2`；`0x18` 本身是否可读取决于 IP 调试参数，读回 0 时只记录、不据此决策。
    - 上板第一步：确认 `c_num_fstores=2` 的新 BD 已生效（读回 / 看综合报告参数），再观察帧序列。
 2. **未上板**：VDMA 实际搬数、`vid_out` 的 `tready` 反压、VTC 实际时序输出、rgb2dvi/TMDS、DDR 带宽全部未验证。本 ELF 只证明“能编译链接 + 寄存器序列逻辑正确（假寄存器堆自检）+ 图形逻辑正确”。
-3. **VTC 已实现但只验证到寄存器层**：`vtc_ctrl.c` 按 720p60 写生成器并在写后逐寄存器回读（12/12 OK，负例可检出 MISMATCH）。**未验证**：真实 VTC 输出时序（HS/VS/DE/极性）、`v_axi4s_vid_out` 是否 `locked`、`rgb2dvi`/TMDS 是否出图。若上板无图，排查顺序：`vid_out` locked 位 → VTC 极性 → VDMA 是否在跑（SR/CR）→ 帧缓冲内容（JTAG 看 0x13000000）。
-4. **缓存一致性**：帧缓冲 3.7 MB ≫ 32 KB D-cache。`main()` 每帧调用 `Xil_DCacheFlushRange()`（`S5_DCACHE_FLUSH=1`）。若 bring-up 时 D-cache 关闭，可置 0；若开启，必须保证 0x13000000 区按 write-back 正常维护，且 flush 的耗时（~115k cache line）计入帧预算。
+3. **VTC 已实现但只验证到寄存器层**：`vtc_ctrl.c` 按 720p60 写生成器并在写后逐寄存器回读（12/12 OK，负例可检出 MISMATCH）。**未验证**：真实 VTC 输出时序（HS/VS/DE/极性）、`v_axi4s_vid_out` 是否 `locked`、`rgb2dvi`/TMDS 是否出图。若上板无图，排查顺序：`vid_out` locked 位 → VTC 极性 → VDMA 是否在跑（SR/CR）→ 帧缓冲内容（JTAG 看 0x20000000）。
+4. **缓存一致性**：帧缓冲 3.7 MB ≫ 32 KB D-cache。`main()` 每帧调用 `Xil_DCacheFlushRange()`（`S5_DCACHE_FLUSH=1`）。若 bring-up 时 D-cache 关闭，可置 0；若开启，必须保证 0x20000000 区按 write-back 正常维护，且 flush 的耗时（~115k cache line）计入帧预算。
+4b. **帧缓冲新地址（0x20000000）本身未经板上写入-回读实测**：只在链接/文档层面确认它不在 `[0x12C08000,0x20000000)` 禁区内、在 ELF `end` 之上、在 PS DDR 低 1 GiB 内；上板第一步应做 64 B 对齐的写-回读校验（与阶段4 的候选区核验同口径）。
 
 ### 6.2 中风险
 
@@ -335,9 +396,10 @@ arm-none-eabi-gcc.exe <同上 flags> \
 | 链接 | **0** |
 | size / nm | 0 / 0 |
 | 主机渲染自检（两套布局） | 0 / 0（PASS，各 5 张 PNG） |
+| 主机 180 帧有界运行 → RESULT 行 | 0（PASS，示例见 §8.3） |
 | VTC/VDMA 寄存器序列自检 | **0**（PASS，见 §8.2） |
 
-产物：`build/s5_display_app.elf`（**268,184 B，sha256 `9fdec1d9...` 见 §0**）、`build/s5_display_app.map`、`build/build_record.json`（输入/输出哈希、命令、退出码、限制项、自检结果）、`build/selftest_vtc_vdma.txt`、`build/host_render_test*.exe`、`build/*.png`。
+产物：`build/s5_display_app.elf`（**279,960 B，sha256 `2d120a12...` 见 §0**）、`build/s5_display_app.map`、`build/build_record.json`（输入/输出哈希、命令、退出码、限制项、自检结果）、`build/selftest_vtc_vdma.txt`、`build/host_render_test*.exe`、`build/*.png`。
 
 ### 7.3 符号检查（防止“链接成功但内容被 gc 掉”）
 
@@ -397,19 +459,37 @@ VTC: re-init after negative test -> OK
 **VDMA（2 帧存）初始化 + 双缓冲乒乓决策：**
 ```text
 VDMA: init OK, version=0x60300000 (major 6 minor 3 rev 0), FRMSTORE readback=2 (expect 2)
-VDMA: CR=0x00000003 SR=0x00000002 HSIZE=5120 VSIZE=720 STRIDE=5120
-VDMA: store0=0x13000000 store1=0x13384000
-frame 0: VDMA reads B(0x13384000) -> draw into A(0x13000000) wait=ok PASS
-frame 1: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
-frame 2: VDMA reads B(0x13384000) -> draw into A(0x13000000) wait=ok PASS
-frame 3: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
-frame 4: VDMA reads B(0x13384000) -> draw into A(0x13000000) wait=ok PASS
-frame 5: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
+VDMA: CR=0x00000013 SR=0x00000002 HSIZE=5120 VSIZE=720 STRIDE=5120
+VDMA: store0=0x20000000 store1=0x20384000
+frame 0: VDMA reads B(0x20384000) -> draw into A(0x20000000) wait=ok PASS
+frame 1: VDMA reads A(0x20000000) -> draw into B(0x20384000) wait=ok PASS
+frame 2: VDMA reads B(0x20384000) -> draw into A(0x20000000) wait=ok PASS
+frame 3: VDMA reads A(0x20000000) -> draw into B(0x20384000) wait=ok PASS
+frame 4: VDMA reads B(0x20384000) -> draw into A(0x20000000) wait=ok PASS
+frame 5: VDMA reads A(0x20000000) -> draw into B(0x20384000) wait=ok PASS
 ==== selftest: PASS ====
 ```
-解读：`CR=0x3` = RUNSTOP|TAIL_EN；`SR=0x2` = IDLE（已启动、无错误位）；
+解读：`CR=0x13` = RUNSTOP|TAIL_EN|**FRMCNT_EN**（帧计数使能，供 `vcnt`）；`SR=0x2` = IDLE（已启动、无错误位）；
 每帧都选“当前不被读”的缓冲写入并 `wait=ok`，6/6 帧无冲突 → 乒乓逻辑正确。
 **注意**：这是假硬件的逻辑验证，`READSTR` 的真实行为仍是联调第一优先（§6.2-5）。
+
+### 8.3 有界运行 180 帧 → 示例 RESULT 行（离线打印）
+
+`tools/host_render_test.c` 在主机上跑满 `S5_RUN_FRAMES=180` 帧（真渲染 + 信息栏抽点自检，无 MMIO），
+再用**与板上同一份** `S5Display_FormatResult()` 生成结果行。实际 stdout：
+
+```text
+S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"age_ms":31,"vdma_err":0,"frames":180,"vcnt":180}
+```
+
+失败路径（同一函数，`pass:0` + `reason`，仍为单行）：
+```text
+S5DISP RESULT={"pass":0,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"age_ms":31,"vdma_err":0,"frames":180,"vcnt":180,"reason":"vdma_init_failed"}
+```
+说明：`fps_cap=30 / fps_dis=59 / latency_ms=19 / age_ms=31` 均来自**模拟数据源**（`S5Sim_NextFrame`），
+`fps_inf=0` 按契约（无真实推理源）；`vcnt=180` 是离线模拟值（板上取硬件帧计数，见 §2.2）。
+`pass=1` 的成立依据：`S5Display_CheckFrame()` 对最后一帧的抽点自检通过（视频区 36/64 非黑点、
+信息栏标题条 80/80 非底色点，远高于阈值 8 / 20）。
 
 ---
 
@@ -430,6 +510,11 @@ frame 5: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
 
 三个时间戳都用同一时间基座（`S5Ticks_Now()`，0xF8F00200，~3 ns 分辨率），测量口径与 G0 一致。
 
+**结果行字段的来源**（`S5RunStats`，见 §5.3）：`fps_cap/fps_inf/fps_dis` 由 `fps_*_x10 / 10` 得到（整数 fps），
+`latency_ms/age_ms` 取最后一帧的 `S5FrameInfo`，`vdma_err` 由主循环累计 SR 错误位，`frames` 为实际渲染帧数，
+`vcnt` 取 `S5Vdma_UpdateFrameCount()`（不可用时退回软件观测）。接真实推理后**只需**替换 `S5Sim_NextFrame()` 并把
+`S5_RESULT_FPS_INF_FROM_SIM` 置 1，结果行代码不用动。
+
 ---
 
 ## 10. 待办（按优先级）
@@ -437,8 +522,10 @@ frame 5: VDMA reads A(0x13000000) -> draw into B(0x13384000) wait=ok PASS
 1. ~~裁决 §3.2 布局~~ —— **已完成**：默认 L0（无黑边、无重叠），L1 仅作实验分支。
 2. ~~补 VTC 编程~~ —— **已完成（离线）**：`vtc_ctrl.c` 720p60 + 回读校验 + 负例；上板仍需验证实际时序输出。
 3. ~~确认 `c_num_fstores`~~ —— **已按 2 实现**（与 BD 对齐）；上板读回 0x18 复核一次。
-4. **上板联调（最高优先）**：①`PARKPTR.READSTR` 在 circular 模式是否随帧更新（决定写侧同步是否可用）；②`vid_out` locked；③VDMA 启动/状态与 SR 错误位；④撕裂观察；⑤DDR 带宽与帧耗时（GT 打点）；⑥rgb2dvi/TMDS 出图。
-5. 接真实推理输出，替换 `S5Sim_NextFrame`；把延迟/年龄换成真实时间戳（口径不变）。
-6. 性能优化（如需 60 fps）：面板局部重绘、按行 flush、必要时把画布改成 RGB565 减半带宽（会改冻结格式，需批准）。
-7. 类别名/颜色表（`s5_class_name`/`s5_class_color`）等阶段5 类别定义冻结后替换。
-6. 性能优化（如需 60 fps）：面板局部重绘、按行 flush、必要时把画布改成 RGB565 减半带宽（会改冻结格式，需批准）。
+4. ~~有界运行 + 结果行~~ —— **已完成**：180 帧/60 s 停下 + 单行 `S5DISP RESULT=`（失败带 `reason`），离线示例见 §8.3。
+5. ~~帧缓冲迁出禁区~~ —— **已完成**：A/B = `0x20000000`/`0x20384000`。
+6. **上板第一步（先做便宜的）**：①对 `[0x20000000,0x20708000)` 做 64 B 对齐写-回读校验并留原始字节；②确认 `[0x12C08000,0x20000000)` 禁区未被本应用触碰（只读核验地址常量与 map）；③读回 `0x18` 确认 2 帧存；④确认 `vcnt` 是否由硬件帧计数推进（若恒 0 则走软件兜底，属预期行为）。
+7. **上板联调（最高优先）**：①`PARKPTR.READSTR` 在 circular 模式是否随帧更新（决定写侧同步是否可用）；②`vid_out` locked；③VDMA 启动/状态与 SR 错误位；④撕裂观察；⑤DDR 带宽与帧耗时（GT 打点，决定 180 帧能否在 60 s 内跑完）；⑥rgb2dvi/TMDS 出图。
+8. 接真实推理输出，替换 `S5Sim_NextFrame`，把 `S5_RESULT_FPS_INF_FROM_SIM` 置 1；延迟/年龄换成真实时间戳（口径不变）。
+9. 性能优化（如需 60 fps）：面板局部重绘、按行 flush、必要时把画布改成 RGB565 减半带宽（会改冻结格式，需批准）。
+10. 类别名/颜色表（`s5_class_name`/`s5_class_color`）等阶段5 类别定义冻结后替换。

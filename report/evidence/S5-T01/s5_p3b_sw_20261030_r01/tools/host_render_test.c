@@ -124,17 +124,45 @@ int main(void)
     S5Display_RenderFrame(fb, cam, &info, S5_DMA_ERR);
     rc |= ppm_write("build/frame_age_over" S5_SUFFIX ".ppm", fb);
 
-    /* 4) 模拟数据源跑 3 帧，确认接口不崩且字段自洽 */
+    /* 4) 有界运行 S5_RUN_FRAMES(180) 帧（模拟源）→ 用**与板上同一份** S5Display_FormatResult()
+     *    生成 RESULT 行。这里 180 帧是真渲染（含信息栏抽点自检），只是没有 VDMA/MMIO。 */
     {
-        int i;
+        S5RunStats st;
+        char res[224];
+        uint32_t i;
+        uint32_t last_lat = 0;
+        uint32_t last_age = 0;
+        uint32_t t0 = (uint32_t)S5Ticks_Now();
 
-        for (i = 0; i < 3; i++) {
+        for (i = 0; i < (uint32_t)S5_RUN_FRAMES; i++) {
             S5Sim_NextFrame(&info);
-            printf("sim frame=%d cap=%.1f inf=%.1f dis=%.1f lat=%d age=%d det=%d st=0x%04X\n",
-                   (int)info.frame_id, info.fps_cap_x10 / 10.0, info.fps_inf_x10 / 10.0,
-                   info.fps_dis_x10 / 10.0, (int)info.latency_ms, (int)info.age_ms,
-                   (int)info.det_count, (unsigned)info.status);
+            S5Sim_CameraFrame(cam, info.frame_id);
+            S5Display_RenderFrame(fb, cam, &info, S5_DMA_RUN);
+            last_lat = info.latency_ms;
+            last_age = info.age_ms;
         }
+
+        st.pass = S5Display_CheckFrame(fb) ? 1u : 0u;
+        st.reason = (st.pass != 0u) ? 0 : "frame_check_failed";
+        st.fps_cap = (uint32_t)(info.fps_cap_x10 / 10u);
+        st.fps_inf = 0u; /* 无真实推理源：与板上 S5_RESULT_FPS_INF_FROM_SIM=0 口径一致 */
+        st.fps_dis = (uint32_t)(info.fps_dis_x10 / 10u);
+        st.latency_ms = last_lat;
+        st.age_ms = last_age;
+        st.vdma_err = 0u;
+        st.frames = (uint32_t)S5_RUN_FRAMES;
+        st.vcnt = (uint32_t)S5_RUN_FRAMES; /* 离线：模拟 VDMA 每帧消耗一帧 */
+
+        S5Display_FormatResult(&st, res, (uint32_t)sizeof(res));
+        printf("%s\n", res);
+        printf("RESULT 行长度=%u 字符（单行，不含换行）\n", (unsigned)strlen(res));
+
+        /* 4.1 失败路径契约演示：pass:0 + reason 也必须是同一行 */
+        st.pass = 0u;
+        st.reason = "vdma_init_failed";
+        S5Display_FormatResult(&st, res, (uint32_t)sizeof(res));
+        printf("%s\n", res);
+        printf("180 帧渲染耗时(假时钟计数差)=%u\n", (unsigned)((uint32_t)S5Ticks_Now() - t0));
     }
 
     free(cam);

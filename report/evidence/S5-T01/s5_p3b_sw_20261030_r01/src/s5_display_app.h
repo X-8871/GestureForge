@@ -17,13 +17,21 @@
 
 #include <stdint.h>
 
-/* ---------------- 画布与帧缓冲（地址冻结） ---------------- */
+/* ---------------- 画布与帧缓冲（地址已按 lead 2026-10-30 裁决迁移） ----------------
+ * 原定 0x13000000 落在阶段4 冻结的 must_not_access 禁区 [0x12C08000, 0x20000000) 内
+ * （依据 decisions/stage4_raw_address_d1_optionA_20261027_r01.md），**不可用**。
+ * 裁决：帧缓冲迁到 0x20000000 —— 禁区之上、应用 ELF 之上（ELF end≈0x0034A8xx）、
+ * PS DDR 低 1 GiB（0x00000000..0x3FFFFFFF）之内且空闲。
+ *   A = 0x20000000
+ *   B = 0x20384000（= A + 0x384000）
+ *   每帧 3,686,400 B，两帧 7,372,800 B，终点 0x20708000。 */
 #define S5_CANVAS_W 1280
 #define S5_CANVAS_H 720
-#define S5_FB_BYTES (S5_CANVAS_W * S5_CANVAS_H * 4u) /* 3,686,400 B */
+#define S5_FB_BYTES (S5_CANVAS_W * S5_CANVAS_H * 4u) /* 3,686,400 B = 0x384000 */
 
-#define S5_FB_A_BASE 0x13000000u
-#define S5_FB_B_BASE 0x13384000u /* A + 0x384000 */
+#define S5_FB_A_BASE 0x20000000u
+#define S5_FB_B_BASE 0x20384000u /* A + 0x384000 */
+#define S5_FB_END (S5_FB_B_BASE + S5_FB_BYTES) /* 0x20708000 */
 
 /* ---------------- 摄像头/视频区/信息栏几何 ---------------- */
 #define S5_CAM_W 640
@@ -121,6 +129,34 @@ typedef struct S5FrameInfo {
     uint8_t pad;
     S5DetBox det[S5_MAX_DET];
 } S5FrameInfo;
+
+/* ---------------- 有界运行 + 结果行（runner 契约；字段名/单位写死，不得改） ----------------
+ * 上屏窗口的执行器按固定契约解析，改动字段名/单位会直接让判据失效。
+ * 单位：fps_cap/fps_inf/fps_dis = **整数 fps（0..60）**，不是 ×10；
+ *       latency_ms / age_ms = 整数毫秒；frames/vcnt/vdma_err = 计数。 */
+#define S5_RUN_FRAMES 180u  /* 默认帧数上限；可用 -DS5_RUN_FRAMES=N 覆盖 */
+#define S5_RUN_MAX_MS 60000u /* 或运行 ≥60 s，先到者停机（UART 采集器可收尾） */
+#define S5_RESULT_PREFIX "S5DISP RESULT="
+
+typedef struct S5RunStats {
+    uint32_t pass;      /* 1=自检通过，0=失败 */
+    uint32_t fps_cap;   /* 采集口径，整数 fps */
+    uint32_t fps_inf;   /* 推理口径，整数 fps；无真实推理源时为 0（契约允许） */
+    uint32_t fps_dis;   /* 显示口径，整数 fps */
+    uint32_t latency_ms;
+    uint32_t age_ms;
+    uint32_t vdma_err;  /* VDMA SR 错误位累计次数 */
+    uint32_t frames;    /* 实际渲染帧数 */
+    uint32_t vcnt;      /* VDMA 消耗帧计数（硬件帧计数优先，读不到则软件观测） */
+    const char *reason; /* pass=0 时的失败原因（ASCII，无引号）；pass=1 为 NULL */
+} S5RunStats;
+
+/* 生成单行结果：S5DISP RESULT={...}（不含换行；调用方自行补 \r\n）。
+ * 返回写入长度（不含结尾 0）。字段顺序与契约一致。 */
+uint32_t S5Display_FormatResult(const S5RunStats *st, char *buf, uint32_t cap);
+
+/* 帧完整性自检：抽点确认视频区有内容、信息栏有文字（0=异常，1=OK）。 */
+int S5Display_CheckFrame(const uint32_t *fb);
 
 /* ---------------- 绘图原语（纯函数，可在主机渲染） ---------------- */
 void S5Draw_Pixel(uint32_t *fb, int x, int y, uint32_t color);

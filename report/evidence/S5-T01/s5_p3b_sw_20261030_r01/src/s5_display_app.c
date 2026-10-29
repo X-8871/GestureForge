@@ -464,7 +464,7 @@ void S5Draw_InfoPanel(uint32_t *fb, const S5FrameInfo *info, uint32_t dma_state)
 
     /* 页脚：分辨率与版面（便于上板一眼确认走的是哪个版本） */
     S5Draw_Text(fb, x, 680, "960x720 + 320 panel", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
-    S5Draw_Text(fb, x, 698, "P3B-SW r02", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
+    S5Draw_Text(fb, x, 698, "P3B-SW r03", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
 }
 
 /* ---------------- 帧装配 / 测试图 ---------------- */
@@ -500,6 +500,85 @@ void S5Display_TestPattern(uint32_t *fb, uint32_t mode)
         S5Draw_GrayRamp(fb);
         break;
     }
+}
+
+/* ---------------- 结果行（runner 契约实现，纯函数） ----------------
+ * 契约（写死，不得改字段名/单位，见 s5_display_app.h）：
+ *   S5DISP RESULT={"pass":1,"fps_cap":60,"fps_inf":0,"fps_dis":60,"latency_ms":0,
+ *                  "age_ms":47320,"vdma_err":0,"frames":180,"vcnt":180}
+ * 失败时追加 "reason":"..."。整行必须在**同一行**输出（调用方只补一次 \r\n）。 */
+uint32_t S5Display_FormatResult(const S5RunStats *st, char *buf, uint32_t cap)
+{
+    char *p = buf;
+
+    if ((st == 0) || (buf == 0) || (cap < 200u)) {
+        return 0u; /* 契约要求单行完整，容量不足宁可不打印也不截断出半个 JSON */
+    }
+
+    p = s5_cat(p, S5_RESULT_PREFIX);
+    p = s5_cat(p, "{\"pass\":");
+    p = s5_u32(p, (st->pass != 0u) ? 1u : 0u, 0);
+
+    /* fps 单位是整数 fps（0..60），不是 ×10；越界按 60 收敛，避免判据解析出非法值 */
+#define S5_FPS_CLAMP(v) (((v) > 60u) ? 60u : (v))
+    p = s5_cat(p, ",\"fps_cap\":");
+    p = s5_u32(p, S5_FPS_CLAMP(st->fps_cap), 0);
+    p = s5_cat(p, ",\"fps_inf\":");
+    p = s5_u32(p, S5_FPS_CLAMP(st->fps_inf), 0);
+    p = s5_cat(p, ",\"fps_dis\":");
+    p = s5_u32(p, S5_FPS_CLAMP(st->fps_dis), 0);
+#undef S5_FPS_CLAMP
+
+    p = s5_cat(p, ",\"latency_ms\":");
+    p = s5_u32(p, st->latency_ms, 0);
+    p = s5_cat(p, ",\"age_ms\":");
+    p = s5_u32(p, st->age_ms, 0);
+    p = s5_cat(p, ",\"vdma_err\":");
+    p = s5_u32(p, st->vdma_err, 0);
+    p = s5_cat(p, ",\"frames\":");
+    p = s5_u32(p, st->frames, 0);
+    p = s5_cat(p, ",\"vcnt\":");
+    p = s5_u32(p, st->vcnt, 0);
+
+    if ((st->pass == 0u) && (st->reason != 0)) {
+        p = s5_cat(p, ",\"reason\":\"");
+        p = s5_cat(p, st->reason);
+        *p++ = '"';
+    }
+    *p++ = '}';
+    *p = '\0';
+    return (uint32_t)(p - buf);
+}
+
+/* 帧完整性抽点自检（结果行 pass 的第三个条件：至少一帧完整显示 + 信息栏刷新成功）。
+ * 视频区：摄像头梯度不应全黑，抽样要求足够多的非黑点；
+ * 信息栏：**标题条**（y=0..25）是实心填色带，正常渲染时该带内几乎全部 != 面板底色，
+ *         用它判断“信息栏确实刷新过”，比随机抽文字像素稳健（文字覆盖率低，会误判）。 */
+int S5Display_CheckFrame(const uint32_t *fb)
+{
+    int hits_video = 0;
+    int hits_panel = 0;
+    int y;
+    int x;
+
+    if (fb == 0) {
+        return 0;
+    }
+    for (y = 40; y < S5_VID_H; y += 90) {
+        for (x = 20; x < S5_VID_W - 20; x += 120) {
+            if (fb[(uint32_t)y * (uint32_t)S5_CANVAS_W + (uint32_t)x] != S5_COLOR_BLACK) {
+                hits_video++;
+            }
+        }
+    }
+    for (y = 6; y <= 20; y += 4) {
+        for (x = S5_PANEL_X + 10; x < S5_PANEL_X + 200; x += 10) {
+            if (fb[(uint32_t)y * (uint32_t)S5_CANVAS_W + (uint32_t)x] != S5_COLOR_PANEL_BG) {
+                hits_panel++;
+            }
+        }
+    }
+    return ((hits_video >= 8) && (hits_panel >= 20)) ? 1 : 0;
 }
 
 /* ---------------- 模拟数据源 ----------------
@@ -647,6 +726,10 @@ void S5Sim_CameraFrame(uint32_t *cam, uint32_t frame_id)
  * 双缓冲 A/B，只填 0x5C/0x60 两个地址寄存器，不写第 3 个。 */
 #define S5_VDMA_FS_PROG 2u
 
+/* 结果行 fps_inf 口径：本窗口没有真实推理源，按契约允许打印 0（面板仍显示模拟值供版式自检）。
+ * 接入真实推理数据源后改为 1，并用滑动窗口计数替换（见报告 §9）。 */
+#define S5_RESULT_FPS_INF_FROM_SIM 0
+
 static uint32_t s5_cam[S5_CAM_W * S5_CAM_H]; /* 640×480×4 B = 1.2 MB，放 .bss（DDR） */
 
 static void s5_fb_flush(uint32_t *fb)
@@ -671,8 +754,8 @@ int main(void)
     uint32_t major = 0;
     uint32_t minor = 0;
     uint32_t rev = 0;
-    uint32_t loop = 0;
     uint32_t i;
+    int dma_init_ok = 0;
     char line[96];
     int rc;
 
@@ -736,45 +819,107 @@ int main(void)
         dma_state = S5_DMA_ERR;
         xil_printf("VDMA: init FAILED rc=%d（继续画帧，便于用 JTAG 看 DDR 内容）\r\n", rc);
     }
-
-    /* 4) 主循环：模拟数据源 → 画后缓冲 → flush → 等写安全窗口 → 换缓冲 */
-    for (;;) {
-        uint32_t sr;
-
-        S5Sim_NextFrame(&info);
-        S5Sim_CameraFrame(s5_cam, info.frame_id);
-
-        /* 3.1 等 VDMA 不再读要写的这块缓冲（最多等 100 ms = 6 帧）。
-         * 判据用 “!= OFF” 而不是 “== RUN”：一旦出现过 SR 错误位，dma_state 会转 ERR，
-         * 但通道可能仍在搬数，写侧安全窗口依然要等。 */
-        if (dma_state != S5_DMA_OFF) {
-            if (S5Vdma_WaitNotReading(&dma, (uint32_t)(uintptr_t)fb[back], 100000u) != 0) {
-                info.status |= S5_ST_TEAR;
-            }
-            sr = S5Vdma_Status(&dma);
-            if ((sr & S5_VDMA_SR_ERR_ALL) != 0u) {
-                info.status |= S5_ST_DMA_ERR; /* SR 错误位非 0：面板 VDMA 状态转 ERR */
-                dma_state = S5_DMA_ERR;
-            }
-        }
-
-        /* 3.2 装配一帧 */
-        S5Display_RenderFrame(fb[back], s5_cam, &info, dma_state);
-        s5_fb_flush(fb[back]);
-
-        /* 3.3 乒乓 */
-        back ^= 1u;
-        loop++;
-
-        /* 每 60 帧打一行日志（xil_printf 不支持 %llu，时间都已折成 32 位 ms） */
-        if ((loop % 60u) == 0u) {
-            xil_printf("frame %d  lat %d ms  age %d ms  st %x  sr %x\r\n",
-                       (int)info.frame_id, (int)info.latency_ms, (int)info.age_ms,
-                       (unsigned)info.status, (unsigned)S5Vdma_Status(&dma));
-        }
+    dma_init_ok = (dma_state == S5_DMA_RUN) ? 1 : 0;
+    if (dma_init_ok != 0) {
+        /* CR.FRMCNT_EN 已在 Start() 里置位；这里再显式使能一次并记录（幂等）。 */
+        (void)S5Vdma_EnableFrameCounter(&dma);
     }
 
-    /* 不可达（保留 return 以满足 -Wreturn-type） */
+    /* 4) 有界主循环：跑满 S5_RUN_FRAMES 帧或达到 S5_RUN_MAX_MS，先到者停机。
+     *    有界是契约要求：UART 采集器要收尾并解析最终结果行，不能 for(;;) 无限跑。 */
+    {
+        uint64_t t_start = S5Ticks_Now();
+        uint32_t frames = 0;
+        uint32_t vdma_err = 0;
+        uint32_t vcnt_hw = 0;
+        uint32_t vcnt_sw = 0;
+        uint32_t last_store = 0xFFFFFFFFu;
+        uint32_t *last_fb = fb[0];
+        uint32_t sr;
+        S5RunStats st;
+        char res[224];
+
+        while ((frames < (uint32_t)S5_RUN_FRAMES) &&
+               (S5Ticks_ToMs(S5Ticks_Now() - t_start) < (uint64_t)S5_RUN_MAX_MS)) {
+            S5Sim_NextFrame(&info);
+            S5Sim_CameraFrame(s5_cam, info.frame_id);
+
+            /* 4.1 写前等安全窗口（判据用 != OFF：出错后 dma_state 转 ERR 但可能仍在搬数） */
+            if (dma_state != S5_DMA_OFF) {
+                if (S5Vdma_WaitNotReading(&dma, (uint32_t)(uintptr_t)fb[back], 100000u) != 0) {
+                    info.status |= S5_ST_TEAR;
+                }
+                sr = S5Vdma_Status(&dma);
+                if ((sr & S5_VDMA_SR_ERR_ALL) != 0u) {
+                    info.status |= S5_ST_DMA_ERR;
+                    dma_state = S5_DMA_ERR;
+                    vdma_err++; /* 结果行 vdma_err：SR 错误位累计 */
+                }
+                /* vcnt：优先硬件帧计数（SR[23:16]）；读不到则退回软件观测读帧存切换 */
+                vcnt_hw = S5Vdma_UpdateFrameCount(&dma);
+                {
+                    uint32_t cs = S5Vdma_CurrentReadStore(&dma);
+                    if (cs != last_store) {
+                        vcnt_sw++;
+                        last_store = cs;
+                    }
+                }
+            }
+
+            /* 4.2 装配一帧 */
+            S5Display_RenderFrame(fb[back], s5_cam, &info, dma_state);
+            s5_fb_flush(fb[back]);
+            last_fb = fb[back];
+
+            /* 4.3 乒乓 */
+            back ^= 1u;
+            frames++;
+
+            /* 4.4 进度行（与 RESULT 行分开，绝不拼在同一行） */
+            if ((frames % 60u) == 0u) {
+                xil_printf("S5DISP frame=%d lat=%d age=%d st=%x sr=%x\r\n",
+                           (int)frames, (int)info.latency_ms, (int)info.age_ms,
+                           (unsigned)info.status, (unsigned)S5Vdma_Status(&dma));
+            }
+        }
+
+        /* 5) 停机：停止 VDMA 读取，便于采集器收尾后安全断电/复位 */
+        if (dma_state != S5_DMA_OFF) {
+            (void)S5Vdma_Stop(&dma);
+        }
+
+        /* 6) 结果行：pass = VDMA 无错 + ≥1 帧完整显示 + 信息栏刷新成功 */
+        st.pass = 1u;
+        st.reason = 0;
+        st.frames = frames;
+        st.vdma_err = vdma_err;
+        st.vcnt = (vcnt_hw > 0u) ? vcnt_hw : vcnt_sw;
+        st.fps_cap = (uint32_t)(info.fps_cap_x10 / 10u);
+        st.fps_inf = (S5_RESULT_FPS_INF_FROM_SIM != 0) ? (uint32_t)(info.fps_inf_x10 / 10u) : 0u;
+        st.fps_dis = (uint32_t)(info.fps_dis_x10 / 10u);
+        st.latency_ms = (uint32_t)info.latency_ms;
+        st.age_ms = (uint32_t)info.age_ms;
+
+        if (dma_init_ok == 0) {
+            st.pass = 0u;
+            st.reason = "vdma_init_failed";
+        } else if (vdma_err != 0u) {
+            st.pass = 0u;
+            st.reason = "vdma_error";
+        } else if (frames == 0u) {
+            st.pass = 0u;
+            st.reason = "no_frame_rendered";
+        } else if (S5Display_CheckFrame(last_fb) == 0) {
+            st.pass = 0u;
+            st.reason = "frame_check_failed";
+        }
+
+        xil_printf("S5DISP done frames=%d vcnt=%d vdma_err=%d\r\n",
+                   (int)st.frames, (int)st.vcnt, (int)st.vdma_err);
+        S5Display_FormatResult(&st, res, (uint32_t)sizeof(res));
+        xil_printf("%s\r\n", res);
+    }
+
     return 0;
 }
 

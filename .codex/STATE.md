@@ -64,6 +64,17 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **M4-b 离线定位（2026-10-29 21:1x–21:3x，`s4d_m4b_error5_analysis_20261029_r01`）**：`error=5` 在 RTL 里唯一含义是
+  **TIMEOUT**（`w2b/src/s2a_control_csr.sv:59 TIMEOUT_ERROR=3'd5`；判据 `:244 (elapsed_cycles+1) >= timeout_cycles`；
+  `:186` START 清 elapsed；wrapper 只转发 core_timeout、不转 drain_timeout `s2b_control_csr.sv:150-172`）。
+  但应用写 `core_timeout=0xFFFFFFFF`（85.9 s @50 MHz）而长跑实测 47.3 s/帧、且运行后 heads 与参考 0 差异 ⇒ **证据不自洽**：
+  要么 wrapper 侧 timeout 被窄化/错位，要么 `elapsed_cycles` 被污染。判 **BLOCKED（需 2B 侧 ILA/寄存器回读，2B 归 Codex 写区）**，
+  已发信箱 `DSH-20261029-006` 请求配合；w4 侧不再投入波形资源。
+- **阶段5 范围复核（2026-10-29 21:5x）**：P2c r02 的 BD **已同时包含 2B 核 + preproc v2 + 打包器 + AXI DMA**（DSP 158/220、WNS +0.039），
+  即"合并计算体"**无需再新建 BD**；视频链（VTC/dynclk/VDMA/HDMI/叠加）按 Wong 指示移出阶段5 → 阶段6。
+  阶段5 剩余：合并体冒烟（受 M4-b error 5 阻塞）+ 地址表/文档收口。E 项四项已按默认定稿（VTC→0x43C20000、dynclk→0x43C30000、
+  FCLK0=50+FCLK1=150、应用区 20 MiB、DMA 复用 P2c），不再作为待裁项。
+- **吞吐/帧率任务按 Wong 指示移交 Codex**（不追 5 fps）；真实 ≈47.3 s/帧只作记录，不作阻塞或验收判据。
 - **B 项（P2b 4-D 复验）结果：M3 PASS、M4-a PASS、M4-b FAIL（2026-10-29 20:23–20:47）**：
   · M3 只读复检：12,615,680 B dump sha256 = `41907f53…`，与登记快照逐字节相同（diff=0）。
   · M4-a：R/F 应答与 CRC 全对（`0xCFB6FB9B` / `0xFE55DA7C`），恢复逐字节相等 ⇒ PASS。

@@ -74,6 +74,14 @@
   阶段5 剩收尾：文档/地址表归档、P2d 证据清单收口（不做视频链——归阶段6）。
 - **G4 已由 Wong 认可（2026-10-30，会话确认）**：阶段4 **G4 通过（含跟踪遗留 R-01 = M3 成对取样）**、阶段5（当前范围）**G4 通过**；G5 不主张。
   正式记录已填签署：`docs/obsidian-project/04-提交材料/阶段验收/阶段4_5_G4验收记录_20261030.md`（§8 签署）。
+- **阶段6 P3a BD validate 通过（2026-10-30 01:0x，`report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01/`）**：
+  `validate_bd_design` **0 ERROR / 0 CRITICAL WARNING / 14 WARNING**（逐条解释）；另跑通 IP 生成 + wrapper（证明 IP 参数组合合法）。
+  PS7 新增 **FCLK1=100 MHz**（真实门控是 `PCW_EN_CLK1_PORT=1`+`PCW_CLK1_FREQ`）、**S_AXI_HP2(64-bit)**；
+  `clk_wiz` DIVCLK=8/MULT=59.375/OUT0÷10/OUT1÷2 → **74.21875 MHz / 371.09375 MHz**（比 74.25 低 −0.042%，关 OVERRIDE 可精确 74.25）；
+  `smc_ctrl` 1S/3M→**1S/5M**（新增 VTC `0x43C30000`、VDMA `0x43C40000`，无重叠）；VDMA 经 `smc_vid`(AXI4→AXI3) → HP2；
+  引出端口 `pixel_clk / vid_hsync / vid_vsync / vid_de / vid_data[23:0]`（26 端口，未接 TMDS）。
+  已知未尽：像素域 XDC 待补（P3a+ 处理）、未综合故资源/时序未知、TMDS 待 P3b、VDMA MM 侧带宽占用 74.2%、vid_data 通道映射待与软件 ABI 对齐。
+- **P3a+ 综合与实现已派发**（子 agent `video-bd`：先写像素域 XDC，再 synth/impl + timing/utilization/drc 报告，jobs≤2，不上板不 git），预计 25–35 min。
 - **阶段6 G0 已冻结（2026-10-30，Wong「按你建议」）**：D1=**720p60**、D2=**框+类别/置信度**、D3=**PS 画帧到 DDR**、D4=**RGB888**；
   地址 VTC `0x43C30000` / VDMA `0x43C40000`、FCLK1=100 MHz、VDMA→HP2 均已定稿（G0 文档 §10–§12）。
   实施分三阶段：**P3a** 纯视频输出通路 BD（只 validate，不综合）→ **P3a+** 综合实现核资源/时序 → **P3b** 叠加 + 厂商 `rgb2dvi_v1_3`（VHDL 7 文件已确认可用）+ TMDS 上屏 → **P3c** 加入显示链后重跑 P2d 的 7 项冻结回归。

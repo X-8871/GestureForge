@@ -1,0 +1,78 @@
+{
+  "schema_version": "s2c-rtl01-evidence/1.0.1",
+  "task_id": "S2C-RTL01",
+  "run_id": "tile16_20261029_02",
+  "status": "PARTIAL_XSIM_STARTUP_FAILURE",
+  "source_identity": {
+    "task_start_commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+    "worktree_head": "1e138b2394d7316594ec5bccabafd189376ece3c",
+    "branch": "codex/stage2c-throughput"
+  },
+  "hash_basis_policy": "本RunId未提交RTL改动及外部只读输入均使用worktree_disk；每个哈希项显式标注基座。",
+  "artifacts": [
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "label": "RTL实现",
+      "sha256": "8517de4a4f6fd92af79ca9fce7ca9390361713d5a95bd0a254e878cc9e785d50",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "label": "RTL编译依赖，未修改",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "verification/test_s2c_rtl01_tile16_table.py",
+      "label": "冻结profile几何与静态表核验脚本",
+      "sha256": "9200d925ad86a758803609ed8c722b30440e2ba399c680377bd3adbc4afe0f10",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "sim/tb_s2c_rtl01_tile16_lookup.sv",
+      "label": "短RTL查表测试台；运行断言未执行",
+      "sha256": "da54ccd50e28ad99fffa0118c2520884c1c9aea082c31d983907f95ec2eb7f29",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "D:/wb-out-r3/task_l0/profile.json",
+      "label": "L0冻结逐层profile输入",
+      "sha256": "1318675585a618be650629efb6c83b125c5befb5dbfc691fc60759efaea00e73",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    },
+    {
+      "path": "report/evidence/S2C-RTL01/tile16_20261029_02/result.json",
+      "label": "非日志结果摘要；明确标记XSim失败且未建立功能等价",
+      "sha256": "ca32f6bbe93e6a2d41181d7395504b7f6f61914a207a522a512d44db720902a2",
+      "hash_basis": "worktree_disk",
+      "committed": false
+    }
+  ],
+  "execution": {
+    "static_geometry": {
+      "status": "PASS",
+      "exit_code": 0,
+      "tile_keys_checked": 66,
+      "full_tile_layers_checked": 21,
+      "maximum_feature_patch_bytes": 124416
+    },
+    "rtl_parse_exit_code": 0,
+    "testbench_parse_exit_code": 0,
+    "xelab_exit_code": 0,
+    "xsim_wrapper_exit_code": 0,
+    "xsim_engine_exit_code": -1073741502,
+    "xsim_engine_status_hex": "0xC0000142",
+    "assertions_executed": false,
+    "logs_manifested": false
+  },
+  "limitations": [
+    "XSim引擎启动失败；wrapper退出码0不能覆盖底层失败码-1073741502（0xC0000142），查表测试台断言未执行。",
+    "诊断日志保留在tmp/S2C/RTL01/tile16_xvlog_20261029_01/与tmp/S2C/RTL01/tile16_lookup_sim_20261029_01/；按任务要求不列入本manifest哈希项。",
+    "未完成完整tile datapath仿真、逐位功能等价、综合、资源或时序验证；没有整网仿真或板级测试。"
+  ]
+}

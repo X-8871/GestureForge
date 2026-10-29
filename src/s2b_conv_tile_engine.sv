@@ -66,12 +66,12 @@ module s2b_conv_tile_engine #(
     localparam logic [2:0] BAD_LENGTH = 3'd3;
     localparam logic [2:0] INTERNAL = 3'd6;
     localparam logic [2:0] ACCUMULATOR_OVERFLOW = 3'd7;
-    localparam integer TILE_EDGE = 8;
+    localparam integer TILE_EDGE = FROZEN_CONV_DESCRIPTOR ? 16 : 8;
     localparam integer LANE_COUNT = 8;
-    localparam integer MAX_FEATURE_PATCH_BYTES = 51200;
+    localparam integer MAX_FEATURE_PATCH_BYTES = FROZEN_CONV_DESCRIPTOR ? 124416 : 51200;
     localparam integer MAX_WEIGHT_GROUP_BYTES = 36864;
     localparam integer MAX_WEIGHT_REDUCTION_COUNT = 4608;
-    localparam integer OUTPUT_BLOCK_BYTES = 512;
+    localparam integer OUTPUT_BLOCK_BYTES = FROZEN_CONV_DESCRIPTOR ? 2048 : 512;
 
     typedef enum logic [4:0] {
         ST_IDLE,
@@ -193,8 +193,8 @@ module s2b_conv_tile_engine #(
     logic [63:0] output_width_shape_product;
     logic [63:0] output_height_span_plus_stride;
     logic [63:0] output_width_span_plus_stride;
-    logic [2:0] full_tile_patch_delta_y;
-    logic [2:0] full_tile_patch_delta_x;
+    logic [3:0] full_tile_patch_delta_y;
+    logic [3:0] full_tile_patch_delta_x;
     logic [18:0] full_tile_patch_height_narrow;
     logic [18:0] full_tile_patch_width_narrow;
     logic [31:0] full_tile_patch_plane_narrow;
@@ -332,6 +332,81 @@ module s2b_conv_tile_engine #(
         end
     endfunction
 
+    // 16×16冻结网络可达tile的patch静态表，避免运行时改变单点几何语义。
+    function automatic logic [95:0] frozen_conv_tile_lookup_16(input logic [41:0] tile_key);
+        begin
+            frozen_conv_tile_lookup_16 = 96'd0;
+            case (tile_key)
+                42'h00000000210: frozen_conv_tile_lookup_16 = {32'd33, 32'd33, 32'd3267};
+                42'h00000000610: frozen_conv_tile_lookup_16 = {32'd33, 32'd33, 32'd34848};
+                42'h00000000608: frozen_conv_tile_lookup_16 = {32'd33, 32'd17, 32'd17952};
+                42'h00000000510: frozen_conv_tile_lookup_16 = {32'd17, 32'd33, 32'd17952};
+                42'h00000000508: frozen_conv_tile_lookup_16 = {32'd17, 32'd17, 32'd9248};
+                42'h00000000A10: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd20736};
+                42'h00000000A08: frozen_conv_tile_lookup_16 = {32'd18, 32'd10, 32'd11520};
+                42'h00000000910: frozen_conv_tile_lookup_16 = {32'd10, 32'd18, 32'd11520};
+                42'h00000000908: frozen_conv_tile_lookup_16 = {32'd10, 32'd10, 32'd6400};
+                42'h00000001210: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd10368};
+                42'h00000001208: frozen_conv_tile_lookup_16 = {32'd18, 32'd10, 32'd5760};
+                42'h00000001110: frozen_conv_tile_lookup_16 = {32'd10, 32'd18, 32'd5760};
+                42'h00000001108: frozen_conv_tile_lookup_16 = {32'd10, 32'd10, 32'd3200};
+                42'h00000001610: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd10368};
+                42'h00000001608: frozen_conv_tile_lookup_16 = {32'd18, 32'd10, 32'd5760};
+                42'h00000001510: frozen_conv_tile_lookup_16 = {32'd10, 32'd18, 32'd5760};
+                42'h00000001508: frozen_conv_tile_lookup_16 = {32'd10, 32'd10, 32'd3200};
+                42'h00000001E10: frozen_conv_tile_lookup_16 = {32'd16, 32'd16, 32'd16384};
+                42'h00000001E08: frozen_conv_tile_lookup_16 = {32'd16, 32'd8, 32'd8192};
+                42'h00000001D10: frozen_conv_tile_lookup_16 = {32'd8, 32'd16, 32'd8192};
+                42'h00000001D08: frozen_conv_tile_lookup_16 = {32'd8, 32'd8, 32'd4096};
+                42'h00000002A10: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd41472};
+                42'h00000002A04: frozen_conv_tile_lookup_16 = {32'd18, 32'd6, 32'd13824};
+                42'h00000002890: frozen_conv_tile_lookup_16 = {32'd6, 32'd18, 32'd13824};
+                42'h00000002884: frozen_conv_tile_lookup_16 = {32'd6, 32'd6, 32'd4608};
+                42'h00000003210: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd20736};
+                42'h00000003204: frozen_conv_tile_lookup_16 = {32'd18, 32'd6, 32'd6912};
+                42'h00000003090: frozen_conv_tile_lookup_16 = {32'd6, 32'd18, 32'd6912};
+                42'h00000003084: frozen_conv_tile_lookup_16 = {32'd6, 32'd6, 32'd2304};
+                42'h00000003610: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd20736};
+                42'h00000003604: frozen_conv_tile_lookup_16 = {32'd18, 32'd6, 32'd6912};
+                42'h00000003490: frozen_conv_tile_lookup_16 = {32'd6, 32'd18, 32'd6912};
+                42'h00000003484: frozen_conv_tile_lookup_16 = {32'd6, 32'd6, 32'd2304};
+                42'h00000003E10: frozen_conv_tile_lookup_16 = {32'd16, 32'd16, 32'd32768};
+                42'h00000003E04: frozen_conv_tile_lookup_16 = {32'd16, 32'd4, 32'd8192};
+                42'h00000003C90: frozen_conv_tile_lookup_16 = {32'd4, 32'd16, 32'd8192};
+                42'h00000003C84: frozen_conv_tile_lookup_16 = {32'd4, 32'd4, 32'd2048};
+                42'h00000004A10: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd82944};
+                42'h00000004A0A: frozen_conv_tile_lookup_16 = {32'd18, 32'd12, 32'd55296};
+                42'h00000004950: frozen_conv_tile_lookup_16 = {32'd12, 32'd18, 32'd55296};
+                42'h0000000494A: frozen_conv_tile_lookup_16 = {32'd12, 32'd12, 32'd36864};
+                42'h00000005210: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd41472};
+                42'h0000000520A: frozen_conv_tile_lookup_16 = {32'd18, 32'd12, 32'd27648};
+                42'h00000005150: frozen_conv_tile_lookup_16 = {32'd12, 32'd18, 32'd27648};
+                42'h0000000514A: frozen_conv_tile_lookup_16 = {32'd12, 32'd12, 32'd18432};
+                42'h00000005610: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd41472};
+                42'h0000000560A: frozen_conv_tile_lookup_16 = {32'd18, 32'd12, 32'd27648};
+                42'h00000005550: frozen_conv_tile_lookup_16 = {32'd12, 32'd18, 32'd27648};
+                42'h0000000554A: frozen_conv_tile_lookup_16 = {32'd12, 32'd12, 32'd18432};
+                42'h00000005E10: frozen_conv_tile_lookup_16 = {32'd16, 32'd16, 32'd65536};
+                42'h00000005E0A: frozen_conv_tile_lookup_16 = {32'd16, 32'd10, 32'd40960};
+                42'h00000005D50: frozen_conv_tile_lookup_16 = {32'd10, 32'd16, 32'd40960};
+                42'h00000005D4A: frozen_conv_tile_lookup_16 = {32'd10, 32'd10, 32'd25600};
+                42'h000000069AD: frozen_conv_tile_lookup_16 = {32'd15, 32'd15, 32'd115200};
+                42'h00000006DAD: frozen_conv_tile_lookup_16 = {32'd13, 32'd13, 32'd86528};
+                42'h000000071AD: frozen_conv_tile_lookup_16 = {32'd15, 32'd15, 32'd57600};
+                42'h000000075AD: frozen_conv_tile_lookup_16 = {32'd13, 32'd13, 32'd86528};
+                42'h000000081AD: frozen_conv_tile_lookup_16 = {32'd13, 32'd13, 32'd43264};
+                42'h00000008E10: frozen_conv_tile_lookup_16 = {32'd18, 32'd18, 32'd124416};
+                42'h00000008E0A: frozen_conv_tile_lookup_16 = {32'd18, 32'd12, 32'd82944};
+                42'h00000008D50: frozen_conv_tile_lookup_16 = {32'd12, 32'd18, 32'd82944};
+                42'h00000008D4A: frozen_conv_tile_lookup_16 = {32'd12, 32'd12, 32'd55296};
+                42'h00000009210: frozen_conv_tile_lookup_16 = {32'd16, 32'd16, 32'd65536};
+                42'h0000000920A: frozen_conv_tile_lookup_16 = {32'd16, 32'd10, 32'd40960};
+                42'h00000009150: frozen_conv_tile_lookup_16 = {32'd10, 32'd16, 32'd40960};
+                42'h0000000914A: frozen_conv_tile_lookup_16 = {32'd10, 32'd10, 32'd25600};
+                default: frozen_conv_tile_lookup_16 = 96'd0;
+            endcase
+        end
+    endfunction
     // 三个字段均按原ST_TILE_PREP赋值的U32模域预计算，无额外寄存器或周期。
     function automatic logic [95:0] frozen_conv_tile_lookup(input logic [39:0] tile_key);
         begin
@@ -2044,6 +2119,35 @@ module s2b_conv_tile_engine #(
     endfunction
 
     // 必须由完整descriptor命中保护；仅替换稳定算术，所有原比较仍保留。
+    function automatic logic [98:0] frozen_full_tile_lookup_16(input logic [31:0] layer_key);
+        begin
+            frozen_full_tile_lookup_16 = 99'd0;
+            case (layer_key)
+                32'd0: frozen_full_tile_lookup_16 = {19'd33, 19'd33, 32'd1089, 29'd3267};
+                32'd1: frozen_full_tile_lookup_16 = {19'd33, 19'd33, 32'd1089, 29'd34848};
+                32'd2: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd20736};
+                32'd4: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd10368};
+                32'd5: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd10368};
+                32'd7: frozen_full_tile_lookup_16 = {19'd16, 19'd16, 32'd256, 29'd16384};
+                32'd10: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd41472};
+                32'd12: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd20736};
+                32'd13: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd20736};
+                32'd15: frozen_full_tile_lookup_16 = {19'd16, 19'd16, 32'd256, 29'd32768};
+                32'd18: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd82944};
+                32'd20: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd41472};
+                32'd21: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd41472};
+                32'd23: frozen_full_tile_lookup_16 = {19'd16, 19'd16, 32'd256, 29'd65536};
+                32'd26: frozen_full_tile_lookup_16 = {19'd15, 19'd15, 32'd225, 29'd115200};
+                32'd27: frozen_full_tile_lookup_16 = {19'd13, 19'd13, 32'd169, 29'd86528};
+                32'd28: frozen_full_tile_lookup_16 = {19'd15, 19'd15, 32'd225, 29'd57600};
+                32'd29: frozen_full_tile_lookup_16 = {19'd13, 19'd13, 32'd169, 29'd86528};
+                32'd32: frozen_full_tile_lookup_16 = {19'd13, 19'd13, 32'd169, 29'd43264};
+                32'd35: frozen_full_tile_lookup_16 = {19'd18, 19'd18, 32'd324, 29'd124416};
+                32'd36: frozen_full_tile_lookup_16 = {19'd16, 19'd16, 32'd256, 29'd65536};
+                default: frozen_full_tile_lookup_16 = 99'd0;
+            endcase
+        end
+    endfunction
     function automatic logic [98:0] frozen_full_tile_lookup(input logic [31:0] layer_key);
         begin
             frozen_full_tile_lookup = 99'd0;
@@ -2091,7 +2195,7 @@ module s2b_conv_tile_engine #(
         if (FROZEN_CONV_DESCRIPTOR) begin
             frozen_conv_descriptor = frozen_conv_descriptor_lookup({layer_index_latched, input_channels_latched, input_height_latched, input_width_latched, output_channels_latched, output_height_latched, output_width_latched, kernel_height_latched, kernel_width_latched, stride_y_latched, stride_x_latched, pad_left_latched, pad_right_latched, pad_top_latched, pad_bottom_latched});
             if (frozen_conv_descriptor[97]) begin
-                frozen_full_tile = frozen_full_tile_lookup(layer_index_latched);
+                frozen_full_tile = frozen_full_tile_lookup_16(layer_index_latched);
             end
         end
         tile_prep_extent_y = (output_height_latched - tile_start_y >= TILE_EDGE) ?
@@ -2103,7 +2207,7 @@ module s2b_conv_tile_engine #(
         tile_prep_patch_bytes = 32'd0;
         if (FROZEN_CONV_DESCRIPTOR) begin
             if (frozen_conv_descriptor[97]) begin
-                frozen_conv_tile = frozen_conv_tile_lookup({layer_index_latched, tile_prep_extent_y[3:0], tile_prep_extent_x[3:0]});
+                frozen_conv_tile = frozen_conv_tile_lookup_16({layer_index_latched, tile_prep_extent_y[4:0], tile_prep_extent_x[4:0]});
                 tile_prep_patch_height = frozen_conv_tile[95:64];
                 tile_prep_patch_width = frozen_conv_tile[63:32];
                 tile_prep_patch_bytes = frozen_conv_tile[31:0];
@@ -2163,10 +2267,10 @@ module s2b_conv_tile_engine #(
 
         // 首分支保证C、KH、KW非零且乘积不超过4608，范围分支才消费此判据。
         // D为0时stride不参与patch；非零D必须另查stride高位，不能截断后放行。
-        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 3'd0 :
-            (output_height_latched < TILE_EDGE ? output_height_latched[2:0] - 3'd1 : 3'd7);
-        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 3'd0 :
-            (output_width_latched < TILE_EDGE ? output_width_latched[2:0] - 3'd1 : 3'd7);
+        full_tile_patch_delta_y = output_height_latched == 32'd0 ? 4'd0 :
+            (output_height_latched < TILE_EDGE ? output_height_latched[3:0] - 4'd1 : TILE_EDGE - 1);
+        full_tile_patch_delta_x = output_width_latched == 32'd0 ? 4'd0 :
+            (output_width_latched < TILE_EDGE ? output_width_latched[3:0] - 4'd1 : TILE_EDGE - 1);
         if (FROZEN_CONV_DESCRIPTOR) begin
             full_tile_patch_height_narrow = frozen_full_tile[98:80];
             full_tile_patch_width_narrow = frozen_full_tile[79:61];
@@ -2181,11 +2285,11 @@ module s2b_conv_tile_engine #(
         full_tile_patch_height_bad =
             ((full_tile_patch_delta_y != 3'd0) && (stride_y_latched[31:16] != 16'd0)) ||
             (full_tile_patch_height_narrow[18:16] != 3'd0) ||
-            (full_tile_patch_height_narrow[15:0] > 16'd51200);
+            (full_tile_patch_height_narrow[15:0] > MAX_FEATURE_PATCH_BYTES);
         full_tile_patch_width_bad =
             ((full_tile_patch_delta_x != 3'd0) && (stride_x_latched[31:16] != 16'd0)) ||
             (full_tile_patch_width_narrow[18:16] != 3'd0) ||
-            (full_tile_patch_width_narrow[15:0] > 16'd51200);
+            (full_tile_patch_width_narrow[15:0] > MAX_FEATURE_PATCH_BYTES);
         if (FROZEN_CONV_DESCRIPTOR) begin
             full_tile_patch_plane_narrow = frozen_full_tile[60:29];
             full_tile_patch_bytes_narrow = frozen_full_tile[28:0];
@@ -2199,7 +2303,7 @@ module s2b_conv_tile_engine #(
         end
         full_tile_patch_bad = full_tile_patch_height_bad || full_tile_patch_width_bad ||
             (full_tile_patch_plane_narrow[31:16] != 16'd0) ||
-            (full_tile_patch_bytes_narrow > 29'd51200);
+            (full_tile_patch_bytes_narrow > MAX_FEATURE_PATCH_BYTES);
 
         validation_ok = 1'b0;
         validation_error = BAD_ARGUMENT;

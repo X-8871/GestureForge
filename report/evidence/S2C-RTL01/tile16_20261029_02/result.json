@@ -1,0 +1,91 @@
+{
+  "task_id": "S2C-RTL01",
+  "run_id": "tile16_20261029_02",
+  "status": "PARTIAL_XSIM_STARTUP_FAILURE",
+  "source_identity": {
+    "task_start_commit": "07c3d3958578b9cc9d3b8eae3758711fe08724c2",
+    "worktree_head": "1e138b2394d7316594ec5bccabafd189376ece3c",
+    "branch": "codex/stage2c-throughput"
+  },
+  "offline_geometry_check": {
+    "status": "PASS",
+    "exit_code": 0,
+    "tile_keys_checked": 66,
+    "full_tile_layers_checked": 21,
+    "maximum_feature_patch_bytes": 124416,
+    "random_seed": null,
+    "sample_count": 66,
+    "representative_cases": [
+      {
+        "layer": 0,
+        "tile_extent_yx": [16, 16],
+        "input_channels": 3,
+        "patch_hw": [33, 33],
+        "patch_bytes": 3267,
+        "coverage": "stride2+padding几何"
+      },
+      {
+        "layer": 35,
+        "tile_extent_yx": [16, 16],
+        "input_channels": 384,
+        "patch_hw": [18, 18],
+        "patch_bytes": 124416,
+        "coverage": "完整tile"
+      },
+      {
+        "layer": 35,
+        "tile_extent_yx": [16, 10],
+        "input_channels": 384,
+        "patch_hw": [18, 12],
+        "patch_bytes": 82944,
+        "coverage": "右侧尾tile"
+      },
+      {
+        "layer": 35,
+        "tile_extent_yx": [10, 16],
+        "input_channels": 384,
+        "patch_hw": [12, 18],
+        "patch_bytes": 82944,
+        "coverage": "底部尾tile"
+      },
+      {
+        "layer": 35,
+        "tile_extent_yx": [10, 10],
+        "input_channels": 384,
+        "patch_hw": [12, 12],
+        "patch_bytes": 55296,
+        "coverage": "右下角尾tile"
+      }
+    ]
+  },
+  "rtl_parse": {
+    "tool": "Vivado xvlog 2026.1",
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "testbench_parse": {
+    "tool": "Vivado xvlog 2026.1",
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "static_elaboration": {
+    "tool": "Vivado xelab 2026.1",
+    "status": "PASS",
+    "exit_code": 0
+  },
+  "rtl_simulation": {
+    "tool": "Vivado XSim 2026.1",
+    "status": "FAIL_TO_START",
+    "wrapper_exit_code": 0,
+    "simulation_engine_exit_code": -1073741502,
+    "simulation_engine_status_hex": "0xC0000142",
+    "assertions_executed": false,
+    "functional_equivalence": "NOT_ESTABLISHED"
+  },
+  "limitations": [
+    "XSim引擎启动失败；xsim.bat返回0与引擎失败码不一致，不能记为仿真PASS。",
+    "日志保留于tmp/S2C/RTL01/tile16_xvlog_20261029_01/和tmp/S2C/RTL01/tile16_lookup_sim_20261029_01/；日志不作为manifest哈希清单项。",
+    "未完成完整tile datapath仿真、逐位功能等价、综合、资源或时序验证。",
+    "未运行整网仿真或板级测试。"
+  ]
+}

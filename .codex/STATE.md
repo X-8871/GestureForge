@@ -92,6 +92,11 @@
   结果块 `0x20800000`（magic `S5RS`，检测项 **16 B 步进**）+ raw frame `0x12000000`；回退链 real→sim/test，stale 标记；有界 180 帧 + `S5DISP RESULT=` 单行。
   离线自测：真实源 36 帧（fixture 真实画面 + 3 框 + 面板 `SRC REAL`，`fps_cap 30.6/fps_inf 29.9/fps_dis 59.9`）、magic 错→sim、raw 全 0→test、stale→`STALE` 全 PASS；
   示例 `S5DISP RESULT={"pass":1,...,"src":"real"}`。**生产端（推理应用写结果块）尚未实现**，为联调第一项。
+- **P3c 构建已完成并归档（2026-10-30 03:3x，`s5_p3c_hw_20261030_r01`）**：VDMA 数据面 100 MHz（`m_axi_mm2s_aclk`+`smc_vid`+`S_AXI_HP2_ACLK`），
+  **`s_axi_lite_aclk` 与 `axi_resetn` 保持 50 MHz**（第 1 轮 BD 41-237 失败后的修正，VDMA 仅一个 axi_resetn 且同步于 Lite 时钟）；像素域 74.21875 不变。
+  bit `f55a9370…1485`（4,045,762 B）、XSA `1af694a0…6d84`；**WNS +0.228 / WHS +0.036、TNS=THS=0、失败端点 0/52,582**、DRC 435 条 **0 error**；
+  LUT 26,021(48.91%)/FF 15,021(14.12%)/BRAM 36.5/**DSP 158(+0)**/MMCM 1/BUFG 5/OSERDESE2 8；时钟域自证 50/100/74.21875/371.09375 四域在位。
+  **⚠ 带宽是否达标未上板验证**（理论 800 MB/s vs 需求 221 MB/s，按同效率估 ~380 MB/s 属估算）——明日第一件事就是拿 P3c 跑 G3-A 复测 `fps_dis`。
 - **阶段5 G3 上板进展（2026-10-30 02:5x–03:3x，暂停待明日续）**：
   · **G3-D 回归（P3b 位流）3/3 PASS**：M4-b 收口 `pass=1`（47,287 ms、尾字 lane 正确）、chain-lite A `pass=1`、preproc→DMA CRC `0x5B183B50` ⇒ **加显示链零回归**（S6-E 通过）。
   · **G3-C 帧数据一致性 PASS**：应用 `fb_crc` 与 JTAG 读整帧 3,686,400 B 的 CRC **完全相等**。

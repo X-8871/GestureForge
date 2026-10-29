@@ -64,6 +64,16 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **B 项在 2B 基线位流上全部 PASS（2026-10-29 22:5x）**：
+  · M3 只读复检：12,615,680 B dump sha256 = `41907f53…`，与登记快照逐字节相同（diff=0）
+  · M4-a：R/F 应答与 CRC 全对（`0xCFB6FB9B`/`0xFE55DA7C`），恢复逐字节相等
+  · **M4-b**：`pass=1`、`diff13=0/diff26=0`、`stale=1`、`error=0`、47,287 ms；尾字探针 `after=0x5A5A0506`、`lane01_ok=1 lane23_ok=1`
+  · **chain-lite A**：`pass=1`、`decode_rc=0`、`count=1`、`ack_idle=1`、47,287 ms，`reference_compare.ok=True`（检测框与 r13 冻结参考逐字段一致，abs≤1e-9）
+  · **chain-lite B**：`pass=1`、`tensor_crc32=0x5B183B50`（板上/离线一致）、8 个比较字段全 match、47,287 ms
+  ⇒ 4-D 链路（预处理→2B→解码/NMS→参考比对）在 2B 平台位流上端到端通过。
+- **P2b 位流上的 4-D 复验结论（诚实拆分）**：M3/M4-a PASS；**M4-b 与 chain-lite A/B 均在 85.9 s 超时**——
+  这是 P2b 的 2B 核 ≥1.82× 慢（同 ELF A/B 已证）的连带结果，不是链路逻辑缺陷（2B 基线上全 PASS 已证）。
+  阶段5 唯一真技术动作 = 按 perf-analyst 方向 A 改 BD（infer 直连 HP0、preproc 走 HP1），**只改 BD、不需 Codex**。
 - **M4-b 收口 PASS（2026-10-29 22:3x，`s4d_m4b_close_20261029_r01`）**：2B 基线位流（`555a70c2`）上
   `M4B RESULT={"pass":1,"done":1,"diff13":0,"diff26":0,"stale":1,"gate":1,"ack_idle":1,"error":0,"elapsed_ms":47287}`；
   尾字取证 `M4B TAIL13 off=5068 before=0x5A5A5A5A after=0x5A5A0506 ref=0x00000506 lane01_ok=1 lane23_ok=1`

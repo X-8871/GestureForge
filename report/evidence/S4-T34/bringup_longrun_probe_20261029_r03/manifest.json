@@ -1,0 +1,383 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_longrun_probe_20261029_r03",
+  "phase": "长跑停住定位 r03（预载真实数据 + 五步探针；编程 PL 后不做系统复位）",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径（与 check_manifest_hash_basis.py 一致）",
+  "note": "证据目录按字节入 git（.gitattributes * -text）；*.log 未入 git ⇒ 同内容另存 *_output.txt 并纳入清单；12.6 MB dump 未入 git，sha 见 large_artifacts",
+  "conclusion": "DIAG_NOT_REPRODUCED_LIMITED（41 轮未停住；窗口在 1950 s 采集上限处切断，应用 30 min 口径未达）",
+  "key_findings": [
+    "应用自报时间与主机实测差约 4.00–4.02 倍（两条独立窗口证据）⇒ 应用 30 min 口径≈2 h 真实时间",
+    "41 轮全部 done=1/status=0x00000E04；刚超过历史最长停住点（r01=40 轮）1 轮",
+    "本轮 W3_preserve 的 DAP_WEDGED 是误判（记录区读取成功、随后 PC 可读）",
+    "候选区恢复未执行，下窗口必须 W0 式复核 diff==0"
+  ],
+  "large_artifacts": {
+    "W0_dump.bin": {
+      "bytes": 12615680,
+      "sha256": "dc899877f7c7b39e6f05b65abf86fbeb9f7205436d0fa8bade83b31918078f08",
+      "note": "12.6 MB 候选区 dump，未入 git；按本 sha 复核"
+    },
+    "W0_restored.bin": {
+      "bytes": 12615680,
+      "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+      "note": "12.6 MB 候选区 dump，未入 git；按本 sha 复核"
+    }
+  },
+  "items": [
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/.gitattributes",
+      "kind": "evidence",
+      "bytes": 65,
+      "sha256": "56e357ac09aa8110879fd192bb257d088a4aa59944befd2e7d703836ae01be4b"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/ANALYSIS.md",
+      "kind": "evidence",
+      "bytes": 4240,
+      "sha256": "87f16032f97a7b1304bc4be07559bd22406f69f96deac8c016753e2f776b2f99"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/console_output.txt",
+      "kind": "evidence",
+      "bytes": 14783,
+      "sha256": "0c2322aaa45412aeee67ce710c7783e0ac66ad64ce0907b6a899789ce6a616fe"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/csr_devcfg_read.json",
+      "kind": "evidence",
+      "bytes": 552,
+      "sha256": "a13f612f1bdd8baa1a6520a99760b1a6b969a9a31644f670cb2b860ccea415cc"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/enum_1.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/enum_1_output.txt",
+      "kind": "evidence",
+      "bytes": 1043,
+      "sha256": "347878f163c673636ea3156d486c190776c2208a3c90c33dfd3c1204a94d8d4a"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/EV_core_state.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/EV_core_state_output.txt",
+      "kind": "evidence",
+      "bytes": 1272,
+      "sha256": "7a5b7d151b5246749949b4fee4e09442600897dd616d5445ba0dd15edc73a4f4"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/EV_csr_tri_read.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/EV_csr_tri_read_output.txt",
+      "kind": "evidence",
+      "bytes": 759,
+      "sha256": "b847667964a50a13b4ca0bd7dfe53c164fc3cc6b1e6246be2223df1d2ed8be5f"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/EV_mrd_record.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/EV_mrd_record_output.txt",
+      "kind": "evidence",
+      "bytes": 298,
+      "sha256": "c09bd4e6161687d563663a758c10a4e54d1bae48486aa818dc986ec3c67c8846"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/IDENT.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/IDENT.json",
+      "kind": "evidence",
+      "bytes": 2516,
+      "sha256": "6bd92407a6d057fded6cf0005106fdf1476ce6fb907a175ef6eaaff61f64a82c"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/magic_parsed.json",
+      "kind": "evidence",
+      "bytes": 469,
+      "sha256": "49be2dfe6f768a2ea367f708c56a4b672358564ef4963417c20a68ad23780d5e"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/P0_gate.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/P0_gate.json",
+      "kind": "evidence",
+      "bytes": 176,
+      "sha256": "4dc4c165e73cc91c021f03ee07881a55f92396957ea5ff549c1d7c1e622528ce"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/P2_enum_preflight.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/P2_enum_preflight.json",
+      "kind": "evidence",
+      "bytes": 336,
+      "sha256": "9cb1157b26329be7eee89af0b09c56077564d103704e0edf13d14c351c042cfe"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/P4_teardown.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/P4_teardown.json",
+      "kind": "evidence",
+      "bytes": 174,
+      "sha256": "41be73b3560b3f277f6ca1eab4abfb59828c33a6817ea9b70387ac08ac7b6a17"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/PL_program.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/PL_program_output.txt",
+      "kind": "evidence",
+      "bytes": 3830,
+      "sha256": "ce0baa95cf9374e23e0624b0b98f2cb6459e0fae6633965f933299729e533341"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/results_diag_probe.json",
+      "kind": "evidence",
+      "bytes": 10342,
+      "sha256": "17741c49a4f2e3beb5cea79b8becb37077962c8726791b0e170c456371df95e0"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/run_probe_longrun_r03.py",
+      "kind": "evidence",
+      "bytes": 22453,
+      "sha256": "f525ac0320526e53336e33c6a4fc4c4d3c16d8b8583a59fe830dd0b4e37d7aeb"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_dump.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_dump2.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_dump2_output.txt",
+      "kind": "evidence",
+      "bytes": 307,
+      "sha256": "0211cb500c75d29f397085c40794a1ed4e2255364a20b1805bfff44c87e19e8d"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_dump_output.txt",
+      "kind": "evidence",
+      "bytes": 303,
+      "sha256": "133ce7f98939bb1eb76438f6b427d65eb03f44d1a1c6bc25338fb6cf02180416"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_ps7_init.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_ps7_init_output.txt",
+      "kind": "evidence",
+      "bytes": 377,
+      "sha256": "0c9875922b84e35f1531a1f6e9042da46779e9e06279edd0f6d32e5e3199aaed"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_reset_stop.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_reset_stop_output.txt",
+      "kind": "evidence",
+      "bytes": 233,
+      "sha256": "8ea4501a16466b5d0b599b89b65f163cc6722b11b6aad1251d729725993e1887"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_restore_candidate.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_restore_candidate.json",
+      "kind": "evidence",
+      "bytes": 215,
+      "sha256": "ead95e3acdf9dd059781ba9709dd2e35b33626c0603bd34a07515e0952758f43"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_write.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W0_write_output.txt",
+      "kind": "evidence",
+      "bytes": 299,
+      "sha256": "ebdcab4cd302a1974137d60889aeab0f3f665ca82cd28f88af8f4da9ef03c3c4"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W1_lvl_0xA_cfg.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W1_lvl_0xA_cfg_output.txt",
+      "kind": "evidence",
+      "bytes": 616,
+      "sha256": "cde4e04e825986f813b39b5249eb447572446168e557673ce779465b89f7343d"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W1_lvl_0xF_after_cfg.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W1_lvl_0xF_after_cfg_output.txt",
+      "kind": "evidence",
+      "bytes": 1365,
+      "sha256": "a5adc0fbc33cd21a1bcc6d6990c3ba988d4455cf2d1b39841817f7a022bad657"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W1_pspl_four_actions.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W1_pspl_four_actions.json",
+      "kind": "evidence",
+      "bytes": 1786,
+      "sha256": "8e53dc5de325907dac25c05755b7274de32d574fd12d6101605d2a8bed89bfad"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_load.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_load_output.txt",
+      "kind": "evidence",
+      "bytes": 969,
+      "sha256": "6bd0e77313a1889a85cfa6aaacfea8bec54cc4578fd30696f2b0bed433541c72"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_load_probe.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_load_probe.json",
+      "kind": "evidence",
+      "bytes": 220,
+      "sha256": "5293a082d7de047584deeaabb9e105f04518ed595f9b67a7c6b093d68c95d976"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_longrun.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_longrun.json",
+      "kind": "evidence",
+      "bytes": 466,
+      "sha256": "b056651a3a2def050d7d59e828f5a35cf0f20cbc58ebfc97358067209ae8a5a4"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_pre_raw.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_pre_raw_output.txt",
+      "kind": "evidence",
+      "bytes": 315,
+      "sha256": "766cb297ddbf83c3d782547861c5861cdec9883e4a573e821a592deb5e54b290"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_pre_weights.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 8,
+      "sha256": "2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_pre_weights_output.txt",
+      "kind": "evidence",
+      "bytes": 327,
+      "sha256": "4bbdd6ec7bd27cbbedb40dded009c3864160ccf77dbfeb9756f8c06085a0e705"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_preload.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_preload.json",
+      "kind": "evidence",
+      "bytes": 184,
+      "sha256": "722ee5cdc13f050d37a65a6bf577a7046599df5460f9f177d28b9ca6c19cb10a"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W2_uart_output.txt",
+      "kind": "evidence",
+      "bytes": 12805,
+      "sha256": "efb60d7e1a2f84f4c68140f4130773c6f0159a79c09ee2f333d7f47982d3e7bd"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W3_preserve.exit_code.txt",
+      "kind": "evidence",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/W3_preserve.json",
+      "kind": "evidence",
+      "bytes": 1763,
+      "sha256": "a036362f6f03b3451b119a2e4045937da302b8211588192b63b6ab1edf12a608"
+    },
+    {
+      "path": "report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/window_close.txt",
+      "kind": "evidence",
+      "bytes": 1346,
+      "sha256": "e8effb8e8c31122ab4e473b77bd8cf0beb3898fc6e0bc78861b0ab0537032377"
+    }
+  ]
+}

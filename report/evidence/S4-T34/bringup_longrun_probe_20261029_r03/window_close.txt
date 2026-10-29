@@ -1,0 +1,25 @@
+# 长跑停住定位 r03（预载真实 RAW+权重 + 五步探针；编程 PL 后不做系统复位）
+
+- RunId：`bringup_longrun_probe_20261029_r03`；开窗 2026-10-29T17:24:21+08:00；收窗 2026-10-29T18:00:15+08:00；用时 35.9 min
+- 探针 ELF：`f9095655bde0624d9844c4c60894b8366d6a874e900cbe7b6b220380c46c33dc`
+- 结论：**DIAG_NOT_REPRODUCED**
+- W2：MAXTIME（collect=MAXTIME，心跳 41，静默 12.5 s，tensor_crc32=0x5b183b50）
+- **最后一行打印**：`LONGRUN PROBE iter=42 wait_done_pre`
+- 记录区：magic=1395936257 valid=True step=4 iter=42 CSR=0x43c0000c val=0xffffffff DFSR=0x00000000 DFAR=0x00000000 commit=0xc0dec0de
+- CSR/DevCfg：CSR_DIAG_UNAVAILABLE {"error_code": null, "last_reject": null, "status": null, "devcfg_status": null}
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P2_enum_preflight：`PASS` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_preload：`PASS` exit=`0`
+- W2_load_probe：`PASS` exit=`0`
+- W2_longrun：`MAXTIME` exit=`1`
+- W3_preserve：`DAP_WEDGED` exit=`0`
+- P4_teardown：`FAIL` exit=`1`
+
+## 边界
+- 2B 平台位流 + SW 预处理 + fixture 非实拍；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`；CSR/DevCfg 读仅作诊断，不作验收判据。
+- 不主张 G3/G4/G5；M3/M2 未闭合。

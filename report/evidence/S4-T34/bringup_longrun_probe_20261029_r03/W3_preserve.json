@@ -1,0 +1,79 @@
+{
+  "status": "DAP_WEDGED",
+  "exit_code": 0,
+  "steps": {
+    "core_state": {
+      "exit_code": 0,
+      "xsdb_error_text": null,
+      "cores": {
+        "CORE0": {
+          "raw": "",
+          "pc": null,
+          "cpsr": null
+        },
+        "CORE1": {
+          "raw": "",
+          "pc": null,
+          "cpsr": null
+        }
+      },
+      "status": "NOT_CAPTURED",
+      "note": "全空 ⇒ DAP 粘连/停核失败；此时后续 mrd 全部不可用"
+    },
+    "record": {
+      "mrd_exit": 0,
+      "words_hex": [
+        "0x53344c01",
+        "0x00002a04",
+        "0x00002a03",
+        "0x43c0000c",
+        "0xffffffff",
+        "0x00000000",
+        "0x00000000",
+        "0xc0dec0de"
+      ],
+      "magic": 1395936257,
+      "valid": true,
+      "step_id": 4,
+      "iter": 42,
+      "done_step_id": 3,
+      "done_iter": 42,
+      "csr_addr": 1136656396,
+      "csr_val": 4294967295,
+      "dfsr": 0,
+      "dfar": 0,
+      "commit": 3235823838,
+      "abort_captured": false,
+      "source": "normal_mrd",
+      "status": "PASS"
+    },
+    "csr_tri_read": {
+      "status": "CSR_DIAG_UNAVAILABLE",
+      "loadhw_done": true,
+      "reads": {
+        "error_code": {
+          "addr": "0x43c00010",
+          "raw": "",
+          "value": null
+        },
+        "last_reject": {
+          "addr": "0x43c00064",
+          "raw": "",
+          "value": null
+        },
+        "status": {
+          "addr": "0x43c0000c",
+          "raw": "",
+          "value": null
+        },
+        "devcfg_status": {
+          "addr": "0xf8007000",
+          "raw": "",
+          "value": null
+        }
+      },
+      "note": "r02 的三读因 loadhw -memrange 无效选项 + 地址误当值而无效；本版已修正"
+    }
+  },
+  "dap_ok": false
+}

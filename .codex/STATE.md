@@ -64,6 +64,17 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **error=5 真因已定位并验证（2026-10-29 21:3x–21:5x，`s4d_elf_rebuild_timeout_20261029_r01`）**：
+  旧冻结 ELF 写 `core_timeout = 0x40000000`（2^30 周期）⇒ 50 MHz 下 **21.47 s**，短于 2B 单帧 **47.3 s** ⇒ 必然 `TIMEOUT(error=5)`。
+  实测两条时间戳完全对上：旧 ELF 在 **21,474 ms** 超时、重建 ELF（0xFFFFFFFF=85.9 s）在 **85,899 ms** 超时（比值 4.00）。
+  按当前源码重建 chainA/chainB/m4b（sha `e4483632…`/`3152923e…`/`aaedaf3c…`）后，
+  **2B 基线位流上 M4-b 达到 `done=1 status=0x00000E04 error=0 elapsed_ms=47,287`**（引擎正常完成）。
+- **M4-b 剩余仅 1 个窄缺陷**：`diff26=0`，`diff13=2`、首个差异在 **byte 5068**（head13 = 5,070 B ⇒ 末尾 2 字节；
+  5,070 % 4 = 2 ⇒ 尾字 lane 问题，与 2A 规格"5,070-byte head13 尾 word 只选择 lane 0011"一致）⇒ 修尾字写 strobe/比较范围即可 PASS。
+- **P2b 集成事实（阶段5 关键）**：重建 ELF 在 **P2b** 上仍 85.9 s 超时 ⇒ P2b 的 2B 核单帧 **>85.9 s**，比 2B 基线（47.3 s）慢约 2×；
+  疑与 preproc+infer 共用 `smc_data`→HP0 数据面有关，需专项测量（不阻塞 M4-b 收口）。
+- **驱动/窗口缺陷（本晚修）**：chain-lite A/B runner 硬编码旧驱动哈希 `311ef177`（实际 v3.2.7 `6c41ff4c`）⇒ IDENT 误 FAIL；
+  `step_m4b` 只给 30 s 等 RESULT，而 50 MHz 单帧需 47.3 s ⇒ 改为 150 s 窗口（只放宽等待、不改判据）。
 - **M4-b 离线定位（2026-10-29 21:1x–21:3x，`s4d_m4b_error5_analysis_20261029_r01`）**：`error=5` 在 RTL 里唯一含义是
   **TIMEOUT**（`w2b/src/s2a_control_csr.sv:59 TIMEOUT_ERROR=3'd5`；判据 `:244 (elapsed_cycles+1) >= timeout_cycles`；
   `:186` START 清 elapsed；wrapper 只转发 core_timeout、不转 drain_timeout `s2b_control_csr.sv:150-172`）。

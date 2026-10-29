@@ -43,6 +43,22 @@
   ② 两处 hex 注释与原始十进制不符（STATUS 实为 `0x40000A30` 而非 `0x40000010`；CTRL 实为 `0x4E00E07F` 而非 `0x4E00FFFF`）。
   结论"PL 未配置"换用 `INT_STS[2]=0` 后仍成立，但须以**勘误**重记，且表述降为"构造性推断"；`INT_STS` 可被写 1 清除，单次为 0 ≠ 从未配置。**旧记录未改写。**
 - 边界：以上均未主张 G3/G4/G5；未写 QSPI、未改线、`ENABLE=0`、未 push。
+- **板卡恢复后 A 项重跑（2026-10-29 17:24–18:00，断电重启后第一次窗口）**：RunId `bringup_longrun_probe_20261029_r03`，
+  **41 轮全部 `done=1`/`status=0x00000E04`/`elapsed_ms=11821`，未停住**；窗口在脚本 1950 s 采集上限处被切断
+  （第 42 轮处于 `wait_done_pre`），应用自身 `wall_ms_max=1,800,000` 未达 ⇒ 记 `DIAG_NOT_REPRODUCED_LIMITED`。
+  记录区停核后读到 `magic=0x53344C01 valid step=4 iter=42 commit=0xC0DEC0DE` ⇒ 是"等 DONE"的正常态、非挂死。
+  与历史停住点比：r01=40 轮、r04=23、r05=24 ⇒ 本轮刚超过最长者 1 轮。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r03/`（含 `ANALYSIS.md`，门禁 59 条 0 不符）。
+- **重要发现：应用自报时间与主机实测差约 4 倍**（两条独立窗口证据）：r03 为 41 轮/1950 s 主机（47.56 s/轮）vs 应用 11.82 s/轮；
+  2026-10-29 14:38 窗口带主机时间戳的 `uart_output.txt` 为 32.38 s vs `elapsed_ms=8096`（比值 4.00）。
+  ⇒ 应用判据"30 min"实际约 **2 h** 真实时间；历史"11.8 s/帧"按主机时间约 **47 s/帧**；2B BD 的 FCLK0 设计值是 **50 MHz**（非 100 MHz）。
+  **原因未定**（不得猜）：JTAG 读全局定时器约 333.8 MHz、BSP `COUNTS_PER_SECOND=333,333,343` 二者一致；诊断 ELF 自身表述矛盾（ms 与 delta 不符），需重做三方对照实验。
+- **本轮两次窗口自伤并再次粘连板卡（如实记录）**：18:10 的迭代计时窗口 `s4d_iter_timing_20261029_r01` 在 `program_pl` 之后
+  仍用 `rst -system -stop` 装载 ⇒ 清 PL ⇒ 首次 CSR 读挂死（与 15:01 的 r02 同类）；随后用 `rst -system` 救场使 DAP 再次
+  `0x30000021` 粘连；`r02` 窗口因补丁未生效 + 板卡已挂死而 FAIL。两份目录均标 `INVALID_RUN_ORDERING_BUG` 并附 `ERRATA_TWO_INVALID_WINDOWS.md`。
+  **硬教训（执行器必须内置）**：①编程 PL 后任何装载路径禁止 `rst -system`；②命令串静态自检：已 `PROGRAM_OK` 且串内出现 `rst -system` 即拒跑；
+  ③核挂在 AXI 读时不要用 `rst -system`/反复 `mrd` 救场（两次实测都会把 DAP 推入粘连）；④任何补丁式改运行参数后必须回读文件确认生效。
+- **板卡现状**：DAP 粘连（`0x30000021`），需**再次** 12V+USB 断电 ≥10 s；收窗后主机侧零残留（无 hw_server/xsdb/vivado）。
+  r03 的 `W5_final_restore` 因保全阶段 **DAP_WEDGED 误判**（`state/rrd` 在 `-eval` 下需 `puts` 才输出）而未执行 ⇒ 下窗口必须 W0 式复核候选区 diff==0。
 
 ## 本轮结果（四项实测窗口；P1 smoke 失败已收窗，2026-10-27 20:44 UTC+8）
 

@@ -1,0 +1,33 @@
+[2026-10-30T01:45:46+08:00] p3b smoke start run_id=s5_p3b_smoke_20261030_r01 dry_run=1
+==============================================================================
+[DRY-RUN] P3b 上屏冒烟窗口执行器  RunId=s5_p3b_smoke_20261030_r01
+[DRY-RUN] 证据目录（真实运行才创建）：D:\codex-worktrees\w4\report\evidence\S5-T01\s5_p3b_smoke_20261030_r01
+==============================================================================
+[DRY-RUN] 依赖检查（只读；缺失不失败，只报告）：
+  - P3b 位流     **缺失**   path=D:\tmp\lead\p3b_video_20261030_r01\out\s4d_p3b_r01.bit  sha=None  expect=(仅记录)  -> record_only
+  - 显示 ELF     存在       path=D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf  sha=9fdec1d909054b1a08fdcd9a6b048fc8e0381327dc07e711e9c85d8de8790b38  expect=9fdec1d909054b1a08fdcd9a6b048fc8e0381327dc07e711e9c85d8de8790b38  -> match
+  - 驱动 v3.2.7  存在       path=D:\codex-worktrees\w4\scripts\stage4_s4b\run_bringup_driver.py  sha=6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461  expect=6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461  -> match
+  - init ELF   存在       path=D:\codex-worktrees\w4\report\evidence\S4-B\s4b_ps_tensor_20261023_r13\verified_payload\init.elf  sha=237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1  expect=237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1  -> match
+[DRY] 01. IDENT: sha256sum D:\tmp\lead\p3b_video_20261030_r01\out\s4d_p3b_r01.bit D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf D:\codex-worktrees\w4\scripts\stage4_s4b\run_bringup_driver.py D:\codex-worktrees\w4\report\evidence\S4-B\s4b_ps_tensor_20261023_r13\verified_payload\init.elf
+[DRY] 02. P0: pwsh Get-Process / Get-NetTCPConnection -LocalPort 3121 -State Listen / ::Get-CimInstance Win32_OperatingSystem（空闲内存 >= 1 GB）/ 打开 COM4@115200
+[DRY] 03. P1: 启动 D:\Xilinx\2026.1\Vivado\bin\unwrapped\win64.o\hw_server.exe（等 3121 LISTENING）
+[DRY] 04. P2: D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval "connect -url tcp:127.0.0.1:3121; puts [targets]; disconnect; exit"
+[DRY] 05. W1a: xsdb SLCR UNLOCK 0xDF0D -> LVL_SHFTR_EN(0xF8000900)=0x0A（PL 配置期间）
+[DRY] 06. W1b: D:\Xilinx\2026.1\Vivado\bin\vivado.bat -mode batch -source D:\codex-worktrees\w4\scripts\stage4_s4b\program_2b_bit.tcl -tclargs D:\tmp\lead\p3b_video_20261030_r01\out\s4d_p3b_r01.bit <bit_sha256>   # 期望输出 PROGRAM_OK
+[DRY] 07. W1c: xsdb LVL_SHFTR_EN=0x0F 并读回断言（四动作完成）
+[DRY] 08. W2: drv.load_elf_ddr(D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf, hold_reset=True)  # 内含 init.elf ps7_init；已编程时只用 rst -processor -stop（**禁 rst -system**）
+[DRY] 09. W3: 串口 COM4@115200 读 UART，needle='S5DISP RESULT='，窗口 90s（>= 60s）
+[DRY] 10. W3b: 只解析完整行；末尾半行丢弃（tail_partial 单独记录）
+[DRY] 11. W3c: 判据 J-1..J-7 -> W3_judgement.json / results_p3b_smoke.json
+[DRY] 12. W4: 关串口 -> taskkill hw_server(自起 PID) -> 核验 3121 无 LISTENING / 无残留重型进程 -> window_close.txt
+[DRY-RUN] 判据（写死）：
+[DRY] J-1 S5DISP RESULT JSON 可解析且含 pass, fps_cap, fps_inf, fps_dis, latency_ms, age_ms, vdma_err
+[DRY] J-2 pass == 1
+[DRY] J-3 vdma_err == 0
+[DRY] J-4 fps_dis >= 55 且 <= 90（>上限=单位歧义=>FAIL）
+[DRY] J-5 age_ms <= 47317
+[DRY] J-6 0 <= latency_ms <= 1000
+[DRY] J-7 结果行无 error/timeout 语义（fail-closed）
+[DRY] J-8 UART 窗口 >= 60s 且末尾半行丢弃
+[DRY-RUN SUMMARY] commands=12 criteria=8 collect_seconds=90 dry_run=1
+[DRY-RUN] 未触碰板卡/JTAG/COM4/hw_server，未创建任何目录，未运行 Vivado。

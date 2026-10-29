@@ -1,0 +1,25 @@
+# 长跑停住定位 r03（预载真实 RAW+权重 + 五步探针；编程 PL 后不做系统复位）
+
+- RunId：`bringup_longrun_probe_20261029_r05`；开窗 2026-10-29T19:47:46+08:00；收窗 2026-10-29T20:22:12+08:00；用时 34.4 min
+- 探针 ELF：`4ef402c702dce54bedd71d9397fb99d3ee0ba11e0da0ba1b3af22af0b2efffee`
+- 结论：**DIAG_FAILED_OR_PRELOAD_MISMATCH**
+- W2：FAIL（collect=RESULT，心跳 39，静默 0.0 s，tensor_crc32=0x5b183b50）
+- **最后一行打印**：`LONGRUN DONE, halting`
+- 记录区：magic=None valid=None step=None iter=None CSR=0x00000000 val=0x00000000 DFSR=0x00000000 DFAR=0x00000000 commit=0x00000000
+- CSR/DevCfg：None {}
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P2_enum_preflight：`PASS` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_preload：`PASS` exit=`0`
+- W2_load_probe：`PASS` exit=`0`
+- W2_longrun：`FAIL` exit=`1`
+- W4_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 2B 平台位流 + SW 预处理 + fixture 非实拍；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`；CSR/DevCfg 读仅作诊断，不作验收判据。
+- 不主张 G3/G4/G5；M3/M2 未闭合。

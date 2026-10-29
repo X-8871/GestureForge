@@ -108,3 +108,11 @@
 - **难题移交门槛（2026-10-28 Wong 修订）**：≥3 次尝试仍未解决才单独列出放入 Codex 信箱（原 2 次作废）；移交须附现象/尝试清单/证据路径/请求分析；回执不覆盖旧记录；见 dsh_mailbox/DSH-20261028-013。
 - **PL v2 冻结提交 `91fde517…` 窄复审 PASS（2026-10-29 01:35，rev-s5，独立复跑）**：3 项 MAJOR 关闭（4KB 拆分 `ars=2073=1443+630`、`4k_viol=0`；量化除法消除且穷举 0 反例；冻结 manifest 147 条 0 不符、V1–V4 PASS）；6 个 TB 全部自行复跑且 RESULT 与冻结日志逐字相同；BD validate 0/0；**可作为 v2 综合基线**；余 4 项非阻断 MINOR（文档措辞/生成器路径/CRLF/冗余段）。`timing.status=NOT_BUILT`，未主张时序/板上/G3–G5。
 - **产品吞吐目标裁决（2026-10-29，Wong 批准）**：目标改为 **30 fps 视频预览/叠加 + 5-10 fps 检测**。依据：2B 引擎仅 1 个 MAC 单元（每拍 1 乘加）导致实测 11.8 s/帧；XC7Z020 DSP=220、100 MHz 理论 22 GMAC/s，YOLOv4-tiny 416 INT8 约 3 GMACs/帧，故 30 fps 检测物理不可达（需约 890 MAC/cycle）。路线：L0 逐层剖析(先做) -> L2 模型缩小(416->208) + L1 引擎并行化(16-32x，待定) -> 组合目标 5-10 fps。4-D 位流工作不受影响；不降低既有判据、不主张已实现。裁决记录 decisions/product_throughput_target_20261029_r01.md。
+
+## 2026-10-29 板级窗口（长跑停住定位 A 项）与 DAP 粘连
+
+- **板卡当前不可用：DAP 粘连**（只读探测 `DAP (APB AP transaction error, DAP status 0x30000021)`，A9 目标消失）。按硬规则 2 只能由 Wong **整机断电（12V+USB ≥10 s）**清除；未用 `-force`。断电重启前任何一方不得再连 JTAG。收窗后进程已清零（hw_server/xsdb/vivado 0、3121 仅 TIME_WAIT）。
+- 触发窗口 RunId `bringup_longrun_probe_20261029_r02`（w4 提交 `f0a4178`）= **INVALID_RUN 自伤**：预载真实 RAW+权重后板上 `tensor_crc32=0x5B183B50` 复现，但执行器未置位 `_PL_STATE` → `load_elf_ddr` 走 `rst -system -stop` 清掉刚编程的 PL → 应用首次 `0x43C00000` 读挂死 → 停核失败 → DAP 粘连。作废说明 `w4/report/evidence/S4-T34/bringup_longrun_probe_20261029_r02/ERRATA_INVALID_RUN.md`；**不得引用本次现象作为产品根因证据**。
+- 该窗口另两件事实：① W0 打开时候选区与 M3 快照差异 11,850,821 B（已按快照重写、diff 0）；② **W4 收尾恢复未完成** ⇒ 下个窗口第一步必须做 W0 式 dump 对比。
+- 已备好、**未执行**的修正执行器：`D:\tmp\lead\probe_long_20261029_r03\run_probe_longrun_r03.py`（sha256 `f525ac03…7d7aeb`）、`D:\tmp\lead\p2b_board_20261029_r01\run_p2b_4d.py`（sha256 `9be5e855…d7fb95`）。已发 `dsh_mailbox/DSH-20261029-005`（回 CDX-20261029-001）。
+- 边界：未主张 G3/G4/G5，未写 QSPI、未改线、`ENABLE=0`、未 push。

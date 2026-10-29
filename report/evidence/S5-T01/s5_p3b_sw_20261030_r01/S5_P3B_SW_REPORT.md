@@ -1,9 +1,11 @@
 # S5 P3b-sw：HDMI 显示链 PS 侧显示软件报告
 
 - 任务：阶段5 HDMI 显示链 · PS 侧显示软件（P3b-sw）
-- 日期：2026-10-30（UTC+8）　版本：**r03**
+- 日期：2026-10-30（UTC+8）　版本：**r04**
   （r01 → r02：布局裁决落地、补 VTC 生成器初始化、帧存改 2；
-   r02 → r03：**帧缓冲迁出 must_not_access 禁区到 0x20000000**、**有界运行 180 帧 + `S5DISP RESULT=` 结果行**）
+   r02 → r03：帧缓冲迁出 must_not_access 禁区到 0x20000000、有界运行 180 帧 + `S5DISP RESULT=` 结果行；
+   r03 → r04：**真实数据源适配**——结果块 ABI（0x20800000）+ raw 画面（0x12000000）+ 回退逻辑 + `src` 字段，
+   `S5Sim_NextFrame` 降为回退路径）
 - 边界：**离线编写 + 编译通过 + 主机端自检（渲染 PNG / 假寄存器堆跑寄存器序列）**。未接触板卡 / JTAG / COM4 / hw_server，未运行 Vivado，未修改 `w4` 仓库文件（只读引用），未 git 提交。
 - 工作目录：`D:\tmp\lead\p3b_display_sw_20261030_r01\`
 
@@ -14,17 +16,20 @@
 | 项目 | 结果 |
 |---|---|
 | ARM 编译/链接 | **exit 0**（compile 0 / link 0 / size 0 / nm 0；警告 0） |
-| ELF | `build/s5_display_app.elf`，**sha256 `2d120a125cb95535790fc4fe699aa035a1b3065647d8bb5f0327a5b31a00d5bb`**（重建可复现，同 sha） |
-| ELF 大小 | **279,960 B**；text 41,889 / data 72 / bss 2,353,200（berkeley） |
+| ELF | `build/s5_display_app.elf`，**sha256 `acca2cf7e22c496e0e0c14d68830029b23ac3daccfaec1143ef6b766e4c8ce9d`**（重建可复现，同 sha） |
+| ELF 大小 | **296,352 B**；text 44,868 / data 72 / bss 2,353,504（berkeley） |
+| 真实数据源 | **已接入**：结果块 `0x20800000`（magic `0x53355253`）+ raw `0x12000000`（640×480 BGR888）；magic/valid 失败回退模拟源（`src:"sim"`），raw 全 0 回退测试图案（`src:"test"`）（§2.5/§2.6） |
+| 回退判据 | `src` ∈ {real,sim,test}；`pass` 要求链路健康**且** `src≠sim`（test 回退算通过但保留 `reason`）；面板可见 `SRC`/`STALE`/`OVR`（§5.3） |
 | 帧缓冲地址 | **A=`0x20000000`、B=`0x20384000`**，终点 `0x20708000`（**已迁出 `[0x12C08000,0x20000000)` 禁区**，§3.1） |
 | 有界运行 + 结果行 | **已实现**：默认 180 帧或 60 s 先到者停机，结束打印单行 `S5DISP RESULT={...}`（失败带 `reason`），进度行 `S5DISP frame=` 独立（§5.3、§8.3） |
 | VTC 生成器 | **已实现**（VTC 6.2，720p60）：12/12 寄存器回读校验 OK，负例可检出 MISMATCH（§2.4） |
 | VDMA | **2 帧存**（与 BD `c_num_fstores=2` 一致），A/B 双缓冲，只写 0x5C/0x60 两个地址（§2.2） |
 | 布局 | **已裁决：无重叠方案**（视频 `x=0..959` + 信息栏 `x=960..1279`），字面 160 黑边方案仅作实验分支（§3.2） |
 | 主机渲染自检 | **PASS**，同一份绘图源码渲染出 10 张 1280×720 PNG（两套布局 ×5）+ 180 帧有界运行 → 示例 RESULT |
+| 真实源自检 | **PASS**：合法块+fixture → `src:"real"`（含真实画面/框/面板 PNG）；magic 错 → `src:"sim"`+reason；raw 全 0 → `src:"test"`；stale 位 → 面板 STALE（§8.4） |
 | 寄存器序列自检 | **PASS**（假寄存器堆跑 `vtc_ctrl.c` + `vdma_ctrl.c`：VTC 校验、负例、双缓冲 6 帧决策，§8.2） |
 | VDMA 寄存器用法 | **有把握**：逐条来自本机 Vitis 2026.1 的 `axivdma_v6_17` 驱动源码（`xaxivdma_hw.h` + `xaxivdma_channel.c`），非 SG 写序列与驱动实现一一对应；题面里两处猜测已被纠正（§2.3） |
-| 未验证 | 全部上板行为：VDMA 实际搬数、VTC 实际时序输出、rgb2dvi/TMDS、DDR 带宽、撕裂/闪烁、真实延迟数值；RESULT 中的 fps/latency/age 目前来自**模拟源**（§5.3） |
+| 未验证 | 全部上板行为：VDMA 实际搬数、VTC 实际时序输出、rgb2dvi/TMDS、DDR 带宽、撕裂/闪烁；真实源只在主机用 fixture 验证，板上需生产端实际写结果块；`src:"sim"` 时 RESULT 的 fps/latency/age 为模拟值（§5.3） |
 
 ---
 
@@ -32,8 +37,10 @@
 
 | 文件 | 作用 | sha256 |
 |---|---|---|
-| `src/s5_display_app.c` | 绘图核心（纯函数）+ 模拟数据源 + 裸机 `main()`（VTC→测试图→VDMA→有界乒乓→RESULT 行） | `b3be49e1eee6a30c2098b951a05bd03119070392bfca090f6d51617ba4965302` |
-| `src/s5_display_app.h` | 布局/颜色/数据结构/API + 结果行契约（`S5RunStats`） | `4eba66179ef605bca3c9f84aedd4c587dcb25499721ae6c961cdd435db6d9a51` |
+| `src/s5_display_app.c` | 绘图核心（纯函数）+ 模拟源（回退）+ 裸机 `main()`（VTC→测试图→VDMA→有界乒乓→真实源/RESULT） | `51164a14494ee64f9ffb024f7bf1ff283c924397c7c8b78bda8f4d6ea059bfcc` |
+| `src/s5_display_app.h` | 布局/颜色/数据结构/API + 结果行契约（`S5RunStats` 含 `src`） | `456f6b9da5cf089f6cc96d7ce5f9e72cf133b94a8867c47fa00525897ecb7ab0` |
+| `src/s5_result_abi.h` | **结果块 ABI**（0x20800000）+ raw 画面（0x12000000）+ 编译期尺寸断言 | `0462f91173616b2ab1e6bc57cfdf1695229c4996a2d1fb87611537329fceab8c` |
+| `src/s5_real_source.h/.c` | 真实源：块解析/一致性检查、时间戳→age/latency、BGR→画布、空白检测、FPS 窗口 | `69893792604e156ec33de551ae152f92c8f494b9d0c152c1924e1a5085463720` / `3e128ef610e38854050f5609242b61343bb076d82c972c1b11de0908d2720c24` |
 | `src/vdma_ctrl.c` | axi_vdma 6.3 MM2S 非 SG 寄存器级初始化/启动/状态/帧计数 | `11478655196062585107515ec3a940fa61dbfb3b0dd0828be0a8b3944b2e2558` |
 | `src/vdma_ctrl.h` | 寄存器偏移表 + 依据注释 + API（含 FRMCNT_EN/帧计数） | `e0bc10050626f665e5e89c0bf02cba2234c09d2af702117c08e4534c7a498bce` |
 | `src/vtc_ctrl.c` | v_tc 6.2 生成器初始化（720p60）+ 回读校验 + 文本摘要 | `8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6` |
@@ -41,11 +48,13 @@
 | `src/s5_timebase.h/.c` | 全局定时器 64 位读取、宏括号坑的编译期断言 | `3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a` / `47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96` |
 | `src/s5_font8x16.h` | 自带 8×16 ASCII 点阵字库（95 字符 ×16 B，自动生成） | `2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3` |
 | `tools/gen_font8x16.py` | 字库生成器（DejaVu Sans Mono 11 px 栅格化，可复现） | `b9c5a583435d7120f76ae36b17df4a761f347cd1983866fefc66a0b2e3c04b87` |
-| `tools/host_render_test.c` | 主机端离线渲染自检 + 180 帧有界运行（同一份绘图/结果行代码） | `658b3beff0b92fcf8d9d5bbb308761372cd33a313fa55be2fc70424869012b7f` |
+| `tools/host_render_test.c` | 主机端离线渲染自检 + 180 帧有界运行（同一份绘图/结果行代码） | `8d63ac1cf8cadccd8d2be39394c6cc4862a522bdccba9bc18e35d16401b070a5` |
+| `tools/real_source_selftest.c` | **真实源自检**：ABI 块构造/解析、真实画面渲染、三条回退路径、STALE 显示 | `990a92e100660f3eb9dc8db160842070c054ed47775b09117168503ed558e0d8` |
 | `tools/vtc_vdma_selftest.c` | 假寄存器堆离线自检：VTC 校验 + 负例 + VDMA 双缓冲决策 | `b8b546bfa08a910dd04b61075ebfecb05adc9e7feda8db0df0e247c0f7b8f808` |
 | `tools/host_xil_shim/xil_io.h` | 主机自检用 `Xil_In32/Xil_Out32` 替身声明（不进 ARM 构建） | `1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263` |
-| `build_s5_display_app.py` | 一键构建 + 三方自检 + 证据记录 | `e446e267e8c690feb0c7da5c20676fa83551f03586f184291a32bb157ce4258f` |
-| `build/` | ELF、map、build_record.json、构建日志、`selftest_vtc_vdma.txt`、10 张 PNG | — |
+| `fixtures/fixture_fist_000_640x480_bgr888.raw` | 真实画面 fixture 副本（640×480 BGR888，921,600 B，来自 S4-T34 bringup） | `ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4` |
+| `build_s5_display_app.py` | 一键构建 + 四方自检（渲染/寄存器/真实源）+ 证据记录 | `e7847d0de177516dac2adddb20c6f0f9d18d5adcf9f25ea7f74693ac0124889a` |
+| `build/` | ELF、map、build_record.json、构建日志、`selftest_*.txt`、14 张 PNG | — |
 
 ---
 
@@ -144,6 +153,49 @@
 **未验证**：寄存器写入/回读只证明 AXI-Lite 通路与位域正确，**不证明实际视频时序输出正确**（需上板用示波器/显示器或
 `vid_out` 状态确认）；`v_axi4s_vid_out` 是否已锁定（`locked`）、VTC 极性输出是否符合 TMDS 侧要求，均归 P3b 上板联调。
 
+### 2.5 结果块 ABI（0x20800000）+ raw 画面（0x12000000）——r04 新增
+
+**依据**：lead 2026-10-30 冻结的 ABI（写死，见 `src/s5_result_abi.h`）。
+
+| 偏移 | 类型 | 字段 | 说明 |
+|---|---|---|---|
+| `0x00` | u32 | magic | 固定 `0x53355253`（"S5RS"）；不符即回退 |
+| `0x04` | u32 | frame_id | 采集帧号 |
+| `0x08` | u32 | n_dets | 0..16；>16 视为 ABI 形状非法 |
+| `0x0C` / `0x10` | u32 | cap_lo / cap_hi | `t_capture_end`（全局定时器 0xF8F00200 ticks，64 位拼接） |
+| `0x14` / `0x18` | u32 | inf_lo / inf_hi | `t_infer_done`（同上） |
+| `0x1C` | u32 | status | bit0=valid、bit1=overrun、bit2=stale |
+| `0x20` 起 | 16×16 B | 检测项 | 每项：`u16 x,y,w,h`（原图 640×480）+ `u8 cls` + `u8 score_q8` + `u16 reserved` + 4 B 填充 |
+
+**⚠ ABI 尺寸歧义（必须与生产端对齐）**：文字写“每项 16 B”，但字段合计 **12 B**（8+1+1+2），差值 4 B 只能是填充。
+本实现按 **16 B 步进**读取、`cls/score` 取第 3 个 u32 的低 16 位（`w2 = cls | score<<8 | reserved<<16`），忽略 `w3`；
+若生产端按 12 B 紧凑排布，第 2 项起会整体错位 4 B。已写入报告 §6 风险项，**联调第一件事是对一次真实块的双向 dump**。
+
+**读取与一致性**：读 `magic` → 读 `status`（valid）→ 读 `frame_id` → 解析 → **再读 `frame_id`**，前后不一致判 `torn`（生产端正在写），
+本帧回退不渲染中间态。返回码：`0` 成功、`-1` magic、`-2` valid=0、`-3` torn、`-4` 形状非法 —— 全部映射到 `reason` 字符串。
+
+**raw 画面**：`0x12000000` 起 640×480 **BGR888** 紧排（921,600 B），属阶段4 裁决允许的 `raw_frame`（禁区已缩到 `[0x12C08000,0x20000000)`）。
+读端做 `BGR→0x00RRGGBB` 转换后送 letterbox；**全 0 检测**用“命中首个非 0 字节即返回”的早退扫描，全 0 时才扫满整幅。
+
+### 2.6 真实源与回退逻辑（r04）
+
+```
+每帧：
+  invalidate(结果块 0x120 B) → S5Real_Parse()
+    ├─ 失败（magic/valid/torn/shape）→ src="sim"    ：S5Sim_NextFrame + 模拟画面；reason=对应原因
+    └─ 成功：
+         invalidate(raw 921,600 B) → S5Real_IsBlank()
+           ├─ 全 0   → src="test"：视频区画测试图案（框仍来自结果块）；reason="raw_frame_blank"
+           └─ 有内容 → src="real"：BGR→RGB 转 640×480，letterbox 到 960×720
+         S5Real_ToFrameInfo(now) → age = now−cap、latency = now−inf（ms）
+         时间戳窗口喂 cap/inf/dis 三口径 FPS
+```
+
+- **面板**：`SRC REAL/SIM/TEST` 一行可见；`status.bit2` → AGE 行显示 `STALE`（黄色），`bit1` → `SRC ... OVR`。
+- **缓存一致性**：结果块/raw 都是 DMA 写、CPU 读 → 读前 `Xil_DCacheInvalidateRange`（`S5_DCACHE_FLUSH=1` 时生效）。
+- **编译期开关**：`S5_SOURCE_REAL=1`（默认）；置 0 强制纯模拟（无生产端时做版式自检用）。
+- **FPS 口径**：`cap/inf` 只在 `frame_id` 变化（新结果）时计入窗口，避免同一结果被显示多次而高估；`dis` 每帧计入。
+
 ---
 
 ## 3. 帧缓冲与画布布局
@@ -164,6 +216,8 @@ D1 只把禁区从 `[0x12000000,0x20000000)` 缩到 `[0x12C08000,0x20000000)`，
 | 两帧合计 | **7,372,800 B = 0x708000** | 2 × 0x384000 |
 | 终点 | **`0x20708000`** | B + 0x384000 |
 | 与禁区关系 | `[0x12C08000,0x20000000)` 之外 | 上界恰好 `0x20000000`，不重叠 |
+| 结果块（r04） | **`0x20800000`**（预留 8 MiB，实际只读 0x120 B） | 在 FB 末端 `0x20708000` 之后 |
+| raw 画面（r04） | **`0x12000000`**，640×480 BGR888 = 921,600 B | 阶段4 允许的 `raw_frame`（禁区已缩到 `[0x12C08000,…)`） |
 | 链接脚本内存区 | `0x00100000..0x01100000`（app）、`0x10000000..0x12000000`（r13 tensor） | 帧缓冲在两区之外，用绝对地址访问，链接器不分配 |
 
 实测 ELF 内存布局（`arm-none-eabi-nm`）：`__bss_start=0x0010C010`、`__bss_end=0x0023903C`、`_heap_end=0x00339040`、`_stack=0x00349040`、`end=0x0034A840` —— 全部低于 `0x01100000`（链接脚本 `ASSERT(app budget)` 通过），与 `0x20000000` 帧缓冲无重叠。
@@ -295,18 +349,30 @@ S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"a
 
 | 字段 | 单位/取值 | 说明 |
 |---|---|---|
-| `pass` | 1 / 0 | 自检：VDMA 无错 + ≥1 帧完整显示 + 信息栏刷新成功 |
-| `fps_cap` | **整数 fps 0..60**（不是 ×10） | 采集口径 |
-| `fps_inf` | **整数 fps 0..60** | 推理口径；**本窗口无真实推理源 → 固定 0**（`S5_RESULT_FPS_INF_FROM_SIM=0`，契约允许） |
-| `fps_dis` | **整数 fps 0..60** | 显示口径 |
-| `latency_ms` | 整数毫秒 | 显示延迟；**当前取模拟源值** |
-| `age_ms` | 整数毫秒 | 结果年龄；**当前取模拟源值**（每 47 帧注入一次超龄，验证 AGE OVER 路径） |
+| `pass` | 1 / 0 | 链路健康（VDMA 无错 + ≥1 帧完整显示 + 信息栏刷新成功）**且** `src≠"sim"`；`src="test"` 仍算通过（显示可用）但带 `reason` |
+| `fps_cap` | **整数 fps 0..60**（不是 ×10） | 采集口径；真实源取时间戳窗口，模拟源取模型值 |
+| `fps_inf` | **整数 fps 0..60** | 推理口径；真实源取 `inf` 时间戳窗口，模拟源固定 0（契约允许） |
+| `fps_dis` | **整数 fps 0..60** | 显示口径（每帧计入窗口） |
+| `latency_ms` | 整数毫秒 | 显示延迟 = now − t_infer_done；真实源由 ticks 换算，模拟源为模型值 |
+| `age_ms` | 整数毫秒 | 结果年龄 = now − t_capture_end；真实源由 ticks 换算，模拟源为模型值（每 47 帧注入超龄） |
 | `vdma_err` | 计数 | 运行期间 SR 错误位（`XAXIVDMA_SR_ERR_ALL`）累计次数 |
 | `frames` | 计数 | 实际渲染帧数 |
 | `vcnt` | 计数 | VDMA 消耗帧计数：优先硬件帧计数（SR[23:16]），读不到则软件观测读帧存切换次数 |
-| `reason` | 字符串（仅 `pass:0`） | 失败原因：`vdma_init_failed` / `vdma_error` / `no_frame_rendered` / `frame_check_failed` |
+| `src` | `"real"` / `"sim"` / `"test"` | 本窗口数据源；回退判据（r04 新增，见 §2.6） |
+| `reason` | 字符串（非 NULL 即输出） | `result_magic_mismatch` / `result_not_valid` / `result_torn` / `result_shape_invalid` / `raw_frame_blank` / `vdma_init_failed` / `vdma_error` / `no_frame_rendered` / `frame_check_failed` |
 
-**通过判据实现**（`S5Display_CheckFrame()` 抽点自检）：视频区（摄像头梯度）抽样 ≥8 个非黑点；
+**真实源 vs 模拟源的判据差异**（r04）：
+
+| | `src="real"` | `src="test"` | `src="sim"` |
+|---|---|---|---|
+| 触发条件 | magic/valid 全通过 + raw 有内容 | 结果块通过但 raw 全 0 | 结果块不可用（magic/valid/torn/shape） |
+| 画面 | 真实 raw（BGR→RGB，letterbox） | 视频区测试图案（棋盘 + 红字提示） | 模拟画面 |
+| 检测框 | 结果块 | 结果块（仍画，验证 ABI 通路） | 模拟源 |
+| `pass` | 1 | 1（显示可用） | **0** |
+| `reason` | 无 | `raw_frame_blank` | 解析失败原因 |
+| fps/latency/age | 真实时间戳窗口 | 真实 ticks（画面除外） | 模型值 |
+
+**通过判据实现**（`S5Display_CheckFrame()` 抽点自检）：视频区（摄像头/棋盘）抽样 ≥8 个非黑点；
 信息栏**标题条**（y=6..20、x=970..1160）抽样 ≥20 个非面板底色点 —— 标题条是实心填色带，用它判断“信息栏确实刷新过”，
 比随机抽文字像素稳健（文字覆盖率低会误判）。
 
@@ -322,7 +388,8 @@ S5DISP RESULT={"pass":0,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"a
 ```
 
 > 离线示例由 `tools/host_render_test.c` 跑满 180 帧（真渲染 + 抽点自检，无 MMIO）后用**同一函数**生成，见 §8.3；
-> 板上数值的 fps/latency/age 目前来自模拟源，接真实推理后按 §9 替换。
+> 真实源示例（`src:"real"`）与两条回退示例见 §8.4。板上真实数值需生产端实际写结果块。`main()` 里的 `S5_RESULT_FPS_INF_FROM_SIM`
+> 只影响**模拟源分支**的 `fps_inf`（真实源分支由 `inf` 时间戳窗口计算）。
 
 ---
 
@@ -330,9 +397,15 @@ S5DISP RESULT={"pass":0,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"a
 
 ### 6.1 高风险（阻断上板联调）
 
+**① 结果块 ABI 的 12 B vs 16 B 歧义（r04 新增，最优先核对）**：lead 的 ABI 文字写“每项 16 B”，但字段合计 12 B，差 4 B 只能是填充。
+   本实现按 **16 B 步进**（`cls/score` 取第 3 个 u32 的低 16 位，忽略第 4 个 u32）；若生产端（chain-lite A）按 12 B 紧凑写，第 2 项起全部错位 4 B，
+   表现为“框整体偏移/尺寸乱”。**联调第一步**：让生产端写一份已知 3 框的块，双方 dump 0x20800000 前 0x60 B 对字段。
 1. **帧存个数已按 2 对齐，但 BD 侧改动未由本卡核验**：lead 2026-10-30 已把 BD 的 `c_num_fstores` 改为 2，本 SW 只编程 A/B 两个地址（`0x5C/0x60`），与 BD 一致。若实际硬件仍是 3（BD 未重新生成/未综合），第 3 个帧存会读地址寄存器复位值（0）→ 周期性花屏。
    - 本 SW 的防护：init 读回 `0x18`，不等于 2（且非 0）时打印 `WARN FRMSTORE readback != 2`；`0x18` 本身是否可读取决于 IP 调试参数，读回 0 时只记录、不据此决策。
    - 上板第一步：确认 `c_num_fstores=2` 的新 BD 已生效（读回 / 看综合报告参数），再观察帧序列。
+**② 真实数据源只有主机验证，板上未验**：`s5_real_source.c` 用 fixture + 合成块在主机跑通（§8.4），但板上依赖：
+   ①生产端真的在写 `0x20800000`（magic/valid）；②raw 区真的由相机/DMA 填 `0x12000000`；③D-cache 无效化时序正确（DMA 写→CPU 读）。
+   任一条不成立 → 会看到 `src:"sim"`（`result_*` reason）或 `src:"test"`（`raw_frame_blank`），这正是设计好的可读回退，不是崩溃。
 2. **未上板**：VDMA 实际搬数、`vid_out` 的 `tready` 反压、VTC 实际时序输出、rgb2dvi/TMDS、DDR 带宽全部未验证。本 ELF 只证明“能编译链接 + 寄存器序列逻辑正确（假寄存器堆自检）+ 图形逻辑正确”。
 3. **VTC 已实现但只验证到寄存器层**：`vtc_ctrl.c` 按 720p60 写生成器并在写后逐寄存器回读（12/12 OK，负例可检出 MISMATCH）。**未验证**：真实 VTC 输出时序（HS/VS/DE/极性）、`v_axi4s_vid_out` 是否 `locked`、`rgb2dvi`/TMDS 是否出图。若上板无图，排查顺序：`vid_out` locked 位 → VTC 极性 → VDMA 是否在跑（SR/CR）→ 帧缓冲内容（JTAG 看 0x20000000）。
 4. **缓存一致性**：帧缓冲 3.7 MB ≫ 32 KB D-cache。`main()` 每帧调用 `Xil_DCacheFlushRange()`（`S5_DCACHE_FLUSH=1`）。若 bring-up 时 D-cache 关闭，可置 0；若开启，必须保证 0x20000000 区按 write-back 正常维护，且 flush 的耗时（~115k cache line）计入帧预算。
@@ -392,18 +465,19 @@ arm-none-eabi-gcc.exe <同上 flags> \
 
 | 步骤 | 退出码 |
 |---|---|
-| 编译 app / vdma / vtc / timebase | 0 / 0 / 0 / 0 |
+| 编译 app / vdma / vtc / timebase / real_source | 0 / 0 / 0 / 0 / 0 |
 | 链接 | **0** |
 | size / nm | 0 / 0 |
 | 主机渲染自检（两套布局） | 0 / 0（PASS，各 5 张 PNG） |
 | 主机 180 帧有界运行 → RESULT 行 | 0（PASS，示例见 §8.3） |
 | VTC/VDMA 寄存器序列自检 | **0**（PASS，见 §8.2） |
+| 真实数据源自检（真实/回退/空白/STALE） | **0**（PASS，见 §8.4） |
 
-产物：`build/s5_display_app.elf`（**279,960 B，sha256 `2d120a12...` 见 §0**）、`build/s5_display_app.map`、`build/build_record.json`（输入/输出哈希、命令、退出码、限制项、自检结果）、`build/selftest_vtc_vdma.txt`、`build/host_render_test*.exe`、`build/*.png`。
+产物：`build/s5_display_app.elf`（**296,352 B，sha256 `acca2cf7…` 见 §0**）、`build/s5_display_app.map`、`build/build_record.json`（输入/输出哈希、命令、退出码、限制项、四方自检结果）、`build/selftest_vtc_vdma.txt`、`build/selftest_real_source.txt`、`build/host_*_test*.exe`、`build/*.png`。
 
 ### 7.3 符号检查（防止“链接成功但内容被 gc 掉”）
 
-断言 ELF 中存在：`main`、`S5Draw_Text`、`S5Draw_CameraLetterbox`、`S5Vdma_Init`、`S5Vdma_Start`、`S5Vdma_WaitNotReading`、`S5Vtc_Init`、`S5Ticks_Now` —— **missing = []**。
+断言 ELF 中存在：`main`、`S5Draw_Text`、`S5Draw_CameraLetterbox`、`S5Vdma_Init`、`S5Vdma_Start`、`S5Vdma_WaitNotReading`、`S5Vtc_Init`、`S5Real_Parse`、`S5Ticks_Now` —— **missing = []**。
 说明：`-O2` 会内联只在本单元调用的函数并由 `--gc-sections` 回收副本，故 `S5Display_RenderFrame`/`S5Sim_NextFrame`/`S5Vtc_Verify` 可能不在符号表（构建记录里已注明该行为，不是缺函数）。
 
 ---
@@ -491,29 +565,59 @@ S5DISP RESULT={"pass":0,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"a
 `pass=1` 的成立依据：`S5Display_CheckFrame()` 对最后一帧的抽点自检通过（视频区 36/64 非黑点、
 信息栏标题条 80/80 非底色点，远高于阈值 8 / 20）。
 
+### 8.4 真实数据源自检（r04，`tools/real_source_selftest.c`）
+
+同一份 `s5_real_source.c` + `s5_display_app.c` 在主机跑，假时钟由测试推进（60 Hz 显示、30 Hz 新结果）：
+
+```text
+case1 (real): S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":29,"fps_dis":59,"latency_ms":7,
+                             "age_ms":31,"vdma_err":0,"frames":36,"vcnt":36,"src":"real"}
+case1 status=0x0003 det=3 age=31 lat=7
+case2 (magic bad): parse_rc=-1 reason=result_magic_mismatch
+case2 (fallback sim): S5DISP RESULT={"pass":0,"fps_cap":29,"fps_inf":0,"fps_dis":59,"latency_ms":17,
+                                    "age_ms":33,"vdma_err":0,"frames":1,"vcnt":0,"src":"sim","reason":"result_magic_mismatch"}
+case3 (raw blank): S5Real_IsBlank=1
+case3 (fallback test): S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":0,"latency_ms":7,
+                                     "age_ms":31,"vdma_err":0,"frames":1,"vcnt":0,"src":"test","reason":"raw_frame_blank"}
+case4 (stale): status=0x004B stale_bit=1 age=49 ms
+==== real-source selftest: PASS ====
+```
+
+| 用例 | 验证点 | 产物 |
+|---|---|---|
+| case1 真实源 | magic/valid 通过、3 框坐标/分数解析、`age=now−cap`、`latency=now−inf`、fps 窗口、`src:"real"`、`pass=1` | `build/frame_real.png`（真实 fixture 画面 + 3 框 + 面板 `SRC REAL`，FPS C 30.6 / I 29.9 / D 59.9） |
+| case2 magic 错 | 回退模拟源、`pass=0`、`reason=result_magic_mismatch` | `build/frame_fallback_sim.png` |
+| case3 raw 全 0 | `S5Real_IsBlank=1`、测试图案回退、`src:"test"`、`pass=1`+reason | `build/frame_test_fallback.png`（棋盘 + 红字 + 框 C1） |
+| case4 stale | `status.bit2` → `S5_ST_STALE`、面板 AGE 行显示 STALE | `build/frame_stale.png` |
+
+> 说明：fixture 为 `fixtures/fixture_fist_000_640x480_bgr888.raw`（S4-T34 bringup 的 640×480 BGR888，sha256 `ce37aa77…`，副本）。
+> 图上真实画面/框/文字都在，说明 **ABI 解析 → 坐标映射 → 640×480 → 960×720 缩放 → 面板**整条链路在主机侧是通的；上板差异只在数据来源与缓存一致性。
+
 ---
 
-## 9. 接真实推理结果的接线点（替换清单）
+## 9. 真实数据源接线（r04 已接，替代原“替换清单”）
 
-全部替换集中在 `src/s5_display_app.c` 的 `S5Sim_NextFrame()`，**绘图侧一行都不用改**：
+**已实现**：`src/s5_real_source.c` 每帧读结果块 + raw，`S5Sim_NextFrame()` 降级为**回退路径**。
+板上接线只剩“地址与缓存”两件事，均由宏/常量给出：
 
-| `S5FrameInfo` 字段 | 现模拟源 | 真实来源 |
+| 项 | 值 / 位置 | 说明 |
 |---|---|---|
-| `frame_id` | 自增 | PL 采集帧计数（与 VDMA/CSR 同一帧号） |
-| `fps_cap_x10` | 模型值 29.7~30.0 | 采集中断里计数，1 s 滑动窗口 ×10 |
-| `fps_inf_x10` | 模型值 27.5~28.0 | 推理完成计数，1 s 窗口 ×10 |
-| `fps_dis_x10` | 模型值 59.8~60.0 | 显示帧提交计数（或 VTC 帧率） |
-| `latency_ms` | 17 ms + 抖动 | `S5Ticks_ToMs(t_display_start − t_infer_done)` |
-| `age_ms` | 30 ms + 抖动（每 47 帧注入 41 ms） | `S5Ticks_ToMs(t_display_start − t_capture_end)` |
-| `det[]` | 1~3 个移动框 | 解码/NMS 输出，**保持摄像头 640×480 原始坐标**（框映射在 `S5Draw_Boxes` 里做） |
-| `status` | `CAM_OK|INF_OK|AGE_OVER` | 各子系统状态位（`S5_ST_*`） |
+| 结果块 | `0x20800000`（`S5_RESULT_BASE`） | 生产端（chain-lite A 派生）写；读端每帧 invalidate 0x120 B |
+| raw 画面 | `0x12000000`（`S5_RAW_FRAME_BASE`） | 640×480 BGR888；读端每帧 invalidate 921,600 B |
+| 时间戳 | 结果块 cap/inf（全局定时器 ticks） | `age=now−cap`、`latency=now−inf`，`S5_GT_HZ=333333343` 换算 |
+| 结果年龄上限 | 33 ms | 超限 → `AGE OVER`；`status.bit2` → `STALE` |
+| 开关 | `S5_SOURCE_REAL`（默认 1） | 0 = 强制纯模拟（无生产端时版式自检） |
 
-三个时间戳都用同一时间基座（`S5Ticks_Now()`，0xF8F00200，~3 ns 分辨率），测量口径与 G0 一致。
+| `S5FrameInfo` 字段 | 真实源来源 | 模拟回退 |
+|---|---|---|
+| `frame_id` | 结果块 `frame_id` | 自增 |
+| `fps_*_x10` | cap/inf/dis 时间戳窗口（×10，面板用） | 模型值 |
+| `latency_ms` / `age_ms` | `now − inf` / `now − cap`（ticks→ms） | 17 ms / 30 ms + 抖动 |
+| `det[]` | 结果块 16×16 B（原图 640×480 坐标） | 1~3 个移动框 |
+| `status` | VALID/OVERRUN/STALE + 超龄判定 | CAM_OK/INF_OK/AGE_OVER |
+| `src_kind` | REAL / TEST / SIM | SIM |
 
-**结果行字段的来源**（`S5RunStats`，见 §5.3）：`fps_cap/fps_inf/fps_dis` 由 `fps_*_x10 / 10` 得到（整数 fps），
-`latency_ms/age_ms` 取最后一帧的 `S5FrameInfo`，`vdma_err` 由主循环累计 SR 错误位，`frames` 为实际渲染帧数，
-`vcnt` 取 `S5Vdma_UpdateFrameCount()`（不可用时退回软件观测）。接真实推理后**只需**替换 `S5Sim_NextFrame()` 并把
-`S5_RESULT_FPS_INF_FROM_SIM` 置 1，结果行代码不用动。
+> 原来的“替换 `S5Sim_NextFrame()`”动作**不再需要**；现在只需要生产端按 §2.5 的 ABI 写块、相机/DMA 填 raw。
 
 ---
 
@@ -524,8 +628,8 @@ S5DISP RESULT={"pass":0,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"a
 3. ~~确认 `c_num_fstores`~~ —— **已按 2 实现**（与 BD 对齐）；上板读回 0x18 复核一次。
 4. ~~有界运行 + 结果行~~ —— **已完成**：180 帧/60 s 停下 + 单行 `S5DISP RESULT=`（失败带 `reason`），离线示例见 §8.3。
 5. ~~帧缓冲迁出禁区~~ —— **已完成**：A/B = `0x20000000`/`0x20384000`。
-6. **上板第一步（先做便宜的）**：①对 `[0x20000000,0x20708000)` 做 64 B 对齐写-回读校验并留原始字节；②确认 `[0x12C08000,0x20000000)` 禁区未被本应用触碰（只读核验地址常量与 map）；③读回 `0x18` 确认 2 帧存；④确认 `vcnt` 是否由硬件帧计数推进（若恒 0 则走软件兜底，属预期行为）。
-7. **上板联调（最高优先）**：①`PARKPTR.READSTR` 在 circular 模式是否随帧更新（决定写侧同步是否可用）；②`vid_out` locked；③VDMA 启动/状态与 SR 错误位；④撕裂观察；⑤DDR 带宽与帧耗时（GT 打点，决定 180 帧能否在 60 s 内跑完）；⑥rgb2dvi/TMDS 出图。
-8. 接真实推理输出，替换 `S5Sim_NextFrame`，把 `S5_RESULT_FPS_INF_FROM_SIM` 置 1；延迟/年龄换成真实时间戳（口径不变）。
+6. ~~接真实数据源~~ —— **已完成**：结果块 ABI + raw 画面 + 回退（`src`/`reason`），模拟源降级为回退；离线四用例 PASS（§8.4）。
+7. **上板第一步（先做便宜的）**：①对 `[0x20000000,0x20708000)` 做 64 B 对齐写-回读校验并留原始字节；②确认 `[0x12C08000,0x20000000)` 禁区未被本应用触碰（只读核验地址常量与 map）；③读回 `0x18` 确认 2 帧存；④确认 `vcnt` 是否由硬件帧计数推进（若恒 0 则走软件兜底，属预期行为）；⑤**与生产端对 dump 结果块前 0x60 B**，确认 16 B/项步进一致（§6.1 ①）。
+8. **上板联调（最高优先）**：①`PARKPTR.READSTR` 在 circular 模式是否随帧更新（决定写侧同步是否可用）；②`vid_out` locked；③VDMA 启动/状态与 SR 错误位；④撕裂观察；⑤DDR 带宽与帧耗时（GT 打点，决定 180 帧能否在 60 s 内跑完）；⑥rgb2dvi/TMDS 出图；⑦真实源是否出现 `src:"real"`（而非 sim/test）。
 9. 性能优化（如需 60 fps）：面板局部重绘、按行 flush、必要时把画布改成 RGB565 减半带宽（会改冻结格式，需批准）。
-10. 类别名/颜色表（`s5_class_name`/`s5_class_color`）等阶段5 类别定义冻结后替换。
+10. 类别名/颜色表（`s5_class_name`/`s5_class_color`）等阶段5 类别定义冻结后替换；`score_q8→百分比` 的换算若阶段5 有定标需复核。

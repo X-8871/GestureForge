@@ -144,6 +144,7 @@ int main(void)
 
         st.pass = S5Display_CheckFrame(fb) ? 1u : 0u;
         st.reason = (st.pass != 0u) ? 0 : "frame_check_failed";
+        st.src = "sim"; /* 本工具只跑模拟源；真实源见 tools/real_source_selftest.c */
         st.fps_cap = (uint32_t)(info.fps_cap_x10 / 10u);
         st.fps_inf = 0u; /* 无真实推理源：与板上 S5_RESULT_FPS_INF_FROM_SIM=0 口径一致 */
         st.fps_dis = (uint32_t)(info.fps_dis_x10 / 10u);

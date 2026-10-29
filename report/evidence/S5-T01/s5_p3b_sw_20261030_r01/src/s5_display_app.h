@@ -111,11 +111,21 @@ typedef struct S5DetBox {
 #define S5_ST_AGE_OVER 0x0008u /* 结果年龄超 1 帧 + 16.7 ms */
 #define S5_ST_TEAR 0x0010u     /* 写侧等不到安全窗口，可能撕裂 */
 #define S5_ST_CAM_LOST 0x0020u
+#define S5_ST_STALE 0x0040u   /* 结果块 status.bit2：结果超 1 帧（面板显示 STALE） */
+#define S5_ST_OVERRUN 0x0080u /* 结果块 status.bit1：结果丢失（面板显示 OVR） */
 
 /* 结果年龄上限：1 帧（16.7 ms）+ 16.7 ms ≈ 33.4 ms，取整 33 ms（G0 冻结） */
 #define S5_AGE_LIMIT_MS 33u
 /* 720p60 帧周期 */
 #define S5_FRAME_MS 17u
+
+/* 本帧数据来源（RESULT 的 src 字段 / 面板 SRC 行；ABI 见 s5_result_abi.h）
+ *   REAL = 真实结果块 + 真实 raw 画面；SIM = 结果块无效时回退模拟源；
+ *   TEST = 结果块可用但 raw 全 0（相机未启动）→ 视频区用测试图案。 */
+#define S5_SRC_NONE 0u
+#define S5_SRC_REAL 1u
+#define S5_SRC_SIM 2u
+#define S5_SRC_TEST 3u
 
 typedef struct S5FrameInfo {
     uint32_t frame_id;
@@ -126,7 +136,7 @@ typedef struct S5FrameInfo {
     uint16_t age_ms;       /* 结果年龄 = t_display_start - t_capture_end */
     uint16_t status;       /* S5_ST_* 位或 */
     uint8_t det_count;     /* 有效检测框个数（<= S5_MAX_DET） */
-    uint8_t pad;
+    uint8_t src_kind;      /* S5_SRC_*：本帧数据来源（面板/RESULT 的 src 用） */
     S5DetBox det[S5_MAX_DET];
 } S5FrameInfo;
 
@@ -148,7 +158,8 @@ typedef struct S5RunStats {
     uint32_t vdma_err;  /* VDMA SR 错误位累计次数 */
     uint32_t frames;    /* 实际渲染帧数 */
     uint32_t vcnt;      /* VDMA 消耗帧计数（硬件帧计数优先，读不到则软件观测） */
-    const char *reason; /* pass=0 时的失败原因（ASCII，无引号）；pass=1 为 NULL */
+    const char *src;    /* "real" / "sim" / "test"：本窗口实际数据源（ABI 回退判据） */
+    const char *reason; /* 失败/回退原因（ASCII，无引号）；无则 NULL */
 } S5RunStats;
 
 /* 生成单行结果：S5DISP RESULT={...}（不含换行；调用方自行补 \r\n）。
@@ -176,7 +187,14 @@ void S5Draw_Boxes(uint32_t *fb, const S5DetBox *det, uint32_t n);
 /* 右侧 320×720 信息栏 */
 void S5Draw_InfoPanel(uint32_t *fb, const S5FrameInfo *info, uint32_t dma_state);
 
-/* 一帧完整装配：清屏 → 摄像头区 → 检测框 → 信息栏 */
+/* 一帧完整装配：清屏 → 视频区（摄像头画面或测试图案）→ 检测框 → 信息栏。
+ * video_src: S5_VIDEO_SRC_CAM（真实/模拟画面）或 S5_VIDEO_SRC_TEST（raw 全 0 回退测试图案）。 */
+#define S5_VIDEO_SRC_CAM 0u
+#define S5_VIDEO_SRC_TEST 1u
+
+void S5Display_RenderFrameSrc(uint32_t *fb, const uint32_t *cam, const S5FrameInfo *info,
+                              uint32_t dma_state, uint32_t video_src);
+/* 兼容旧入口（等价 video_src=S5_VIDEO_SRC_CAM）。 */
 void S5Display_RenderFrame(uint32_t *fb, const uint32_t *cam,
                            const S5FrameInfo *info, uint32_t dma_state);
 

@@ -129,6 +129,8 @@
 - **板卡现状：DAP 粘连，需再次整机断电（12V+USB ≥10 s）**；主机侧零残留。下一步顺序：断电 → 5 min 计时三方对照（修正版，先静态自检禁止 `rst -system`）
 - **A 项（长跑停住定位）按真实口径通过（2026-10-29 20:20）**：40 轮 / 真实 30.7 min / failures=0 / `exit=0 within_judgement=1` /
   每轮 47,287 ms 恒定 / tensor CRC 恒定；时间基座修复后 host/app=1.000。判据常量 140→38 勘误（140 是旧 4× 口径值）。
+- **阶段5 方向 A 合并位流 P2d 已构建（23:12）**：2B 直连 HP0、preproc+DMA→HP1；bit `58c66cdb…`、WNS +0.128/WHS +0.036、DSP 158(71.82%)；
+  上板三窗口冒烟（M4-b/chainA/P2c-CRC）在跑。
 - **B 项（4-D 链路）在 2B 基线位流上全部 PASS（22:5x）**：M3 逐字节相同、M4-a 对拍通过、
   **M4-b pass=1**（尾字 lane 验证）、**chain-lite A pass=1**（检测框与 r13 参考 ≤1e-9）、**chain-lite B pass=1**（CRC 0x5B183B50，8 字段一致），均 47,287 ms。
   P2b 位流上 M4-b/chain 超时属 P2b 慢 2× 的连带（同 ELF A/B 已证），非链路缺陷；阶段5 修 BD 方向 A 即可。

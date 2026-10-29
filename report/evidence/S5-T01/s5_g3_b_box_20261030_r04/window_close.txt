@@ -1,0 +1,27 @@
+# G3 g3b 窗口记录
+
+- RunId：`s5_g3_b_box_20261030_r04`
+- 模式：g3b（evidence_only=True）
+- 开窗：2026-10-30T03:29:52+08:00；收窗：2026-10-30T03:30:52+08:00
+- 结论：**EVIDENCE_ONLY**
+- stop_reason：None
+- 位流：`D:\tmp\lead\p3b_video_20261030_r01\out\s4d_p3b_r01.bit` sha256=1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572
+- ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d
+- 收窗：3121 LISTENING=0、残留=[]
+- 边界：ENABLE=0；未烧 QSPI；未改线；PL 编程后未用 rst -system；屏幕现象需人工目视
+
+## 诊断原文
+
+```
+S5DISP boxes n=3 crc=-2002758909 hex=E1 B4 10E 1C2 465 2A3 9B 2D 0 0 500 2D0
+```
+```
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":52,"fps_upd":34,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":2292208387,"fb_crc":1712421811,"src":"real"}
+```
+- boxes_hex（软件实际用）= `E1`
+- expect_hex（种子 24 B）= `96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0`
+- hex_match = False
+- app_box_crc = 2292208387 (0x88a05303)；expect = 764713996 (0x2d949c0c)；crc_match = False
+- seed 96 B dump：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_g3_b_box_20261030_r04\seed_block_0x20800000.bin` sha256=07d4df1f77728eaeddfa97c590f54849c81a1255b6dead47b8add5982215306f
+- 判读：映射坐标/解析与种子不一致 ⇒ 解析或映射问题（用 96 B seed dump 对照 12/16 B 步进、字节序）
+

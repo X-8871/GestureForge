@@ -1,0 +1,29 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+run mode: bounded, frames_cap=180, time_cap_ms=60000
+VTC: version=602000C
+GHSIZE @43C30070 want=00000672 got=00000672 OK
+GVSIZE @43C30074 want=02EE02EE got=02EE02EE OK
+GASIZE @43C30060 want=02D00500 got=02D00500 OK
+GASIZE_F1 @43C30094 want=02D00000 got=02D00000 OK
+GHSYNC @43C30078 want=0596056E got=0596056E OK
+GVSYNC @43C30080 want=02D902D4 got=02D902D4 OK
+GVSYNC_F1 @43C3008C want=02D902D4 got=02D902D4 OK
+GVBHOFF @43C3007C want=05000500 got=05000500 OK
+GVSHOFF @43C30084 want=056E056E got=056E056E OK
+GPOL @43C3006C want=0000003F got=0000003F OK
+GFENC @43C30068 want=00000000 got=00000000 OK
+CTL     @43C30000 want=00000005 got=00000005 OK
+VTC verify: 12/12 OK
+VTC timing 1280x720 Htotal=1650 Hsync=1390..1430 Vtotal=750 Vsync=724..729
+VTC: init OK (720p60 generator enabled: SW|GE)
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: read period = 6454550 ticks (19363 us) -> fps_dis=52 (display refresh)
+S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP done frames=180 vcnt=180(sw) vdma_err=0
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":52,"fps_upd":35,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":0,"fb_crc":1926709895,"src":"real_nobox","reason":"result_magic_mismatch"}

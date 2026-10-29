@@ -1,0 +1,156 @@
+{
+  "criteria": [
+    {
+      "id": "J-1",
+      "desc": "S5DISP RESULT 可解析且含基础键",
+      "pass": true,
+      "detail": {
+        "missing": []
+      }
+    },
+    {
+      "id": "J-2",
+      "desc": "pass==1",
+      "pass": true,
+      "detail": {
+        "pass": 1
+      }
+    },
+    {
+      "id": "J-3",
+      "desc": "vdma_err==0",
+      "pass": true,
+      "detail": {
+        "vdma_err": 0
+      }
+    },
+    {
+      "id": "J-4",
+      "desc": "55<=fps_dis<=90",
+      "pass": false,
+      "detail": {
+        "fps_dis": 52,
+        "fps_upd": 34
+      }
+    },
+    {
+      "id": "J-5",
+      "desc": "age_ms<=47317",
+      "pass": true,
+      "detail": {
+        "age_ms": 0
+      }
+    },
+    {
+      "id": "J-6",
+      "desc": "0<=latency_ms<=1000",
+      "pass": true,
+      "detail": {
+        "latency_ms": 0
+      }
+    },
+    {
+      "id": "J-7",
+      "desc": "无 error/timeout 语义",
+      "pass": true,
+      "detail": {
+        "bad_tokens": []
+      }
+    },
+    {
+      "id": "J-8",
+      "desc": "UART 结果窗>=60 s 且尾半行丢弃",
+      "pass": true,
+      "detail": {
+        "elapsed_s": 3.6
+      }
+    },
+    {
+      "id": "B-1",
+      "desc": "B-1",
+      "pass": false,
+      "detail": {
+        "box_crc": 2292208387,
+        "expect": "0x2d949c0c"
+      }
+    },
+    {
+      "id": "B-2",
+      "desc": "B-2",
+      "pass": true,
+      "detail": {
+        "nbox_from_uart": 3,
+        "nbox_values": [
+          3
+        ]
+      }
+    },
+    {
+      "id": "B-3",
+      "desc": "B-3",
+      "pass": true,
+      "detail": {
+        "src": "real"
+      }
+    },
+    {
+      "id": "B-4",
+      "desc": "B-4",
+      "pass": false,
+      "detail": {
+        "boxes_hex": "E1",
+        "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"
+      }
+    }
+  ],
+  "verdict": "EVIDENCE_ONLY",
+  "criterion_ok": false,
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":2292208387,\"fb_crc\":1712421811,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 52,
+    "fps_upd": 34,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 2292208387,
+    "fb_crc": 1712421811,
+    "src": "real"
+  },
+  "extra": {
+    "box_crc": 2292208387,
+    "expect_box_crc": "0x2d949c0c",
+    "nbox_from_uart": 3,
+    "nbox_values": [
+      3
+    ],
+    "src": "real",
+    "boxes_hex": "E1",
+    "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+    "hex_match": false
+  },
+  "diagnosis": {
+    "raw_lines": [
+      "S5DISP boxes n=3 crc=-2002758909 hex=E1 B4 10E 1C2 465 2A3 9B 2D 0 0 500 2D0",
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":2292208387,\"fb_crc\":1712421811,\"src\":\"real\"}"
+    ],
+    "boxes_line": "S5DISP boxes n=3 crc=-2002758909 hex=E1 B4 10E 1C2 465 2A3 9B 2D 0 0 500 2D0",
+    "boxes_hex": "E1",
+    "boxes_crc": "-2002758909",
+    "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+    "hex_match": false,
+    "app_box_crc": 2292208387,
+    "app_box_crc_hex": "0x88a05303",
+    "expect_box_crc": 764713996,
+    "expect_box_crc_hex": "0x2d949c0c",
+    "crc_match": false,
+    "seed_dump": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_b_box_20261030_r04\\seed_block_0x20800000.bin",
+    "seed_dump_sha256": "07d4df1f77728eaeddfa97c590f54849c81a1255b6dead47b8add5982215306f",
+    "verdict_text": "映射坐标/解析与种子不一致 ⇒ 解析或映射问题（用 96 B seed dump 对照 12/16 B 步进、字节序）"
+  },
+  "utc8": "2026-10-30T03:30:48+08:00"
+}

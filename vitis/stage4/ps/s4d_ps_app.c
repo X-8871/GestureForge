@@ -31,6 +31,27 @@
 /* SDT BSP 未随附 xtime_l.h；libxiltimer.a 已导出 XTime_GetTime（arm-none-eabi-nm 已核），此处按 BSP 原型声明 */
 extern void XTime_GetTime(uint64_t *Result);
 
+/* ---- 时间基座修复（2026-10-29，负面清单见 S4-T34/s4d_time_basis_20261029_r01/ERRATUM_ROOT_CAUSE.md）----
+ * BSP xtimer_config.h 的 XSLEEPTIMER_FREQ 宏无括号：
+ *     #define XSLEEPTIMER_FREQ  XPAR_CPU_CORE_CLOCK_FREQ_HZ/2
+ *     #define COUNTS_PER_SECOND  XSLEEPTIMER_FREQ
+ * 若直接写 (uint64_t)COUNTS_PER_SECOND，会被展开成 (uint64_t)666666687/2 = 1,333,333,374，
+ * 即有效分母是 GT 频率的 4 倍 —— 历史上所有 "ms" 都被压小 4 倍（11.8 s/帧 实为 ~47 s/帧）。
+ * 这里统一用带括号的分母；计数直接读 Zynq 全局定时器（与 XTime_GetTime 同源，规避宏歧义）。 */
+#define S4D_MS_DIV   ((uint64_t)(COUNTS_PER_SECOND))
+_Static_assert(sizeof(uint64_t) == 8, "需要 64 位 uint64_t");
+
+static uint64_t s4d_gt_ticks(void)
+{
+    uint32_t hi1, lo, hi2;
+    do {
+        hi1 = Xil_In32(0xF8F00204u);
+        lo  = Xil_In32(0xF8F00200u);
+        hi2 = Xil_In32(0xF8F00204u);
+    } while (hi1 != hi2);
+    return ((uint64_t)hi1 << 32) | (uint64_t)lo;
+}
+
 /* ---------------- 地址与 ABI 常量（冻结，ADR §8.2/§8.4） ---------------- */
 static const void *const s4d_keep_strong_symbols[3];
 
@@ -479,7 +500,7 @@ int s4d_m4b_selfcheck(void)
     s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
     uint64_t t0 = 0, t1 = 0;
     uint32_t elapsed_ms = 0;
-    XTime_GetTime(&t0);
+    t0 = s4d_gt_ticks();
     s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
 
     xil_printf("M4B STEP=5 START cmd written\r\n");
@@ -499,8 +520,8 @@ int s4d_m4b_selfcheck(void)
         uint32_t last_progress_ms = 0;
         for (spin = 0; spin < S4D_M4B_SPIN_MAX; spin++) {
             int r = s4d_safe_done(&st, &err);
-            XTime_GetTime(&t1);
-            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+            t1 = s4d_gt_ticks();
+            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / S4D_MS_DIV);
             if (r == 1) { done = 1; break; }
             if (r == 2) { done = 2; break; }
             if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
@@ -611,7 +632,7 @@ static int s4d_chain_selfcheck(void)
     s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
     s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
     s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
-    XTime_GetTime(&t0);
+    t0 = s4d_gt_ticks();
     s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
     xil_printf("CHAIN STEP=5 START cmd written\r\n");
 
@@ -619,8 +640,8 @@ static int s4d_chain_selfcheck(void)
         uint32_t last_progress_ms = 0;
         for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
             int r = s4d_safe_done(&st, &err);
-            XTime_GetTime(&t1);
-            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+            t1 = s4d_gt_ticks();
+            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / S4D_MS_DIV);
             if (r == 1) { done = 1; break; }
             if (r == 2) { done = 2; break; }
             if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
@@ -740,7 +761,7 @@ static int s4d_chainb_selfcheck(void)
     s4d_wr(S4D_CSR_WBYTES_W, S4D_WEIGHT_BYTES);
     s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
     s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
-    XTime_GetTime(&t0);
+    t0 = s4d_gt_ticks();
     s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
     xil_printf("CHAINB STEP=4 START cmd written\r\n");
 
@@ -748,8 +769,8 @@ static int s4d_chainb_selfcheck(void)
         uint32_t last_progress_ms = 0;
         for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
             int r = s4d_safe_done(&st, &err);
-            XTime_GetTime(&t1);
-            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+            t1 = s4d_gt_ticks();
+            elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / S4D_MS_DIV);
             if (r == 1) { done = 1; break; }
             if (r == 2) { done = 2; break; }
             if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
@@ -897,7 +918,12 @@ static __attribute__((noinline, used)) void s4d_lr_data_abort_handler(void *arg)
  */
 #define S4D_LR_WALL_MS     1800000u
 #define S4D_LR_MAX_ITERS   160u
-#define S4D_LR_MIN_ITERS   140u
+/* 2026-10-29 判据勘误（S4-T34/s4d_time_basis_20261029_r01/ERRATUM_ROOT_CAUSE.md）：
+ * 旧值 140 是按**坏掉的时间口径**（分母 4× ⇒ 应用 ms 只有真实 1/4）选的：那时 30 min
+ * 等于 2 h 真实、约 152 轮。修好时间基座后，真实 30 min ≈ 38 轮（实测 47.3 s/轮），
+ * 140 轮永远达不到（循环在 1.8e6 ms 就 break），导致 RESULT 恒 exit=3。
+ * 现按真实口径取 38（30 min ÷ 47.3 s），与 S4D_LR_WALL_MS=1,800,000 一致。 */
+#define S4D_LR_MIN_ITERS   38u
 #define S4D_LR_PROGRESS    10u
 
 typedef union { double d; uint64_t u; } s4d_lr_dbl;
@@ -977,7 +1003,7 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
         return -1;
     }
 
-    XTime_GetTime(&t_start);
+    t_start = s4d_gt_ticks();
     for (iter = 1u; iter <= S4D_LR_MAX_ITERS; iter++) {
         uint64_t e_before = 0, e_expect = 0, e_after = 0;
         uint64_t t0 = 0, t1 = 0;
@@ -986,8 +1012,8 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
         int round_fail = 0;
         const char *fail_why = "";
 
-        XTime_GetTime(&t_now);
-        wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+        t_now = s4d_gt_ticks();
+        wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / S4D_MS_DIV);
         if (wall_ms >= S4D_LR_WALL_MS) { break; }
         s4d_lr_mark(8u, iter, 0u, 0u);   /* 8 = 下一轮开始（纯 CPU） */
         xil_printf("LONGRUN PROBE iter=%u start\r\n", (unsigned)iter);
@@ -1011,7 +1037,7 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
             s4d_wr(S4D_CSR_CORETO_W, S4D_NET_TIMEOUT_CYCLES);
             s4d_wr(S4D_CSR_DRAINTO_W, S4D_NET_TIMEOUT_CYCLES);
             s4d_lr_done(2u, iter);
-            XTime_GetTime(&t0);
+            t0 = s4d_gt_ticks();
             s4d_lr_mark(3u, iter, S4D_CSR_CMD, S4D_CMD_START);   /* 3 = 写 START */
             s4d_wr(S4D_CSR_CMD, S4D_CMD_START);
             s4d_lr_done(3u, iter);
@@ -1024,8 +1050,8 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
             xil_printf("LONGRUN PROBE iter=%u wait_done_pre\r\n", (unsigned)iter);
             for (spin = 0u; spin < S4D_M4B_SPIN_MAX; spin++) {
                 int r = s4d_safe_done(&st, &err);
-                XTime_GetTime(&t1);
-                elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+                t1 = s4d_gt_ticks();
+                elapsed_ms = (uint32_t)(((t1 - t0) * 1000ull) / S4D_MS_DIV);
                 if (r == 1) { done = 1; break; }
                 if (r == 2) { done = 2; break; }
                 if ((st & 7u) == S4D_ST_FAULT) { done = 3; break; }
@@ -1120,8 +1146,8 @@ static __attribute__((noinline)) int s4d_longrun_selfcheck(void)
     }
 
     s4d_lr_rec_clear();   /* 收尾清零记录区（W4 校验全 0） */
-    XTime_GetTime(&t_now);
-    wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / (uint64_t)COUNTS_PER_SECOND);
+    t_now = s4d_gt_ticks();
+    wall_ms = (uint64_t)(((t_now - t_start) * 1000ull) / S4D_MS_DIV);
     {
         uint32_t done_iters = (failures == 0u) ? iter : (iter - 1u);
         uint32_t avg = (done_iters > 0u && e_min != 0xFFFFFFFFu) ? (e_sum / done_iters) : 0u;

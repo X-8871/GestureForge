@@ -1,10 +1,11 @@
 # S2C 吞吐优化状态入口
 
-更新：2026-10-29 23:59（UTC+8）。本树为独立离线候选，阶段目标尚未完成。
+更新：2026-10-30 00:28（UTC+8）。本树为独立离线候选，阶段目标尚未完成。
 
 ## 目标与边界
 
 - 目标：tiny416、INT8五类手势检测保持冻结数学语义，最终由DSH连续至少2帧、每帧不超过0.5秒裁决。当前没有整帧达标结论。
+- 当前优先级：Wong于2026-10-30明确选择先完成32 lane加突发中间版；继续离线实现，不用中间结果替代原2fps目标。
 - 工作树：`D:\FPGA_Competition\w2c`；分支：`codex/stage2c-throughput`；冻结上游：`07c3d3958578b9cc9d3b8eae3758711fe08724c2`。
 - w2b及其2B位流/证据只读；不写main/w4/w5/dbdf/w6业务文件；不push、不操作板卡。跨方只追加Codex信箱，主目录提交由DSH负责。
 - 禁止JTAG、COM4、hw_server、xsdb、program、QSPI与Hardware Manager。DSH提出的2B板级排障不构成本任务的硬件授权。
@@ -21,6 +22,8 @@
 - RTL05 r06补证因输出截断失败，原件保留，不能把校验器0清单/0条目当通过；r07完整commit_blob补证已实查11项/0差异，未重跑仿真。
 
 ## 当前限定原型
+
+- 成段接口设计已独立审查READY_FOR_IMPLEMENTATION，契约为`docs/obsidian-project/02-方案设计/s2c_lane32_bulk_interface_20261030.md`；保留旧mem_ready完成语义，新增8B对齐/8..128B命令及本地字节流，物理64-bit AXI3突发，写先收齐缓冲后声明AXI。
 
 - RTL06已实现可选frozen8/32输出lane，generic仍8、network默认仍8；当前仅新TB显式32。完整每lane4608B权重阵列尚未综合，不声称资源放得下。
 - RTL06 r02：32 lane同一首Tile实际52043 cycles，8192字节黄金逐位一致、无重复/遗漏；input3072、weight864、bank写3267、bank读6627。默认8回归仍73559 cycles、bank读26508。两配置编译/展开/仿真各exit0。
@@ -39,4 +42,4 @@
 
 ## 当前交接行（11字段）
 
-任务=`S2C吞吐离线候选` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2c / codex/stage2c-throughput` | 起始提交=`07c3d3958578b9cc9d3b8eae3758711fe08724c2` | 允许修改范围=`w2c候选源码/仿真/设计/证据及本STATE；主目录仅Codex信箱追加` | 未提交改动归属=`RTL06与RTL05补证属于本总控；旧RTL01无效包装保留` | 让出声明=`未让出` | 心跳(UTC+8)=`2026-10-29 23:55` | 证据入口=`S2C-RTL05 r04/r05/r07；S2C-RTL06 r02` | 恢复命令=`先核HEAD/status/锁/进程/RAM，再读取本STATE与相应manifest；禁止连接板卡` | 状态/下一接手方=`IN_PROGRESS / Codex本总控`
+任务=`S2C吞吐离线候选` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2c / codex/stage2c-throughput` | 起始提交=`07c3d3958578b9cc9d3b8eae3758711fe08724c2` | 允许修改范围=`w2c候选源码/仿真/设计/证据及本STATE；主目录仅Codex信箱追加` | 未提交改动归属=`RTL07 guard/bridge归Developer DSP，RTL08 engine归Developer spatial；wrapper/top/core/backend及契约/STATE归本总控；旧RTL01无效包装保留` | 让出声明=`未让出` | 心跳(UTC+8)=`2026-10-30 00:28` | 证据入口=`S2C-RTL05 r04/r05/r07；S2C-RTL06 r02` | 恢复命令=`先核HEAD/status/锁/进程/RAM，再读取本STATE与相应manifest；禁止连接板卡` | 状态/下一接手方=`IN_PROGRESS / Codex本总控`

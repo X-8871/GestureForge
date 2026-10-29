@@ -15,6 +15,8 @@
 - **板上现状：DAP 粘连，必须整机断电（12V+USB ≥10 s）才可能恢复；未用 `-force`、未尝试任何"清粘连"写操作。断电前不得再上板。** 收窗后进程已清零（hw_server/xsdb/vivado 0，3121 仅 TIME_WAIT）。
 - 已备好修正版执行器（**尚未执行**）：`D:\tmp\lead\probe_long_20261029_r03\run_probe_longrun_r03.py`（sha256 `f525ac03…7d7aeb`；编程 PL 后只 `rst -processor -stop`，含 state 可读性门禁、记录区 8 字、CSR `-mem-ranges` 修正、DevCfg 读、DAP 不可用即停）。
 - 已备好 P2b 4-D 复验执行器（**尚未执行**）：`D:\tmp\lead\p2b_board_20261029_r01\run_p2b_4d.py`（sha256 `9be5e855…d7fb95`；M3 只读复检 + M4-a + M4-b，装载不复跑 init、编程 PL 后不系统复位）。
+- 已归档 preproc v2 构建输入 RTL（原先只在 `D:\tmp\lead\p2a_20261029_r01\src\rtl`，**不在任何 git 树** ⇒ 冻结位流不可复现）：`report/evidence/S4-T34/pl_v2_rtl_archive_20261029_r01/`（9 文件，`manifest.json` 声明 `hash_basis=commit_blob`，与原构建输入逐字节相同）。
+- **S4-T35 离线结论（preproc 上板前置，未上板）**：P2a/P2b 的 `s4d_0/M_AXIS` **无消费者**（BD `interface_nets` 无该网）⇒ 引擎 FIFO 满后停在 `S_XQ`，`busy` 常 1、`done` 不来、张量不落 DDR；且引擎源图基址固定 DDR `0x0` ≠ ABI `0x12000000` ⇒ **冻结位流上 `tensor_crc32=0x5B183B50` 不可达**，C 项需新位流（AXIS→DMA/HP0 写通路 + 源图基址方案），属重型任务、待 Wong 裁决。另：旧基线 `PREPROC_SRC=1` 写的是 `0x43C00000+0x200..0x27C`（在 P2a/P2b 里是 2B infer 空间）⇒ 不会启动预处理且会写 2B CSR，变体已删除。变体 ELF：`D:\tmp\lead\s4t35_pl_preproc_20261029_r01\build\s4d_ps_app_pl_selfcheck.elf` sha256 `a577a5cb…9fa01d`（带 SLCR 前置闸，防读挂死）。
 - r02 保全阶段的 CSR 三读**无效**（`loadhw -memrange` 为无效选项；解析把回显地址当值）⇒ 判读时丢弃；r03 已修。
 - 边界：以上均未主张 G3/G4/G5；未写 QSPI、未改线、`ENABLE=0`、未 push。
 

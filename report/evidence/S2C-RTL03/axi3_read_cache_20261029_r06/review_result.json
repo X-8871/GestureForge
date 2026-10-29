@@ -1,0 +1,15 @@
+{
+  "task_id": "S2C-RTL03",
+  "run_id": "axi3_read_cache_20261029_r06",
+  "status": "PASS_INDEPENDENT_REVIEW_STANDALONE_ONLY",
+  "baseline_commit": "6ac0dbfc422dcbfa42ce83e35844d0013925441d",
+  "reviewer": "/root/burst_review_resume",
+  "reviewed_artifacts": [
+    {"path": "src/s2c_axi3_read_cache.sv", "sha256": "b63899fe8b073dd6f49e6ff86fd7c227bd9c1f60adda158a79f0d84835507dd3", "hash_basis": "worktree_disk"},
+    {"path": "sim/tb_s2c_rtl03_axi3_read_cache.sv", "sha256": "3d097052e2baa0a5fe9404b27a8aba352535a2de1b4026575a9c1977ae46b7e2", "hash_basis": "worktree_disk"}
+  ],
+  "validation": {"run_id": "axi3_read_cache_20261029_r05", "xvlog_exit_code": 0, "xelab_exit_code": 0, "xsim_exit_code": 0, "deterministic_checks": 25, "manifest_check_exit_code": 0, "manifest_checked_items": 3, "manifest_mismatches": 0},
+  "closed_findings": ["完整8B授权区间内非对齐请求使用ARSIZE=3", "错误RRESP末拍与取消或失效同拍可返回IDLE", "失效期间阻止请求握手", "最高4KiB页使用扩展位宽避免回绕"],
+  "historical_evidence": {"r02": "保留TB失败，未绑定当时源码，不能作为功能通过证据", "r04": "保留当时短仿真通过记录；独立审查随后发现四项缺陷，已被r05修复取代。r04源码哈希对应历史工作树，不对应当前修复源码，严格检查当前源码预期不匹配。"},
+  "limitations": ["本次复审没有重新启动仿真，核对了r05源码、测试、日志及哈希。", "模块尚未接入adapter或整网；不证明整帧周期、资源、100MHz时序、输出等价或板级帧率。"]
+}

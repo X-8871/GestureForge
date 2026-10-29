@@ -1,0 +1,14 @@
+{
+  "task_id": "S2C-RTL03",
+  "run_id": "axi3_read_cache_20261029_r02",
+  "status": "FAIL_TESTBENCH_TAIL_BYTE_DATA_ALIGNMENT",
+  "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL03/axi3_read_cache_20261029_02",
+  "commands": [
+    {"argv": ["xvlog.bat", "-sv", "src/s2c_axi3_read_cache.sv", "sim/tb_s2c_rtl03_axi3_read_cache.sv"], "exit_code": 0, "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_02/xvlog_console.log", "log_sha256": "010282dff604786999980a3c578f26f83a8dbbaae46286a19dfb4512941c0c71"},
+    {"argv": ["xelab.bat", "tb_s2c_rtl03_axi3_read_cache", "-s", "s2c_rtl03_axi3_read_cache_sim"], "exit_code": 0, "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_02/xelab_console.log", "log_sha256": "29c5bc1dfabe21c235abc8ff3df65740e728094e2876c36f8a402533e66c6e0a"},
+    {"argv": ["xsim.bat", "s2c_rtl03_axi3_read_cache_sim", "-runall"], "wrapper_exit_code": 0, "pass_marker": null, "fatal": "读响应错误 expected=fd actual=02 err=0", "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_02/xsim_console.log", "log_sha256": "18b40c7333048392e948353c2ae6c4d95eb04e8aba86c7a26d12771aaf0a0431"}
+  ],
+  "failure_analysis": "测试平台为单byte访问按未对齐req_addr作为64-bit RDATA起始地址生成向量，导致lane[req_addr[2:0]]数据偏移5B；期望fd、实际02。RTL的ARADDR低位lane抽取符合所用AXI返回模型。新RunId r04将单byte RDATA向量改为按8B对齐beat地址产生并通过。",
+  "limitations": ["XSim工具wrapper返回0不代表断言通过；本RunId无PASS marker，判定FAIL并保留原始日志。"]
+}

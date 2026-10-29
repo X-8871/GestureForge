@@ -1,0 +1,77 @@
+{
+  "task_id": "S2C-RTL03",
+  "run_id": "axi3_read_cache_20261029_r05",
+  "status": "PASS_SHORT_STANDALONE_AXI3_CACHE_TB",
+  "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL03/axi3_read_cache_20261029_05",
+  "commands": [
+    {
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_05/xvlog_console.log",
+      "log_sha256": "010282dff604786999980a3c578f26f83a8dbbaae46286a19dfb4512941c0c71",
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xvlog.bat",
+        "-sv",
+        "D:/FPGA_Competition/w2c/src/s2c_axi3_read_cache.sv",
+        "D:/FPGA_Competition/w2c/sim/tb_s2c_rtl03_axi3_read_cache.sv"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_05/xelab_console.log",
+      "log_sha256": "29c5bc1dfabe21c235abc8ff3df65740e728094e2876c36f8a402533e66c6e0a",
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xelab.bat",
+        "tb_s2c_rtl03_axi3_read_cache",
+        "-s",
+        "s2c_rtl03_axi3_read_cache_sim"
+      ]
+    },
+    {
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_05/xsim_console.log",
+      "pass_marker": "PASS S2C-RTL03 AXI3 burst/cache checks=25",
+      "log_sha256": "1807597315e7e391b9f69c13703f64fb544fb0aa37675219e97e6307f3528c92",
+      "argv": [
+        "D:/Xilinx/2026.1/Vivado/bin/xsim.bat",
+        "s2c_rtl03_axi3_read_cache_sim",
+        "-runall"
+      ]
+    }
+  ],
+  "checks": {
+    "count": 25,
+    "coverage": [
+      "单次完整8B授权区间内的非对齐请求使用ARSIZE=3",
+      "16-beat AXI3 INCR，64-bit数据，ARLEN=15",
+      "cache命中；cache_invalidate同拍阻止req握手并在撤销后重新读取",
+      "4KiB边界前两beat切分",
+      "授权区间尾部不足8B退化单byte访问",
+      "最高32-bit页边界饱和且防止beat末端地址回绕",
+      "取消后排空完整突发且不产生响应",
+      "错误RRESP末beat与cancel同拍后回到IDLE",
+      "错误RRESP末beat与cache_invalidate同拍后回到IDLE",
+      "错误RID置协议故障",
+      "错误RLAST置协议故障"
+    ],
+    "deterministic": true,
+    "random_seed": null
+  },
+  "execution": {
+    "peak_rss_mib": null,
+    "peak_rss_status": "未直接采样；启动前可用内存4097 MiB，结束后4249 MiB；进程均已退出",
+    "elapsed_scope": "三条编译/展开/仿真工具调用wall time之和",
+    "reported_command_elapsed_seconds": 21.9
+  },
+  "preflight": {
+    "available_memory_mib": 4097,
+    "postrun_active_processes": 0,
+    "postrun_available_memory_mib": 4249,
+    "active_vivado_xsim_processes": 0
+  },
+  "limitations": [
+    "模块仍未接入s2b_hp0_word_adapter或整网，整网请求数和板级帧率不变。",
+    "短仿真只覆盖独立模块与确定性AXI从端模型；未运行综合、整网仿真、功能输出逐位比较或100MHz时序。",
+    "源文件未提交，哈希基座为worktree_disk；后续提交后应更新为commit_blob。"
+  ]
+}

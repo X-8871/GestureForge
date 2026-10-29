@@ -1,0 +1,48 @@
+{
+  "task_id": "S2C-RTL03",
+  "run_id": "axi3_read_cache_20261029_r04",
+  "status": "PASS_SHORT_STANDALONE_AXI3_CACHE_TB",
+  "tool": "Vivado 2026.1 xvlog/xelab/xsim",
+  "workspace": "D:/FPGA_Competition/w2c/tmp/S2C/RTL03/axi3_read_cache_20261029_04",
+  "commands": [
+    {
+      "argv": ["xvlog.bat", "-sv", "src/s2c_axi3_read_cache.sv", "sim/tb_s2c_rtl03_axi3_read_cache.sv"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_04/xvlog_console.log",
+      "log_sha256": "010282dff604786999980a3c578f26f83a8dbbaae46286a19dfb4512941c0c71"
+    },
+    {
+      "argv": ["xelab.bat", "tb_s2c_rtl03_axi3_read_cache", "-s", "s2c_rtl03_axi3_read_cache_sim"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_04/xelab_console.log",
+      "log_sha256": "29c5bc1dfabe21c235abc8ff3df65740e728094e2876c36f8a402533e66c6e0a"
+    },
+    {
+      "argv": ["xsim.bat", "s2c_rtl03_axi3_read_cache_sim", "-runall"],
+      "exit_code": 0,
+      "pass_marker": "PASS S2C-RTL03 AXI3 burst/cache checks=15",
+      "log_path": "tmp/S2C/RTL03/axi3_read_cache_20261029_04/xsim_console.log",
+      "log_sha256": "294da828fb8e752eba90cb4f9bf3b2b463fbe7966626b27b85aa665f7e281577"
+    }
+  ],
+  "checks": {
+    "count": 15,
+    "deterministic": true,
+    "random_seed": null,
+    "coverage": [
+      "16-beat AXI3 INCR, 64-bit data, ARLEN=15",
+      "同一cache line命中及cache_invalidate后重新发起AR",
+      "4KiB页边界前两beat切分",
+      "授权对象尾部不足8B时退化为单byte访问",
+      "取消后排空完整突发且不产生响应",
+      "错误RID置协议故障",
+      "错误RLAST置协议故障"
+    ]
+  },
+  "limitations": [
+    "该模块是独立候选，未接入s2b_hp0_word_adapter或整网；当前整网请求数及帧率没有变化。",
+    "需要adapter集成时扩展guard输出当前对象物理begin/end，并将其传入region_begin/end；必须在任意DDR写、run_epoch变化或clear_safe时拉高cache_invalidate。",
+    "需要把adapter单beat账本扩成burst expected/received beat计数；校验RID和仅最终beat的RLAST；取消后继续排空，不能提前清账。",
+    "TB使用确定性AXI从端模型，不是DDR系统仿真；没有整帧cycles、输出逐位等价、100MHz时序或资源综合。"
+  ]
+}

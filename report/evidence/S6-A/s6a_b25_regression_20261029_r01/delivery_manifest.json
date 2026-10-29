@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_b25_regression_20261029_r01",
+  "source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "evidence_dir": "report/evidence/S6-A/s6a_b25_regression_20261029_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只验证离线回归，无跨阶段真实集成。",
+  "files": [
+    {
+      "path": "report/evidence/S6-A/s6a_b25_regression_20261029_r01/inputs_check_output.json",
+      "sha256": "323972c6512b9c28295298710436cd717b2b9e4f98c33c284090bb4c706b65c3",
+      "role": "result",
+      "keep_reason": "inputs模式真实输出",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_regression_20261029_r01/inputs_manifest.json",
+      "sha256": "b0ee94afdc2d84cb113b94de769c58694c791799f14e9e7832bd68b7e9e01c19",
+      "role": "input",
+      "keep_reason": "测试输入及阶段4/B25绑定清单",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_regression_20261029_r01/run_summary.json",
+      "sha256": "16e0840064f7f3b459c1070bbc60190e1f715a0cfa468a6caf246c645e28b935",
+      "role": "result",
+      "keep_reason": "新增测试覆盖和限制摘要",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_regression_20261029_r01/test_output.txt",
+      "sha256": "f39e50f72e552bf7b4011a3bc6c2afd84b9f1331b85af7573c2712d5df8c9163",
+      "role": "log",
+      "keep_reason": "32项回归真实stdout/stderr",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "verification/test_s6b_core_regressions.py",
+      "sha256": "11a2567990fefe1ae3cf1803e50e4f0afab497f6c17027b950680f51864d3d00",
+      "role": "source",
+      "keep_reason": "被验证的S6-B回归测试",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "src/stage6/s6_core.py",
+      "sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+      "role": "source",
+      "keep_reason": "未修改的S6-B生产状态机",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "7a3c5325e6cdda222d1ba945f622ec34d156086977b3f01b5ca9f66896f21492",
+      "role": "input",
+      "keep_reason": "回归运行的S6-A参数规格",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs/w4/s4b_shared_input_result_contract.json",
+      "sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+      "role": "input",
+      "keep_reason": "阶段4 r07冻结帧序契约",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs_manifest.json",
+      "sha256": "3b0814d32f496d873b0f2b93110e7821c85f51741e4523a4c91a6874e9f0c0fb",
+      "role": "input",
+      "keep_reason": "S6-D r05契约来源绑定清单",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_decision_20261029_r04/decision_receipt.json",
+      "sha256": "ff568097ae7bb4d4e65dd720ab38910abd4116026340e32cc769ed7476b865b6",
+      "role": "input",
+      "keep_reason": "R04用户批准决策回执；R04失败状态另行保留",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "当前未提交文件按工作树磁盘字节绑定。",
+  "hash_basis_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "checks": [
+    {
+      "name": "S6-B核心回归（B25/H3）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 -m unittest -v verification.test_s6b_core_regressions",
+      "exit_code": 0
+    },
+    {
+      "name": "inputs模式清单核验",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_b25_regression_20261029_r01\\inputs_manifest.json --project-root D:/codex-worktrees/w6",
+      "exit_code": 0
+    },
+    {
+      "name": "S6-A完整自检/C11",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "本RunId仅覆盖新增回归；R04的C11失败作为既有失败证据保留，未重跑。"
+    },
+    {
+      "name": "S6-C整矩阵与阶段6验收",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "该回归只覆盖普通回退及L02到期H3路径，不代表整矩阵或G4/G5。"
+    },
+    {
+      "name": "DSH R1/R2及0xFFFFFFFE",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "沿用R04未决范围，本测试不裁决、不修改。"
+    }
+  ],
+  "limitations": [
+    "R04的C11失败原样保留，本包不声明S6-A正式自检完成。",
+    "不代表S6-C整矩阵、G3/G4/G5或阶段6整体验收。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "w6_source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3"
+  }
+}

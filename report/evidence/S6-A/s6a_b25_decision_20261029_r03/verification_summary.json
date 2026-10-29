@@ -1,0 +1,49 @@
+{
+  "schema": "gestureforge.s6a.b25_verification_summary.v1",
+  "run_id": "s6a_b25_decision_20261029_r03",
+  "source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "scope": "S6-A B23/B25 specification alignment plus focused offline S6-B regression; no production implementation change.",
+  "results": [
+    {
+      "name": "S6-B core regression suite",
+      "status": "PASS",
+      "passed": 31,
+      "failed": 0,
+      "exit_code": 0,
+      "command": "bundled Python 3.12.14 -B loads verification.test_s6b_core_regressions from D:/codex-worktrees/w6"
+    },
+    {
+      "name": "Stage 4 frozen input manifest",
+      "status": "CHECKS_OK",
+      "exit_code": 0,
+      "result_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r03/inputs_check_output.json"
+    },
+    {
+      "name": "S6-A G0 self-check on current dirty working-tree docs",
+      "status": "ALL_PASS",
+      "passed": 17,
+      "failed": 0,
+      "exit_code": 0,
+      "source_spec_run_id": "s6a_g0_20261024_r13",
+      "result_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r03/selfcheck_result.json",
+      "c11_scope": "evidence directory and delivery manifest verified; --state was omitted because STATE is outside this subtask write scope."
+    },
+    {
+      "name": "pre-task diff reconstruction",
+      "status": "PASS",
+      "files_verified": 3,
+      "result_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r03/pre_task_hash_verification.json",
+      "task_patch_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r03/task_owned_delta.patch",
+      "task_patch_sha256": "90d19d252b83069ac4fa5effe66d0c5e7fac77d0a772df8a46b9f72d669c94ab"
+    }
+  ],
+  "preserved_failed_attempts": [
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r01/",
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r02/"
+  ],
+  "limitations": [
+    "0xFFFFFFFE 回绕触发与显式复位细节仍待单独裁定；本决定未扩展其语义。",
+    "离线文书、自检与单测不构成 G3/G4/G5 或阶段6整体验收。",
+    "未修改 .codex/STATE.md；C11 未检查 STATE 声明，仅检查本次清单和实际目录。"
+  ]
+}

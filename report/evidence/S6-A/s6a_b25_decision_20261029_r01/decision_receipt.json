@@ -1,0 +1,72 @@
+{
+  "schema": "gestureforge.s6a.b25_decision_receipt.v1",
+  "run_id": "s6a_b25_decision_20261029_r01",
+  "recorded_at_utc8": "2026-10-29 16:56:32",
+  "decision_id": "B25",
+  "approval_status": "APPROVED",
+  "decision_source": {
+    "actor": "Wong",
+    "user_message_date_utc8": "2026-10-29",
+    "exact_user_text": "口径采用与阶段4契约一致",
+    "context": "阶段6 B25 同会话 frame_id 回退与会话重启口径"
+  },
+  "approved_semantics": {
+    "same_session_frame_id_regression": "同一 session_id 下，任何 frame_id 小于上一条已处理值均按 B23 倒序异常处理；不得按回退幅度区分，不复位 session，不更新帧序列高水位或窗口/目标证据；后续期限仍按单调时间评估。",
+    "restart_or_counter_reset": "阶段4 规定 PS 启动、frame_id 计数复位或同一请求重开 RUN 时重新分配 session_id；session_id 变化触发会话内状态复位到 IDLE、清会话内目标与窗口证据。",
+    "preserved_global_state": "session_id 变化时保留全局冷却锚点、单调时间锚点及 ACK 身份账本。",
+    "parameters_changed": false
+  },
+  "frozen_contract_binding": {
+    "contract_id": "s4-shared-io",
+    "revision": "r07",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "bound_by_run": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/",
+    "bound_by_source_commit": "56004d3a766e99dd8aef4203bba418865556eef0",
+    "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs/w4/s4b_shared_input_result_contract.json",
+    "sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "hash_basis": "worktree_disk",
+    "relevant_rules": [
+      "session_id 在 PS 启动、frame_id 计数复位或同一请求重开 RUN 时重新分配，同一会话内不变且 frame_id 不复用。",
+      "frame_id 在同一会话内按 +1 单调分配并拒绝回绕。"
+    ]
+  },
+  "implemented_behavior_review": {
+    "source_path": "src/stage6/s6_core.py",
+    "source_sha256_worktree_disk": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+    "finding": "现有 step() 已将同 session_id 下 frame_id 小于 last_frame_id 的输入归为 OUT_OF_ORDER，计异常、不更新 last_frame_id 并按非推进路径评估期限；session_id 变化时调用 _init_state() 并记录 RESET。无需改动实现。",
+    "added_regression_test": "verification/test_s6b_core_regressions.py::S6BCoreRegressionTests.test_same_session_frame_regression_is_out_of_order_without_reset"
+  },
+  "preexisting_worktree_differences": {
+    "baseline_head": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+    "branch": "stage6-interact-prep",
+    "files": [
+      {
+        "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+        "pre_task_worktree_sha256": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+        "post_task_worktree_sha256": "155ef92c1d34b05228c84909b19ed647cfabf1bb80de9465cd34753ab02c4104",
+        "preexisting_uncommitted_diff_preserved": true
+      },
+      {
+        "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+        "pre_task_worktree_sha256": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+        "post_task_worktree_sha256": "605579d2a7f28274a0180fcfe07f8a2c22bdaee53e63cee4be4a4e432508a59e",
+        "preexisting_uncommitted_diff_preserved": true
+      },
+      {
+        "path": "verification/test_s6b_core_regressions.py",
+        "pre_task_worktree_sha256": "63cdb40865f257d9941fdbf83abbca1ed3c8be0575b2f0bf903de0a7349f73c0",
+        "post_task_worktree_sha256": "8bf913faddf990724746c04b38969a09c1f893da14775ab9428670d58171658a",
+        "preexisting_uncommitted_diff_preserved": true
+      }
+    ],
+    "state_file_modified": false,
+    "old_evidence_modified": false
+  },
+  "not_decided": [
+    "独立的 0xFFFFFFFE 回绕触发与显式复位细节未由本决定裁定；原规格行保留，仍待单独核实。",
+    "回放、离线测试或代码审查不构成板级 G3、G4、G5 或阶段6整体验收。"
+  ],
+  "validation_summary_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r01/verification_summary.json",
+  "test_output_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r01/test_output.txt",
+  "initial_test_failure_record_path": "report/evidence/S6-A/s6a_b25_decision_20261029_r01/initial_test_failure_record.json"
+}

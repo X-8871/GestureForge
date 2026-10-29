@@ -635,6 +635,76 @@ class S6BCoreRegressionTests(unittest.TestCase):
         self.assertIsNotNone(at_boundary["action_request"])
         self.assertEqual(at_boundary["log"]["timers"]["t_last_submit_ns"], 0)
 
+    def test_same_session_frame_regression_is_out_of_order_without_reset(self):
+        core = GestureInteractionCore(self.pack)
+        core.step(self._target_event(5, 100, "same-session"))
+        core.state = "TRIGGERED"
+        core.note_action_ack({
+            "action_id": "same-session-cooldown-anchor",
+            "submit_result": "success",
+            "effective_result": "observed",
+            "t_submit_ns": 100,
+            "t_effective_ns": 100,
+        })
+        target_before = copy.deepcopy(core.current_target)
+        window_match_count_before = core.window_match_count
+        window_start_before = core.window_start_ns
+        target_continues_before = core.t_last_target_continues_ns
+
+        rollback = core.step(self._target_event(1, 101, "same-session"))
+
+        self.assertEqual(rollback["log"]["input_state"], "OUT_OF_ORDER")
+        self.assertNotEqual(rollback["log"]["transition"], "RESET")
+        self.assertEqual(core.session_id, "same-session")
+        self.assertEqual(core.last_frame_id, 5)
+        self.assertEqual(core.current_target, target_before)
+        self.assertEqual(core.window_match_count, window_match_count_before)
+        self.assertEqual(core.window_start_ns, window_start_before)
+        self.assertEqual(core.t_last_target_continues_ns, target_continues_before)
+        self.assertEqual(core.t_last_submit_ns, 100)
+        self.assertIsNone(rollback["action_request"])
+
+        forward = core.step(self._target_event(6, 102, "same-session"))
+        self.assertEqual(forward["log"]["frame_id"], 6)
+        self.assertEqual(core.last_frame_id, 6)
+
+        reset = core.step(self._target_event(1, 103, "new-session"))
+        self.assertEqual(reset["log"]["transition"], "RESET")
+        self.assertEqual(core.session_id, "new-session")
+        self.assertEqual(core.state, "IDLE")
+        self.assertIsNone(core.current_target)
+        self.assertIsNone(core.last_frame_id)
+        self.assertEqual(core.t_last_submit_ns, 100)
+
+    def test_out_of_order_at_l02_runs_loss_check_without_refreshing_progress(self):
+        core = GestureInteractionCore(self.pack)
+        first = core.step(self._target_event(5, 0, "same-session"))
+        self.assertEqual(first["log"]["input_state"], "OK")
+        self.assertEqual(core.window_match_count, 1)
+        self.assertEqual(core.last_frame_id, 5)
+        self.assertEqual(core.t_last_target_continues_ns, 0)
+
+        window_match_count_before = core.window_match_count
+        window_start_before = core.window_start_ns
+        target_continues_before = core.t_last_target_continues_ns
+        l02_ns = self.pack.threshold_bundle()["l02_ns"]
+
+        expired = core.step(self._target_event(1, l02_ns, "same-session"))
+
+        self.assertEqual(expired["log"]["input_state"], "OUT_OF_ORDER")
+        self.assertEqual(expired["log"]["transition"], "M10")
+        self.assertEqual(expired["log"]["to_state"], "LOST")
+        self.assertEqual(core.state, "LOST")
+        self.assertEqual(core.last_frame_id, 5)
+        self.assertEqual(core.window_match_count, window_match_count_before)
+        self.assertEqual(core.window_start_ns, window_start_before)
+        self.assertEqual(core.t_last_target_continues_ns, target_continues_before)
+        self.assertEqual(
+            expired["log"]["timers"]["t_last_target_continues_ns"],
+            target_continues_before,
+        )
+        self.assertIsNone(expired["action_request"])
+
     def test_global_cooldown_boundary_minus_equal_plus_one_ns(self):
         k01_ns = self.pack.threshold_bundle()["k01_ns"]
 

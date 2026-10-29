@@ -1,0 +1,106 @@
+{
+  "schema": "gestureforge.s6a.b25_decision_receipt.v1",
+  "run_id": "s6a_b25_decision_20261029_r04",
+  "recorded_at_utc8": "2026-10-29 17:43:49",
+  "decision_id": "B25",
+  "approval_status": "APPROVED",
+  "approved_scope": "仅普通同session回退按B23倒序异常处理，以及重启/计数器复位必须新建session_id；不包括DSH对回绕或拒绝时序的扩展主张。",
+  "decision_source": {
+    "actor": "Wong",
+    "user_message_date_utc8": "2026-10-29",
+    "exact_user_text": "口径采用与阶段4契约一致",
+    "context": "B25同会话frame_id回退与session_id切换"
+  },
+  "approved_semantics": {
+    "same_session_frame_id_regression": "同session_id内任何小于已处理高水位的frame_id均按OUT_OF_ORDER记录；不按回退幅度区分，不复位会话，不更新frame高水位、目标或窗口证据；H3单调时钟超时语义保持不变。",
+    "restart_or_counter_reset": "启动、frame_id计数器复位或重开RUN必须使用新session_id；session_id变化将会话内状态重置到IDLE并清除目标、窗口证据和frame高水位。",
+    "preserved_global_state": "session变化保留全局冷却锚点、单调时钟锚点及ACK身份账本。",
+    "parameters_changed": false
+  },
+  "frozen_contract_binding": {
+    "contract_id": "s4-shared-io",
+    "revision": "r07",
+    "status": "FROZEN_OFFLINE_ONLY",
+    "bound_by_run": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/",
+    "bound_by_source_commit": "56004d3a766e99dd8aef4203bba418865556eef0",
+    "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs/w4/s4b_shared_input_result_contract.json",
+    "sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+    "hash_basis": "worktree_disk",
+    "relevant_rules": [
+      "frame_id 回退（小于上一已接受值）必须拒绝并记 FAIL，除显式声明的新会话/复位",
+      "同一 session_id 的 frame_id 接纳/丢弃序号严格递增；重复、乱序接纳或回绕均拒绝。结果侧按独立 mapping_key_roles 所列用途连接，无法唯一关联或顺序矛盾的结果不得用于跨阶段证据。"
+    ]
+  },
+  "implemented_behavior_review": {
+    "source_path": "src/stage6/s6_core.py",
+    "source_sha256_worktree_disk": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+    "finding": "现有step()已将同session较小frame_id送入OUT_OF_ORDER异常路径且不复位/不更新last_frame_id；session变化执行会话状态初始化并记录RESET。新增专测核对目标、高水位、正序恢复和全局冷却保留。生产实现未改。",
+    "production_implementation_changed": false,
+    "added_regression_test": "verification/test_s6b_core_regressions.py::S6BCoreRegressionTests.test_same_session_frame_regression_is_out_of_order_without_reset"
+  },
+  "conflicting_proposals": [
+    {
+      "proposal_id": "DSH-20261029-004/005-R1",
+      "status": "BLOCKED",
+      "proposal": "所有回退在任何状态变化前拒绝。",
+      "conflict": "若其扩展解释禁止单调时间/超时推进，则与S6-A H3冲突。",
+      "disposition": "不改变H3；扩展未被Wong批准，待正式裁决。",
+      "source_paths": [
+        "report/evidence/S6-A/s6a_b25_decision_20261029_r04/inputs/DSH-20261029-004-b25-frame-session-ruling.md",
+        "report/evidence/S6-A/s6a_b25_decision_20261029_r04/inputs/DSH-20261029-005-b25-reaffirm-and-6c-closing.md"
+      ],
+      "source_sha256": [
+        "61fe076d9a1e75bc370d7077095163f6fbf822285d2574c0cc7e2b9813e7b174",
+        "41198158dd21844ddd1659186ed462b00226b589fd9fd594cb7bb23a6dfca8b9"
+      ]
+    },
+    {
+      "proposal_id": "DSH-20261029-004/005-R2",
+      "status": "BLOCKED",
+      "proposal": "允许同session FFFFFFFF->00000000回绕。",
+      "conflict": "阶段4 r07 out_of_order_result 明确要求回绕拒绝。",
+      "disposition": "不实现回绕接受；待正式裁决。",
+      "source_paths": [
+        "report/evidence/S6-A/s6a_b25_decision_20261029_r04/inputs/DSH-20261029-004-b25-frame-session-ruling.md",
+        "report/evidence/S6-A/s6a_b25_decision_20261029_r04/inputs/DSH-20261029-005-b25-reaffirm-and-6c-closing.md"
+      ],
+      "source_sha256": [
+        "61fe076d9a1e75bc370d7077095163f6fbf822285d2574c0cc7e2b9813e7b174",
+        "41198158dd21844ddd1659186ed462b00226b589fd9fd594cb7bb23a6dfca8b9"
+      ]
+    }
+  ],
+  "pre_task_hashes": {
+    "baseline_head": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+    "branch": "stage6-interact-prep",
+    "initial": {
+      "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md": "c0a7f9800c79e3e0e6f7e06d4d4324dfcb6d019cb06479a63e949516aab0cdb2",
+      "docs/stage6/s6a_stage6_g0_behavior_v1.json": "dc1808332575f31953d3b83ac19a02bc4d610bc3a65fcc7d8b5ffce70825fba7",
+      "verification/test_s6b_core_regressions.py": "63cdb40865f257d9941fdbf83abbca1ed3c8be0575b2f0bf903de0a7349f73c0"
+    },
+    "current": {
+      "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md": "c6515e5a9bc7873b547bff3cb91ba08d8afc97bd7b9f034916761de5f6d47d90",
+      "docs/stage6/s6a_stage6_g0_behavior_v1.json": "7a3c5325e6cdda222d1ba945f622ec34d156086977b3f01b5ca9f66896f21492",
+      "verification/test_s6b_core_regressions.py": "8bf913faddf990724746c04b38969a09c1f893da14775ab9428670d58171658a"
+    },
+    "state_file_modified": true,
+    "state_file_touched_by_this_run": false,
+    "old_evidence_modified": false,
+    "reconstruction": "task_owned_delta.patch以core.autocrlf=false在隔离副本反向应用，三文件初始SHA全部匹配。"
+  },
+  "prior_preserved_runs": [
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r01/",
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r02/",
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r03/"
+  ],
+  "unresolved": [
+    "DSH R1/R2扩展冲突保持BLOCKED；不宣称S6-C整矩阵PASS。",
+    "0xFFFFFFFE专项边界/复位细节未裁决。",
+    "G2待Reviewer；G3未运行；G4/G5未通过。"
+  ],
+  "not_decided": [
+    "不改变H3或S4冻结契约。",
+    "不实现同session回绕接受。",
+    "离线回执和回归不构成硬件G3/实物G4/G5/阶段6整体验收。"
+  ]
+}

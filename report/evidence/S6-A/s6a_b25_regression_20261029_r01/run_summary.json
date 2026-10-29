@@ -1,0 +1,53 @@
+{
+  "schema": "gestureforge.s6a.b25_regression_summary.v1",
+  "run_id": "s6a_b25_regression_20261029_r01",
+  "recorded_at_utc8": "2026-10-29 17:55:11",
+  "source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "branch": "stage6-interact-prep",
+  "scope": "仅强化B25回归测试，不修改生产实现或正式规格。",
+  "test": {
+    "status": "PASS",
+    "passed": 32,
+    "failed": 0,
+    "exit_code": 0,
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 -m unittest -v verification.test_s6b_core_regressions",
+    "cwd": "D:/codex-worktrees/w6",
+    "elapsed_seconds": 0.171966,
+    "output_path": "report/evidence/S6-A/s6a_b25_regression_20261029_r01/test_output.txt",
+    "output_sha256": "f39e50f72e552bf7b4011a3bc6c2afd84b9f1331b85af7573c2712d5df8c9163",
+    "new_tests": [
+      "S6BCoreRegressionTests.test_same_session_frame_regression_is_out_of_order_without_reset",
+      "S6BCoreRegressionTests.test_out_of_order_at_l02_runs_loss_check_without_refreshing_progress"
+    ]
+  },
+  "added_assertions": [
+    "普通同session回退后 window_match_count、window_start_ns、t_last_target_continues_ns 不更新。",
+    "同session倒序帧恰逢L02时按H3触发M10/LOST；frame高水位、窗口计数/起点、连续锚点不刷新且无action_request。"
+  ],
+  "production_source": {
+    "path": "src/stage6/s6_core.py",
+    "sha256": "8cf5c7f0e89110068a00894f764f65f8a4fc3df2c5db55d9f46f243f348995d9",
+    "modified": false
+  },
+  "inputs_check": {
+    "status": "PASS",
+    "exit_code": 0,
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -X utf8 D:\\FPGA_Competition\\verification\\check_stage_delivery.py --mode inputs --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_b25_regression_20261029_r01\\inputs_manifest.json --project-root D:/codex-worktrees/w6",
+    "output_path": "report/evidence/S6-A/s6a_b25_regression_20261029_r01/inputs_check_output.json"
+  },
+  "s6a_selfcheck": {
+    "status": "NOT_RUN",
+    "reason": "本RunId只验证测试改动；R04中C11参数错误的FAILED结果保留且不复用。"
+  },
+  "unresolved": [
+    "R04 S6-A C11失败保留；本RunId未替代正式决策包。",
+    "DSH-004/005 R1/R2保持BLOCKED；0xFFFFFFFE细节未裁决。",
+    "未运行S6-C整矩阵；G2待独立Reviewer；G3未运行；G4/G5未通过。"
+  ],
+  "preserved_failed_runs": [
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r01/",
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r02/",
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r03/",
+    "report/evidence/S6-A/s6a_b25_decision_20261029_r04/"
+  ]
+}

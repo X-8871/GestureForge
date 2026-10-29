@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_b25_decision_20261029_r02",
+  "source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "evidence_dir": "report/evidence/S6-A/s6a_b25_decision_20261029_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本任务仅核对 B25 文书口径与阶段4冻结契约输入，不执行阶段4/6运行时接口集成或字段映射验收。",
+  "files": [
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs/w4/s4b_shared_input_result_contract.json",
+      "sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+      "role": "input",
+      "keep_reason": "阶段4冻结共享输入/结果契约 s4-shared-io/1.3.0 r07 的实际消费副本",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs_manifest.json",
+      "sha256": "3b0814d32f496d873b0f2b93110e7821c85f51741e4523a4c91a6874e9f0c0fb6",
+      "role": "input",
+      "keep_reason": "固定 S6-D r05 对阶段4契约副本的来源与提交绑定清单",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "本清单绑定本轮未提交审查快照的磁盘字节；后续提交前应由总控重绑最终 commit_blob。",
+  "hash_basis_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "checks": [
+    {
+      "name": "阶段4冻结契约版本及哈希核对",
+      "status": "PASS",
+      "command": "只读读取 S6-D r05 固定输入副本并核对 contract_id/revision/status/session_id/frame_id 语义及 SHA-256",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "S6-D r05 的契约副本标注 FROZEN_OFFLINE_ONLY，不扩展为阶段4板级或阶段6真实集成验收。"
+  ]
+}

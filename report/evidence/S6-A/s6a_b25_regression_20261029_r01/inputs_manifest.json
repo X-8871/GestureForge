@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_b25_regression_20261029_r01",
+  "source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "evidence_dir": "report/evidence/S6-A/s6a_b25_regression_20261029_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本RunId只验证B25相关的S6-B本地状态机回归，不执行阶段4/5真实集成。",
+  "files": [
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs/w4/s4b_shared_input_result_contract.json",
+      "sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+      "role": "input",
+      "keep_reason": "阶段4 r07冻结帧序契约副本",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs_manifest.json",
+      "sha256": "3b0814d32f496d873b0f2b93110e7821c85f51741e4523a4c91a6874e9f0c0fb",
+      "role": "input",
+      "keep_reason": "S6-D r05契约来源绑定清单",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_decision_20261029_r04/decision_receipt.json",
+      "sha256": "ff568097ae7bb4d4e65dd720ab38910abd4116026340e32cc769ed7476b865b6",
+      "role": "input",
+      "keep_reason": "R04用户批准的B25范围回执；其C11失败状态保持原样",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "7a3c5325e6cdda222d1ba945f622ec34d156086977b3f01b5ca9f66896f21492",
+      "role": "input",
+      "keep_reason": "当前S6-A机器规格及阈值输入",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "未提交工作树输入按实际磁盘字节绑定。",
+  "hash_basis_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "checks": [
+    {
+      "name": "阶段4 r07与用户B25回执输入绑定",
+      "status": "PASS",
+      "command": "对S4 r07、S6-D r05清单及R04回执进行SHA-256/版本只读绑定",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "R04的S6-A自检C11失败原样保留；本RunId不重跑或覆盖R04。",
+    "DSH R1/R2冲突保持BLOCKED；本回归不关闭整矩阵。"
+  ]
+}

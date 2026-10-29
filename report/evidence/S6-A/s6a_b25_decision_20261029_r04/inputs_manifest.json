@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_b25_decision_20261029_r04",
+  "source_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "evidence_dir": "report/evidence/S6-A/s6a_b25_decision_20261029_r04",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本轮只绑定阶段4帧序契约与S6-A自检输入，不执行跨阶段真实集成。",
+  "files": [
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs/w4/s4b_shared_input_result_contract.json",
+      "sha256": "7228f51350feb0c63de9e58de20d72d1fdfcd3bf13c39374344e82b027a0f145",
+      "role": "input",
+      "keep_reason": "阶段4r07冻结契约副本",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-D/s6d_replay_qualification_20261029_r05/inputs_manifest.json",
+      "sha256": "3b0814d32f496d873b0f2b93110e7821c85f51741e4523a4c91a6874e9f0c0fb",
+      "role": "input",
+      "keep_reason": "S6-D r05来源绑定清单",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261024_r17/hand_computed_cases.json",
+      "sha256": "81c05210bbc26d4aca61678a5acf1bc97d5c7d7b2aa6100fc318c792a964924d",
+      "role": "input",
+      "keep_reason": "S6-A手算样例",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261024_r17/upstream_bindings.json",
+      "sha256": "73159e05d9d35a30293fd6601ed9da57bffe39cb85c5c469aa91260738c210be",
+      "role": "input",
+      "keep_reason": "S6-A上游绑定",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_decision_20261029_r04/inputs/DSH-20261029-004-b25-frame-session-ruling.md",
+      "sha256": "61fe076d9a1e75bc370d7077095163f6fbf822285d2574c0cc7e2b9813e7b174",
+      "role": "input",
+      "keep_reason": "DSH-004原始裁决回执副本",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_decision_20261029_r04/inputs/DSH-20261029-005-b25-reaffirm-and-6c-closing.md",
+      "sha256": "41198158dd21844ddd1659186ed462b00226b589fd9fd594cb7bb23a6dfca8b9",
+      "role": "input",
+      "keep_reason": "DSH-005重申回执副本",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_b25_decision_20261029_r04/prior_failed_runs.json",
+      "sha256": "43155993254dcb96fb192f9ee8d3632fd031efd4df1455adea4691a36eb9c029",
+      "role": "input",
+      "keep_reason": "r01-r03失败运行只读哈希索引",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "按当前磁盘字节绑定，DSH回执仅为只读副本。",
+  "hash_basis_commit": "27aa9eeeb95c49a52825738217d83c8cf10fb9e3",
+  "checks": [
+    {
+      "name": "S4 r07版本/回绕规则核对",
+      "status": "PASS",
+      "command": "Python只读JSON核对S6-D r05绑定与frame_sequence_rules.out_of_order_result",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "契约状态FROZEN_OFFLINE_ONLY，不升格板级或真实集成验收。",
+    "DSH R1/R2作为争议输入，不改变S4来源。"
+  ]
+}

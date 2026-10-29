@@ -68,9 +68,21 @@ def main() -> int:
         b = baseline.get(work, {})
         same = (res is not None and b.get("result") is not None
                 and res.strip() == b["result"].strip() and c1 == 0 and c2 == 0 and c3 == 0)
+        # rev-s5 建议：FNV 必须参与判据（有 FNV 时强制 dut==gold；无 FNV 时要求基线也无 FNV）
+        fnv_ok = True
+        if fnv is not None:
+            m1 = re.search(r"dut=([0-9a-fA-Fx]+)", fnv)
+            m2 = re.search(r"gold=([0-9a-fA-Fx]+)", fnv)
+            fnv_ok = bool(m1 and m2 and m1.group(1).lower() == m2.group(1).lower())
+            if not fnv_ok:
+                print(f"  FNV_MISMATCH {work}: {fnv}", flush=True)
+        else:
+            fnv_ok = b.get("verdict") == "EQUIV_NOFNV"
+        same = same and fnv_ok
         if not same:
             fails += 1
-        out_lines.append(f"{work}\txvlog={c1}\txelab={c2}\txsim={c3}\t{'EQUIV' if same else 'DIFF'}\t{res}\t{fnv}")
+        verdict = ("EQUIV" if (same and fnv is not None) else ("EQUIV_NOFNV" if same else "DIFF"))
+        out_lines.append(f"{work}\txvlog={c1}\txelab={c2}\txsim={c3}\t{verdict}\t{res}\t{fnv}")
         print(out_lines[-1], flush=True)
         print("  baseline:", b.get("result"), flush=True)
     (WORK / "results.tsv").write_text("\n".join(out_lines) + "\n", encoding="utf-8", newline="\n")

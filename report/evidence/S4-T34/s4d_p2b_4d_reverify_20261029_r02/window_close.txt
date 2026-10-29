@@ -1,0 +1,22 @@
+# 4-D 板上复验（P2b 位流）
+
+- RunId：`s4d_p2b_4d_reverify_20261029_r02`；开窗 2026-10-29T20:29:46+08:00；收窗 2026-10-29T20:36:12+08:00；用时 6.4 min
+- 位流：`47472d2db6e2a7cb5ff3ed2d0196c6dd5b3eb39f7b5ee7b30ed34254494a41e8`（P2b：preproc + 2B 推理，smartconnect，FCLK=50 MHz）
+- 结论：**P2B_4D_STOPPED_ON_FAILURE**
+- stop_reason：M4-b FAIL
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_enum_preflight：`PASS` exit=`0`
+- W2_w0_restore：`PASS` exit=`0`
+- W2_pspl_four_actions：`PASS` exit=`0`
+- W3_m3_recheck：`PASS` exit=`None`
+- W4_m4a：`PASS` exit=`None`
+- W5_m4b：`FAIL` exit=`None`
+- W6_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 板级为 P2b 位流上的实测；ENABLE=0；未写 QSPI；未改线；未 push；未用 -force。
+- 不主张 G3/G4/G5；M3 仅只读复检，不等于 M3 成对取样闭合；M2 未在本窗口重做。

@@ -88,6 +88,10 @@
   已执行：G0 文档改名为 `docs/obsidian-project/02-方案设计/阶段5_HDMI显示链G0方案_20261030.md`（含勘误段）；
   证据目录 `report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01` → `report/evidence/S5-T01/s5_p3a_video_bd_20261030_r01`（task_id S5-T01 暂定）。
   P2d 合并计算体重新定位为**阶段3/4 集成（阶段5 前置平台）**，其既有"阶段5 收口"文档仅作历史记录，不再作为阶段5 交付定义。
+- **阶段5 P3b 显示软件完成（2026-10-30 02:3x，r04）**：ELF `acca2cf7…8ce9d`（296,352 B）；新增**真实数据源**——
+  结果块 `0x20800000`（magic `S5RS`，检测项 **16 B 步进**）+ raw frame `0x12000000`；回退链 real→sim/test，stale 标记；有界 180 帧 + `S5DISP RESULT=` 单行。
+  离线自测：真实源 36 帧（fixture 真实画面 + 3 框 + 面板 `SRC REAL`，`fps_cap 30.6/fps_inf 29.9/fps_dis 59.9`）、magic 错→sim、raw 全 0→test、stale→`STALE` 全 PASS；
+  示例 `S5DISP RESULT={"pass":1,...,"src":"real"}`。**生产端（推理应用写结果块）尚未实现**，为联调第一项。
 - **阶段5 P3b 硬件构建 PASS（2026-10-30 02:12，`s5_p3b_hw_20261030_r01`）**：rgb2dvi(VHDL) + TMDS + 顶层 `top_p3b.v` 完整显示链位流。
   bit `1670b0b3…f572`（4,045,762 B）、XSA `2171583f…19d`；**WNS +0.544 / WHS +0.022、TNS=THS=0、失败端点 0/52,363、全部约束满足**、DRC 0 error（无 NSTD/UCIO）；
   资源 LUT **25,967(48.81%)**、FF 14,892(14.00%)、BRAM 36.5(26.07%)、**DSP 158(71.82%，较 P3a+ +0)**、MMCM 1、BUFG 5。→ **阶段5 硬件设计完成**（上屏冒烟/回归待板卡）。

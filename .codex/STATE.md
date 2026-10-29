@@ -59,6 +59,14 @@
   ③核挂在 AXI 读时不要用 `rst -system`/反复 `mrd` 救场（两次实测都会把 DAP 推入粘连）；④任何补丁式改运行参数后必须回读文件确认生效。
 - **板卡现状**：18:18 的粘连已由 Wong 第二次整机断电清除；18:24 窗口内 DAP 正常（枚举/读寄存器均通过），收窗后零残留（无 hw_server/xsdb/vivado、3121 仅 TIME_WAIT）。
   r03 的 `W5_final_restore` 因保全阶段 **DAP_WEDGED 误判**（`state/rrd` 在 `-eval` 下需 `puts` 才输出）而未执行 ⇒ 下窗口必须 W0 式复核候选区 diff==0。
+- **C 项数据面首次正证（2026-10-29 18:36–18:41，`s4d_p2c_board_20261029_r01`）：`P2C_TENSOR_CRC_MATCH`**。
+  P2c r02 位流（`022f48fb…d52ca4`）+ 应用 ELF（`56c6967b…ac93100`）在板上完成
+  `preproc(源图 0x12000000) → packer(8b→64b) → AXI DMA S2MM(23-bit len) → HP0 → 张量 0x10000000`，
+  **`PCB DMA tensor_crc32=0x5B183B50 expected=0x5B183B50 pass=1`**；`len_reg=0x0007EC00`（无 14-bit 截断）、
+  `dmasr=0x00001002`（IOC+Idle）、`pre_status=0x2`；首 16 B 与末 8 B（`0x1007EBF8`）**与离线 golden 逐字节一致**。
+  证据 `report/evidence/S4-T34/s4d_p2c_board_20261029_r01/`（`RESULT.md`；门禁 63 条 0 不符）。
+  **边界**：候选位流/未冻结；fixture 非实拍；单帧一次成功；非合并部署；不主张 G3/G4/G5。
+  记录更正：首版抽样把"末 8 B"读在 `0x1007EFF8`（张量外 0x3F8），已在 `RESULT.md` 说明并用正确地址重读。
 - **2026-10-29 18:24 第二次断电后复跑（`s4d_time_basis_20261029_r01`）：时间基座已定因**。同一段 DONE 等待
   **主机 32.18 s / 应用 `elapsed_ms` 8.096 s = 3.975**；JTAG 直读全局定时器 ≈333 MHz，BSP `COUNTS_PER_SECOND=333,333,343`
   二者一致 ⇒ **坏的是 `XTime_GetTime`：其时基约为全局定时器的 1/4（等效 ≈83 MHz）**（`report/evidence/S4-T34/s4d_time_basis_20261029_r01/ANALYSIS.md`，门禁 37 条 0 不符）。

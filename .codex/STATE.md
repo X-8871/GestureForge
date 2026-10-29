@@ -64,6 +64,12 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **阶段5 方向 A 合并位流 P2d 已构建（2026-10-29 23:00–23:12，`s4d_p2d_merged_bitstream_20261029_r01`）**：
+  相对 P2c r02 只改数据面拓扑：**2B 推理核 `M_AXI` 直连 `ps7_0/S_AXI_HP0`**（不经 smc_data）、
+  `smc_data` 改 2S/1M（preproc 读 + DMA 写 → `ps7_0/S_AXI_HP1`）、PS7 使能 HP1 64-bit。
+  bit `58c66cdb…1a86a3`（4,045,770 B）、XSA `4ebc631e…26a3ab`；**WNS +0.128 / WHS +0.036**、DRC 0 error；
+  资源 LUT 44.08% / FF 9.79% / BRAM 23.93% / DSP 158 (71.82%)。时序比 P2c（+0.039）好转。
+  上板冒烟三窗口已排：M4-b（期望回到 47,287 ms）/ chain-lite A（期望 pass=1）/ P2c-CRC（期望 0x5B183B50）。
 - **B 项在 2B 基线位流上全部 PASS（2026-10-29 22:5x）**：
   · M3 只读复检：12,615,680 B dump sha256 = `41907f53…`，与登记快照逐字节相同（diff=0）
   · M4-a：R/F 应答与 CRC 全对（`0xCFB6FB9B`/`0xFE55DA7C`），恢复逐字节相等

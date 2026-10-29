@@ -1,0 +1,54 @@
+{
+  "task_id": "S2C-RTL02",
+  "run_id": "feature_bank32_20261029_r01",
+  "source_commit": "ece3ede9639942639da3272f6f67e2aaa85b734f",
+  "status": "SHORT_XSIM_PASS_NOT_INTEGRATED",
+  "tool": "Vivado Simulator 2026.1",
+  "preflight": {
+    "vivado_xsim_xelab_xvlog_processes_found": 0,
+    "available_memory_mb": 3146,
+    "preflight_exit_code": 0
+  },
+  "commands": [
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xvlog.bat", "--log", "xvlog_r01.log", "-sv", "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv", "D:/FPGA_Competition/w2c/sim/tb_s2c_feature_patch_bank32.sv"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL02/feature_bank32_20261029_r01/xvlog_r01.log",
+      "log_sha256": "bf8f00a596f33c9b652d336112fd77d3cea3a98529305f13d215fcbc152b08fa"
+    },
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xelab.bat", "--log", "xelab_r01.log", "tb_s2c_feature_patch_bank32", "-s", "s2c_feature_patch_bank32_sim"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL02/feature_bank32_20261029_r01/xelab_r01.log",
+      "log_sha256": "790d47863f2257462fd6ae84a3fe8c345d1fa6764bc54f754032bd59967b984b"
+    },
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xsim.bat", "--log", "xsim_r01.log", "s2c_feature_patch_bank32_sim", "-runall"],
+      "exit_code": 0,
+      "pass_marker": "PASS S2C feature bank32: 3 windows x16 lanes, conflict and bounds",
+      "log_path": "tmp/S2C/RTL02/feature_bank32_20261029_r01/xsim_r01.log",
+      "log_sha256": "d85f316f328244243012d639a153fbb941f13617ee7383c13ec7b2c5fcbbe525"
+    }
+  ],
+  "test_scope": {
+    "feature_bytes_written": 256,
+    "read_lanes": 16,
+    "valid_read_windows": [
+      {"base": 2, "stride": 2},
+      {"base": 30, "stride": 2},
+      {"base": 17, "stride": 1}
+    ],
+    "checks": [
+      "16路逐lane读取值与确定性写入序列逐位一致",
+      "两个请求命中同一bank时报告冲突并不返回有效响应",
+      "越界读与写地址被检测"
+    ],
+    "random_seed": null
+  },
+  "limitations": [
+    "新模块尚未接入 s2b_conv_tile_engine，未验证整网层地址无冲突。",
+    "未综合确认Vivado将32个bank推断为BRAM；未测BRAM、LUT、DSP或100 MHz时序。",
+    "没有整帧cycles、2B head13/26张量或检测框逐位等价，也没有板级帧率。",
+    "日志仅在隔离tmp目录，日志不列为manifest哈希条目。"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "task_id": "S2C-RTL02",
+  "run_id": "feature_bank32_20261029_r02",
+  "source_commit": "ece3ede9639942639da3272f6f67e2aaa85b734f",
+  "branch": "codex/stage2c-throughput",
+  "status": "SHORT_XSIM_PASS_NOT_INTEGRATED",
+  "tool": "Vivado Simulator 2026.1",
+  "preflight": {
+    "process_query": "Get-Process found no Vivado, xsim, xelab or xvlog process",
+    "vivado_sim_processes_found": 0,
+    "available_memory_mb_before_run": 2990,
+    "elapsed_seconds": 6.523
+  },
+  "commands": [
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xvlog.bat", "--log", "xvlog_r02.log", "-sv", "D:/FPGA_Competition/w2c/src/s2c_feature_patch_bank32.sv", "D:/FPGA_Competition/w2c/sim/tb_s2c_feature_patch_bank32.sv"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL02/feature_bank32_20261029_r02/xvlog_r02.log",
+      "log_sha256": "bf8f00a596f33c9b652d336112fd77d3cea3a98529305f13d215fcbc152b08fa"
+    },
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xelab.bat", "--log", "xelab_r02.log", "tb_s2c_feature_patch_bank32", "-s", "s2c_feature_patch_bank32_sim"],
+      "exit_code": 0,
+      "log_path": "tmp/S2C/RTL02/feature_bank32_20261029_r02/xelab_r02.log",
+      "log_sha256": "9a15c2e32230802550fdc8f4d7e91b3e33317808c2466cfc2c492eda5149ce4b"
+    },
+    {
+      "argv": ["D:/Xilinx/2026.1/Vivado/bin/xsim.bat", "--log", "xsim_r02.log", "s2c_feature_patch_bank32_sim", "-runall"],
+      "exit_code": 0,
+      "pass_marker": "PASS S2C feature bank32: full, single, tail, padding, conflict and bounds",
+      "log_path": "tmp/S2C/RTL02/feature_bank32_20261029_r02/xsim_r02.log",
+      "log_sha256": "fd3ab0362027ee2d52ef978cd931050c992c422be9af3c5337bce1ea7365fc2f"
+    }
+  ],
+  "design_scope": {
+    "feature_capacity_bytes": 124416,
+    "address_width": 17,
+    "bank_count": 32,
+    "read_lanes": 16,
+    "parameters": "bank count, lane count and derived widths are closed localparams; module dimensions are fixed",
+    "active_lane_mask": "only active lanes participate in bank mapping, conflict detection and bounds checking; empty mask does not issue a read"
+  },
+  "test_scope": {
+    "initialized_bytes": 261,
+    "read_windows": [
+      {"base": 2, "stride": 2, "active_lanes": 16},
+      {"base": 30, "stride": 2, "active_lanes": 16},
+      {"base": 17, "stride": 1, "active_lanes": 16},
+      {"base": 5, "stride": 1, "active_lanes": 1},
+      {"base": 124411, "stride": 1, "active_lanes": 5}
+    ],
+    "checks": [
+      "所有有效lane的同步读取值与确定性写入公式逐位一致",
+      "单lane与5-lane尾块只返回active lane valid",
+      "inactive padding越界地址及inactive同bank地址不影响冲突或越界判定",
+      "空active mask不检查lane地址且不产生读响应",
+      "active请求命中同bank时报告冲突且不产生响应",
+      "active越界读和越界写均被检测"
+    ],
+    "random_seed": null
+  },
+  "limitations": [
+    "模块尚未接入s2b_conv_tile_engine，未验证整网层地址冲突及尾块调度接口。",
+    "未综合确认32个bank推断为BRAM；未测LUT、FF、BRAM、DSP或100 MHz时序。",
+    "未与2B frozen head13/head26或检测框逐位比较；没有整帧cycles、预测fps或板级帧率。",
+    "短仿真启动时可用物理内存约2990MB；本轮峰值内存未测。"
+  ]
+}

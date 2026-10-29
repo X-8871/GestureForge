@@ -359,6 +359,57 @@ static const char *s5_src_text(uint32_t src_kind)
     }
 }
 
+/* ---------------- 信息栏局部重绘支持 ---------------- */
+
+typedef struct {
+    const uint32_t *fb;
+    uint32_t sig;
+    uint32_t inited;
+} S5PanelCache;
+
+static S5PanelCache s5_panel_cache[4];
+
+static uint32_t s5_panel_sig(const S5FrameInfo *info, uint32_t dma_state)
+{
+    uint32_t h = 2166136261u;
+    uint32_t i;
+
+#define S5_SIG_U32(v) (h = (h ^ (uint32_t)(v)) * 16777619u)
+    S5_SIG_U32(info->frame_id);
+    S5_SIG_U32((uint32_t)info->fps_cap_x10);
+    S5_SIG_U32((uint32_t)info->fps_inf_x10);
+    S5_SIG_U32((uint32_t)info->fps_dis_x10);
+    S5_SIG_U32((uint32_t)info->fps_upd_x10);
+    S5_SIG_U32((uint32_t)info->latency_ms);
+    S5_SIG_U32((uint32_t)info->age_ms);
+    S5_SIG_U32((uint32_t)info->status);
+    S5_SIG_U32(dma_state);
+    S5_SIG_U32((uint32_t)info->src_kind);
+    S5_SIG_U32((uint32_t)info->det_count);
+    for (i = 0u; (i < info->det_count) && (i < S5_MAX_DET); i++) {
+        S5_SIG_U32((uint32_t)(uint16_t)info->det[i].x);
+        S5_SIG_U32((uint32_t)(uint16_t)info->det[i].y);
+        S5_SIG_U32((uint32_t)(uint16_t)info->det[i].w);
+        S5_SIG_U32((uint32_t)(uint16_t)info->det[i].h);
+        S5_SIG_U32((uint32_t)info->det[i].cls);
+        S5_SIG_U32((uint32_t)info->det[i].score);
+    }
+#undef S5_SIG_U32
+    return h;
+}
+
+/* 清屏后信息栏被抹掉：把该 buffer 的面板缓存置为“未初始化”，强制下一帧整栏重绘 */
+static void s5_panel_invalidate(const uint32_t *fb)
+{
+    uint32_t n;
+
+    for (n = 0u; n < 4u; n++) {
+        if (s5_panel_cache[n].fb == fb) {
+            s5_panel_cache[n].inited = 0u;
+        }
+    }
+}
+
 void S5Draw_InfoPanel(uint32_t *fb, const S5FrameInfo *info, uint32_t dma_state)
 {
     const int x = S5_PANEL_X + 8;
@@ -369,12 +420,56 @@ void S5Draw_InfoPanel(uint32_t *fb, const S5FrameInfo *info, uint32_t dma_state)
     uint32_t i;
     uint32_t age_over;
     uint32_t stale;
+    uint32_t sig;
+    uint32_t n;
+    S5PanelCache *slot = 0;
+    int full_draw;
 
-    /* 背景 + 左侧分隔线 + 标题条 */
-    S5Draw_RectFill(fb, S5_PANEL_X, 0, S5_PANEL_W, S5_PANEL_H, S5_COLOR_PANEL_BG);
-    S5Draw_RectFill(fb, S5_PANEL_X, 0, 2, S5_PANEL_H, S5_COLOR_PANEL_TITLE);
-    S5Draw_RectFill(fb, S5_PANEL_X + 2, 0, S5_PANEL_W - 2, 26, S5_RGB(0x1A, 0x2A, 0x38));
-    S5Draw_Text(fb, x, 5, "S5 P3B DISPLAY 720p60", S5_COLOR_PANEL_TITLE, S5_COLOR_TRANSPARENT);
+    if ((fb == 0) || (info == 0)) {
+        return;
+    }
+
+    /* 只在该 buffer 上面板数值变化时重绘；数值未变直接返回（低风险局部重绘） */
+    sig = s5_panel_sig(info, dma_state);
+    for (n = 0u; n < 4u; n++) {
+        if (s5_panel_cache[n].fb == fb) {
+            slot = &s5_panel_cache[n];
+            break;
+        }
+    }
+    if (slot != 0) {
+        if ((slot->inited != 0u) && (slot->sig == sig)) {
+            return; /* 这组数值已经画在该 buffer 上，逐像素重绘没有意义 */
+        }
+        full_draw = (slot->inited == 0u) ? 1 : 0;
+    } else {
+        for (n = 0u; n < 4u; n++) {
+            if (s5_panel_cache[n].fb == 0) {
+                slot = &s5_panel_cache[n];
+                break;
+            }
+        }
+        if (slot == 0) {
+            slot = &s5_panel_cache[0];
+        }
+        full_draw = 1; /* 该 buffer 第一次见：先全画 */
+        slot->inited = 0u;
+    }
+
+    if (full_draw != 0) {
+        /* 背景 + 左侧分隔线 + 标题条（静态部分，只画一次） */
+        S5Draw_RectFill(fb, S5_PANEL_X, 0, S5_PANEL_W, S5_PANEL_H, S5_COLOR_PANEL_BG);
+        S5Draw_RectFill(fb, S5_PANEL_X, 0, 2, S5_PANEL_H, S5_COLOR_PANEL_TITLE);
+        S5Draw_RectFill(fb, S5_PANEL_X + 2, 0, S5_PANEL_W - 2, 26, S5_RGB(0x1A, 0x2A, 0x38));
+        S5Draw_Text(fb, x, 5, "S5 P3B DISPLAY 720p60", S5_COLOR_PANEL_TITLE, S5_COLOR_TRANSPARENT);
+    } else {
+        /* 只清动态数值区（y=28..372），保留标题条/图例/页脚 */
+        S5Draw_RectFill(fb, S5_PANEL_X + 2, 28, S5_PANEL_W - 2, 344, S5_COLOR_PANEL_BG);
+    }
+
+    slot->fb = fb;
+    slot->sig = sig;
+    slot->inited = 1u;
 
     age_over = (info->status & S5_ST_AGE_OVER) ? 1u : 0u;
     stale = (info->status & S5_ST_STALE) ? 1u : 0u;
@@ -406,6 +501,13 @@ void S5Draw_InfoPanel(uint32_t *fb, const S5FrameInfo *info, uint32_t dma_state)
 
     p = s5_cat(line, "FPS D ");
     p = s5_dec1(p, info->fps_dis_x10);
+    s5_end(p);
+    S5Draw_Text(fb, x, y, line, S5_COLOR_PANEL_TEXT, S5_COLOR_PANEL_BG);
+    y += pitch;
+
+    /* FPS U：软件更新（渲染）速率，与显示刷新 FPS D 分开 */
+    p = s5_cat(line, "FPS U ");
+    p = s5_dec1(p, info->fps_upd_x10);
     s5_end(p);
     S5Draw_Text(fb, x, y, line, S5_COLOR_PANEL_TEXT, S5_COLOR_PANEL_BG);
     y += pitch;
@@ -484,21 +586,21 @@ void S5Draw_InfoPanel(uint32_t *fb, const S5FrameInfo *info, uint32_t dma_state)
         y += pitch;
     }
 
-    /* 类别图例 */
-    y = 560;
-    S5Draw_Text(fb, x, y, "CLASS", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
-    y += 20;
-    for (i = 0; i < S5_CLASS_NUM; i++) {
-        int lx = x + (int)(i % 3u) * 100;
-        int ly = y + (int)(i / 3u) * 24;
+    /* 类别图例 + 页脚：静态部分，只在该 buffer 首次绘制时画 */
+    if (full_draw != 0) {
+        y = 560;
+        S5Draw_Text(fb, x, y, "CLASS", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
+        y += 20;
+        for (i = 0; i < S5_CLASS_NUM; i++) {
+            int lx = x + (int)(i % 3u) * 100;
+            int ly = y + (int)(i / 3u) * 24;
 
-        S5Draw_RectFill(fb, lx, ly + 2, 12, 12, s5_class_color[i]);
-        S5Draw_Text(fb, lx + 16, ly, s5_class_name[i], S5_COLOR_PANEL_TEXT, S5_COLOR_TRANSPARENT);
+            S5Draw_RectFill(fb, lx, ly + 2, 12, 12, s5_class_color[i]);
+            S5Draw_Text(fb, lx + 16, ly, s5_class_name[i], S5_COLOR_PANEL_TEXT, S5_COLOR_TRANSPARENT);
+        }
+        S5Draw_Text(fb, x, 680, "960x720 + 320 panel", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
+        S5Draw_Text(fb, x, 698, "P3B-SW r06", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
     }
-
-    /* 页脚：分辨率与版面（便于上板一眼确认走的是哪个版本） */
-    S5Draw_Text(fb, x, 680, "960x720 + 320 panel", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
-    S5Draw_Text(fb, x, 698, "P3B-SW r05", S5_COLOR_PANEL_DIM, S5_COLOR_TRANSPARENT);
 }
 
 /* ---------------- 帧装配 / 测试图 ---------------- */
@@ -519,21 +621,69 @@ static void s5_draw_video_test_pattern(uint32_t *fb)
                 S5_COLOR_RED, S5_COLOR_BLACK);
 }
 
+/* 每个 buffer 上一次画进视频区的内容类型（用于“静态测试图案不重复绘制”的优化） */
+typedef struct {
+    const uint32_t *fb;
+    uint32_t kind;
+    uint32_t nbox;
+    uint32_t inited;
+} S5VideoCache;
+
+static S5VideoCache s5_video_cache[4];
+
+static S5VideoCache *s5_video_slot(const uint32_t *fb)
+{
+    uint32_t n;
+    S5VideoCache *slot = 0;
+
+    for (n = 0u; n < 4u; n++) {
+        if (s5_video_cache[n].fb == fb) {
+            return &s5_video_cache[n];
+        }
+        if ((s5_video_cache[n].inited == 0u) && (slot == 0)) {
+            slot = &s5_video_cache[n];
+        }
+    }
+    return (slot != 0) ? slot : &s5_video_cache[0];
+}
+
 void S5Display_RenderFrameSrc(uint32_t *fb, const uint32_t *cam, const S5FrameInfo *info,
                               uint32_t dma_state, uint32_t video_src)
 {
+    S5VideoCache *vs;
+    int skip_video = 0;
+
     if ((fb == 0) || (info == 0)) {
         return;
     }
-    /* 清屏把视频区外区域铺黑；视频区随后被摄像头画面或测试图案完全覆盖 */
-    S5Draw_Clear(fb, S5_COLOR_BLACK);
-    if (video_src == S5_VIDEO_SRC_TEST) {
-        s5_draw_video_test_pattern(fb);
-    } else {
-        S5Draw_CameraLetterbox(fb, cam);
+
+    /* 优化：测试图案是静态的，且本帧无框（无生产者场景）→ 该 buffer 上一帧已经是同一张，
+     * 不必再清屏/重画 691k 像素。真实画面（CAM）每帧都重画。 */
+    vs = s5_video_slot(fb);
+    if ((video_src == S5_VIDEO_SRC_TEST) && (info->det_count == 0u) &&
+        (vs->inited != 0u) && (vs->fb == fb) && (vs->kind == S5_VIDEO_SRC_TEST) &&
+        (vs->nbox == 0u)) {
+        skip_video = 1;
     }
-    /* 检测框仍按结果块坐标画（测试图案回退时也显示框，便于确认 ABI 通路） */
-    S5Draw_Boxes(fb, info->det, info->det_count);
+
+    if (skip_video == 0) {
+        /* 清屏把视频区外区域铺黑；视频区随后被摄像头画面或测试图案完全覆盖 */
+        S5Draw_Clear(fb, S5_COLOR_BLACK);
+        if (video_src == S5_VIDEO_SRC_TEST) {
+            s5_draw_video_test_pattern(fb);
+        } else {
+            S5Draw_CameraLetterbox(fb, cam);
+        }
+        /* 检测框仍按结果块坐标画（测试图案回退时也显示框，便于确认 ABI 通路） */
+        S5Draw_Boxes(fb, info->det, info->det_count);
+        /* 整屏清过 → 标题条/图例/页脚也没了：本次必须整栏重绘 */
+        s5_panel_invalidate(fb);
+        vs->fb = fb;
+        vs->kind = video_src;
+        vs->nbox = info->det_count;
+        vs->inited = 1u;
+    }
+
     S5Draw_InfoPanel(fb, info, dma_state);
 }
 
@@ -568,11 +718,111 @@ void S5Display_TestPattern(uint32_t *fb, uint32_t mode)
  *   S5DISP RESULT={"pass":1,"fps_cap":60,"fps_inf":0,"fps_dis":60,"latency_ms":0,
  *                  "age_ms":47320,"vdma_err":0,"frames":180,"vcnt":180}
  * 失败时追加 "reason":"..."。整行必须在**同一行**输出（调用方只补一次 \r\n）。 */
+/* ---------------- CRC32（G3 需要 box_crc / fb_crc） ---------------- */
+
+static uint32_t s5_crc_tab[256];
+static int s5_crc_tab_ready;
+
+uint32_t S5Display_Crc32(const void *data, uint32_t bytes)
+{
+    const uint8_t *p = (const uint8_t *)data;
+    uint32_t crc = 0xFFFFFFFFu;
+    uint32_t i;
+
+    if ((data == 0) || (bytes == 0u)) {
+        return 0u;
+    }
+    if (!s5_crc_tab_ready) {
+        uint32_t n;
+        int k;
+
+        for (n = 0u; n < 256u; n++) {
+            uint32_t c = n;
+
+            for (k = 0; k < 8; k++) {
+                c = ((c & 1u) != 0u) ? (0xEDB88320u ^ (c >> 1)) : (c >> 1);
+            }
+            s5_crc_tab[n] = c;
+        }
+        s5_crc_tab_ready = 1;
+    }
+    for (i = 0u; i < bytes; i++) {
+        crc = s5_crc_tab[(crc ^ p[i]) & 0xFFu] ^ (crc >> 8);
+    }
+    return crc ^ 0xFFFFFFFFu;
+}
+
+/* 绘制所用检测框（映射到画布 960×720 坐标）→ u16 序列 [x,y,w,h]×n → CRC32。
+ * 与 S5Draw_Boxes 的映射公式一致（含 S5_VID_X/Y 偏移，L0 下为 0）。 */
+/* 绘制所用检测框 → 映射到画布 960×720 坐标（u16 [x,y,w,h]，**边界裁剪后**）。
+ * 与 S5Draw_Boxes 同一映射（含 S5_VID_X/Y 偏移，L0 为 0）；宽/高 ≤0 的框跳过（不画、不入 CRC）。
+ * 返回实际写入的框数；out 需 >= max_boxes*4 个 u16。 */
+uint32_t S5Display_BoxesMapped(const S5DetBox *det, uint32_t n, uint16_t *out, uint32_t max_boxes)
+{
+    uint32_t count = (n > S5_MAX_DET) ? S5_MAX_DET : n;
+    uint32_t i;
+    uint32_t k = 0u;
+
+    if ((det == 0) || (out == 0)) {
+        return 0u;
+    }
+    for (i = 0u; (i < count) && (k < max_boxes); i++) {
+        int x = S5_VID_X + ((int)det[i].x * S5_SCALE_NUM) / S5_SCALE_DEN;
+        int y = S5_VID_Y + ((int)det[i].y * S5_SCALE_NUM) / S5_SCALE_DEN;
+        int w = ((int)det[i].w * S5_SCALE_NUM) / S5_SCALE_DEN;
+        int h = ((int)det[i].h * S5_SCALE_NUM) / S5_SCALE_DEN;
+
+        /* 边界裁剪到显示区 [0,959]×[0,719] */
+        if (x < 0) {
+            w += x;
+            x = 0;
+        }
+        if (y < 0) {
+            h += y;
+            y = 0;
+        }
+        if (x >= S5_CANVAS_W) {
+            x = S5_CANVAS_W - 1;
+            w = 0;
+        }
+        if (y >= S5_CANVAS_H) {
+            y = S5_CANVAS_H - 1;
+            h = 0;
+        }
+        if ((x + w) > S5_CANVAS_W) {
+            w = S5_CANVAS_W - x;
+        }
+        if ((y + h) > S5_CANVAS_H) {
+            h = S5_CANVAS_H - y;
+        }
+        if ((w <= 0) || (h <= 0)) {
+            continue; /* 与绘制逻辑一致：宽高非正的框不画，也不进 CRC */
+        }
+        out[k * 4u + 0u] = (uint16_t)x;
+        out[k * 4u + 1u] = (uint16_t)y;
+        out[k * 4u + 2u] = (uint16_t)w;
+        out[k * 4u + 3u] = (uint16_t)h;
+        k++;
+    }
+    return k;
+}
+
+uint32_t S5Display_BoxesCrc(const S5DetBox *det, uint32_t n)
+{
+    uint16_t items[S5_MAX_DET * 4u];
+    uint32_t k;
+
+    k = S5Display_BoxesMapped(det, n, items, S5_MAX_DET);
+    return S5Display_Crc32(items, k * 8u);
+}
+
+/* 信息栏局部重绘支持（定义必须早于 S5Draw_InfoPanel，见下）：类型/缓存/签名函数已提前 */
+
 uint32_t S5Display_FormatResult(const S5RunStats *st, char *buf, uint32_t cap)
 {
     char *p = buf;
 
-    if ((st == 0) || (buf == 0) || (cap < 200u)) {
+    if ((st == 0) || (buf == 0) || (cap < 300u)) {
         return 0u; /* 契约要求单行完整，容量不足宁可不打印也不截断出半个 JSON */
     }
 
@@ -588,6 +838,9 @@ uint32_t S5Display_FormatResult(const S5RunStats *st, char *buf, uint32_t cap)
     p = s5_u32(p, S5_FPS_CLAMP(st->fps_inf), 0);
     p = s5_cat(p, ",\"fps_dis\":");
     p = s5_u32(p, S5_FPS_CLAMP(st->fps_dis), 0);
+    /* fps_upd：软件更新（渲染）速率，不参与 0..60 显示刷新 clamp（如实报告，可能 >60） */
+    p = s5_cat(p, ",\"fps_upd\":");
+    p = s5_u32(p, st->fps_upd, 0);
 #undef S5_FPS_CLAMP
 
     p = s5_cat(p, ",\"latency_ms\":");
@@ -600,6 +853,11 @@ uint32_t S5Display_FormatResult(const S5RunStats *st, char *buf, uint32_t cap)
     p = s5_u32(p, st->frames, 0);
     p = s5_cat(p, ",\"vcnt\":");
     p = s5_u32(p, st->vcnt, 0);
+    /* G3：检测框 CRC（映射后坐标）与 framebuffer CRC（十进制 u32，保持 JSON 合法） */
+    p = s5_cat(p, ",\"box_crc\":");
+    p = s5_u32(p, st->box_crc, 0);
+    p = s5_cat(p, ",\"fb_crc\":");
+    p = s5_u32(p, st->fb_crc, 0);
 
     /* src 是 ABI 回退判据（lead 2026-10-30 追加）：real / sim / test */
     p = s5_cat(p, ",\"src\":\"");
@@ -852,7 +1110,7 @@ int main(void)
     static S5RealBlock rblk;
     S5FpsWin win_cap;
     S5FpsWin win_inf;
-    S5FpsWin win_dis;
+    S5FpsWin win_upd;
     uint32_t src_kind = S5_SRC_SIM;
     uint32_t last_src = S5_SRC_SIM;
     uint32_t last_frame_id = 0xFFFFFFFFu; /* 真实源：上一份结果帧号（fps 窗口去重） */
@@ -860,6 +1118,13 @@ int main(void)
     int parse_rc = S5_PARSE_ERR_MAGIC;
     const char *frame_reason = 0;
     const char *last_reason = 0;
+    /* 显示刷新率（fps_dis）：从 VDMA 读帧存切换周期测出来的常数；测不到则 0（不虚填） */
+    uint32_t fps_dis_const = 0u;
+    uint64_t disp_period_ticks = 0u;
+    uint32_t fps_upd_win_x10 = 0u;
+    /* 最后一帧的框（box_crc 用） */
+    static S5DetBox last_det[S5_MAX_DET];
+    uint32_t last_det_count = 0u;
 
     fb[0] = (uint32_t *)S5_FB_A_BASE;
     fb[1] = (uint32_t *)S5_FB_B_BASE;
@@ -877,7 +1142,11 @@ int main(void)
                S5_RESULT_BASE, S5_RESULT_MAGIC, S5_RAW_FRAME_BASE, S5_RAW_FRAME_BYTES);
     S5Fps_Reset(&win_cap);
     S5Fps_Reset(&win_inf);
-    S5Fps_Reset(&win_dis);
+    S5Fps_Reset(&win_upd);
+    xil_printf("run mode: %s, frames_cap=%d, time_cap_ms=%d\r\n",
+               (S5_LONG_RUN != 0) ? "LONG(30min)" : "bounded",
+               (int)((S5_LONG_RUN != 0) ? 0 : (int)S5_RUN_FRAMES),
+               (int)((S5_LONG_RUN != 0) ? (int)S5_RUN_MAX_MS_LONG : (int)S5_RUN_MAX_MS));
 
     /* 1) VTC 生成器 720p60：先出时序，再让 VDMA 有流可推。
      *    写后回读校验，失败显式打印（不静默）。 */
@@ -930,8 +1199,24 @@ int main(void)
     dma_init_ok = (dma_state == S5_DMA_RUN) ? 1 : 0;
     /* r05：不再有硬件帧计数（SR 无该字段），vcnt 由主循环软件观测 read-store 切换 */
 
-    /* 4) 有界主循环：跑满 S5_RUN_FRAMES 帧或达到 S5_RUN_MAX_MS，先到者停机。
-     *    有界是契约要求：UART 采集器要收尾并解析最终结果行，不能 for(;;) 无限跑。 */
+    /* 3b) **fps_dis = 显示刷新率**：直接测 VDMA 读帧存的切换周期（= 每输出一帧的时间）。
+     *     不是软件循环速率；软件渲染速率另算 fps_upd（frames/elapsed）。
+     *     测不到（READSTR 不动/超时）就保持 0，不虚填 60。 */
+    if (dma_init_ok != 0) {
+        if (S5Vdma_MeasureReadPeriod(&dma, 6u, 200000u, &disp_period_ticks) == 0) {
+            fps_dis_const = (uint32_t)((S5_GT_HZ + (disp_period_ticks / 2u)) / disp_period_ticks);
+            xil_printf("VDMA: read period = %d ticks (%d us) -> fps_dis=%d (display refresh)\r\n",
+                       (int)disp_period_ticks,
+                       (int)((disp_period_ticks * 1000000u) / S5_GT_HZ),
+                       (int)fps_dis_const);
+        } else {
+            xil_printf("VDMA: WARN 读帧存切换周期测不到（READSTR 不动）→ fps_dis=0（不虚填）\r\n");
+        }
+    }
+
+    /* 4) 有界/长跑主循环：默认跑满 S5_RUN_FRAMES 帧或达到 S5_RUN_MAX_MS，先到者停机；
+     *    S5_LONG_RUN=1 时帧数上限取消，只按 1800 s 时间上限退出（G3/S6-F 30 min）。
+     *    长跑时每 60 s 打一行 S5DISP tick，便于判断是否死锁。 */
     {
         uint64_t t_start = S5Ticks_Now();
         uint32_t frames = 0;
@@ -942,10 +1227,24 @@ int main(void)
         uint32_t *last_fb = fb[0];
         uint32_t sr;
         S5RunStats st;
-        char res[224];
+        char res[320];
+        const uint32_t run_frames = (S5_LONG_RUN != 0) ? 0xFFFFFFFFu : (uint32_t)S5_RUN_FRAMES;
+        const uint64_t run_ms = (S5_LONG_RUN != 0) ? (uint64_t)S5_RUN_MAX_MS_LONG
+                                                   : (uint64_t)S5_RUN_MAX_MS;
+        uint64_t last_tick_ms = 0u;
 
-        while ((frames < (uint32_t)S5_RUN_FRAMES) &&
-               (S5Ticks_ToMs(S5Ticks_Now() - t_start) < (uint64_t)S5_RUN_MAX_MS)) {
+        while ((frames < run_frames) &&
+               (S5Ticks_ToMs(S5Ticks_Now() - t_start) < run_ms)) {
+            {
+                /* 长跑心跳：每 60 s 一行（与 RESULT/进度行分开） */
+                uint64_t el = S5Ticks_ToMs(S5Ticks_Now() - t_start);
+
+                if ((S5_LONG_RUN != 0) && ((el - last_tick_ms) >= (uint64_t)S5_TICK_MS)) {
+                    last_tick_ms = el;
+                    xil_printf("S5DISP tick t=%d frames=%d vcnt=%d err=%d\r\n",
+                               (int)(el / 1000u), (int)frames, (int)vcnt_sw, (int)vdma_err);
+                }
+            }
             /* 4.0 取本帧数据（r05 回退优先级，lead 冻结）：
              *   ①结果块有效            → src="real"（有框；raw 全 0 时画面用测试图案）
              *   ②结果块无效 + raw 有效  → src="real_nobox"（真实画面、无框，pass 可为 1）
@@ -978,35 +1277,40 @@ int main(void)
                     S5Real_ToFrameInfo(&rblk, now_ticks, &info);
                     info.src_kind = src_kind;
 
-                    /* 三口径 FPS：cap/inf 只在**新结果**（frame_id 变化）时计入；
-                     * 显示口径每帧计入。 */
+                    /* FPS：cap/inf 只在**新结果**（frame_id 变化）时计入窗口；
+                     * dis 是显示刷新常数（硬件测量）；upd 是软件更新速率窗口。 */
                     if (rblk.frame_id != last_frame_id) {
                         S5Fps_Add(&win_cap, rblk.cap_ticks);
                         S5Fps_Add(&win_inf, rblk.inf_ticks);
                         last_frame_id = rblk.frame_id;
                     }
-                    S5Fps_Add(&win_dis, now_ticks);
+                    S5Fps_Add(&win_upd, now_ticks);
 
-                    /* 面板实时 FPS：窗口 ×10 回填 */
+                    /* 面板实时 FPS：窗口 ×10 回填；FPS D 用测量到的显示刷新常数 */
                     {
                         uint32_t fc_x10 = S5Fps_GetX10(&win_cap);
                         uint32_t fi_x10 = S5Fps_GetX10(&win_inf);
-                        uint32_t fd_x10 = S5Fps_GetX10(&win_dis);
 
+                        fps_upd_win_x10 = S5Fps_GetX10(&win_upd);
                         info.fps_cap_x10 = (uint16_t)((fc_x10 > 0xFFFFu) ? 0xFFFFu : fc_x10);
                         info.fps_inf_x10 = (uint16_t)((fi_x10 > 0xFFFFu) ? 0xFFFFu : fi_x10);
-                        info.fps_dis_x10 = (uint16_t)((fd_x10 > 0xFFFFu) ? 0xFFFFu : fd_x10);
+                        info.fps_dis_x10 = (uint16_t)(fps_dis_const * 10u);
+                        info.fps_upd_x10 = (uint16_t)((fps_upd_win_x10 > 0xFFFFu)
+                                                          ? 0xFFFFu : fps_upd_win_x10);
                     }
                 } else {
-                    /* 结果块无效：没有框、没有推理时间戳；只保留画面与显示 FPS */
-                    S5Fps_Add(&win_dis, now_ticks);
+                    /* 结果块无效：没有框、没有推理时间戳；只保留画面与速率 */
+                    S5Fps_Add(&win_upd, now_ticks);
+                    fps_upd_win_x10 = S5Fps_GetX10(&win_upd);
                     memset(&info, 0, sizeof(info));
                     frames_wo_result++;
                     info.frame_id = frames_wo_result;
                     info.status = S5_ST_CAM_OK; /* 有画面，无推理结果：不置 INF_OK */
                     info.age_ms = 0u;           /* 时间戳未知 → 0（不是 now−0） */
                     info.latency_ms = 0u;
-                    info.fps_dis_x10 = (uint16_t)S5Fps_GetX10(&win_dis);
+                    info.fps_dis_x10 = (uint16_t)(fps_dis_const * 10u);
+                    info.fps_upd_x10 = (uint16_t)((fps_upd_win_x10 > 0xFFFFu)
+                                                      ? 0xFFFFu : fps_upd_win_x10);
 
                     if (blank_state == 0u) {
                         S5Real_BgrToCanvas((const uint8_t *)S5_RAW_FRAME_BASE, s5_cam,
@@ -1024,9 +1328,24 @@ int main(void)
             frame_reason = "real_source_disabled";
             S5Sim_NextFrame(&info);
             S5Sim_CameraFrame(s5_cam, info.frame_id);
+            {
+                uint64_t now_ticks = S5Ticks_Now();
+
+                S5Fps_Add(&win_upd, now_ticks);
+                fps_upd_win_x10 = S5Fps_GetX10(&win_upd);
+                info.fps_dis_x10 = (uint16_t)(fps_dis_const * 10u);
+                info.fps_upd_x10 = (uint16_t)((fps_upd_win_x10 > 0xFFFFu)
+                                                  ? 0xFFFFu : fps_upd_win_x10);
+            }
 #endif
             last_src = src_kind;
             last_reason = frame_reason;
+
+            /* 记录最后一帧的框，供 box_crc 使用（映射后坐标在 S5Display_BoxesCrc 里做） */
+            last_det_count = (info.det_count > S5_MAX_DET) ? S5_MAX_DET : info.det_count;
+            for (i = 0u; i < last_det_count; i++) {
+                last_det[i] = info.det[i];
+            }
 
             /* 4.1 写前等安全窗口（判据用 != OFF：出错后 dma_state 转 ERR 但可能仍在搬数） */
             if (dma_state != S5_DMA_OFF) {
@@ -1061,11 +1380,12 @@ int main(void)
             back ^= 1u;
             frames++;
 
-            /* 4.4 进度行（与 RESULT 行分开，绝不拼在同一行） */
+            /* 4.4 进度行（与 RESULT 行分开，绝不拼在同一行；含 src/nbox 便于现场判断数据源） */
             if ((frames % 60u) == 0u) {
-                xil_printf("S5DISP frame=%d lat=%d age=%d st=%x sr=%x\r\n",
+                xil_printf("S5DISP frame=%d lat=%d age=%d st=%x sr=%x src=%s nbox=%d\r\n",
                            (int)frames, (int)info.latency_ms, (int)info.age_ms,
-                           (unsigned)info.status, (unsigned)S5Vdma_Status(&dma));
+                           (unsigned)info.status, (unsigned)S5Vdma_Status(&dma),
+                           S5Src_Name(src_kind), (int)info.det_count);
             }
         }
 
@@ -1082,20 +1402,31 @@ int main(void)
         st.vdma_err = vdma_err;
         st.vcnt = vcnt_sw; /* r05：只用软件观测（硬件帧计数不存在，见 vdma_ctrl.h） */
 
-        /* FPS 三口径：真实源用时间戳窗口；模拟源用模型值（×10 → 整数 fps） */
+        /* FPS 语义（r06，lead 冻结）：
+         *   fps_cap/fps_inf = 采集/推理时间戳窗口；
+         *   fps_dis = **显示刷新率**（VDMA 读帧存切换周期测得的常数，≈60；测不到=0，不虚填）；
+         *   fps_upd = **软件更新（渲染）速率** = frames / elapsed，如实报告（≈35）。 */
         {
             uint32_t f_cap = S5Fps_Get(&win_cap);
             uint32_t f_inf = S5Fps_Get(&win_inf);
-            uint32_t f_dis = S5Fps_Get(&win_dis);
+            uint64_t elapsed_ms = S5Ticks_ToMs(S5Ticks_Now() - t_start);
 
             st.fps_cap = (f_cap != 0u) ? f_cap : (uint32_t)(info.fps_cap_x10 / 10u);
             st.fps_inf = (f_inf != 0u) ? f_inf : ((S5_RESULT_FPS_INF_FROM_SIM != 0)
                                                       ? (uint32_t)(info.fps_inf_x10 / 10u)
                                                       : 0u);
-            st.fps_dis = (f_dis != 0u) ? f_dis : (uint32_t)(info.fps_dis_x10 / 10u);
+            st.fps_dis = fps_dis_const;
+            st.fps_upd = (elapsed_ms > 0u)
+                             ? (uint32_t)(((uint64_t)frames * 1000u) / elapsed_ms)
+                             : 0u;
         }
         st.latency_ms = (uint32_t)info.latency_ms;
         st.age_ms = (uint32_t)info.age_ms;
+        /* G3：box_crc = 绘制所用框（映射后坐标）；fb_crc = 显示用 framebuffer（0x20000000 那帧）。
+         * 两者都在**最后一帧写完后**算一次；fb_crc 先 invalidate，确保读的是 DDR 里的最新像素。 */
+        st.box_crc = S5Display_BoxesCrc(last_det, last_det_count);
+        s5_invalidate((const void *)S5_FB_A_BASE, S5_FB_BYTES);
+        st.fb_crc = S5Display_Crc32((const void *)S5_FB_A_BASE, S5_FB_BYTES);
 
         /* pass = 显示链路健康 + 真实数据源可用；回退到 test 仍算通过（显示可用），原因保留 */
         if (dma_init_ok == 0) {
@@ -1117,6 +1448,20 @@ int main(void)
         } else {
             st.pass = 1u;
             st.reason = last_reason; /* test 回退：pass=1 但保留 raw_frame_blank */
+        }
+
+        /* G3-B 联调：把 box_crc 实际使用的**映射后坐标**原样打出来（最多 5 框），
+         * 便于生产端/测试端直接对字节序列（u16 小端 x,y,w,h 连续，无填充）。 */
+        {
+            uint16_t mb[S5_MAX_DET * 4u];
+            uint32_t nbx = S5Display_BoxesMapped(last_det, last_det_count, mb, 5u);
+            uint32_t bi;
+
+            xil_printf("S5DISP boxes n=%d crc=%d hex=", (int)nbx, (int)st.box_crc);
+            for (bi = 0u; bi < (nbx * 4u); bi++) {
+                xil_printf("%x ", (unsigned)mb[bi]);
+            }
+            xil_printf("\r\n");
         }
 
         xil_printf("S5DISP done frames=%d vcnt=%d(sw) vdma_err=%d\r\n",

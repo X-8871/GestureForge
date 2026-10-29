@@ -49,6 +49,16 @@ const char *S5Src_Name(uint32_t kind);
 /* 解析返回码 → RESULT 的 reason 字符串（成功返回 0） */
 const char *S5Src_Reason(int parse_rc);
 
+/* 640×480 BGR888 → 画布 0x00RRGGBB。
+ * 优化版：4 像素/12 B 一组，用 3 次 u32 读（memcpy 避免对齐 UB），比逐像素 3 字节读快约 2~3×；
+ * 输出与 S5Real_BgrToCanvasRef 逐字节一致（主机自检比对）。 */
+void S5Real_BgrToCanvas(const uint8_t *raw, uint32_t *canvas, uint32_t pixels);
+/* 参考实现（逐像素，仅用于主机自检验证优化版正确性） */
+void S5Real_BgrToCanvasRef(const uint8_t *raw, uint32_t *canvas, uint32_t pixels);
+uint32_t S5Real_ScoreToPct(uint32_t score_q8);
+/* 解析返回码 → RESULT 的 reason 字符串（成功返回 0） */
+const char *S5Src_Reason(int parse_rc);
+
 /* 解析结果块：0=可用；负值见 S5_PARSE_ERR_*（调用方据此回退并在 RESULT 里给 reason）。 */
 int S5Real_Parse(const uint32_t *blk, S5RealBlock *out);
 

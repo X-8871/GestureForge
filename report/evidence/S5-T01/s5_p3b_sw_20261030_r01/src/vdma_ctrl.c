@@ -277,6 +277,43 @@ int S5Vdma_WaitNotReading(S5Vdma *dma, uint32_t addr, uint32_t timeout_us)
     }
 }
 
+int S5Vdma_MeasureReadPeriod(S5Vdma *dma, uint32_t edges, uint32_t timeout_us,
+                            uint64_t *period_ticks)
+{
+    uint32_t last;
+    uint32_t got = 0u;
+    uint64_t t_first = 0u;
+    uint64_t t_last = 0u;
+    uint64_t t0;
+
+    if ((dma == 0) || (period_ticks == 0) || (edges < 2u)) {
+        return -1;
+    }
+    last = S5Vdma_CurrentReadStore(dma);
+    t0 = S5Ticks_Now();
+    while (got < edges) {
+        uint32_t cur = S5Vdma_CurrentReadStore(dma);
+
+        if (cur != last) {
+            uint64_t now = S5Ticks_Now();
+
+            last = cur;
+            if (got == 0u) {
+                t_first = now;
+            }
+            t_last = now;
+            got++;
+        } else if ((S5Ticks_Now() - t0) >= S5Ticks_FromUs(timeout_us)) {
+            return -1; /* 超时：READSTR 不切换（circular 模式未更新/VDMA 停了） */
+        }
+    }
+    if (t_last <= t_first) {
+        return -1;
+    }
+    *period_ticks = (t_last - t_first) / (uint64_t)(edges - 1u);
+    return (*period_ticks == 0u) ? -1 : 0;
+}
+
 void S5Vdma_DecodeVersion(uint32_t ver, uint32_t *major, uint32_t *minor, uint32_t *rev)
 {
     if (major != 0) {

@@ -128,7 +128,7 @@ int main(void)
      *    生成 RESULT 行。这里 180 帧是真渲染（含信息栏抽点自检），只是没有 VDMA/MMIO。 */
     {
         S5RunStats st;
-        char res[224];
+        char res[384];
         uint32_t i;
         uint32_t last_lat = 0;
         uint32_t last_age = 0;
@@ -142,17 +142,21 @@ int main(void)
             last_age = info.age_ms;
         }
 
+        memset(&st, 0, sizeof(st));
         st.pass = S5Display_CheckFrame(fb) ? 1u : 0u;
         st.reason = (st.pass != 0u) ? 0 : "frame_check_failed";
         st.src = "sim"; /* 本工具只跑模拟源；真实源见 tools/real_source_selftest.c */
         st.fps_cap = (uint32_t)(info.fps_cap_x10 / 10u);
         st.fps_inf = 0u; /* 无真实推理源：与板上 S5_RESULT_FPS_INF_FROM_SIM=0 口径一致 */
         st.fps_dis = (uint32_t)(info.fps_dis_x10 / 10u);
+        st.fps_upd = 0u; /* 离线无墙钟：本示例不测软件更新速率 */
         st.latency_ms = last_lat;
         st.age_ms = last_age;
         st.vdma_err = 0u;
         st.frames = (uint32_t)S5_RUN_FRAMES;
         st.vcnt = (uint32_t)S5_RUN_FRAMES; /* 离线：模拟 VDMA 每帧消耗一帧 */
+        st.box_crc = S5Display_BoxesCrc(info.det, info.det_count);
+        st.fb_crc = S5Display_Crc32(fb, S5_FB_BYTES);
 
         S5Display_FormatResult(&st, res, (uint32_t)sizeof(res));
         printf("%s\n", res);
@@ -171,3 +175,4 @@ int main(void)
     printf("host render test %s\n", rc == 0 ? "PASS" : "FAIL");
     return rc;
 }
+

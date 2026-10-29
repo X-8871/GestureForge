@@ -157,6 +157,13 @@ int S5Vdma_WaitNotReading(S5Vdma *dma, uint32_t addr, uint32_t timeout_us);
 /* 版本寄存器解码（major/minor/rev） */
 void S5Vdma_DecodeVersion(uint32_t ver, uint32_t *major, uint32_t *minor, uint32_t *rev);
 
+/* 测量 VDMA 读帧存的切换周期 = **显示帧周期**（fps_dis 的依据）。
+ * 原理：circular 模式下 VDMA 每输出一帧就切一次 READSTR；本函数轮询 READSTR，
+ * 取 `edges` 个切换边沿，用相邻边沿平均间隔作为周期（ticks，S5_GT_HZ 换算成 fps）。
+ * 返回 0=成功（*period_ticks > 0），-1=超时（timeout_us 内没凑够边沿/边沿不动）。 */
+int S5Vdma_MeasureReadPeriod(S5Vdma *dma, uint32_t edges, uint32_t timeout_us,
+                            uint64_t *period_ticks);
+
 /* ---- 帧计数说明（r05）----
  * 本驱动不提供“每帧递增”的硬件帧计数（见文件头 ⚠ 段）：SR 无该字段，CR[23:16] 是调试用帧计数
  * （需 IP 调试特性 + genlock 语义），不能当进度计数用。

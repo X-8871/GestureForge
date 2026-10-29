@@ -136,7 +136,7 @@ static uint8_t *load_raw(const char *path)
 
 static void print_result(const char *tag, S5RunStats *st)
 {
-    char res[224];
+    char res[384];
 
     S5Display_FormatResult(st, res, (uint32_t)sizeof(res));
     printf("%s: %s\n", tag, res);
@@ -191,7 +191,8 @@ static int run_real_case(const uint8_t *raw, uint32_t *blk, uint32_t *cam, uint3
         S5Fps_Add(&wd, g_now);
         info.fps_cap_x10 = (uint16_t)S5Fps_GetX10(&wc);
         info.fps_inf_x10 = (uint16_t)S5Fps_GetX10(&wi);
-        info.fps_dis_x10 = (uint16_t)S5Fps_GetX10(&wd);
+        info.fps_dis_x10 = 600u; /* 离线假设显示 60 */
+        info.fps_upd_x10 = (uint16_t)S5Fps_GetX10(&wd);
         S5Display_RenderFrameSrc(fb, cam, &info, S5_DMA_RUN, S5_VIDEO_SRC_CAM);
     }
 
@@ -202,9 +203,12 @@ static int run_real_case(const uint8_t *raw, uint32_t *blk, uint32_t *cam, uint3
     st.vcnt = RUN_FRAMES;
     st.fps_cap = S5Fps_Get(&wc);
     st.fps_inf = S5Fps_Get(&wi);
-    st.fps_dis = S5Fps_Get(&wd);
+    st.fps_dis = 60u; /* 离线：假设显示刷新 60（板上由 VDMA 读帧存周期实测） */
+    st.fps_upd = 60u; /* 假时钟 36 帧 ×16.667 ms = 600 ms → 60 帧/s */
     st.latency_ms = info.latency_ms;
     st.age_ms = info.age_ms;
+    st.box_crc = S5Display_BoxesCrc(info.det, info.det_count);
+    st.fb_crc = S5Display_Crc32(fb, S5_FB_BYTES);
     print_result("case1 (real)", &st);
     printf("case1 status=0x%04X det=%u age=%u lat=%u\n",
            (unsigned)info.status, (unsigned)info.det_count,
@@ -341,6 +345,96 @@ static int run_ts_zero_case(uint32_t *blk)
     return ((info.age_ms == 0u) && (info.latency_ms == 0u)) ? 0 : 1;
 }
 
+/* ---------------- case0：优化实现正确性 + CRC 已知答案 ---------------- */
+
+static int run_opt_checks(const uint8_t *raw, uint32_t *cam)
+{
+    uint32_t *ref;
+    uint32_t i;
+    int bad = 0;
+    uint32_t crc;
+
+    ref = (uint32_t *)malloc((size_t)S5_RAW_FRAME_W * S5_RAW_FRAME_H * 4u);
+    if (ref == 0) {
+        printf("case0: OOM\n");
+        return 1;
+    }
+    /* 优化版 BGR→RGB 必须与逐像素参考实现完全一致 */
+    S5Real_BgrToCanvas(raw, cam, S5_RAW_FRAME_W * S5_RAW_FRAME_H);
+    S5Real_BgrToCanvasRef(raw, ref, S5_RAW_FRAME_W * S5_RAW_FRAME_H);
+    for (i = 0; i < (uint32_t)S5_RAW_FRAME_W * S5_RAW_FRAME_H; i++) {
+        if (cam[i] != ref[i]) {
+            printf("case0: FAIL 转换不一致 i=%u opt=%x ref=%x\n",
+                   (unsigned)i, (unsigned)cam[i], (unsigned)ref[i]);
+            bad = 1;
+            break;
+        }
+    }
+    free(ref);
+
+    /* CRC32 已知答案：ASCII "123456789" → 0xCBF43926 */
+    crc = S5Display_Crc32("123456789", 9u);
+    printf("case0: crc32(\"123456789\")=0x%08X（期望 0xCBF43926）\n", (unsigned)crc);
+    if (crc != 0xCBF43926u) {
+        bad = 1;
+    }
+
+    /* box_crc：映射后坐标的 u16 序列，确定性 + 输入变化必然改变 CRC */
+    {
+        S5DetBox a[2];
+        S5DetBox b[2];
+        uint32_t ca;
+        uint32_t cb;
+
+        memset(a, 0, sizeof(a));
+        a[0].x = 100; a[0].y = 80; a[0].w = 160; a[0].h = 120; a[0].cls = 0; a[0].score = 90;
+        a[1].x = 10; a[1].y = 20; a[1].w = 60; a[1].h = 40; a[1].cls = 2; a[1].score = 60;
+        b[0] = a[0];
+        b[1] = a[1];
+        ca = S5Display_BoxesCrc(a, 2u);
+        cb = S5Display_BoxesCrc(b, 2u);
+        printf("case0: box_crc=%u \n", (unsigned)ca);
+        if (ca != cb) {
+            printf("case0: FAIL box_crc 不确定\n");
+            bad = 1;
+        }
+        b[1].x = 11;
+        if (S5Display_BoxesCrc(b, 2u) == ca) {
+            printf("case0: FAIL box_crc 对坐标不敏感\n");
+            bad = 1;
+        }
+    }
+    return bad;
+}
+
+/* ---------------- case0b：G3-B 用 lead 给的 3 个框验证 box_crc 口径 ---------------- */
+
+static int run_lead_box_case(void)
+{
+    S5DetBox b[3];
+    uint16_t mb[12];
+    uint32_t n;
+    uint32_t crc;
+    uint32_t i;
+
+    /* 原图 640×480 坐标（lead 2026-10-30 G3-B 给定） */
+    memset(b, 0, sizeof(b));
+    b[0].x = 100; b[0].y = 80;  b[0].w = 120; b[0].h = 200;
+    b[1].x = 500; b[1].y = 300; b[1].w = 100; b[1].h = 100;
+    b[2].x = 0;   b[2].y = 0;   b[2].w = 640; b[2].h = 480;
+
+    n = S5Display_BoxesMapped(b, 3u, mb, 3u);
+    crc = S5Display_BoxesCrc(b, 3u);
+    printf("G3-B box_crc: nbox=%u crc=0x%08X (%u) 期望 0x2D949C0C (764713996)\n",
+           (unsigned)n, (unsigned)crc, (unsigned)crc);
+    printf("G3-B 序列(%u B, u16LE x,y,w,h):", (unsigned)(n * 8u));
+    for (i = 0u; i < (n * 4u); i++) {
+        printf(" %02X %02X", (unsigned)(mb[i] & 0xFFu), (unsigned)(mb[i] >> 8));
+    }
+    printf("\n");
+    return ((n == 3u) && (crc == 0x2D949C0Cu)) ? 0 : 1;
+}
+
 int main(int argc, char **argv)
 {
     const char *fixture = (argc > 1) ? argv[1] : FIXTURE_DEFAULT;
@@ -365,6 +459,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    fail |= run_opt_checks(raw, cam);
+    fail |= run_lead_box_case();
     fail |= run_real_case(raw, blk, cam, fb, "build/frame_real.ppm");
     fail |= run_nobox_or_test_case(blk, cam, fb, raw, 0, 1,
                                    "real_nobox", "build/frame_real_nobox.ppm");
@@ -383,3 +479,4 @@ int main(int argc, char **argv)
     printf("==== real-source selftest: %s ====\n", (fail == 0) ? "PASS" : "FAIL");
     return (fail == 0) ? 0 : 1;
 }
+

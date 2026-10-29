@@ -1,14 +1,12 @@
-# 阶段5 P3b 显示软件证据清单（r05）
+# 阶段5 P3b 显示软件证据清单（r06b）
 
-- ELF sha256 `8b40c3a8ab6ef2cad4ff89d01c269f53c65071b4d0a39782ad9cf34604e8164c`，294932 B
-
-- 回退优先级：real → real_nobox(pass=1) → test(pass=1) → sim(pass=0)
-- vcnt：改用软件计数（原实现读错寄存器，已纠正）
+- 有界 ELF `e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d`（310740 B）
+- 长跑 ELF `ab96f6e890676e4d500d5c6192cd2b218a23e2fa693738f7985516b3be269bc3`
 
 | 文件 | 字节 | sha256 |
 |---|---|---|
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/.gitattributes` | 41 | `161d4fc3fc645d35e126e4ee4badaab15cc28a339831082c9f33490211f027b9` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/build_record.json` | 6155 | `0832b59deca5269daa011511a3888bfd8d5cf374693bf2a5d46e2700c0cb10b9` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/build_record.json` | 6817 | `f12bc4c318ad373b07e40b22390fb9b26bb7c5f6ef2dcfff67b30d3dbb7c2fa3` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/build_s5_display_app_output.txt` | 19986 | `57f3d140a1ce1b4ebbfb4c98445b69887cd075c1356e9dda4d719b255d835b74` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_age_over.png` | 24444 | `6cf95d92d69ca3ee21318175255d5c3f8836cfcf437c5030d99957ba14274003` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/frame_age_over_bars.png` | 23417 | `db2704dc31b3f6678f09cd3fbe5a13f84835961be8c7037bd39da1c0946258d8` |
@@ -27,24 +25,24 @@
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/pattern_colorbars_bars.png` | 4344 | `7dc7bd2e3d517a1d43851da1fca8e5523db111280c715bed5452177b65d3cca8` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/pattern_grayramp.png` | 4350 | `5cc8a17f1ae50d25d43f469b2b8c990d9c369f96b421d5a41dae559565e143c9` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/pattern_grayramp_bars.png` | 4350 | `5cc8a17f1ae50d25d43f469b2b8c990d9c369f96b421d5a41dae559565e143c9` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/selftest_real_source.txt` | 1398 | `1bb5ad05e117964abe7874ff80b2ce134bc012eff591e2855c82e521d283e934` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/selftest_real_source.txt` | 1827 | `7fbb1253414781da6087ed1e267831f8fba37d01e20552becf117b8c3c4be3e1` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/build/selftest_vtc_vdma.txt` | 1649 | `04547942d6f9d5fd611e442f180d241a52d483802de2c3435f93465a7135d8bb` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/fixtures/fixture_fist_000_640x480_bgr888.raw` | 921600 | `ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/S5_P3B_SW_REPORT.md` | 53902 | `164c43c26b957b7d243a51dbbcfdf3f513cb71ec9d66b017967bcd2c40a0f486` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.c` | 41401 | `3056ede3785a4f5befa5a4d31c3470b7f3bd33d7963e14d2783c637db04ab432` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.h` | 11255 | `e5eb4f08a9eaaffcbae6792bf5354133915d24f201189b13e93c694336eacc6b` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/S5_P3B_SW_REPORT.md` | 61225 | `143293a7d6d349d61c5f00b3f71c6122986c5d957885c72c1ccd18cab56ab8e1` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.c` | 54908 | `48368f16f2449a9cd86baaed4e2977f8d651893ace2be75d1c353cec67b598d3` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.h` | 12631 | `dc5f30eb2faa8ad3a31d4fc46728856a3f8e4070a82e1934cb1c36984833677b` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_font8x16.h` | 12040 | `2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.c` | 7445 | `4fc1fc04a17e0d7289a2439958d79acc48ab824920276bb035ecbeae7f7a3521` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.h` | 3721 | `69893792604e156ec33de551ae152f92c8f494b9d0c152c1924e1a5085463720` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.c` | 8983 | `d7696ecaf5fe174c1c3a376ac7159865cfd06e4025b226ed721ac672a35dffa5` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.h` | 4379 | `c6d50b3361074d642941173f89fd23eb66867e508d203eb9465af65577416948` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_result_abi.h` | 3829 | `0462f91173616b2ab1e6bc57cfdf1695229c4996a2d1fb87611537329fceab8c` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_timebase.c` | 1500 | `47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_timebase.h` | 2420 | `3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.c` | 8544 | `7adba3a04113f17ec9bf093c35bc0a609be17025c5f13b4780fe6226ac56fd41` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.h` | 9909 | `3197a087595966a3200cee63380400ca7d6671382834b929d01e15d911d673c6` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.c` | 9586 | `78b8d689522f148096b5f940c6227cba93139315c74bc50276ea8c861d2b796d` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.h` | 10451 | `543cbb9d070af895e441e78d05a36afcb960daf184d5e99a79be40cdec95dfd3` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.c` | 12300 | `8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.h` | 7541 | `68d1555cd3a78aff5d206a90229c1184cdd096b3c00f09b441ecb42c24162458` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/gen_font8x16.py` | 6150 | `b9c5a583435d7120f76ae36b17df4a761f347cd1983866fefc66a0b2e3c04b87` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_render_test.c` | 5890 | `8d63ac1cf8cadccd8d2be39394c6cc4862a522bdccba9bc18e35d16401b070a5` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_render_test.c` | 6131 | `c4937918548ce9dc2fad1026a78083927be183d0329d9c30695912500ebeb3d3` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_xil_shim/xil_io.h` | 798 | `1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263` |
-| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/real_source_selftest.c` | 13832 | `e141c68282327e8c847a3f03db592c59ae7bdb3463bf3044d16801726d816ca2` |
+| `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/real_source_selftest.c` | 17256 | `b5963eb1a1fef781e9432f122c4fc517a43efb60363786d73d283994423a0063` |
 | `report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/vtc_vdma_selftest.c` | 8550 | `b8b546bfa08a910dd04b61075ebfecb05adc9e7feda8db0df0e247c0f7b8f808` |

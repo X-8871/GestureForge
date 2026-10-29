@@ -129,16 +129,13 @@ typedef struct S5DetBox {
 #define S5_SRC_SIM 2u
 #define S5_SRC_TEST 3u
 #define S5_SRC_REAL_NOBOX 4u
-#define S5_SRC_NONE 0u
-#define S5_SRC_REAL 1u
-#define S5_SRC_SIM 2u
-#define S5_SRC_TEST 3u
 
 typedef struct S5FrameInfo {
     uint32_t frame_id;
     uint16_t fps_cap_x10;  /* 采集口径，×10（301 = 30.1 fps） */
     uint16_t fps_inf_x10;  /* 推理口径 */
-    uint16_t fps_dis_x10;  /* 显示口径 */
+    uint16_t fps_dis_x10;  /* **显示刷新率**（≈600 = 60.0 fps；来自 VDMA 帧周期测量） */
+    uint16_t fps_upd_x10;  /* **软件更新（渲染）速率**（≈350 = 35.0 fps） */
     uint16_t latency_ms;   /* 显示延迟 = t_display_start - t_infer_done */
     uint16_t age_ms;       /* 结果年龄 = t_display_start - t_capture_end */
     uint16_t status;       /* S5_ST_* 位或 */
@@ -153,25 +150,42 @@ typedef struct S5FrameInfo {
  *       latency_ms / age_ms = 整数毫秒；frames/vcnt/vdma_err = 计数。 */
 #define S5_RUN_FRAMES 180u  /* 默认帧数上限；可用 -DS5_RUN_FRAMES=N 覆盖 */
 #define S5_RUN_MAX_MS 60000u /* 或运行 ≥60 s，先到者停机（UART 采集器可收尾） */
+/* 长时间运行（G3 / S6-F 30 min）：-DS5_LONG_RUN=1 时帧数上限取消，仅按时间上限退出 */
+#ifndef S5_LONG_RUN
+#define S5_LONG_RUN 0
+#endif
+#define S5_RUN_MAX_MS_LONG 1800000u /* 1800 s = 30 min */
+#define S5_TICK_MS 60000u           /* 长跑时每 60 s 打一行 S5DISP tick（看是否死锁） */
 #define S5_RESULT_PREFIX "S5DISP RESULT="
 
 typedef struct S5RunStats {
     uint32_t pass;      /* 1=自检通过，0=失败 */
     uint32_t fps_cap;   /* 采集口径，整数 fps */
     uint32_t fps_inf;   /* 推理口径，整数 fps；无真实推理源时为 0（契约允许） */
-    uint32_t fps_dis;   /* 显示口径，整数 fps */
+    uint32_t fps_dis;   /* **显示刷新率**（≈60；VDMA 帧周期测量，非软件循环速率） */
+    uint32_t fps_upd;   /* **软件更新（渲染）速率**（frames/elapsed，如实报告 ≈35） */
     uint32_t latency_ms;
     uint32_t age_ms;
     uint32_t vdma_err;  /* VDMA SR 错误位累计次数 */
     uint32_t frames;    /* 实际渲染帧数 */
-    uint32_t vcnt;      /* VDMA 消耗帧计数（硬件帧计数优先，读不到则软件观测） */
-    const char *src;    /* "real" / "sim" / "test"：本窗口实际数据源（ABI 回退判据） */
+    uint32_t vcnt;      /* 软件观测的 VDMA 消耗帧计数（PARKPTR.READSTR 切换次数） */
+    uint32_t box_crc;   /* 绘制所用检测框（映射后 960×720，[x,y,w,h]×u16 序列）的 CRC32 */
+    uint32_t fb_crc;    /* 显示用 framebuffer（0x20000000 那帧，1280×720×4）的 CRC32，结束前算一次 */
+    const char *src;    /* "real" / "real_nobox" / "test" / "sim"：本窗口数据源 */
     const char *reason; /* 失败/回退原因（ASCII，无引号）；无则 NULL */
 } S5RunStats;
+
+/* CRC32（IEEE 802.3，多项式 0xEDB88320，初值/结果异或 0xFFFFFFFF）。
+ * 表在首次调用时生成（1 KiB .bss），后续查表；用于 box_crc / fb_crc。 */
+uint32_t S5Display_Crc32(const void *data, uint32_t bytes);
 
 /* 生成单行结果：S5DISP RESULT={...}（不含换行；调用方自行补 \r\n）。
  * 返回写入长度（不含结尾 0）。字段顺序与契约一致。 */
 uint32_t S5Display_FormatResult(const S5RunStats *st, char *buf, uint32_t cap);
+/* 绘制所用检测框（映射到画布坐标，u16 [x,y,w,h] 序列）的 CRC32（G3 比对用）。 */
+uint32_t S5Display_BoxesCrc(const S5DetBox *det, uint32_t n);
+/* 把框映射到 960×720 显示坐标（裁剪后），每框写入 out[4k..4k+3] = x,y,w,h；返回框数。 */
+uint32_t S5Display_BoxesMapped(const S5DetBox *det, uint32_t n, uint16_t *out, uint32_t max_boxes);
 
 /* 帧完整性自检：抽点确认视频区有内容、信息栏有文字（0=异常，1=OK）。 */
 int S5Display_CheckFrame(const uint32_t *fb);

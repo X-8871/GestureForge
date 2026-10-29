@@ -196,6 +196,48 @@ int S5Real_IsBlank(const uint8_t *raw, uint32_t bytes)
 
 void S5Real_BgrToCanvas(const uint8_t *raw, uint32_t *canvas, uint32_t pixels)
 {
+    uint32_t i = 0u;
+
+    if ((raw == 0) || (canvas == 0)) {
+        return;
+    }
+    /* 4 像素 / 12 B 一组：3 次 32 位读 + 4 次写（逐像素版是 12 次字节读）。
+     * 用 memcpy 读 32 位，避免未对齐指针解引用的 UB；ARMv7/x86 上 memcpy(4) 就是一条 LDR。
+     * 字节序（BGR888 紧排，小端）：
+     *   w0 = b0|b1<<8|b2<<16|b3<<24, w1 = b4..b7, w2 = b8..b11
+     *   p0 = w0 & 0xFFFFFF               (B=b0, G=b1, R=b2)
+     *   p1 = (w0>>24) | ((w1&0xFFFF)<<8) (B=b3, G=b4, R=b5)
+     *   p2 = (w1>>16) | ((w2&0xFF)<<16)  (B=b6, G=b7, R=b8)
+     *   p3 = (w2>>8) & 0xFFFFFF          (B=b9, G=b10, R=b11) */
+    while ((i + 4u) <= pixels) {
+        uint32_t w0;
+        uint32_t w1;
+        uint32_t w2;
+
+        memcpy(&w0, raw + 0, 4u);
+        memcpy(&w1, raw + 4, 4u);
+        memcpy(&w2, raw + 8, 4u);
+        raw += 12;
+        canvas[i + 0u] = w0 & 0x00FFFFFFu;
+        canvas[i + 1u] = (w0 >> 24) | ((w1 & 0x0000FFFFu) << 8);
+        canvas[i + 2u] = (w1 >> 16) | ((w2 & 0x000000FFu) << 16);
+        canvas[i + 3u] = (w2 >> 8) & 0x00FFFFFFu;
+        i += 4u;
+    }
+    /* 尾部（640×480×3 = 921,600 是 12 的倍数，正常不会进；保留以防其它尺寸） */
+    while (i < pixels) {
+        uint8_t b = raw[0];
+        uint8_t g = raw[1];
+        uint8_t r = raw[2];
+
+        canvas[i] = ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
+        raw += 3;
+        i++;
+    }
+}
+
+void S5Real_BgrToCanvasRef(const uint8_t *raw, uint32_t *canvas, uint32_t pixels)
+{
     uint32_t i;
 
     if ((raw == 0) || (canvas == 0)) {

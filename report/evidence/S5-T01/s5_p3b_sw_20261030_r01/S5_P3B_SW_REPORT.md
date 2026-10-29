@@ -1,12 +1,11 @@
 # S5 P3b-sw：HDMI 显示链 PS 侧显示软件报告
 
 - 任务：阶段5 HDMI 显示链 · PS 侧显示软件（P3b-sw）
-- 日期：2026-10-30（UTC+8）　版本：**r05**
-  （r01 → r02：布局裁决落地、补 VTC 生成器初始化、帧存改 2；
-   r02 → r03：帧缓冲迁出 must_not_access 禁区到 0x20000000、有界运行 180 帧 + `S5DISP RESULT=` 结果行；
-   r03 → r04：真实数据源适配（结果块 ABI + raw 画面 + `src` 字段）；
-   r04 → r05：**回退优先级调整（测试图案为合法通过态、新增 `real_nobox`）**、**时间戳 0 视为未知**、
-   **`vcnt` 结论（SR 无硬件帧计数，改纯软件观测）**）
+- 日期：2026-10-30（UTC+8）　版本：**r06**
+  （r01→r02 布局/VTC/帧存；r02→r03 帧缓冲迁址 + 有界 RESULT；r03→r04 真实数据源 ABI；
+   r04→r05 回退优先级 + 时间戳 0 + vcnt 修正；
+   r05→r06：**fps_dis / fps_upd 拆分**、**30 min 长跑模式**、**box_crc / fb_crc**、
+   低成本渲染优化（BGR 32 位读、面板/视频按需重绘）——G3 上板验收版）
 - 边界：**离线编写 + 编译通过 + 主机端自检（渲染 PNG / 假寄存器堆跑寄存器序列）**。未接触板卡 / JTAG / COM4 / hw_server，未运行 Vivado，未修改 `w4` 仓库文件（只读引用），未 git 提交。
 - 工作目录：`D:\tmp\lead\p3b_display_sw_20261030_r01\`
 
@@ -17,8 +16,11 @@
 | 项目 | 结果 |
 |---|---|
 | ARM 编译/链接 | **exit 0**（compile 0 / link 0 / size 0 / nm 0；警告 0） |
-| ELF | `build/s5_display_app.elf`，**sha256 `8b40c3a8ab6ef2cad4ff89d01c269f53c65071b4d0a39782ad9cf34604e8164c`**（重建可复现，同 sha） |
-| ELF 大小 | **294,932 B**；text 43,596 / data 68 / bss 2,353,488（berkeley） |
+| ELF（有界/默认） | `build/s5_display_app.elf`，**sha256 `62f3595c950ddc24cf4ccb2307e7c35d5777f571ffa42993d92d456367c486f6`**，**309,700 B**（text 47,784 / data 68 / bss 2,354,784） |
+| ELF（30 min 长跑） | `build/s5_display_app_longrun.elf`（`-DS5_LONG_RUN=1`），**sha256 `ad1d2e6926edfffbaef1d8f6bd627e858d92df207fe306401b548d269740bb37`**，312,892 B |
+| fps 语义（r06） | **`fps_dis` = 显示刷新率**（VDMA 读帧存切换周期实测 ≈60；测不到填 0，不虚填）；**`fps_upd` = 软件渲染速率**（frames/elapsed，如实报告 ≈35） |
+| G3 校验字段（r06） | `box_crc` = 绘制用框（映射后 960×720，u16 `[x,y,w,h]` 序列）CRC32；`fb_crc` = 显示用 FB（`0x20000000`，3,686,400 B）CRC32；结束前各算一次 |
+| 长跑模式（r06） | `-DS5_LONG_RUN=1`：取消 180 帧上限，只按 1800 s 退出；每 60 s 打 `S5DISP tick t=.. frames=.. vcnt=.. err=..` |
 | 真实数据源 | **已接入**：结果块 `0x20800000`（magic `0x53355253`）+ raw `0x12000000`（640×480 BGR888）（§2.5/§2.6） |
 | 回退优先级（r05） | `real`（结果块有效）→ `real_nobox`（结果块无效 + raw 有效，无框）→ `test`（raw 全 0，**pass=1 合法上屏自检**）→ `sim`（仅强制模拟或测试图案也失败，pass=0）（§2.6） |
 | 时间戳语义（r05） | 结果块 `cap/inf` 全 0 → `age_ms=0`/`latency_ms=0`（未知，不用 now−0 算巨大值）（§2.5） |
@@ -368,12 +370,15 @@ S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":0,"fps_dis":59,"latency_ms":19,"a
 | `pass` | 1 / 0 | 链路健康（VDMA 无错 + ≥1 帧完整显示 + 信息栏刷新成功）**且** `src≠"sim"`；`src="test"` 仍算通过（显示可用）但带 `reason` |
 | `fps_cap` | **整数 fps 0..60**（不是 ×10） | 采集口径；真实源取时间戳窗口，模拟源取模型值 |
 | `fps_inf` | **整数 fps 0..60** | 推理口径；真实源取 `inf` 时间戳窗口，模拟源固定 0（契约允许） |
-| `fps_dis` | **整数 fps 0..60** | 显示口径（每帧计入窗口） |
+| `fps_dis` | **整数 fps 0..60** | **显示刷新率**（r06：VDMA 读帧存切换周期实测 ≈60；测不到填 0，见 §11） |
+| `fps_upd` | 整数 fps | **软件更新（渲染）速率** = frames / elapsed，如实报告（r06 新增，G3 板上 ≈35；优化后见 §11） |
 | `latency_ms` | 整数毫秒 | 显示延迟 = now − t_infer_done；真实源由 ticks 换算（**时间戳 0 = 未知 → 0**），模拟源为模型值 |
 | `age_ms` | 整数毫秒 | 结果年龄 = now − t_capture_end；真实源由 ticks 换算（**时间戳 0 = 未知 → 0**），模拟源为模型值（每 47 帧注入超龄） |
 | `vdma_err` | 计数 | 运行期间 SR 错误位（`XAXIVDMA_SR_ERR_ALL`）累计次数 |
 | `frames` | 计数 | 实际渲染帧数 |
 | `vcnt` | 计数 | **软件观测**：`PARKPTR.READSTR` 变化次数（r05；SR 无硬件帧计数，见 §2.2） |
+| `box_crc` | u32（十进制） | **r06 G3**：绘制所用检测框（映射到画布 960×720 的 `x,y,w,h` 各 u16 顺序拼接）CRC32 |
+| `fb_crc` | u32（十进制） | **r06 G3**：显示用 framebuffer `0x20000000`（1280×720×4 = 3,686,400 B）CRC32，结束前算一次 |
 | `src` | `"real"` / `"real_nobox"` / `"test"` / `"sim"` | 本窗口数据源；回退优先级见 §2.6（r05 增加 `real_nobox`） |
 | `reason` | 字符串（非 NULL 即输出） | `result_magic_mismatch` / `result_not_valid` / `result_torn` / `result_shape_invalid` / `raw_frame_blank` / `real_source_disabled` / `vdma_init_failed` / `vdma_error` / `no_frame_rendered` / `frame_check_failed` |
 
@@ -661,3 +666,74 @@ case6 (ts=0): age=0 ms latency=0 ms（应为 0/0）
 10. 性能优化（如需 60 fps）：面板局部重绘、按行 flush、必要时把画布改成 RGB565 减半带宽（会改冻结格式，需批准）。
 11. 类别名/颜色表（`s5_class_name`/`s5_class_color`）等阶段5 类别定义冻结后替换；`score_q8→百分比` 的换算若阶段5 有定标需复核。
 
+---
+
+## 11. r06（G3 上板验收版）：fps 拆分、长跑、CRC、渲染优化
+
+### 11.1 `fps_dis`（显示刷新）与 `fps_upd`（软件更新）的测量方法
+
+| 字段 | 定义 | 测量方法 | 本机样例 |
+|---|---|---|---|
+| `fps_dis` | **显示刷新率**（VDMA 每输出一帧 = TMDS 一次刷新） | 启动后 `S5Vdma_MeasureReadPeriod()` 轮询 `PARKPTR.READSTR`，取 6 个切换边沿、相邻边沿平均间隔即显示帧周期 → `fps = GT_HZ / 周期`；200 ms 内凑不够边沿则 `fps_dis=0` 并打印 WARN（**不虚填 60**） | 板上冒烟 60（≈16.7 ms）；离线自检写 60 |
+| `fps_upd` | **软件更新（渲染）速率**：每秒完成多少帧“取数+绘制+flush” | `frames / elapsed_ms`（整段运行统计，RESULT 用）；面板用最近窗口（`S5FpsWin`，每帧打点） | 板上 r02 冒烟 35；离线自检 60（假时钟 16.667 ms/帧） |
+| `fps_cap` / `fps_inf` | 采集/推理结果速率 | 结果块 `cap`/`inf` 时间戳窗口（只在 `frame_id` 变化时计入） | 离线 30 / 29 |
+| `latency_ms` / `age_ms` | 显示延迟 / 结果年龄 | `now − inf` / `now − cap`；**时间戳 0 = 未知 → 0**（r05 语义不变） | 7 / 31 |
+
+> 为什么之前 `fps_dis=35`：r05 的 `fps_dis` 实际统计的是“软件主循环频率”，与显示刷新混用了同一字段。P3b 里
+> VDMA 以 60 Hz 从 framebuffer 取帧，**显示刷新恒 60**，而软件画一帧要 ~28 ms → 35 fps。r06 把两者分开，
+> 现场应以 `fps_dis≈60`（J-4）与 `fps_upd` 如实值分别判读。
+
+### 11.2 长跑模式（S6-F 30 min）
+
+- 编译期开关：`-DS5_LONG_RUN=1`（默认 0）。开启后帧数上限取消，只受 `S5_RUN_MAX_MS_LONG=1800000`（1800 s）约束。
+- 心跳：每 60 s 打一行（与 RESULT/进度行分开）
+  `S5DISP tick t=0 frames=1980 vcnt=1980 err=0`（`t` 秒、累计帧、vcnt、错误数）——用于判断是否死锁/停滞。
+- 交付两个 ELF：默认有界 `s5_display_app.elf`（180 帧/60 s）与长跑 `s5_display_app_longrun.elf`（1800 s）。
+
+### 11.3 G3 校验字段与进度行（r06）
+
+- `box_crc`：**绘制所用检测框**（映射到画布 960×720 的 `x,y,w,h`，各按 u16 顺序拼接）的 CRC32（IEEE，`0xEDB88320`，初值/结果异或 `0xFFFFFFFF`）。
+  与 `S5Draw_Boxes` 同映射（含 `S5_VID_X/Y` 偏移）；宽/高 ≤0 的框不画也不入 CRC。
+- `fb_crc`：**显示用 framebuffer** `0x20000000` 整帧 3,686,400 B 的 CRC32；在最后一帧写完后（先 `Xil_DCacheInvalidateRange`）算一次。
+- 进度行追加现场信息（每 60 帧）：`S5DISP frame=60 lat=.. age=.. st=.. sr=.. src=real nbox=3`。
+- 实现自检：CRC32 已知答案 `"123456789" → 0xCBF43926`；`box_crc` 确定性/灵敏度检查；优化版 BGR→RGB 与逐像素参考实现逐像素一致（均 PASS，§8.4）。
+
+### 11.4 低成本渲染优化（不改语义）
+
+1. **BGR888→RGB 32 位读**：4 像素/12 B 一组，3 次 `memcpy` 32 位读 + 4 次写（原为 12 次字节读）；输出与参考实现逐字节一致（主机自检）。
+2. **行级/列级映射 LUT**：letterbox 列/行源索引预计算一次（此前已实现），内层循环无乘除。
+3. **D-cache 只按帧维护**：每帧 1 次结果块 invalidate + 1 次 raw invalidate（不逐像素）；fb 每帧 flush 一次。
+4. **面板/视频按需重绘**：信息栏按数值签名缓存——同一 buffer 上数值未变则整栏跳过；仅数值变化时清 y=28..372 动态区重画（标题条/图例/页脚只画一次）；静态测试图案且无框时视频区不重复绘制（真实画面每帧重画）。
+5. 效果：离线无法测 A9 实际 fps；按像素/内存访问量估算，视频区与面板的重复绘制分别省去（测试图案场景）与约 1/4 逐像素工作量，目标 `fps_upd≥45` 需板上实测确认（本报告不虚报）。
+
+### 11.5 r06 离线示例 RESULT（含新字段）
+
+```text
+case1 (real): S5DISP RESULT={"pass":1,"fps_cap":30,"fps_inf":29,"fps_dis":60,"fps_upd":60,"latency_ms":7,"age_ms":31,"vdma_err":0,"frames":36,"vcnt":36,"box_crc":1255179135,"fb_crc":2461129793,"src":"real"}
+```
+（`fps_dis=60` 为离线假设值，板上由 VDMA 帧周期测量；`fps_upd=60` 由假时钟 36×16.667 ms 算得。）
+
+构建：`python build_s5_display_app.py` → **exit 0**，零告警；主 ELF sha256 `62f3595c…` / 309,700 B；
+长跑 ELF sha256 `ad1d2e69…` / 312,892 B；主机四方自检（渲染/寄存器/真实源）全 PASS。
+
+
+### 11.6 box_crc 口径（r06b，G3-B 对齐，ABI 的一部分）
+
+- **字段**：绘制所用检测框，映射到**显示坐标 960×720** 的 x,y,w,h（**边界裁剪后**；宽/高≤0 的框不画也不入 CRC）。
+  映射与 `S5Draw_Boxes` 完全一致：`x_disp = S5_VID_X + x_src*3/2`（L0 下 `S5_VID_X=0`），y 同理，w/h 同乘 3/2 后裁剪到 `[0,959]×[0,719]`。
+- **顺序**：每框 x,y,w,h 依次；框顺序 = 结果块 index 0..n-1。
+- **打包**：每字段 **u16 小端**，连续无填充，共 `nbox×8` 字节。
+- **CRC 参数**：CRC-32/ISO-HDLC（poly 0x04C11DB7，init/xorout 0xFFFFFFFF，refin/refout=true）= zlib `crc32`。
+- **范围**：只算有效框，不含 magic/nbox/时间戳等头字段。
+
+**G3-B 给定 3 框的离线复算（与 lead 期望一致）**：
+`(100,80,120,200) (500,300,100,100) (0,0,640,480)` → 映射 `(150,120,180,300) (750,450,150,150) (0,0,960,720)`
+→ 24 B 序列 `96 00 78 00 B4 00 2C 01 | EE 02 C2 01 96 00 96 00 | 00 00 00 00 C0 03 D0 02`
+→ **`0x2D949C0C` = 764,713,996**（`build/selftest_real_source.txt` 的 `G3-B box_crc` 行，`PASS`）。
+说明：若板上实报不同，则差异在**解析到的框坐标**而非 CRC 约定（已排除 12 B/10 B 步进、BE、u32 字段等布局；这些都给不出 0x16F1116D）。
+r06b 起 RESULT 前多打一行诊断（直接给出 CRC 用的映射后坐标，便于对字节）：
+
+`S5DISP boxes n=3 crc=764713996 hex=96 78 b4 12c ee2 c2 96 96 0 0 3c0 2d0`（示例，%x 无前导零）
+
+**r06b ELF**：默认 `e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d` / **310,740 B**（text 48,192 / data 68 / bss 2,354,784）；
+长跑 `ab96f6e890676e4d500d5c6192cd2b218a23e2fa693738f7985516b3be269bc3` / 313,940 B。

@@ -72,6 +72,10 @@
     `TAIL13 before=0x5A5A5A5A after=0x5A5A0506 ref=0x00000506 lane01_ok=1 lane23_ok=1` ⇒ PL 尾字 lane 正确且未越界）。
   ⇒ **P2d = 2B + preproc + 打包器 + AXI DMA 的合并计算体，在板上同时满足：时序（WNS +0.128）、2B 单帧 47.3 s、链路解码正确、预处理数据面 CRC 正确**。
   阶段5 剩收尾：文档/地址表归档、P2d 证据清单收口（不做视频链——归阶段6）。
+- **G4 验收记录已出（2026-10-30 00:5x，`s4d_g4_acceptance_20261030_r01` + 正式记录 `docs/obsidian-project/04-提交材料/阶段验收/阶段4_5_G4验收记录_20261030.md`）**：
+  阶段4：11 项 **10 通过 / 1 未执行**（M3 成对取样，Codex 工具依赖）⇒ **有条件通过**；
+  阶段5（当前范围）：**8 适用项全通过 / 2 不适用**（显示链归阶段6、吞吐移交 Codex）⇒ **通过**；**不主张 G5**。
+  遗留 8 条已列影响与关闭条件（`RESIDUALS.md`），无阻断项；正式记录留 Wong 签署位。
 - **冻结回归已执行：7/7 PASS（2026-10-30 00:06–00:46，`s4d_freeze_regression_plan_20261029_r01/FREEZE_REGRESSION_REPORT.md`）**：
   R1 2B 基线 M3 逐字节 + M4-a PASS；R2 2B M4-b `pass=1`（47,287 ms）；R3/R4 2B chain-lite A/B `pass=1`（B 的 W3a CRC `0x5B183B50`、W3b 8 字段与离线参考一致）；
   R5 P2d M4-b `pass=1` + `elapsed_ms=47287`（无"慢 2×"复发）；R6 P2d chain-lite A `pass=1`；R7 P2d preproc→DMA(HP1) CRC 一致。

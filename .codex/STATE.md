@@ -74,6 +74,11 @@
   阶段5 剩收尾：文档/地址表归档、P2d 证据清单收口（不做视频链——归阶段6）。
 - **G4 已由 Wong 认可（2026-10-30，会话确认）**：阶段4 **G4 通过（含跟踪遗留 R-01 = M3 成对取样）**、阶段5（当前范围）**G4 通过**；G5 不主张。
   正式记录已填签署：`docs/obsidian-project/04-提交材料/阶段验收/阶段4_5_G4验收记录_20261030.md`（§8 签署）。
+- **【编号勘误 2026-10-30，Wong 决定 A】阶段编号纠正**：按正式计划（《B方案实施与阶段验收计划》L94「阶段5：HDMI结果显示」、L102「阶段6：交互控制」），
+  **HDMI 显示链 = 阶段5**，**阶段6 = 交互控制（未开始）**；此前把 P2d 合并计算体当阶段5、显示链当阶段6 属编号错位。
+  已执行：G0 文档改名为 `docs/obsidian-project/02-方案设计/阶段5_HDMI显示链G0方案_20261030.md`（含勘误段）；
+  证据目录 `report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01` → `report/evidence/S5-T01/s5_p3a_video_bd_20261030_r01`（task_id S5-T01 暂定）。
+  P2d 合并计算体重新定位为**阶段3/4 集成（阶段5 前置平台）**，其既有"阶段5 收口"文档仅作历史记录，不再作为阶段5 交付定义。
 - **阶段6 P3a BD validate 通过（2026-10-30 01:0x，`report/evidence/S6-T01/s6_p3a_video_bd_20261030_r01/`）**：
   `validate_bd_design` **0 ERROR / 0 CRITICAL WARNING / 14 WARNING**（逐条解释）；另跑通 IP 生成 + wrapper（证明 IP 参数组合合法）。
   PS7 新增 **FCLK1=100 MHz**（真实门控是 `PCW_EN_CLK1_PORT=1`+`PCW_CLK1_FREQ`）、**S_AXI_HP2(64-bit)**；

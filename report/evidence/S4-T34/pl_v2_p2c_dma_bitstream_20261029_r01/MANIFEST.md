@@ -1,7 +1,7 @@
 # P2c r01 证据清单（已作废，registry 保留）
 
 - 位流功能不可用：AXI DMA LENGTH 14 bit 截断；见 `ERRATUM_DMA_LENGTH_WIDTH.md`
-- 位流/XSA 未入 git（`*.bit`/`*.xsa` 被忽略），其 sha256 记在 `manifest.json` 的 `quashed_artifacts`。
+- 位流/XSA 未入 git，其 sha256 见 `manifest.json` 的 `quashed_artifacts`。
 
 | 文件 | 字节 | sha256 |
 |---|---|---|
@@ -20,10 +20,6 @@
 | `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/inputs/rtl/s4d_preproc_out_axis.sv` | 3778 | `a27828e842e31198e2f300ff3f6e683d7f49c0bdc36566181d1a1fad0d14d1b4` |
 | `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/inputs/rtl/s4d_preproc_v2_wrap.sv` | 9713 | `a84eeb55158907f7a1c05638aa085cef31b5a7ad0b3e0f353fbd987bfc60865a` |
 | `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/inputs/tb/tb_s4d_axis8_to_axis64.sv` | 3642 | `f2127e893244c1351138b687464e5e805b1f0ad9e92c37a8cd298722558cb08b` |
-| `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/xvlog.log` | 379 | `09962bdbf21fa85a6ddab12ef0422230829e7b4e5fec5742b08b4c526b909c71` |
-| `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/xelab.log` | 622 | `3b824bacb8550f042a4b6fa8c3da735314db3f0889b1fa9122c0415bbe4336b3` |
-| `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/xsim.log` | 1349 | `22dfada35556f18e41446599a266db86d8ceb1642ebe0faa62b769007e63505f` |
 | `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/packer_tb_output.txt` | 737 | `b31fd5bc424d5c56c8e5adbf37333dff92f7d50b4f9ba8ea74ef0c08acc31408` |
 | `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/README.md` | 3591 | `ad188b0339f04cef10e998cf7f28a47c4e9643b196edfbf95e14b722af95ceec` |
-| `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/MANIFEST.md` | 2575 | `efac8355ae5cd6a687e12c023940aa530af052d91255e9f4d4803d87e064a3b1` |
 | `report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/ERRATUM_DMA_LENGTH_WIDTH.md` | 2059 | `33c0f0c00307727b43d4997376fdf95e0a2faad2147497ad97abda3e61ac60c8` |

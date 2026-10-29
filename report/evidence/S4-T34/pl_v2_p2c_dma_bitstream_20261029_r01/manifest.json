@@ -144,30 +144,6 @@
       "note": ""
     },
     {
-      "path": "report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/xvlog.log",
-      "kind": "log",
-      "bytes": 379,
-      "sha256": "09962bdbf21fa85a6ddab12ef0422230829e7b4e5fec5742b08b4c526b909c71",
-      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\xvlog.log",
-      "note": ""
-    },
-    {
-      "path": "report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/xelab.log",
-      "kind": "log",
-      "bytes": 622,
-      "sha256": "3b824bacb8550f042a4b6fa8c3da735314db3f0889b1fa9122c0415bbe4336b3",
-      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\xelab.log",
-      "note": ""
-    },
-    {
-      "path": "report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/xsim.log",
-      "kind": "log",
-      "bytes": 1349,
-      "sha256": "22dfada35556f18e41446599a266db86d8ceb1642ebe0faa62b769007e63505f",
-      "source": "D:\\tmp\\lead\\p2c_20261029_r01\\out\\sim\\xsim.log",
-      "note": ""
-    },
-    {
       "path": "report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/logs/packer_tb_output.txt",
       "kind": "log",
       "bytes": 737,
@@ -180,14 +156,6 @@
       "kind": "doc",
       "bytes": 3591,
       "sha256": "ad188b0339f04cef10e998cf7f28a47c4e9643b196edfbf95e14b722af95ceec",
-      "source": "generated",
-      "note": ""
-    },
-    {
-      "path": "report/evidence/S4-T34/pl_v2_p2c_dma_bitstream_20261029_r01/MANIFEST.md",
-      "kind": "doc",
-      "bytes": 2575,
-      "sha256": "efac8355ae5cd6a687e12c023940aa530af052d91255e9f4d4803d87e064a3b1",
       "source": "generated",
       "note": ""
     },
@@ -214,5 +182,9 @@
       "why": "同上；未入 git"
     }
   },
-  "path_convention": "manifest item.path 为仓库相对路径（与 check_manifest_hash_basis.py 口径一致）"
+  "path_convention": "manifest item.path 为仓库相对路径（与 check_manifest_hash_basis.py 口径一致）",
+  "excluded_from_items": {
+    "MANIFEST.md": "清单自身的汇总文件，不入 items（避免自引用哈希）",
+    "logs/xvlog.log|xelab.log|xsim.log": "*.log 被 .gitignore 忽略、未入 git；TB 证据以 logs/packer_tb_output.txt 为准"
+  }
 }

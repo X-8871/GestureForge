@@ -21,7 +21,5 @@
 | `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/build_logs/s4d_ps_app_sw0_chainB.size.txt` | 123 | `5060965337dd0aee52111793cbc2a8a2e2663eed87f16a51086a5ea0522f8b9b` |
 | `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/build_logs/s4d_ps_app_sw0_m4b.sha256` | 65 | `bd3f3f96ff582b0b1e54ed61a927f26d9903e04b36f8974a12df5d515651b926` |
 | `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/build_logs/s4d_ps_app_sw0_m4b.size.txt` | 120 | `18799bf01071c708a58a684f035e3fbf85bc91f1161e0112d32265535449f686` |
-| `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/MANIFEST.json` | 5259 | `09ed6a10a74f4191155ff6be6a588a15577d658c23da2369b928a30576fa49c8` |
-| `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/MANIFEST.sha256` | 2630 | `b6fa95ed2ea67ef54a44174055df590ac6e65515939d4d1fd287105e75ebabcf` |
 | `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/tailword_probe.py` | 3803 | `beded93c4c4769a59697c01800645cadba70d9f1eed575037cb8277181a19d41` |
 | `report/evidence/S4-T34/s4d_m4b_tailword_20261029_r01/tailword_probe_output.txt` | 2201 | `6afa229d70d4cdff6db83857acc6e5d1597a6885a24d57044657c870a09a1926` |

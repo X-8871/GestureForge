@@ -1,0 +1,70 @@
+{
+  "raw_decimal": {
+    "DEVCGF_CTRL_0xF8007000": 1308680319,
+    "DEVCGF_INT_STS_0xF800700C": 2818703370,
+    "DEVCGF_STATUS_0xF8007014": 1073744432
+  },
+  "derived": {
+    "DEVCGF_CTRL_0xF8007000": {
+      "hex": "0x4e00e07f",
+      "bits": {
+        "bit0": 1,
+        "bit1": 1,
+        "bit2": 1,
+        "bit3": 1,
+        "bit4": 1,
+        "bit27": 1,
+        "bit30": 1,
+        "bit31": 0
+      }
+    },
+    "DEVCGF_INT_STS_0xF800700C": {
+      "hex": "0xa802000a",
+      "bits": {
+        "bit0": 0,
+        "bit1": 1,
+        "bit2": 0,
+        "bit3": 1,
+        "bit4": 0,
+        "bit27": 1,
+        "bit30": 0,
+        "bit31": 1
+      }
+    },
+    "DEVCGF_STATUS_0xF8007014": {
+      "hex": "0x40000a30",
+      "bits": {
+        "bit0": 0,
+        "bit1": 0,
+        "bit2": 0,
+        "bit3": 0,
+        "bit4": 1,
+        "bit27": 0,
+        "bit30": 1,
+        "bit31": 0
+      }
+    }
+  },
+  "record_hex_check": {
+    "DEVCGF_CTRL_0xF8007000": {
+      "recorded": "0x4E00FFFF",
+      "actual": "0x4e00e07f",
+      "match": false
+    },
+    "DEVCGF_STATUS_0xF8007014": {
+      "recorded": "0x40000010",
+      "actual": "0x40000a30",
+      "match": false
+    }
+  },
+  "verdict": {
+    "pcfg_done_register": "0xF800700C INT_STS, bit[2]（UG585 v1.2 p.150 step 5）",
+    "pcfg_done_value": 0,
+    "status_bit1_value(被原记录当作 PCFG_DONE)": 0,
+    "status_bit4_value(PCFG_INIT, 见驱动口径)": 1,
+    "record_cites_wrong_register": true,
+    "record_hex_annotations_all_correct": false,
+    "conclusion_holds_if_rebased_on_int_sts": true,
+    "note": "INT_STS[2]=0 与『PL 未配置』相容，但『构造性排除』仍需补：① 以 INT_STS[2] 作为唯一 PCFG_DONE 依据；② 修正 hex 注释；③ 明确 INT_STS 可被写 1 清除，单次为 0 不等于从未配置过。"
+  }
+}

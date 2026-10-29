@@ -115,6 +115,21 @@
 - 触发窗口 RunId `bringup_longrun_probe_20261029_r02`（w4 提交 `f0a4178`）= **INVALID_RUN 自伤**：预载真实 RAW+权重后板上 `tensor_crc32=0x5B183B50` 复现，但执行器未置位 `_PL_STATE` → `load_elf_ddr` 走 `rst -system -stop` 清掉刚编程的 PL → 应用首次 `0x43C00000` 读挂死 → 停核失败 → DAP 粘连。作废说明 `w4/report/evidence/S4-T34/bringup_longrun_probe_20261029_r02/ERRATA_INVALID_RUN.md`；**不得引用本次现象作为产品根因证据**。
 - 该窗口另两件事实：① W0 打开时候选区与 M3 快照差异 11,850,821 B（已按快照重写、diff 0）；② **W4 收尾恢复未完成** ⇒ 下个窗口第一步必须做 W0 式 dump 对比。
 - 已备好、**未执行**的修正执行器：`D:\tmp\lead\probe_long_20261029_r03\run_probe_longrun_r03.py`（sha256 `f525ac03…7d7aeb`）、`D:\tmp\lead\p2b_board_20261029_r01\run_p2b_4d.py`（sha256 `9be5e855…d7fb95`）。已发 `dsh_mailbox/DSH-20261029-005`（回 CDX-20261029-001）。
+
+### 2026-10-29 17:24 断电重启后的第一次板级窗口（A 项重跑）与二次粘连
+
+- **DAP 已恢复**（上电后只读探测：A9 两核 Running、无 AP 错误）→ 开窗 `bringup_longrun_probe_20261029_r03`
+  （预载真实 fixture `tensor_crc32=0x5B183B50`、探针五步打印、SW 预处理）。**结果：41 轮全部 `done=1`/`status=0x00000E04`，未停住**；
+  窗口在脚本 1950 s 采集上限处切断（第 42 轮在 `wait_done_pre`），应用自身 30 min 口径未达 ⇒ 记 `DIAG_NOT_REPRODUCED_LIMITED`，**不构成稳定性通过**。
+  历史停住点 r01=40/r04=23/r05=24 轮 ⇒ 本轮刚超过最长者 1 轮。
+- **重要发现：应用自报时间与主机实测差约 4 倍**（两条独立证据：r03 的 41 轮/1950 s vs 11.82 s/轮；14:38 带主机时间戳日志 32.38 s vs 8,096 ms）。
+  ⇒ "30 min 长跑"判据实际≈2 h 真实时间；历史"11.8 s/帧"按主机时间≈47 s/帧；2B BD 的 FCLK0 设计值是 50 MHz（非 100）。原因未定，需专门实验。
+- **本轮两次窗口自伤并再次粘连板卡**：18:10 的迭代计时窗口在 `program_pl` 之后仍用 `rst -system -stop` 装载（清 PL → 首次 CSR 读挂死，与 15:01 同类），
+  随后 `rst -system` 救场使 DAP 再次 `0x30000021`；该窗口与随后的 r02 均标 `INVALID_RUN_ORDERING_BUG`。教训已写进 w4 STATE（执行器硬门禁）。
+- **板卡现状：DAP 粘连，需再次整机断电（12V+USB ≥10 s）**；主机侧零残留。下一步顺序：断电 → 5 min 计时三方对照（修正版，先静态自检禁止 `rst -system`）
+  → 据结果修应用时间基座/改判据 → A 项补跑（2 h 或修正后 30 min）→ P2c 上板张量 CRC 对拍。
+- 未主张 G3/G4/G5；`ENABLE=0`；未写 QSPI；未改线；未 push。
+
 - 边界：未主张 G3/G4/G5，未写 QSPI、未改线、`ENABLE=0`、未 push。
 
 ### 待 Wong 裁决（2026-10-29；板卡恢复后执行）

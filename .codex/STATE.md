@@ -64,6 +64,15 @@
   epoch 1..39 单调、`tensor_crc32=0x5B183B50` 恒定；host/app=**1.000**（时间基座修复生效，探针 ELF `4ef402c7…efffee`）。
   判据常量勘误：`S4D_LR_MIN_ITERS` 140→38（140 是旧 4× 口径值，修复后永不达到 ⇒ 恒 exit=3），源码提交 `e51b67f`。
   执行器 `parse_result` 的 json.loads 解析含裸十六进制 RESULT 行失败曾误判 FAIL，已改宽松解析并留 `classification_correction`。证据 `report/evidence/S4-T34/bringup_longrun_probe_20261029_r05/`（门禁 59 条 0 不符）。
+- **M4-b 收口 PASS（2026-10-29 22:3x，`s4d_m4b_close_20261029_r01`）**：2B 基线位流（`555a70c2`）上
+  `M4B RESULT={"pass":1,"done":1,"diff13":0,"diff26":0,"stale":1,"gate":1,"ack_idle":1,"error":0,"elapsed_ms":47287}`；
+  尾字取证 `M4B TAIL13 off=5068 before=0x5A5A5A5A after=0x5A5A0506 ref=0x00000506 lane01_ok=1 lane23_ok=1`
+  ⇒ 引擎把尾 word 的 lane0/1 写成参考值 `0x0506`、**未改写 lane2/3**（保持投毒值 0x5A5A）⇒ PL 尾字正确、未越界。
+  关闭方式：参考预置补齐到 1268 字（5072 B）+ 输出区投毒强制 `stale=1`。
+- **同 ELF 公平 A/B 完成（`s4d_m4b_p2b_20261029_r01`）**：同一重建 M4-b ELF 在 **2B 基线** 47,287 ms 完成、在 **P2b** 85,899 ms 仍未完成（error=5）
+  ⇒ **P2b 的 2B 核 ≥1.82× 慢**，与 perf-analyst 的 H1（SmartConnect 串行化单 outstanding 主端）一致。
+  修复方向 A：**只改 BD**（infer 直连 HP0、preproc 走 HP1）⇒ 不需 Codex；方向 B/C（adapter burst/多 outstanding、超时语义）需 Codex。
+- **chain-lite A/B 在 P2b 上均 85.9 s 超时（非链路逻辑问题，属 P2b 慢 2× 的连带）**；已排 2B 基线窗口（`run_chainlite_{a,b}_2b.py`）验证链路逻辑本身。
 - **head13 尾字差异已定案（`s4d_m4b_tailword_20261029_r01`，tail-fix 子 agent + lead 复核）**：
   不是 PL 尾字 lane 缺陷，而是**参考预置口径缺陷**——`scripts/stage4_s4b/run_window_b_driver.py:355` 用
   `HEAD13_BYTES//4 = 1267` 个 32-bit 字预置 head13 参考（`mwr -bin -file` 的 count 是**字数**）⇒ 5070 B 只写进 5068 B，

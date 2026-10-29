@@ -89,4 +89,4 @@ seconds = candidate_cycles / 100,000,000
 
 优先下一步是新身份上的轻量RTL原型：先对代表层确认16-bank地址映射无冲突、权重/输入复用、AXI burst真实分段，再测周期、功能逐位等价、DSP/BRAM和100MHz时序。若综合显示128 MAC/拍不可行，应提交“保持416逐位等价”与“208新模型精度重验”两条路线供Wong裁决。阶段1要求的候选预测误差≤±20%仍未通过，当前单点校准不能证明该指标。
 
-阶段1模型运行产物：`report/evidence/S2C-M01/model_20261029_r01/` 保留首次失败的真实命令、错误文本和退出码1；成功复算使用新RunId `report/evidence/S2C-M01/model_20261029_r02/`。两个manifest的哈希条目均声明 `hash_basis=worktree_disk`。本轮源码/文档未提交，不能声明 `commit_blob`；输入profile与L0报告也是外部只读磁盘文件。
+阶段1模型运行产物：`report/evidence/S2C-M01/model_20261029_r01/` 保留首次失败的真实命令、错误文本和退出码1；成功复算使用新RunId `report/evidence/S2C-M01/model_20261029_r02/`。两个manifest的哈希条目均声明 `hash_basis=worktree_disk`，记录的是当时尚未提交的工作树快照；后续 `model_20261029_r03` 将已提交的模型源码与文档绑定到提交 `fa8e045e86f0146ee9c73bea433fe1224033c89d` 的 `commit_blob` 哈希。输入profile与L0报告仍为外部只读磁盘文件。

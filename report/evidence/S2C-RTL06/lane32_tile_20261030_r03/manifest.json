@@ -1,0 +1,87 @@
+{
+  "schema_version": "s2c-rtl06-evidence/1.0.0",
+  "task_id": "S2C-RTL06",
+  "run_id": "lane32_tile_20261030_r03",
+  "status": "COMMIT_BLOB_SUPPLEMENT_NO_RERUN",
+  "hash_basis_commit": "ffd2beb800285362ec0ac4d1b9fe8fcee8c1c1b8",
+  "independent_review": {
+    "reviewer": "/root/burst_review_resume",
+    "verdict": "PASS_LIMITED_PROTOTYPE_CODE",
+    "scope": "限定参数化代码、8192字节首Tile黄金对拍和默认8路回归"
+  },
+  "functional_result": {
+    "lane32_cycles": 52043,
+    "lane8_cycles": 73559,
+    "golden_bytes_per_configuration": 8192,
+    "mismatches": 0,
+    "xvlog_xelab_xsim_exit_codes_each_configuration": [
+      0,
+      0,
+      0
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "src/s2b_conv_tile_engine.sv",
+      "sha256": "eaf52d736f4e14db3c063880a47bf71fb74448177b6923bb3359b3cd34f5a861",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "src/s2c_feature_patch_bank32.sv",
+      "sha256": "a8c2f1cc01abeeea529a289479e0564c1e5f46b57dd2dbb97224ec482f7067b1",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "sim/tb_s2c_rtl06_lane32_tile.sv",
+      "sha256": "755f9344e84bc885f379f25ab6b2855c87c0030945585bd25e031a9970754847",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "sim/tb_s2c_rtl05_feature_bank_engine.sv",
+      "sha256": "0649a9dd03c902dcde8a5c4b952b0f1c19d0f6b455e1ac3ca09ad11fa61545fd",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S2C-RTL06/lane32_tile_20261029_r02/result.json",
+      "sha256": "1b9eb9362114f89742e1bb64163158c575c3a22a67fa2158bd31b3e4ea54b19b",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S2C-RTL06/lane32_tile_20261029_r02/manifest.json",
+      "sha256": "18a9e1c66f37a3228969cedfcfdfbf0772c14ad9653e68df350b99c00fc93c89",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S2C-RTL06/default8_tile_20261029_r01/result.json",
+      "sha256": "0e289210c0dcc092136d59ee1173598f9fe35d28111de823361cb201572db088",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S2C-RTL06/default8_tile_20261029_r01/manifest.json",
+      "sha256": "9b2b451b70be654861077d7b4b56072fa89f51929f5e8b17ef38d36df9538648",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": "report/evidence/S2C-RTL06/lane32_tile_20261029_r01/result.json",
+      "sha256": "5677640498c1b991491bc32a856d927e1789296bb1c339d4aa4043b71fc017c4",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "sha256": "c24d25c66a2a879133ebbe701150f6d738e1a4ed7643fea4081ff7e20515936f",
+      "hash_basis": "commit_blob"
+    }
+  ],
+  "limitations": [
+    "只绑定已提交版本，不重新运行工具。",
+    "32 lane只在新TB显式启用，network默认仍8；突发缓存尚未接入整网。",
+    "仅一个样本layer0首16x16 Tile；无整帧周期/双头框完整等价/资源综合/100MHz时序/板级结论。",
+    "generic0没有新增运行；非法配置仅time-zero仿真fatal，未测试该分支，不主张综合或elaboration拒绝。",
+    "r01启动挂起/退出未知，不作设计通过证据。"
+  ]
+}

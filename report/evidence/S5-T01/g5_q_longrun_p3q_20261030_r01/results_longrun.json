@@ -1,0 +1,271 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "g5_q_longrun_p3q_20261030_r01",
+  "mode": "g5_q_longrun_p3q",
+  "started_utc8": "2026-10-30T19:34:39+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": {
+        "sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+        "size": 4045762
+      },
+      "xsa": {
+        "sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+        "size": 344843
+      },
+      "elf": {
+        "sha": "6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f",
+        "size": 284812
+      },
+      "fixture": {
+        "sha": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+        "size": 921600
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy": [],
+      "non_vivado": [],
+      "free_gb": 4.16
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 25688
+      }
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "fpga_exit": 0,
+      "lvl_0xF": "PASS"
+    },
+    "S6_init_ps7": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_raw_write": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bytes": 921600,
+      "elapsed_s": 15.7,
+      "head96_equal": true,
+      "tail96_equal": true
+    },
+    "S8_load_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_exit": 0,
+      "run_state": "Running",
+      "elapsed_s": 5.8
+    },
+    "S8b_uf_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "reg": {
+        "VDMA_CR": 65539,
+        "VDMA_SR": 69632,
+        "GPIO_FRAME": 0,
+        "GPIO_TOTAL": 1318809600
+      },
+      "note": "开跑 8 s 后的累计欠载基线"
+    },
+    "S9_longrun": {
+      "status": "PASS",
+      "exit_code": 0,
+      "uart_lines": 941,
+      "ticks": 29,
+      "tick_first_last": [
+        60,
+        1740
+      ],
+      "max_tick_gap_s": 60,
+      "frames": 896,
+      "frame_first_last": [
+        240,
+        53940
+      ],
+      "err_values": [
+        0
+      ],
+      "fps_values": [
+        60
+      ],
+      "uf_baseline": 1318809600,
+      "uf_end": 1439538241,
+      "uf_delta": 120728641,
+      "vdma_baseline": {
+        "cr": 65539,
+        "sr": 69632
+      },
+      "vdma_end": {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "GPIO_FRAME": 376077,
+        "GPIO_TOTAL": 1439538241
+      }
+    },
+    "S10_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S10_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "L-1",
+          "desc": "tick 连续（数量≈30、最大间隔≤130 s）",
+          "pass": true,
+          "detail": {
+            "ticks": 29,
+            "max_tick_gap_s": 60
+          }
+        },
+        {
+          "id": "L-2",
+          "desc": "vdma_err=0 全程",
+          "pass": true,
+          "detail": {
+            "err_values": [
+              0
+            ]
+          }
+        },
+        {
+          "id": "L-3",
+          "desc": "fps_dis=60",
+          "pass": true,
+          "detail": {
+            "fps_values": [
+              60
+            ]
+          }
+        },
+        {
+          "id": "L-4",
+          "desc": "无死锁（帧号递增、UART 有持续输出）",
+          "pass": true,
+          "detail": {
+            "frames": 896,
+            "first_last": [
+              240,
+              53940
+            ]
+          }
+        },
+        {
+          "id": "L-5",
+          "desc": "累计欠载增量=0（0x43C50008：8 s 基线 vs 结束前）",
+          "pass": false,
+          "detail": {
+            "uf_baseline": 1318809600,
+            "uf_end": 1439538241,
+            "uf_delta": 120728641
+          }
+        },
+        {
+          "id": "L-6",
+          "desc": "无 DAP/APB 错误",
+          "pass": true,
+          "detail": {
+            "hit": false,
+            "detail": ""
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 25688,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "residual": []
+    }
+  },
+  "forbidden_ops": "禁 rst -system",
+  "criteria": [
+    {
+      "id": "L-1",
+      "desc": "tick 连续（数量≈30、最大间隔≤130 s）",
+      "pass": true,
+      "detail": {
+        "ticks": 29,
+        "max_tick_gap_s": 60
+      }
+    },
+    {
+      "id": "L-2",
+      "desc": "vdma_err=0 全程",
+      "pass": true,
+      "detail": {
+        "err_values": [
+          0
+        ]
+      }
+    },
+    {
+      "id": "L-3",
+      "desc": "fps_dis=60",
+      "pass": true,
+      "detail": {
+        "fps_values": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "L-4",
+      "desc": "无死锁（帧号递增、UART 有持续输出）",
+      "pass": true,
+      "detail": {
+        "frames": 896,
+        "first_last": [
+          240,
+          53940
+        ]
+      }
+    },
+    {
+      "id": "L-5",
+      "desc": "累计欠载增量=0（0x43C50008：8 s 基线 vs 结束前）",
+      "pass": false,
+      "detail": {
+        "uf_baseline": 1318809600,
+        "uf_end": 1439538241,
+        "uf_delta": 120728641
+      }
+    },
+    {
+      "id": "L-6",
+      "desc": "无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "P3Q_G5_LONGRUN_FAIL",
+  "finished_utc8": "2026-10-30T20:05:22+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

@@ -1,0 +1,70 @@
+{
+  "criteria": [
+    {
+      "id": "L-1",
+      "desc": "tick 连续（数量≈30、最大间隔≤130 s）",
+      "pass": true,
+      "detail": {
+        "ticks": 29,
+        "max_tick_gap_s": 60
+      }
+    },
+    {
+      "id": "L-2",
+      "desc": "vdma_err=0 全程",
+      "pass": true,
+      "detail": {
+        "err_values": [
+          0
+        ]
+      }
+    },
+    {
+      "id": "L-3",
+      "desc": "fps_dis=60",
+      "pass": true,
+      "detail": {
+        "fps_values": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "L-4",
+      "desc": "无死锁（帧号递增、UART 有持续输出）",
+      "pass": true,
+      "detail": {
+        "frames": 896,
+        "first_last": [
+          240,
+          53940
+        ]
+      }
+    },
+    {
+      "id": "L-5",
+      "desc": "累计欠载增量=0（0x43C50008：8 s 基线 vs 结束前）",
+      "pass": false,
+      "detail": {
+        "uf_baseline": 1318809600,
+        "uf_end": 1439538241,
+        "uf_delta": 120728641
+      }
+    },
+    {
+      "id": "L-6",
+      "desc": "无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "verdict": "P3Q_G5_LONGRUN_FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "utc8": "2026-10-30T20:05:19+08:00"
+}

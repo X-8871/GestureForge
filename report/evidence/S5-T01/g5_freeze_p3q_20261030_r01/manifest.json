@@ -1,0 +1,77 @@
+{
+  "task_id": "g5_freeze_p3q_20261030_r01",
+  "run_id": "g5_freeze_p3q_20261030_r01",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "phase": "阶段5 冻结：P3q 构建复现清单",
+  "conclusion": "G5_BUILD_REPRO_READY",
+  "artifacts": {
+    "bit": {
+      "sha256": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "bytes": 4045762
+    },
+    "xsa": {
+      "sha256": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "bytes": 344843
+    }
+  },
+  "build": {
+    "command": "vivado -mode batch -notrace -source bd_p3q.tcl -tclargs build",
+    "project": "s4d_p3q_r01",
+    "bd": "s4d_p3q",
+    "top": "top_p3q",
+    "part": "xc7z020clg400-2",
+    "synth": "launch_runs synth_1 -jobs 2",
+    "impl": "launch_runs impl_1 -to_step write_bitstream -jobs 2",
+    "xdc": [
+      "p3q.xdc",
+      "p3q_cdc.xdc"
+    ]
+  },
+  "nondeterminism": [
+    "首轮 BD 41-758（gpio_uf 时钟未接）修复后重跑，产物来自第二次会话",
+    "BD 41-1306 ×6 直连 net 覆盖提示（重建以 tcl 为准）",
+    "IP_Flow 19-4994 ×2 OOC 约束覆盖（正常）",
+    "OOC 12 个 IP 并行无重试",
+    "phys_opt 中间 WNS -0.557 → 最终 +0.371",
+    "out/ps7_init.* mtime 19:30 为板测重新导出"
+  ],
+  "manifest": "BUILD_MANIFEST_P3Q.json（38 输入 sha + 2 产物 sha）",
+  "items": [
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/.gitattributes",
+      "bytes": 41,
+      "sha256": "161d4fc3fc645d35e126e4ee4badaab15cc28a339831082c9f33490211f027b9"
+    },
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/bd_p3q.tcl",
+      "bytes": 17337,
+      "sha256": "ebf378f8276b471412c6b398a28c99391a1f57b3b784a1999d253b7738e7945b"
+    },
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/BUILD_MANIFEST_P3Q.json",
+      "bytes": 17154,
+      "sha256": "9064518ec1a67a955679ce136345b6368298feb60d69a884068f99a28f4cc6cd"
+    },
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/BUILD_REPRO_P3Q.md",
+      "bytes": 6775,
+      "sha256": "521a43942913969e6cf5a73614ff198e04ee8c215850ff079445b09dab818dd7"
+    },
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/p3q.xdc",
+      "bytes": 2369,
+      "sha256": "acbc450145d66c92701d9bc4d955fcc882976ea09f723b636f090dc015ceb5c4"
+    },
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/p3q_cdc.xdc",
+      "bytes": 2448,
+      "sha256": "35857c8c5369413c128e99c3fd82d04083fab0702e44a2474c9a7d14c5b32d49"
+    },
+    {
+      "path": "S5-T01/g5_freeze_p3q_20261030_r01/P3Q_REPORT.md",
+      "bytes": 10981,
+      "sha256": "1a0ade91a8c68bec17cc3dc6a063d01f231ff64c4e06048b255ce0af4acbdb82"
+    }
+  ]
+}

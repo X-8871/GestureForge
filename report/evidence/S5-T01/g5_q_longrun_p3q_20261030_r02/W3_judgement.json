@@ -1,0 +1,125 @@
+{
+  "criteria": [
+    {
+      "id": "L-1",
+      "desc": "tick 连续（数量≈30、最大间隔≤130 s）",
+      "pass": true,
+      "detail": {
+        "ticks": 29,
+        "max_tick_gap_s": 60
+      }
+    },
+    {
+      "id": "L-2",
+      "desc": "vdma_err=0 全程",
+      "pass": true,
+      "detail": {
+        "err_values": [
+          0
+        ]
+      }
+    },
+    {
+      "id": "L-3",
+      "desc": "fps_dis=60",
+      "pass": true,
+      "detail": {
+        "fps_values": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "L-4",
+      "desc": "无死锁（帧号递增、UART 有持续输出）",
+      "pass": true,
+      "detail": {
+        "frames": 896,
+        "first_last": [
+          240,
+          53940
+        ]
+      }
+    },
+    {
+      "id": "L-5",
+      "desc": "运行期累计欠载增量=0（0x43C50008：8 s 基线 vs 运行中最后一次采样）",
+      "pass": true,
+      "detail": {
+        "method": "应用存活期间每 300 s 只读采样一次；判据取运行中最后一次（应用退出前），退出后的值仅记录——应用退出时会停 VDMA，计数器随后按像素率增长属预期",
+        "uf_baseline": 1336320000,
+        "uf_in_run": 1336320000,
+        "uf_in_run_delta": 0,
+        "uf_end_post_exit": 480115384,
+        "uf_end_post_exit_delta": -856204616,
+        "uf_series": [
+          {
+            "t_s": 302.3,
+            "reg": {
+              "VDMA_CR": 65539,
+              "VDMA_SR": 69632,
+              "GPIO_FRAME": 0,
+              "GPIO_TOTAL": 1336320000
+            },
+            "uf": 1336320000
+          },
+          {
+            "t_s": 602.3,
+            "reg": {
+              "VDMA_CR": 65539,
+              "VDMA_SR": 69632,
+              "GPIO_FRAME": 0,
+              "GPIO_TOTAL": 1336320000
+            },
+            "uf": 1336320000
+          },
+          {
+            "t_s": 902.3,
+            "reg": {
+              "VDMA_CR": 65539,
+              "VDMA_SR": 69632,
+              "GPIO_FRAME": 0,
+              "GPIO_TOTAL": 1336320000
+            },
+            "uf": 1336320000
+          },
+          {
+            "t_s": 1202.3,
+            "reg": {
+              "VDMA_CR": 65539,
+              "VDMA_SR": 69632,
+              "GPIO_FRAME": 0,
+              "GPIO_TOTAL": 1336320000
+            },
+            "uf": 1336320000
+          },
+          {
+            "t_s": 1502.3,
+            "reg": {
+              "VDMA_CR": 65539,
+              "VDMA_SR": 69632,
+              "GPIO_FRAME": 0,
+              "GPIO_TOTAL": 1336320000
+            },
+            "uf": 1336320000
+          }
+        ]
+      }
+    },
+    {
+      "id": "L-6",
+      "desc": "无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "verdict": "P3Q_G5_LONGRUN_OK",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "utc8": "2026-10-30T20:37:48+08:00"
+}

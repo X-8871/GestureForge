@@ -1,0 +1,194 @@
+{
+  "task_id": "S5-P3B-SW",
+  "phase": "阶段5 HDMI 显示链 PS 侧显示软件（离线编译）",
+  "built_utc8": "2026-10-30T18:48:57+08:00",
+  "boundary": "离线编译 + 主机渲染自检；未接触板卡/JTAG/COM4/hw_server，未跑 Vivado，未 git 提交",
+  "toolchain": {
+    "arm_gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "arm_gcc_version": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "linker_script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+    "bsp": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0"
+  },
+  "inputs": {
+    "s5_display_app.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.c",
+      "sha256": "c28a7543a4c86460e7ddd82e1fe1ee5f5ca3f2ebdcca17cf4c3eff2239b09d2a"
+    },
+    "vdma_ctrl.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vdma_ctrl.c",
+      "sha256": "bb32bcbebe220a38ad19000a660929834f563a0fe6b82b7968160833da17eff8"
+    },
+    "vtc_ctrl.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vtc_ctrl.c",
+      "sha256": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6"
+    },
+    "s5_timebase.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_timebase.c",
+      "sha256": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96"
+    },
+    "s5_real_source.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_real_source.c",
+      "sha256": "d7696ecaf5fe174c1c3a376ac7159865cfd06e4025b226ed721ac672a35dffa5"
+    },
+    "s5_font8x16.h": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_font8x16.h",
+      "sha256": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3"
+    },
+    "lscript": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+      "sha256": "c0350ef1c1ebee0b6b672189c0046a37f6b9d0f90f67cd4dbb66a4224e239048"
+    }
+  },
+  "outputs": {
+    "elf": {
+      "path": "s5_display_app.elf",
+      "sha256": "b79d322dfaac87f45d72f5e21c7bfe2fdbc3a34f6cd71da206f5c7f4b2ee3497",
+      "size_bytes": 281624
+    },
+    "map": {
+      "path": "s5_display_app.map",
+      "sha256": "10e309cf7c402bc13898b102f1d3a066da2346e7194ee405b8de6b479bed4d6d",
+      "size_bytes": 220944
+    },
+    "size_berkeley": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  44336\t     68\t2354528\t2398932\t 249ad4\tD:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+    "longrun_elf": {
+      "built": true,
+      "elf": "s5_display_app_longrun.elf",
+      "sha256": "6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f",
+      "size_bytes": 284812
+    },
+    "idleprobe_elf": {
+      "built": true,
+      "elf": "s5_display_app_idleprobe.elf",
+      "sha256": "c36b2885a0a78b2ccc9588cb20c9a586bbf933273a20fd1680ee42826f57c3bd",
+      "size_bytes": 285600
+    },
+    "p3b_elf": {
+      "built": true,
+      "elf": "s5_display_app_p3b.elf",
+      "sha256": "654c0739c38b71d497bed71628465bf55e0e66abec093c8366dc6bf670becc81",
+      "size_bytes": 323180
+    },
+    "p3n_elfs": {
+      "p3n": {
+        "built": true,
+        "elf": "s5_display_app_p3n.elf",
+        "sha256": "c489aad5cbcf09fa9a10ff546150f67184cfb23cb7dfeb4df67ee9b1019b6c18",
+        "size_bytes": 284324
+      },
+      "p3n_longrun": {
+        "built": true,
+        "elf": "s5_display_app_p3n_longrun.elf",
+        "sha256": "9464378f8d8c8a2c7a628344d0fac54c12ab40334a0c5b93996a6fc2609cb3c4",
+        "size_bytes": 284744
+      },
+      "p3n_idleprobe": {
+        "built": true,
+        "elf": "s5_display_app_p3n_idleprobe.elf",
+        "sha256": "461ad189826ae760d64c5cfbb6c0175c8ce7869094bb0acfc6a6b9b068122cb5",
+        "size_bytes": 285504
+      }
+    },
+    "p3p_elfs": {
+      "p3p": {
+        "built": true,
+        "elf": "s5_display_app_p3p.elf",
+        "sha256": "47a52f9303ceb49340b74b4979f37768620630ec93cd65940807f31d962384df",
+        "size_bytes": 284488
+      },
+      "p3p_longrun": {
+        "built": true,
+        "elf": "s5_display_app_p3p_longrun.elf",
+        "sha256": "bb9fd5510e90d26c83de0ed94fffd85c44811b9adaef4e0ec4aaa47882519362",
+        "size_bytes": 284908
+      },
+      "p3p_idleprobe": {
+        "built": true,
+        "elf": "s5_display_app_p3p_idleprobe.elf",
+        "sha256": "4e19ed7bafd0ca5d36da67fca6e28762388a49d0e5199b0051ae41037ea36347",
+        "size_bytes": 285696
+      }
+    },
+    "reg_selftest_p3p_fsync": {
+      "built": true,
+      "ran": true,
+      "exit": 0
+    }
+  },
+  "symbol_check": {
+    "required": [
+      "main",
+      "S5Draw_Text",
+      "S5Draw_CameraLetterbox",
+      "S5Vdma_Init",
+      "S5Vdma_Start",
+      "S5Vdma_WaitNotReading",
+      "S5Real_Parse",
+      "S5Ticks_Now"
+    ],
+    "missing": []
+  },
+  "exit_codes": {
+    "compile": 0,
+    "link": 0,
+    "size": 0,
+    "nm": 0
+  },
+  "host_render": {
+    "built": true,
+    "ran": true,
+    "exit": 0,
+    "pngs": [
+      "frame_age_over.png",
+      "frame_age_over_bars.png",
+      "frame_full.png",
+      "frame_full_bars.png",
+      "pattern_checker.png",
+      "pattern_checker_bars.png",
+      "pattern_colorbars.png",
+      "pattern_colorbars_bars.png",
+      "pattern_deterministic.png",
+      "pattern_deterministic_bars.png",
+      "pattern_grayramp.png",
+      "pattern_grayramp_bars.png"
+    ],
+    "bars_variant_exit": 0
+  },
+  "reg_selftest_vtc_vdma": {
+    "built": true,
+    "ran": true,
+    "exit": 0
+  },
+  "real_source_selftest": {
+    "built": true,
+    "ran": true,
+    "exit": 0,
+    "output": "==== S5 真实数据源离线自检（ABI@0x20800000, raw@0x12000000）====\nraw fixture: fixtures/fixture_fist_000_640x480_bgr888.raw (921600 B)\ncase0: crc32(\"123456789\")=0xCBF43926（期望 0xCBF43926）\ncase0: box_crc=686390913 \nG3-B box_crc: nbox=3 crc=0x2D949C0C (764713996) 期望 0x2D949C0C (764713996)\nG3-B 序列(24 B, u16LE x,y,w,h): 96 00 78 00 B4 00 2C 01 EE 02 C2 01 96 00 96 00 00 00 00 00 C0 03 D0 02\ncase1 (real): S5DISP RESULT={\"pass\":1,\"fps_cap\":30,\"fps_inf\":29,\"fps_dis\":60,\"fps_upd\":60,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":7,\"age_ms\":31,\"vdma_err\":0,\"frames\":36,\"vcnt\":36,\"box_crc\":1255179135,\"fb_crc\":2461129793,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"real\"}\ncase1 status=0x0003 det=3 age=31 lat=7\nwrote build/frame_real.ppm\ncase: magic_bad=1 raw_blank=0 parse_rc=-1 reason=result_magic_mismatch\ncase: S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":0,\"fps_upd\":0,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":1,\"vcnt\":0,\"box_crc\":0,\"fb_crc\":0,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"real_nobox\",\"reason\":\"result_magic_mismatch\"}\nwrote build/frame_real_nobox.ppm\ncase: magic_bad=0 raw_blank=1 parse_rc=0 reason=(null)\ncase3 det=1（测试图案上仍画框）\ncase: S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":0,\"fps_upd\":0,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":7,\"age_ms\":31,\"vdma_err\":0,\"frames\":1,\"vcnt\":0,\"box_crc\":0,\"fb_crc\":0,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"test\",\"reason\":\"raw_frame_blank\"}\nwrote build/frame_test_with_boxes.ppm\ncase: magic_bad=1 raw_blank=1 parse_rc=-1 reason=result_magic_mismatch\ncase: S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":0,\"fps_upd\":0,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":1,\"vcnt\":0,\"box_crc\":0,\"fb_crc\":0,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"test\",\"reason\":\"result_magic_mismatch\"}\nwrote build/frame_test_no_producer.ppm\ncase5 (stale): status=0x004B stale_bit=1 age=49 ms\nwrote build/frame_stale.ppm\ncase6 (ts=0): age=0 ms latency=0 ms（应为 0/0）\n==== real-source selftest: PASS ====",
+    "pngs": [
+      "frame_age_over.png",
+      "frame_age_over_bars.png",
+      "frame_full.png",
+      "frame_full_bars.png",
+      "frame_real.png",
+      "frame_real_nobox.png",
+      "frame_stale.png",
+      "frame_test_no_producer.png",
+      "frame_test_with_boxes.png",
+      "pattern_checker.png",
+      "pattern_checker_bars.png",
+      "pattern_colorbars.png",
+      "pattern_colorbars_bars.png",
+      "pattern_deterministic.png",
+      "pattern_deterministic_bars.png",
+      "pattern_grayramp.png",
+      "pattern_grayramp_bars.png"
+    ]
+  },
+  "limitations": [
+    "未上板：VDMA/VTC 时序、DDR 带宽、rgb2dvi/TMDS 均未与硬件联调",
+    "VDMA 2 帧存与 BD 的 c_num_fstores=2 一致；上板仍需读回 0x18 确认",
+    "VTC 生成器已按 720p60 编程并回读校验，但未上板验证实际时序输出（无示波器/无 TMDS）",
+    "真实源只在主机用 fixture/合成数据验证；板上需生产端实际写 0x20800000 才能验通",
+    "结果块 ABI 文本写 16 B/项但字段合计 12 B：本实现按 16 B 步进读取（4 B 填充），生产端必须一致"
+  ]
+}

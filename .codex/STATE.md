@@ -146,6 +146,11 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **P3r 交付版改为 build3（2026-10-31 04:0x）**：**bit `648f3156…dcb9f4e`（4,045,762 B）**、**XSA `1284f637…bf3f81`（418,950 B）**；仅换 impl 策略（`Performance_ExplorePostRoutePhysOpt`），设计/约束与 build2 完全相同。
+  · **时序：WNS +0.342 / TNS 0 / 失败端点 0（58,492）/ WHS +0.053**；DRC 430 条 0 error；LUT 27,536、DSP 158 不变 ⇒ 余量恢复到 P3q 的 92%。
+  · build2（`6202872e…` / `7b26a487…`）**保留为对照，不删除不覆盖**。
+  · build3 首轮 `-jobs 2` 撞已知 Vivado MCP 插件注入 + 并行 OOC 端口冲突（`17-354`/`tclapp::load_apps failed`），降 `-jobs 1` 通过；失败/成功日志均留痕。
+  · 证据归档 w4 `S6-T01/s6_p3r_build3_20261031_r01/`（9 项，门禁 OK）；`board-runner` 已切默认身份到 build3，**明早 E-cam 板窗仍待 Wong 上电 + 目视**。
 - **P3r 位流 build2 交付（2026-10-31 03:1x）**：bit **`6202872e…dfb8c`**（4,045,762 B）、XSA **`7b26a487…aa3d6`**（418,944 B）。
   · **时序两轮如实记录**：第一轮 WNS **−5.493**/1 失败端点（根因=厂商 `alinx_ov5640` 内 `fifo_ready→fifo_ready_maxis` 异步跨域被当同步，`cam_pclk→clk_fpga_1`，requirement 0.097 ns）；按 cell 过滤 `set_max_delay -datapath_only` 修复后该路径 **−5.493→+9.180**；**交付轮 WNS +0.019 / TNS 0 / 失败端点 0 / WHS +0.061**（58,726 端点）。
   · **余量告警**：WNS 仅 +0.019（P3q 为 +0.371，薄 0.35 ns）⇒ 已让 `video-bd` 做 **build3**（换 impl 策略/相机段区域约束，目标 ≥+0.15 ns），build2 保留为可用候选。

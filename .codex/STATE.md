@@ -144,6 +144,12 @@
 - **阶段5 G3（03:3x 暂停，明日续）**：**G3-D 回归 3/3 PASS**（显示链零回归）、**G3-C fb CRC 相等 PASS**；
   **G3-A 待修复**（fps_dis=52，VDMA 190<221 MB/s；P3c 位流 `f55a9370…` 已构建、待上板验证）；**G3-B 取证完成**（根因=应用二次映射，种子应填 640×480 源坐标）；
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
+- **阶段6 6-D 三口径冻结（2026-10-30 21:5x，DSH 主控首版）**：Wong「按照你的来」⇒ 沿用既有验收体系，只补 6-D 口径与 6-E 实物。文档 `docs/obsidian-project/02-方案设计/阶段6_交互控制_6D口径冻结_20261030.md`（main 已提交）。
+  · **业务状态映射**（优先级）：`valid==0`→ERROR、`overrun==1`→ERROR、`stale==1` 或 `age_publish>200ms`→TIMEOUT、`valid==1&&n_dets==0`→NO_HAND、其他→OK；200 ms 门限不变。
+  · **sidecar `S5X1`（`0x20800000+0x100`，32 B，不改冻结 32 B ABI）**：`magic2=0x53355831`、`version`、`session_id`（上电由 GT 初值派生）、`result_seq`（严格 +1；`FFFFFFFF→0` 一律拒绝）、`result_time_lo/hi`（**发布完成**时刻）、`seqlock`、`reserved`。
+  · **原子发布**：seqlock 奇写偶读 + retry≤3；旧生产者（无 seqlock）降级为非原子，不声称原子。
+  · 任务卡已发 Codex：C1 XSDB 环境修复、C2 真实推理生产端（按上述口径）、C3 T6-A03 P 测量学、C4 独立复审（信箱 `DSH-20261030-016`）。
+  · 我方并行：生产者 v2（sidecar/seqlock/异常路径）、交互状态机规格、6-E 板窗 E1–E5、G3/G4/G5 记录。
 - **阶段6 主控移交 DSH（2026-10-30 21:4x，Wong 直接指令）**：Wong 原话「接下来的阶段六主控交给你，Codex负责接受高难度任务」。
   · **DSH 接手**：任务拆分/验收口径/板卡租约与开窗/集成提交/G3·G4·G5 主张；**Codex 转为高难度任务执行方**（由我方下发任务卡）。
   · **接手前置**：Codex 需先把 w6 的 19 项未提交改动归位，并在 w6 STATE 写正式 `OFFER` 行（11 字段）；**OFFER 落地前我方不写 w6**；落地后我方 `CLAIM` 并在主 STATE 记 `CLAIMED→IN_PROGRESS`。

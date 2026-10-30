@@ -144,6 +144,13 @@
 - **阶段5 G3（03:3x 暂停，明日续）**：**G3-D 回归 3/3 PASS**（显示链零回归）、**G3-C fb CRC 相等 PASS**；
   **G3-A 待修复**（fps_dis=52，VDMA 190<221 MB/s；P3c 位流 `f55a9370…` 已构建、待上板验证）；**G3-B 取证完成**（根因=应用二次映射，种子应填 640×480 源坐标）；
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
+- **板卡租约行（阶段6 6-E/T6-A03 只读诊断与 P 实测；2026-10-30 21:0x 由 DSH 主目录持有方发出 OFFER）**：
+  任务=`6-E 只读 JTAG 诊断 + T6-A03 帧周期 P 实测` | 负责人=`Codex阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`8d30a9f` |
+  允许修改范围=`w6 内本任务新证据与 STATE 段；板卡操作仅限只读诊断与帧周期采样` | 未提交改动归属=`w6 现有 19 项改动归 Codex` |
+  让出声明=`DSH 板卡会话 OFFERED（板卡当前空闲：无 hw_server/xsdb/vivado、3121 无监听、PL=仍是 P3q、未写 QSPI）` |
+  心跳(UTC+8)=`2026-10-30 21:00` | 证据入口=`report/evidence/S6-E/`（Codex 侧新 RunId） |
+  恢复命令=`起 hw_server → 枚举 A9#0/#1 → loadhw → 只读 mrd/诊断；收窗杀 hw_server` |
+  状态/下一接手方=`OFFERED → 待 Codex 回执 CLAIM`；**约束：禁 `rst -system`、禁写候选区 `[0x12000000,0x12C08000)`、禁改 PL、禁 QSPI、异常立即停窗并回报**。
 - **阶段6（Codex）进度快照（2026-10-30 21:0x 由主目录持有方只读核对 w6）**：HEAD `8d30a9f`（19:29），该树有 19 项未提交改动（STATE/规格/未跟踪证据），技术事实以 `w6/.codex/STATE.md` 为准。
   · **6-A**：B25 回绕/停发判据裁定 r03（10-30 09:31）已出；`S6A_stage6_g0_behavior_spec_v1` 与 json 仍有未提交修改。
   · **6-B**：`s6b_current_20261029_r08` 核心 39 项回归 + 独立复审 PASS。

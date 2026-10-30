@@ -676,6 +676,42 @@ class S6BCoreRegressionTests(unittest.TestCase):
         self.assertIsNone(core.last_frame_id)
         self.assertEqual(core.t_last_submit_ns, 100)
 
+    def test_uint32_frame_wrap_is_rejected_until_session_changes(self):
+        for last_frame_id in (0xFFFFFFFE, 0xFFFFFFFF):
+            with self.subTest(last_frame_id=last_frame_id):
+                core = GestureInteractionCore(self.pack)
+                core.step(self._target_event(1, 100, "same-session"))
+                # 直接注入高水位隔离回绕分类，不表达 FFFE 前置递增或换会话阈值结论。
+                core.last_frame_id = last_frame_id
+                self.assertEqual(core.last_frame_id, last_frame_id)
+
+                target_before = copy.deepcopy(core.current_target)
+                window_count_before = core.window_match_count
+                window_start_before = core.window_start_ns
+                continues_before = core.t_last_target_continues_ns
+                frame_hash_before = core.last_frame_business_sha256
+                wrapped = core.step(self._target_event(0, 101, "same-session"))
+
+                self.assertEqual(wrapped["log"]["input_state"], "OUT_OF_ORDER")
+                self.assertEqual(wrapped["log"]["event_kind"], EV_FRAME_RESULT)
+                self.assertIsNone(wrapped["log"]["transition"])
+                self.assertIsNone(wrapped["action_request"])
+                self.assertEqual(core.last_frame_id, last_frame_id)
+                self.assertEqual(core.last_frame_business_sha256, frame_hash_before)
+                self.assertEqual(core.current_target, target_before)
+                self.assertEqual(core.window_match_count, window_count_before)
+                self.assertEqual(core.window_start_ns, window_start_before)
+                self.assertEqual(core.t_last_target_continues_ns, continues_before)
+                self.assertEqual(core.counters["out_of_order_frames"], 1)
+                self.assertEqual(core.last_t_ns, 101)
+
+                reset = core.step(self._target_event(0, 102, "new-session"))
+                self.assertEqual(reset["log"]["transition"], "RESET")
+                self.assertIsNone(core.last_frame_id)
+                resumed = core.step(self._target_event(0, 103, "new-session"))
+                self.assertEqual(resumed["log"]["input_state"], "OK")
+                self.assertEqual(core.last_frame_id, 0)
+
     def test_out_of_order_at_l02_runs_loss_check_without_refreshing_progress(self):
         core = GestureInteractionCore(self.pack)
         first = core.step(self._target_event(5, 0, "same-session"))

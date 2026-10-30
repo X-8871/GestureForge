@@ -1,0 +1,86 @@
+--- a/docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
++++ b/docs/stage6/S6A_stage6_g0_behavior_spec_v1.md
+@@ -270,10 +270,13 @@
+ | 情形 | 判定 | 处理 | 记录 |
+ |---|---|---|---|
+ | 重复 `frame_id` | 等于上一条已处理 `frame_id` | 幂等丢弃（不推进计数/状态）；内容哈希不同则判 `E_FRAME_CONFLICT` 并按非法输入处理 | `E_FRAME_DUPLICATE` / `E_FRAME_CONFLICT` |
+-| 倒序 | `frame_id` 小于上一条已处理值且 `session_id` 未变 | 该帧不推进窗口或 `WINDOW_MATCH` 计数，不更新帧序列高水位；计异常且不因回退复位会话。超时/失踪期限仍按单调时间评估 | `E_FRAME_OUT_OF_ORDER` |
++| 倒序 | `frame_id` 小于上一条已处理值且 `session_id` 未变；包含同会话 uint32 回绕后的较小值 | 该帧一律按倒序拒绝：不推进窗口或 `WINDOW_MATCH` 计数，不更新帧序列高水位；计异常且不因回退复位会话。超时/失踪期限仍按单调时间评估 | `E_FRAME_OUT_OF_ORDER` |
+ | 缺帧 | `frame_id` 跳号且既无结果也无 `DROPPED` 记录 | 时间由后续结果时间戳推进；不推进匹配计数；每个缺帧只计一次 | `dropped_frames` 累计 |
+ | 会话切换/重启 | `session_id` 变化；阶段4 要求启动、frame_id 计数复位或重开 RUN 时分配新 `session_id` | 会话内状态复位到 `IDLE`、清目标与窗口证据；保留全局冷却锚点、单调时间与 ACK 身份。不得静默续用旧会话内状态 | `E_SESSION_RESET_SUSPECTED`/`RESET` 与新 `session_id` |
+ | `frame_id` 回绕 | 达到 `0xFFFFFFFE` | 不得自然溢出到 0；必须新会话或显式复位（阶段4 约定） | 复位标记 |
++| 同会话回绕输入 | 已接受较大帧号后收到回绕后的较小值，包括 `0xFFFFFFFF→0`、`0xFFFFFFFE→0` | 一律按 B23 拒绝，不更新高水位或目标/窗口证据；单调时间仍推进。更换 `session_id` 后方可重新从 0 开始 | `E_FRAME_OUT_OF_ORDER` |
++
++> **回绕裁决边界（2026-10-30）**：Wong 明确批准同一 `session_id` 下回绕输入一律拒绝。本轮没有裁决 §13 中 `0xFFFFFFFE` 的提前停发/换会话阈值应如何解释；该阈值保持待决，不得从回绕拒绝规则推导 `0xFFFFFFFF` 前后的可接受序列。
+ 
+ - 上述任一情形**都不得触发动作**；即使不推进计数，超时/失踪计时**仍按单调时钟推进**（H-3）。
+ - 丢失时间条件（`T6-L02`）一律使用锚点 `t_last_target_continues`（定义见 §12）：重复、倒序、缺帧、重启帧号均**不得**更新该锚点。
+--- a/docs/stage6/s6a_stage6_g0_behavior_v1.json
++++ b/docs/stage6/s6a_stage6_g0_behavior_v1.json
+@@ -736,11 +736,19 @@
+     {
+       "id": "B23",
+       "title": "倒序 frame_id",
+-      "condition": "frame_id 小于上一条已处理值且 session_id 未变",
+-      "output": "该帧不推进窗口或目标证据，不更新帧序列高水位；计异常且不因回退复位会话，期限仍按单调时间评估",
++      "condition": "frame_id 小于上一条已处理值且 session_id 未变；包含同会话 uint32 回绕后的较小值",
++      "output": "该帧一律按倒序拒绝，不推进窗口或目标证据，不更新帧序列高水位；计异常且不因回退复位会话，期限仍按单调时间评估",
+       "must_log": [
+         "E_FRAME_OUT_OF_ORDER"
+       ],
++      "frame_id_wrap_policy": {
++        "scope": "same session_id",
++        "examples": ["0xFFFFFFFF→0", "0xFFFFFFFE→0"],
++        "classification": "B23 / OUT_OF_ORDER",
++        "rule": "同一 session_id 下任何回绕后的较小 frame_id 一律拒绝；不更新帧序列高水位或目标/窗口证据，期限仍按单调时间评估；更换 session_id 后方可重新从 0 开始。",
++        "approval_ref": "report/evidence/S6-A/s6a_b25_decision_20261030_r01/decision_receipt.json",
++        "unresolved": "0xFFFFFFFE 是否为提前停止递增或强制换 session_id 的阈值，本轮未裁决；不得据此推定 0xFFFFFFFF 边界的可接受序列。"
++      },
+       "basis": "CDX-20261022-012 §4 测试矩阵第 8 行；本文 §13",
+       "params": [
+         "T6-U00_W",
+--- a/verification/test_s6b_core_regressions.py
++++ b/verification/test_s6b_core_regressions.py
+@@ -675,6 +675,42 @@
+         self.assertIsNone(core.current_target)
+         self.assertIsNone(core.last_frame_id)
+         self.assertEqual(core.t_last_submit_ns, 100)
++
++    def test_uint32_frame_wrap_is_rejected_until_session_changes(self):
++        for last_frame_id in (0xFFFFFFFE, 0xFFFFFFFF):
++            with self.subTest(last_frame_id=last_frame_id):
++                core = GestureInteractionCore(self.pack)
++                core.step(self._target_event(1, 100, "same-session"))
++                # 直接注入高水位隔离回绕分类，不表达 FFFE 前置递增或换会话阈值结论。
++                core.last_frame_id = last_frame_id
++                self.assertEqual(core.last_frame_id, last_frame_id)
++
++                target_before = copy.deepcopy(core.current_target)
++                window_count_before = core.window_match_count
++                window_start_before = core.window_start_ns
++                continues_before = core.t_last_target_continues_ns
++                frame_hash_before = core.last_frame_business_sha256
++                wrapped = core.step(self._target_event(0, 101, "same-session"))
++
++                self.assertEqual(wrapped["log"]["input_state"], "OUT_OF_ORDER")
++                self.assertEqual(wrapped["log"]["event_kind"], EV_FRAME_RESULT)
++                self.assertIsNone(wrapped["log"]["transition"])
++                self.assertIsNone(wrapped["action_request"])
++                self.assertEqual(core.last_frame_id, last_frame_id)
++                self.assertEqual(core.last_frame_business_sha256, frame_hash_before)
++                self.assertEqual(core.current_target, target_before)
++                self.assertEqual(core.window_match_count, window_count_before)
++                self.assertEqual(core.window_start_ns, window_start_before)
++                self.assertEqual(core.t_last_target_continues_ns, continues_before)
++                self.assertEqual(core.counters["out_of_order_frames"], 1)
++                self.assertEqual(core.last_t_ns, 101)
++
++                reset = core.step(self._target_event(0, 102, "new-session"))
++                self.assertEqual(reset["log"]["transition"], "RESET")
++                self.assertIsNone(core.last_frame_id)
++                resumed = core.step(self._target_event(0, 103, "new-session"))
++                self.assertEqual(resumed["log"]["input_state"], "OK")
++                self.assertEqual(core.last_frame_id, 0)
+ 
+     def test_out_of_order_at_l02_runs_loss_check_without_refreshing_progress(self):
+         core = GestureInteractionCore(self.pack)

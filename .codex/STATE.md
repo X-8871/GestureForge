@@ -146,6 +146,10 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **R-13 关闭 / E6-A 最终 PASS（2026-10-31 02:12）**：Wong POR（02:09）→ `s6e_e1_recover_20261031_r06 --por` 清残态 → **`s6e_e6_age_r05_20261031_r01`**（v5 `6260250a…`，`por_precondition: satisfied`）：**E3-1..E3-12 全 PASS**，E3-11 `s1==s2` 全等、`s1` 全偶、**`retries_dist={"0":29}`、无 RETRY、无 TIMEOUT**；`age_pub=9 ms`、`seq` 步长 60、`sid=64027` 恒定、`state=OK`；sidecar `0x20800100`（`magic2`/`version`/`seq=1831`/`seqlock=3662=2×1831`、`result_time` 晚 `inf` 17.7 ms、`n_dets=2≤14`、flush 288 B）；显示流 `fps_dis=60`/16,673 µs/`CR=0x10003`/`SR=0x11000`。⇒ **rev4 协议（原子发布）在单板单 POR 会话内已验证**；跨 POR 唯一性不主张（R-14）。
+  **E4-rev5 四窗 PASS**（`por_precondition: not_satisfied`，记录保留、不重跑）。门禁修正已生效（自检只读、仅 `--por` 清标记、每窗记 `por_precondition`）⇒ **R-15 规则落地**（R-05b 实验待）。
+  证据 `S6-T01/s6e_e6_age_r05_*`、`s6e_e1_recover_20261031_r06`、`s6e_e4_*_rev5_*`（6 组，门禁 OK）。信箱 `DSH-20261031-026`（E6 最终结果 + 板卡可交 M3 窗口）。
+- **CDX-008 已提交（2026-10-31 02:0x）**：w6 `25dbc5ec702dd1bc728b8ece0fe9cf529ac371e3`（86 文件 = 85 清单项 + 清单本身；85/85 逐项 sha/字节核验一致；9 项被 .gitignore 忽略者用 `-f` 精确加入）。请 Codex 据此生成权威 `commit_blob` manifest。
 - **POR 生命周期澄清（2026-10-31 02:0x，回应 Codex 011）**：**最后一次 POR ≈ 01:40**（R-04 A 用）；**R-05（01:57，设计性残态）之后未 POR**。本 POR 内 `ps7_init` 已多次运行（R-04 A/B、E6/E4-rev4、E6-A r04）。
   · **我方实现缺陷**：`board_state.json` 被自检写为 `clean_run=selftest_clean`（01:58:14）⇒ 自检不得清标记；已要求修正为"自检只读 + 仅 `run_e1_enum_readonly.py --por` 可清"，并在每窗 `window_close.txt` 记录 `por_precondition: satisfied|not_satisfied`。
   · 当前 E6-A r04 / E4-rev5 会话在 **未满足 POR 前置** 下开跑（责任在我），证据须标注 `por_precondition: not_satisfied`；若出现 `fps_dis=0/READSTR 不动/vdma_err=3695185` ⇒ 该窗作废、POR 后重跑。

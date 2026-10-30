@@ -1,0 +1,27 @@
+{
+  "command": [
+    "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-pedantic",
+    "-O0",
+    "-mcpu=cortex-a9",
+    "-mfpu=vfpv3",
+    "-mfloat-abi=hard",
+    "-S",
+    "-I",
+    "D:\\FPGA_Competition\\w2b\\verification",
+    "-I",
+    "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_p3b_sw_20261030_r01\\src",
+    "D:\\codex-worktrees\\w6\\legacy_codex_20261031\\c2\\c2_s5_publish.c",
+    "-o",
+    "D:\\tmp\\codex_c2_arm_20261031_r01\\c2_s5_publish_arm.s"
+  ],
+  "exit_code": 0,
+  "compiler_version": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+  "target": "Cortex-A9，AArch32小端",
+  "lock_function_assembly": "@ args = 0, pretend = 0, frame = 8\r\n\t@ frame_needed = 1, uses_anonymous_args = 0\r\n\t@ link register save eliminated.\r\n\tstr\tfp, [sp, #-4]!\r\n\tadd\tfp, sp, #0\r\n\tsub\tsp, sp, #12\r\n\tstr\tr0, [fp, #-8]\r\n\tstr\tr1, [fp, #-12]\r\n\tldr\tr3, [fp, #-8]\r\n\tldr\tr2, [fp, #-12]\r\n\tstr\tr2, [r3]\r\n\tnop\r\n\tadd\tsp, fp, #0\r\n\t@ sp needed\r\n\tldr\tfp, [sp], #4\r\n\tbx\tlr\r\n",
+  "meaning": "只验证目标代码生成使用32位STR；不证明板上DDR/cache可见性或消费者协议"
+}

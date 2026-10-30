@@ -1,0 +1,135 @@
+{
+  "status": "PASS_OFFLINE_DIAGNOSIS",
+  "source_commit": "6c09df12c585568b2737da2116fe43913e0062cb",
+  "source_path": "vitis/stage4/ps/s4d_ps_app.c",
+  "source_sha256": "c07c26f7a597ad63d23edfb045a2abb73fd5b6de99c93a0fc2ad1eb05b6a1d0b",
+  "source_hash_basis": "commit_blob",
+  "old_elf": {
+    "tag": "m4b_elf",
+    "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\m4b\\s4d_ps_app_sw0_m4b.elf",
+    "sha256": "ada4b30d98298ec9cea053d97d01e9fea91ae97e70c8a13f7be1bc36079445a7",
+    "expect": "ada4b30d",
+    "match": true
+  },
+  "samples": [
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_m4b_baseline_2b_20261029_r01\\m4b_uart.log",
+      "sha256": "90dd7c149d3313687231f706c48c446e02dba77bd2f6d7976fb7905283bbf7ef",
+      "bytes": 681,
+      "result": {
+        "pass": 0,
+        "done": 2,
+        "diff13": 0,
+        "diff26": 0,
+        "first13": -1,
+        "first26": -1,
+        "stale": 1,
+        "gate": 1,
+        "ack_idle": 0,
+        "epoch": 1,
+        "status": 3077,
+        "error": 5
+      },
+      "actual_heads_compare_line": false
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_m4b_close_20261029_r01\\m4b_uart.log",
+      "sha256": "bd942ddf0e98e0a087e2a79132c9c0717aa407ae15c3d02ed9df3cdb3bccd512",
+      "bytes": 1558,
+      "result": {
+        "pass": 1,
+        "done": 1,
+        "diff13": 0,
+        "diff26": 0,
+        "first13": -1,
+        "first26": -1,
+        "stale": 1,
+        "gate": 1,
+        "ack_idle": 1,
+        "epoch": 1,
+        "status": 3588,
+        "error": 0,
+        "elapsed_ms": 47287,
+        "spin": 79263293,
+        "tail13_before": 1515870810,
+        "tail13_after": 1515848966,
+        "tail13_ref": 1286,
+        "lane01_ok": 1,
+        "lane23_ok": 1
+      },
+      "actual_heads_compare_line": true
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_freeze_r2_m4b_2b_20261029_r01\\m4b_uart.log",
+      "sha256": "16d366c11902bea45679bd25ac2bcaed17ac6be70049465cd31c3c336a633d27",
+      "bytes": 1558,
+      "result": {
+        "pass": 1,
+        "done": 1,
+        "diff13": 0,
+        "diff26": 0,
+        "first13": -1,
+        "first26": -1,
+        "stale": 1,
+        "gate": 1,
+        "ack_idle": 1,
+        "epoch": 1,
+        "status": 3588,
+        "error": 0,
+        "elapsed_ms": 47287,
+        "spin": 79179886,
+        "tail13_before": 1515870810,
+        "tail13_after": 1515848966,
+        "tail13_ref": 1286,
+        "lane01_ok": 1,
+        "lane23_ok": 1
+      },
+      "actual_heads_compare_line": true
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_freeze_r5_m4b_p2d_20261029_r02\\m4b_uart.log",
+      "sha256": "48673885eaa213a7a22aa2ec9490f7b3834be75b44a48c831a3899eb3ba453e5",
+      "bytes": 1558,
+      "result": {
+        "pass": 1,
+        "done": 1,
+        "diff13": 0,
+        "diff26": 0,
+        "first13": -1,
+        "first26": -1,
+        "stale": 1,
+        "gate": 1,
+        "ack_idle": 1,
+        "epoch": 1,
+        "status": 3588,
+        "error": 0,
+        "elapsed_ms": 47287,
+        "spin": 49434660,
+        "tail13_before": 1515870810,
+        "tail13_after": 1515848966,
+        "tail13_ref": 1286,
+        "lane01_ok": 1,
+        "lane23_ok": 1
+      },
+      "actual_heads_compare_line": true
+    }
+  ],
+  "successful_sample_count": 3,
+  "old_diff_zero_meaning": "done=2时跳过比较，d13/d26保留初始化0；不是相等实测",
+  "old_timeout_seconds_at_50MHz": 21.47483648,
+  "new_timeout_seconds_at_50MHz": 85.8993459,
+  "objdump_command": [
+    "D:\\Xilinx\\2026.1\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-objdump.exe",
+    "-d",
+    "--disassemble=s4d_m4b_selfcheck",
+    "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\m4b\\s4d_ps_app_sw0_m4b.elf"
+  ],
+  "objdump_exit_code": 0,
+  "limitations": [
+    "历史源码快照与旧ELF相关代码控制流另须结合反汇编复核，不能仅凭当前源码断言旧ELF",
+    "三个成功样本是历史窗口复算，不是本轮新增板上多次采样",
+    "本轮M3初始CPU Running导致未执行；历史6bit变化根因未由只读保持测试排除",
+    "未改冻结应用；建议后续非冻结修订加compare_performed或null差异字段"
+  ],
+  "exit_code": 0
+}

@@ -146,6 +146,10 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **P3r BD validate 通过（2026-10-31 02:4x）**：修两处 —— ① `c_s_axis_s2mm_tdata_width` 是**派生量**（由所连 24-bit subset converter 自动决定，移除硬设即可，与阶段3 厂商 tcl 一致）；② 厂商 IP 的 bus interface 实名 **`m_axis_video`**（非 `M_AXIS`）；另修 rst_all 创建顺序。
+  · **地址图（validate 实测）**：2B `0x43C00000`、preproc `0x43C10000`(0x80)、AXI DMA `0x43C20000`、显示 VDMA `0x43C40000`、uf GPIO `0x43C50000`、**采集 VDMA `0x43C60000`**、**相机 GPIO `0x43C70000`**（`+0x00` 采集帧计数 / `+0x08` S2MM 当前帧指针）、**相机复位 `0x41200000`**（阶段3 同址，bit0→cmos_rstn L19）；HP0/HP1/HP2 各 0x0+1GB。
+  · 采集+显示 VDMA 经 `smc_vis`(2S/1M) → `pc_hp2` → HP2；subset converter 参数与阶段3 逐字一致。
+  · 完整构建已启动（`s5_p3r_build_20261031_r01_console.log`），预计 50–70 min；出 bit 发 sha。
 - **R-07 相机软件已交付（2026-10-31 02:3x）**：`S5_CAMERA=1` 单 ELF —— **`s5_display_app_p3r_camera.elf` `9ffc68e6…`（315,308 B）**、长跑 `cf07bab7…`（315,732 B）；构建记录 `p3r_camera_record.json` `a32833c0…`。
   · 实现：寄存器级 **PS I2C0 SCCB**（0xE0004000，CHIPID 0x5640 校验）→ **640×480 覆盖表**（0x3808/09=640、0x380A/0B=480、HTS 1892、VTS 1480、0x3814/15=0x31、0x4300=0x60、AEC 上限同步；PCLK 84 MHz、30 fps）→ **S2MM VDMA `0x43C60000`**（非 SG 循环、ADDR0=0x12000000、VSIZE 480/HSIZE=STRIDE 1920）→ 失败回落测试图、不阻塞显示；返回码 -10..-15 分诊。
   · 离线自检 `camera_selftest` PASS（正常链 + 异常路径）；**不覆盖**真实 I2C 时序/传感器响应/S2MM 搬运/PL 展开。

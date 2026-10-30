@@ -1,0 +1,39 @@
+{
+  "task_id": "S2C-M03",
+  "run_id": "lane32_cycle_model_20261030_r01",
+  "status": "PASS_LIMITED_STRUCTURAL_MODEL",
+  "hash_basis": "worktree_disk",
+  "baseline_commit": "8856a2cd35eda0269ad5cc0178955013902688f6",
+  "command": [
+    "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "-X",
+    "utf8",
+    "-B",
+    "D:\\FPGA_Competition\\w2c\\verification\\s2c_lane32_cycle_model.py",
+    "--burst-bytes",
+    "128"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.984,
+  "stderr_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "prediction": {
+    "low_cycles_structural_conv_only": 153190204,
+    "high_cycles_adds_estimated_nonconv_4cycles_per_request_and_T68_stalls": 239878928,
+    "low_seconds_at_100mhz": 1.53190204,
+    "high_seconds_at_100mhz": 2.39878928,
+    "low_fps_at_100mhz": 0.41687696720072054,
+    "high_fps_at_100mhz": 0.6527832549919445,
+    "status": "未校准的结构模型；该范围是卷积核心模型与显式非卷积请求估算的场景括号，不是统计置信区间，也不保证覆盖实际整网周期。首tile只作为健全性核对，不能宣称整帧±20%精度。"
+  },
+  "limitations": [
+    "非卷积层读取按算子语义估算请求量；route 映射、maxpool 填充/重复 tap 和 backend dispatch 周期未从整网周期实测校准。",
+    "对conv，tile/权重组/feature row/output row上的bulk边界、每字节局部流与首Tile FSM状态计数均显式计算；T68 bulk延迟按固定seed LFSR序列计数。",
+    "该测试平台单 outstanding、bulk每个命令逐字节每周期；DDR AXI桥吞吐、DDR读写时延及PS观察未由此模型表示。",
+    "没有运行 RTL 仿真、综合或硬件；本模型输出不能替代整网RTL cycles、100MHz时序、功能等价或板级达标判定。"
+  ],
+  "review": {
+    "reviewer": "/root/offline_runner_review",
+    "status": "PASS_LIMITED_MODEL",
+    "scope": "静态和轻量复算，非整帧RTL/综合/板级"
+  }
+}

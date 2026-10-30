@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "stage": "2C",
+  "task_id": "S2C-CHECK",
+  "run_id": "offline_partial_20261030_r01",
+  "source_commit": "8856a2cd35eda0269ad5cc0178955013902688f6",
+  "evidence_dir": "report/evidence/S2C-CHECK/offline_partial_20261030_r01",
+  "interfaces": [
+    {
+      "name": "s2b-physical",
+      "version": "1.0.0",
+      "frozen": true,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+    },
+    {
+      "name": "s2c-physical",
+      "version": "0.1.0",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2c_lane32_bulk_interface_20261030.md",
+      "sha256": "6f7c224f5211bd58c96aa477be5cb764c222cabf293d4b0efbe14049ab43439c"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/source_snapshot/verification/s2c_lane32_cycle_model.py",
+      "sha256": "f3460af81abe28be8844e714b6da931eec48ea83c6e5eda765f728e6e95d1264",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/source_snapshot/verification/run_s2c_network_golden.py",
+      "sha256": "bcb6829e45d545468e06d8be58a5e538f8baa8173f1c86b4f3e5eecda85f8132",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/source_snapshot/verification/run_s2c_lane32_ooc.py",
+      "sha256": "92ccb2d81e6e5c4ef04fd2cd44e929b5d52cc921fb94d494fe4933422794377a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/source_snapshot/verification/compare_s2c_2b_equivalence.py",
+      "sha256": "dc8c3445b81d9489031ef15a8564ae02e146f2fbcc89b19f32bfe11e2833aa7b",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/source_snapshot/sim/tb_s2c_rtl11_network_golden.sv",
+      "sha256": "6b9b3b4330366a691d81178b3c7bcb80260560cca3b999d20ebc18aec83aff76",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/source_snapshot/sim/tb_s2c_top_recovery_matrix.sv",
+      "sha256": "74f9caaf8a78e3a4c03cd20769160d600d4e7df3b0dfbf9d3e1967d91706ea36",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/l0_profile.json",
+      "sha256": "1318675585a618be650629efb6c83b125c5befb5dbfc691fc60759efaea00e73",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/model_result.json",
+      "sha256": "a6556cafcfc4f035d9ad14b0751a90fdea264034e46d61066fb3b1ae9c59ce1d",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2C-CHECK/offline_partial_20261030_r01/interruption_audit.json",
+      "sha256": "0f48159054e475d56b3b77bd339eed38c94e9c8124e7a27274d62355bf9ce5c1",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "M03_structure_model",
+      "status": "PASS",
+      "command": "python -X utf8 -B verification/s2c_lane32_cycle_model.py --burst-bytes 128",
+      "exit_code": 0
+    },
+    {
+      "name": "RTL11_complete_frame",
+      "status": "FAIL",
+      "command": "python -X utf8 -B verification/run_s2c_network_golden.py --run-id network_golden_20261030_r01 --phase all --timeout-seconds 1800 --no-progress-seconds 600 --max-cycles 1000000000",
+      "exit_code": 1,
+      "reason": "运行期间外方另启Vivado，核身份后停止本方；原仿真退出4294967295，无完整帧结果"
+    },
+    {
+      "name": "OOC_100MHz",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "共享重型槽被占；需DSH明确独占窗口，尚未启动综合"
+    },
+    {
+      "name": "new_top_recovery_matrix",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "新TB仅静态独审通过；旧断言失败及冻结源码对照原件均保留"
+    },
+    {
+      "name": "candidate_head_and_box_equivalence",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "完整帧尚未导出两头；比较器正负控不能代替候选结果"
+    }
+  ],
+  "hash_basis": "worktree_disk",
+  "tool_versions": {
+    "Python": "3.12.14",
+    "Verilator": "5.050 2026-07-01",
+    "Vivado_XSim": "2026.1"
+  },
+  "limitations": [
+    "本包只审计未完成交付的来源与包装，证据模式通过不能替代动态验收。",
+    "新S2C物理接口仍是离线候选，不伪称冻结；inputs预期被未冻结接口和失败/受阻项拒绝。",
+    "日志原件不列入清单，本包只有实际源/输入/结果副本；原工具日志SHA在原运行result中。",
+    "本轮未提交源以worktree_disk快照绑定，后续另补commit_blob；没有上板请求或G3/G4/G5结论。"
+  ]
+}

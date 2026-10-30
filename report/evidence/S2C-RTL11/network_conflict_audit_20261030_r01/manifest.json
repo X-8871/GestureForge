@@ -1,0 +1,33 @@
+{
+  "task_id": "S2C-RTL11",
+  "run_id": "network_conflict_audit_20261030_r01",
+  "hash_basis": "worktree_disk",
+  "items": [
+    {
+      "path": "report/evidence/S2C-RTL11/network_conflict_audit_20261030_r01/result.json",
+      "sha256": "0f48159054e475d56b3b77bd339eed38c94e9c8124e7a27274d62355bf9ce5c1",
+      "role": "audit_result"
+    },
+    {
+      "path": "report/evidence/S2C-RTL11/network_golden_20261030_r01/result.json",
+      "sha256": "2a26152d4075400eaec0bb5d9c3288bc0adba8f9a448db668e68133a384d23b0",
+      "role": "original_run_binding"
+    },
+    {
+      "path": "report/evidence/S2C-RTL11/network_golden_20261030_r01/manifest.json",
+      "sha256": "356a1786b344ac82f1cae765bde9e5cc9369d7ddcac972f5f7b49e954e77f4dc",
+      "role": "original_run_binding"
+    },
+    {
+      "path": "report/evidence/S2C-RTL11/network_golden_20261030_r01/compile_result.json",
+      "sha256": "7a9f8bb35a3e614f9b6589ac910b8c73b76e29c1249c8fc30e0079df0a5fa162",
+      "role": "original_run_binding"
+    }
+  ],
+  "limitations": [
+    "仿真尚未产生最终summary或heads；不能用最后checkpoint作为整帧cycles。",
+    "主机可用内存和单进程工作集是查询时快照，不是峰值。",
+    "资源冲突导致两任务短时重叠，发现后停止本方；后续需DSH明确独占窗口，启动前CIM不能构成跨方锁。",
+    "原RunId清单包含tmp中编译binary身份；该binary需原地保留作失败运行恢复依赖，不作为Git构建产物提交。"
+  ]
+}

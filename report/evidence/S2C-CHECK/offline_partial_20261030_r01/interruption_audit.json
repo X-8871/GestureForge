@@ -1,0 +1,57 @@
+{
+  "task_id": "S2C-RTL11",
+  "run_id": "network_conflict_audit_20261030_r01",
+  "hash_basis": "worktree_disk",
+  "status": "INTERRUPTED_FOR_SHARED_RESOURCE_CONFLICT",
+  "original_run_status": "SIMULATION_FAIL",
+  "compile_exit_code": 0,
+  "simulation_exit_code": 4294967295,
+  "outer_runner_exit_code": 1,
+  "whole_frame_cycles": null,
+  "whole_frame_pass": false,
+  "last_progress": "RTL11_PROGRESS sample=0 layer=26 cycle=180000000 output=0 conv_tile_y=0 conv_tile_x=0 conv_group=0 conv_point=27 conv_reduction=1400 conv_feature_scan=115200 conv_weight_reduction=0 conv_output_lane=0 conv_output_point=0 pool_tap=3 feature_write_bytes=10556416 read_transactions=7664448 write_transactions=5404672 phase=running",
+  "scope": "只解释原失败退出，不改原RunId/工具状态，不构成整帧PASS或帧时间结果",
+  "events": [
+    {
+      "time_utc8": "2026-10-30T13:12:04+08:00",
+      "event": "PRELAUNCH_NO_HEAVY_PROCESS",
+      "available_memory_kib": 5321472
+    },
+    {
+      "time_utc8": "2026-10-30T13:14:20.652295+08:00",
+      "event": "OWN_SIMULATION_STARTED",
+      "pid": 46340,
+      "parent_pid": 12844
+    },
+    {
+      "time_utc8": "2026-10-30T13:19:44.206403+08:00",
+      "event": "EXTERNAL_VIVADO_P3H_STARTED",
+      "pid": 53332,
+      "path": "D:/tmp/lead/p3h_video_20261030_r01/bd_p3h.tcl"
+    },
+    {
+      "time_utc8": "2026-10-30T13:22:50+08:00",
+      "event": "RESOURCE_CONFLICT_OBSERVED",
+      "available_memory_kib": 2004372,
+      "own_simulation_working_set_bytes_snapshot_not_peak": 43974656
+    },
+    {
+      "time_utc8": "2026-10-30T13:24:02+08:00",
+      "event": "STOP_ONLY_VERIFIED_OWN_PID",
+      "pid": 46340,
+      "identity_checks": [
+        "executable exact path",
+        "parent pid=12844",
+        "RunId commandline",
+        "creation time"
+      ],
+      "external_processes_terminated": false
+    }
+  ],
+  "limitations": [
+    "仿真尚未产生最终summary或heads；不能用最后checkpoint作为整帧cycles。",
+    "主机可用内存和单进程工作集是查询时快照，不是峰值。",
+    "资源冲突导致两任务短时重叠，发现后停止本方；后续需DSH明确独占窗口，启动前CIM不能构成跨方锁。",
+    "原RunId清单包含tmp中编译binary身份；该binary需原地保留作失败运行恢复依赖，不作为Git构建产物提交。"
+  ]
+}

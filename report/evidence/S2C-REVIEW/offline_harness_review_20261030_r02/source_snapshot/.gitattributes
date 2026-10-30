@@ -1,0 +1,769 @@
+# 快照逐字节保存，避免换行转换破坏来源校验值
+docs/obsidian-project/** -text
+.codex/STATE.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T08 的原生证据和源码快照保持 SHA-256 原始字节。
+report/evidence/S2B-T08/** -text
+report/evidence/S2B-T08/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S2B-T09 请求准入模块与证据保留被审原始字节。
+report/evidence/S2B-T09/** -text
+report/evidence/S2B-T09/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_request_guard.sv -text
+sim/tb_s2b_request_guard.sv -text
+verification/test_s2b_request_guard_rtl.py -text
+
+# S2B-T10 AXI3 桥接模块与原始验证证据保留被审字节。
+report/evidence/S2B-T10/** -text
+report/evidence/S2B-T10/** whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T10/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_hp0_word_adapter.sv -text
+sim/tb_s2b_hp0_word_adapter.sv -text
+verification/test_s2b_hp0_word_adapter_rtl.py -text
+
+# S2B-T11 外层控制与恢复证据保持被审原始字节。
+report/evidence/S2B-T11/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T11/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_control_csr.sv -text
+src/s2b_control_adapter.sv -text
+sim/tb_s2b_control_csr.sv -text
+sim/tb_s2b_control_integration.sv -text
+verification/test_s2b_control_csr_rtl.py -text
+
+# S2B 部署工具链、完整平台和实物连接证据保留原始字节。
+report/evidence/S2B-T12/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T12/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T13/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T14/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T14/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+src/s2b_inference_top.sv -text
+vivado/s2b_inference_platform.tcl -text
+board/s2b_inference_platform.json -text
+board/s2b_inference_platform.md -text
+verification/check_s2b_inference_platform.py -text
+
+# T13 厂商原生生成文件和 Tcl 捕获字典保持哈希；空白不作为源码修改。
+report/evidence/S2B-T13/artifact_recheck_20261011_r01/ps7_init.* whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T13/**/*.tcldict whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/ipi_full_20261011_r01/partial_failed_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/ipi_full_20261011_r02/validated_before_audit_failure.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/ipi_full_20261011_r05/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/**/source_snapshot/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/platform_api_audit_20261011_r07/record_driver.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T13/platform_api_audit_20261011_r08/record_driver.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+src/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# T18 验收脚本与离线审查原件保持被审字节。
+# T17 的原生失败证据、独立审查与派生源逐字节保留。
+report/evidence/S2B-T17/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/**/*.rpt whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/**/*.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/full_synthesis_20261011_r01/native_jobs/**/*.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/full_synthesis_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/**/tb_s2b_geometry_specialization.sv whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s1_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s1_platform_20261011_r01/native_jobs/**/*.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s1_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s1_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+src/s2b_maxpool_engine.sv -text
+src/s2b_upsample_engine.sv -text
+src/s2b_network_backend.sv -text whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+src/s2b_stage2b_core.sv -text whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+verification/test_s2b_geometry_specialization_rtl.py -text
+verification/test_s2b_backend_coordinates_rtl.py -text
+# T19 官方依据、实际导入和独立审查证据保持原始哈希。
+report/evidence/S2B-T19/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T18/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T18/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+verification/s2b_board_acceptance.py -text
+verification/test_s2b_board_acceptance.py -text
+# T15 已审软件与构建、审查证据保持原字节。
+report/evidence/S2B-T15/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T15/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+# T15 编译器、链接器与厂商 BSP 的原生输出按原字节核验。
+report/evidence/S2B-T15/**/*.i whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T15/**/*.map whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T15/**/bspconfig.h whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T15/**/ps7_init.* whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T15/**/init_lscript.ld whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+vitis/s2b_inference_app.c -text
+vitis/build_s2b_inference.py -text
+
+# 资格入口canonical摘要与独审源码哈希依赖原字节，提交和检出均保留换行。
+vitis/run_s2b_model_qualification.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+verification/test_s2b_model_qualification_entry.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+verification/check_s2b_qualification_runtime.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# R04离线准备脚本参与原字节SHA绑定，禁止Git自动换行转换。
+vitis/prepare_s2b_model_qualification_offline.py -text
+vitis/prepare_s2b_model_qualification_r05_offline.py -text
+vitis/run_s2b_model_acceptance.py -text whitespace=cr-at-eol
+verification/test_s2b_model_acceptance_runner.py -text whitespace=cr-at-eol
+verification/s2b_csr_acceptance_flow.py -text
+verification/test_s2b_csr_acceptance_flow.py -text
+verification/s2b_managed_vitis.py -text
+verification/s2b_board_transport.py -text
+verification/test_s2b_board_transport.py -text
+
+# T16 借用调试会话的工具与真实离线证据保持被审字节。
+report/evidence/S2B-T16/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+verification/s2b_board_jtag.py -text
+verification/test_s2b_board_jtag.py -text
+
+# 2B 下游消费的四份冻结索引保持 Git 对象原始 LF 字节。
+report/evidence/S2A-T25/cpu_layer_golden_index.json -text
+report/evidence/S2A-T29/cpu_decode_nms_reference.json -text
+report/evidence/S2A-T68/candidate8x8_109_20261006_130252/d9_109_candidate8x8_109_resume_20261007_023531.json -text
+report/evidence/S2A-T68/candidate8x8_109_20261006_130252/recovery_manifest_20261007_023531.json -text
+
+# G0 SHA-256 绑定文件保持原始字节，避免自动 CRLF 转换
+report/evidence/S2A-T01/** -text
+verification/s2a_model_delivery.py -text
+verification/test_s2a_model_delivery.py -text
+
+# S2A-T02 仿真证据绑定的源码与结果文件保持原始字节
+report/evidence/S2A-T02/** -text
+src/int8_mac_accumulator.sv -text
+sim/tb_s2a_int8_mac_accumulator.sv -text
+verification/test_s2a_mac_rtl.py -text
+verification/s2a_mac_vector_audit.py -text
+
+# S2A-T03 仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T03/** -text
+src/int8_maxpool_window.sv -text
+sim/tb_s2a_maxpool_window.sv -text
+verification/test_s2a_maxpool_rtl.py -text
+
+# S2A-T04 几何仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T04/** -text
+src/int8_maxpool_geometry.sv -text
+sim/tb_s2a_maxpool_geometry.sv -text
+verification/test_s2a_maxpool_geometry_rtl.py -text
+
+# S2A-T05 查询仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T05/** -text
+src/int8_upsample_query.sv -text
+sim/tb_s2a_upsample_query.sv -text
+verification/test_s2a_upsample_rtl.py -text
+
+# S2A-T06 route 查询仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T06/** -text
+src/int8_route_query.sv -text
+sim/tb_s2a_route_query.sv -text
+verification/test_s2a_route_rtl.py -text
+
+# S2A-T07 卷积 tap 几何仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T07/** -text
+src/int8_conv_tap_geometry.sv -text
+sim/tb_s2a_conv_tap_geometry.sv -text
+verification/test_s2a_conv_tap_geometry_rtl.py -text
+
+# S2A-T08 YOLO 视图查询证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T08/** -text
+src/int8_yolo_view_query.sv -text
+sim/tb_s2a_yolo_view_query.sv -text
+verification/test_s2a_yolo_view_rtl.py -text
+
+# S2A-T10 memory model 仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T10/** -text
+sim/s2a_memory_model.sv -text
+sim/tb_s2a_memory_model.sv -text
+verification/test_s2a_memory_model_rtl.py -text
+
+# S2A-T09 权重字节地址仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T09/** -text
+src/int8_conv_weight_address.sv -text
+sim/tb_s2a_conv_weight_address.sv -text
+verification/test_s2a_conv_weight_address_rtl.py -text
+
+# S2A-T11 控制 CSR 仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T11/** -text
+src/s2a_control_csr.sv -text
+sim/tb_s2a_control_csr.sv -text
+verification/test_s2a_control_csr_rtl.py -text
+
+# S2A-T12 runtime protocol 仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T12/** -text
+src/s2a_memory_master.sv -text
+src/s2a_runtime_shell.sv -text
+sim/tb_s2a_runtime_protocol.sv -text
+verification/test_s2a_runtime_protocol_rtl.py -text
+
+# S2A-T13 upsample memory datapath evidence 与源码保持 UTF-8/LF 原始字节
+report/evidence/S2A-T13/** -text
+src/s2a_upsample_engine.sv -text
+sim/tb_s2a_upsample_engine.sv -text
+verification/test_s2a_upsample_engine_rtl.py -text
+
+# S2A-T14 maxpool memory datapath evidence 与源码保持 UTF-8/LF 原始字节
+report/evidence/S2A-T14/** -text
+src/s2a_maxpool_engine.sv -text
+sim/tb_s2a_maxpool_engine.sv -text
+verification/test_s2a_maxpool_engine_rtl.py -text
+
+# S2A-T15 route memory datapath 证据与源码保持 UTF-8/LF 原始字节
+report/evidence/S2A-T15/** -text
+src/s2a_route_engine.sv -text
+sim/tb_s2a_route_engine.sv -text
+verification/test_s2a_route_engine_rtl.py -text
+
+# S2A-T16 重定标证明脚本与证据保持 UTF-8/换行原始字节
+report/evidence/S2A-T16/** -text
+verification/s2a_conv_requant_proof.py -text
+
+# S2A-T17 卷积输出元素仿真证据绑定文件保持 UTF-8/LF 原始字节
+report/evidence/S2A-T17/** -text
+src/s2a_conv_engine.sv -text
+sim/tb_s2a_conv_engine.sv -text
+verification/test_s2a_conv_engine_rtl.py -text
+
+# S2A-T18 layer scheduler 证据、源码与 testbench 保持 UTF-8/LF 原始字节
+report/evidence/S2A-T18/** -text
+src/s2a_upsample_layer_scheduler.sv -text
+sim/tb_s2a_upsample_layer_scheduler.sv -text
+verification/test_s2a_upsample_layer_scheduler_rtl.py -text
+# S2A-T54 row18 源码与仿真证据保留 UTF-8 原始字节以维持 SHA-256 绑定
+report/evidence/S2A-T54/** -text
+src/s2a_conv_layer35_channel_probe.sv -text
+sim/tb_s2a_conv_layer35_row18_all_channels.sv -text
+verification/test_s2a_conv_layer35_row18_all_channels_rtl.py -text
+# S2A-T55 row19 仿真证据保留原始 UTF-8 字节以维持 SHA-256 绑定
+report/evidence/S2A-T55/** -text
+# S2A-T55 task sources 保留原始 UTF-8 字节以维持 SHA-256 绑定
+sim/tb_s2a_conv_layer35_row19_all_channels.sv -text
+verification/test_s2a_conv_layer35_row19_all_channels_rtl.py -text
+sim/s2a_t55_no_wave.tcl -text
+
+# S2A-T56 row20 仿真证据与源码保持原始 UTF-8 字节以维持 SHA-256 绑定
+report/evidence/S2A-T56/** -text
+sim/tb_s2a_conv_layer35_row20_all_channels.sv -text
+verification/test_s2a_conv_layer35_row20_all_channels_rtl.py -text
+sim/s2a_t56_no_wave.tcl -text
+
+# S2A-T57 至 T61 row21 至 row25 的 SHA-256 绑定文件保持原始 UTF-8 字节
+report/evidence/S2A-T57/** -text
+report/evidence/S2A-T58/** -text
+report/evidence/S2A-T59/** -text
+report/evidence/S2A-T60/** -text
+report/evidence/S2A-T61/** -text
+sim/s2a_t57_no_wave.tcl -text
+sim/tb_s2a_conv_layer35_row21_all_channels.sv -text
+sim/tb_s2a_conv_layer35_row22_all_channels.sv -text
+sim/tb_s2a_conv_layer35_row23_all_channels.sv -text
+sim/tb_s2a_conv_layer35_row24_all_channels.sv -text
+sim/tb_s2a_conv_layer35_row25_all_channels.sv -text
+verification/run_s2a_t57_project_sim.ps1 -text
+verification/test_s2a_conv_layer35_row21_all_channels_rtl.py -text
+verification/test_s2a_conv_layer35_row22_all_channels_rtl.py -text
+verification/test_s2a_conv_layer35_row23_all_channels_rtl.py -text
+verification/test_s2a_conv_layer35_row24_all_channels_rtl.py -text
+verification/test_s2a_conv_layer35_row25_all_channels_rtl.py -text
+
+# S2A-T62 主机 C 参考源码与证据保持 UTF-8/LF 字节
+report/evidence/S2A-T62/** -text
+verification/s2a_ps_decode_nms_reference.c text eol=lf
+verification/s2a_ps_decode_nms_reference.h text eol=lf
+verification/test_s2a_ps_decode_nms_c.py text eol=lf
+
+# S2A-T65 fixture 与验证文件保持原始字节以维持 SHA-256 绑定
+report/evidence/S2A-T65/** -text
+report/evidence/S2A-T65/**/*.bin binary
+sim/tb_s2a_t65_layer0_golden.sv -text
+verification/run_s2a_t65_layer0_golden.ps1 -text
+verification/test_s2a_t65_layer0_golden.py -text
+
+# S2A-T63 动态 ROM 夹具与证据保持 SHA-256 绑定的原始字节
+report/evidence/S2A-T63/** -text
+
+# 本次 ROSS 冒烟证据逐字节保存，避免工作树换行转换破坏 SHA-256
+report/evidence/CTRL-ROSS-SMOKE/ross_tcl_20261008_192127/** -text
+
+# 新交付检查器验收绑定的源码、规则与本次证据保留原始字节
+AGENTS.md -text
+report/README.md -text
+verification/check_stage_delivery.py -text
+verification/test_stage_delivery.py -text
+verification/stage_delivery_template.json -text
+report/evidence/CTRL-DELIVERY/validation_20261008_2054/** -text
+
+# S2B-T01 本次资料审计证据逐字节保存，避免换行转换破坏冻结哈希
+report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/** -text
+
+# 解析器原始 JSON 为 CRLF，仅将 CR 视为行结束，仍检查普通尾随空白
+report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/reader_manifest.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T01/vendor_manual_audit_20261008_r01/reader_status.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T03 的目标器件证据和绑定源码逐字节保存，便于恢复核验
+report/evidence/S2B-T03/target_resolution_20261008_r01/** -text
+vivado/AX7Z020_Gesture/AX7Z020_Gesture.xpr -text
+board/README.md -text
+report/evidence/S2B-T03/target_resolution_20261008_r01/project_check_attempt02_result.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T03/target_resolution_20261008_r01/project_check_attempt01_stderr.bin -diff
+
+# S2B-T03 后续确认及 S2B-T02 离线采集比对交付保留原始字节
+report/evidence/S2B-T03/target_resolution_20261008_r02/** -text
+report/evidence/S2B-T02/capture_check_20261008_r01/** -text
+verification/s2b_fixed_capture_check.py -text
+verification/test_s2b_fixed_capture_check.py -text
+verification/README.md -text
+report/evidence/S2B-T03/target_resolution_20261008_r02/project_check_result.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T03/target_resolution_20261008_r02/reader_manifest.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T03/target_resolution_20261008_r02/reader_status.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T03/target_resolution_20261008_r02/manual_extract.md whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T03/target_resolution_20261008_r02/vivado_native_log.txt whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T03/target_resolution_20261008_r02/packaging_attempt02_stdout.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T02 原始Windows日志的CR只作行结束，普通尾随空白继续检查
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_boundary.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_duplicate_keys.stderr.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_exact.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_existing_report.stderr.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_missing_head.stderr.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_over_tolerance.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_tail_byte.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_word_padding.stderr.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/cli_wrong_order.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/syntax.attempt02.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/syntax.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/unittest.attempt02.stderr.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/unittest.stderr.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/pack_full_delivery_inputs_not_ready.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/pack_inputs_after_lf.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T02/capture_check_20261008_r01/pack_evidence_after_lf.stdout.log whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T05 保留恢复候选快照与协议分析的原始字节
+report/evidence/S2B-T05/axi_abort_contract_20261008_r01/** -text
+
+# S2B-T05 方案批准及独立审查证据按SHA保持原字节
+report/evidence/S2B-T05/axi_recovery_decision_20261009_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T04 离线PS平台的源码及工具生成证据保留原始字节
+vivado/s2b_ps_platform.tcl -text
+board/ps_platform_fields.json -text
+board/ps_platform.md -text
+report/evidence/S2B-T04/ps_platform_20261008_r01/** -text
+
+# S2B-T04 原生Vivado日志与capture保存工具原有空白，源码另作普通空白检查
+report/evidence/S2B-T04/ps_platform_20261008_r01/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/**/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+# S2B-T04 其余原始CRLF文本保留字节，并继续检查普通尾随空白
+report/evidence/S2B-T04/ps_platform_20261008_r01/rebuild_attempt4/s2b_ps_only.bd whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/s2b_ps_only.bd whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_document.md whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_manifest.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r01/source_proof/v22_status.json whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T04 R2 保留修复后的独立候选、历史源码快照与真实失败诊断字节
+report/evidence/S2B-T04/ps_platform_20261008_r02/** -text
+report/evidence/S2B-T04/ps_platform_20261008_r02/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/**/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_20261008_r02/candidate_attempt1/s2b_ps_only.bd whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T04 独立实验与离线冻结记录可按哈希恢复
+docs/obsidian-project/04-提交材料/阶段验收/stage2b_ps_platform_offline_freeze_20261009.md -text
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T04/ps_platform_freeze_20261009_r01/**/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S2B-T04 集成补审实验及被审控制文本快照保持原字节
+report/evidence/S2B-T04/ps_platform_integration_20261009_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S2B-T06 固定源码、人工入口与实验原件按SHA保持原始字节
+vitis/s2b_ps_smoke.c -text
+vitis/build_s2b_ps_smoke.py -text
+vitis/s2b_ps_smoke.md -text
+verification/check_s2b_ps_smoke_layout.py -text
+report/evidence/S2B-T06/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T06/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/**/*.map whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/**/*.i whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S2B-T07 物理接口候选与独立审查证据按 SHA 保留原始字节
+report/evidence/S2B-T07/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T07/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# 仅为已绑定的42份SDK及工具原字节保留其原始空白，项目新源码继续严格检查
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_01/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_01/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_01/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_02/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_02/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_02/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_03/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_03/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_03/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_04/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_04/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_04/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_05/bspconfig.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_05/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_05/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_05/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/bspconfig.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_fsbl.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_fsbl_handoff.S whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_fsbl_hooks.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_lscript.ld whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_main.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_pcap.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/fsbl_pcap.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_06/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_07/bspconfig.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_07/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_07/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_07/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_07/s2b_ps_init.ld whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/bspconfig.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_20261008_r01/build_08/s2b_ps_init.ld whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_offline_freeze_20261009_r01/reviewer_r01/report/evidence/S2B-T06/b01/bspconfig.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_offline_freeze_20261009_r01/reviewer_r01/report/evidence/S2B-T06/b01/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_offline_freeze_20261009_r01/reviewer_r01/report/evidence/S2B-T06/b01/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_offline_freeze_20261009_r01/reviewer_r01/report/evidence/S2B-T06/b01/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T06/ps_smoke_offline_freeze_20261009_r01/reviewer_r01/report/evidence/S2B-T06/b01/s2b_ps_init.ld whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+vitis/run_s2b_visibility_probe.py -text
+verification/test_s2b_visibility_probe.py -text
+report/evidence/S2B-T17/s2_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s2_platform_20261011_r01/native_jobs/**/*.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s2_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s2_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+src/s2b_route_query.sv -text whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+src/s2b_route_engine.sv -text whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+verification/test_s2b_route_specialization_rtl.py -text
+report/evidence/S2B-T17/route_specialization_20261011_r07/source_changes.patch whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+verification/s2b_csr_board_acceptance.py -text
+verification/test_s2b_csr_board_acceptance.py -text
+report/evidence/S2B-T20/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T20/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T20/csr_acceptance_20261011_r03/*.py.diff whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s3_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s3_platform_20261011_r01/native_jobs/**/*.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s3_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s3_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+src/s2b_conv_tile_engine.sv -text whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+verification/test_s2b_conv_validation_rtl.py -text
+verification/test_s2b_cold_observation.py -text
+verification/s2b_csr_busy_observer.py -text
+verification/test_s2b_csr_busy_observer.py -text
+report/evidence/S2B-T17/conv_validation_20261011_r15/source_changes.patch whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/cold_observation_20261011_r01/sdk_config_status_excerpt.txt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_cold_observation_review_20261011_r01/raw/r1/0043_sdk_excerpt.txt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_cold_observation_review_20261011_r01/raw/r2/0006_verification__s2b_board_jtag.py.diff whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_cold_observation_review_20261011_r01/raw/r2/0007_verification__test_s2b_board_jtag.py.diff whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_cold_observation_review_20261011_r01/raw/r2/0091_sdk_excerpt.txt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_cold_observation_review_20261011_r01/raw/r2/0094_verification__s2b_board_jtag.py.diff whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_cold_observation_review_20261011_r01/raw/r2/0097_verification__test_s2b_board_jtag.py.diff whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+# 保留S4原生Tcl/XDC捕获字节，此规则不改变Vivado时序或DRC。
+report/evidence/S2B-T17/s4_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/**/*.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+# S4生成输入和原生作业启动器按工具原字节保留。
+report/evidence/S2B-T17/s4_platform_20261011_r01/generated_inputs/s2b_inference.v whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/generated_inputs/s2b_inference_axi_gp0_lite_0_ooc.xdc whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/generated_inputs/s2b_inference_infer_0.sv whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/generated_inputs/s2b_inference_ps7_0.xdc whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/generated_inputs/s2b_inference_rst_fclk0_0_board.xdc whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/generated_inputs/s2b_inference_rst_fclk0_0_ooc.xdc whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/**/ISEWrap.js whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/**/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s4_platform_20261011_r01/native_jobs/**/runme.sh whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# S5审查diff的空白上下文须按原字节保留。
+report/evidence/S2B-T17/patch_guard_20261011_r07/source_changes.diff whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# postconfig生成表和历史补丁保留实际空白原字节，生产代码仍执行空白检查。
+report/evidence/S2B-T16/independent_postconfig_review_20261011_r01/raw_artifacts/tmp/2B/S2B-T16/independent_postconfig_review_20261011_r01/attempt_r02/generated_basis/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_postconfig_review_20261011_r01/raw_artifacts/tmp/2B/S2B-T16/independent_postconfig_review_20261011_r01/attempt_r02/generated_basis/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_postconfig_review_20261011_r01/raw_artifacts/tmp/2B/S2B-T16/independent_postconfig_review_20261011_r01/attempt_r02/generated_basis/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_postconfig_review_20261011_r01/raw_artifacts/tmp/2B/S2B-T16/independent_postconfig_review_20261011_r01/attempt_r02/generated_basis/ps7_init_gpl.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/independent_postconfig_review_20261011_r01/raw_artifacts/tmp/2B/S2B-T16/independent_postconfig_review_20261011_r01/attempt_r02/generated_basis/ps7_init_gpl.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r01/generated_basis/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r01/generated_basis/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r01/generated_basis/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r01/generated_basis/ps7_init_gpl.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r01/generated_basis/ps7_init_gpl.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r01/source_changes.patch whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r02/generated_basis/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r02/generated_basis/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r02/generated_basis/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r02/generated_basis/ps7_init_gpl.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r02/generated_basis/ps7_init_gpl.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T16/postconfig_20261011_r02/source_changes.patch whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S5实际综合的生成输入、启动器与VDS文本日志保留原字节。
+report/evidence/S2B-T17/s5_platform_20261011_r01/const_one_configure.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/const_zero_configure.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/hwdef.xml whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/ps7_init_gpl.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/ps7_init_gpl.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/s2b_inference.v whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/s2b_inference_axi_gp0_lite_0_ooc.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/s2b_inference_infer_0.sv whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/s2b_inference_ps7_0.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/s2b_inference_rst_fclk0_0_board.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/s2b_inference_rst_fclk0_0_ooc.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/generated_inputs/xsa.json whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/s2b_inference_axi_gp0_lite_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/s2b_inference_axi_gp0_lite_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/s2b_inference_infer_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/s2b_inference_infer_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/s2b_inference_ps7_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/s2b_inference_ps7_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/s2b_inference_rst_fclk0_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/s2b_inference_rst_fclk0_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/s2b_inference_wrapper.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/native_jobs/wrapper_native_s5_r01/s2b_inference_wrapper.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s5_platform_20261011_r01/validate.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S6失败与成功审查补丁中的空白上下文保留原字节。
+report/evidence/S2B-T17/length_guard_20261011_r07/source_changes.diff whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S6厂商生成原件保留空白与原字节；只限定本轮已核验文件。
+report/evidence/S2B-T17/s6_platform_20261011_r01/const_one_configure.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/const_zero_configure.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/ps7_init.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/ps7_init.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/ps7_init.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/ps7_init_gpl.c whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/ps7_init_gpl.h whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/s2b_inference.v whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/s2b_inference_axi_gp0_lite_0_ooc.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/s2b_inference_infer_0.sv whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/s2b_inference_rst_fclk0_0_ooc.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/s2b_inference_axi_gp0_lite_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_axi_gp0_lite_0_synth_1/s2b_inference_axi_gp0_lite_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/s2b_inference_infer_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_infer_0_synth_1/s2b_inference_infer_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/s2b_inference_ps7_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_ps7_0_synth_1/s2b_inference_ps7_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/s2b_inference_rst_fclk0_0.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/s2b_inference_rst_fclk0_0_synth_1/s2b_inference_rst_fclk0_0.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/ISEWrap.js whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/ISEWrap.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/runme.sh whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/s2b_inference_wrapper.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/native_jobs/wrapper_native_s6_r01/s2b_inference_wrapper.vds whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/validate.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/hwdef.xml whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/s2b_inference_ps7_0.xdc whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/s2b_inference_rst_fclk0_0_board.xdc whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s6_platform_20261011_r01/generated_inputs/xsa.json whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# S7原始统一diff的空白上下文按原字节保留，仅豁免这三份证据的行尾空白。
+report/evidence/S2B-T17/route_address_guard_20261011_r03/source_diff.patch whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/route_address_guard_20261011_r04/source_diff.patch whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_route_address_guard_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/route_address_guard_20261011_r04/source_diff.patch whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# S7 的实际 Vivado 生成原件保持原字节；仅关闭原件继承的空白诊断。
+report/evidence/S2B-T17/s7_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s7_platform_20261011_r01/generated_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s7_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s7_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s7_platform_20261011_r01/mcp_closed/close_source_and_log.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/s7_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/s7_platform_20261011_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/s7_platform_20261011_r01/generated_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/s7_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/s7_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r01/raw_artifacts/report/evidence/S2B-T17/s7_platform_20261011_r01/mcp_closed/close_source_and_log.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# S7 独审闭包使用编号目录保存原文件名，生成原件与已审字节不再改写。
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r02/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s7_synthesis_review_20261011_r02/prior_wrapper_failure/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S8 新增派生几何与回归入口保留独立审查的原字节。
+src/s2b_maxpool_geometry.sv -text
+verification/test_s2b_maxpool_address_guard_rtl.py -text
+
+# S8 独审的哈希绑定原件包含原始 diff 与工具输出，保留其空白字节。
+report/evidence/S2B-T17/independent_s8_maxpool_review_20261011_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S8实际综合原生报告、生成输入和独立审查副本保留原字节空白。
+report/evidence/S2B-T17/s8_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s8_platform_20261011_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s8_platform_20261011_r01/generated_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s8_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s8_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s8_synthesis_review_20261011_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S9新增回归与独审原件保持已核验字节，证据中的原始diff不改写空白。
+verification/test_s2b_conv_output_address_rtl.py -text
+report/evidence/S2B-T17/conv_output_address_20261011_r03/source_diff.patch whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_conv_output_address_review_20261011_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# T14逐字归档的既有脚本末尾空行保留，仅豁免这些原件的EOF空白。
+report/evidence/S2B-T14/independent_jtag_readonly_review_20261011_r03/raw_artifacts/0094/archive_review_r02.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# S9厂商生成原件及独立审查副本保留原始字节，不豁免生产源码诊断。
+report/evidence/S2B-T17/s9_platform_20261011_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/generated_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s9_synthesis_review_20261011_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/collector_code/collector.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/collector_code/native.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s9_platform_20261011_r01/root_closed_r02/close_evidence_r02.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# S10地址回归和独审副本保留哈希绑定原件空白，不豁免生产源码。
+verification/test_s2b_conv_feature_address_rtl.py -text
+report/evidence/S2B-T17/conv_feature_address_20261011_r01/source_diff.patch whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_conv_feature_address_review_20261012_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_conv_feature_address_review_20261012_r02/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S10综合、守卫原件与独审副本保持原始空白，生产源码继续严格核对。
+report/evidence/S2B-T17/s10_platform_20261012_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s10_platform_20261012_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s10_platform_20261012_r01/generated_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s10_platform_20261012_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s10_platform_20261012_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s10_platform_20261012_r01/resource_monitoring/raw/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s10_platform_20261012_r01/collector_code/**/*.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s10_synthesis_review_20261012_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S11几何实验差异和独立审查副本保留原始空白，生产源码仍严格检查。
+report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r01/source_diff.patch whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/maxpool_geometry_factor_20261012_r02/source_diff.patch whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_maxpool_geometry_factor_review_20261012_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S11综合生成原件、守卫差异与独审副本保留原始空白，生产源码仍严格核对。
+report/evidence/S2B-T17/s11_platform_20261012_r01/*.tcldict whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_platform_20261012_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_platform_20261012_r01/generated_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_platform_20261012_r01/constraints_synth.xdc whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_platform_20261012_r01/s2b_inference_bd.tcl whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_platform_20261012_r01/resource_monitoring/**/*.patch whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_platform_20261012_r01/collector_code/**/*.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s11_synthesis_review_20261012_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S11布线生成原件和审查副本保持原始空白，生产代码继续严格检查。
+report/evidence/S2B-T17/s11_implementation_20261012_r01/closed_inputs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_implementation_20261012_r01/native_jobs/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2B-T17/s11_implementation_20261012_r01/collector_code/**/*.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T17/independent_s11_implementation_review_20261012_r01/raw_artifacts/** whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+
+# S13 已独审的收集器原件保留末尾空行；继续检查行尾空白与空格后制表符。
+report/evidence/S2B-T17/s13_launch_tools_20261012_r01/tools/collector.py whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# 同一设计位流及官方硬件交接导出脚本保留被审字节。
+verification/s15_bitgen_export.tcl -text
+
+# S2B-T01本次审计证据按原始字节保存，避免换行转换破坏SHA-256。
+report/evidence/S2B-T01/gp0_translation_mode_audit_20261014_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# GP0软件契约审计Run保留原始字节，不执行换行转换；CRLF输入按行尾识别。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r01/** -text whitespace=cr-at-eol
+
+# PATH绑定回归源按原始字节校验，避免Windows检出换行转换改变其证据SHA。
+verification/test_s2b_platform_paths.py -text
+
+# 内存预算回归脚本与测试源码作为原始字节输入，保持其清单SHA。
+verification/s2b_memory_request_budget.py -text
+verification/test_s2b_memory_request_budget.py -text
+
+# GP0软件契约R02证据保持生成时的原始字节，防止检出过程改写哈希绑定。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r02/** -text
+
+# GP0软件契约R03证据保持生成时的原始字节，避免检出时改变manifest绑定SHA。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r03/** -text
+
+# R02首次stdout原件为CP936和CRLF，仅将CR识别为行尾，继续检查真实尾随空格。
+report/evidence/S2B-T01/gp0_software_contract_20261014_r02/overwrite_guard_check.json whitespace=cr-at-eol
+
+# XA补充诊断的Vivado原生文件保留实测原字节，仅豁免各文件实际已有的空白种类。
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/constraints.xdc whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/methodology.rpt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/route_status.rpt whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2B-T19/xa_timing_retarget_20261014_r01/timing_summary.rpt whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+
+# 本轮独审源码参与原字节哈希绑定，检出与提交均禁止换行转换。
+verification/s15_job_guard.py -text
+verification/test_s15_direct_vivado_bitgen.py -text
+verification/s2b_process_supervisor.py -text
+verification/test_s2b_process_supervisor.py -text
+verification/test_s2b_control_csr_rtl.py -text
+verification/check_s2b_inference_mmu.py -text
+verification/test_s2b_inference_mmu.py -text
+vitis/build_s2b_inference.py -text
+
+# S2C本轮新运行保存原始证据字节；INT8二进制不可作文本或换行转换。
+report/evidence/S2C-M02/serial_lower_bound_20261030_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/rtl10_static_review_20261030_r01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL0[789]/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL10/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/rtl10_static_review_20261030_r01/fixture_snapshot/*.bin binary
+# 原生工具日志与已冻结源码快照中的既存空白保持原样，不改写其SHA。
+report/evidence/S2C-RTL0[789]/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-RTL10/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/rtl10_static_review_20261030_r01/source_snapshot/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL10/**/source_snapshot/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+# 新整帧、模型与比较器证据保持采集时字节，INT8输入不作换行转换。
+report/evidence/S2C-M03/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-EQ01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL11/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL12/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-EQ01/**/*.bin binary
+report/evidence/S2C-RTL11/**/*.bin binary
+# 工具原生日志包含既存缩进/尾空格，原样保留；业务源码仍检查空白。
+report/evidence/S2C-M03/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-EQ01/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-RTL11/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-RTL12/**/*.log whitespace=-blank-at-eol,-blank-at-eof,-space-before-tab,cr-at-eol
+report/evidence/S2C-RTL12/**/source_snapshot/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-RTL11/**/source_snapshot/src/s2b_inference_top.sv whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/offline_harness_review_20261030_*/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-REVIEW/offline_harness_review_20261030_*/source_snapshot/.codex/STATE.md whitespace=-blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+report/evidence/S2C-SYN01/** -text
+report/evidence/S2C-CHECK/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

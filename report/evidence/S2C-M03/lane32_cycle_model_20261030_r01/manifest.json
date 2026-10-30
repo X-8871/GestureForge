@@ -1,0 +1,53 @@
+{
+  "task_id": "S2C-M03",
+  "run_id": "lane32_cycle_model_20261030_r01",
+  "hash_basis": "worktree_disk",
+  "items": [
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/source_snapshot/s2c_lane32_cycle_model.py",
+      "sha256": "f3460af81abe28be8844e714b6da931eec48ea83c6e5eda765f728e6e95d1264",
+      "role": "source_snapshot",
+      "source_path": "D:\\FPGA_Competition\\w2c\\verification\\s2c_lane32_cycle_model.py"
+    },
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/source_snapshot/s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "role": "source_snapshot",
+      "source_path": "D:\\FPGA_Competition\\w2c\\src\\s2a_network_descriptor_pkg.sv"
+    },
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/source_snapshot/s2b_conv_tile_engine.sv",
+      "sha256": "2c7f2d216b251791e8e87f8d5bbeeaec04b6cd546ae64ff725ba1c531919d918",
+      "role": "source_snapshot",
+      "source_path": "D:\\FPGA_Competition\\w2c\\src\\s2b_conv_tile_engine.sv"
+    },
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/source_snapshot/tb_s2c_rtl11_network_golden.sv",
+      "sha256": "6b9b3b4330366a691d81178b3c7bcb80260560cca3b999d20ebc18aec83aff76",
+      "role": "source_snapshot",
+      "source_path": "D:\\FPGA_Competition\\w2c\\sim\\tb_s2c_rtl11_network_golden.sv"
+    },
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/source_snapshot/profile.json",
+      "sha256": "1318675585a618be650629efb6c83b125c5befb5dbfc691fc60759efaea00e73",
+      "role": "source_snapshot",
+      "source_path": "D:\\wb-out-r3\\task_l0\\profile.json"
+    },
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/model_output.json",
+      "sha256": "bff294c8ecfe8d8fd82401dd135364e962a002a1fd616bf33738e4392186f262",
+      "role": "model_output"
+    },
+    {
+      "path": "report/evidence/S2C-M03/lane32_cycle_model_20261030_r01/result.json",
+      "sha256": "a6556cafcfc4f035d9ad14b0751a90fdea264034e46d61066fb3b1ae9c59ce1d",
+      "role": "result"
+    }
+  ],
+  "limitations": [
+    "非卷积层读取按算子语义估算请求量；route 映射、maxpool 填充/重复 tap 和 backend dispatch 周期未从整网周期实测校准。",
+    "对conv，tile/权重组/feature row/output row上的bulk边界、每字节局部流与首Tile FSM状态计数均显式计算；T68 bulk延迟按固定seed LFSR序列计数。",
+    "该测试平台单 outstanding、bulk每个命令逐字节每周期；DDR AXI桥吞吐、DDR读写时延及PS观察未由此模型表示。",
+    "没有运行 RTL 仿真、综合或硬件；本模型输出不能替代整网RTL cycles、100MHz时序、功能等价或板级达标判定。"
+  ]
+}

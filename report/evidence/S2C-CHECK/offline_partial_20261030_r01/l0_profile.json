@@ -1,0 +1,1516 @@
+{
+ "task": "L0 2B 推理引擎吞吐剖析（离线只读）",
+ "generated_utc8": "2026-10-29 02:5x",
+ "target": {
+  "model": "tiny416 (YOLOv4-tiny 定制 38 层, HaGRID 5 类, 416x416)",
+  "engine": "s2b_conv_tile_engine (TILE_EDGE=8, LANE_COUNT=8) + s2b_network_backend + s2a_runtime_shell",
+  "frozen_fclk_mhz": 50,
+  "frozen_commit_2b": "07c3d39 (2026-10-22 G4/G5 PASS)"
+ },
+ "static": {
+  "total_macs": 3395531776,
+  "macs_per_op": {
+   "conv": 3395531776,
+   "maxpool": 0,
+   "route": 0,
+   "upsample": 0,
+   "yolo_view": 0
+  },
+  "conv_layer_count": 21,
+  "bottom_1mac_cycles": 3395531776,
+  "bottom_1mac_ms_at_50mhz": 67910.6,
+  "bottom_8lane_cycles": 424506368,
+  "bottom_8lane_ms_at_50mhz": 8490.1,
+  "note": "引擎实际为 8-lane 并行（s2b_conv_tile_engine.sv:69-70 LANE_COUNT=8）；1 MAC/cycle 底限指内层元件引擎 s2a_conv_engine",
+  "per_layer": [
+   {
+    "layer": 0,
+    "cfg_section": 1,
+    "op": "conv",
+    "in_ch": 3,
+    "in_hw": [
+     416,
+     416
+    ],
+    "out_ch": 32,
+    "out_hw": [
+     208,
+     208
+    ],
+    "k": 9,
+    "stride": [
+     2,
+     2
+    ],
+    "groups": 1,
+    "macs": 37380096,
+    "macs_cum": 37380096,
+    "weight_bytes": 864,
+    "detail": {
+     "ic": 3,
+     "ih": 416,
+     "iw": 416,
+     "oc": 32,
+     "oh": 208,
+     "ow": 208,
+     "k": 9,
+     "stride": [
+      2,
+      2
+     ],
+     "groups": 1,
+     "macs_full": 37380096,
+     "macs_eff_no_pad": 37260384
+    }
+   },
+   {
+    "layer": 1,
+    "cfg_section": 2,
+    "op": "conv",
+    "in_ch": 32,
+    "in_hw": [
+     208,
+     208
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": 9,
+    "stride": [
+     2,
+     2
+    ],
+    "groups": 1,
+    "macs": 199360512,
+    "macs_cum": 236740608,
+    "weight_bytes": 18432,
+    "detail": {
+     "ic": 32,
+     "ih": 208,
+     "iw": 208,
+     "oc": 64,
+     "oh": 104,
+     "ow": 104,
+     "k": 9,
+     "stride": [
+      2,
+      2
+     ],
+     "groups": 1,
+     "macs_full": 199360512,
+     "macs_eff_no_pad": 198084608
+    }
+   },
+   {
+    "layer": 2,
+    "cfg_section": 3,
+    "op": "conv",
+    "in_ch": 64,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 398721024,
+    "macs_cum": 635461632,
+    "weight_bytes": 36864,
+    "detail": {
+     "ic": 64,
+     "ih": 104,
+     "iw": 104,
+     "oc": 64,
+     "oh": 104,
+     "ow": 104,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 398721024,
+     "macs_eff_no_pad": 393625600
+    }
+   },
+   {
+    "layer": 3,
+    "cfg_section": 4,
+    "op": "route",
+    "in_ch": 64,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 32,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 635461632,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 32,
+     "oh": 104,
+     "ow": 104,
+     "bytes": 346112
+    }
+   },
+   {
+    "layer": 4,
+    "cfg_section": 5,
+    "op": "conv",
+    "in_ch": 32,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 32,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 99680256,
+    "macs_cum": 735141888,
+    "weight_bytes": 9216,
+    "detail": {
+     "ic": 32,
+     "ih": 104,
+     "iw": 104,
+     "oc": 32,
+     "oh": 104,
+     "ow": 104,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 99680256,
+     "macs_eff_no_pad": 98406400
+    }
+   },
+   {
+    "layer": 5,
+    "cfg_section": 6,
+    "op": "conv",
+    "in_ch": 32,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 32,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 99680256,
+    "macs_cum": 834822144,
+    "weight_bytes": 9216,
+    "detail": {
+     "ic": 32,
+     "ih": 104,
+     "iw": 104,
+     "oc": 32,
+     "oh": 104,
+     "ow": 104,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 99680256,
+     "macs_eff_no_pad": 98406400
+    }
+   },
+   {
+    "layer": 6,
+    "cfg_section": 7,
+    "op": "route",
+    "in_ch": 64,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 834822144,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 64,
+     "oh": 104,
+     "ow": 104,
+     "bytes": 692224
+    }
+   },
+   {
+    "layer": 7,
+    "cfg_section": 8,
+    "op": "conv",
+    "in_ch": 64,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 44302336,
+    "macs_cum": 879124480,
+    "weight_bytes": 4096,
+    "detail": {
+     "ic": 64,
+     "ih": 104,
+     "iw": 104,
+     "oc": 64,
+     "oh": 104,
+     "ow": 104,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 44302336,
+     "macs_eff_no_pad": 44302336
+    }
+   },
+   {
+    "layer": 8,
+    "cfg_section": 9,
+    "op": "route",
+    "in_ch": 128,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     104,
+     104
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 879124480,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 128,
+     "oh": 104,
+     "ow": 104,
+     "bytes": 1384448
+    }
+   },
+   {
+    "layer": 9,
+    "cfg_section": 10,
+    "op": "maxpool",
+    "in_ch": 128,
+    "in_hw": [
+     104,
+     104
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": 4,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 879124480,
+    "weight_bytes": 0,
+    "detail": {
+     "ic": 128,
+     "oh": 52,
+     "ow": 52,
+     "k": 4,
+     "cmp_ops": 1384448
+    }
+   },
+   {
+    "layer": 10,
+    "cfg_section": 11,
+    "op": "conv",
+    "in_ch": 128,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 398721024,
+    "macs_cum": 1277845504,
+    "weight_bytes": 147456,
+    "detail": {
+     "ic": 128,
+     "ih": 52,
+     "iw": 52,
+     "oc": 128,
+     "oh": 52,
+     "ow": 52,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 398721024,
+     "macs_eff_no_pad": 388562944
+    }
+   },
+   {
+    "layer": 11,
+    "cfg_section": 12,
+    "op": "route",
+    "in_ch": 128,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 1277845504,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 64,
+     "oh": 52,
+     "ow": 52,
+     "bytes": 173056
+    }
+   },
+   {
+    "layer": 12,
+    "cfg_section": 13,
+    "op": "conv",
+    "in_ch": 64,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 99680256,
+    "macs_cum": 1377525760,
+    "weight_bytes": 36864,
+    "detail": {
+     "ic": 64,
+     "ih": 52,
+     "iw": 52,
+     "oc": 64,
+     "oh": 52,
+     "ow": 52,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 99680256,
+     "macs_eff_no_pad": 97140736
+    }
+   },
+   {
+    "layer": 13,
+    "cfg_section": 14,
+    "op": "conv",
+    "in_ch": 64,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 64,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 99680256,
+    "macs_cum": 1477206016,
+    "weight_bytes": 36864,
+    "detail": {
+     "ic": 64,
+     "ih": 52,
+     "iw": 52,
+     "oc": 64,
+     "oh": 52,
+     "ow": 52,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 99680256,
+     "macs_eff_no_pad": 97140736
+    }
+   },
+   {
+    "layer": 14,
+    "cfg_section": 15,
+    "op": "route",
+    "in_ch": 128,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 1477206016,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 128,
+     "oh": 52,
+     "ow": 52,
+     "bytes": 346112
+    }
+   },
+   {
+    "layer": 15,
+    "cfg_section": 16,
+    "op": "conv",
+    "in_ch": 128,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 44302336,
+    "macs_cum": 1521508352,
+    "weight_bytes": 16384,
+    "detail": {
+     "ic": 128,
+     "ih": 52,
+     "iw": 52,
+     "oc": 128,
+     "oh": 52,
+     "ow": 52,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 44302336,
+     "macs_eff_no_pad": 44302336
+    }
+   },
+   {
+    "layer": 16,
+    "cfg_section": 17,
+    "op": "route",
+    "in_ch": 256,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     52,
+     52
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 1521508352,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 256,
+     "oh": 52,
+     "ow": 52,
+     "bytes": 692224
+    }
+   },
+   {
+    "layer": 17,
+    "cfg_section": 18,
+    "op": "maxpool",
+    "in_ch": 256,
+    "in_hw": [
+     52,
+     52
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 4,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 1521508352,
+    "weight_bytes": 0,
+    "detail": {
+     "ic": 256,
+     "oh": 26,
+     "ow": 26,
+     "k": 4,
+     "cmp_ops": 692224
+    }
+   },
+   {
+    "layer": 18,
+    "cfg_section": 19,
+    "op": "conv",
+    "in_ch": 256,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 398721024,
+    "macs_cum": 1920229376,
+    "weight_bytes": 589824,
+    "detail": {
+     "ic": 256,
+     "ih": 26,
+     "iw": 26,
+     "oc": 256,
+     "oh": 26,
+     "ow": 26,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 398721024,
+     "macs_eff_no_pad": 378535936
+    }
+   },
+   {
+    "layer": 19,
+    "cfg_section": 20,
+    "op": "route",
+    "in_ch": 256,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 1920229376,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 128,
+     "oh": 26,
+     "ow": 26,
+     "bytes": 86528
+    }
+   },
+   {
+    "layer": 20,
+    "cfg_section": 21,
+    "op": "conv",
+    "in_ch": 128,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 99680256,
+    "macs_cum": 2019909632,
+    "weight_bytes": 147456,
+    "detail": {
+     "ic": 128,
+     "ih": 26,
+     "iw": 26,
+     "oc": 128,
+     "oh": 26,
+     "ow": 26,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 99680256,
+     "macs_eff_no_pad": 94633984
+    }
+   },
+   {
+    "layer": 21,
+    "cfg_section": 22,
+    "op": "conv",
+    "in_ch": 128,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 99680256,
+    "macs_cum": 2119589888,
+    "weight_bytes": 147456,
+    "detail": {
+     "ic": 128,
+     "ih": 26,
+     "iw": 26,
+     "oc": 128,
+     "oh": 26,
+     "ow": 26,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 99680256,
+     "macs_eff_no_pad": 94633984
+    }
+   },
+   {
+    "layer": 22,
+    "cfg_section": 23,
+    "op": "route",
+    "in_ch": 256,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2119589888,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 256,
+     "oh": 26,
+     "ow": 26,
+     "bytes": 173056
+    }
+   },
+   {
+    "layer": 23,
+    "cfg_section": 24,
+    "op": "conv",
+    "in_ch": 256,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 44302336,
+    "macs_cum": 2163892224,
+    "weight_bytes": 65536,
+    "detail": {
+     "ic": 256,
+     "ih": 26,
+     "iw": 26,
+     "oc": 256,
+     "oh": 26,
+     "ow": 26,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 44302336,
+     "macs_eff_no_pad": 44302336
+    }
+   },
+   {
+    "layer": 24,
+    "cfg_section": 25,
+    "op": "route",
+    "in_ch": 512,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 512,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2163892224,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 512,
+     "oh": 26,
+     "ow": 26,
+     "bytes": 346112
+    }
+   },
+   {
+    "layer": 25,
+    "cfg_section": 26,
+    "op": "maxpool",
+    "in_ch": 512,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 512,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": 4,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2163892224,
+    "weight_bytes": 0,
+    "detail": {
+     "ic": 512,
+     "oh": 13,
+     "ow": 13,
+     "k": 4,
+     "cmp_ops": 346112
+    }
+   },
+   {
+    "layer": 26,
+    "cfg_section": 27,
+    "op": "conv",
+    "in_ch": 512,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 512,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 398721024,
+    "macs_cum": 2562613248,
+    "weight_bytes": 2359296,
+    "detail": {
+     "ic": 512,
+     "ih": 13,
+     "iw": 13,
+     "oc": 512,
+     "oh": 13,
+     "ow": 13,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 398721024,
+     "macs_eff_no_pad": 358875136
+    }
+   },
+   {
+    "layer": 27,
+    "cfg_section": 28,
+    "op": "conv",
+    "in_ch": 512,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 22151168,
+    "macs_cum": 2584764416,
+    "weight_bytes": 131072,
+    "detail": {
+     "ic": 512,
+     "ih": 13,
+     "iw": 13,
+     "oc": 256,
+     "oh": 13,
+     "ow": 13,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 22151168,
+     "macs_eff_no_pad": 22151168
+    }
+   },
+   {
+    "layer": 28,
+    "cfg_section": 29,
+    "op": "conv",
+    "in_ch": 256,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 512,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 199360512,
+    "macs_cum": 2784124928,
+    "weight_bytes": 1179648,
+    "detail": {
+     "ic": 256,
+     "ih": 13,
+     "iw": 13,
+     "oc": 512,
+     "oh": 13,
+     "ow": 13,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 199360512,
+     "macs_eff_no_pad": 179437568
+    }
+   },
+   {
+    "layer": 29,
+    "cfg_section": 30,
+    "op": "conv",
+    "in_ch": 512,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 30,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 2595840,
+    "macs_cum": 2786720768,
+    "weight_bytes": 15360,
+    "detail": {
+     "ic": 512,
+     "ih": 13,
+     "iw": 13,
+     "oc": 30,
+     "oh": 13,
+     "ow": 13,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 2595840,
+     "macs_eff_no_pad": 2595840
+    }
+   },
+   {
+    "layer": 30,
+    "cfg_section": 31,
+    "op": "yolo_view",
+    "in_ch": 30,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 30,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2786720768,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 30,
+     "oh": 13,
+     "ow": 13,
+     "bytes": 5070
+    }
+   },
+   {
+    "layer": 31,
+    "cfg_section": 32,
+    "op": "route",
+    "in_ch": 256,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2786720768,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 256,
+     "oh": 13,
+     "ow": 13,
+     "bytes": 43264
+    }
+   },
+   {
+    "layer": 32,
+    "cfg_section": 33,
+    "op": "conv",
+    "in_ch": 256,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     13,
+     13
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 5537792,
+    "macs_cum": 2792258560,
+    "weight_bytes": 32768,
+    "detail": {
+     "ic": 256,
+     "ih": 13,
+     "iw": 13,
+     "oc": 128,
+     "oh": 13,
+     "ow": 13,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 5537792,
+     "macs_eff_no_pad": 5537792
+    }
+   },
+   {
+    "layer": 33,
+    "cfg_section": 34,
+    "op": "upsample",
+    "in_ch": 128,
+    "in_hw": [
+     13,
+     13
+    ],
+    "out_ch": 128,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2792258560,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 128,
+     "oh": 26,
+     "ow": 26,
+     "bytes": 86528
+    }
+   },
+   {
+    "layer": 34,
+    "cfg_section": 35,
+    "op": "route",
+    "in_ch": 384,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 384,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 2792258560,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 384,
+     "oh": 26,
+     "ow": 26,
+     "bytes": 259584
+    }
+   },
+   {
+    "layer": 35,
+    "cfg_section": 36,
+    "op": "conv",
+    "in_ch": 384,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 256,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 9,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 598081536,
+    "macs_cum": 3390340096,
+    "weight_bytes": 884736,
+    "detail": {
+     "ic": 384,
+     "ih": 26,
+     "iw": 26,
+     "oc": 256,
+     "oh": 26,
+     "ow": 26,
+     "k": 9,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 598081536,
+     "macs_eff_no_pad": 567803904
+    }
+   },
+   {
+    "layer": 36,
+    "cfg_section": 37,
+    "op": "conv",
+    "in_ch": 256,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 30,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": 1,
+    "stride": [
+     1,
+     1
+    ],
+    "groups": 1,
+    "macs": 5191680,
+    "macs_cum": 3395531776,
+    "weight_bytes": 7680,
+    "detail": {
+     "ic": 256,
+     "ih": 26,
+     "iw": 26,
+     "oc": 30,
+     "oh": 26,
+     "ow": 26,
+     "k": 1,
+     "stride": [
+      1,
+      1
+     ],
+     "groups": 1,
+     "macs_full": 5191680,
+     "macs_eff_no_pad": 5191680
+    }
+   },
+   {
+    "layer": 37,
+    "cfg_section": 38,
+    "op": "yolo_view",
+    "in_ch": 30,
+    "in_hw": [
+     26,
+     26
+    ],
+    "out_ch": 30,
+    "out_hw": [
+     26,
+     26
+    ],
+    "k": null,
+    "stride": null,
+    "groups": null,
+    "macs": 0,
+    "macs_cum": 3395531776,
+    "weight_bytes": 0,
+    "detail": {
+     "oc": 30,
+     "oh": 26,
+     "ow": 26,
+     "bytes": 20280
+    }
+   }
+  ]
+ },
+ "frozen_budget_t07": {
+  "source": "w2b/docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md §4",
+  "conv_iterations": 424506368,
+  "logical_read_bytes": 84753811,
+  "logical_write_bytes": 11382150,
+  "requests_total": 96135961,
+  "lower_bound_cycles": 616778290,
+  "lower_bound_ms_at_50mhz": 12335.6,
+  "reproduction": {
+   "conv_iterations_formula": "Σ ceil8(oc)*oh*ow*ic*K²/g —— 精确复现 EXACT",
+   "weight_reread_formula": "Σ ceil8(oh)*ceil8(ow)*oc*ic*K² —— =69,732,736 精确复现 EXACT",
+   "write_formula": "Σ 全层输出字节(yolo alias 不写) —— 精确复现 EXACT",
+   "lower_bound_formula": "conv_iter + 2×requests = 424,506,368 + 192,271,922 —— 精确复现 EXACT",
+   "activation_read_model_error_bytes": 186339,
+   "activation_read_model_error_pct_of_reads": 0.22
+  }
+ },
+ "fullnet_sim_anchor": {
+  "source": "archive/S2A-T68/repair109_20261003_194620/runs/sample_000/.../result_summary.txt",
+  "engine": "s2a_conv_tile_engine 同架构（git show fecbf1f8:src/s2a_network_backend.sv:442 核实）",
+  "cycles": 972865374,
+  "ms_at_50mhz": 19457.3,
+  "exit_code": 0,
+  "traffic": {
+   "input_read": 583443,
+   "weight_read": 69732736,
+   "feature_read": 14437632,
+   "feature_write": 11382150
+  },
+  "weight_reread_factor": 11.87,
+  "mac_eff_per_cycle": 3.49,
+  "lane_utilization_pct": 43.6,
+  "c_eff_cycles_per_request": 5.704,
+  "sim_wall_time_s": 4666.027
+ },
+ "board_anchor": {
+  "source": "同验收文档 §4（R11/R12 完整 wall 包络）",
+  "r11_s": 47.4017962,
+  "r12_s": 47.4058308,
+  "nominal_cycles_at_50mhz": 2370291540,
+  "mac_eff_per_cycle": 1.433,
+  "lane_utilization_pct": 17.9,
+  "c_eff_cycles_per_request": 20.24,
+  "note": "包络含 HP 等待/背压/控制/主机观察，未拆分；下界 616,778,290 拍"
+ },
+ "user_anchor_11821ms": {
+  "declared": "任务给定：实测 11,821 ms/帧 = 0.0846 fps（来源未在 w2b 树内找到，按已核实采信）",
+  "cycles_at_50mhz": 591050000,
+  "cycles_at_100mhz": 1182100000,
+  "feasibility": {
+   "at_50mhz": "不可行：591.05e6 < 冻结下界 616,778,290 拍（12,335.6 ms），且 conv 迭代本身已需 8,490 ms",
+   "at_100mhz": "可行：1,182.1e6 拍 = 下界的 1.92×，c_eff=7.884 cyc/req 介于仿真(5.705)与板级50MHz(20.25)之间",
+   "conclusion": "11,821 ms 与冻结 50 MHz 部署矛盾；最可能口径为 100 MHz PL 时钟或其他配置。预测按两种读法分别给出"
+  }
+ },
+ "per_op_evidence": [
+  {
+   "op": "conv3x3",
+   "rep": "L35 oc0 整层 26×26 网格（ic=384, oc=256 之一）",
+   "source": "w2b/report/evidence/S2A-T34/layer35_oc0_full_frozen_stalls.json",
+   "tool": "xsim",
+   "exit_code": 0,
+   "stall_cycles": {
+    "feature": 5766758,
+    "weight": 5766758,
+    "output": 1755,
+    "request_total": 11535271,
+    "result_held": 108
+   },
+   "work_lane_iters": 290304,
+   "stall_per_lane_iter": 39.7,
+   "interpretation": "单输出通道即需 11.5M 拍 stall：conv3x3 深 ic 下访存完全主导"
+  },
+  {
+   "op": "conv1x1",
+   "rep": "L36 整层（ic=256, oc=30, 26×26）",
+   "source": "w2b/report/evidence/S2A-T33/layer36_spatial_full.json",
+   "tool": "xsim (xvlog/xelab/xsim exit 0)",
+   "exit_code": 0,
+   "stall_cycles": 696684,
+   "work": {
+    "macs": 5191680,
+    "lane_iters": 648960
+   },
+   "stall_per_lane_iter": 1.07,
+   "extra": "feature 每 oc 重选（5,191,680 B = 30×173,056）；weight_byte_use_count_per_oc_k=52"
+  },
+  {
+   "op": "maxpool",
+   "rep": "L9/17/25 单元素 4-tap 数据通路（1016 向量/层）",
+   "source": "w2b/report/evidence/S2A-T14/maxpool_simulation.json",
+   "exit_code": 0,
+   "stall_cycles_vector_set": 47532,
+   "limitation": "无整层 cycle 记录；整层请求量静态估计 = ic*ih*iw（2x2 s2），三集合计 2,422,784 B"
+  },
+  {
+   "op": "upsample",
+   "rep": "L33 整层 nearest-repeat 调度 pilot（21,632→86,528 B）",
+   "source": "w2b/report/evidence/S2A-T18/upsample_layer_scheduler_simulation.json",
+   "tool": "xsim",
+   "exit_code": 0,
+   "cycles": 969115,
+   "stalls": 449953,
+   "cycles_per_output_byte": 11.2,
+   "useful_per_output_byte": 6.0
+  },
+  {
+   "op": "route",
+   "rep": "L34 双输入 concat 整层调度 pilot（读+写各 259,584 B）",
+   "source": "w2b/report/evidence/S2A-T19/route_layer_scheduler_simulation.json",
+   "tool": "xsim",
+   "exit_code": 0,
+   "stalls": 1349834,
+   "limitation": "记录未含总 cycles 字段；逐元素级证据见 S2A-T15（11 个 route 层全覆盖）"
+  },
+  {
+   "op": "yolo_view",
+   "rep": "L30/L37 头别名",
+   "source": "描述符 S2A_OUTPUT_MEMORY_WRITE_REQUIRED[30]=[37]=0",
+   "cycles": 0,
+   "interpretation": "零拷贝别名，无 PL 计算与写回；解码/NMS 在 PS"
+  }
+ ],
+ "extrapolation": {
+  "statement": "整网 Verilator 仿真存在（972,865,374 拍，78 分钟/样本，exit 0），故本剖析采用『静态精确计数 + 冻结预算复现 + 同架构整网仿真锚点 + 代表层短仿真』四源交叉，不依赖整网外推",
+  "model_error": "静态模型对冻结预算四数（conv 迭代/权重重读/写/下界）全部精确复现（差=0）；唯一近似为激活读 halo 细节，差 186,339 B = 读量 0.22% / 总请求 0.19%，对逐层分布影响 <1%",
+  "marker_granularity": "整网仿真的逐层归属仅有 30M 拍粒度的 progress markers，用于量级校验，不用于逐层精确分解"
+ },
+ "predictions_label": "以下全部为预测值，未实现，未综合，未上板",
+ "predictions": {
+  "A_16lane_50MHz": {
+   "assumption": "lane 8→16，FCLK 保持冻结 50 MHz；访存系数沿用板级校准 c_eff=20.25 cyc/req（R11/R12 包络反推）",
+   "cycles_conservative": 2158038356,
+   "note": "保守口径（访存与计算串行，与 T07 下界同方法论）",
+   "ms_conservative": 43160.8,
+   "fps_conservative": 0.0232
+  },
+  "B_16lane_100MHz": {
+   "assumption": "lane 8→16，FCLK 100 MHz；DDR 时延按 ns 恒定折算 c_eff=10.13 cyc/req（板级 20.25 的一半）",
+   "cycles_conservative": 1185145770,
+   "alt_calibration_user_anchor": 969846816,
+   "note": "alt 校准：以任务给定的 11,821 ms 按 100 MHz 反推 c_eff=7.884",
+   "ms_conservative": 11851.5,
+   "fps_conservative": 0.0844
+  },
+  "ceiling_memory_free_100MHz": 212253184
+ },
+ "key_findings": [
+  "1 MAC/cycle 底限 = 3,395,531,776 拍 = 67,910.6 ms @50MHz：实测 11,821 ms 物理上不可能由单 MAC 产生；实际引擎为 8-lane",
+  "8-lane 纯算术底限 = 424,506,368 拍 = 8,490.1 ms @50MHz（frame 时间占比 71.8%，按 11,821 ms@100MHz 口径）",
+  "访存是第一瓶颈：每帧权重重读 69,732,736 B = 权重总量 5,877,088 B 的 11.86×（每空间 tile 重读整层权重）；总请求 96,135,961 次",
+  "整网仿真 lane 利用率 43.6%（3.49 MAC/cycle/8）；板级包络利用率 17.9%（1.43 MAC/cycle/8）",
+  "16 lane 并行收益受访存压制：@50MHz 保守预测仅 -8.9%（43.2 s vs 47.4 s 包络）；需时钟同步提升才显著",
+  "conv3x3 深 ic 层（L35 类）stall/迭代 = 39.7，conv1x1 浅层仅 1.07 —— 并行化/剪枝应优先压缩 Ic 与空间 tile 数而非通道数"
+ ],
+ "limitations": [
+  "11,821 ms 实测值未在 w2b 树内找到原始记录，按任务声明采信；与冻结 50 MHz 下界矛盾已如实呈现",
+  "静态激活读模型差 186,339 B（0.22%），源于 tile halo 读取策略未逐项逆向；不影响三个精确复现数",
+  "per-op 短仿真证据来自 2A 试点（s2a 引擎/冻结 stall 模式），与 2B s2b_conv_tile_engine 同构但非同一文件；maxpool 无整层 cycle 记录、route 无总 cycles 字段",
+  "预测采用保守串行模型（与 T07 下界同方法论），未建模访存-计算重叠；实际可能更快",
+  "c_eff 折算假设 100 MHz 下 DDR 时延(ns) 恒定；未做 100 MHz 时序收敛评估",
+  "全部结论离线；未跑综合、未碰板、未改 2B 任何文件"
+ ],
+ "sources_sha256": {
+  "w2b/src/s2a_network_descriptor_pkg.sv": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+  "w2b/src/s2b_conv_tile_engine.sv": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+  "w2b/src/s2a_conv_engine.sv": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+  "w2b/report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+  "w2b/docs/obsidian-project/04-提交材料/阶段验收/stage2b_fixed_input_acceptance_20261022.md": "2345a741c9d05866def60c71681003dc96f9470347624e29db6eef4905a59bc6",
+  "w2b/report/evidence/S2A-T34/layer35_oc0_full_frozen_stalls.json": "5fcf3f343f13ca85ad645de4866c67a3014ae2d98d99e1292510081171d86e9a",
+  "w2b/report/evidence/S2A-T33/layer36_spatial_full.json": "6b5320ed931caa0554c6c44957096d6185095aaacc14ed353304a06ba6823917",
+  "w2b/report/evidence/S2A-T14/maxpool_simulation.json": "2e681fb5db9037f6858c7516b4620053374d571e66d27c15ded6dfbffb8927e3",
+  "w2b/report/evidence/S2A-T18/upsample_layer_scheduler_simulation.json": "0f2a4a81275ffa225babb78b767bfc42a597320308ef7b150af5f80fd6aac35d",
+  "w2b/report/evidence/S2A-T19/route_layer_scheduler_simulation.json": "a45bb2b2a81cc198b227fa1d75fafa767dacfcc022fee779ae50305b05c7af6f",
+  "w2b/report/evidence/S2A-T15/route_simulation.json": "6011c3272c05b8e428128410b0d7a25a689873a12404631f23dc707f1fa9f124",
+  "archive/S2A-T68/repair109_20261003_194620/runs/sample_000/repair109_20261003_194620/result_summary.txt": "65fc1a13e197d6c9795747a5d3a2f576033de6ad8446f4dfdeb8ddd86be4fb2f"
+ },
+ "exit_codes": {
+  "parse_descriptor.py": 0,
+  "fit_traffic.py": 0,
+  "build_profile.py": 0,
+  "cited_sims": {
+   "S2A-T33/T34/T14/T18/T19": "各自 JSON 内 exit_code=0（xsim/Verilator，原运行记录）",
+   "repair109 整网": "exit_code=0（原运行记录，未重跑）"
+  }
+ }
+}

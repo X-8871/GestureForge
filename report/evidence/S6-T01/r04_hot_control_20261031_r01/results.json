@@ -1,0 +1,234 @@
+{
+  "task_id": "R-04",
+  "run_id": "r04_hot_control_20261031_r01",
+  "phase": "hot",
+  "started_utc8": "2026-10-31T01:44:17+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "tail": "0 elapsed=2.311\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds\nLOADHW_OK\nSTOP0_ERR Already stopped\nSTOP1_ERR Already stopped\n\n"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "a": "PASS",
+      "f": "PASS"
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": 1395802704,
+        "VER": 1644167248,
+        "CR": 65538,
+        "SR": 65537
+      },
+      "note": "D 项：dow 前 AXI 是否就绪"
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 37,
+      "fps_dis": 60,
+      "period_us": 16673,
+      "read_period_line": "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)"
+    },
+    "S8_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "halt_ok": true,
+      "snapshot": {
+        "CR": 65539,
+        "SR": 69632,
+        "PARKPTR": 65536,
+        "VER": 1644167248,
+        "HSIZE": 5120,
+        "STRIDE": 5120,
+        "UF_FRAME": 0,
+        "UF_TOTAL": 220262400,
+        "CSR2B": 1395802704
+      },
+      "cr_rs": 1,
+      "sr_halted": 0
+    },
+    "S9_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "R4-B1",
+          "desc": "fps_dis==60（热机正常）",
+          "pass": true,
+          "detail": {
+            "fps_dis": 60,
+            "read_period_line": "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)"
+          }
+        },
+        {
+          "id": "R4-B2",
+          "desc": "read period ≈16,667 µs ±1%",
+          "pass": true,
+          "detail": {
+            "period_us": 16673
+          }
+        },
+        {
+          "id": "R4-B3",
+          "desc": "SR.Halted 位=0 且 CR.RS=1（VDMA 在跑）",
+          "pass": true,
+          "detail": {
+            "sr_halted": 0,
+            "cr_rs": 1
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 37488,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst（只用 stop）；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+    "sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+    "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+  },
+  "pre_probe": {
+    "CSR2B": 1395802704,
+    "VER": 1644167248,
+    "CR": 65538,
+    "SR": 65537
+  },
+  "uart_findings": {
+    "head40": [
+      "=== S5 P3B display app (P3b-sw, offline build) ===",
+      "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores",
+      "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)",
+      "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)",
+      "hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000",
+      "run mode: LONG(30min), frames_cap=0, time_cap_ms=1800000",
+      "VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）",
+      "TEST PATTERN DRAWN: bars8+border+cross",
+      "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+      "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)",
+      "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)",
+      "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)",
+      "TEST PATTERN HOLD done, vdma_err=0",
+      "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=240 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=300 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=360 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=420 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=480 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=540 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=600 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=660 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=720 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=780 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=840 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=900 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=960 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1020 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1080 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1140 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1200 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1260 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1320 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1380 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=1440 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+    ],
+    "read_period_line": "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)",
+    "vdma_init_line": "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+    "warn_lines": [
+      "TEST PATTERN HOLD done, vdma_err=0"
+    ],
+    "disp_lines": [
+      "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=240 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=300 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=360 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=420 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=480 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+    ],
+    "disp_count": 24,
+    "fps_dis": 60,
+    "period_us": 16673
+  },
+  "snapshot": {
+    "CR": 65539,
+    "SR": 69632,
+    "PARKPTR": 65536,
+    "VER": 1644167248,
+    "HSIZE": 5120,
+    "STRIDE": 5120,
+    "UF_FRAME": 0,
+    "UF_TOTAL": 220262400,
+    "CSR2B": 1395802704
+  },
+  "criteria": [
+    {
+      "id": "R4-B1",
+      "desc": "fps_dis==60（热机正常）",
+      "pass": true,
+      "detail": {
+        "fps_dis": 60,
+        "read_period_line": "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)"
+      }
+    },
+    {
+      "id": "R4-B2",
+      "desc": "read period ≈16,667 µs ±1%",
+      "pass": true,
+      "detail": {
+        "period_us": 16673
+      }
+    },
+    {
+      "id": "R4-B3",
+      "desc": "SR.Halted 位=0 且 CR.RS=1（VDMA 在跑）",
+      "pass": true,
+      "detail": {
+        "sr_halted": 0,
+        "cr_rs": 1
+      }
+    }
+  ],
+  "criterion_ok": true,
+  "expect": "HOT_OK",
+  "conclusion": "R04_HOT_OK",
+  "finished_utc8": "2026-10-31T01:45:32+08:00",
+  "stop_reason": null,
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

@@ -1,0 +1,37 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000
+run mode: LONG(30min), frames_cap=0, time_cap_ms=1800000
+VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: read period = 5557891 ticks (16673 us) -> fps_dis=60 (display refresh)
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=0
+S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=240 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=300 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=360 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=420 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=480 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=540 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=600 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=660 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=720 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=780 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=840 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=900 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=960 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1020 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1080 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1140 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1200 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1260 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1320 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1380 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0
+S5DISP frame=1440 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0

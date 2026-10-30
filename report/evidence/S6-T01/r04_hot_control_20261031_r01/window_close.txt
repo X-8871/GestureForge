@@ -1,0 +1,34 @@
+# R-04 冷启动 VDMA 显示流 — HOT 窗
+
+- RunId：`r04_hot_control_20261031_r01`；phase=**hot**
+- 开窗：2026-10-31T01:44:17+08:00；收窗：2026-10-31T01:45:32+08:00
+- 结论：**R04_HOT_OK**；stop_reason=None
+- 位流：P3q `4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4`；ELF：`cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577`
+
+- R4-B1 fps_dis==60（热机正常）：**PASS** {"fps_dis": 60, "read_period_line": "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)"}
+- R4-B2 read period ≈16,667 µs ±1%：**PASS** {"period_us": 16673}
+- R4-B3 SR.Halted 位=0 且 CR.RS=1（VDMA 在跑）：**PASS** {"sr_halted": 0, "cr_rs": 1}
+
+## 停核后寄存器快照（VDMA/PL AXI，只读）
+
+| 寄存器 | 地址 | 值 |
+|---|---|---|
+| CR | 0x43C40000 | 0x00010003 |
+| SR | 0x43C40004 | 0x00011000 |
+| PARKPTR | 0x43C40028 | 0x00010000 |
+| VER | 0x43C4002C | 0x62000050 |
+| HSIZE | 0x43C40054 | 0x00001400 |
+| STRIDE | 0x43C40058 | 0x00001400 |
+| UF_FRAME | 0x43C50000 | 0x00000000 |
+| UF_TOTAL | 0x43C50008 | 0x0D20F000 |
+| CSR2B | 0x43C00000 | 0x53324250 |
+
+## 判据对照（VDMA 是否启动 / 读流是否在跑）
+
+- CR.RS(bit0) = 1
+- SR.Halted(bit0) = 0；SR.Idle(bit1) = 0
+- UART 判据：{"head40": ["=== S5 P3B display app (P3b-sw, offline build) ===", "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores", "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)", "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)", "hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000", "run mode: LONG(30min), frames_cap=0, time_cap_ms=1800000", "VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）", "TEST PATTERN DRAWN: bars8+border+cross", "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)", "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)", "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)", "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)", "TEST PATTERN HOLD done, vdma_err=0", "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=240 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=300 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=360 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=420 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=480 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=540 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=600 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=660 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=720 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=780 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=840 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=900 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=960 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1020 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1080 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1140 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1200 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1260 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1320 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1380 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=1440 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"], "read_period_line": "VDMA: read period = 5557889 ticks (16673 us) -> fps_dis=60 (display refresh)", "vdma_init_line": "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)", "warn_lines": ["TEST PATTERN HOLD done, vdma_err=0"], "disp_lines": ["S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=240 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=300 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=360 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=420 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=480 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"], "disp_count": 24, "fps_dis": 60, "period_us": 16673}
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI

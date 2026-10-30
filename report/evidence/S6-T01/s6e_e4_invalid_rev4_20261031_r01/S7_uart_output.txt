@@ -1,0 +1,204 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000
+run mode: bounded, frames_cap=180, time_cap_ms=60000
+VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: WARN 读帧存切换周期测不到（READSTR 不动）→ fps_dis=0（不虚填）
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=3695185
+S5PROD session start: sid=27067 frame_id=0 tag=A55A status=0x1 rtime_ms=682378 (333 Hz)
+S5PROD frame_id=1 n=2 status=0x0 sid=27067 seq=1 rtime_ms=682509 age_pub=0 state=ERROR fault=invalid cap_ms=682384
+S5PROD frame_id=2 n=3 status=0x0 sid=27067 seq=2 rtime_ms=682537 age_pub=0 state=ERROR fault=invalid cap_ms=682513
+S5PROD frame_id=3 n=1 status=0x0 sid=27067 seq=3 rtime_ms=682666 age_pub=0 state=ERROR fault=invalid cap_ms=682542
+S5PROD frame_id=4 n=2 status=0x0 sid=27067 seq=4 rtime_ms=682695 age_pub=0 state=ERROR fault=invalid cap_ms=682671
+S5PROD frame_id=5 n=3 status=0x0 sid=27067 seq=5 rtime_ms=682824 age_pub=0 state=ERROR fault=invalid cap_ms=682700
+S5PROD frame_id=6 n=1 status=0x0 sid=27067 seq=6 rtime_ms=682853 age_pub=0 state=ERROR fault=invalid cap_ms=682829
+S5PROD frame_id=7 n=2 status=0x0 sid=27067 seq=7 rtime_ms=682982 age_pub=0 state=ERROR fault=invalid cap_ms=682857
+S5PROD frame_id=8 n=3 status=0x0 sid=27067 seq=8 rtime_ms=683011 age_pub=0 state=ERROR fault=invalid cap_ms=682986
+S5PROD frame_id=9 n=1 status=0x0 sid=27067 seq=9 rtime_ms=683140 age_pub=0 state=ERROR fault=invalid cap_ms=683015
+S5PROD frame_id=10 n=2 status=0x0 sid=27067 seq=10 rtime_ms=683169 age_pub=0 state=ERROR fault=invalid cap_ms=683144
+S5PROD frame_id=11 n=3 status=0x0 sid=27067 seq=11 rtime_ms=683298 age_pub=0 state=ERROR fault=invalid cap_ms=683173
+S5PROD frame_id=12 n=1 status=0x0 sid=27067 seq=12 rtime_ms=683327 age_pub=0 state=ERROR fault=invalid cap_ms=683302
+S5PROD frame_id=13 n=2 status=0x0 sid=27067 seq=13 rtime_ms=683456 age_pub=0 state=ERROR fault=invalid cap_ms=683331
+S5PROD frame_id=14 n=3 status=0x0 sid=27067 seq=14 rtime_ms=683485 age_pub=0 state=ERROR fault=invalid cap_ms=683460
+S5PROD frame_id=15 n=1 status=0x0 sid=27067 seq=15 rtime_ms=683614 age_pub=0 state=ERROR fault=invalid cap_ms=683489
+S5PROD frame_id=16 n=2 status=0x0 sid=27067 seq=16 rtime_ms=683643 age_pub=0 state=ERROR fault=invalid cap_ms=683618
+S5PROD frame_id=17 n=3 status=0x0 sid=27067 seq=17 rtime_ms=683772 age_pub=0 state=ERROR fault=invalid cap_ms=683647
+S5PROD frame_id=18 n=1 status=0x0 sid=27067 seq=18 rtime_ms=683801 age_pub=0 state=ERROR fault=invalid cap_ms=683776
+S5PROD frame_id=19 n=2 status=0x0 sid=27067 seq=19 rtime_ms=683930 age_pub=0 state=ERROR fault=invalid cap_ms=683805
+S5PROD frame_id=20 n=3 status=0x0 sid=27067 seq=20 rtime_ms=683959 age_pub=0 state=ERROR fault=invalid cap_ms=683934
+S5PROD frame_id=21 n=1 status=0x0 sid=27067 seq=21 rtime_ms=684088 age_pub=0 state=ERROR fault=invalid cap_ms=683963
+S5PROD frame_id=22 n=2 status=0x0 sid=27067 seq=22 rtime_ms=684117 age_pub=0 state=ERROR fault=invalid cap_ms=684093
+S5PROD frame_id=23 n=3 status=0x0 sid=27067 seq=23 rtime_ms=684246 age_pub=0 state=ERROR fault=invalid cap_ms=684122
+S5PROD frame_id=24 n=1 status=0x0 sid=27067 seq=24 rtime_ms=684275 age_pub=0 state=ERROR fault=invalid cap_ms=684251
+S5PROD frame_id=25 n=2 status=0x0 sid=27067 seq=25 rtime_ms=684404 age_pub=0 state=ERROR fault=invalid cap_ms=684280
+S5PROD frame_id=26 n=3 status=0x0 sid=27067 seq=26 rtime_ms=684433 age_pub=0 state=ERROR fault=invalid cap_ms=684409
+S5PROD frame_id=27 n=1 status=0x0 sid=27067 seq=27 rtime_ms=684562 age_pub=0 state=ERROR fault=invalid cap_ms=684438
+S5PROD frame_id=28 n=2 status=0x0 sid=27067 seq=28 rtime_ms=684591 age_pub=0 state=ERROR fault=invalid cap_ms=684567
+S5PROD frame_id=29 n=3 status=0x0 sid=27067 seq=29 rtime_ms=684720 age_pub=0 state=ERROR fault=invalid cap_ms=684596
+S5PROD frame_id=30 n=1 status=0x0 sid=27067 seq=30 rtime_ms=684749 age_pub=0 state=ERROR fault=invalid cap_ms=684725
+S5PROD frame_id=31 n=2 status=0x0 sid=27067 seq=31 rtime_ms=684878 age_pub=0 state=ERROR fault=invalid cap_ms=684754
+S5PROD frame_id=32 n=3 status=0x0 sid=27067 seq=32 rtime_ms=684907 age_pub=0 state=ERROR fault=invalid cap_ms=684883
+S5PROD frame_id=33 n=1 status=0x0 sid=27067 seq=33 rtime_ms=685036 age_pub=0 state=ERROR fault=invalid cap_ms=684912
+S5PROD frame_id=34 n=2 status=0x0 sid=27067 seq=34 rtime_ms=685065 age_pub=0 state=ERROR fault=invalid cap_ms=685041
+S5PROD frame_id=35 n=3 status=0x0 sid=27067 seq=35 rtime_ms=685194 age_pub=0 state=ERROR fault=invalid cap_ms=685070
+S5PROD frame_id=36 n=1 status=0x0 sid=27067 seq=36 rtime_ms=685223 age_pub=0 state=ERROR fault=invalid cap_ms=685199
+S5PROD frame_id=37 n=2 status=0x0 sid=27067 seq=37 rtime_ms=685352 age_pub=0 state=ERROR fault=invalid cap_ms=685228
+S5PROD frame_id=38 n=3 status=0x0 sid=27067 seq=38 rtime_ms=685382 age_pub=0 state=ERROR fault=invalid cap_ms=685357
+S5PROD frame_id=39 n=1 status=0x0 sid=27067 seq=39 rtime_ms=685511 age_pub=0 state=ERROR fault=invalid cap_ms=685386
+S5PROD frame_id=40 n=2 status=0x0 sid=27067 seq=40 rtime_ms=685540 age_pub=0 state=ERROR fault=invalid cap_ms=685515
+S5PROD frame_id=41 n=3 status=0x0 sid=27067 seq=41 rtime_ms=685669 age_pub=0 state=ERROR fault=invalid cap_ms=685544
+S5PROD frame_id=42 n=1 status=0x0 sid=27067 seq=42 rtime_ms=685698 age_pub=0 state=ERROR fault=invalid cap_ms=685673
+S5PROD frame_id=43 n=2 status=0x0 sid=27067 seq=43 rtime_ms=685827 age_pub=0 state=ERROR fault=invalid cap_ms=685702
+S5PROD frame_id=44 n=3 status=0x0 sid=27067 seq=44 rtime_ms=685856 age_pub=0 state=ERROR fault=invalid cap_ms=685831
+S5PROD frame_id=45 n=1 status=0x0 sid=27067 seq=45 rtime_ms=685985 age_pub=0 state=ERROR fault=invalid cap_ms=685860
+S5PROD frame_id=46 n=2 status=0x0 sid=27067 seq=46 rtime_ms=686014 age_pub=0 state=ERROR fault=invalid cap_ms=685989
+S5PROD frame_id=47 n=3 status=0x0 sid=27067 seq=47 rtime_ms=686143 age_pub=0 state=ERROR fault=invalid cap_ms=686018
+S5PROD frame_id=48 n=1 status=0x0 sid=27067 seq=48 rtime_ms=686172 age_pub=0 state=ERROR fault=invalid cap_ms=686147
+S5PROD frame_id=49 n=2 status=0x0 sid=27067 seq=49 rtime_ms=686301 age_pub=0 state=ERROR fault=invalid cap_ms=686176
+S5PROD frame_id=50 n=3 status=0x0 sid=27067 seq=50 rtime_ms=686330 age_pub=0 state=ERROR fault=invalid cap_ms=686306
+S5PROD frame_id=51 n=1 status=0x0 sid=27067 seq=51 rtime_ms=686459 age_pub=0 state=ERROR fault=invalid cap_ms=686335
+S5PROD frame_id=52 n=2 status=0x0 sid=27067 seq=52 rtime_ms=686488 age_pub=0 state=ERROR fault=invalid cap_ms=686464
+S5PROD frame_id=53 n=3 status=0x0 sid=27067 seq=53 rtime_ms=686617 age_pub=0 state=ERROR fault=invalid cap_ms=686493
+S5PROD frame_id=54 n=1 status=0x0 sid=27067 seq=54 rtime_ms=686646 age_pub=0 state=ERROR fault=invalid cap_ms=686622
+S5PROD frame_id=55 n=2 status=0x0 sid=27067 seq=55 rtime_ms=686775 age_pub=0 state=ERROR fault=invalid cap_ms=686651
+S5PROD frame_id=56 n=3 status=0x0 sid=27067 seq=56 rtime_ms=686804 age_pub=0 state=ERROR fault=invalid cap_ms=686780
+S5PROD frame_id=57 n=1 status=0x0 sid=27067 seq=57 rtime_ms=686933 age_pub=0 state=ERROR fault=invalid cap_ms=686809
+S5PROD frame_id=58 n=2 status=0x0 sid=27067 seq=58 rtime_ms=686962 age_pub=0 state=ERROR fault=invalid cap_ms=686938
+S5PROD frame_id=59 n=3 status=0x0 sid=27067 seq=59 rtime_ms=687091 age_pub=0 state=ERROR fault=invalid cap_ms=686967
+S5DISP frame=60 lat=0 age=0 st=5 sr=15090 src=real_nobox nbox=0
+S5PROD frame_id=60 n=1 status=0x0 sid=27067 seq=60 rtime_ms=687120 age_pub=0 state=ERROR fault=invalid cap_ms=687096
+S5CONS sid=27067 seq=60 n=1 status=0x0 age_pub=10 state=ERROR seqlock=120
+S5PROD frame_id=61 n=2 status=0x0 sid=27067 seq=61 rtime_ms=687262 age_pub=0 state=ERROR fault=invalid cap_ms=687137
+S5PROD frame_id=62 n=3 status=0x0 sid=27067 seq=62 rtime_ms=687291 age_pub=0 state=ERROR fault=invalid cap_ms=687266
+S5PROD frame_id=63 n=1 status=0x0 sid=27067 seq=63 rtime_ms=687420 age_pub=0 state=ERROR fault=invalid cap_ms=687295
+S5PROD frame_id=64 n=2 status=0x0 sid=27067 seq=64 rtime_ms=687449 age_pub=0 state=ERROR fault=invalid cap_ms=687424
+S5PROD frame_id=65 n=3 status=0x0 sid=27067 seq=65 rtime_ms=687578 age_pub=0 state=ERROR fault=invalid cap_ms=687453
+S5PROD frame_id=66 n=1 status=0x0 sid=27067 seq=66 rtime_ms=687607 age_pub=0 state=ERROR fault=invalid cap_ms=687582
+S5PROD frame_id=67 n=2 status=0x0 sid=27067 seq=67 rtime_ms=687736 age_pub=0 state=ERROR fault=invalid cap_ms=687611
+S5PROD frame_id=68 n=3 status=0x0 sid=27067 seq=68 rtime_ms=687765 age_pub=0 state=ERROR fault=invalid cap_ms=687740
+S5PROD frame_id=69 n=1 status=0x0 sid=27067 seq=69 rtime_ms=687894 age_pub=0 state=ERROR fault=invalid cap_ms=687769
+S5PROD frame_id=70 n=2 status=0x0 sid=27067 seq=70 rtime_ms=687923 age_pub=0 state=ERROR fault=invalid cap_ms=687898
+S5PROD frame_id=71 n=3 status=0x0 sid=27067 seq=71 rtime_ms=688052 age_pub=0 state=ERROR fault=invalid cap_ms=687927
+S5PROD frame_id=72 n=1 status=0x0 sid=27067 seq=72 rtime_ms=688081 age_pub=0 state=ERROR fault=invalid cap_ms=688056
+S5PROD frame_id=73 n=2 status=0x0 sid=27067 seq=73 rtime_ms=688210 age_pub=0 state=ERROR fault=invalid cap_ms=688085
+S5PROD frame_id=74 n=3 status=0x0 sid=27067 seq=74 rtime_ms=688239 age_pub=0 state=ERROR fault=invalid cap_ms=688214
+S5PROD frame_id=75 n=1 status=0x0 sid=27067 seq=75 rtime_ms=688368 age_pub=0 state=ERROR fault=invalid cap_ms=688243
+S5PROD frame_id=76 n=2 status=0x0 sid=27067 seq=76 rtime_ms=688397 age_pub=0 state=ERROR fault=invalid cap_ms=688372
+S5PROD frame_id=77 n=3 status=0x0 sid=27067 seq=77 rtime_ms=688526 age_pub=0 state=ERROR fault=invalid cap_ms=688402
+S5PROD frame_id=78 n=1 status=0x0 sid=27067 seq=78 rtime_ms=688555 age_pub=0 state=ERROR fault=invalid cap_ms=688531
+S5PROD frame_id=79 n=2 status=0x0 sid=27067 seq=79 rtime_ms=688684 age_pub=0 state=ERROR fault=invalid cap_ms=688560
+S5PROD frame_id=80 n=3 status=0x0 sid=27067 seq=80 rtime_ms=688713 age_pub=0 state=ERROR fault=invalid cap_ms=688689
+S5PROD frame_id=81 n=1 status=0x0 sid=27067 seq=81 rtime_ms=688842 age_pub=0 state=ERROR fault=invalid cap_ms=688718
+S5PROD frame_id=82 n=2 status=0x0 sid=27067 seq=82 rtime_ms=688871 age_pub=0 state=ERROR fault=invalid cap_ms=688847
+S5PROD frame_id=83 n=3 status=0x0 sid=27067 seq=83 rtime_ms=689000 age_pub=0 state=ERROR fault=invalid cap_ms=688876
+S5PROD frame_id=84 n=1 status=0x0 sid=27067 seq=84 rtime_ms=689029 age_pub=0 state=ERROR fault=invalid cap_ms=689005
+S5PROD frame_id=85 n=2 status=0x0 sid=27067 seq=85 rtime_ms=689158 age_pub=0 state=ERROR fault=invalid cap_ms=689034
+S5PROD frame_id=86 n=3 status=0x0 sid=27067 seq=86 rtime_ms=689187 age_pub=0 state=ERROR fault=invalid cap_ms=689163
+S5PROD frame_id=87 n=1 status=0x0 sid=27067 seq=87 rtime_ms=689316 age_pub=0 state=ERROR fault=invalid cap_ms=689192
+S5PROD frame_id=88 n=2 status=0x0 sid=27067 seq=88 rtime_ms=689345 age_pub=0 state=ERROR fault=invalid cap_ms=689321
+S5PROD frame_id=89 n=3 status=0x0 sid=27067 seq=89 rtime_ms=689474 age_pub=0 state=ERROR fault=invalid cap_ms=689350
+S5PROD frame_id=90 n=1 status=0x0 sid=27067 seq=90 rtime_ms=689503 age_pub=0 state=ERROR fault=invalid cap_ms=689479
+S5PROD frame_id=91 n=2 status=0x0 sid=27067 seq=91 rtime_ms=689632 age_pub=0 state=ERROR fault=invalid cap_ms=689508
+S5PROD frame_id=92 n=3 status=0x0 sid=27067 seq=92 rtime_ms=689661 age_pub=0 state=ERROR fault=invalid cap_ms=689637
+S5PROD frame_id=93 n=1 status=0x0 sid=27067 seq=93 rtime_ms=689790 age_pub=0 state=ERROR fault=invalid cap_ms=689666
+S5PROD frame_id=94 n=2 status=0x0 sid=27067 seq=94 rtime_ms=689819 age_pub=0 state=ERROR fault=invalid cap_ms=689795
+S5PROD frame_id=95 n=3 status=0x0 sid=27067 seq=95 rtime_ms=689948 age_pub=0 state=ERROR fault=invalid cap_ms=689824
+S5PROD frame_id=96 n=1 status=0x0 sid=27067 seq=96 rtime_ms=689978 age_pub=0 state=ERROR fault=invalid cap_ms=689953
+S5PROD frame_id=97 n=2 status=0x0 sid=27067 seq=97 rtime_ms=690107 age_pub=0 state=ERROR fault=invalid cap_ms=689982
+S5PROD frame_id=98 n=3 status=0x0 sid=27067 seq=98 rtime_ms=690136 age_pub=0 state=ERROR fault=invalid cap_ms=690111
+S5PROD frame_id=99 n=1 status=0x0 sid=27067 seq=99 rtime_ms=690265 age_pub=0 state=ERROR fault=invalid cap_ms=690140
+S5PROD frame_id=100 n=2 status=0x0 sid=27067 seq=100 rtime_ms=690294 age_pub=0 state=ERROR fault=invalid cap_ms=690269
+S5PROD frame_id=101 n=3 status=0x0 sid=27067 seq=101 rtime_ms=690423 age_pub=0 state=ERROR fault=invalid cap_ms=690298
+S5PROD frame_id=102 n=1 status=0x0 sid=27067 seq=102 rtime_ms=690452 age_pub=0 state=ERROR fault=invalid cap_ms=690428
+S5PROD frame_id=103 n=2 status=0x0 sid=27067 seq=103 rtime_ms=690581 age_pub=0 state=ERROR fault=invalid cap_ms=690457
+S5PROD frame_id=104 n=3 status=0x0 sid=27067 seq=104 rtime_ms=690611 age_pub=0 state=ERROR fault=invalid cap_ms=690586
+S5PROD frame_id=105 n=1 status=0x0 sid=27067 seq=105 rtime_ms=690740 age_pub=0 state=ERROR fault=invalid cap_ms=690615
+S5PROD frame_id=106 n=2 status=0x0 sid=27067 seq=106 rtime_ms=690769 age_pub=0 state=ERROR fault=invalid cap_ms=690745
+S5PROD frame_id=107 n=3 status=0x0 sid=27067 seq=107 rtime_ms=690898 age_pub=0 state=ERROR fault=invalid cap_ms=690774
+S5PROD frame_id=108 n=1 status=0x0 sid=27067 seq=108 rtime_ms=690927 age_pub=0 state=ERROR fault=invalid cap_ms=690903
+S5PROD frame_id=109 n=2 status=0x0 sid=27067 seq=109 rtime_ms=691057 age_pub=0 state=ERROR fault=invalid cap_ms=690932
+S5PROD frame_id=110 n=3 status=0x0 sid=27067 seq=110 rtime_ms=691086 age_pub=0 state=ERROR fault=invalid cap_ms=691061
+S5PROD frame_id=111 n=1 status=0x0 sid=27067 seq=111 rtime_ms=691215 age_pub=0 state=ERROR fault=invalid cap_ms=691091
+S5PROD frame_id=112 n=2 status=0x0 sid=27067 seq=112 rtime_ms=691244 age_pub=0 state=ERROR fault=invalid cap_ms=691220
+S5PROD frame_id=113 n=3 status=0x0 sid=27067 seq=113 rtime_ms=691373 age_pub=0 state=ERROR fault=invalid cap_ms=691249
+S5PROD frame_id=114 n=1 status=0x0 sid=27067 seq=114 rtime_ms=691403 age_pub=0 state=ERROR fault=invalid cap_ms=691378
+S5PROD frame_id=115 n=2 status=0x0 sid=27067 seq=115 rtime_ms=691532 age_pub=0 state=ERROR fault=invalid cap_ms=691408
+S5PROD frame_id=116 n=3 status=0x0 sid=27067 seq=116 rtime_ms=691561 age_pub=0 state=ERROR fault=invalid cap_ms=691537
+S5PROD frame_id=117 n=1 status=0x0 sid=27067 seq=117 rtime_ms=691690 age_pub=0 state=ERROR fault=invalid cap_ms=691566
+S5PROD frame_id=118 n=2 status=0x0 sid=27067 seq=118 rtime_ms=691720 age_pub=0 state=ERROR fault=invalid cap_ms=691695
+S5PROD frame_id=119 n=3 status=0x0 sid=27067 seq=119 rtime_ms=691849 age_pub=0 state=ERROR fault=invalid cap_ms=691724
+S5DISP frame=120 lat=0 age=0 st=5 sr=15090 src=real_nobox nbox=0
+S5PROD frame_id=120 n=1 status=0x0 sid=27067 seq=120 rtime_ms=691878 age_pub=0 state=ERROR fault=invalid cap_ms=691854
+S5CONS sid=27067 seq=120 n=1 status=0x0 age_pub=10 state=ERROR seqlock=240
+S5PROD frame_id=121 n=2 status=0x0 sid=27067 seq=121 rtime_ms=692020 age_pub=0 state=ERROR fault=invalid cap_ms=691895
+S5PROD frame_id=122 n=3 status=0x0 sid=27067 seq=122 rtime_ms=692049 age_pub=0 state=ERROR fault=invalid cap_ms=692024
+S5PROD frame_id=123 n=1 status=0x0 sid=27067 seq=123 rtime_ms=692178 age_pub=0 state=ERROR fault=invalid cap_ms=692054
+S5PROD frame_id=124 n=2 status=0x0 sid=27067 seq=124 rtime_ms=692207 age_pub=0 state=ERROR fault=invalid cap_ms=692183
+S5PROD frame_id=125 n=3 status=0x0 sid=27067 seq=125 rtime_ms=692336 age_pub=0 state=ERROR fault=invalid cap_ms=692212
+S5PROD frame_id=126 n=1 status=0x0 sid=27067 seq=126 rtime_ms=692366 age_pub=0 state=ERROR fault=invalid cap_ms=692341
+S5PROD frame_id=127 n=2 status=0x0 sid=27067 seq=127 rtime_ms=692495 age_pub=0 state=ERROR fault=invalid cap_ms=692370
+S5PROD frame_id=128 n=3 status=0x0 sid=27067 seq=128 rtime_ms=692524 age_pub=0 state=ERROR fault=invalid cap_ms=692500
+S5PROD frame_id=129 n=1 status=0x0 sid=27067 seq=129 rtime_ms=692653 age_pub=0 state=ERROR fault=invalid cap_ms=692529
+S5PROD frame_id=130 n=2 status=0x0 sid=27067 seq=130 rtime_ms=692682 age_pub=0 state=ERROR fault=invalid cap_ms=692658
+S5PROD frame_id=131 n=3 status=0x0 sid=27067 seq=131 rtime_ms=692812 age_pub=0 state=ERROR fault=invalid cap_ms=692687
+S5PROD frame_id=132 n=1 status=0x0 sid=27067 seq=132 rtime_ms=692841 age_pub=0 state=ERROR fault=invalid cap_ms=692816
+S5PROD frame_id=133 n=2 status=0x0 sid=27067 seq=133 rtime_ms=692970 age_pub=0 state=ERROR fault=invalid cap_ms=692846
+S5PROD frame_id=134 n=3 status=0x0 sid=27067 seq=134 rtime_ms=692999 age_pub=0 state=ERROR fault=invalid cap_ms=692975
+S5PROD frame_id=135 n=1 status=0x0 sid=27067 seq=135 rtime_ms=693129 age_pub=0 state=ERROR fault=invalid cap_ms=693004
+S5PROD frame_id=136 n=2 status=0x0 sid=27067 seq=136 rtime_ms=693158 age_pub=0 state=ERROR fault=invalid cap_ms=693133
+S5PROD frame_id=137 n=3 status=0x0 sid=27067 seq=137 rtime_ms=693287 age_pub=0 state=ERROR fault=invalid cap_ms=693162
+S5PROD frame_id=138 n=1 status=0x0 sid=27067 seq=138 rtime_ms=693316 age_pub=0 state=ERROR fault=invalid cap_ms=693292
+S5PROD frame_id=139 n=2 status=0x0 sid=27067 seq=139 rtime_ms=693445 age_pub=0 state=ERROR fault=invalid cap_ms=693321
+S5PROD frame_id=140 n=3 status=0x0 sid=27067 seq=140 rtime_ms=693474 age_pub=0 state=ERROR fault=invalid cap_ms=693450
+S5PROD frame_id=141 n=1 status=0x0 sid=27067 seq=141 rtime_ms=693604 age_pub=0 state=ERROR fault=invalid cap_ms=693479
+S5PROD frame_id=142 n=2 status=0x0 sid=27067 seq=142 rtime_ms=693633 age_pub=0 state=ERROR fault=invalid cap_ms=693608
+S5PROD frame_id=143 n=3 status=0x0 sid=27067 seq=143 rtime_ms=693762 age_pub=0 state=ERROR fault=invalid cap_ms=693638
+S5PROD frame_id=144 n=1 status=0x0 sid=27067 seq=144 rtime_ms=693791 age_pub=0 state=ERROR fault=invalid cap_ms=693767
+S5PROD frame_id=145 n=2 status=0x0 sid=27067 seq=145 rtime_ms=693921 age_pub=0 state=ERROR fault=invalid cap_ms=693796
+S5PROD frame_id=146 n=3 status=0x0 sid=27067 seq=146 rtime_ms=693950 age_pub=0 state=ERROR fault=invalid cap_ms=693925
+S5PROD frame_id=147 n=1 status=0x0 sid=27067 seq=147 rtime_ms=694079 age_pub=0 state=ERROR fault=invalid cap_ms=693955
+S5PROD frame_id=148 n=2 status=0x0 sid=27067 seq=148 rtime_ms=694108 age_pub=0 state=ERROR fault=invalid cap_ms=694084
+S5PROD frame_id=149 n=3 status=0x0 sid=27067 seq=149 rtime_ms=694237 age_pub=0 state=ERROR fault=invalid cap_ms=694113
+S5PROD frame_id=150 n=1 status=0x0 sid=27067 seq=150 rtime_ms=694267 age_pub=0 state=ERROR fault=invalid cap_ms=694242
+S5PROD frame_id=151 n=2 status=0x0 sid=27067 seq=151 rtime_ms=694396 age_pub=0 state=ERROR fault=invalid cap_ms=694271
+S5PROD frame_id=152 n=3 status=0x0 sid=27067 seq=152 rtime_ms=694425 age_pub=0 state=ERROR fault=invalid cap_ms=694401
+S5PROD frame_id=153 n=1 status=0x0 sid=27067 seq=153 rtime_ms=694554 age_pub=0 state=ERROR fault=invalid cap_ms=694430
+S5PROD frame_id=154 n=2 status=0x0 sid=27067 seq=154 rtime_ms=694584 age_pub=0 state=ERROR fault=invalid cap_ms=694559
+S5PROD frame_id=155 n=3 status=0x0 sid=27067 seq=155 rtime_ms=694713 age_pub=0 state=ERROR fault=invalid cap_ms=694588
+S5PROD frame_id=156 n=1 status=0x0 sid=27067 seq=156 rtime_ms=694742 age_pub=0 state=ERROR fault=invalid cap_ms=694717
+S5PROD frame_id=157 n=2 status=0x0 sid=27067 seq=157 rtime_ms=694871 age_pub=0 state=ERROR fault=invalid cap_ms=694747
+S5PROD frame_id=158 n=3 status=0x0 sid=27067 seq=158 rtime_ms=694900 age_pub=0 state=ERROR fault=invalid cap_ms=694876
+S5PROD frame_id=159 n=1 status=0x0 sid=27067 seq=159 rtime_ms=695030 age_pub=0 state=ERROR fault=invalid cap_ms=694905
+S5PROD frame_id=160 n=2 status=0x0 sid=27067 seq=160 rtime_ms=695059 age_pub=0 state=ERROR fault=invalid cap_ms=695034
+S5PROD frame_id=161 n=3 status=0x0 sid=27067 seq=161 rtime_ms=695188 age_pub=0 state=ERROR fault=invalid cap_ms=695064
+S5PROD frame_id=162 n=1 status=0x0 sid=27067 seq=162 rtime_ms=695217 age_pub=0 state=ERROR fault=invalid cap_ms=695193
+S5PROD frame_id=163 n=2 status=0x0 sid=27067 seq=163 rtime_ms=695346 age_pub=0 state=ERROR fault=invalid cap_ms=695222
+S5PROD frame_id=164 n=3 status=0x0 sid=27067 seq=164 rtime_ms=695376 age_pub=0 state=ERROR fault=invalid cap_ms=695351
+S5PROD frame_id=165 n=1 status=0x0 sid=27067 seq=165 rtime_ms=695505 age_pub=0 state=ERROR fault=invalid cap_ms=695380
+S5PROD frame_id=166 n=2 status=0x0 sid=27067 seq=166 rtime_ms=695534 age_pub=0 state=ERROR fault=invalid cap_ms=695510
+S5PROD frame_id=167 n=3 status=0x0 sid=27067 seq=167 rtime_ms=695663 age_pub=0 state=ERROR fault=invalid cap_ms=695539
+S5PROD frame_id=168 n=1 status=0x0 sid=27067 seq=168 rtime_ms=695692 age_pub=0 state=ERROR fault=invalid cap_ms=695668
+S5PROD frame_id=169 n=2 status=0x0 sid=27067 seq=169 rtime_ms=695822 age_pub=0 state=ERROR fault=invalid cap_ms=695697
+S5PROD frame_id=170 n=3 status=0x0 sid=27067 seq=170 rtime_ms=695851 age_pub=0 state=ERROR fault=invalid cap_ms=695826
+S5PROD frame_id=171 n=1 status=0x0 sid=27067 seq=171 rtime_ms=695980 age_pub=0 state=ERROR fault=invalid cap_ms=695856
+S5PROD frame_id=172 n=2 status=0x0 sid=27067 seq=172 rtime_ms=696009 age_pub=0 state=ERROR fault=invalid cap_ms=695985
+S5PROD frame_id=173 n=3 status=0x0 sid=27067 seq=173 rtime_ms=696138 age_pub=0 state=ERROR fault=invalid cap_ms=696014
+S5PROD frame_id=174 n=1 status=0x0 sid=27067 seq=174 rtime_ms=696168 age_pub=0 state=ERROR fault=invalid cap_ms=696143
+S5PROD frame_id=175 n=2 status=0x0 sid=27067 seq=175 rtime_ms=696297 age_pub=0 state=ERROR fault=invalid cap_ms=696172
+S5PROD frame_id=176 n=3 status=0x0 sid=27067 seq=176 rtime_ms=696326 age_pub=0 state=ERROR fault=invalid cap_ms=696302
+S5PROD frame_id=177 n=1 status=0x0 sid=27067 seq=177 rtime_ms=696455 age_pub=0 state=ERROR fault=invalid cap_ms=696331
+S5PROD frame_id=178 n=2 status=0x0 sid=27067 seq=178 rtime_ms=696485 age_pub=0 state=ERROR fault=invalid cap_ms=696460
+S5PROD frame_id=179 n=3 status=0x0 sid=27067 seq=179 rtime_ms=696614 age_pub=0 state=ERROR fault=invalid cap_ms=696489
+S5DISP frame=180 lat=0 age=0 st=5 sr=15090 src=real_nobox nbox=0
+S5PROD frame_id=180 n=1 status=0x0 sid=27067 seq=180 rtime_ms=696643 age_pub=0 state=ERROR fault=invalid cap_ms=696618
+S5CONS sid=27067 seq=180 n=1 status=0x0 age_pub=10 state=ERROR seqlock=360
+UF GPIO frame@43C50000=229527 total@43C50008=1141170358
+S5DISP boxes n=0 crc=0 hex=
+S5DISP done frames=180 vcnt=1(sw) vdma_err=180 idle_fps=0 idle_us=0
+S5DISP RESULT={"pass":0,"fps_cap":0,"fps_inf":0,"fps_dis":0,"fps_upd":12,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":180,"frames":180,"vcnt":1,"box_crc":0,"fb_crc":1348295927,"uf_pix":1141170358,"uf_frame":229527,"uf_total":1141170358,"src":"real_nobox","reason":"vdma_error"}

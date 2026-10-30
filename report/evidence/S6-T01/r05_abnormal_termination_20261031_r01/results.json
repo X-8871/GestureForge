@@ -1,0 +1,59 @@
+{
+  "task_id": "R-05",
+  "run_id": "r05_abnormal_termination_20261031_r01",
+  "started_utc8": "2026-10-31T01:56:04+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_load_run": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S6_confirm_normal": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "fps_dis": 0,
+      "lines": 14,
+      "read_period": null
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 53188,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；异常终止=stop 全部核 + 强杀 hw_server（不复位、不重新上电）；DAP/halt 异常停手",
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+    "sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+    "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+  },
+  "stop_reason": "正常态未建立（fps_dis≠60）",
+  "finished_utc8": "2026-10-31T01:56:32+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

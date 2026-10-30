@@ -1,0 +1,35 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "R4-A1",
+      "desc": "fps_dis==0（读流未起来）",
+      "pass": false,
+      "detail": {
+        "fps_dis": 60,
+        "read_period_line": "VDMA: read period = 5557891 ticks (16673 us) -> fps_dis=60 (display refresh)"
+      }
+    },
+    {
+      "id": "R4-A2",
+      "desc": "SR.Halted 位=0（VDMA 未进 Halted）",
+      "pass": true,
+      "detail": {
+        "SR": "0x11000",
+        "sr_halted": 0
+      }
+    },
+    {
+      "id": "R4-A3",
+      "desc": "CR.RS(bit0) 与 PARKPTR/STRIDE/HSIZE 快照可得",
+      "pass": true,
+      "detail": {
+        "cr_rs": 1,
+        "parkptr": 65536,
+        "stride": 5120,
+        "hsize": 5120
+      }
+    }
+  ]
+}

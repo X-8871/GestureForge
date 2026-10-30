@@ -1,0 +1,25 @@
+# R-05 异常终止残态复现 — `r05_abnormal_termination_20261031_r01`
+
+- 开窗：2026-10-31T01:56:04+08:00；收窗：2026-10-31T01:56:32+08:00
+- 结论：**None**；stop_reason=正常态未建立（fps_dis≠60）
+- 位流：`4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4`；ELF：`cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577`
+
+
+## 复跑后寄存器快照（停核只读）
+
+| 寄存器 | 地址 | 值 |
+|---|---|---|
+| CR | 0x43C40000 | None |
+| SR | 0x43C40004 | None |
+| PARKPTR | 0x43C40028 | None |
+| UF_FRAME | 0x43C50000 | None |
+| UF_TOTAL | 0x43C50008 | None |
+| CSR2B | 0x43C00000 | None |
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI
+
+## 结论口径
+- REPRODUCED：异常终止后（不 re-init）直接 dow+con 出现 fps_dis=0/READSTR 警告/vdma_err=3695185 ⇒ r12 残态归因成立；
+- NOT_REPRODUCED：仍 fps_dis=60、vdma_err=0 ⇒ 残态假设不成立或需特定时序，r12 更可能是偶发。

@@ -146,6 +146,11 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **sidecar 身份裁定 A（2026-10-31 01:0x–01:1x，Wong）**：Wong 明确采用他已在 Codex 侧批准的 **A = 32 B ABI 不动 + sidecar `+0x100` + `n_dets ≤ 14`（>14 fail-closed 发 ERROR）+ flush 288 B**。
+  · 我此前 rev2（`+0x120`/16 框/flush 0x140）**作废，仅存档**（`S6_T01/s6_producer_v2_rev2_20261031_r01/`，不得与 A 混用）。
+  · 口径文件已出 **rev3**（`阶段6_交互控制_6D口径冻结_20261030.md`，main 已提交）：正式身份 A + 勘误/裁定记录（rev2 历史保留）。
+  · 生产者 v3（A 身份）已交 `video-sw` 重编；`video-sw` 需给 8 个新 ELF sha + `S5_PRODUCER_V2_FREEZE.md` rev3 + 新增"n_dets=15 必须被拒"自检。
+  · Codex 已被告知（`DSH-20261031-022`）：C2 按 A 实现、不得改 B；M3 生命周期答复=当前 POR 已 init、勿重复 init、禁任何 rst。
 - **生产者 v2 rev2 交付（2026-10-31 00:51）**：sidecar `+0x120`、flush `[0,0x140)`、`n_dets≤16` fail-closed；8 个 ELF 新 sha（有界 `c36d1133…`、长跑 `87fcab6b…`、idleprobe `be3011fc…`、cycle-fault `d3e9e4f6…`、4 固定 fault `1ffd6409…/35fafa67…/bd0d63ea…/cd23655c…`）；冻结件 `S5_PRODUCER_V2_FREEZE.md` rev2 `ed4c41aa…`；构建记录 `p3q_producer_v2_rev2_record.json` `2b8850dd…`。
   证据已归档 w4 `S6-T01/s6_producer_v2_rev2_20261031_r01/`（门禁 OK）。**阶段5 冻结物未变**（`e4ba0cb4`/`cbf5ebe3`/`2c880e4e`）。**E3 需用 rev2 新 RunId 重采**（旧 E3 为 rev1 偏移，语义有效不复用）。
   下一板窗计划：E1-lite → E3-rev2（含 sidecar `0x20800120` 回读、验证第 14/15 号检测项未被覆盖）→ E4-rev2 四窗 → R-04 B 热机 → （Wong 断电）R-04 A 冷启动。

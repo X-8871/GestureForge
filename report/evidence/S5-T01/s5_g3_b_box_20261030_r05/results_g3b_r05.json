@@ -1,0 +1,265 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_b_box_20261030_r05",
+  "mode": "g3b_r05_src640_seed",
+  "started_utc8": "2026-10-30T12:11:12+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3b_video_20261030_r01\\out\\s4d_p3b_r01.bit",
+          "sha256": "1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572",
+          "expect": "1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572"
+        },
+        "elf": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+          "sha256": "e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d",
+          "expect": "e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d"
+        },
+        "seed": {
+          "path": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\g3b_box_seed_src640.json",
+          "sha256": "68e019f79ba1edf70a0e32cb9b1f24e988f6e08595c4bce1a7d35d5955752871",
+          "words": 20
+        },
+        "init_elf": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 44680
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_prestop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S4_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": "PASS",
+      "program_pl_exit": 0,
+      "lvl_0xF": "PASS",
+      "program_ok_in_log": true,
+      "startup_high_in_log": true
+    },
+    "S5_seed_block": {
+      "status": "PASS",
+      "exit_code": 0,
+      "addr": "0x20800000",
+      "bytes": 80,
+      "words": 20,
+      "write_exit": 0,
+      "write_error": null,
+      "dump_exit": 0,
+      "dump_bytes": 96,
+      "first80_equal": true,
+      "seed80_sha256": "a18c58508f5063caa8ecd7d0a57fd96830863088279a712fea4cc70918522b2f",
+      "seed_dump96_sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35",
+      "seed_json": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\g3b_box_seed_src640.json",
+      "seed_json_sha256": "68e019f79ba1edf70a0e32cb9b1f24e988f6e08595c4bce1a7d35d5955752871"
+    },
+    "S5_load_display": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_exit": 0,
+      "elapsed_s": 5.9
+    },
+    "S6_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 3.6,
+      "lines_total": 30,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":10132409,\"src\":\"real\"}",
+      "boxes_line": "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+      "nbox": 3,
+      "parsed": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 52,
+        "fps_upd": 34,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 764713996,
+        "fb_crc": 10132409,
+        "src": "real"
+      }
+    },
+    "S7_stop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S8_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "B-1",
+          "desc": "box_crc==0x2d949c0c",
+          "pass": true,
+          "detail": {
+            "box_crc": 764713996,
+            "box_crc_hex": "0x2d949c0c",
+            "expect": "0x2d949c0c"
+          }
+        },
+        {
+          "id": "B-2",
+          "desc": "nbox==3（UART frame 行）",
+          "pass": true,
+          "detail": {
+            "nbox": 3,
+            "nbox_values": [
+              3
+            ]
+          }
+        },
+        {
+          "id": "B-3",
+          "desc": "src==real",
+          "pass": true,
+          "detail": {
+            "src": "real"
+          }
+        },
+        {
+          "id": "B-4",
+          "desc": "boxes hex==96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+          "pass": true,
+          "detail": {
+            "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+            "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"
+          }
+        },
+        {
+          "id": "INFO-J4",
+          "desc": "fps_dis>=55（已知带宽问题，不判）",
+          "pass": null,
+          "detail": {
+            "fps_dis": 52,
+            "fps_upd": 34,
+            "note": "P3b/P3d 实测 52，属已知带宽问题；本窗口不作判据"
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 44680,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "stop_reason": null,
+  "seed_json": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\g3b_box_seed_src640.json",
+  "seed_json_sha256": "68e019f79ba1edf70a0e32cb9b1f24e988f6e08595c4bce1a7d35d5955752871",
+  "seed_words_count": 20,
+  "seed_addr": "0x20800000",
+  "expect_box_crc": "0x2d949c0c",
+  "expect_boxes_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+  "fps_policy": "fps_dis=52 为已知带宽问题（P3b/P3d 均 52），本窗口不作为 G3-B 判据，仅记录",
+  "criterion_ok": true,
+  "criteria": [
+    {
+      "id": "B-1",
+      "desc": "box_crc==0x2d949c0c",
+      "pass": true,
+      "detail": {
+        "box_crc": 764713996,
+        "box_crc_hex": "0x2d949c0c",
+        "expect": "0x2d949c0c"
+      }
+    },
+    {
+      "id": "B-2",
+      "desc": "nbox==3（UART frame 行）",
+      "pass": true,
+      "detail": {
+        "nbox": 3,
+        "nbox_values": [
+          3
+        ]
+      }
+    },
+    {
+      "id": "B-3",
+      "desc": "src==real",
+      "pass": true,
+      "detail": {
+        "src": "real"
+      }
+    },
+    {
+      "id": "B-4",
+      "desc": "boxes hex==96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+      "pass": true,
+      "detail": {
+        "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+        "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"
+      }
+    },
+    {
+      "id": "INFO-J4",
+      "desc": "fps_dis>=55（已知带宽问题，不判）",
+      "pass": null,
+      "detail": {
+        "fps_dis": 52,
+        "fps_upd": 34,
+        "note": "P3b/P3d 实测 52，属已知带宽问题；本窗口不作判据"
+      }
+    }
+  ],
+  "conclusion": "G3B_R05_PASS",
+  "diagnosis": {
+    "boxes_line": "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+    "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+    "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+    "hex_match": true,
+    "app_box_crc": 764713996,
+    "app_box_crc_hex": "0x2d949c0c",
+    "expect_box_crc": 764713996,
+    "expect_box_crc_hex": "0x2d949c0c",
+    "crc_match": true,
+    "nbox": 3,
+    "src": "real",
+    "fps_dis": 52,
+    "fps_upd": 34,
+    "seed_dump": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_b_box_20261030_r05\\seed_block_src640_0x20800000.bin",
+    "seed_dump_sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35",
+    "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":10132409,\"src\":\"real\"}",
+    "verdict_text": "映射与 CRC 均与期望一致"
+  },
+  "finished_utc8": "2026-10-30T12:12:17+08:00"
+}

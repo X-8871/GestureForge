@@ -1,0 +1,26 @@
+# G3-B r05（源坐标种子）窗口记录
+
+- RunId：`s5_g3_b_box_20261030_r05`
+- 开窗：2026-10-30T12:11:12+08:00；收窗：2026-10-30T12:12:17+08:00
+- 结论：**G3B_R05_PASS**
+- stop_reason：None
+- 位流（P3b）：`D:\tmp\lead\p3b_video_20261030_r01\out\s4d_p3b_r01.bit` sha256=1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572
+- ELF（有界）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d
+- 种子：`D:\tmp\lead\p3b_smoke_20261030_r01\g3b_box_seed_src640.json` sha256=68e019f79ba1edf70a0e32cb9b1f24e988f6e08595c4bce1a7d35d5955752871（20 word / 80 B，源坐标 640×480）
+- 种子 dump96：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_g3_b_box_20261030_r05\seed_block_src640_0x20800000.bin` sha256=0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35
+- 应用 boxes 行：`S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0`
+- boxes_hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0；expect_hex=96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0；hex_match=True
+- box_crc=764713996 (0x2d949c0c)；expect=764713996 (0x2d949c0c)；crc_match=True
+- nbox=3；src=real
+- fps_dis=52、fps_upd=34（已知带宽问题，不作为本窗口判据，仅记录）
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+- 屏幕：无信号（已由厂商参考位流 A/B `s5_g3_vendorref_20261030_r01` 排除我方设计）；不作为判据
+- 边界：仅写白名单 0x20800000..0x2080004F 共 80 B；未写其它 DDR；禁 rst -system
+
+## 判据
+
+- B-1 box_crc==0x2d949c0c：**PASS** {"box_crc": 764713996, "box_crc_hex": "0x2d949c0c", "expect": "0x2d949c0c"}
+- B-2 nbox==3（UART frame 行）：**PASS** {"nbox": 3, "nbox_values": [3]}
+- B-3 src==real：**PASS** {"src": "real"}
+- B-4 boxes hex==96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0：**PASS** {"boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0", "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"}
+- INFO-J4 fps_dis>=55（已知带宽问题，不判）：**FAIL** {"fps_dis": 52, "fps_upd": 34, "note": "P3b/P3d 实测 52，属已知带宽问题；本窗口不作判据"}

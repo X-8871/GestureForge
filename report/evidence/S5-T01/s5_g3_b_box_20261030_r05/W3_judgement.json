@@ -1,0 +1,90 @@
+{
+  "criteria": [
+    {
+      "id": "B-1",
+      "desc": "box_crc==0x2d949c0c",
+      "pass": true,
+      "detail": {
+        "box_crc": 764713996,
+        "box_crc_hex": "0x2d949c0c",
+        "expect": "0x2d949c0c"
+      }
+    },
+    {
+      "id": "B-2",
+      "desc": "nbox==3（UART frame 行）",
+      "pass": true,
+      "detail": {
+        "nbox": 3,
+        "nbox_values": [
+          3
+        ]
+      }
+    },
+    {
+      "id": "B-3",
+      "desc": "src==real",
+      "pass": true,
+      "detail": {
+        "src": "real"
+      }
+    },
+    {
+      "id": "B-4",
+      "desc": "boxes hex==96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+      "pass": true,
+      "detail": {
+        "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+        "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"
+      }
+    },
+    {
+      "id": "INFO-J4",
+      "desc": "fps_dis>=55（已知带宽问题，不判）",
+      "pass": null,
+      "detail": {
+        "fps_dis": 52,
+        "fps_upd": 34,
+        "note": "P3b/P3d 实测 52，属已知带宽问题；本窗口不作判据"
+      }
+    }
+  ],
+  "verdict": "G3B_R05_PASS",
+  "criterion_ok": true,
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":10132409,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 52,
+    "fps_upd": 34,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 764713996,
+    "fb_crc": 10132409,
+    "src": "real"
+  },
+  "diagnosis": {
+    "boxes_line": "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+    "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+    "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0",
+    "hex_match": true,
+    "app_box_crc": 764713996,
+    "app_box_crc_hex": "0x2d949c0c",
+    "expect_box_crc": 764713996,
+    "expect_box_crc_hex": "0x2d949c0c",
+    "crc_match": true,
+    "nbox": 3,
+    "src": "real",
+    "fps_dis": 52,
+    "fps_upd": 34,
+    "seed_dump": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_b_box_20261030_r05\\seed_block_src640_0x20800000.bin",
+    "seed_dump_sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35",
+    "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":10132409,\"src\":\"real\"}",
+    "verdict_text": "映射与 CRC 均与期望一致"
+  },
+  "utc8": "2026-10-30T12:12:13+08:00"
+}

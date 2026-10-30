@@ -1,0 +1,220 @@
+{
+  "task_id": "S5-P3B-SW",
+  "phase": "阶段5 HDMI 显示链 PS 侧显示软件（离线编译）",
+  "built_utc8": "2026-10-30T22:05:14+08:00",
+  "boundary": "离线编译 + 主机渲染自检；未接触板卡/JTAG/COM4/hw_server，未跑 Vivado，未 git 提交",
+  "toolchain": {
+    "arm_gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "arm_gcc_version": "arm-xilinx-eabi-gcc.exe (GCC) 13.4.0",
+    "linker_script": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+    "bsp": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0"
+  },
+  "inputs": {
+    "s5_display_app.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.c",
+      "sha256": "b2ec56e0a978099b861823685a69e4557dd3dcae8a73abc6ddb08597ebb81398"
+    },
+    "vdma_ctrl.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vdma_ctrl.c",
+      "sha256": "bb32bcbebe220a38ad19000a660929834f563a0fe6b82b7968160833da17eff8"
+    },
+    "vtc_ctrl.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vtc_ctrl.c",
+      "sha256": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6"
+    },
+    "s5_timebase.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_timebase.c",
+      "sha256": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96"
+    },
+    "s5_real_source.c": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_real_source.c",
+      "sha256": "cec077a102105c1fb755afc9f19a4b131909aa411d31d3de27e6969a402a50e8"
+    },
+    "s5_font8x16.h": {
+      "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_font8x16.h",
+      "sha256": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3"
+    },
+    "lscript": {
+      "path": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld",
+      "sha256": "c0350ef1c1ebee0b6b672189c0046a37f6b9d0f90f67cd4dbb66a4224e239048"
+    }
+  },
+  "outputs": {
+    "elf": {
+      "path": "s5_display_app.elf",
+      "sha256": "e4ba0cb47181edb5c5c20ad1826bcdb67225782c19ed4d8ec2309d0107b33f63",
+      "size_bytes": 285572
+    },
+    "map": {
+      "path": "s5_display_app.map",
+      "sha256": "4814a4161c5788ddc534815c00be725ea65395862f6023ea1794ea40a493c0db",
+      "size_bytes": 226153
+    },
+    "size_berkeley": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  44352\t     68\t2354528\t2398948\t 249ae4\tD:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+    "longrun_elf": {
+      "built": true,
+      "elf": "s5_display_app_longrun.elf",
+      "sha256": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+      "size_bytes": 288772
+    },
+    "idleprobe_elf": {
+      "built": true,
+      "elf": "s5_display_app_idleprobe.elf",
+      "sha256": "2c880e4e539f2e322f45c9f6c3a24f1f798c6c851d0177f496c28f13bfbcb1d8",
+      "size_bytes": 289532
+    },
+    "p3b_elf": {
+      "built": true,
+      "elf": "s5_display_app_p3b.elf",
+      "sha256": "ba0bb7fa99f47acf14eaf8d834ea93e4634b3add24de23b88ce749d4e67eaa7f",
+      "size_bytes": 327140
+    },
+    "p3n_elfs": {
+      "p3n": {
+        "built": true,
+        "elf": "s5_display_app_p3n.elf",
+        "sha256": "bb7a06aaa74c7a53000091ee5ebffbafc6141f0b486f9b6fcda2cf34953b62c1",
+        "size_bytes": 288272
+      },
+      "p3n_longrun": {
+        "built": true,
+        "elf": "s5_display_app_p3n_longrun.elf",
+        "sha256": "9d80793ff18a76e83f0a6da4df40279b366d5a6936ba57df8950bacb11a4db1e",
+        "size_bytes": 288696
+      },
+      "p3n_idleprobe": {
+        "built": true,
+        "elf": "s5_display_app_p3n_idleprobe.elf",
+        "sha256": "7dd412534857334e5d4ca20d3b6e99c17862f8c81f670601217548644c063790",
+        "size_bytes": 289436
+      }
+    },
+    "p3p_elfs": {
+      "p3p": {
+        "built": true,
+        "elf": "s5_display_app_p3p.elf",
+        "sha256": "12d8f354bb8aea82aea0c667bb7db5ca6f0b26c84865baa62d4f2a83fb48a709",
+        "size_bytes": 288436
+      },
+      "p3p_longrun": {
+        "built": true,
+        "elf": "s5_display_app_p3p_longrun.elf",
+        "sha256": "50205691596ba68815df69a5518b0723aa925a48bd2a9a4a3320499957aed2d0",
+        "size_bytes": 288868
+      },
+      "p3p_idleprobe": {
+        "built": true,
+        "elf": "s5_display_app_p3p_idleprobe.elf",
+        "sha256": "18792b9ace82f9ba6073ebf01ff84a0cc65d81f2a4a4a6dfb178445a85b3cec1",
+        "size_bytes": 289624
+      }
+    },
+    "p3q_producer_elfs": {
+      "p3q_producer": {
+        "built": true,
+        "elf": "s5_display_app_p3q_producer.elf",
+        "sha256": "0fae384afe58846f55b850fcf025d97f5706be28dc5eb8fc1f290d42b581cd4a",
+        "size_bytes": 301152
+      },
+      "p3q_producer_longrun": {
+        "built": true,
+        "elf": "s5_display_app_p3q_producer_longrun.elf",
+        "sha256": "97c33f58b974e4ff805debc4a7683617e77852f81ab9b3f0d90cead775975e79",
+        "size_bytes": 301500
+      },
+      "p3q_producer_idleprobe": {
+        "built": true,
+        "elf": "s5_display_app_p3q_producer_idleprobe.elf",
+        "sha256": "7357c3e52228fcd0eb732b770f200561a2d0dec05c74e03b69c90a1f732563fe",
+        "size_bytes": 300812
+      }
+    },
+    "p3q_producer_fault_elf": {
+      "built": true,
+      "elf": "s5_display_app_p3q_producer_fault.elf",
+      "sha256": "1bd8fe2dde1a102a4ba5daf5ffd5d492a3b8dfc96350406e12504d5dedb3f52a",
+      "size_bytes": 301664
+    },
+    "reg_selftest_p3p_fsync": {
+      "built": true,
+      "ran": true,
+      "exit": 0
+    }
+  },
+  "symbol_check": {
+    "required": [
+      "main",
+      "S5Draw_Text",
+      "S5Draw_CameraLetterbox",
+      "S5Vdma_Init",
+      "S5Vdma_Start",
+      "S5Vdma_WaitNotReading",
+      "S5Real_Parse",
+      "S5Ticks_Now"
+    ],
+    "missing": []
+  },
+  "exit_codes": {
+    "compile": 0,
+    "link": 0,
+    "size": 0,
+    "nm": 0
+  },
+  "host_render": {
+    "built": true,
+    "ran": true,
+    "exit": 0,
+    "pngs": [
+      "frame_age_over.png",
+      "frame_age_over_bars.png",
+      "frame_full.png",
+      "frame_full_bars.png",
+      "pattern_checker.png",
+      "pattern_checker_bars.png",
+      "pattern_colorbars.png",
+      "pattern_colorbars_bars.png",
+      "pattern_deterministic.png",
+      "pattern_deterministic_bars.png",
+      "pattern_grayramp.png",
+      "pattern_grayramp_bars.png"
+    ],
+    "bars_variant_exit": 0
+  },
+  "reg_selftest_vtc_vdma": {
+    "built": true,
+    "ran": true,
+    "exit": 0
+  },
+  "real_source_selftest": {
+    "built": true,
+    "ran": true,
+    "exit": 0,
+    "output": "==== S5 真实数据源离线自检（ABI@0x20800000, raw@0x12000000）====\nraw fixture: fixtures/fixture_fist_000_640x480_bgr888.raw (921600 B)\ncase0: crc32(\"123456789\")=0xCBF43926（期望 0xCBF43926）\ncase0: box_crc=686390913 \nG3-B box_crc: nbox=3 crc=0x2D949C0C (764713996) 期望 0x2D949C0C (764713996)\nG3-B 序列(24 B, u16LE x,y,w,h): 96 00 78 00 B4 00 2C 01 EE 02 C2 01 96 00 96 00 00 00 00 00 C0 03 D0 02\nS5PROD frame_id=7 n=3 status=0x1 cap_ms=3 inf_ms=10 cap_lo=0x12D687 inf_lo=0x36711D (离线模拟 ticks)\ncase0d: sidecar magic2=0x53355831 ver=1 sid=43981 seq=42 rtime=5000000 seqlock=84\ncase0d: seq rules OK（0xFFFFFFFF 拒绝；0xFFFFFFFE→0xFFFFFFFF 正常）\ncase0d: biz state mapping OK（ERROR/TIMEOUT/NO_HAND/OK + age=7ms 计算）\nS5PROD frame_id=187 n=2 status=0x1 sid=41237 seq=187 rtime_ms=23 age_pub=0 state=OK fault=none cap_ms=16（离线构造示例，板上为真实 GT ticks）\ncase1 (real): S5DISP RESULT={\"pass\":1,\"fps_cap\":30,\"fps_inf\":29,\"fps_dis\":60,\"fps_upd\":60,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":7,\"age_ms\":31,\"vdma_err\":0,\"frames\":36,\"vcnt\":36,\"box_crc\":1255179135,\"fb_crc\":2461129793,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"real\"}\ncase1 status=0x0003 det=3 age=31 lat=7\nwrote build/frame_real.ppm\ncase: magic_bad=1 raw_blank=0 parse_rc=-1 reason=result_magic_mismatch\ncase: S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":0,\"fps_upd\":0,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":1,\"vcnt\":0,\"box_crc\":0,\"fb_crc\":0,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"real_nobox\",\"reason\":\"result_magic_mismatch\"}\nwrote build/frame_real_nobox.ppm\ncase: magic_bad=0 raw_blank=1 parse_rc=0 reason=(null)\ncase3 det=1（测试图案上仍画框）\ncase: S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":0,\"fps_upd\":0,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":7,\"age_ms\":31,\"vdma_err\":0,\"frames\":1,\"vcnt\":0,\"box_crc\":0,\"fb_crc\":0,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"test\",\"reason\":\"raw_frame_blank\"}\nwrote build/frame_test_with_boxes.ppm\ncase: magic_bad=1 raw_blank=1 parse_rc=-1 reason=result_magic_mismatch\ncase: S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":0,\"fps_upd\":0,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":1,\"vcnt\":0,\"box_crc\":0,\"fb_crc\":0,\"uf_pix\":0,\"uf_frame\":0,\"uf_total\":0,\"src\":\"test\",\"reason\":\"result_magic_mismatch\"}\nwrote build/frame_test_no_producer.ppm\ncase5 (stale): status=0x004B stale_bit=1 age=49 ms\nwrote build/frame_stale.ppm\ncase6 (ts=0): age=0 ms latency=0 ms（应为 0/0）\n==== real-source selftest: PASS ====",
+    "pngs": [
+      "frame_age_over.png",
+      "frame_age_over_bars.png",
+      "frame_full.png",
+      "frame_full_bars.png",
+      "frame_real.png",
+      "frame_real_nobox.png",
+      "frame_stale.png",
+      "frame_test_no_producer.png",
+      "frame_test_with_boxes.png",
+      "pattern_checker.png",
+      "pattern_checker_bars.png",
+      "pattern_colorbars.png",
+      "pattern_colorbars_bars.png",
+      "pattern_deterministic.png",
+      "pattern_deterministic_bars.png",
+      "pattern_grayramp.png",
+      "pattern_grayramp_bars.png"
+    ]
+  },
+  "limitations": [
+    "未上板：VDMA/VTC 时序、DDR 带宽、rgb2dvi/TMDS 均未与硬件联调",
+    "VDMA 2 帧存与 BD 的 c_num_fstores=2 一致；上板仍需读回 0x18 确认",
+    "VTC 生成器已按 720p60 编程并回读校验，但未上板验证实际时序输出（无示波器/无 TMDS）",
+    "真实源只在主机用 fixture/合成数据验证；板上需生产端实际写 0x20800000 才能验通",
+    "结果块 ABI 文本写 16 B/项但字段合计 12 B：本实现按 16 B 步进读取（4 B 填充），生产端必须一致"
+  ]
+}

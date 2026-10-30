@@ -144,6 +144,9 @@
 - **阶段5 G3（03:3x 暂停，明日续）**：**G3-D 回归 3/3 PASS**（显示链零回归）、**G3-C fb CRC 相等 PASS**；
   **G3-A 待修复**（fps_dis=52，VDMA 190<221 MB/s；P3c 位流 `f55a9370…` 已构建、待上板验证）；**G3-B 取证完成**（根因=应用二次映射，种子应填 640×480 源坐标）；
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
+- **阶段5 显示通路打通（15:xx，P3k→P3m→P3n）**：P3k 纯 PL 彩条证明 rgb2dvi/时钟/复位/引脚全好；**根因 = BD 的 `v_tc`+`v_axi4s_vid_out` 不出时序**。
+  新架构 **P3m**（自写 `axis_to_video` + MMCM 原语 + `locked` 复位 + TMDS `N18/V20/T20/N20`，删 VTC/vid_out）；**P3n** 再把 VDMA 数据面提到 100 MHz ⇒ 板测 **fps 60、欠载 0**。
+  遗留：花屏/闪烁（疑无帧同步 + 像素格式），fsync 版 P3p 在建。证据 `S5-T01/s5_p3k_*`、`s5_p3m_*`、`s5_p3n_*`。
 - **HDMI 无信号根因已定位（2026-10-30 12:5x，只读差异分析 D5-HDMI-DIFF）**：**TMDS 引脚抄错工程**——
   10-22 亮屏设计（ALINX 官方 demo XDC：`dbdf/tmp/3/S3-T05/.../vendor_src/src/constraints/hdmi_out.xdc`）用 `TMDS_clk_p=N18`、`data_p[0..2]=V20/T20/N20`；
   我们 P3a/P3b/P3c 抄的 `course_s1/02_hdmi_out_test/hdmi_out_test.xdc` 是 `U13/W14/Y18/Y16`（另一工程/板型，疑 HDMI IN 或另一版底板）⇒ 输出送到错误球位，屏判无信号。

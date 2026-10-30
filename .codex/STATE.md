@@ -146,6 +146,9 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **E6/E4-rev4 板级结果（2026-10-31 01:5x）**：**E4-rev4 四窗全 PASS**（overrun→ERROR/0x3、stale→TIMEOUT/0x5、invalid→ERROR/0x0、no_hand→NO_HAND/0x1）；**E6-A rev4 除「消费者 s1/s2 未打印」外全绿**（age_pub=9 ms、seqlock 全偶、seq 60→720、sid=51446 恒定、state=OK、magic2@0x100 唯一、result_time 比 inf 晚 17.7 ms、flush 288 B、n_dets=1≤14、sidecar 自洽）⇒ **E6 暂不记 PASS**，已让 `video-sw` 出 v5（仅加 `s1=/s2=/retries=` 可观测字段），待 `s6e_e6_age_rev4_20261031_r04` 复跑。
+- **R-05 支持"残态"归因（2026-10-31 01:5x）**：异常终止后未断电，下一窗 8 s 内即 `fps_dis=0`、无 read period 行 ⇒ 与 r12 一致；R-05b（POR 干净基线 + A/C 同窗对照）待 Wong 断电后安排。
+  **新操作规则（已写入手册口径）**：任何异常终止（app 中途 stop / hw_server 强杀 / UART/DAP 异常）后的**下一窗口必须先 POR 断电重启**，脚本 preflight 检查到 `abnormal_exit` 应拒绝开窗并提示 POR。
 - **R-04 关闭（2026-10-31 01:4x，未复现）**：Wong 断电后 **POR 首窗**实测冷启动 VDMA **正常** —— `fps_dis=60`、read period **16,673 µs**、`vdma_err=0`、`CR=0x10003(RS=1)`、`SR=0x11000(Halted=0)`、PARKPTR/HSIZE/STRIDE 正确、S5DISP 24 行；热机对照 B 完全一致 ⇒ **"冷启动 VDMA 不启动"不成立**。
   原 `r12`（E5 期间 fps_dis=0/vdma_err=3,695,185）**归因于"上一窗口异常终止后的板卡残态"（假设，R-05 实验中验证）**；`r05/r09` 卡死根因仍是 `load_elf_ddr` 二次 init + `rst -processor`（单次-init 流程已修）。
   证据 `S6-T01/r04_coldstart_vdma_20261031_r01/`（含 `R04_DIFF_REPORT.md`）+ `r04_hot_control_20261031_r01/`；E1-lite `s6e_e1_recover_20261031_r05` PASS。

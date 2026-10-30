@@ -146,6 +146,11 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **R-07 相机接入开工（2026-10-31 02:2x–02:4x，离线）**：方案 A 落地 —— **P3r = P3q + AN5642 采集→VDMA S2MM→DDR `0x12000000`**（640×480 BGR888、stride 1920、帧 921,600 B），显示软件零改动。
+  · **跨组不一致已用权威证据定死**：阶段3 冻结 XSA `1f5b138e…` 的 `.hwh` 实测 —— 采集 VDMA **`C_S_AXIS_S2MM_TDATA_WIDTH=24`、`C_INCLUDE_SG=0`**、`C_M_AXI_S2MM_DATA_WIDTH=64`、`DRE=1`、`S2MM_FSYNC=2`、`LINEBUFFER=4096`、`MAX_BURST=128`、`NUM_FSTORES=1`；中间有库 IP `axis_subset_converter`（`S=2B→M=3B`，REMAP `{tdata[4:0],3'b000, tdata[10:5],2'b00, tdata[15:11],3'b000}`，左对齐补零）；DDR 内存序 **B,G,R**。
+  · 复用：`ov5640_ip`（`ip_repo_paths` 只读、`DEBUG_OV5640=false`）、`an5642_j11_cmos2.xdc`、PS7 `I2C0 via EMIO`（SDA=F16/SCL=F19）；新增 camera VDMA `0x43C60000`、camera GPIO `0x43C70000`；HP2 加 `smc_vis`(2S/1M) 共享（带宽需求 27.6+221.1≈249 MB/s、~65% 占用，需板测）。
+  · 软件侧（`video-sw`）：`S5_CAMERA=1` 单 ELF、寄存器级 I2C0 SCCB、640×480 覆盖表（`0x3808/09=640`、`0x380A/0B=480`、HTS 1892、VTS 1480、`0x3814/15=0x31`、`0x4300=0x60`、AEC 上限同步）、SOF/HREF `GAP_THRESH=16384` 不变、失败回落测试图。
+  · 预计 P3r 构建 50–70 min；出 bit 先发 sha；板窗验证（E-cam）待位流与 ELF 齐备后安排。
 - **板卡收回 / Codex 暂停（2026-10-31 02:2x，Wong）**：Wong "Codex 已休息，其任务暂时完成不了，板卡直接收回" ⇒ **M3 OFFER #3 撤回**（`DSH-20261031-027`），板卡收回 DSH（无 hw_server/xsdb、3121/3122 空、PL=P3q、核 stop、零残留）。
   **顺延**：R-03 真实 M3 = BLOCKED（Codex 暂停，恢复需新 OFFER + 新 RunId）；CDX-008 权威 manifest 与 CDX-009 三项待 Codex 恢复后处理；R-05b 待下次 POR。
   **我方无板卡任务**：今晚剩余时间用于文档收口（G4/G5 记录已补 C4+E6 结果、遗留清单状态更新）。

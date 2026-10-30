@@ -146,6 +146,11 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **POR 生命周期澄清（2026-10-31 02:0x，回应 Codex 011）**：**最后一次 POR ≈ 01:40**（R-04 A 用）；**R-05（01:57，设计性残态）之后未 POR**。本 POR 内 `ps7_init` 已多次运行（R-04 A/B、E6/E4-rev4、E6-A r04）。
+  · **我方实现缺陷**：`board_state.json` 被自检写为 `clean_run=selftest_clean`（01:58:14）⇒ 自检不得清标记；已要求修正为"自检只读 + 仅 `run_e1_enum_readonly.py --por` 可清"，并在每窗 `window_close.txt` 记录 `por_precondition: satisfied|not_satisfied`。
+  · 当前 E6-A r04 / E4-rev5 会话在 **未满足 POR 前置** 下开跑（责任在我），证据须标注 `por_precondition: not_satisfied`；若出现 `fps_dis=0/READSTR 不动/vdma_err=3695185` ⇒ 该窗作废、POR 后重跑。
+  · **M3 OFFER #2（02:00–02:20）作废**；已发 **OFFER #3（02:30–02:50）**，前置 = Wong POR + DSH `E1 --por` + 我方收窗（信箱 `DSH-20261031-024`）。
+  · Codex 提交清单（CDX-008 85+1 项、009 另 3 项）待我方核对后串行提交（排在当前板窗之后）。
 - **E6/E4-rev4 板级结果（2026-10-31 01:5x）**：**E4-rev4 四窗全 PASS**（overrun→ERROR/0x3、stale→TIMEOUT/0x5、invalid→ERROR/0x0、no_hand→NO_HAND/0x1）；**E6-A rev4 除「消费者 s1/s2 未打印」外全绿**（age_pub=9 ms、seqlock 全偶、seq 60→720、sid=51446 恒定、state=OK、magic2@0x100 唯一、result_time 比 inf 晚 17.7 ms、flush 288 B、n_dets=1≤14、sidecar 自洽）⇒ **E6 暂不记 PASS**，已让 `video-sw` 出 v5（仅加 `s1=/s2=/retries=` 可观测字段），待 `s6e_e6_age_rev4_20261031_r04` 复跑。
 - **R-05 支持"残态"归因（2026-10-31 01:5x）**：异常终止后未断电，下一窗 8 s 内即 `fps_dis=0`、无 read period 行 ⇒ 与 r12 一致；R-05b（POR 干净基线 + A/C 同窗对照）待 Wong 断电后安排。
   **新操作规则（已写入手册口径）**：任何异常终止（app 中途 stop / hw_server 强杀 / UART/DAP 异常）后的**下一窗口必须先 POR 断电重启**，脚本 preflight 检查到 `abnormal_exit` 应拒绝开窗并提示 POR。

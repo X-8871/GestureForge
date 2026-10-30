@@ -1,0 +1,75 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_p3p_hw_20261030_r01",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "phase": "阶段5 P3p：P3n + VDMA frame-sync（mm2s_fsync ← axis_to_video.vs）",
+  "conclusion": "P3P_BUILD_PASS_FSYNC",
+  "bit_sha256": "25cba4ec636f038ef60a26a1dcf756deb04b86fcacb8c588269b9868f12e1237",
+  "bit_bytes": 4045762,
+  "xsa_sha256": "86a10c26510b20607197893a04879ff047957a356559578b8bea007549014d82",
+  "xsa_bytes": 263672,
+  "timing": {
+    "WNS_ns": 3.659,
+    "WHS_ns": 0.066,
+    "TNS_ns": 0.0,
+    "failing_endpoints": 0,
+    "total_endpoints": 6001,
+    "note": "含 CDC set_max_delay；无约束口径同 P3m（-5.503/TNS -173.092/32，假性违例）"
+  },
+  "fsync": {
+    "c_use_fsync": 1,
+    "c_use_mm2s_fsync": 1,
+    "net": "vdma_0/mm2s_fsync <- mm2s_fsync <- RTL axis_to_video.vs"
+  },
+  "gpio": {
+    "0x43C10000": "本帧欠载像素数（每 vsync 归零）",
+    "0x43C10008": "累计欠载像素数（sticky）"
+  },
+  "software_changes": "EnableSync=1、GenLock=XAXIVDMA_SLAVE、GenLockRepeat=1、XAxiVdma_FsyncSrcSelect(MM2S)；兜底 CR=0x00000009",
+  "pins": {
+    "TMDS_clk_p": "N18/P19",
+    "data_p": [
+      "V20/W20",
+      "T20/U20",
+      "N20/P20"
+    ]
+  },
+  "open_items": [
+    "fsync 在供数不足时的行为（重复帧 vs 停顿）需板上验证",
+    "SG 双缓冲留待 C 档",
+    "tlast_misalign 未引出"
+  ],
+  "items": [
+    {
+      "path": "report/evidence/S5-T01/s5_p3p_hw_20261030_r01/p3p_cdc.xdc",
+      "bytes": 2448,
+      "sha256": "8f8b038a04391a3b428bfe8ea08dd4afde60a046a5b37fcfc7e258764202768a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3p_hw_20261030_r01/P3P_REPORT.md",
+      "bytes": 9155,
+      "sha256": "b23bef625ade3141f64a0812c009c3665f6321abb724deae15b59d8d2e0c48ab"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3p_hw_20261030_r01/top_p3p_drc_routed.rpt",
+      "bytes": 16743,
+      "sha256": "6470d68d2b6978996bf7727d2067ded4e138cfabc6f82f05d6df8a3462946a25"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3p_hw_20261030_r01/top_p3p_io_placed.rpt",
+      "bytes": 125429,
+      "sha256": "c48b4d3fa51ad2e0d98362f8b6a839aa8361e3895d748a99b79cfdb7b07beeaa"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3p_hw_20261030_r01/top_p3p_timing_summary_routed.rpt",
+      "bytes": 1164622,
+      "sha256": "5024a89a334f45034673d7e829d9e0ee287e2d3b5f10cb5e44494d155c2f7e46"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3p_hw_20261030_r01/top_p3p_utilization_placed.rpt",
+      "bytes": 12006,
+      "sha256": "f17f986b41157cbcb77ec15ff1e07eae7a4ff640b88cab8a903a62a08d528233"
+    }
+  ]
+}

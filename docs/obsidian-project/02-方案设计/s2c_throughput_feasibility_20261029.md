@@ -140,8 +140,8 @@ Wong已选择先完成32 lane加突发中间版本。当前实现为冻结16×16
 
 整帧离线入口`verification/run_s2c_network_golden.py`已限定独审通过，固定sample000的manifest、输入、权重及golden SHA，保存24项实际源码及快照、工具版本、真实退出、日志SHA和非零hash-basis清单。`network_golden_20261030_r01`实际编译退出0，Verilator报告约46秒；仿真最后checkpoint为180,000,000拍、第26层、10,556,416已比较输出字节。因运行期间外方另启Vivado，13:24核对身份后仅停止本方仿真；原仿真退出4294967295、runner退出1、原状态SIMULATION_FAIL均保留，原因另在`network_conflict_audit_20261030_r01`说明。该checkpoint不是整帧周期，未导出最终head或候选框，不能充当整帧通过。
 
-冻结2B与当前候选运行旧恢复矩阵，都在晚到SLVERR后读出`FAULT_DETAIL=0x0A`而被旧`0x08`断言拒绝。CSR和旧TB逐blob等同07c3d39；冻结历史提交f971ff9已将首整体错误与首AXI响应元数据分开记录。新增`sim/tb_s2c_top_recovery_matrix.sv`依此既有语义保留全部原恢复检查，仅核对晚响应补位后的0x0A；旧TB与两份失败不改写。新TB只通过静态独审，尚未运行。
+冻结2B与当前候选运行旧恢复矩阵，都在晚到SLVERR后读出`FAULT_DETAIL=0x0A`而被旧`0x08`断言拒绝。CSR和旧TB逐blob等同07c3d39；冻结历史提交f971ff9已将首整体错误与首AXI响应元数据分开记录。新增`sim/tb_s2c_top_recovery_matrix.sv`依此既有语义保留全部原恢复检查，仅核对晚响应补位后的0x0A；旧TB与两份失败不改写。新TB已通过限定静态独审，并在`updated_top_recovery_20261030_r01`完成两场景短仿真：编译、展开、仿真及外层均真实退出0，终止标记`PASS S2C_TOP_RECOVERY_MATRIX scenarios=2 ar=2 r=3`。该测试使用默认8/0配置，检查控制与恢复，不代表32/1整帧等价。
 
 `verification/compare_s2c_2b_equivalence.py`使用冻结C99解码核，将候选head和框class/order/score/xyxy打包字节与冻结2B原始UART比较；候选模式强制绑定整帧RunId、清单、源码快照、工具日志和摘要。基准正控已验证25350字节检测头加48字节框零差异，翻转head13第0字节的负控被拒绝；这些仅验证比较器，不能当作候选功能等价。100MHz OOC入口及运行脚本已准备，尚未执行综合，没有WNS/TNS/WHS/THS或资源合格结论。
 
-后续动态运行须取得DSH明确独占离线窗口，再以全新RunId串行执行整帧、新恢复矩阵及OOC综合。当前没有达到80%把握或上板请求条件，不主张G3/G4/G5。
+后续长动态运行须取得DSH明确独占离线窗口，再以全新RunId串行执行完整帧及OOC综合。当前没有达到80%把握或上板请求条件，不主张G3/G4/G5。

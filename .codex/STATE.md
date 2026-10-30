@@ -1,6 +1,6 @@
 # S2C 吞吐优化状态入口
 
-更新：2026-10-30 13:32（UTC+8）。本树为独立离线候选，阶段目标尚未完成。
+更新：2026-10-30 13:50（UTC+8）。本树为独立离线候选，阶段目标尚未完成。
 
 ## 目标与边界
 
@@ -38,7 +38,7 @@
 - `3dfac02277c13d68c1adcfc4ea057025179c62b2`已提交上述原型/成功与失败证据。S2C-BIND/lane32_bulk_commit_20261030_r01补充140项commit_blob绑定，strict核验140项/0差异；未重跑实验。日志原件已入提交但不作manifest条目，退出码/日志SHA由result绑定。
 - M03模型脚本及独立复算通过，证据lane32_cycle_model_20261030_r01，实际Python退出0；纯MAC106126592+量化6147206+点准备192153=112465951。卷积结构153190204，含非卷积估算场景239878928，即100MHz下约0.417–0.653fps；未校准且不保证整帧±20%。
 - RTL11整帧runner与TB完成限定独审；network_golden_20261030_r01编译退出0（约46秒），最后180M拍/第26层/10556416输出字节已对拍。外方P3H13:19:44另启Vivado，本方13:24仅停自家46340，原仿真exit4294967295/runner1/SIMULATION_FAIL保留；network_conflict_audit_20261030_r01另述原因，无整帧cycles/heads/PASS。
-- RTL12旧恢复矩阵在候选r02及冻结07c对照r01均FAIL（工具exit0但Fatal/runner1），原因是冻结f971ff9保存晚SLVERR响应位后应为DETAIL0xA，旧TB仍期待8。原件不改；新增S2C TB保留其他全部检查，限定静态独审通过，动态待运行。
+- RTL12旧恢复矩阵在候选r02及冻结07c对照r01均FAIL（工具exit0但Fatal/runner1），原因是冻结f971ff9保存晚SLVERR响应位后应为DETAIL0xA，旧TB仍期待8，原件不改。新增S2C TB保留其他全部检查；updated_top_recovery_20261030_r01动态两场景PASS，编译/展开/仿真及外层均exit0，AR2/R3；默认8/0配置，不当作32/1整帧通过。
 - EQ01比较器限定静态独审通过并做基准正控/单字节负控；冻结head25350B加框字段48B逐位0差异，负控检出head13[0]。候选模式绑定RunId/清单/源码/原始日志/摘要；尚无候选完整帧等价结果。OOC runner限定静态独审通过，未执行综合。
 
 ## 风险与下一步
@@ -47,11 +47,12 @@
 - 当前逐字节本地流且装载/计算/逐lane量化/输出互斥，额外串行下界137270380 cycles，即100MHz至少1.3727038秒；约0.72849fps仅为上限而非预测。S2C-M02独立复算PASS；历史traffic/8乐观候选不能直接用于本实现。
 - 原11.821秒/100MHz校准与DSH新回执的47.3秒/50MHz及4倍计时误差说法冲突，尚无已确认的精确勘误证据路径。旧预测暂不能作可靠帧时承诺；保留历史模型不追改L0冻结预算。
 - DSH新函`DSH-20261030-002-fps-baseline-correction.md`声称47.287秒/50MHz并作计时宏勘误；仍缺所引RunId精确绝对路径及原件，正文时间也晚于收函时间。Codex信箱003已请求补齐，暂不追改旧校准或三项预算。
-- 下一步：DSH明确独占窗口后，以全新RunId串行重跑RTL11完整帧、S2C新版恢复矩阵与100MHz OOC。完整head13/head26及框逐位比较、最终帧cycles、资源/时序均未通过，不继承旧结论。
+- `a6ebc6015029d9f60f02eda4bdd67c51bbb51223`已提交本轮模型、runner、TB及原件；`bb379eab68a94249dfedcf6dda0d6dc229398ba3`补证205项commit_blob严格核验0差异。旧状态快照保留各自采集时间，不追改为新版动态结果。
+- 下一步：DSH明确独占窗口后，以全新RunId串行重跑RTL11完整帧及100MHz OOC。完整head13/head26及框逐位比较、最终帧cycles、资源/时序均未通过，不继承旧结论。
 - 13:12启动前无重型，但外方P3H在本方运行期间重启，证明CIM快照不是跨方锁；已停本方并追加Codex信箱012/013，要求明确60分钟窗口，收到前不再反复抢空档。不操作/停止外方或板卡。
 - 三项门控尚不齐备，把握未达到80%，没有上板验证请求，不主张G3/G4/G5。
 - 旧未跟踪`report/evidence/S2C-RTL01/tile16_20261029_01/manifest.json`为历史无效包装，保留且不纳入交付通过证据。
 
 ## 当前交接行（11字段）
 
-任务=`S2C吞吐离线候选` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2c / codex/stage2c-throughput` | 起始提交=`07c3d3958578b9cc9d3b8eae3758711fe08724c2` | 允许修改范围=`w2c候选源码/仿真/设计/证据及本STATE；主目录仅Codex信箱追加` | 未提交改动归属=`本轮模型/runner/TB及证据归Codex，Developer已全部停写；旧RTL01与RTL08r01包装保留不交付` | 让出声明=`未让出` | 心跳(UTC+8)=`2026-10-30 13:32` | 证据入口=`RTL07–10；M03；RTL11原运行及冲突审计；RTL12两份失败；EQ01；REVIEW` | 恢复命令=`先核HEAD/status/锁/进程/RAM及DSH独占回执；新RunId重跑整帧，不覆盖r01；禁止连接板卡` | 状态/下一接手方=`IN_PROGRESS / Codex本总控`
+任务=`S2C吞吐离线候选` | 负责人=`Codex本总控` | 工作树/分支=`D:\FPGA_Competition\w2c / codex/stage2c-throughput` | 起始提交=`07c3d3958578b9cc9d3b8eae3758711fe08724c2` | 允许修改范围=`w2c候选源码/仿真/设计/证据及本STATE；主目录仅Codex信箱追加` | 未提交改动归属=`本轮模型/runner/TB及证据归Codex，Developer已全部停写；旧RTL01与RTL08r01包装保留不交付` | 让出声明=`未让出` | 心跳(UTC+8)=`2026-10-30 13:50` | 证据入口=`RTL07–10；M03；RTL11原运行及冲突审计；RTL12两份失败及新TB r01 PASS；EQ01；REVIEW；BIND` | 恢复命令=`先核HEAD/status/锁/进程/RAM及DSH独占回执；新RunId重跑整帧，不覆盖r01；禁止连接板卡` | 状态/下一接手方=`IN_PROGRESS / Codex本总控`

@@ -144,6 +144,10 @@
 - **阶段5 G3（03:3x 暂停，明日续）**：**G3-D 回归 3/3 PASS**（显示链零回归）、**G3-C fb CRC 相等 PASS**；
   **G3-A 待修复**（fps_dis=52，VDMA 190<221 MB/s；P3c 位流 `f55a9370…` 已构建、待上板验证）；**G3-B 取证完成**（根因=应用二次映射，种子应填 640×480 源坐标）；
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
+- **HDMI 无信号根因已定位（2026-10-30 12:5x，只读差异分析 D5-HDMI-DIFF）**：**TMDS 引脚抄错工程**——
+  10-22 亮屏设计（ALINX 官方 demo XDC：`dbdf/tmp/3/S3-T05/.../vendor_src/src/constraints/hdmi_out.xdc`）用 `TMDS_clk_p=N18`、`data_p[0..2]=V20/T20/N20`；
+  我们 P3a/P3b/P3c 抄的 `course_s1/02_hdmi_out_test/hdmi_out_test.xdc` 是 `U13/W14/Y18/Y16`（另一工程/板型，疑 HDMI IN 或另一版底板）⇒ 输出送到错误球位，屏判无信号。
+  `hdmi_oen=V16` 两边一致且与 HDMI 无电气连接。**P3g = P3b 仅改这 4 个 PACKAGE_PIN**，构建后上板点屏验证（Wong 在场）。
 - **HDMI 物理链路（Codex 12:1x–12:3x 排查）+ 阳性对照（12:24–12:25 DSH 窗口，`s5_g3_hdmi_baseline1022_20261030_r01`）**：
   ① 图纸实证：TMDS 四对**直连 J19**（无 OE/缓冲器）；`V16`/`hdmi_oen` 实为 `IO34_L18P→J1.46→J20.21`，**与 HDMI 无连接**（oen 1/0 无差别属预期）；HDMI_5V 经 F1(PTC)、HPD 经 R95 100K 下拉、DDC 经 U15 GTL2002。
   ② **阳性对照成立**：安全恢复 2026-10-22 旧基线（bit `44e609cc…`/ELF `5d5c253d…`/ps7_init `4fc10193…`，全程无 `rst -system`），**Wong 现场确认「出现灰度条」** ⇒ **该物理链可传图，物理完全失效假设已排除，不判板坏、不建议换板**。

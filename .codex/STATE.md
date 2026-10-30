@@ -146,6 +146,8 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **C4 独立复审（Codex 2026-10-31 01:17）CHANGES_REQUIRED**（`w6/legacy_codex_20261031/c4_r02/C4_R02_review_20261031.md` `3f6efbf4…`）：① sidecar 覆盖项（rev3/A 已修）；② **seqlock 两缺陷**（写者未先发布奇数锁、消费者先取锁后 invalidate）→ 口径 **rev4** 重写、生产者需 v4；③ 跨 POR session 唯一性 → 收窄（R-14）；④ **E5 判 FAIL**（有效业务跨度 29:58.2 < 30 min）→ 6-E 记录已改；⑤ E2 为显示刷新 proxy → 范围限定；⑥ 生产者源码绑定哈希不符 → rev4 冻结件重列；⑦ 阶段5 冻结身份统一 tag 目标 `6b43e05`。
+  另：C3 方法学+离线分析 **独立复审 PASS**（`65ad17cb…`）；R-02② 澄清 **SEC = sequential equivalence checking**，task-11 仍 `BLOCKED_NOT_RUN`，只能对「不含相机 wrapper 的 S5/S6 限定交付」作 scope-specific 不适用论证（待 Wong 裁决）。
 - **生产者 v3 身份 A 交付（2026-10-31 01:08）**：sidecar `+0x100`、`n_dets≤14` fail-closed、flush 288 B；8 个 ELF 新 sha（有界 `bef4abb5…`、长跑 **`e2d1b338…`**、idleprobe `a21382d2…`、cycle `410d6020…`、overrun `8b9e00a7…`、stale `b678b279…`、invalid `02a5c8ef…`、no_hand `1f23ef76…`）；自检 **case0c/case0d/case0e PASS**；冻结件 `S5_PRODUCER_V2_FREEZE.md` rev3/A `8c52305c…`；构建记录 `p3q_producer_A_rev3_record.json` `d60683b7…`。
   证据归档 w4 `S6-T01/s6_producer_v3_identity_a_20261031_r01/`（门禁 OK）；rev2 原样存档 `build/rev2_archived/`（作废）。阶段5 冻结物未动。
   下一板窗（Codex M3 后）：E1-lite → **E3-A**（`e2d1b338…`，sidecar `0x20800100` 回读）→ **E4-A ×4** → R-04 B 热机 → （Wong 断电）R-04 A 冷启。
@@ -214,7 +216,7 @@
   · **6-D**：`s6d_handoff_qualification_20261030_r01`（19:22）**BLOCKED** —— 生产写端未交付、会话/结果序号与业务状态映射不完整、缺可信发布时间/时基；审计包本身独立复审 PASS。
   · **6-E / T6-A03**：实物未执行（需板卡）；阶段6 G4/G5 未通过、阶段7 未开启（`stage7-system-acceptance` 工作树存在但按规则未动）。
   · **解除阻塞需两件事**：① 我方可交付"生产端写结果块"（推理/解码应用写 `0x20800000`，含可信 `cap/inf` 时基、`frame_id`/序号、`status` 位）；② 为 6-E/T6-A03 安排板卡只读诊断与 P 测量窗口（板卡现空闲，按租约协议协调）。
-- **阶段5 G5 冻结（20:40）**：tag `stage5-freeze-20261030` @ w4 `59280d7`；冻结 = P3q bit `4d6ea2ef…`/XSA `dfefc883…`/三份 P3q ELF；
+- **阶段5 G5 冻结（20:40）**：tag `stage5-freeze-20261030` @ w4 **`6b43e05`**（tag 目标；`59280d7` 仅其祖先，C4 指出后统一）；冻结 = P3q bit `4d6ea2ef…`/XSA `dfefc883…`/三份 P3q ELF；
   P3q 30 min 长稳 PASS（29 tick/最大 60 s/`vdma_err=0`/欠载 0）、构建与软件复现清单齐备、全部证据门禁 OK。记录 `阶段5_HDMI显示链G5冻结记录_20261030.md`（main `f9c1db1`）。
   **阶段5 结束**，下一入口 = 阶段6（交互控制），待 Wong 开新目标。
 - **阶段5 G4 通过（19:31，集成体 P3q）**：P3q = P2d 计算 + P3n 显示链，bit `4d6ea2ef…`、WNS +0.371/DRC 0 error、DSP 158 不变；

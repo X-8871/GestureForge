@@ -1,0 +1,84 @@
+{
+  "criteria": [
+    {
+      "id": "A-1",
+      "desc": "|age_jtag − age_display| ≤ 3 ms",
+      "pass": false,
+      "detail": {
+        "age_jtag_ms": 75.316,
+        "age_display": 27,
+        "diff_ms": 48.316
+      }
+    },
+    {
+      "id": "A-2",
+      "desc": "latency_ms ≈ age − 7 ms（±3 ms）",
+      "pass": true,
+      "detail": {
+        "lat_display": 20,
+        "age_display": 27,
+        "check_ms": 0.0
+      }
+    },
+    {
+      "id": "A-3",
+      "desc": "RESULT：src=real、nbox=3、box_crc 有值、uf_frame/uf_total 有值",
+      "pass": false,
+      "detail": {
+        "src": null,
+        "nbox": null,
+        "box_crc": null,
+        "uf_frame": null,
+        "uf_total": null,
+        "age_ms": null,
+        "latency_ms": null
+      }
+    },
+    {
+      "id": "A-4",
+      "desc": "无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "verdict": "PRODUCER_AGE_TIGHT_FAIL",
+  "tight": {
+    "block_words": [
+      1396003411,
+      124,
+      2,
+      2523603939,
+      46,
+      2525937273,
+      46,
+      1
+    ],
+    "block_hex": "53355253 0000007c 00000002 966b23e3 0000002e 968ebe79 0000002e 00000001",
+    "gt_lo1": 2546076387,
+    "gt_hi": 46,
+    "gt_lo2": 2548709121,
+    "magic": 1396003411,
+    "frame_id": 124,
+    "n_dets": 2,
+    "status": 1,
+    "cap_ticks": 200092099555,
+    "inf_ticks": 200094432889,
+    "gt_value": 200117204737,
+    "age_jtag_ms": 75.316,
+    "disp_line": "S5DISP frame=180 lat=20 age=27 st=3 sr=11000 src=real nbox=3",
+    "age_display": 27,
+    "lat_display": 20,
+    "age_diff_ms": 48.316,
+    "lat_check_ms": 0.0
+  },
+  "parsed": {},
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "gt_note": "Zynq-7000 GT = 0xF8F00200(lo)/0xF8F00204(hi)；0xF8000B00/04 为 SLCR 区间，废弃",
+  "utc8": "2026-10-30T21:06:19+08:00"
+}

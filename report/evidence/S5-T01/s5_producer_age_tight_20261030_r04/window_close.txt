@@ -1,0 +1,26 @@
+# 生产者紧耦合 age 验证（r04）
+
+- RunId：`s5_producer_age_tight_20261030_r04`
+- 开窗：2026-10-30T21:05:33+08:00；收窗：2026-10-30T21:06:23+08:00
+- PL（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF（有界生产者）：sha256=0b8fac187dd5069a5003dee9273d8e6607d96236df96ab8b614ed2280d630775（292252 B）
+- 结论：**PRODUCER_AGE_TIGHT_FAIL**
+- **GT 地址更正**：Zynq-7000 GT = `0xF8F00200`(lo)/`0xF8F00204`(hi)，频率 333.333 MHz；`0xF8000B00/04`（SLCR）废弃
+
+## 紧耦合读数（应用运行中，单会话）
+
+- 块头 8 字段：`53355253 0000007c 00000002 966b23e3 0000002e 968ebe79 0000002e 00000001`
+- magic=0x53355253、frame_id=124、n_dets=2、cap_ticks=200092099555、inf_ticks=200094432889、status=0x1
+- GT_lo(读1)=2546076387、GT_hi=46、GT_lo(读2)=2548709121 ⇒ GT=200117204737
+- **age_jtag_ms = 75.316 ms**（(GT−cap)×1000/333333333）
+- 同刻 UART：`S5DISP frame=180 lat=20 age=27 st=3 sr=11000 src=real nbox=3` ⇒ **age_display=27 ms**、lat=20 ms
+- **|age_jtag − age_display| = 48.316 ms**；`lat − (age−7) = 0.0 ms`
+
+## S5DISP RESULT
+
+- `None`
+
+- 解析：{}
+
+- DAP：未命中
+- 边界：禁 rst -system；未写候选区；未烧 QSPI；零残留

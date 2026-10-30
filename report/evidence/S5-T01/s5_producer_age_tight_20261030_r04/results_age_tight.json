@@ -1,0 +1,228 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_producer_age_tight_20261030_r04",
+  "mode": "producer_age_tight",
+  "started_utc8": "2026-10-30T21:05:33+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf": {
+        "sha256": "0b8fac187dd5069a5003dee9273d8e6607d96236df96ab8b614ed2280d630775",
+        "expect": "0b8fac187dd5069a5003dee9273d8e6607d96236df96ab8b614ed2280d630775",
+        "bytes": 292252
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy": [],
+      "non_vivado": []
+    },
+    "S3_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "fpga_exit": 0,
+      "lvl_0xF": "PASS"
+    },
+    "S5_load_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_exit": 0,
+      "run_state": "Running"
+    },
+    "S6_tight_read": {
+      "status": "PASS",
+      "exit_code": 0,
+      "tight": {
+        "block_words": [
+          1396003411,
+          124,
+          2,
+          2523603939,
+          46,
+          2525937273,
+          46,
+          1
+        ],
+        "block_hex": "53355253 0000007c 00000002 966b23e3 0000002e 968ebe79 0000002e 00000001",
+        "gt_lo1": 2546076387,
+        "gt_hi": 46,
+        "gt_lo2": 2548709121,
+        "magic": 1396003411,
+        "frame_id": 124,
+        "n_dets": 2,
+        "status": 1,
+        "cap_ticks": 200092099555,
+        "inf_ticks": 200094432889,
+        "gt_value": 200117204737,
+        "age_jtag_ms": 75.316,
+        "disp_line": "S5DISP frame=180 lat=20 age=27 st=3 sr=11000 src=real nbox=3",
+        "age_display": 27,
+        "lat_display": 20,
+        "age_diff_ms": 48.316,
+        "lat_check_ms": 0.0
+      }
+    },
+    "S7_uart_result": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "lines": 201,
+      "result_line": null,
+      "parsed": {}
+    },
+    "S8_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "A-1",
+          "desc": "|age_jtag − age_display| ≤ 3 ms",
+          "pass": false,
+          "detail": {
+            "age_jtag_ms": 75.316,
+            "age_display": 27,
+            "diff_ms": 48.316
+          }
+        },
+        {
+          "id": "A-2",
+          "desc": "latency_ms ≈ age − 7 ms（±3 ms）",
+          "pass": true,
+          "detail": {
+            "lat_display": 20,
+            "age_display": 27,
+            "check_ms": 0.0
+          }
+        },
+        {
+          "id": "A-3",
+          "desc": "RESULT：src=real、nbox=3、box_crc 有值、uf_frame/uf_total 有值",
+          "pass": false,
+          "detail": {
+            "src": null,
+            "nbox": null,
+            "box_crc": null,
+            "uf_frame": null,
+            "uf_total": null,
+            "age_ms": null,
+            "latency_ms": null
+          }
+        },
+        {
+          "id": "A-4",
+          "desc": "无 DAP/APB 错误",
+          "pass": true,
+          "detail": {
+            "hit": false,
+            "detail": ""
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 35616,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "residual": []
+    }
+  },
+  "gt_note": "Zynq-7000 GT = 0xF8F00200(lo)/0xF8F00204(hi)；0xF8000B00/04 为 SLCR 区间，废弃",
+  "forbidden_ops": "禁 rst -system；不写候选区；不烧 QSPI",
+  "tight": {
+    "block_words": [
+      1396003411,
+      124,
+      2,
+      2523603939,
+      46,
+      2525937273,
+      46,
+      1
+    ],
+    "block_hex": "53355253 0000007c 00000002 966b23e3 0000002e 968ebe79 0000002e 00000001",
+    "gt_lo1": 2546076387,
+    "gt_hi": 46,
+    "gt_lo2": 2548709121,
+    "magic": 1396003411,
+    "frame_id": 124,
+    "n_dets": 2,
+    "status": 1,
+    "cap_ticks": 200092099555,
+    "inf_ticks": 200094432889,
+    "gt_value": 200117204737,
+    "age_jtag_ms": 75.316,
+    "disp_line": "S5DISP frame=180 lat=20 age=27 st=3 sr=11000 src=real nbox=3",
+    "age_display": 27,
+    "lat_display": 20,
+    "age_diff_ms": 48.316,
+    "lat_check_ms": 0.0
+  },
+  "result_line": null,
+  "parsed": {},
+  "criteria": [
+    {
+      "id": "A-1",
+      "desc": "|age_jtag − age_display| ≤ 3 ms",
+      "pass": false,
+      "detail": {
+        "age_jtag_ms": 75.316,
+        "age_display": 27,
+        "diff_ms": 48.316
+      }
+    },
+    {
+      "id": "A-2",
+      "desc": "latency_ms ≈ age − 7 ms（±3 ms）",
+      "pass": true,
+      "detail": {
+        "lat_display": 20,
+        "age_display": 27,
+        "check_ms": 0.0
+      }
+    },
+    {
+      "id": "A-3",
+      "desc": "RESULT：src=real、nbox=3、box_crc 有值、uf_frame/uf_total 有值",
+      "pass": false,
+      "detail": {
+        "src": null,
+        "nbox": null,
+        "box_crc": null,
+        "uf_frame": null,
+        "uf_total": null,
+        "age_ms": null,
+        "latency_ms": null
+      }
+    },
+    {
+      "id": "A-4",
+      "desc": "无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "PRODUCER_AGE_TIGHT_FAIL",
+  "finished_utc8": "2026-10-30T21:06:23+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

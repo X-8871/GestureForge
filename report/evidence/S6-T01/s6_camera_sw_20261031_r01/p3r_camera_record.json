@@ -1,0 +1,57 @@
+{
+  "task": "S5-P3R-CAMERA-R07",
+  "built_utc8": "2026-10-31T02:30:04+08:00",
+  "feature": "S5_CAMERA=1：OV5640 640x480 SCCB + S2MM VDMA(0x43C60000, 24bpp, stride 1920, raw 0x12000000)",
+  "data_width_evidence": {
+    "stage3_xsa": "design_1_wrapper.xsa 1f5b138e… 的 .hwh：axi_vdma_1 C_S_AXIS_S2MM_TDATA_WIDTH=24, C_INCLUDE_SG=0",
+    "converter": "axis_subset_converter 2->3 bytes, TDATA_REMAP={tdata[4:0],3'b000,tdata[10:5],2'b00,tdata[15:11],3'b000}",
+    "ddr_format": "3 B/px, byte0=B byte1=G byte2=R => BGR888，640 宽 stride=1920，帧 921,600 B"
+  },
+  "source_sha256": {
+    "src/s5_camera.c": "2c34d46ed64184585b6a05c4c840579c840aed10542d274b96fbe68d801e3cc4",
+    "src/s5_camera.h": "db000bf6aeef3d947fe0494d78ff8ad5becb0cd0a948df91912b705b8db7bf1d",
+    "src/s5_display_app.c": "e20029c16d7cfbfd5c1fa9f3e408054cb695bc187e1bd46b81f728443c36263e",
+    "src/s5_display_app.h": "73770fce00a36a99320a0fe3dd646f0af99c0b6e805ad189a776dae4556380e3",
+    "tools/camera_selftest.c": "fcfea4f4b558fb8cb702e19f62c6a0136445ef4ba6fda8c297a9e44b1082e496"
+  },
+  "toolchain": {
+    "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+    "version": "arm-xilinx-eabi-gcc 13.4.0",
+    "bsp": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0",
+    "lscript": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-T34\\ps_app_build\\lscript_s4t34.ld"
+  },
+  "cflags": [
+    "-mcpu=cortex-a9",
+    "-mfpu=vfpv3",
+    "-mfloat-abi=hard",
+    "-DSDT",
+    "-Wall",
+    "-Wextra",
+    "-O2",
+    "-g3",
+    "-std=gnu11",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-U__clang__",
+    "-DS5_CAMERA=1"
+  ],
+  "variants": {
+    "p3r_camera": {
+      "built": true,
+      "elf": "s5_display_app_p3r_camera.elf",
+      "sha256": "9ffc68e6a4b0a7e1a18f23a0830735e816bee1ded60ea4e1370493bce49fbd90",
+      "size_bytes": 315308
+    },
+    "p3r_camera_longrun": {
+      "built": true,
+      "elf": "s5_display_app_p3r_camera_longrun.elf",
+      "sha256": "cf07bab78edd56945837b77db31e80e8b41aad4c11aa4fd5bbc09d6fe549e6b0",
+      "size_bytes": 315732
+    }
+  },
+  "size_berkeley": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  47360\t     92\t2354528\t2401980\t 24a6bc\tD:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3r_camera.elf",
+  "selftests": {
+    "camera_selftest": "PASS（build/camera_selftest.exe，见 report §11.15）"
+  },
+  "not_rebuilt": "显示三件套 / producer v5 ELF 未重编（本记录只新增 p3r camera 变体）"
+}

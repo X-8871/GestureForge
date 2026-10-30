@@ -1,0 +1,43 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6_camera_sw_20261031_r01",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "phase": "R-07 相机软件（S5_CAMERA=1）：PS I2C0 SCCB + 640×480 覆盖表 + VDMA S2MM→0x12000000",
+  "conclusion": "CAMERA_SW_BUILT_OFFLINE",
+  "elfs": {
+    "camera": "9ffc68e6a4b0a7e1a18f23a0830735e816bee1ded60ea4e1370493bce49fbd90",
+    "camera_longrun": "cf07bab78edd56945837b77db31e80e8b41aad4c11aa4fd5bbc09d6fe549e6b0"
+  },
+  "data_width_evidence": "阶段3 冻结 XSA 1f5b138e… .hwh：S2MM tdata=24、SG=0、M_AXI=64、DRE=1、FSYNC=2、LINEBUFFER=4096、MAX_BURST=128、NUM_FSTORES=1；axis_subset_converter 2B→3B REMAP 左对齐补零；DDR B,G,R",
+  "camera_config": "0x3808/09=640, 0x380A/0B=480, HTS=1892, VTS=1480, offset 0, 0x3814/15=0x31, 0x4300=0x60, PLL 0x3035/36=0x21/0x69 → PCLK 84 MHz, 30 fps",
+  "selfcheck": "camera_selftest 正常链+异常路径 PASS（不含真实 I2C/S2MM/PL 展开）",
+  "limit": "未上板；I2C 分频/上拉、覆盖表充分性、单帧循环撕裂、SR 帧计数语义、VDMA 基址以 XSA 为准 均待板测",
+  "items": [
+    {
+      "path": "report/evidence/S6-T01/s6_camera_sw_20261031_r01/camera_selftest.c",
+      "bytes": 9274,
+      "sha256": "fcfea4f4b558fb8cb702e19f62c6a0136445ef4ba6fda8c297a9e44b1082e496"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_camera_sw_20261031_r01/p3r_camera_record.json",
+      "bytes": 2587,
+      "sha256": "a32833c06c5cbb74e6c027194ce4d4188aa31357053a73985105aaf2557b1291"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_camera_sw_20261031_r01/s5_camera.c",
+      "bytes": 11269,
+      "sha256": "2c34d46ed64184585b6a05c4c840579c840aed10542d274b96fbe68d801e3cc4"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_camera_sw_20261031_r01/s5_camera.h",
+      "bytes": 5281,
+      "sha256": "db000bf6aeef3d947fe0494d78ff8ad5becb0cd0a948df91912b705b8db7bf1d"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_camera_sw_20261031_r01/S5_P3B_SW_REPORT_sec1115.md",
+      "bytes": 95799,
+      "sha256": "9bcfa082f77fe29664505023a9dd0042061d68bb50744866bc030709eb6c2eac"
+    }
+  ]
+}

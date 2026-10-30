@@ -1,0 +1,97 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6_p3r_build3_20261031_r01",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "phase": "R-07 集成位流 P3r 交付版 build3（仅换 impl 策略：Performance_ExplorePostRoutePhysOpt）",
+  "conclusion": "P3R_BUILD3_DELIVERY",
+  "bit_sha256": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e",
+  "bit_bytes": 4045762,
+  "xsa_sha256": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81",
+  "xsa_bytes": 418950,
+  "timing": {
+    "WNS_ns": 0.342,
+    "TNS_ns": 0.0,
+    "failing_endpoints": 0,
+    "total_endpoints": 58492,
+    "WHS_ns": 0.053,
+    "THS_ns": 0.0,
+    "per_clock": {
+      "clk_fpga_0": 0.342,
+      "cam_pclk": 4.589,
+      "clk_fpga_1": 2.629,
+      "clk_pixel_raw": 4.404
+    },
+    "vs_build2": {
+      "build2_WNS_ns": 0.019,
+      "delta_ns": 0.323,
+      "p3q_baseline_WNS_ns": 0.371
+    }
+  },
+  "resources": {
+    "LUT": "27,536 (51.76%)",
+    "FF": "~17,028",
+    "BRAM": "43.5",
+    "DSP": 158,
+    "IOB": 24,
+    "BUFG": 5
+  },
+  "drc": "430 条、0 error",
+  "control_build": {
+    "build2_bit": "6202872e5958ee388e3df2825cb309dd420aaa4824e655317a3d09d6607dfb8c",
+    "build2_xsa": "7b26a487abe00c70daa47dc64ea1766f075423dc5e22692ffcee4db89daaa3d6",
+    "note": "build2 保留为对照，不删除、不覆盖"
+  },
+  "env_issue": "build3 首轮 -jobs 2 撞已知 Vivado_init.tcl MCP 插件注入 + 并行 OOC 端口冲突（17-354/tclapp::load_apps failed），降 -jobs 1 重跑通过；失败/成功日志均保留",
+  "notes": {
+    "cam_pclk": "设计意图 84 MHz（阶段3 实测），约束按 96 MHz 保守（10.417 ns）；640×480 实际 PCLK 待板测 K19",
+    "io_delay": "set_input_delay max 2.500 / min 1.500 为保守占位，待手册 AC 表 + 走线 (约 6 ps/mm) 签核；不编页码"
+  },
+  "items": [
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/b3_clk_util_route.rpt",
+      "bytes": 32997,
+      "sha256": "02766c3a030b6ad09f87683c8bfba2e3d2aeb1791f4e9b041bf36b284f170572"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/b3_clocks_route.rpt",
+      "bytes": 2756,
+      "sha256": "61021d80350b324fd9ad1b5e8bd6f2cdc7ec7a3cce84f9f2e2600030e2f8f9af"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/b3_drc_route.rpt",
+      "bytes": 271653,
+      "sha256": "9238974c15d4dc705b2437bae89e8d536d4fc3a1912f42e5bf69ff8835c5e472"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/b3_io_route.rpt",
+      "bytes": 125467,
+      "sha256": "f87d964f138b45426da897a880dfefaed4aceb1c0b89cd44a266361b8655432b"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/b3_timing_route.rpt",
+      "bytes": 946607,
+      "sha256": "a1fcd13540493d2e2cb3082c8354774acbc56d6dbf1ae99c0af27315b42feea3"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/b3_util_route.rpt",
+      "bytes": 13174,
+      "sha256": "bb799b2afbdbca40a63c99f228a04edcc9ebb0b450742216a63b04524a336008"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/P3R_REPORT.md",
+      "bytes": 21306,
+      "sha256": "887b79b5b4898e52b721807d03b7ae8cecf70e9799331cc26742595980ab5242"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/s5_p3r_build3_console_output.txt",
+      "bytes": 38405,
+      "sha256": "90fc263fbdbe1723aae4295860a2a39574c778716f80e79a9166c0abf625914e"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_build3_20261031_r01/s5_p3r_build3b_console_output.txt",
+      "bytes": 190377,
+      "sha256": "04eec2e7cf74d0dda23fc8f0778d5d0bce6ad9ac278246a7449cbe82d4872995"
+    }
+  ]
+}

@@ -146,6 +146,13 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **P3r 位流 build2 交付（2026-10-31 03:1x）**：bit **`6202872e…dfb8c`**（4,045,762 B）、XSA **`7b26a487…aa3d6`**（418,944 B）。
+  · **时序两轮如实记录**：第一轮 WNS **−5.493**/1 失败端点（根因=厂商 `alinx_ov5640` 内 `fifo_ready→fifo_ready_maxis` 异步跨域被当同步，`cam_pclk→clk_fpga_1`，requirement 0.097 ns）；按 cell 过滤 `set_max_delay -datapath_only` 修复后该路径 **−5.493→+9.180**；**交付轮 WNS +0.019 / TNS 0 / 失败端点 0 / WHS +0.061**（58,726 端点）。
+  · **余量告警**：WNS 仅 +0.019（P3q 为 +0.371，薄 0.35 ns）⇒ 已让 `video-bd` 做 **build3**（换 impl 策略/相机段区域约束，目标 ≥+0.15 ns），build2 保留为可用候选。
+  · 资源：LUT **27,558 (51.80%)**、FF 17,028、BRAM 43.5、DSP 158、IOB 24、BUFG 5；DRC 436 条 **0 error**（PLCK-12 来自 pclk 非专用路由，阶段3 同）。
+  · 地址：**采集 VDMA `0x43C60000`**、**相机 GPIO `0x43C70000`**（`+0x00` 采集帧计数 / `+0x08` S2MM 帧指针）、**相机复位 `0x41200000`**；既有 5 个未动。引脚 PCLK=K19、SDA=F16、SCL=F19（PULLUP）、rst=L19，全 bank35。
+  · 带宽：27.6+221.1≈**248.7 MB/s**、HP2 有效约 380 MB/s ⇒ **~65% 占用**，DDR 并发退化需板测；I/O delay 为**保守占位值**（96 MHz + max2.5/min1.5），明确"待 V4 按手册签核"。
+  · 证据归档 w4 `S6-T01/s6_p3r_hw_20261031_r01/`（15 项，门禁 OK）。**上板验证（E-cam）待 Wong 上电 + 目视**，脚本与身份已交 `board-runner` 钩好。
 - **P3r BD validate 通过（2026-10-31 02:4x）**：修两处 —— ① `c_s_axis_s2mm_tdata_width` 是**派生量**（由所连 24-bit subset converter 自动决定，移除硬设即可，与阶段3 厂商 tcl 一致）；② 厂商 IP 的 bus interface 实名 **`m_axis_video`**（非 `M_AXIS`）；另修 rst_all 创建顺序。
   · **地址图（validate 实测）**：2B `0x43C00000`、preproc `0x43C10000`(0x80)、AXI DMA `0x43C20000`、显示 VDMA `0x43C40000`、uf GPIO `0x43C50000`、**采集 VDMA `0x43C60000`**、**相机 GPIO `0x43C70000`**（`+0x00` 采集帧计数 / `+0x08` S2MM 当前帧指针）、**相机复位 `0x41200000`**（阶段3 同址，bit0→cmos_rstn L19）；HP0/HP1/HP2 各 0x0+1GB。
   · 采集+显示 VDMA 经 `smc_vis`(2S/1M) → `pc_hp2` → HP2；subset converter 参数与阶段3 逐字一致。

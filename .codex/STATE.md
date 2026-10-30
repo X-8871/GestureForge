@@ -146,6 +146,9 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **生产者 v2 rev2 交付（2026-10-31 00:51）**：sidecar `+0x120`、flush `[0,0x140)`、`n_dets≤16` fail-closed；8 个 ELF 新 sha（有界 `c36d1133…`、长跑 `87fcab6b…`、idleprobe `be3011fc…`、cycle-fault `d3e9e4f6…`、4 固定 fault `1ffd6409…/35fafa67…/bd0d63ea…/cd23655c…`）；冻结件 `S5_PRODUCER_V2_FREEZE.md` rev2 `ed4c41aa…`；构建记录 `p3q_producer_v2_rev2_record.json` `2b8850dd…`。
+  证据已归档 w4 `S6-T01/s6_producer_v2_rev2_20261031_r01/`（门禁 OK）。**阶段5 冻结物未变**（`e4ba0cb4`/`cbf5ebe3`/`2c880e4e`）。**E3 需用 rev2 新 RunId 重采**（旧 E3 为 rev1 偏移，语义有效不复用）。
+  下一板窗计划：E1-lite → E3-rev2（含 sidecar `0x20800120` 回读、验证第 14/15 号检测项未被覆盖）→ E4-rev2 四窗 → R-04 B 热机 → （Wong 断电）R-04 A 冷启动。
 - **R-07 方案出（2026-10-31 00:5x）**：`docs/obsidian-project/02-方案设计/R-07_真实相机接入方案_20261031.md`（方案 A：AN5642/OV5640 → DVP 采集 → VDMA S2MM → DDR `0x12000000`（640×480 BGR、stride 1920）→ 显示软件零改动；P3r = P3q + 采集通路，约 1 天离线 + 2 板窗；**前置 R-04 关闭**；复用阶段3 传感器配置/引脚/IP 与 `alinx_ov5640` 补丁，需重验 SOF/HREF 补丁在 640×480 下是否适用）。
 - **遗留清单状态更新（2026-10-31 01:00）**：`阶段0-6_总结与遗留问题清单_20261031.md` §2.1 —— R-08/R-10 已关闭；R-02 ①③ 定性、②④ 开放；R-04 脚本就绪待板窗；R-05 交 Codex（rev2 待重编）；R-07 方案已出；R-01 暂不解决。
 - **M3 板窗**：接受 Codex 01:20–01:45（实际 ≤9 min），等其 CLAIM + 位流/XSA/ELF 三 sha；规则见 `DSH-20261031-019`；若 01:20 前未 CLAIM 视为放弃，板卡回收到 R-04。

@@ -1,0 +1,26 @@
+# P3q 显示 G3 窗口（G3C）
+
+- RunId：`g4_q_disp_g3c_20261030_r01`
+- 开窗：2026-10-30T19:05:41+08:00；收窗：2026-10-30T19:07:21+08:00
+- 结论：**P3Q_G3C_PASS**
+- stop_reason：None
+- 位流（P3q）：`D:\tmp\lead\p3q_video_20261030_r01\out\s4d_p3q_r01.bit` sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF（有界）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=b79d322dfaac87f45d72f5e21c7bfe2fdbc3a34f6cd71da206f5c7f4b2ee3497（281624 B）
+- 接口：VDMA=0x43C40000、GPIO帧=0x43C50000/累计=0x43C50008、帧存 0x20000000/3,686,400 B、raw=0x12000000
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 判据
+
+- C-1 整帧 3,686,400 B 读回成功：**PASS** [{"i": 0, "exit": 0, "bytes": 921600}, {"i": 1, "exit": 0, "bytes": 921600}, {"i": 2, "exit": 0, "bytes": 921600}, {"i": 3, "exit": 0, "bytes": 921600}]
+- C-2 jtag CRC == app fb_crc：**PASS** {"jtag_crc32": 118858521, "jtag_crc32_hex": "0x715a319", "app_fb_crc": 118858521}
+
+## 停机后只读寄存器
+
+- VDMA_CR=65538、VDMA_SR=69633、GPIO_FRAME=45804、GPIO_TOTAL=4161345520
+
+## UART 结果
+
+- `S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":30,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":764713996,"fb_crc":118858521,"uf_pix":262260738,"uf_frame":271360,"uf_total":262260738,"src":"real"}`
+
+- 画面现象：真实手部图像（raw fixture）+ 3 检测框 + 右侧面板（Wong 已确认同配置干净）
+- 边界：禁 rst -system；未烧 QSPI；未改线

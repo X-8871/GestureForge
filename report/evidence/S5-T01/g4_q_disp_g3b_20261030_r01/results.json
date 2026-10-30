@@ -1,0 +1,283 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "g4_q_disp_g3b_20261030_r01",
+  "mode": "g3b",
+  "started_utc8": "2026-10-30T19:03:59+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": {
+        "sha256": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+        "expect": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4"
+      },
+      "xsa": {
+        "sha256": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+        "expect": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d"
+      },
+      "elf": {
+        "sha256": "b79d322dfaac87f45d72f5e21c7bfe2fdbc3a34f6cd71da206f5c7f4b2ee3497",
+        "expect": "b79d322dfaac87f45d72f5e21c7bfe2fdbc3a34f6cd71da206f5c7f4b2ee3497"
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 5.58,
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 64240
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_init_ddr": {
+      "status": "PASS",
+      "exit_code": 0,
+      "init_done": true,
+      "error_text": null
+    },
+    "S6b_seed_block": {
+      "status": "PASS",
+      "exit_code": 0,
+      "addr": "0x20800000",
+      "write_exit": 0,
+      "write_error": null,
+      "dump_exit": 0,
+      "seed80_sha256": "a18c58508f5063caa8ecd7d0a57fd96830863088279a712fea4cc70918522b2f",
+      "seed_dump96_sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35",
+      "first80_equal": true
+    },
+    "S7_load_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "elapsed_s": 5.8
+    },
+    "S8_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 20,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":118858521,\"uf_pix\":528604006,\"uf_frame\":271199,\"uf_total\":528604006,\"src\":\"real\"}",
+      "parsed": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 60,
+        "fps_upd": 30,
+        "fps_dis_idle": 0,
+        "idle_period_us": 0,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 764713996,
+        "fb_crc": 118858521,
+        "uf_pix": 528604006,
+        "uf_frame": 271199,
+        "uf_total": 528604006,
+        "src": "real"
+      },
+      "nbox": 3,
+      "uf_passes": []
+    },
+    "S8_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "B-1",
+          "desc": "box_crc==0x2D949C0C",
+          "pass": true,
+          "detail": {
+            "box_crc": 764713996
+          }
+        },
+        {
+          "id": "B-2",
+          "desc": "nbox==3",
+          "pass": true,
+          "detail": {
+            "nbox": 3
+          }
+        },
+        {
+          "id": "B-3",
+          "desc": "src==real",
+          "pass": true,
+          "detail": {
+            "src": "real"
+          }
+        },
+        {
+          "id": "B-4",
+          "desc": "boxes hex 匹配",
+          "pass": true,
+          "detail": {
+            "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+            "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"
+          }
+        }
+      ]
+    },
+    "S8b_reg_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshots": [
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "GPIO_FRAME": 191462,
+          "GPIO_TOTAL": 3630654696
+        },
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "GPIO_FRAME": 760311,
+          "GPIO_TOTAL": 3686518265
+        },
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "GPIO_FRAME": 312893,
+          "GPIO_TOTAL": 3742286817
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 64240,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "bit": {
+    "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\s4d_p3q_r01.bit",
+    "sha256": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4"
+  },
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+    "sha256": "b79d322dfaac87f45d72f5e21c7bfe2fdbc3a34f6cd71da206f5c7f4b2ee3497"
+  },
+  "p3q_interface": {
+    "2b": "0x43C00000",
+    "preproc": "0x43C10000",
+    "dma": "0x43C20000",
+    "vdma": "0x43c40000",
+    "gpio_frame": "0x43c50000",
+    "gpio_total": "0x43c50008",
+    "fb_a": "0x20000000",
+    "fb_bytes": 3686400,
+    "raw": "0x12000000",
+    "raw_bytes": 921600
+  },
+  "forbidden_ops": "禁 rst -system",
+  "fpga_exit": 0,
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":118858521,\"uf_pix\":528604006,\"uf_frame\":271199,\"uf_total\":528604006,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "fps_dis_idle": 0,
+    "idle_period_us": 0,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 764713996,
+    "fb_crc": 118858521,
+    "uf_pix": 528604006,
+    "uf_frame": 271199,
+    "uf_total": 528604006,
+    "src": "real"
+  },
+  "nbox": 3,
+  "uf_passes": [],
+  "criteria": [
+    {
+      "id": "B-1",
+      "desc": "box_crc==0x2D949C0C",
+      "pass": true,
+      "detail": {
+        "box_crc": 764713996
+      }
+    },
+    {
+      "id": "B-2",
+      "desc": "nbox==3",
+      "pass": true,
+      "detail": {
+        "nbox": 3
+      }
+    },
+    {
+      "id": "B-3",
+      "desc": "src==real",
+      "pass": true,
+      "detail": {
+        "src": "real"
+      }
+    },
+    {
+      "id": "B-4",
+      "desc": "boxes hex 匹配",
+      "pass": true,
+      "detail": {
+        "boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+        "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0"
+      }
+    }
+  ],
+  "extra": {
+    "boxes_line": "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+    "seed_meta": {
+      "seed80_sha256": "a18c58508f5063caa8ecd7d0a57fd96830863088279a712fea4cc70918522b2f",
+      "seed_dump96_sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35",
+      "first80_equal": true
+    }
+  },
+  "criterion_ok": true,
+  "conclusion": "P3Q_G3B_PASS",
+  "registers": {
+    "VDMA_CR": 65538,
+    "VDMA_SR": 69633,
+    "GPIO_FRAME": 312893,
+    "GPIO_TOTAL": 3742286817
+  },
+  "finished_utc8": "2026-10-30T19:05:30+08:00",
+  "stop_reason": null,
+  "teardown_ok": true
+}

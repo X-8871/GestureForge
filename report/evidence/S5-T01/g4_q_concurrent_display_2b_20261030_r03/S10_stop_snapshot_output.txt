@@ -1,0 +1,16 @@
+$ cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ "*Cortex-A9*#0*"}; stop; targets -set -filter {name =~ "*Cortex-A9*#1*"}; stop; puts CORES_STOPPED; for {set i 0} {$i < 3} {incr i} { puts "SNAP$i VDMA_CR [mrd -value 0x43c40000] VDMA_SR [mrd -value 0x43c40004] GPIO_FRAME [mrd -value 0x43c50000] GPIO_TOTAL [mrd -value 0x43c50008]"; if {$i < 2} { after 1000 } }; disconnect; exit
+exit=0 elapsed=0.976
+CORES_STOPPED
+Memory read error at 0x43C40000. Blocked address 0x43C40000. PL AXI slave ports access is not allowed. This address has not been added to the memory map
+    invoked from within
+"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#0 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1 1136918528 4 4 3}}"
+    (procedure "::tcf::send_command" line 4)
+    invoked from within
+"::tcf::send_command $chan Memory get "siiii" "Bea{o{msg o{} A}}" [list $ctx $start_addr $size $nbytes $mode]"
+    (procedure "mrd" line 87)
+    invoked from within
+"mrd -value 0x43c40000"
+    ("for" body line 1)
+    invoked from within
+"for {set i 0} {$i < 3} {incr i} { puts "SNAP$i VDMA_CR [mrd -value 0x43c40000] VDMA_SR [mrd -value 0x43c40004] GPIO_FRAME [mrd -value 0x43c50000] GPIO..."
+

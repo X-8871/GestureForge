@@ -1,0 +1,142 @@
+{
+  "run_id": "g4_q_concurrent_display_2b_20261030_r09",
+  "verdict": "P3Q_CONCURRENT_R09_OK",
+  "criteria": [
+    {
+      "id": "J-1",
+      "desc": "显示流已建立（fps_dis=60 且 VDMA RS=1）",
+      "pass": true,
+      "detail": {
+        "fps_values": [
+          60
+        ],
+        "vdma_after_stop": {
+          "cr": 65539,
+          "sr": 69632,
+          "uf": 1544416592
+        }
+      }
+    },
+    {
+      "id": "J-2",
+      "desc": "M4-b 在显示带宽持续下完成（RESULT 可解析）",
+      "pass": true,
+      "detail": {
+        "pass": 1,
+        "done": 1,
+        "diff13": 0,
+        "diff26": 0,
+        "first13": -1,
+        "first26": -1,
+        "stale": 1,
+        "gate": 1,
+        "ack_idle": 1,
+        "epoch": 2,
+        "status": 3588,
+        "error": 0,
+        "elapsed_ms": 47420,
+        "spin": 49571815,
+        "tail13_before": 1515870810,
+        "tail13_after": 1515848966,
+        "tail13_ref": 1286,
+        "lane01_ok": 1,
+        "lane23_ok": 1
+      }
+    },
+    {
+      "id": "J-3",
+      "desc": "M4-b pass==1",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "id": "J-4",
+      "desc": "M4-b elapsed_ms 记录（基线 47287，差值如实记）",
+      "pass": true,
+      "detail": {
+        "elapsed_ms": 47420,
+        "baseline_ms": 47287,
+        "delta_ms": 133
+      }
+    },
+    {
+      "id": "J-5",
+      "desc": "计算期间显示 VDMA 仍 RS=1/Halted=0（流未停）",
+      "pass": true,
+      "detail": {
+        "vdma_before": {
+          "cr": 65539,
+          "sr": 69632,
+          "uf": 1544416592
+        },
+        "vdma_after": {
+          "cr": 65539,
+          "sr": 69632,
+          "uf": 1544416592
+        },
+        "note": "计算前后 VDMA_CR=65539(RS=1)、SR=69632(Halted=0) ⇒ 显示流全程未停"
+      }
+    },
+    {
+      "id": "J-6",
+      "desc": "计算期间欠载增量=0（0x43C50008 夹逼：S3b vs S6）",
+      "pass": true,
+      "detail": {
+        "method": "夹逼：计算开始前 S3b 与结束后 S6 两次只读 0x43C50008",
+        "uf_before": 1544416592,
+        "uf_after": 1544416592,
+        "delta": 0,
+        "note": "原 25×50ms 采样会话因缺 loadhw 被拒（PL AXI 未登记），改用夹逼值；两者等价于计算期间累计增量"
+      }
+    },
+    {
+      "id": "J-7",
+      "desc": "无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "m4b": {
+    "pass": 1,
+    "done": 1,
+    "diff13": 0,
+    "diff26": 0,
+    "first13": -1,
+    "first26": -1,
+    "stale": 1,
+    "gate": 1,
+    "ack_idle": 1,
+    "epoch": 2,
+    "status": 3588,
+    "error": 0,
+    "elapsed_ms": 47420,
+    "spin": 49571815,
+    "tail13_before": 1515870810,
+    "tail13_after": 1515848966,
+    "tail13_ref": 1286,
+    "lane01_ok": 1,
+    "lane23_ok": 1
+  },
+  "disp": {
+    "fps_dis": 60,
+    "vdma_before": {
+      "cr": 65539,
+      "sr": 69632,
+      "uf": 1544416592
+    },
+    "vdma_after": {
+      "cr": 65539,
+      "sr": 69632,
+      "uf": 1544416592
+    },
+    "uf_before": 1544416592,
+    "uf_after": 1544416592,
+    "uf_delta": 0
+  },
+  "concurrency_delta_ms": 133,
+  "root_cause_note": "M4-b ELF 与显示长跑 ELF 的装载地址同为 0x100000（e_entry=0x100000，段重叠）⇒ 两核分别 dow 会互相覆盖，先 dow 的镜像被后 dow 的覆盖；这是 r03/r05/r08 双核并发失败的根因（r08 停核后 core0 PC=0x001010b0 且 UART 无任何 M4B 行，符合'core0 实际跑的是显示代码'）。因此并发测量改用'显示长跑建流→停显示 CPU（VDMA 硬件持续读）→单核跑 M4-b'的分时方案，此时显示带宽（约 221 MB/s）与 2B/HP 读写真实并发。",
+  "utc8": "2026-10-30T19:31:17+08:00"
+}

@@ -1,0 +1,398 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "g4_q_concurrent_display_2b_20261030_r03",
+  "mode": "g4_q_concurrent_r03",
+  "started_utc8": "2026-10-30T19:14:54+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "m4b_sha": "553fbf7ea7de8bc75edaf99c0b4d5cb79ef39e556e768b91abd459d1cf240e84",
+      "disp_sha": "6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f"
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 4.57,
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 60220
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0,
+      "targets_block": "0 elapsed=1.079\nE_BEGIN\n  1  APU\n     2  ARM Cortex-A9 MPCore #0 (Running)\n     3  ARM Cortex-A9 MPCore #1 (Running)\n  4  xc7z020\nE_END",
+      "dap_clean": true,
+      "has_a9": true
+    },
+    "S4_single_rst": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "single_rst": true,
+      "core1_stopped": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS"
+    },
+    "S6_init_ps7": {
+      "status": "PASS",
+      "exit_code": 0,
+      "init_halted": true,
+      "error_text": null
+    },
+    "S7_preload": {
+      "status": "PASS",
+      "exit_code": 0,
+      "head13_exit": 0,
+      "head26_exit": 0,
+      "input_exit": 0,
+      "weights_exit": 0
+    },
+    "S7_poison": {
+      "status": "PASS",
+      "exit_code": 0,
+      "error_text": null
+    },
+    "S7b_uart_open": {
+      "status": "PASS",
+      "exit_code": 0,
+      "opened": true
+    },
+    "S8_dual_dow": {
+      "status": "PASS",
+      "exit_code": 0,
+      "dow_c0": true,
+      "dow_c1": true,
+      "error_text": null
+    },
+    "S8_both_con": {
+      "status": "PASS",
+      "exit_code": 0,
+      "con_c0": true,
+      "con_c1": true,
+      "error_text": null
+    },
+    "S9_collect": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "lines": 61,
+      "m4b_result_raw": null,
+      "m4b": {},
+      "disp_fps_values": [
+        60
+      ],
+      "uf_frame": null,
+      "uf_total": null,
+      "uf_during": {
+        "values": [
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400
+        ],
+        "first": 1542758400,
+        "last": 1542758400,
+        "delta": 0,
+        "span_ms": 1426,
+        "error_text": null,
+        "gpio_frame": 0,
+        "vdma_cr": 65539,
+        "vdma_sr": 69632,
+        "rate_px_s": 0.0,
+        "ratio_vs_pixel_rate": 0.0
+      }
+    },
+    "S10_stop_snapshot": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "snapshots": []
+    },
+    "S10_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "J-1",
+          "desc": "M4-b RESULT 可解析",
+          "pass": false,
+          "detail": {}
+        },
+        {
+          "id": "J-2",
+          "desc": "M4-b pass==1",
+          "pass": false,
+          "detail": null
+        },
+        {
+          "id": "J-3",
+          "desc": "M4-b elapsed_ms 记录（对比基线 47287，差值如实记录）",
+          "pass": false,
+          "detail": {
+            "elapsed_ms": null,
+            "baseline_ms": 47287,
+            "delta_ms": null
+          }
+        },
+        {
+          "id": "J-4",
+          "desc": "显示侧 fps_dis≥55",
+          "pass": true,
+          "detail": {
+            "fps_dis_values": [
+              60
+            ]
+          }
+        },
+        {
+          "id": "J-5",
+          "desc": "并发期累计欠载增量=0（0x43C50008）",
+          "pass": true,
+          "detail": {
+            "values": [
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400,
+              1542758400
+            ],
+            "first": 1542758400,
+            "last": 1542758400,
+            "delta": 0,
+            "span_ms": 1426,
+            "error_text": null,
+            "gpio_frame": 0,
+            "vdma_cr": 65539,
+            "vdma_sr": 69632,
+            "rate_px_s": 0.0,
+            "ratio_vs_pixel_rate": 0.0
+          }
+        },
+        {
+          "id": "J-6",
+          "desc": "全程无 DAP/APB 错误",
+          "pass": true,
+          "detail": {
+            "hit": false,
+            "detail": ""
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 60220,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "single_rst_policy": "全程仅 1 次 rst -processor（PL 编程前，core0）；core1 仅 stop；init 后不再 rst",
+  "baseline_no_display_ms": 47287,
+  "caveat": "两 ELF 的 DDR 区存在重叠（M4-b head13/26 在 0x12000000 起，与显示 raw 区重叠）⇒ 只判耗时/带宽，不判数据正确性",
+  "forbidden_ops": "禁 rst -system；DAP/APB 错误即停手不重试",
+  "m4b": {},
+  "disp": {
+    "fps_dis": 60,
+    "uf_frame": null,
+    "uf_total": null,
+    "vdma_cr": 65539,
+    "vdma_sr": 69632
+  },
+  "uf_during": {
+    "values": [
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400,
+      1542758400
+    ],
+    "first": 1542758400,
+    "last": 1542758400,
+    "delta": 0,
+    "span_ms": 1426,
+    "error_text": null,
+    "gpio_frame": 0,
+    "vdma_cr": 65539,
+    "vdma_sr": 69632,
+    "rate_px_s": 0.0,
+    "ratio_vs_pixel_rate": 0.0
+  },
+  "result_line_raw": null,
+  "criteria": [
+    {
+      "id": "J-1",
+      "desc": "M4-b RESULT 可解析",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "id": "J-2",
+      "desc": "M4-b pass==1",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "id": "J-3",
+      "desc": "M4-b elapsed_ms 记录（对比基线 47287，差值如实记录）",
+      "pass": false,
+      "detail": {
+        "elapsed_ms": null,
+        "baseline_ms": 47287,
+        "delta_ms": null
+      }
+    },
+    {
+      "id": "J-4",
+      "desc": "显示侧 fps_dis≥55",
+      "pass": true,
+      "detail": {
+        "fps_dis_values": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "J-5",
+      "desc": "并发期累计欠载增量=0（0x43C50008）",
+      "pass": true,
+      "detail": {
+        "values": [
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400,
+          1542758400
+        ],
+        "first": 1542758400,
+        "last": 1542758400,
+        "delta": 0,
+        "span_ms": 1426,
+        "error_text": null,
+        "gpio_frame": 0,
+        "vdma_cr": 65539,
+        "vdma_sr": 69632,
+        "rate_px_s": 0.0,
+        "ratio_vs_pixel_rate": 0.0
+      }
+    },
+    {
+      "id": "J-6",
+      "desc": "全程无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "P3Q_CONCURRENT_R03_FAIL",
+  "finished_utc8": "2026-10-30T19:17:09+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap_hit": {
+    "hit": false,
+    "detail": ""
+  }
+}

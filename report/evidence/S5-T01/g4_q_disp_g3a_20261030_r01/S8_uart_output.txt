@@ -1,0 +1,20 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000
+run mode: bounded, frames_cap=180, time_cap_ms=60000
+VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: read period = 5557891 ticks (16673 us) -> fps_dis=60 (display refresh)
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=0
+S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+UF GPIO frame@43C50000=709120 total@43C50008=1266841578
+S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0
+S5DISP done frames=180 vcnt=180(sw) vdma_err=0 idle_fps=0 idle_us=0
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":29,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":764713996,"fb_crc":2582883442,"uf_pix":1266841578,"uf_frame":709120,"uf_total":1266841578,"src":"real"}

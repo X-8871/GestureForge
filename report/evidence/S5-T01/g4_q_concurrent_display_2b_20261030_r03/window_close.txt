@@ -1,0 +1,28 @@
+# P3q 并发窗 r03（低 DAP 风险流程）
+
+- RunId：`g4_q_concurrent_display_2b_20261030_r03`
+- 开窗：2026-10-30T19:14:54+08:00；收窗：2026-10-30T19:17:09+08:00
+- 结论：**P3Q_CONCURRENT_R03_FAIL**
+- stop_reason：判据 FAIL
+- 位流（P3q）：`D:\tmp\lead\p3q_video_20261030_r01\out\s4d_p3q_r01.bit` sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- core0 ELF（M4-b）：`D:\tmp\lead\tailfix_20261029_r01\build\s4d_ps_app_sw0_m4b.elf` sha256=553fbf7ea7de8bc75edaf99c0b4d5cb79ef39e556e768b91abd459d1cf240e84
+- core1 ELF（显示长跑）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f
+- 复位策略：全程仅 1 次 rst -processor（PL 编程前，core0）；core1 仅 stop；init 后不再 rst
+- **DAP 错误：未命中**
+
+## 结果（只判耗时/带宽；DDR 区重叠，不判数据正确性）
+
+- **M4-b `pass`=None、`elapsed_ms`=None（无显示基线 47287，差值 N/A ms）**
+- M4-b 其他：`error`=None、`diff13`=None、`diff26`=None（不作为功能判据）
+- 显示侧：`fps_dis`=60、`uf_frame`=None、`uf_total`=None
+- 并发期累计欠载增量（0x43C50008）：delta=0、rate=0.0 px/s、ratio=0.0、GPIO_FRAME=0
+- VDMA_CR=65539、VDMA_SR=69632
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 口径说明（防误读）
+
+- 本窗只判耗时/带宽：两 ELF 的 DDR 区重叠（M4-b head13/26 写 0x12000000 起，与显示 raw 区重叠），
+  数据正确性不适用；M4-b 的 diff13/diff26 等数据项不得当作功能失败。
+- 全程仅 1 次 `rst -processor`（编程前）；init 后用 `stop`，双核 `dow` 前不再复位。
+
+- 边界：禁 rst -system；未烧 QSPI；未改线

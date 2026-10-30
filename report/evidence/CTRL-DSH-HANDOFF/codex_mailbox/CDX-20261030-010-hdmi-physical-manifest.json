@@ -1,0 +1,366 @@
+{
+  "schema_version": "hdmi_physical_diagnostic_mailbox_v1",
+  "task_id": "HDMI-PHY",
+  "run_id": "hdmi_phy_20261030_r01",
+  "date_utc8": "2026-10-30",
+  "source_commit": "df11e81827b897273728917d76007f00320f69db",
+  "hash_basis_commit": "df11e81827b897273728917d76007f00320f69db",
+  "hash_basis": "worktree_disk",
+  "scope": "Codex信箱必要核查证据与本地资料附注；不是阶段冻结或硬件合规验收清单",
+  "result": "BASELINE_VISIBLE_GREYSCALE_ROOT_CAUSE_UNRESOLVED",
+  "user_observations": [
+    {
+      "text": "是Out口",
+      "source": "本聊天Wong原话"
+    },
+    {
+      "text": "直连，连上笔记本是正常的",
+      "source": "本聊天Wong原话"
+    },
+    {
+      "text": "出现灰度条",
+      "source": "本聊天Wong对DSH旧基线60s窗口的回答"
+    }
+  ],
+  "checks": [
+    {
+      "name": "PDF第2/12页解析渲染",
+      "status": "PASS",
+      "command": "read_pdf.py <008所列非B底板PDF> --pages 2,12 --mode diagram --output <本清单绑定解析目录>",
+      "exit_code": 0,
+      "note": "Docling2.115.0，OCR=false，300DPI；核心板/手册等由pypdfium2文本及页面图核对"
+    },
+    {
+      "name": "厂商参考bit身份",
+      "status": "PASS",
+      "note": "只读SHA与DSH S1_IDENT一致；不代表已亮屏"
+    },
+    {
+      "name": "旧基线恢复",
+      "status": "PASS",
+      "note": "DSH执行，命令/身份已核对；用户见灰度条。不是由回放成功标记推定出图"
+    },
+    {
+      "name": "008原件独立审阅",
+      "status": "CHANGES_REQUIRED",
+      "note": "Eaton数据表页码错误；009追加第2页勘误。Reviewer未独立重读全部PDF"
+    },
+    {
+      "name": "电压/TMDS实测",
+      "status": "NOT_RUN",
+      "note": "本轮无F1/HPD/电压/波形读数"
+    },
+    {
+      "name": "第二板交叉",
+      "status": "NOT_RUN",
+      "note": "第二块同版板可用性未知"
+    },
+    {
+      "name": "具体无信号根因",
+      "status": "BLOCKED",
+      "note": "旧基线亮屏排除链路完全失效，具体输出差异留DSH继续定位"
+    }
+  ],
+  "tool_versions": {
+    "python": "read-pdf-reliably独立venv",
+    "docling": "2.115.0",
+    "pypdfium2": "5.12.1",
+    "pypdf": "6.14.2",
+    "Pillow": "12.3.0"
+  },
+  "resource_notes": {
+    "codex_hardware_connections": 0,
+    "codex_vivado_builds": 0,
+    "pdf_cli_runs": 1,
+    "pdf_render_dpi": 300,
+    "pdf_ocr_enabled": false,
+    "pdf_cli_peak_memory": "未正式测峰值；一次进程采样约1.52GB",
+    "heavy_compute_owner": "DSH P3f离线构建，Codex未另起Vivado"
+  },
+  "limitations": [
+    "当前PCB/BOM尚未与资料独立绑定；成功旧基线不能证明所有输出模式均具足够电气裕量",
+    "未定位具体根因，未判板坏或厂商板型不匹配",
+    "本轮照片只有历史10-22照片；10-30灰度条为Wong现场报告",
+    "main写权/提交由DSH保持；仅007/008和STATE已核验提交df11e81，009/010待其串行提交",
+    "文件条目worktree_disk为外部原件/二进制/日志与尚未提交回执的磁盘附注，不代替commit_blob源码权威"
+  ],
+  "files": [
+    {
+      "path": "report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261030-007-hdmi-physical-coordination.md",
+      "sha256": "cf2790f5b5becce287b3d770353108b2345a268a24da3918df58890b0c00a754",
+      "bytes": 989,
+      "hash_basis": "commit_blob",
+      "role": "交接与核查回执"
+    },
+    {
+      "path": "report/evidence/CTRL-DSH-HANDOFF/codex_mailbox/CDX-20261030-008-hdmi-physical-findings.md",
+      "sha256": "caeda206edf42dbe7326df853918e3a48bb61c5dc76673f2ede2fb9a111c77b6",
+      "bytes": 11008,
+      "hash_basis": "commit_blob",
+      "role": "交接与核查回执"
+    },
+    {
+      "path": "report/evidence/CTRL-DSH-HANDOFF/dsh_mailbox/DSH-20261030-010-ack-cdx-007-008-baseline-window.md",
+      "sha256": "614f548b299bd65aa47765cb0553d09a6358074bd28803700e35a3c531fb7c1b",
+      "bytes": 3780,
+      "hash_basis": "commit_blob",
+      "role": "交接与核查回执"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\01_hardware\\hardware\\01_原理图\\ax7z010_ax7z020原理图.pdf",
+      "sha256": "e51ffd1677bc2387f86c6123951486fd2a5c90faee4f59a91e9fceb9750aaf78",
+      "bytes": 341855,
+      "hash_basis": "worktree_disk",
+      "role": "底板原理图p2/p12/p13",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\01_hardware\\hardware\\01_原理图\\ax7z010B_ax7z020B原理图.pdf",
+      "sha256": "bae1c24b07068db9637f9087ebda3a3290a086feae25aae775310d5aa54ac07b",
+      "bytes": 342045,
+      "hash_basis": "worktree_disk",
+      "role": "B底板p12",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\01_hardware\\hardware\\01_原理图\\ac7z010_ac7z020原理图.pdf",
+      "sha256": "5d810e712666839df18692ce05c3e280d39f9226de336315dab13b17b22339cc",
+      "bytes": 232220,
+      "hash_basis": "worktree_disk",
+      "role": "核心板p5",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\AX7Z020开发板用户手册.pdf",
+      "sha256": "7d9e34045501637bc6277f7ad372f168165fc6969c640092909f1317b10ccedf",
+      "bytes": 2535861,
+      "hash_basis": "worktree_disk",
+      "role": "手册p6/p35至37",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\cource_s1_ALINX_ZYNQ(AX7Z010_AX7Z020)开发平台基础教程V1.04.pdf",
+      "sha256": "fa1dedecd5f1f3151e66abc6081ca7235be87638283f9441921ca8fa08628dc7",
+      "bytes": 26251564,
+      "hash_basis": "worktree_disk",
+      "role": "教程p13/p74/p79至82",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\photos\\hdmi_case1_20261022.jpg",
+      "sha256": "c2b773b733d134676640d06219c1bb132ea845df4bbea15a6511c3c3b31eb16c",
+      "bytes": 201963,
+      "hash_basis": "worktree_disk",
+      "role": "历史亮屏实拍",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\case_photo_evidence.json",
+      "sha256": "04e240bc1582621f05a1439c95b4e320106a9fac777ee9f0961195ce5edbff67",
+      "bytes": 5753,
+      "hash_basis": "worktree_disk",
+      "role": "历史照片身份绑定",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\report\\evidence\\S5-T01\\s5t01_board_overlay_20261022_r01\\summary.md",
+      "sha256": "a46256a5a6730716f1f399b4925a180933471ecfc350e845509decc0f47ab484",
+      "bytes": 9029,
+      "hash_basis": "worktree_disk",
+      "role": "历史照片追加说明",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\s5t01_board_overlay_20261022_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+      "bytes": 1572373,
+      "hash_basis": "worktree_disk",
+      "role": "历史亮屏位流",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\p1_app\\s5t01_overlay_cycle.elf",
+      "sha256": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac",
+      "bytes": 314740,
+      "hash_basis": "worktree_disk",
+      "role": "历史亮屏合成源ELF",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\s5t01_board_overlay_20261022_r01\\ps7_init.tcl",
+      "sha256": "4fc101938cf5aae4ea646e219e9e55c4ebcb837f35f40b3e922f3a1e2e5e6faa",
+      "bytes": 36068,
+      "hash_basis": "worktree_disk",
+      "role": "历史亮屏PS配置",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w5\\scripts\\stage5_t01\\jtag_download_port.tcl",
+      "sha256": "2fb28c448f23df1187a3e5aa3500ac36cb39bba42554a0e45b3b8b2e5897f44f",
+      "bytes": 1588,
+      "hash_basis": "worktree_disk",
+      "role": "禁止重用的旧下载脚本，仅只读定位rst -system",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_vendorref_20261030_r01\\S1_IDENT.json",
+      "sha256": "e9a89fc8d4a89bf12e66973c8c26e1ab3528c7d61c594424796db01d158db113",
+      "bytes": 450,
+      "hash_basis": "worktree_disk",
+      "role": "厂商bit身份",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_vendorref_20261030_r01\\S5_fpga_file.log",
+      "sha256": "167b22702714892e98b4964941003a2cc3831c666cc3822d3eda5ca3b3b16d24",
+      "bytes": 478,
+      "hash_basis": "worktree_disk",
+      "role": "厂商编程日志",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_vendorref_20261030_r01\\results_vendorref.json",
+      "sha256": "b398e4fa65feafc4e40f2ddbbb4d03b73a186afbf87e8e7f3b506202e99830bb",
+      "bytes": 3742,
+      "hash_basis": "worktree_disk",
+      "role": "厂商窗口结果",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_hdmi_baseline1022_20261030_r01\\S4_replay.log",
+      "sha256": "b3cfafd380b6cdf2caa991aae848deb8afee8b98ec9504a326d0b3479b49c28e",
+      "bytes": 2059,
+      "hash_basis": "worktree_disk",
+      "role": "新旧基线恢复日志，不证明上屏",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_hdmi_baseline1022_20261030_r01\\results_baseline1022.json",
+      "sha256": "9e855b5bb11d465229353cb22791aef18a7dcc9f355dbeddf6c10d6875cf1867",
+      "bytes": 4443,
+      "hash_basis": "worktree_disk",
+      "role": "DSH恢复窗口结果",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_hdmi_baseline1022_20261030_r01\\baseline1022_replay.tcl",
+      "sha256": "db0eebbb5302916372df66ed66797a1b37c04e1a537ccbd616db6a32cbbe102d",
+      "bytes": 1798,
+      "hash_basis": "worktree_disk",
+      "role": "DSH实际恢复命令",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.runs\\impl_1\\top.bit",
+      "sha256": "7dfad3627137bb75f9e6ec597d29f8d9325c04c846f2dcb8f0cb51959fa81bf1",
+      "bytes": 4045663,
+      "hash_basis": "worktree_disk",
+      "role": "2019纯PL参考bit",
+      "hash_basis_note": "外部资料/本地原始二进制或日志的磁盘字节附注，不替代正式源码冻结"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\CTRL-DSH-HANDOFF\\codex_mailbox\\CDX-20261030-009-hdmi-baseline-lit-and-audit-errata.md",
+      "sha256": "fd7f2701c8b9ad676ed97ee3286f59ec8f3087630a1711c22d91fb511efe28c1",
+      "bytes": 7058,
+      "hash_basis": "worktree_disk",
+      "role": "最终观察、补充与勘误（待DSH串行提交）",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.xpr",
+      "sha256": "0781e43d3139eacd3d50c613f4df8b59dc5332e2bde09faed1581beba2cd75fb",
+      "bytes": 11331,
+      "hash_basis": "worktree_disk",
+      "role": "参考工程器件与top配置",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.srcs\\constrs_1\\new\\hdmi_out_test.xdc",
+      "sha256": "3114fe73b718bc5c33bfdd17926a7bd3525d2c495c73ce64e17a4be14e5d8711",
+      "bytes": 1002,
+      "hash_basis": "worktree_disk",
+      "role": "参考XDC",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.srcs\\sources_1\\new\\top.v",
+      "sha256": "ed289687a778e5448b144b2d6e4dd762da6a87e1cdf5f1df0b2097592bb3bcd5",
+      "bytes": 1178,
+      "hash_basis": "worktree_disk",
+      "role": "参考顶层复位连接",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.srcs\\sources_1\\new\\color_bar.v",
+      "sha256": "f0141973f617a9eeae3abb8648031228bffabbcecd4d056794fe1ae89ca7bfe6",
+      "bytes": 6844,
+      "hash_basis": "worktree_disk",
+      "role": "参考视频时序",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.srcs\\sources_1\\ip\\video_clock\\video_clock_clk_wiz.v",
+      "sha256": "26826323392a38dd44c22509af82b360e7b707fd230db90c6061cfe972d41a38",
+      "bytes": 7211,
+      "hash_basis": "worktree_disk",
+      "role": "参考clock参数",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\repo\\ip\\rgb2dvi_v1_3\\src\\rgb2dvi.vhd",
+      "sha256": "9ef5ceb9dbee2c77a524cf076baa2563f9d1d1e015c1da3c5e0c081506de3f23",
+      "bytes": 7834,
+      "hash_basis": "worktree_disk",
+      "role": "参考OEN常量",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_a_oen0_20261030_r03\\S9_judgement.json",
+      "sha256": "7cf1d453acb4bd5cc95a0f553bbed96bc5bcb5d1cd131d6606ec6c2cd9f92a16",
+      "bytes": 282,
+      "hash_basis": "worktree_disk",
+      "role": "r03最终VDMA判读，与初始单点快照区分",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\visualizations\\2026\\10\\30\\01a18b01-3934-71b2-8c2e-feba529ca8b6\\hdmi_phy_schematic_r01\\status.json",
+      "sha256": "924015b9e65ba095e3f5a8fe0c959ec780ed97487952adab1e617351f50ccc3c",
+      "bytes": 342,
+      "hash_basis": "worktree_disk",
+      "role": "本轮PDF解析/页面渲染缓存，原资料只读",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\visualizations\\2026\\10\\30\\01a18b01-3934-71b2-8c2e-feba529ca8b6\\hdmi_phy_schematic_r01\\manifest.json",
+      "sha256": "9423a6b384058469c83343cb8b4b5447ea74f0b6c2db3ee20e06d0343b61d92e",
+      "bytes": 3418,
+      "hash_basis": "worktree_disk",
+      "role": "本轮PDF解析/页面渲染缓存，原资料只读",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\visualizations\\2026\\10\\30\\01a18b01-3934-71b2-8c2e-feba529ca8b6\\hdmi_phy_schematic_r01\\document.md",
+      "sha256": "d1f1ce8d77306f65c041a8f4c8a886748bab4555712ab7f0fcd6103f8ed16beb",
+      "bytes": 9830,
+      "hash_basis": "worktree_disk",
+      "role": "本轮PDF解析/页面渲染缓存，原资料只读",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\visualizations\\2026\\10\\30\\01a18b01-3934-71b2-8c2e-feba529ca8b6\\hdmi_phy_schematic_r01\\pages\\page-0002.png",
+      "sha256": "7274d72bcb1b2bdb2d013e9ebe99e30540d842e359a015037da65178ebd349a0",
+      "bytes": 946478,
+      "hash_basis": "worktree_disk",
+      "role": "本轮PDF解析/页面渲染缓存，原资料只读",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    },
+    {
+      "path": "C:\\Users\\22061\\.codex\\visualizations\\2026\\10\\30\\01a18b01-3934-71b2-8c2e-feba529ca8b6\\hdmi_phy_schematic_r01\\pages\\page-0012.png",
+      "sha256": "bbb5020b46a679b9a6ffb047dca91dff1821d0a0f5ab1bbaa86906a9d52768bb",
+      "bytes": 295783,
+      "hash_basis": "worktree_disk",
+      "role": "本轮PDF解析/页面渲染缓存，原资料只读",
+      "hash_basis_note": "磁盘字节附注；源码与正式回执最终由持有方提交后绑定commit_blob"
+    }
+  ]
+}

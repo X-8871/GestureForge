@@ -1,0 +1,27 @@
+# P3n G3 窗口（G3E）
+
+- RunId：`s5_g3_e_longrun_p3n_20261030_r01`
+- 开窗：2026-10-30T17:49:14+08:00；收窗：2026-10-30T18:19:41+08:00
+- 结论：**P3N_G3E_PASS**
+- stop_reason：None
+- 位流（P3n）：`D:\tmp\lead\p3n_video_20261030_r01\out\s4d_p3n_r01.bit` sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0
+- ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=388a0a07101a16e3b3fb43a51b6b987f63bff9200821c3f9ddca1e896fe0752a（284812 B）
+- 接口：VDMA=0x43C00000、无 VTC（禁读 0x43C30000）、UF GPIO=0x43C10000、帧存 0x20000000/3,686,400 B
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 判据
+
+- E-1 tick 数量 ≥ 预计（每 60 s 一条）：**PASS** {"ticks": 30, "tick_t": [60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440, 1500, 1560, 1620, 1680, 1740]}
+- E-2 tick 间隔 ≤130 s（无死锁）：**PASS** {"max_tick_gap_s": 60.2}
+- E-3 vdma_err 全 0：**PASS** {"vdma_err_values": [0]}
+- E-4 fps_dis>=55（若打印）：**PASS** {"fps_dis": null}
+
+## UART 结果
+
+- `None`
+
+- ticks=30、lines=941
+
+- 边界：禁 rst -system；禁读 0x43C30000；屏幕现象需人工目视
+- ELF 来源说明：lead 原指定的 9a37e5d8… 已被 2026-10-30 15:38 重建覆盖；按 lead 2026-10-30 裁定，改用 video-sw 声明的 P3n 基线有界 ELF 49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281,624 B），语义相同：P3n（VDMA@0x43C00000、无 VTC、确定性测试图、uf_frame/uf_total 字段）；g3e 长跑用 388a0a07…（与 video-sw P3n 套件一致）；不使用 p3p（fsync）系列
+- 画面现象：真实手部图像（raw 0x12000000 fixture 保持不动）+ 3 个检测框 + 右侧面板；Wong 已确认画面干净（2026-10-30 第二张照片）；本窗口不重写 raw 区

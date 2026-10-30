@@ -1,0 +1,204 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000
+run mode: bounded, frames_cap=180, time_cap_ms=60000
+VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: WARN 读帧存切换周期测不到（READSTR 不动）→ fps_dis=0（不虚填）
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=3695185
+S5PROD session start: sid=61540 frame_id=0 tag=A55A status=0x1 rtime_ms=570547 (333 Hz)
+S5PROD frame_id=1 n=0 status=0x1 sid=61540 seq=1 rtime_ms=570677 age_pub=0 state=NO_HAND fault=no_hand cap_ms=570552
+S5PROD frame_id=2 n=0 status=0x1 sid=61540 seq=2 rtime_ms=570706 age_pub=0 state=NO_HAND fault=no_hand cap_ms=570681
+S5PROD frame_id=3 n=0 status=0x1 sid=61540 seq=3 rtime_ms=570835 age_pub=0 state=NO_HAND fault=no_hand cap_ms=570710
+S5PROD frame_id=4 n=0 status=0x1 sid=61540 seq=4 rtime_ms=570863 age_pub=0 state=NO_HAND fault=no_hand cap_ms=570839
+S5PROD frame_id=5 n=0 status=0x1 sid=61540 seq=5 rtime_ms=570992 age_pub=0 state=NO_HAND fault=no_hand cap_ms=570868
+S5PROD frame_id=6 n=0 status=0x1 sid=61540 seq=6 rtime_ms=571021 age_pub=0 state=NO_HAND fault=no_hand cap_ms=570997
+S5PROD frame_id=7 n=0 status=0x1 sid=61540 seq=7 rtime_ms=571150 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571026
+S5PROD frame_id=8 n=0 status=0x1 sid=61540 seq=8 rtime_ms=571179 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571155
+S5PROD frame_id=9 n=0 status=0x1 sid=61540 seq=9 rtime_ms=571308 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571183
+S5PROD frame_id=10 n=0 status=0x1 sid=61540 seq=10 rtime_ms=571337 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571312
+S5PROD frame_id=11 n=0 status=0x1 sid=61540 seq=11 rtime_ms=571466 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571341
+S5PROD frame_id=12 n=0 status=0x1 sid=61540 seq=12 rtime_ms=571495 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571470
+S5PROD frame_id=13 n=0 status=0x1 sid=61540 seq=13 rtime_ms=571624 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571499
+S5PROD frame_id=14 n=0 status=0x1 sid=61540 seq=14 rtime_ms=571653 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571628
+S5PROD frame_id=15 n=0 status=0x1 sid=61540 seq=15 rtime_ms=571782 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571658
+S5PROD frame_id=16 n=0 status=0x1 sid=61540 seq=16 rtime_ms=571811 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571787
+S5PROD frame_id=17 n=0 status=0x1 sid=61540 seq=17 rtime_ms=571940 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571816
+S5PROD frame_id=18 n=0 status=0x1 sid=61540 seq=18 rtime_ms=571969 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571945
+S5PROD frame_id=19 n=0 status=0x1 sid=61540 seq=19 rtime_ms=572098 age_pub=0 state=NO_HAND fault=no_hand cap_ms=571974
+S5PROD frame_id=20 n=0 status=0x1 sid=61540 seq=20 rtime_ms=572127 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572103
+S5PROD frame_id=21 n=0 status=0x1 sid=61540 seq=21 rtime_ms=572256 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572132
+S5PROD frame_id=22 n=0 status=0x1 sid=61540 seq=22 rtime_ms=572285 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572261
+S5PROD frame_id=23 n=0 status=0x1 sid=61540 seq=23 rtime_ms=572414 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572290
+S5PROD frame_id=24 n=0 status=0x1 sid=61540 seq=24 rtime_ms=572443 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572419
+S5PROD frame_id=25 n=0 status=0x1 sid=61540 seq=25 rtime_ms=572572 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572448
+S5PROD frame_id=26 n=0 status=0x1 sid=61540 seq=26 rtime_ms=572601 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572577
+S5PROD frame_id=27 n=0 status=0x1 sid=61540 seq=27 rtime_ms=572730 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572606
+S5PROD frame_id=28 n=0 status=0x1 sid=61540 seq=28 rtime_ms=572759 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572735
+S5PROD frame_id=29 n=0 status=0x1 sid=61540 seq=29 rtime_ms=572888 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572764
+S5PROD frame_id=30 n=0 status=0x1 sid=61540 seq=30 rtime_ms=572917 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572893
+S5PROD frame_id=31 n=0 status=0x1 sid=61540 seq=31 rtime_ms=573046 age_pub=0 state=NO_HAND fault=no_hand cap_ms=572922
+S5PROD frame_id=32 n=0 status=0x1 sid=61540 seq=32 rtime_ms=573075 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573051
+S5PROD frame_id=33 n=0 status=0x1 sid=61540 seq=33 rtime_ms=573204 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573080
+S5PROD frame_id=34 n=0 status=0x1 sid=61540 seq=34 rtime_ms=573233 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573209
+S5PROD frame_id=35 n=0 status=0x1 sid=61540 seq=35 rtime_ms=573362 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573238
+S5PROD frame_id=36 n=0 status=0x1 sid=61540 seq=36 rtime_ms=573392 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573367
+S5PROD frame_id=37 n=0 status=0x1 sid=61540 seq=37 rtime_ms=573521 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573396
+S5PROD frame_id=38 n=0 status=0x1 sid=61540 seq=38 rtime_ms=573550 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573525
+S5PROD frame_id=39 n=0 status=0x1 sid=61540 seq=39 rtime_ms=573679 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573554
+S5PROD frame_id=40 n=0 status=0x1 sid=61540 seq=40 rtime_ms=573708 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573683
+S5PROD frame_id=41 n=0 status=0x1 sid=61540 seq=41 rtime_ms=573837 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573713
+S5PROD frame_id=42 n=0 status=0x1 sid=61540 seq=42 rtime_ms=573866 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573842
+S5PROD frame_id=43 n=0 status=0x1 sid=61540 seq=43 rtime_ms=573995 age_pub=0 state=NO_HAND fault=no_hand cap_ms=573871
+S5PROD frame_id=44 n=0 status=0x1 sid=61540 seq=44 rtime_ms=574024 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574000
+S5PROD frame_id=45 n=0 status=0x1 sid=61540 seq=45 rtime_ms=574153 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574029
+S5PROD frame_id=46 n=0 status=0x1 sid=61540 seq=46 rtime_ms=574182 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574158
+S5PROD frame_id=47 n=0 status=0x1 sid=61540 seq=47 rtime_ms=574311 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574187
+S5PROD frame_id=48 n=0 status=0x1 sid=61540 seq=48 rtime_ms=574340 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574316
+S5PROD frame_id=49 n=0 status=0x1 sid=61540 seq=49 rtime_ms=574469 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574345
+S5PROD frame_id=50 n=0 status=0x1 sid=61540 seq=50 rtime_ms=574498 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574474
+S5PROD frame_id=51 n=0 status=0x1 sid=61540 seq=51 rtime_ms=574627 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574503
+S5PROD frame_id=52 n=0 status=0x1 sid=61540 seq=52 rtime_ms=574656 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574632
+S5PROD frame_id=53 n=0 status=0x1 sid=61540 seq=53 rtime_ms=574785 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574661
+S5PROD frame_id=54 n=0 status=0x1 sid=61540 seq=54 rtime_ms=574814 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574790
+S5PROD frame_id=55 n=0 status=0x1 sid=61540 seq=55 rtime_ms=574943 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574819
+S5PROD frame_id=56 n=0 status=0x1 sid=61540 seq=56 rtime_ms=574972 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574948
+S5PROD frame_id=57 n=0 status=0x1 sid=61540 seq=57 rtime_ms=575101 age_pub=0 state=NO_HAND fault=no_hand cap_ms=574977
+S5PROD frame_id=58 n=0 status=0x1 sid=61540 seq=58 rtime_ms=575130 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575106
+S5PROD frame_id=59 n=0 status=0x1 sid=61540 seq=59 rtime_ms=575259 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575135
+S5DISP frame=60 lat=122 age=129 st=F sr=15090 src=real nbox=0
+S5PROD frame_id=60 n=0 status=0x1 sid=61540 seq=60 rtime_ms=575288 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575264
+S5CONS sid=61540 seq=60 n=0 status=0x1 age_pub=10 state=NO_HAND seqlock=120
+S5PROD frame_id=61 n=0 status=0x1 sid=61540 seq=61 rtime_ms=575430 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575305
+S5PROD frame_id=62 n=0 status=0x1 sid=61540 seq=62 rtime_ms=575459 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575434
+S5PROD frame_id=63 n=0 status=0x1 sid=61540 seq=63 rtime_ms=575588 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575463
+S5PROD frame_id=64 n=0 status=0x1 sid=61540 seq=64 rtime_ms=575617 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575592
+S5PROD frame_id=65 n=0 status=0x1 sid=61540 seq=65 rtime_ms=575746 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575621
+S5PROD frame_id=66 n=0 status=0x1 sid=61540 seq=66 rtime_ms=575775 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575751
+S5PROD frame_id=67 n=0 status=0x1 sid=61540 seq=67 rtime_ms=575904 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575780
+S5PROD frame_id=68 n=0 status=0x1 sid=61540 seq=68 rtime_ms=575933 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575909
+S5PROD frame_id=69 n=0 status=0x1 sid=61540 seq=69 rtime_ms=576062 age_pub=0 state=NO_HAND fault=no_hand cap_ms=575938
+S5PROD frame_id=70 n=0 status=0x1 sid=61540 seq=70 rtime_ms=576091 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576067
+S5PROD frame_id=71 n=0 status=0x1 sid=61540 seq=71 rtime_ms=576220 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576096
+S5PROD frame_id=72 n=0 status=0x1 sid=61540 seq=72 rtime_ms=576249 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576225
+S5PROD frame_id=73 n=0 status=0x1 sid=61540 seq=73 rtime_ms=576378 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576254
+S5PROD frame_id=74 n=0 status=0x1 sid=61540 seq=74 rtime_ms=576407 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576383
+S5PROD frame_id=75 n=0 status=0x1 sid=61540 seq=75 rtime_ms=576536 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576412
+S5PROD frame_id=76 n=0 status=0x1 sid=61540 seq=76 rtime_ms=576565 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576541
+S5PROD frame_id=77 n=0 status=0x1 sid=61540 seq=77 rtime_ms=576694 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576570
+S5PROD frame_id=78 n=0 status=0x1 sid=61540 seq=78 rtime_ms=576723 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576699
+S5PROD frame_id=79 n=0 status=0x1 sid=61540 seq=79 rtime_ms=576852 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576728
+S5PROD frame_id=80 n=0 status=0x1 sid=61540 seq=80 rtime_ms=576881 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576857
+S5PROD frame_id=81 n=0 status=0x1 sid=61540 seq=81 rtime_ms=577010 age_pub=0 state=NO_HAND fault=no_hand cap_ms=576886
+S5PROD frame_id=82 n=0 status=0x1 sid=61540 seq=82 rtime_ms=577039 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577015
+S5PROD frame_id=83 n=0 status=0x1 sid=61540 seq=83 rtime_ms=577168 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577044
+S5PROD frame_id=84 n=0 status=0x1 sid=61540 seq=84 rtime_ms=577197 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577173
+S5PROD frame_id=85 n=0 status=0x1 sid=61540 seq=85 rtime_ms=577326 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577202
+S5PROD frame_id=86 n=0 status=0x1 sid=61540 seq=86 rtime_ms=577356 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577331
+S5PROD frame_id=87 n=0 status=0x1 sid=61540 seq=87 rtime_ms=577485 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577360
+S5PROD frame_id=88 n=0 status=0x1 sid=61540 seq=88 rtime_ms=577514 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577489
+S5PROD frame_id=89 n=0 status=0x1 sid=61540 seq=89 rtime_ms=577643 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577518
+S5PROD frame_id=90 n=0 status=0x1 sid=61540 seq=90 rtime_ms=577672 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577647
+S5PROD frame_id=91 n=0 status=0x1 sid=61540 seq=91 rtime_ms=577801 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577677
+S5PROD frame_id=92 n=0 status=0x1 sid=61540 seq=92 rtime_ms=577830 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577806
+S5PROD frame_id=93 n=0 status=0x1 sid=61540 seq=93 rtime_ms=577959 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577835
+S5PROD frame_id=94 n=0 status=0x1 sid=61540 seq=94 rtime_ms=577988 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577964
+S5PROD frame_id=95 n=0 status=0x1 sid=61540 seq=95 rtime_ms=578117 age_pub=0 state=NO_HAND fault=no_hand cap_ms=577993
+S5PROD frame_id=96 n=0 status=0x1 sid=61540 seq=96 rtime_ms=578146 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578122
+S5PROD frame_id=97 n=0 status=0x1 sid=61540 seq=97 rtime_ms=578275 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578151
+S5PROD frame_id=98 n=0 status=0x1 sid=61540 seq=98 rtime_ms=578304 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578280
+S5PROD frame_id=99 n=0 status=0x1 sid=61540 seq=99 rtime_ms=578433 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578309
+S5PROD frame_id=100 n=0 status=0x1 sid=61540 seq=100 rtime_ms=578462 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578438
+S5PROD frame_id=101 n=0 status=0x1 sid=61540 seq=101 rtime_ms=578591 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578467
+S5PROD frame_id=102 n=0 status=0x1 sid=61540 seq=102 rtime_ms=578621 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578596
+S5PROD frame_id=103 n=0 status=0x1 sid=61540 seq=103 rtime_ms=578750 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578626
+S5PROD frame_id=104 n=0 status=0x1 sid=61540 seq=104 rtime_ms=578779 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578755
+S5PROD frame_id=105 n=0 status=0x1 sid=61540 seq=105 rtime_ms=578908 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578784
+S5PROD frame_id=106 n=0 status=0x1 sid=61540 seq=106 rtime_ms=578938 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578913
+S5PROD frame_id=107 n=0 status=0x1 sid=61540 seq=107 rtime_ms=579067 age_pub=0 state=NO_HAND fault=no_hand cap_ms=578942
+S5PROD frame_id=108 n=0 status=0x1 sid=61540 seq=108 rtime_ms=579096 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579072
+S5PROD frame_id=109 n=0 status=0x1 sid=61540 seq=109 rtime_ms=579225 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579101
+S5PROD frame_id=110 n=0 status=0x1 sid=61540 seq=110 rtime_ms=579254 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579230
+S5PROD frame_id=111 n=0 status=0x1 sid=61540 seq=111 rtime_ms=579384 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579259
+S5PROD frame_id=112 n=0 status=0x1 sid=61540 seq=112 rtime_ms=579413 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579389
+S5PROD frame_id=113 n=0 status=0x1 sid=61540 seq=113 rtime_ms=579542 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579418
+S5PROD frame_id=114 n=0 status=0x1 sid=61540 seq=114 rtime_ms=579571 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579547
+S5PROD frame_id=115 n=0 status=0x1 sid=61540 seq=115 rtime_ms=579700 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579576
+S5PROD frame_id=116 n=0 status=0x1 sid=61540 seq=116 rtime_ms=579730 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579705
+S5PROD frame_id=117 n=0 status=0x1 sid=61540 seq=117 rtime_ms=579859 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579735
+S5PROD frame_id=118 n=0 status=0x1 sid=61540 seq=118 rtime_ms=579888 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579864
+S5PROD frame_id=119 n=0 status=0x1 sid=61540 seq=119 rtime_ms=580017 age_pub=0 state=NO_HAND fault=no_hand cap_ms=579893
+S5DISP frame=120 lat=122 age=129 st=F sr=15090 src=real nbox=0
+S5PROD frame_id=120 n=0 status=0x1 sid=61540 seq=120 rtime_ms=580046 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580022
+S5CONS sid=61540 seq=120 n=0 status=0x1 age_pub=10 state=NO_HAND seqlock=240
+S5PROD frame_id=121 n=0 status=0x1 sid=61540 seq=121 rtime_ms=580188 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580064
+S5PROD frame_id=122 n=0 status=0x1 sid=61540 seq=122 rtime_ms=580217 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580193
+S5PROD frame_id=123 n=0 status=0x1 sid=61540 seq=123 rtime_ms=580346 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580222
+S5PROD frame_id=124 n=0 status=0x1 sid=61540 seq=124 rtime_ms=580376 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580351
+S5PROD frame_id=125 n=0 status=0x1 sid=61540 seq=125 rtime_ms=580505 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580380
+S5PROD frame_id=126 n=0 status=0x1 sid=61540 seq=126 rtime_ms=580534 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580510
+S5PROD frame_id=127 n=0 status=0x1 sid=61540 seq=127 rtime_ms=580663 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580539
+S5PROD frame_id=128 n=0 status=0x1 sid=61540 seq=128 rtime_ms=580692 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580668
+S5PROD frame_id=129 n=0 status=0x1 sid=61540 seq=129 rtime_ms=580822 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580697
+S5PROD frame_id=130 n=0 status=0x1 sid=61540 seq=130 rtime_ms=580851 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580827
+S5PROD frame_id=131 n=0 status=0x1 sid=61540 seq=131 rtime_ms=580980 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580856
+S5PROD frame_id=132 n=0 status=0x1 sid=61540 seq=132 rtime_ms=581009 age_pub=0 state=NO_HAND fault=no_hand cap_ms=580985
+S5PROD frame_id=133 n=0 status=0x1 sid=61540 seq=133 rtime_ms=581138 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581014
+S5PROD frame_id=134 n=0 status=0x1 sid=61540 seq=134 rtime_ms=581168 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581143
+S5PROD frame_id=135 n=0 status=0x1 sid=61540 seq=135 rtime_ms=581297 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581173
+S5PROD frame_id=136 n=0 status=0x1 sid=61540 seq=136 rtime_ms=581326 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581302
+S5PROD frame_id=137 n=0 status=0x1 sid=61540 seq=137 rtime_ms=581455 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581331
+S5PROD frame_id=138 n=0 status=0x1 sid=61540 seq=138 rtime_ms=581485 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581460
+S5PROD frame_id=139 n=0 status=0x1 sid=61540 seq=139 rtime_ms=581614 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581490
+S5PROD frame_id=140 n=0 status=0x1 sid=61540 seq=140 rtime_ms=581643 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581619
+S5PROD frame_id=141 n=0 status=0x1 sid=61540 seq=141 rtime_ms=581772 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581648
+S5PROD frame_id=142 n=0 status=0x1 sid=61540 seq=142 rtime_ms=581801 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581777
+S5PROD frame_id=143 n=0 status=0x1 sid=61540 seq=143 rtime_ms=581931 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581806
+S5PROD frame_id=144 n=0 status=0x1 sid=61540 seq=144 rtime_ms=581960 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581936
+S5PROD frame_id=145 n=0 status=0x1 sid=61540 seq=145 rtime_ms=582089 age_pub=0 state=NO_HAND fault=no_hand cap_ms=581965
+S5PROD frame_id=146 n=0 status=0x1 sid=61540 seq=146 rtime_ms=582118 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582094
+S5PROD frame_id=147 n=0 status=0x1 sid=61540 seq=147 rtime_ms=582247 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582123
+S5PROD frame_id=148 n=0 status=0x1 sid=61540 seq=148 rtime_ms=582277 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582252
+S5PROD frame_id=149 n=0 status=0x1 sid=61540 seq=149 rtime_ms=582406 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582282
+S5PROD frame_id=150 n=0 status=0x1 sid=61540 seq=150 rtime_ms=582435 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582411
+S5PROD frame_id=151 n=0 status=0x1 sid=61540 seq=151 rtime_ms=582564 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582440
+S5PROD frame_id=152 n=0 status=0x1 sid=61540 seq=152 rtime_ms=582594 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582569
+S5PROD frame_id=153 n=0 status=0x1 sid=61540 seq=153 rtime_ms=582723 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582599
+S5PROD frame_id=154 n=0 status=0x1 sid=61540 seq=154 rtime_ms=582752 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582728
+S5PROD frame_id=155 n=0 status=0x1 sid=61540 seq=155 rtime_ms=582881 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582757
+S5PROD frame_id=156 n=0 status=0x1 sid=61540 seq=156 rtime_ms=582910 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582886
+S5PROD frame_id=157 n=0 status=0x1 sid=61540 seq=157 rtime_ms=583040 age_pub=0 state=NO_HAND fault=no_hand cap_ms=582915
+S5PROD frame_id=158 n=0 status=0x1 sid=61540 seq=158 rtime_ms=583069 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583045
+S5PROD frame_id=159 n=0 status=0x1 sid=61540 seq=159 rtime_ms=583198 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583074
+S5PROD frame_id=160 n=0 status=0x1 sid=61540 seq=160 rtime_ms=583227 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583203
+S5PROD frame_id=161 n=0 status=0x1 sid=61540 seq=161 rtime_ms=583356 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583232
+S5PROD frame_id=162 n=0 status=0x1 sid=61540 seq=162 rtime_ms=583386 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583361
+S5PROD frame_id=163 n=0 status=0x1 sid=61540 seq=163 rtime_ms=583515 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583391
+S5PROD frame_id=164 n=0 status=0x1 sid=61540 seq=164 rtime_ms=583544 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583520
+S5PROD frame_id=165 n=0 status=0x1 sid=61540 seq=165 rtime_ms=583673 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583549
+S5PROD frame_id=166 n=0 status=0x1 sid=61540 seq=166 rtime_ms=583703 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583678
+S5PROD frame_id=167 n=0 status=0x1 sid=61540 seq=167 rtime_ms=583832 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583708
+S5PROD frame_id=168 n=0 status=0x1 sid=61540 seq=168 rtime_ms=583861 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583837
+S5PROD frame_id=169 n=0 status=0x1 sid=61540 seq=169 rtime_ms=583990 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583866
+S5PROD frame_id=170 n=0 status=0x1 sid=61540 seq=170 rtime_ms=584019 age_pub=0 state=NO_HAND fault=no_hand cap_ms=583995
+S5PROD frame_id=171 n=0 status=0x1 sid=61540 seq=171 rtime_ms=584149 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584024
+S5PROD frame_id=172 n=0 status=0x1 sid=61540 seq=172 rtime_ms=584178 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584154
+S5PROD frame_id=173 n=0 status=0x1 sid=61540 seq=173 rtime_ms=584307 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584183
+S5PROD frame_id=174 n=0 status=0x1 sid=61540 seq=174 rtime_ms=584336 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584312
+S5PROD frame_id=175 n=0 status=0x1 sid=61540 seq=175 rtime_ms=584465 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584341
+S5PROD frame_id=176 n=0 status=0x1 sid=61540 seq=176 rtime_ms=584495 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584470
+S5PROD frame_id=177 n=0 status=0x1 sid=61540 seq=177 rtime_ms=584624 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584500
+S5PROD frame_id=178 n=0 status=0x1 sid=61540 seq=178 rtime_ms=584653 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584629
+S5PROD frame_id=179 n=0 status=0x1 sid=61540 seq=179 rtime_ms=584782 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584658
+S5DISP frame=180 lat=122 age=129 st=F sr=15090 src=real nbox=0
+S5PROD frame_id=180 n=0 status=0x1 sid=61540 seq=180 rtime_ms=584811 age_pub=0 state=NO_HAND fault=no_hand cap_ms=584787
+S5CONS sid=61540 seq=180 n=0 status=0x1 age_pub=10 state=NO_HAND seqlock=360
+UF GPIO frame@43C50000=681442 total@43C50008=1138857473
+S5DISP boxes n=0 crc=0 hex=
+S5DISP done frames=180 vcnt=1(sw) vdma_err=180 idle_fps=0 idle_us=0
+S5DISP RESULT={"pass":0,"fps_cap":12,"fps_inf":12,"fps_dis":0,"fps_upd":12,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":122,"age_ms":129,"vdma_err":180,"frames":180,"vcnt":1,"box_crc":0,"fb_crc":128148438,"uf_pix":1138857473,"uf_frame":681442,"uf_total":1138857473,"src":"real","reason":"vdma_error"}

@@ -1,0 +1,302 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e2_frame_period_20261030_r03",
+  "mode": "e2_frame_period",
+  "started_utc8": "2026-10-30T22:09:18+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy": [],
+      "non_vivado": [],
+      "blockers": []
+    },
+    "S3_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_gt_start": {
+      "status": "PASS",
+      "exit_code": 0,
+      "gt": {
+        "low": 2688634585,
+        "high": 286,
+        "value": 1231049281241
+      }
+    },
+    "S6_load_elf": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_uart_slope": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 73,
+      "pairs": 59,
+      "slope": {
+        "first": [
+          1793369378.5163274,
+          60
+        ],
+        "last": [
+          1793369494.6253726,
+          3540
+        ],
+        "frames_delta": 3480,
+        "wall_s": 116.109,
+        "p_update_us": 33364.67,
+        "implied_update_fps": 29.972
+      }
+    },
+    "S7b_frmcnt": {
+      "status": "PASS",
+      "exit_code": 0,
+      "samples": 1500,
+      "frmcnt_values": [
+        1
+      ],
+      "edges": 0,
+      "edge_sample": [],
+      "cr_sample": [
+        "0x10003",
+        "0x10003",
+        "0x10003",
+        "0x10003",
+        "0x10003"
+      ],
+      "note": "FRMCNT = CR[23:16]；8 位回绕每 256 帧 ≈4.27 s；相邻变化即 1 帧"
+    },
+    "S8_gt_end": {
+      "status": "PASS",
+      "exit_code": 0,
+      "gt": {
+        "low": 1117166196,
+        "high": 298,
+        "value": 1281017420404
+      },
+      "gt_rate": {
+        "gt_delta_ticks": 49968139163,
+        "gt_elapsed_s": 149.904,
+        "wall_elapsed_s_approx": 120.0,
+        "note": "host wall 时间未精确记录（含 load/con 与采样开销）"
+      }
+    },
+    "S9_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "E2-1",
+          "desc": "P ≈ 16667 µs ±1%（60 Hz）",
+          "pass": false,
+          "detail": {
+            "method": "uart-frame-slope(30fps 更新节拍，低置信度)",
+            "p_us": 33364.67,
+            "min_us": null,
+            "max_us": null,
+            "std_us": null,
+            "samples": 59,
+            "detail": {
+              "frmcnt": {
+                "samples": 1500,
+                "edges": 0,
+                "values": [
+                  1
+                ]
+              },
+              "uart": {
+                "first": [
+                  1793369378.5163274,
+                  60
+                ],
+                "last": [
+                  1793369494.6253726,
+                  3540
+                ],
+                "frames_delta": 3480,
+                "wall_s": 116.109,
+                "p_update_us": 33364.67,
+                "implied_update_fps": 29.972
+              }
+            },
+            "detail_extra": "FRMCNT 未产生足够帧沿（<50）；该计数为 30 fps 更新，60 Hz 显示周期需另设 60Hz 计数器"
+          }
+        },
+        {
+          "id": "E2-2",
+          "desc": "采集到运行期数据（UART/PARKPTR 至少一路）",
+          "pass": true,
+          "detail": {
+            "uart_pairs": 59,
+            "park_samples": 1500
+          }
+        },
+        {
+          "id": "E2-3",
+          "desc": "GT 开窗/收窗读数成功（速率校验可用）",
+          "pass": true,
+          "detail": {
+            "start": {
+              "low": 2688634585,
+              "high": 286,
+              "value": 1231049281241
+            },
+            "end": {
+              "low": 1117166196,
+              "high": 298,
+              "value": 1281017420404
+            },
+            "rate": {
+              "gt_delta_ticks": 49968139163,
+              "gt_elapsed_s": 149.904,
+              "wall_elapsed_s_approx": 120.0,
+              "note": "host wall 时间未精确记录（含 load/con 与采样开销）"
+            }
+          }
+        }
+      ]
+    },
+    "S8_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 58444,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "禁 rst -system；不写候选区；零残留",
+  "note": "显示长跑 ELF 的 S5DISP frame 为 30 fps 更新计数；60 Hz 显示刷新需 PARKPTR 或新增 60Hz 计数器",
+  "gt_start": {
+    "low": 2688634585,
+    "high": 286,
+    "value": 1231049281241
+  },
+  "p_estimate": {
+    "method": "uart-frame-slope(30fps 更新节拍，低置信度)",
+    "p_us": 33364.67,
+    "min_us": null,
+    "max_us": null,
+    "std_us": null,
+    "samples": 59,
+    "detail": {
+      "frmcnt": {
+        "samples": 1500,
+        "edges": 0,
+        "values": [
+          1
+        ]
+      },
+      "uart": {
+        "first": [
+          1793369378.5163274,
+          60
+        ],
+        "last": [
+          1793369494.6253726,
+          3540
+        ],
+        "frames_delta": 3480,
+        "wall_s": 116.109,
+        "p_update_us": 33364.67,
+        "implied_update_fps": 29.972
+      }
+    },
+    "detail_extra": "FRMCNT 未产生足够帧沿（<50）；该计数为 30 fps 更新，60 Hz 显示周期需另设 60Hz 计数器"
+  },
+  "gt_end": {
+    "low": 1117166196,
+    "high": 298,
+    "value": 1281017420404
+  },
+  "criteria": [
+    {
+      "id": "E2-1",
+      "desc": "P ≈ 16667 µs ±1%（60 Hz）",
+      "pass": false,
+      "detail": {
+        "method": "uart-frame-slope(30fps 更新节拍，低置信度)",
+        "p_us": 33364.67,
+        "min_us": null,
+        "max_us": null,
+        "std_us": null,
+        "samples": 59,
+        "detail": {
+          "frmcnt": {
+            "samples": 1500,
+            "edges": 0,
+            "values": [
+              1
+            ]
+          },
+          "uart": {
+            "first": [
+              1793369378.5163274,
+              60
+            ],
+            "last": [
+              1793369494.6253726,
+              3540
+            ],
+            "frames_delta": 3480,
+            "wall_s": 116.109,
+            "p_update_us": 33364.67,
+            "implied_update_fps": 29.972
+          }
+        },
+        "detail_extra": "FRMCNT 未产生足够帧沿（<50）；该计数为 30 fps 更新，60 Hz 显示周期需另设 60Hz 计数器"
+      }
+    },
+    {
+      "id": "E2-2",
+      "desc": "采集到运行期数据（UART/PARKPTR 至少一路）",
+      "pass": true,
+      "detail": {
+        "uart_pairs": 59,
+        "park_samples": 1500
+      }
+    },
+    {
+      "id": "E2-3",
+      "desc": "GT 开窗/收窗读数成功（速率校验可用）",
+      "pass": true,
+      "detail": {
+        "start": {
+          "low": 2688634585,
+          "high": 286,
+          "value": 1231049281241
+        },
+        "end": {
+          "low": 1117166196,
+          "high": 298,
+          "value": 1281017420404
+        },
+        "rate": {
+          "gt_delta_ticks": 49968139163,
+          "gt_elapsed_s": 149.904,
+          "wall_elapsed_s_approx": 120.0,
+          "note": "host wall 时间未精确记录（含 load/con 与采样开销）"
+        }
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "S6E_E2_FRAME_PERIOD_PENDING_60HZ_COUNTER",
+  "finished_utc8": "2026-10-30T22:12:04+08:00",
+  "stop_reason": "P 判据未达（待 60Hz 计数器）",
+  "teardown_ok": true
+}

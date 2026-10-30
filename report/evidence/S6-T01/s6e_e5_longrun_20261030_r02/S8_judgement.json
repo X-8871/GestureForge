@@ -1,0 +1,90 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "E5-1",
+      "desc": "sid 恒定",
+      "pass": true,
+      "detail": {
+        "sids": [
+          "2761"
+        ]
+      }
+    },
+    {
+      "id": "E5-2",
+      "desc": "seq 连续递增（differences 为均匀步长）",
+      "pass": true,
+      "detail": {
+        "seq_first_last": [
+          60,
+          22680
+        ],
+        "diffs": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "E5-3",
+      "desc": "age_pub 不增长（max-min ≤20）",
+      "pass": true,
+      "detail": {
+        "ages": [
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9
+        ]
+      }
+    },
+    {
+      "id": "E5-4",
+      "desc": "vdma_err=0 且无死锁（有 tick/帧行）",
+      "pass": false,
+      "detail": {
+        "errs": [
+          3695185
+        ],
+        "ticks": 29,
+        "frames": 378
+      }
+    },
+    {
+      "id": "E5-5",
+      "desc": "每 300 s 欠载采样 ≥2 点且不增长",
+      "pass": false,
+      "detail": {
+        "uf_series": [
+          {
+            "t_s": 309.6,
+            "uf": 178699462
+          },
+          {
+            "t_s": 602.4,
+            "uf": 3477779413
+          },
+          {
+            "t_s": 902.4,
+            "uf": 2878974905
+          },
+          {
+            "t_s": 1202.3,
+            "uf": 2277733156
+          },
+          {
+            "t_s": 1502.5,
+            "uf": 1688513787
+          }
+        ]
+      }
+    }
+  ]
+}

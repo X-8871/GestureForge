@@ -1,0 +1,139 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e2_frame_period_20261030_r05",
+  "mode": "e2",
+  "started_utc8": "2026-10-30T22:20:05+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+      "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "blockers": [],
+      "heavy": []
+    },
+    "S3_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "a": "PASS",
+      "fpga_exit": 0,
+      "f": "PASS"
+    },
+    "S6_load_elf": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S8_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "E2-1",
+          "desc": "fps_dis=60",
+          "pass": false,
+          "detail": {
+            "fps_dis": null
+          }
+        },
+        {
+          "id": "E2-2",
+          "desc": "VDMA read period ≈ 16,667 µs ±1%",
+          "pass": false,
+          "detail": {
+            "period_us": null,
+            "expect": 16666.67
+          }
+        },
+        {
+          "id": "E2-3",
+          "desc": "采集到 S5DISP 帧行（≥1）",
+          "pass": false,
+          "detail": {
+            "disp_lines": 0
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 17108,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "禁 rst -system；不写候选区；DAP/halt 异常立即停手",
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+    "sha256": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+    "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+  },
+  "gt_start": {
+    "low": 3320886294,
+    "high": 2,
+    "value": 11910820886
+  },
+  "uart_lines": 8,
+  "gt_end": {
+    "low": null,
+    "high": null,
+    "value": null
+  },
+  "criteria": [
+    {
+      "id": "E2-1",
+      "desc": "fps_dis=60",
+      "pass": false,
+      "detail": {
+        "fps_dis": null
+      }
+    },
+    {
+      "id": "E2-2",
+      "desc": "VDMA read period ≈ 16,667 µs ±1%",
+      "pass": false,
+      "detail": {
+        "period_us": null,
+        "expect": 16666.67
+      }
+    },
+    {
+      "id": "E2-3",
+      "desc": "采集到 S5DISP 帧行（≥1）",
+      "pass": false,
+      "detail": {
+        "disp_lines": 0
+      }
+    }
+  ],
+  "parsed": {
+    "period_ticks": null,
+    "period_us": null,
+    "fps_dis": null,
+    "disp_lines": 0,
+    "result_line": null
+  },
+  "criterion_ok": false,
+  "conclusion": "S6E_E2_FAIL",
+  "finished_utc8": "2026-10-30T22:21:00+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

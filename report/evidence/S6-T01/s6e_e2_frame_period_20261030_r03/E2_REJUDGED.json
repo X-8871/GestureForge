@@ -1,0 +1,46 @@
+{
+  "run_id": "s6e_e2_frame_period_20261030_r03",
+  "rejudged_utc8": "2026-10-30T22:27:42+08:00",
+  "pl": "P3q 4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+  "elf": "s5_display_app_longrun.elf cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+  "p_source": "运行期软件自测 `VDMA: read period`（display refresh）",
+  "p_us": 16673,
+  "period_ticks": 5557890,
+  "fps_dis": 60,
+  "criteria": [
+    {
+      "id": "E2-1",
+      "desc": "fps_dis=60（软件自测显示刷新率）",
+      "pass": true,
+      "detail": {
+        "fps_dis": 60
+      }
+    },
+    {
+      "id": "E2-2",
+      "desc": "VDMA read period ≈ 16,667 µs ±1%（16673 µs，误差 +0.04%）",
+      "pass": true,
+      "detail": {
+        "period_ticks": 5557890,
+        "period_us": 16673,
+        "expect_us": 16666.667,
+        "delta_pct": 0.038
+      }
+    },
+    {
+      "id": "E2-3",
+      "desc": "运行期 S5DISP 帧行 ≥1（应用未卡死）",
+      "pass": true,
+      "detail": {
+        "disp_lines": 59
+      }
+    }
+  ],
+  "verdict": "S6E_E2_OK",
+  "negative_findings": {
+    "vdma_frmcnt": "CR[23:16] FRMCNT 1500 次采样恒为 1、帧沿 0 ⇒ 该 BD 下不递增，不能作 P",
+    "uart_frame_slope": "UART S5DISP frame 斜率 33364.67 µs = 30 fps 更新节拍，非 60 Hz 显示周期",
+    "idleprobe": "s5_display_app_p3q_producer_idleprobe.elf(7357c3e5…) 在冷启动后卡死（见 r04/r05 HALT_INCIDENT）"
+  },
+  "note": "r03 采集于断电重启前的同一 P3q 位流 + 同一显示长跑 ELF；软件自测 read period 即显示刷新周期口径"
+}

@@ -1,0 +1,17 @@
+# 6-E / E2 帧周期 P（idleprobe 口径）
+
+- RunId：`s6e_e2_frame_period_20261030_r04`
+- 开窗：2026-10-30T22:13:12+08:00；收窗：2026-10-30T22:14:43+08:00
+- PL（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF（idleprobe）：sha256=7357c3e52228fcd0eb732b770f200561a2d0dec05c74e03b69c90a1f732563fe（300812 B）
+- 结论：**S6E_E2_FRAME_PERIOD_FAIL**
+
+- **idle_period_us = None µs（目标 16667 ±1%）**
+- fps_dis_idle=None、fps_dis=None、fps_upd=None
+- RESULT 原文：`None`
+- GT：start={'low': 3814490530, 'high': 304, 'value': 1309484548514}、end={'low': None, 'high': None, 'value': None}
+
+- P 口径说明：本窗 P 取 **idleprobe 空闲期显示刷新周期 `idle_period_us`**（≈60 Hz）；
+  UART `S5DISP frame` 是 30 fps 更新计数（斜率≈33.3 ms），不作为 P。
+
+- 边界：禁 rst -system；未写候选区；未烧 QSPI；收窗停核零残留

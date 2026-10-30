@@ -1,0 +1,20 @@
+# 阶段6 E3 窗口（安全流程，零 rst）
+
+- RunId：`s6e_e3_age_20261030_r01`
+- 开窗：2026-10-30T23:12:32+08:00；收窗：2026-10-30T23:13:55+08:00
+- 结论：**S6E_E3_OK**
+- stop_reason：None
+- 位流（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF：sha256=97c33f58b974e4ff805debc4a7683617e77852f81ab9b3f0d90cead775975e79（expect 97c33f58b974e4ff805debc4a7683617e77852f81ab9b3f0d90cead775975e79）
+
+- E3-1 S5CONS ≥3 行 + S5PROD ≥10 条：**PASS** {"cons": 12, "prod": 741}
+- E3-2 age_pub ≤200 ms：**PASS** {"ages": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]}
+- E3-3 seqlock 全偶数：**PASS** {"seqlocks": [120, 240, 360, 480, 600, 720, 840, 960, 1080, 1200, 1320, 1440]}
+- E3-4 seq 严格递增：**PASS** {"seqs": [60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720]}
+- E3-5 sid 恒定：**PASS** {"sids": ["64504"]}
+- E3-6 state ∈ {OK,NO_HAND}：**PASS** {"states": ["OK"]}
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 流程：hw_server→loadhw→stop→ps7_init→0xA→fpga→0xF→PL 只读探测→load_elf→采集→stop（零 rst）
+- 边界：禁 rst -system；未写候选区；未烧 QSPI

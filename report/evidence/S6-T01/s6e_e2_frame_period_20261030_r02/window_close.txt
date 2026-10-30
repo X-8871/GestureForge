@@ -1,0 +1,22 @@
+# 6-E / E2 帧周期 P 实测
+
+- RunId：`s6e_e2_frame_period_20261030_r02`
+- 开窗：2026-10-30T22:07:17+08:00；收窗：2026-10-30T22:07:53+08:00
+- PL（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF（显示长跑）：sha256=cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577
+- 结论：**None**
+
+## P 结果
+
+- **P = None µs（目标 16667 µs ±1%）**，方法=None
+- 抖动：min=None、max=None、std=None µs；样本=None
+- 依据：{}
+
+- 采集口径与限制：
+  1) UART `S5DISP frame` 为 **30 fps 更新计数**（每帧 60 计数约 2 s 一行）；其斜率 ⇒ 更新周期 ~33.3 ms；
+  2) VDMA `PARKPTR`(0x43C40028) 运行中读（PL AXI，免停核）用于检测每帧切换；
+  3) GT(0xF8F00200/04) 需停核，只能开窗/收窗各读一次做速率校验。
+  ⇒ 若本窗无法得到 60 Hz 周期（需 60 Hz 计数器），结论按『未通过/待补充』记录，见待办需求。
+
+- GT：start=None、end=None（速率校验见 S7_gt）
+- 边界：禁 rst -system；未写候选区；未烧 QSPI

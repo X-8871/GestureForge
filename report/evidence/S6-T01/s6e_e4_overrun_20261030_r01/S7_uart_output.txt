@@ -1,0 +1,204 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+hw: VDMA AXI-Lite @43C40000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C50000
+run mode: bounded, frames_cap=180, time_cap_ms=60000
+VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: WARN 读帧存切换周期测不到（READSTR 不动）→ fps_dis=0（不虚填）
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=3695185
+S5PROD session start: sid=28231 frame_id=0 tag=A55A status=0x1 rtime_ms=370124 (333 Hz)
+S5PROD frame_id=1 n=2 status=0x3 sid=28231 seq=1 rtime_ms=370254 age_pub=0 state=ERROR fault=overrun cap_ms=370130
+S5PROD frame_id=2 n=3 status=0x3 sid=28231 seq=2 rtime_ms=370283 age_pub=0 state=ERROR fault=overrun cap_ms=370259
+S5PROD frame_id=3 n=1 status=0x3 sid=28231 seq=3 rtime_ms=370412 age_pub=0 state=ERROR fault=overrun cap_ms=370288
+S5PROD frame_id=4 n=2 status=0x3 sid=28231 seq=4 rtime_ms=370441 age_pub=0 state=ERROR fault=overrun cap_ms=370417
+S5PROD frame_id=5 n=3 status=0x3 sid=28231 seq=5 rtime_ms=370570 age_pub=0 state=ERROR fault=overrun cap_ms=370446
+S5PROD frame_id=6 n=1 status=0x3 sid=28231 seq=6 rtime_ms=370599 age_pub=0 state=ERROR fault=overrun cap_ms=370574
+S5PROD frame_id=7 n=2 status=0x3 sid=28231 seq=7 rtime_ms=370728 age_pub=0 state=ERROR fault=overrun cap_ms=370603
+S5PROD frame_id=8 n=3 status=0x3 sid=28231 seq=8 rtime_ms=370757 age_pub=0 state=ERROR fault=overrun cap_ms=370732
+S5PROD frame_id=9 n=1 status=0x3 sid=28231 seq=9 rtime_ms=370886 age_pub=0 state=ERROR fault=overrun cap_ms=370761
+S5PROD frame_id=10 n=2 status=0x3 sid=28231 seq=10 rtime_ms=370914 age_pub=0 state=ERROR fault=overrun cap_ms=370890
+S5PROD frame_id=11 n=3 status=0x3 sid=28231 seq=11 rtime_ms=371043 age_pub=0 state=ERROR fault=overrun cap_ms=370919
+S5PROD frame_id=12 n=1 status=0x3 sid=28231 seq=12 rtime_ms=371073 age_pub=0 state=ERROR fault=overrun cap_ms=371048
+S5PROD frame_id=13 n=2 status=0x3 sid=28231 seq=13 rtime_ms=371202 age_pub=0 state=ERROR fault=overrun cap_ms=371077
+S5PROD frame_id=14 n=3 status=0x3 sid=28231 seq=14 rtime_ms=371231 age_pub=0 state=ERROR fault=overrun cap_ms=371206
+S5PROD frame_id=15 n=1 status=0x3 sid=28231 seq=15 rtime_ms=371360 age_pub=0 state=ERROR fault=overrun cap_ms=371235
+S5PROD frame_id=16 n=2 status=0x3 sid=28231 seq=16 rtime_ms=371389 age_pub=0 state=ERROR fault=overrun cap_ms=371364
+S5PROD frame_id=17 n=3 status=0x3 sid=28231 seq=17 rtime_ms=371518 age_pub=0 state=ERROR fault=overrun cap_ms=371393
+S5PROD frame_id=18 n=1 status=0x3 sid=28231 seq=18 rtime_ms=371547 age_pub=0 state=ERROR fault=overrun cap_ms=371522
+S5PROD frame_id=19 n=2 status=0x3 sid=28231 seq=19 rtime_ms=371676 age_pub=0 state=ERROR fault=overrun cap_ms=371552
+S5PROD frame_id=20 n=3 status=0x3 sid=28231 seq=20 rtime_ms=371705 age_pub=0 state=ERROR fault=overrun cap_ms=371681
+S5PROD frame_id=21 n=1 status=0x3 sid=28231 seq=21 rtime_ms=371834 age_pub=0 state=ERROR fault=overrun cap_ms=371710
+S5PROD frame_id=22 n=2 status=0x3 sid=28231 seq=22 rtime_ms=371863 age_pub=0 state=ERROR fault=overrun cap_ms=371839
+S5PROD frame_id=23 n=3 status=0x3 sid=28231 seq=23 rtime_ms=371992 age_pub=0 state=ERROR fault=overrun cap_ms=371868
+S5PROD frame_id=24 n=1 status=0x3 sid=28231 seq=24 rtime_ms=372021 age_pub=0 state=ERROR fault=overrun cap_ms=371997
+S5PROD frame_id=25 n=2 status=0x3 sid=28231 seq=25 rtime_ms=372150 age_pub=0 state=ERROR fault=overrun cap_ms=372026
+S5PROD frame_id=26 n=3 status=0x3 sid=28231 seq=26 rtime_ms=372179 age_pub=0 state=ERROR fault=overrun cap_ms=372155
+S5PROD frame_id=27 n=1 status=0x3 sid=28231 seq=27 rtime_ms=372308 age_pub=0 state=ERROR fault=overrun cap_ms=372184
+S5PROD frame_id=28 n=2 status=0x3 sid=28231 seq=28 rtime_ms=372337 age_pub=0 state=ERROR fault=overrun cap_ms=372313
+S5PROD frame_id=29 n=3 status=0x3 sid=28231 seq=29 rtime_ms=372467 age_pub=0 state=ERROR fault=overrun cap_ms=372342
+S5PROD frame_id=30 n=1 status=0x3 sid=28231 seq=30 rtime_ms=372496 age_pub=0 state=ERROR fault=overrun cap_ms=372471
+S5PROD frame_id=31 n=2 status=0x3 sid=28231 seq=31 rtime_ms=372625 age_pub=0 state=ERROR fault=overrun cap_ms=372500
+S5PROD frame_id=32 n=3 status=0x3 sid=28231 seq=32 rtime_ms=372654 age_pub=0 state=ERROR fault=overrun cap_ms=372629
+S5PROD frame_id=33 n=1 status=0x3 sid=28231 seq=33 rtime_ms=372783 age_pub=0 state=ERROR fault=overrun cap_ms=372658
+S5PROD frame_id=34 n=2 status=0x3 sid=28231 seq=34 rtime_ms=372812 age_pub=0 state=ERROR fault=overrun cap_ms=372787
+S5PROD frame_id=35 n=3 status=0x3 sid=28231 seq=35 rtime_ms=372941 age_pub=0 state=ERROR fault=overrun cap_ms=372816
+S5PROD frame_id=36 n=1 status=0x3 sid=28231 seq=36 rtime_ms=372970 age_pub=0 state=ERROR fault=overrun cap_ms=372945
+S5PROD frame_id=37 n=2 status=0x3 sid=28231 seq=37 rtime_ms=373099 age_pub=0 state=ERROR fault=overrun cap_ms=372975
+S5PROD frame_id=38 n=3 status=0x3 sid=28231 seq=38 rtime_ms=373128 age_pub=0 state=ERROR fault=overrun cap_ms=373104
+S5PROD frame_id=39 n=1 status=0x3 sid=28231 seq=39 rtime_ms=373257 age_pub=0 state=ERROR fault=overrun cap_ms=373133
+S5PROD frame_id=40 n=2 status=0x3 sid=28231 seq=40 rtime_ms=373286 age_pub=0 state=ERROR fault=overrun cap_ms=373262
+S5PROD frame_id=41 n=3 status=0x3 sid=28231 seq=41 rtime_ms=373415 age_pub=0 state=ERROR fault=overrun cap_ms=373291
+S5PROD frame_id=42 n=1 status=0x3 sid=28231 seq=42 rtime_ms=373444 age_pub=0 state=ERROR fault=overrun cap_ms=373420
+S5PROD frame_id=43 n=2 status=0x3 sid=28231 seq=43 rtime_ms=373573 age_pub=0 state=ERROR fault=overrun cap_ms=373449
+S5PROD frame_id=44 n=3 status=0x3 sid=28231 seq=44 rtime_ms=373602 age_pub=0 state=ERROR fault=overrun cap_ms=373578
+S5PROD frame_id=45 n=1 status=0x3 sid=28231 seq=45 rtime_ms=373732 age_pub=0 state=ERROR fault=overrun cap_ms=373607
+S5PROD frame_id=46 n=2 status=0x3 sid=28231 seq=46 rtime_ms=373760 age_pub=0 state=ERROR fault=overrun cap_ms=373736
+S5PROD frame_id=47 n=3 status=0x3 sid=28231 seq=47 rtime_ms=373890 age_pub=0 state=ERROR fault=overrun cap_ms=373765
+S5PROD frame_id=48 n=1 status=0x3 sid=28231 seq=48 rtime_ms=373919 age_pub=0 state=ERROR fault=overrun cap_ms=373894
+S5PROD frame_id=49 n=2 status=0x3 sid=28231 seq=49 rtime_ms=374048 age_pub=0 state=ERROR fault=overrun cap_ms=373923
+S5PROD frame_id=50 n=3 status=0x3 sid=28231 seq=50 rtime_ms=374077 age_pub=0 state=ERROR fault=overrun cap_ms=374052
+S5PROD frame_id=51 n=1 status=0x3 sid=28231 seq=51 rtime_ms=374206 age_pub=0 state=ERROR fault=overrun cap_ms=374081
+S5PROD frame_id=52 n=2 status=0x3 sid=28231 seq=52 rtime_ms=374235 age_pub=0 state=ERROR fault=overrun cap_ms=374210
+S5PROD frame_id=53 n=3 status=0x3 sid=28231 seq=53 rtime_ms=374364 age_pub=0 state=ERROR fault=overrun cap_ms=374239
+S5PROD frame_id=54 n=1 status=0x3 sid=28231 seq=54 rtime_ms=374393 age_pub=0 state=ERROR fault=overrun cap_ms=374369
+S5PROD frame_id=55 n=2 status=0x3 sid=28231 seq=55 rtime_ms=374522 age_pub=0 state=ERROR fault=overrun cap_ms=374398
+S5PROD frame_id=56 n=3 status=0x3 sid=28231 seq=56 rtime_ms=374551 age_pub=0 state=ERROR fault=overrun cap_ms=374527
+S5PROD frame_id=57 n=1 status=0x3 sid=28231 seq=57 rtime_ms=374680 age_pub=0 state=ERROR fault=overrun cap_ms=374556
+S5PROD frame_id=58 n=2 status=0x3 sid=28231 seq=58 rtime_ms=374709 age_pub=0 state=ERROR fault=overrun cap_ms=374685
+S5PROD frame_id=59 n=3 status=0x3 sid=28231 seq=59 rtime_ms=374838 age_pub=0 state=ERROR fault=overrun cap_ms=374714
+S5DISP frame=60 lat=122 age=129 st=8F sr=15090 src=real nbox=3
+S5PROD frame_id=60 n=1 status=0x3 sid=28231 seq=60 rtime_ms=374867 age_pub=0 state=ERROR fault=overrun cap_ms=374843
+S5CONS sid=28231 seq=60 n=1 status=0x3 age_pub=10 state=ERROR seqlock=120
+S5PROD frame_id=61 n=2 status=0x3 sid=28231 seq=61 rtime_ms=375008 age_pub=0 state=ERROR fault=overrun cap_ms=374884
+S5PROD frame_id=62 n=3 status=0x3 sid=28231 seq=62 rtime_ms=375038 age_pub=0 state=ERROR fault=overrun cap_ms=375013
+S5PROD frame_id=63 n=1 status=0x3 sid=28231 seq=63 rtime_ms=375167 age_pub=0 state=ERROR fault=overrun cap_ms=375042
+S5PROD frame_id=64 n=2 status=0x3 sid=28231 seq=64 rtime_ms=375196 age_pub=0 state=ERROR fault=overrun cap_ms=375171
+S5PROD frame_id=65 n=3 status=0x3 sid=28231 seq=65 rtime_ms=375325 age_pub=0 state=ERROR fault=overrun cap_ms=375200
+S5PROD frame_id=66 n=1 status=0x3 sid=28231 seq=66 rtime_ms=375354 age_pub=0 state=ERROR fault=overrun cap_ms=375329
+S5PROD frame_id=67 n=2 status=0x3 sid=28231 seq=67 rtime_ms=375483 age_pub=0 state=ERROR fault=overrun cap_ms=375358
+S5PROD frame_id=68 n=3 status=0x3 sid=28231 seq=68 rtime_ms=375512 age_pub=0 state=ERROR fault=overrun cap_ms=375487
+S5PROD frame_id=69 n=1 status=0x3 sid=28231 seq=69 rtime_ms=375641 age_pub=0 state=ERROR fault=overrun cap_ms=375516
+S5PROD frame_id=70 n=2 status=0x3 sid=28231 seq=70 rtime_ms=375670 age_pub=0 state=ERROR fault=overrun cap_ms=375646
+S5PROD frame_id=71 n=3 status=0x3 sid=28231 seq=71 rtime_ms=375799 age_pub=0 state=ERROR fault=overrun cap_ms=375675
+S5PROD frame_id=72 n=1 status=0x3 sid=28231 seq=72 rtime_ms=375828 age_pub=0 state=ERROR fault=overrun cap_ms=375804
+S5PROD frame_id=73 n=2 status=0x3 sid=28231 seq=73 rtime_ms=375957 age_pub=0 state=ERROR fault=overrun cap_ms=375833
+S5PROD frame_id=74 n=3 status=0x3 sid=28231 seq=74 rtime_ms=375986 age_pub=0 state=ERROR fault=overrun cap_ms=375962
+S5PROD frame_id=75 n=1 status=0x3 sid=28231 seq=75 rtime_ms=376115 age_pub=0 state=ERROR fault=overrun cap_ms=375991
+S5PROD frame_id=76 n=2 status=0x3 sid=28231 seq=76 rtime_ms=376144 age_pub=0 state=ERROR fault=overrun cap_ms=376120
+S5PROD frame_id=77 n=3 status=0x3 sid=28231 seq=77 rtime_ms=376273 age_pub=0 state=ERROR fault=overrun cap_ms=376149
+S5PROD frame_id=78 n=1 status=0x3 sid=28231 seq=78 rtime_ms=376303 age_pub=0 state=ERROR fault=overrun cap_ms=376278
+S5PROD frame_id=79 n=2 status=0x3 sid=28231 seq=79 rtime_ms=376432 age_pub=0 state=ERROR fault=overrun cap_ms=376307
+S5PROD frame_id=80 n=3 status=0x3 sid=28231 seq=80 rtime_ms=376461 age_pub=0 state=ERROR fault=overrun cap_ms=376436
+S5PROD frame_id=81 n=1 status=0x3 sid=28231 seq=81 rtime_ms=376590 age_pub=0 state=ERROR fault=overrun cap_ms=376465
+S5PROD frame_id=82 n=2 status=0x3 sid=28231 seq=82 rtime_ms=376619 age_pub=0 state=ERROR fault=overrun cap_ms=376594
+S5PROD frame_id=83 n=3 status=0x3 sid=28231 seq=83 rtime_ms=376748 age_pub=0 state=ERROR fault=overrun cap_ms=376623
+S5PROD frame_id=84 n=1 status=0x3 sid=28231 seq=84 rtime_ms=376777 age_pub=0 state=ERROR fault=overrun cap_ms=376752
+S5PROD frame_id=85 n=2 status=0x3 sid=28231 seq=85 rtime_ms=376906 age_pub=0 state=ERROR fault=overrun cap_ms=376782
+S5PROD frame_id=86 n=3 status=0x3 sid=28231 seq=86 rtime_ms=376935 age_pub=0 state=ERROR fault=overrun cap_ms=376911
+S5PROD frame_id=87 n=1 status=0x3 sid=28231 seq=87 rtime_ms=377064 age_pub=0 state=ERROR fault=overrun cap_ms=376940
+S5PROD frame_id=88 n=2 status=0x3 sid=28231 seq=88 rtime_ms=377093 age_pub=0 state=ERROR fault=overrun cap_ms=377069
+S5PROD frame_id=89 n=3 status=0x3 sid=28231 seq=89 rtime_ms=377222 age_pub=0 state=ERROR fault=overrun cap_ms=377098
+S5PROD frame_id=90 n=1 status=0x3 sid=28231 seq=90 rtime_ms=377251 age_pub=0 state=ERROR fault=overrun cap_ms=377227
+S5PROD frame_id=91 n=2 status=0x3 sid=28231 seq=91 rtime_ms=377380 age_pub=0 state=ERROR fault=overrun cap_ms=377256
+S5PROD frame_id=92 n=3 status=0x3 sid=28231 seq=92 rtime_ms=377409 age_pub=0 state=ERROR fault=overrun cap_ms=377385
+S5PROD frame_id=93 n=1 status=0x3 sid=28231 seq=93 rtime_ms=377538 age_pub=0 state=ERROR fault=overrun cap_ms=377414
+S5PROD frame_id=94 n=2 status=0x3 sid=28231 seq=94 rtime_ms=377567 age_pub=0 state=ERROR fault=overrun cap_ms=377543
+S5PROD frame_id=95 n=3 status=0x3 sid=28231 seq=95 rtime_ms=377696 age_pub=0 state=ERROR fault=overrun cap_ms=377572
+S5PROD frame_id=96 n=1 status=0x3 sid=28231 seq=96 rtime_ms=377726 age_pub=0 state=ERROR fault=overrun cap_ms=377701
+S5PROD frame_id=97 n=2 status=0x3 sid=28231 seq=97 rtime_ms=377854 age_pub=0 state=ERROR fault=overrun cap_ms=377730
+S5PROD frame_id=98 n=3 status=0x3 sid=28231 seq=98 rtime_ms=377884 age_pub=0 state=ERROR fault=overrun cap_ms=377859
+S5PROD frame_id=99 n=1 status=0x3 sid=28231 seq=99 rtime_ms=378013 age_pub=0 state=ERROR fault=overrun cap_ms=377888
+S5PROD frame_id=100 n=2 status=0x3 sid=28231 seq=100 rtime_ms=378042 age_pub=0 state=ERROR fault=overrun cap_ms=378017
+S5PROD frame_id=101 n=3 status=0x3 sid=28231 seq=101 rtime_ms=378171 age_pub=0 state=ERROR fault=overrun cap_ms=378046
+S5PROD frame_id=102 n=1 status=0x3 sid=28231 seq=102 rtime_ms=378200 age_pub=0 state=ERROR fault=overrun cap_ms=378176
+S5PROD frame_id=103 n=2 status=0x3 sid=28231 seq=103 rtime_ms=378329 age_pub=0 state=ERROR fault=overrun cap_ms=378205
+S5PROD frame_id=104 n=3 status=0x3 sid=28231 seq=104 rtime_ms=378359 age_pub=0 state=ERROR fault=overrun cap_ms=378334
+S5PROD frame_id=105 n=1 status=0x3 sid=28231 seq=105 rtime_ms=378488 age_pub=0 state=ERROR fault=overrun cap_ms=378363
+S5PROD frame_id=106 n=2 status=0x3 sid=28231 seq=106 rtime_ms=378517 age_pub=0 state=ERROR fault=overrun cap_ms=378493
+S5PROD frame_id=107 n=3 status=0x3 sid=28231 seq=107 rtime_ms=378646 age_pub=0 state=ERROR fault=overrun cap_ms=378522
+S5PROD frame_id=108 n=1 status=0x3 sid=28231 seq=108 rtime_ms=378676 age_pub=0 state=ERROR fault=overrun cap_ms=378651
+S5PROD frame_id=109 n=2 status=0x3 sid=28231 seq=109 rtime_ms=378805 age_pub=0 state=ERROR fault=overrun cap_ms=378680
+S5PROD frame_id=110 n=3 status=0x3 sid=28231 seq=110 rtime_ms=378834 age_pub=0 state=ERROR fault=overrun cap_ms=378810
+S5PROD frame_id=111 n=1 status=0x3 sid=28231 seq=111 rtime_ms=378963 age_pub=0 state=ERROR fault=overrun cap_ms=378839
+S5PROD frame_id=112 n=2 status=0x3 sid=28231 seq=112 rtime_ms=378992 age_pub=0 state=ERROR fault=overrun cap_ms=378968
+S5PROD frame_id=113 n=3 status=0x3 sid=28231 seq=113 rtime_ms=379122 age_pub=0 state=ERROR fault=overrun cap_ms=378997
+S5PROD frame_id=114 n=1 status=0x3 sid=28231 seq=114 rtime_ms=379151 age_pub=0 state=ERROR fault=overrun cap_ms=379126
+S5PROD frame_id=115 n=2 status=0x3 sid=28231 seq=115 rtime_ms=379280 age_pub=0 state=ERROR fault=overrun cap_ms=379156
+S5PROD frame_id=116 n=3 status=0x3 sid=28231 seq=116 rtime_ms=379309 age_pub=0 state=ERROR fault=overrun cap_ms=379285
+S5PROD frame_id=117 n=1 status=0x3 sid=28231 seq=117 rtime_ms=379439 age_pub=0 state=ERROR fault=overrun cap_ms=379314
+S5PROD frame_id=118 n=2 status=0x3 sid=28231 seq=118 rtime_ms=379468 age_pub=0 state=ERROR fault=overrun cap_ms=379443
+S5PROD frame_id=119 n=3 status=0x3 sid=28231 seq=119 rtime_ms=379597 age_pub=0 state=ERROR fault=overrun cap_ms=379473
+S5DISP frame=120 lat=122 age=129 st=8F sr=15090 src=real nbox=3
+S5PROD frame_id=120 n=1 status=0x3 sid=28231 seq=120 rtime_ms=379626 age_pub=0 state=ERROR fault=overrun cap_ms=379602
+S5CONS sid=28231 seq=120 n=1 status=0x3 age_pub=10 state=ERROR seqlock=240
+S5PROD frame_id=121 n=2 status=0x3 sid=28231 seq=121 rtime_ms=379768 age_pub=0 state=ERROR fault=overrun cap_ms=379643
+S5PROD frame_id=122 n=3 status=0x3 sid=28231 seq=122 rtime_ms=379797 age_pub=0 state=ERROR fault=overrun cap_ms=379773
+S5PROD frame_id=123 n=1 status=0x3 sid=28231 seq=123 rtime_ms=379926 age_pub=0 state=ERROR fault=overrun cap_ms=379802
+S5PROD frame_id=124 n=2 status=0x3 sid=28231 seq=124 rtime_ms=379956 age_pub=0 state=ERROR fault=overrun cap_ms=379931
+S5PROD frame_id=125 n=3 status=0x3 sid=28231 seq=125 rtime_ms=380085 age_pub=0 state=ERROR fault=overrun cap_ms=379960
+S5PROD frame_id=126 n=1 status=0x3 sid=28231 seq=126 rtime_ms=380114 age_pub=0 state=ERROR fault=overrun cap_ms=380089
+S5PROD frame_id=127 n=2 status=0x3 sid=28231 seq=127 rtime_ms=380243 age_pub=0 state=ERROR fault=overrun cap_ms=380119
+S5PROD frame_id=128 n=3 status=0x3 sid=28231 seq=128 rtime_ms=380272 age_pub=0 state=ERROR fault=overrun cap_ms=380248
+S5PROD frame_id=129 n=1 status=0x3 sid=28231 seq=129 rtime_ms=380402 age_pub=0 state=ERROR fault=overrun cap_ms=380277
+S5PROD frame_id=130 n=2 status=0x3 sid=28231 seq=130 rtime_ms=380431 age_pub=0 state=ERROR fault=overrun cap_ms=380407
+S5PROD frame_id=131 n=3 status=0x3 sid=28231 seq=131 rtime_ms=380560 age_pub=0 state=ERROR fault=overrun cap_ms=380436
+S5PROD frame_id=132 n=1 status=0x3 sid=28231 seq=132 rtime_ms=380589 age_pub=0 state=ERROR fault=overrun cap_ms=380565
+S5PROD frame_id=133 n=2 status=0x3 sid=28231 seq=133 rtime_ms=380719 age_pub=0 state=ERROR fault=overrun cap_ms=380594
+S5PROD frame_id=134 n=3 status=0x3 sid=28231 seq=134 rtime_ms=380748 age_pub=0 state=ERROR fault=overrun cap_ms=380723
+S5PROD frame_id=135 n=1 status=0x3 sid=28231 seq=135 rtime_ms=380877 age_pub=0 state=ERROR fault=overrun cap_ms=380753
+S5PROD frame_id=136 n=2 status=0x3 sid=28231 seq=136 rtime_ms=380906 age_pub=0 state=ERROR fault=overrun cap_ms=380882
+S5PROD frame_id=137 n=3 status=0x3 sid=28231 seq=137 rtime_ms=381036 age_pub=0 state=ERROR fault=overrun cap_ms=380911
+S5PROD frame_id=138 n=1 status=0x3 sid=28231 seq=138 rtime_ms=381065 age_pub=0 state=ERROR fault=overrun cap_ms=381040
+S5PROD frame_id=139 n=2 status=0x3 sid=28231 seq=139 rtime_ms=381194 age_pub=0 state=ERROR fault=overrun cap_ms=381070
+S5PROD frame_id=140 n=3 status=0x3 sid=28231 seq=140 rtime_ms=381223 age_pub=0 state=ERROR fault=overrun cap_ms=381199
+S5PROD frame_id=141 n=1 status=0x3 sid=28231 seq=141 rtime_ms=381353 age_pub=0 state=ERROR fault=overrun cap_ms=381228
+S5PROD frame_id=142 n=2 status=0x3 sid=28231 seq=142 rtime_ms=381382 age_pub=0 state=ERROR fault=overrun cap_ms=381357
+S5PROD frame_id=143 n=3 status=0x3 sid=28231 seq=143 rtime_ms=381511 age_pub=0 state=ERROR fault=overrun cap_ms=381386
+S5PROD frame_id=144 n=1 status=0x3 sid=28231 seq=144 rtime_ms=381540 age_pub=0 state=ERROR fault=overrun cap_ms=381516
+S5PROD frame_id=145 n=2 status=0x3 sid=28231 seq=145 rtime_ms=381669 age_pub=0 state=ERROR fault=overrun cap_ms=381545
+S5PROD frame_id=146 n=3 status=0x3 sid=28231 seq=146 rtime_ms=381699 age_pub=0 state=ERROR fault=overrun cap_ms=381674
+S5PROD frame_id=147 n=1 status=0x3 sid=28231 seq=147 rtime_ms=381828 age_pub=0 state=ERROR fault=overrun cap_ms=381703
+S5PROD frame_id=148 n=2 status=0x3 sid=28231 seq=148 rtime_ms=381857 age_pub=0 state=ERROR fault=overrun cap_ms=381833
+S5PROD frame_id=149 n=3 status=0x3 sid=28231 seq=149 rtime_ms=381986 age_pub=0 state=ERROR fault=overrun cap_ms=381862
+S5PROD frame_id=150 n=1 status=0x3 sid=28231 seq=150 rtime_ms=382016 age_pub=0 state=ERROR fault=overrun cap_ms=381991
+S5PROD frame_id=151 n=2 status=0x3 sid=28231 seq=151 rtime_ms=382145 age_pub=0 state=ERROR fault=overrun cap_ms=382020
+S5PROD frame_id=152 n=3 status=0x3 sid=28231 seq=152 rtime_ms=382174 age_pub=0 state=ERROR fault=overrun cap_ms=382149
+S5PROD frame_id=153 n=1 status=0x3 sid=28231 seq=153 rtime_ms=382303 age_pub=0 state=ERROR fault=overrun cap_ms=382179
+S5PROD frame_id=154 n=2 status=0x3 sid=28231 seq=154 rtime_ms=382332 age_pub=0 state=ERROR fault=overrun cap_ms=382308
+S5PROD frame_id=155 n=3 status=0x3 sid=28231 seq=155 rtime_ms=382462 age_pub=0 state=ERROR fault=overrun cap_ms=382337
+S5PROD frame_id=156 n=1 status=0x3 sid=28231 seq=156 rtime_ms=382491 age_pub=0 state=ERROR fault=overrun cap_ms=382466
+S5PROD frame_id=157 n=2 status=0x3 sid=28231 seq=157 rtime_ms=382620 age_pub=0 state=ERROR fault=overrun cap_ms=382496
+S5PROD frame_id=158 n=3 status=0x3 sid=28231 seq=158 rtime_ms=382649 age_pub=0 state=ERROR fault=overrun cap_ms=382625
+S5PROD frame_id=159 n=1 status=0x3 sid=28231 seq=159 rtime_ms=382779 age_pub=0 state=ERROR fault=overrun cap_ms=382654
+S5PROD frame_id=160 n=2 status=0x3 sid=28231 seq=160 rtime_ms=382808 age_pub=0 state=ERROR fault=overrun cap_ms=382783
+S5PROD frame_id=161 n=3 status=0x3 sid=28231 seq=161 rtime_ms=382937 age_pub=0 state=ERROR fault=overrun cap_ms=382813
+S5PROD frame_id=162 n=1 status=0x3 sid=28231 seq=162 rtime_ms=382966 age_pub=0 state=ERROR fault=overrun cap_ms=382942
+S5PROD frame_id=163 n=2 status=0x3 sid=28231 seq=163 rtime_ms=383095 age_pub=0 state=ERROR fault=overrun cap_ms=382971
+S5PROD frame_id=164 n=3 status=0x3 sid=28231 seq=164 rtime_ms=383125 age_pub=0 state=ERROR fault=overrun cap_ms=383100
+S5PROD frame_id=165 n=1 status=0x3 sid=28231 seq=165 rtime_ms=383254 age_pub=0 state=ERROR fault=overrun cap_ms=383129
+S5PROD frame_id=166 n=2 status=0x3 sid=28231 seq=166 rtime_ms=383283 age_pub=0 state=ERROR fault=overrun cap_ms=383259
+S5PROD frame_id=167 n=3 status=0x3 sid=28231 seq=167 rtime_ms=383412 age_pub=0 state=ERROR fault=overrun cap_ms=383288
+S5PROD frame_id=168 n=1 status=0x3 sid=28231 seq=168 rtime_ms=383442 age_pub=0 state=ERROR fault=overrun cap_ms=383417
+S5PROD frame_id=169 n=2 status=0x3 sid=28231 seq=169 rtime_ms=383571 age_pub=0 state=ERROR fault=overrun cap_ms=383446
+S5PROD frame_id=170 n=3 status=0x3 sid=28231 seq=170 rtime_ms=383600 age_pub=0 state=ERROR fault=overrun cap_ms=383575
+S5PROD frame_id=171 n=1 status=0x3 sid=28231 seq=171 rtime_ms=383729 age_pub=0 state=ERROR fault=overrun cap_ms=383605
+S5PROD frame_id=172 n=2 status=0x3 sid=28231 seq=172 rtime_ms=383758 age_pub=0 state=ERROR fault=overrun cap_ms=383734
+S5PROD frame_id=173 n=3 status=0x3 sid=28231 seq=173 rtime_ms=383888 age_pub=0 state=ERROR fault=overrun cap_ms=383763
+S5PROD frame_id=174 n=1 status=0x3 sid=28231 seq=174 rtime_ms=383917 age_pub=0 state=ERROR fault=overrun cap_ms=383892
+S5PROD frame_id=175 n=2 status=0x3 sid=28231 seq=175 rtime_ms=384046 age_pub=0 state=ERROR fault=overrun cap_ms=383922
+S5PROD frame_id=176 n=3 status=0x3 sid=28231 seq=176 rtime_ms=384075 age_pub=0 state=ERROR fault=overrun cap_ms=384051
+S5PROD frame_id=177 n=1 status=0x3 sid=28231 seq=177 rtime_ms=384205 age_pub=0 state=ERROR fault=overrun cap_ms=384080
+S5PROD frame_id=178 n=2 status=0x3 sid=28231 seq=178 rtime_ms=384234 age_pub=0 state=ERROR fault=overrun cap_ms=384209
+S5PROD frame_id=179 n=3 status=0x3 sid=28231 seq=179 rtime_ms=384363 age_pub=0 state=ERROR fault=overrun cap_ms=384239
+S5DISP frame=180 lat=122 age=129 st=8F sr=15090 src=real nbox=3
+S5PROD frame_id=180 n=1 status=0x3 sid=28231 seq=180 rtime_ms=384392 age_pub=0 state=ERROR fault=overrun cap_ms=384368
+S5CONS sid=28231 seq=180 n=1 status=0x3 age_pub=10 state=ERROR seqlock=360
+UF GPIO frame@43C50000=523254 total@43C50008=1144228885
+S5DISP boxes n=3 crc=88657459 hex=AF 48 78 69 2C8 154 A5 87 22F 63 D2 A5
+S5DISP done frames=180 vcnt=1(sw) vdma_err=180 idle_fps=0 idle_us=0
+S5DISP RESULT={"pass":0,"fps_cap":12,"fps_inf":12,"fps_dis":0,"fps_upd":12,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":122,"age_ms":129,"vdma_err":180,"frames":180,"vcnt":1,"box_crc":88657459,"fb_crc":185288474,"uf_pix":1144228885,"uf_frame":523254,"uf_total":1144228885,"src":"real","reason":"vdma_error"}

@@ -1,0 +1,149 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e2_frame_period_20261030_r04",
+  "mode": "e2_frame_period_idleprobe",
+  "started_utc8": "2026-10-30T22:13:12+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "7357c3e52228fcd0eb732b770f200561a2d0dec05c74e03b69c90a1f732563fe"
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy": [],
+      "blockers": []
+    },
+    "S3_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "a": "PASS",
+      "fpga_exit": 0,
+      "f": "PASS"
+    },
+    "S6_load_elf": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_uart_result": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "lines": 8,
+      "result_line": null,
+      "parsed": {}
+    },
+    "S9_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "E2-1",
+          "desc": "idle_period_us ≈ 16,667 µs ±1%（60 Hz）",
+          "pass": false,
+          "detail": {
+            "idle_period_us": null,
+            "expect_us": 16666.67
+          }
+        },
+        {
+          "id": "E2-2",
+          "desc": "fps_dis_idle = 60（±1）",
+          "pass": false,
+          "detail": {
+            "fps_dis_idle": null
+          }
+        },
+        {
+          "id": "E2-3",
+          "desc": "RESULT 可解析且 GT 开窗/收窗读数成功",
+          "pass": false,
+          "detail": {
+            "gt_start": {
+              "low": 3814490530,
+              "high": 304,
+              "value": 1309484548514
+            },
+            "gt_end": {
+              "low": null,
+              "high": null,
+              "value": null
+            }
+          }
+        }
+      ]
+    },
+    "S8_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 33300,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "禁 rst -system；不写候选区；零残留",
+  "note": "P 口径 = idleprobe 空闲期显示刷新周期 idle_period_us（60 Hz）；UART 帧计数为 30 fps 更新节拍，不用作 P",
+  "gt_start": {
+    "low": 3814490530,
+    "high": 304,
+    "value": 1309484548514
+  },
+  "result_line": null,
+  "parsed": {},
+  "gt_end": {
+    "low": null,
+    "high": null,
+    "value": null
+  },
+  "criteria": [
+    {
+      "id": "E2-1",
+      "desc": "idle_period_us ≈ 16,667 µs ±1%（60 Hz）",
+      "pass": false,
+      "detail": {
+        "idle_period_us": null,
+        "expect_us": 16666.67
+      }
+    },
+    {
+      "id": "E2-2",
+      "desc": "fps_dis_idle = 60（±1）",
+      "pass": false,
+      "detail": {
+        "fps_dis_idle": null
+      }
+    },
+    {
+      "id": "E2-3",
+      "desc": "RESULT 可解析且 GT 开窗/收窗读数成功",
+      "pass": false,
+      "detail": {
+        "gt_start": {
+          "low": 3814490530,
+          "high": 304,
+          "value": 1309484548514
+        },
+        "gt_end": {
+          "low": null,
+          "high": null,
+          "value": null
+        }
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "S6E_E2_FRAME_PERIOD_FAIL",
+  "finished_utc8": "2026-10-30T22:14:43+08:00",
+  "stop_reason": "判据 FAIL",
+  "teardown_ok": true
+}

@@ -1,0 +1,17 @@
+# 阶段6 E2 窗口（安全流程，零 rst）
+
+- RunId：`s6e_e2_frame_period_20261030_r09`
+- 开窗：2026-10-30T22:44:06+08:00；收窗：2026-10-30T22:45:01+08:00
+- 结论：**S6E_E2_FAIL**
+- stop_reason：判据 FAIL
+- 位流（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF：sha256=cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577（expect cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577）
+
+- E2-1 fps_dis=60：**FAIL** {"fps_dis": null}
+- E2-2 read period ≈16,667 µs ±1%：**FAIL** {"period_us": null}
+- E2-3 S5DISP 帧行 ≥1：**FAIL** {"disp_lines": 0}
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 流程：hw_server→loadhw→stop→ps7_init→0xA→fpga→0xF→PL 只读探测→load_elf→采集→stop（零 rst）
+- 边界：禁 rst -system；未写候选区；未烧 QSPI

@@ -1,0 +1,9 @@
+$ cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ "*Cortex-A9*#0*"}; mwr 0xf8000008 0xdf0d; mwr 0xf8000900 0xa; mwr 0xf8000240 0x0; mwr 0xf8000004 0x767b; set _rb [mrd -value 0xf8000900]; set _rb2 [mrd -value 0xf8000240]; puts {PPL_LVL_RB}; puts $_rb; puts {PPL_LVL_RB_RST}; puts $_rb2; if {$_rb == 10} { puts {PPL_LVL_RB_OK} } else { puts {PPL_LVL_RB_BAD} }; if {$_rb2 == 0} { puts {PPL_LVL_RB_RST_OK} } else { puts {PPL_LVL_RB_RST_BAD} }; disconnect; exit
+exit=0 elapsed=0.755
+PPL_LVL_RB
+10
+PPL_LVL_RB_RST
+0
+PPL_LVL_RB_OK
+PPL_LVL_RB_RST_OK
+

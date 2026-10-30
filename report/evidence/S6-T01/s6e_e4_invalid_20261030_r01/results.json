@@ -1,0 +1,210 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e4_invalid_20261030_r01",
+  "mode": "e4",
+  "started_utc8": "2026-10-30T23:16:34+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "3d1d78c45139931d9cfeac67a248c07f2149d25135d01af8201694ec4a0cd3da"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "tail": "0 elapsed=2.208\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 1 seconds\nLOADHW_OK\nSTOP0_ERR Already stopped\nSTOP1_ERR Already stopped\n\n"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "a": "PASS",
+      "f": "PASS"
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "csr2b": "0x53324250",
+      "vdma_version": "0x62000050",
+      "vdma_cr": "0x10002",
+      "expect": {
+        "csr2b": "0x53324250",
+        "vdma_version": "0x62000050"
+      }
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0,
+      "single_init": true,
+      "note": "dow -force app → 内联 0xF → con；不跑 init.elf/不 rst"
+    },
+    "S6b_watchdog": {
+      "status": "PASS",
+      "exit_code": 0,
+      "saw_vdma_init_ok": true,
+      "lines": 12,
+      "tail": [
+        "VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）",
+        "TEST PATTERN DRAWN: bars8+border+cross",
+        "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+        "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)",
+        "VDMA: WARN 读帧存切换周期测不到（READSTR 不动）→ fps_dis=0（不虚填）",
+        "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)"
+      ]
+    },
+    "S8_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "E4-1",
+          "desc": "state 与映射一致（期望 ERROR）",
+          "pass": true,
+          "detail": {
+            "expect": "ERROR",
+            "states": [
+              "ERROR"
+            ]
+          }
+        },
+        {
+          "id": "E4-2",
+          "desc": "收到 S5CONS/S5PROD 证据行",
+          "pass": true,
+          "detail": {
+            "cons": 3,
+            "prod": 181
+          }
+        },
+        {
+          "id": "E4-3",
+          "desc": "status 字段可读",
+          "pass": true,
+          "detail": {
+            "status_values": [
+              "0x0"
+            ]
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 55548,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst：只用 stop(halt)；先 ps7_init 再配 PL；DAP/halt 异常立即停手；不写候选区",
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_fault_invalid.elf",
+    "sha": "3d1d78c45139931d9cfeac67a248c07f2149d25135d01af8201694ec4a0cd3da",
+    "expect": "3d1d78c45139931d9cfeac67a248c07f2149d25135d01af8201694ec4a0cd3da"
+  },
+  "uart_lines": 204,
+  "criteria": [
+    {
+      "id": "E4-1",
+      "desc": "state 与映射一致（期望 ERROR）",
+      "pass": true,
+      "detail": {
+        "expect": "ERROR",
+        "states": [
+          "ERROR"
+        ]
+      }
+    },
+    {
+      "id": "E4-2",
+      "desc": "收到 S5CONS/S5PROD 证据行",
+      "pass": true,
+      "detail": {
+        "cons": 3,
+        "prod": 181
+      }
+    },
+    {
+      "id": "E4-3",
+      "desc": "status 字段可读",
+      "pass": true,
+      "detail": {
+        "status_values": [
+          "0x0"
+        ]
+      }
+    }
+  ],
+  "parsed": {
+    "cons_count": 3,
+    "prod_count": 181,
+    "last_cons": [
+      {
+        "sid": "20460",
+        "seq": "60",
+        "n": "1",
+        "status": "0x0",
+        "age_pub": "10",
+        "state": "ERROR",
+        "seqlock": "120"
+      },
+      {
+        "sid": "20460",
+        "seq": "120",
+        "n": "1",
+        "status": "0x0",
+        "age_pub": "10",
+        "state": "ERROR",
+        "seqlock": "240"
+      },
+      {
+        "sid": "20460",
+        "seq": "180",
+        "n": "1",
+        "status": "0x0",
+        "age_pub": "10",
+        "state": "ERROR",
+        "seqlock": "360"
+      }
+    ],
+    "ages": [
+      10,
+      10,
+      10
+    ],
+    "seqlocks": [
+      120,
+      240,
+      360
+    ],
+    "seqs": [
+      60,
+      120,
+      180
+    ],
+    "sids": [
+      "20460"
+    ],
+    "states": [
+      "ERROR"
+    ]
+  },
+  "criterion_ok": true,
+  "conclusion": "S6E_E4_OK",
+  "finished_utc8": "2026-10-30T23:17:37+08:00",
+  "stop_reason": null,
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

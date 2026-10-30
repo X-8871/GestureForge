@@ -1,0 +1,19 @@
+# 阶段6 E5 窗口（安全流程，零 rst）
+
+- RunId：`s6e_e5_longrun_20261030_r02`
+- 开窗：2026-10-30T23:24:53+08:00；收窗：2026-10-30T23:55:16+08:00
+- 结论：**S6E_E5_FAIL**
+- stop_reason：判据 FAIL
+- 位流（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF：sha256=97c33f58b974e4ff805debc4a7683617e77852f81ab9b3f0d90cead775975e79（expect 97c33f58b974e4ff805debc4a7683617e77852f81ab9b3f0d90cead775975e79）
+
+- E5-1 sid 恒定：**PASS** {"sids": ["2761"]}
+- E5-2 seq 连续递增（differences 为均匀步长）：**PASS** {"seq_first_last": [60, 22680], "diffs": [60]}
+- E5-3 age_pub 不增长（max-min ≤20）：**PASS** {"ages": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]}
+- E5-4 vdma_err=0 且无死锁（有 tick/帧行）：**FAIL** {"errs": [3695185], "ticks": 29, "frames": 378}
+- E5-5 每 300 s 欠载采样 ≥2 点且不增长：**FAIL** {"uf_series": [{"t_s": 309.6, "uf": 178699462}, {"t_s": 602.4, "uf": 3477779413}, {"t_s": 902.4, "uf": 2878974905}, {"t_s": 1202.3, "uf": 2277733156}, {"t_s": 1502.5, "uf": 1688513787}]}
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 流程：hw_server→loadhw→stop→ps7_init→0xA→fpga→0xF→PL 只读探测→load_elf→采集→stop（零 rst）
+- 边界：禁 rst -system；未写候选区；未烧 QSPI

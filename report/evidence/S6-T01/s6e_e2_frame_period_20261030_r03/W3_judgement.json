@@ -1,0 +1,113 @@
+{
+  "criteria": [
+    {
+      "id": "E2-1",
+      "desc": "P ≈ 16667 µs ±1%（60 Hz）",
+      "pass": false,
+      "detail": {
+        "method": "uart-frame-slope(30fps 更新节拍，低置信度)",
+        "p_us": 33364.67,
+        "min_us": null,
+        "max_us": null,
+        "std_us": null,
+        "samples": 59,
+        "detail": {
+          "frmcnt": {
+            "samples": 1500,
+            "edges": 0,
+            "values": [
+              1
+            ]
+          },
+          "uart": {
+            "first": [
+              1793369378.5163274,
+              60
+            ],
+            "last": [
+              1793369494.6253726,
+              3540
+            ],
+            "frames_delta": 3480,
+            "wall_s": 116.109,
+            "p_update_us": 33364.67,
+            "implied_update_fps": 29.972
+          }
+        },
+        "detail_extra": "FRMCNT 未产生足够帧沿（<50）；该计数为 30 fps 更新，60 Hz 显示周期需另设 60Hz 计数器"
+      }
+    },
+    {
+      "id": "E2-2",
+      "desc": "采集到运行期数据（UART/PARKPTR 至少一路）",
+      "pass": true,
+      "detail": {
+        "uart_pairs": 59,
+        "park_samples": 1500
+      }
+    },
+    {
+      "id": "E2-3",
+      "desc": "GT 开窗/收窗读数成功（速率校验可用）",
+      "pass": true,
+      "detail": {
+        "start": {
+          "low": 2688634585,
+          "high": 286,
+          "value": 1231049281241
+        },
+        "end": {
+          "low": 1117166196,
+          "high": 298,
+          "value": 1281017420404
+        },
+        "rate": {
+          "gt_delta_ticks": 49968139163,
+          "gt_elapsed_s": 149.904,
+          "wall_elapsed_s_approx": 120.0,
+          "note": "host wall 时间未精确记录（含 load/con 与采样开销）"
+        }
+      }
+    }
+  ],
+  "verdict": "S6E_E2_FRAME_PERIOD_PENDING_60HZ_COUNTER",
+  "p_estimate": {
+    "method": "uart-frame-slope(30fps 更新节拍，低置信度)",
+    "p_us": 33364.67,
+    "min_us": null,
+    "max_us": null,
+    "std_us": null,
+    "samples": 59,
+    "detail": {
+      "frmcnt": {
+        "samples": 1500,
+        "edges": 0,
+        "values": [
+          1
+        ]
+      },
+      "uart": {
+        "first": [
+          1793369378.5163274,
+          60
+        ],
+        "last": [
+          1793369494.6253726,
+          3540
+        ],
+        "frames_delta": 3480,
+        "wall_s": 116.109,
+        "p_update_us": 33364.67,
+        "implied_update_fps": 29.972
+      }
+    },
+    "detail_extra": "FRMCNT 未产生足够帧沿（<50）；该计数为 30 fps 更新，60 Hz 显示周期需另设 60Hz 计数器"
+  },
+  "gt_rate": {
+    "gt_delta_ticks": 49968139163,
+    "gt_elapsed_s": 149.904,
+    "wall_elapsed_s_approx": 120.0,
+    "note": "host wall 时间未精确记录（含 load/con 与采样开销）"
+  },
+  "utc8": "2026-10-30T22:12:00+08:00"
+}

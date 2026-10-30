@@ -1,0 +1,6 @@
+$ cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ "*Cortex-A9*#0*"}; if {[catch {loadhw -hw D:/tmp/lead/p3q_video_20261030_r01/out/s4d_p3q_r01.xsa -mem-ranges {0x00000000 0x7FFFFFFF}} e]} { puts "LH_ERR $e" } { puts LH_OK }; if {[catch {puts "UF [mrd -value 0x43c50008]"} e]} { puts "UF_ERR $e" }; disconnect; exit
+exit=0 elapsed=2.203
+INFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds
+LH_OK
+UF 3477779413
+

@@ -1,0 +1,150 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e2_frame_period_20261030_r12",
+  "mode": "e2",
+  "started_utc8": "2026-10-30T23:11:22+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "tail": "0 elapsed=2.245\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds\nLOADHW_OK\nSTOP0_ERR Already stopped\nSTOP1_ERR Already stopped\n\n"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "a": "PASS",
+      "f": "PASS"
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "csr2b": "0x53324250",
+      "vdma_version": "0x62000050",
+      "vdma_cr": "0x10002",
+      "expect": {
+        "csr2b": "0x53324250",
+        "vdma_version": "0x62000050"
+      }
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0,
+      "single_init": true,
+      "note": "dow -force app → 内联 0xF → con；不跑 init.elf/不 rst"
+    },
+    "S6b_watchdog": {
+      "status": "PASS",
+      "exit_code": 0,
+      "saw_vdma_init_ok": true,
+      "lines": 12,
+      "tail": [
+        "VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）",
+        "TEST PATTERN DRAWN: bars8+border+cross",
+        "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+        "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)",
+        "VDMA: WARN 读帧存切换周期测不到（READSTR 不动）→ fps_dis=0（不虚填）",
+        "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)"
+      ]
+    },
+    "S8_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "E2-1",
+          "desc": "fps_dis=60",
+          "pass": false,
+          "detail": {
+            "fps_dis": null
+          }
+        },
+        {
+          "id": "E2-2",
+          "desc": "read period ≈16,667 µs ±1%",
+          "pass": false,
+          "detail": {
+            "period_us": null
+          }
+        },
+        {
+          "id": "E2-3",
+          "desc": "S5DISP 帧行 ≥1",
+          "pass": true,
+          "detail": {
+            "disp_lines": 5
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 61584,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst：只用 stop(halt)；先 ps7_init 再配 PL；DAP/halt 异常立即停手；不写候选区",
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+    "sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+    "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+  },
+  "uart_lines": 18,
+  "criteria": [
+    {
+      "id": "E2-1",
+      "desc": "fps_dis=60",
+      "pass": false,
+      "detail": {
+        "fps_dis": null
+      }
+    },
+    {
+      "id": "E2-2",
+      "desc": "read period ≈16,667 µs ±1%",
+      "pass": false,
+      "detail": {
+        "period_us": null
+      }
+    },
+    {
+      "id": "E2-3",
+      "desc": "S5DISP 帧行 ≥1",
+      "pass": true,
+      "detail": {
+        "disp_lines": 5
+      }
+    }
+  ],
+  "parsed": {
+    "period_ticks": null,
+    "period_us": null,
+    "fps_dis": null,
+    "disp_lines": 5
+  },
+  "criterion_ok": false,
+  "conclusion": "S6E_E2_FAIL",
+  "finished_utc8": "2026-10-30T23:12:09+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

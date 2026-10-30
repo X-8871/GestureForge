@@ -1,0 +1,99 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e2_frame_period_20261030_r11",
+  "mode": "e2",
+  "started_utc8": "2026-10-30T23:10:03+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "tail": "0 elapsed=2.256\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds\nLOADHW_OK\nSTOP0_ERR Already stopped\nSTOP1_ERR Already stopped\n\n"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "a": "PASS",
+      "f": "PASS"
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "csr2b": "0x53324250",
+      "vdma_version": "0x62000050",
+      "vdma_cr": "0x10002",
+      "expect": {
+        "csr2b": "0x53324250",
+        "vdma_version": "0x62000050"
+      }
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0,
+      "single_init": true,
+      "note": "dow -force app → 内联 0xF → con；不跑 init.elf/不 rst"
+    },
+    "S6b_watchdog": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "saw_vdma_init_ok": false,
+      "lines": 15,
+      "tail": [
+        "S5DISP frame=540 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=600 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=660 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=720 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=780 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=840 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 680,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst：只用 stop(halt)；先 ps7_init 再配 PL；DAP/halt 异常立即停手；不写候选区",
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+    "sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+    "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+  },
+  "cold_boot_stall": {
+    "halt_ok": true,
+    "uart_lines": 15,
+    "tail": [
+      "S5DISP frame=420 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=480 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=540 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=600 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=660 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=720 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=780 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+      "S5DISP frame=840 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+    ]
+  },
+  "stop_reason": "COLD_BOOT_STALL：con 后 30 s 无 VDMA init OK（已 stop）",
+  "finished_utc8": "2026-10-30T23:10:56+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

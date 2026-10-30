@@ -1,0 +1,12 @@
+$ cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ "*Cortex-A9*#0*"}; if {[catch {loadhw -hw D:/tmp/lead/p3q_video_20261030_r01/out/s4d_p3q_r01.xsa -mem-ranges {0x00000000 0x7FFFFFFF}} e]} { puts "LOADHW_ERR $e" } { puts LOADHW_OK }; puts "GT1L [mrd -value 0xF8F00200] GT1H [mrd -value 0xF8F00204]"; puts "BLK_Q [mrd -value 0x20800000] [mrd -value 0x20800004] [mrd -value 0x20800008] [mrd -value 0x2080000C] [mrd -value 0x20800010] [mrd -value 0x20800014] [mrd -value 0x20800018] [mrd -value 0x2080001C]"; puts "GT2L [mrd -value 0xF8F00200] GT2H [mrd -value 0xF8F00204]"; puts "MS1 [clock milliseconds]"; puts "GT3L [mrd -value 0xF8F00200] GT3H [mrd -value 0xF8F00204]"; puts "MS2 [clock milliseconds]"; puts "LEADL [mrd -value 0xF8000B00] LEADH [mrd -value 0xF8000B04]"; disconnect; exit
+exit=0 elapsed=2.337
+INFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds
+LOADHW_OK
+GT1L 332443823 GT1H 35
+BLK_Q 1396003411 1312 2 3677993657 30 3680326991 30 1
+GT2L 335952210 GT2H 35
+MS1 1793365407065
+GT3L 336386298 GT3H 35
+MS2 1793365407066
+LEADL 0 LEADH 204476774
+

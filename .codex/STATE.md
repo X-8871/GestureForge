@@ -1,5 +1,15 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 6-C 隔离恢复验证（2026-10-30 18:06，UTC+8；优先于下方历史状态）
+
+- `report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/` 从固定提交44615bd3完整干净检出，再按提交内快照恢复130项历史输入、10项canonical源码和1项运行STATE；7项上游只重定位path/git_repo，固定提交、相对路径、SHA及批准参数不变。5个业务模块均从隔离副本加载。
+- 44项S6-B、17项receipt、26+1回放、6步序号探针、S6-A 17项自检通过，27份事件日志和两份expected_freeze与原r07逐字节一致；JSON差异仅精确列明的路径和C8外部漂移诊断说明。原r07 strict114项零不符；新包inputs/evidence/strict全0、84条清单记录零不符，最终stdout复跑一致。
+- 独立Reviewer s6c_recovery_review 在第二个全新副本恢复141项并重跑全部验证，结论PASS；被审manifest SHA-256=3035993cfa7167891b6d6ef6e535826f380cb9c0faffd30a52537c2730f650a6。原297个保护文件在本轮STATE更新前全部未变；两次包装schema预检失败原文保留，不作为通过记录。
+- 恢复入口为本包recover.py、restoration.json、upstream_relocation.json、comparison.json及delivery_manifest.json；再次运行必须选新RunId和空目录，不覆盖r01。副本只读共享原Git对象库，证明独立文件系统恢复，不是自包含Git归档；业务输入未从live dirty工作区借用。缓存保留在tmp/stage6/S6-C，未清理旧证据。
+- 主恢复12.296秒、最终封包2.082秒；16个验证子进程、21次包装调用，Git blob调用未单独计数、峰值内存未测。未修改生产行为；旧STATE/两规格差异与14个历史未跟踪包继续保留、不混入提交。6-D仍BLOCKED，P/T6-A03仍NOT_RUN，6-E实物/G3及阶段G4/G5未通过；未上板。
+
+任务=`6-C隔离恢复验证收口` | 负责人=`Codex阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`44615bd3aad2a1f423af996b9af2b68cb8d20e57` | 允许修改范围=`本轮6-C恢复证据、STATE新增记录与字节保真规则` | 未提交改动归属=`原3处差异及14个历史包保持原归属；本轮精确提交新证据和新增状态段` | 让出声明=`Codex仍持w6写权，未OFFER；无硬件操作` | 心跳(UTC+8)=`2026-10-30T18:06:00+08:00` | 证据入口=`report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex；隔离恢复PASS，6-D依赖未闭合，阶段G5未通过`
+
 ## 6-C 离线确定性矩阵收口（2026-10-30 15:12，UTC+8；优先于下方历史状态）
 
 - Wong 委托总控裁定：0xFFFFFFFE 无特殊停发阈值，FE→FFFFFFFF 可正常递增；同会话 FE→0/FFFFFFFF→0 一律 B23 拒绝，高水位/窗口/目标证据不更新，H3 单调期限继续；从零重计须新 session_id。24 项已批准参数值未改，未操作硬件或 FPS 优化。

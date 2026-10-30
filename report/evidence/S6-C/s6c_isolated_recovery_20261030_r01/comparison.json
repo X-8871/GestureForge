@@ -1,0 +1,282 @@
+{
+  "status": "PASS",
+  "scope": "replay_only/software isolated filesystem recovery",
+  "comparisons": [
+    {
+      "file": "base_matrix/run_report.json",
+      "differences": [
+        {
+          "path": "/expected_frozen_sha256",
+          "before": "report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/outputs/base_matrix/expected_freeze.json",
+          "after": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/expected_freeze.json",
+          "reason": "字段实际存相对路径；只迁移输出目录，expected_freeze 原始字节哈希相同"
+        }
+      ]
+    },
+    {
+      "file": "c11_matrix/run_report.json",
+      "differences": [
+        {
+          "path": "/expected_frozen_sha256",
+          "before": "report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/outputs/c11_matrix/expected_freeze.json",
+          "after": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/c11_matrix/expected_freeze.json",
+          "reason": "字段实际存相对路径；只迁移输出目录，expected_freeze 原始字节哈希相同"
+        }
+      ]
+    },
+    {
+      "file": "sequence_boundary_probe.json",
+      "differences": []
+    },
+    {
+      "file": "s6a_selfcheck.json",
+      "differences": [
+        {
+          "path": "/checks/7/detail",
+          "before": "11 个上游绑定哈希一致（外部树按提交版本复算）；工作副本漂移（非失败，已在上游绑定中记录）：s4a_stage4_g0_fields(657ea2fb), s4a_stage4_g0_doc(75278f8d), s5a_stage5_display_g0_fields(af51a4bf)",
+          "after": "11 个上游绑定哈希一致（外部树按提交版本复算）",
+          "reason": "C8 绑定提交/相对路径/SHA 未改；执行路径使用同一固定blob，不访问外部live漂移副本"
+        },
+        {
+          "path": "/inputs/behavior_json_path",
+          "before": "D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json",
+          "after": "D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json",
+          "reason": "绝对输入路径按源根到隔离根的一对一映射；输入字节不变"
+        },
+        {
+          "path": "/inputs/evidence_dir",
+          "before": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07",
+          "after": "D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07",
+          "reason": "绝对输入路径按源根到隔离根的一对一映射；输入字节不变"
+        },
+        {
+          "path": "/inputs/hand_cases_path",
+          "before": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\hand_cases.json",
+          "after": "D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\hand_cases.json",
+          "reason": "绝对输入路径按源根到隔离根的一对一映射；输入字节不变"
+        },
+        {
+          "path": "/inputs/human_doc_path",
+          "before": "D:\\codex-worktrees\\w6\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md",
+          "after": "D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md",
+          "reason": "绝对输入路径按源根到隔离根的一对一映射；输入字节不变"
+        },
+        {
+          "path": "/inputs/manifest_path",
+          "before": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\delivery_manifest.json",
+          "after": "D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\delivery_manifest.json",
+          "reason": "绝对输入路径按源根到隔离根的一对一映射；输入字节不变"
+        },
+        {
+          "path": "/inputs/state_path",
+          "before": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\state_at_run.md",
+          "after": "D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\state_at_run.md",
+          "reason": "绝对输入路径按源根到隔离根的一对一映射；输入字节不变"
+        }
+      ]
+    }
+  ],
+  "raw_log_comparisons": [
+    {
+      "file": "outputs\\base_matrix\\logs\\C1-fist-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C1-one-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C1-palm-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C1-three-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C1-two_up-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C10-tick-time-advance.jsonl",
+      "sha256": "f3530f306d2b9e59c72c7589675b15e19614ebbaa1cd65450276f12903ee3615",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C11-fail-then-success.jsonl",
+      "sha256": "f69ae21ae86bd4849697ec1e9b51239009c9a6929f85c3e934300d8445ec23f6",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C11-global-gate-second-acquisition.jsonl",
+      "sha256": "0f982b675d645de9ae52bcf36f95310625f327a1224859036adad985d0258cd8",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C11-unobserved.jsonl",
+      "sha256": "a05be4bad99f8695f2f9246fd0448e3939d28d09ab45cefc94524ced7b63b24a",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C12-gate-reopen-new-acquisition.jsonl",
+      "sha256": "07d65ee88a8aa0d1ce5541fc9e7a3e78ebf7985dedc99c25fb8aa598513a6f7b",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C12-m2-m12-new-target.jsonl",
+      "sha256": "4494df2f27c0cca490768884c57235fe6f7f608ebaba0dc71d678b5d2115e5b2",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C12-m8-two-acquisitions.jsonl",
+      "sha256": "e47e9f049ff74bdf436d18b86d2d71709a83ea12dfbcc70f259dc8160a4536d0",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C2-hold-past-cooldown.jsonl",
+      "sha256": "845664761e898328364b36c5721fe15d02223b4c0d37fbbb829ce42dd697abf8",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C3-lost-then-reappear.jsonl",
+      "sha256": "2da97195d8d77ce55f5f111bb555f67c595e94ab098d554197a832db8b67c959",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C4-jitter-reset.jsonl",
+      "sha256": "b8eb4b5686ddf1603dc304b594c4266f7ad590f10d0cabc1a954b0cfa35039a4",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C4-quick-switch.jsonl",
+      "sha256": "011348fb5d62f4d6ab5e42b80421391e0c38e287a0077ede9bc8dbc1be1ad8d9",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C5-held-priority.jsonl",
+      "sha256": "85c20fba5ec4541f09010899b4b3c51c09a21cc07b0a2e916ca588ace1169dd4",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C5-target-jump.jsonl",
+      "sha256": "c7c643db880d141ddad9fcffce8fe2892ca13ac4d27c5b21b279de1aa5db8cc5",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C5-tie-source-order.jsonl",
+      "sha256": "cfc863d7caf271d8c5461c5cf01c3d9dfe098b9889dbe9a12da8409d64318f1f",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C6-no-hand-unknown-lowscore.jsonl",
+      "sha256": "5b2d0784c0758854e989186fbc9597a470ca9fbee6d6109cb3a33e65ff42d4dd",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C6b-no-hand-with-detections.jsonl",
+      "sha256": "228c49e1544cc108d5c7fa875357bdfa37d7e0c14bd1ae45b35c9afbe0b8f965",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C7-timeout-error-dropped-stale.jsonl",
+      "sha256": "f2fd5c5c9aa278afcd71dd171b02081ec669d3842023672d66ab541b9e229f24",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C8-duplicate-reorder-missing-restart.jsonl",
+      "sha256": "f402e2299d6382768480db2d5910f18e311ae0409ea65f8bd75a68558f15f83a",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C9-s01-equal.jsonl",
+      "sha256": "655c9c45ed668f42c15eead7f567783fed8a621a2773c3b1129b3314265ff07d",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C9-s01-minus-1ns.jsonl",
+      "sha256": "0b8bd81f39907b42dce9ab11cd0f8a320c604532cb4ebe8b500ffbf82093c39f",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\base_matrix\\logs\\C9c-30fps-later-of.jsonl",
+      "sha256": "211848f4c04e7de0543c30dadd899224216d258194a676733ecec64b60d609fe",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    },
+    {
+      "file": "outputs\\c11_matrix\\logs\\C11-duplicate-ack.jsonl",
+      "sha256": "d6e2ada5c376403bf22cde7bf5cfef9ec24230aa101de69220013ecae16a0d6c",
+      "hash_basis": "worktree_disk",
+      "byte_identical": true
+    }
+  ],
+  "raw_log_count": 27,
+  "ignored_semantic_fields": [],
+  "semantic_result": "全部业务结果、断言、状态、计数、17项自检结果一致；仅逐项列出的路径及C8外部漂移说明变化",
+  "tests": {
+    "s6b": 44,
+    "s6b_core": 34,
+    "receipt": 17,
+    "base": 26,
+    "duplicate_ack": 1,
+    "sequence_steps": 6,
+    "selfcheck": 17,
+    "original_strict_entries": 114,
+    "original_strict_mismatched": 0
+  },
+  "packaging_preflight_failures": [
+    {
+      "output": "raw/packaging_preflight_failed.stdout",
+      "exit_code": 2,
+      "reason": "首次输入清单缺input角色、循环检查NOT_RUN缺exit_code"
+    },
+    {
+      "output": "raw/packaging_preflight_source_failed.stdout",
+      "exit_code": 2,
+      "reason": "首次证据清单缺source角色"
+    }
+  ],
+  "elapsed_s": 12.295999999972992,
+  "verification_subprocess_count": 16,
+  "peak_memory": "未测",
+  "pythonpath_initial": null,
+  "pythonhome_initial": null,
+  "environment_note": "首次执行时未设置PYTHONPATH；脚本现显式删除PYTHONPATH/PYTHONHOME，后续provenance使用删除后的环境",
+  "limitations": [
+    "共享只读源Git对象，不是自包含Git归档；业务与fixtures均从固定对象恢复",
+    "本轮只证明独立文件系统恢复固定r07运行输入，孤立HEAD不是完整运行规格",
+    "6-D真实集成BLOCKED；P/T6-A03 NOT_RUN；6-E实物/G3及阶段G4/G5未通过",
+    "未调用硬件/Vivado/FPS流程；独立Reviewer未执行，不声明G2 PASS",
+    "Git Bash启动E_ACCESSDENIED，改用PowerShell启动UTF-8 Python；恢复脚本失败保留clone且不自动删除"
+  ]
+}

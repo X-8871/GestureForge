@@ -1,0 +1,706 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-C",
+  "run_id": "s6c_isolated_recovery_20261030_r01",
+  "source_commit": "44615bd3aad2a1f423af996b9af2b68cb8d20e57",
+  "evidence_dir": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "软件隔离恢复r07，不改变上游接口且不执行真实集成",
+  "hash_basis": "worktree_disk",
+  "checks": [
+    {
+      "name": "clone",
+      "status": "PASS",
+      "command": "git clone --shared --no-checkout D:\\codex-worktrees\\w6 D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone",
+      "exit_code": 0
+    },
+    {
+      "name": "longpaths",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone config core.longpaths true",
+      "exit_code": 0
+    },
+    {
+      "name": "checkout",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone checkout --detach 44615bd3aad2a1f423af996b9af2b68cb8d20e57",
+      "exit_code": 0
+    },
+    {
+      "name": "clean_checkout_status",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone status --porcelain",
+      "exit_code": 0
+    },
+    {
+      "name": "original_inputs",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_stage_delivery.py --mode inputs --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --manifest D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "original_evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --manifest D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "original_strict",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --paths report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/inputs_manifest.json --paths report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/delivery_manifest.json --mode strict --json",
+      "exit_code": 0
+    },
+    {
+      "name": "s6b_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest discover -s verification -p test_s6b_*.py -v",
+      "exit_code": 0
+    },
+    {
+      "name": "s6c_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary -v",
+      "exit_code": 0
+    },
+    {
+      "name": "base_matrix",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --run-dir D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\outputs\\base_matrix --cases D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\ref\\case_matrix.json",
+      "exit_code": 0
+    },
+    {
+      "name": "c11_matrix",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --run-dir D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\outputs\\c11_matrix --cases D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\ref\\c11_case.json",
+      "exit_code": 0
+    },
+    {
+      "name": "s6a_selfcheck",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\selfcheck.py --json D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\hand_cases.json --upstream D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\execution_upstream.json --out D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\outputs\\s6a_selfcheck.json --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --evidence-dir D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07 --manifest D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\delivery_manifest.json --state D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\state_at_run.md",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "序号边界探针",
+      "status": "PASS",
+      "command": "recover.py: isolated run_boundary_probe()",
+      "exit_code": 0
+    },
+    {
+      "name": "逐字段与27日志比较",
+      "status": "PASS",
+      "command": "finalize.py: exact JSON pointer comparison and byte comparison",
+      "exit_code": 0
+    },
+    {
+      "name": "new_inputs",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_stage_delivery.py --mode inputs --project-root D:\\codex-worktrees\\w6 --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\inputs_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "new_evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w6 --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "new_strict",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6 --paths report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/inputs_manifest.json --paths report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/delivery_manifest.json --mode strict --json",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "共享只读源Git对象，不是自包含Git归档；业务与fixtures均从固定对象恢复",
+    "本轮只证明独立文件系统恢复固定r07运行输入，孤立HEAD不是完整运行规格",
+    "6-D真实集成BLOCKED；P/T6-A03 NOT_RUN；6-E实物/G3及阶段G4/G5未通过",
+    "未调用硬件/Vivado/FPS流程；独立Reviewer未执行，不声明G2 PASS",
+    "Git Bash启动E_ACCESSDENIED，改用PowerShell启动UTF-8 Python；恢复脚本失败保留clone且不自动删除"
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/comparison.json",
+      "sha256": "2c1f557d77a4b865b7a4bde074781ae7bd2e9222816290eb2a6d258ee74df384",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/comparison_draft.json",
+      "sha256": "0befa5bf38fd20034295b653b697ba7154fc28521ce6cd17268853080d7b2225",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/comparison_pending.json",
+      "sha256": "78281f6947c720133311d7337e551e4cac5c179ba429a643f785839e0347fc59",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/execution_record.json",
+      "sha256": "238eddee4184020a0dbb1a7537422c1d30e88ef1ea14a7465d88f25688c410e0",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/execution_upstream.json",
+      "sha256": "c1f7c9f77e00d74b1d47ba920feaa86c35f00b422f59710b587b4d08af2b21ed",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/finalize.py",
+      "sha256": "1ef87f8f945da16acead3fdb1d571a179bb65a26c4500abaec4e5e83cd6b9677",
+      "role": "source",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/expected_freeze.json",
+      "sha256": "2f528641223d06ad5ef6bcaaf459b5c96afef5da61b9948905e66bb98251e250",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C1-fist-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C1-one-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C1-palm-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C1-three-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C1-two_up-stable.jsonl",
+      "sha256": "437bcd920c055dd9dde4b5a0ac7f97f2f34c7bb033c79ce47319348a4ffe705d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C10-tick-time-advance.jsonl",
+      "sha256": "f3530f306d2b9e59c72c7589675b15e19614ebbaa1cd65450276f12903ee3615",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C11-fail-then-success.jsonl",
+      "sha256": "f69ae21ae86bd4849697ec1e9b51239009c9a6929f85c3e934300d8445ec23f6",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C11-global-gate-second-acquisition.jsonl",
+      "sha256": "0f982b675d645de9ae52bcf36f95310625f327a1224859036adad985d0258cd8",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C11-unobserved.jsonl",
+      "sha256": "a05be4bad99f8695f2f9246fd0448e3939d28d09ab45cefc94524ced7b63b24a",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C12-gate-reopen-new-acquisition.jsonl",
+      "sha256": "07d65ee88a8aa0d1ce5541fc9e7a3e78ebf7985dedc99c25fb8aa598513a6f7b",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C12-m2-m12-new-target.jsonl",
+      "sha256": "4494df2f27c0cca490768884c57235fe6f7f608ebaba0dc71d678b5d2115e5b2",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C12-m8-two-acquisitions.jsonl",
+      "sha256": "e47e9f049ff74bdf436d18b86d2d71709a83ea12dfbcc70f259dc8160a4536d0",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C2-hold-past-cooldown.jsonl",
+      "sha256": "845664761e898328364b36c5721fe15d02223b4c0d37fbbb829ce42dd697abf8",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C3-lost-then-reappear.jsonl",
+      "sha256": "2da97195d8d77ce55f5f111bb555f67c595e94ab098d554197a832db8b67c959",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C4-jitter-reset.jsonl",
+      "sha256": "b8eb4b5686ddf1603dc304b594c4266f7ad590f10d0cabc1a954b0cfa35039a4",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C4-quick-switch.jsonl",
+      "sha256": "011348fb5d62f4d6ab5e42b80421391e0c38e287a0077ede9bc8dbc1be1ad8d9",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C5-held-priority.jsonl",
+      "sha256": "85c20fba5ec4541f09010899b4b3c51c09a21cc07b0a2e916ca588ace1169dd4",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C5-target-jump.jsonl",
+      "sha256": "c7c643db880d141ddad9fcffce8fe2892ca13ac4d27c5b21b279de1aa5db8cc5",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C5-tie-source-order.jsonl",
+      "sha256": "cfc863d7caf271d8c5461c5cf01c3d9dfe098b9889dbe9a12da8409d64318f1f",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C6-no-hand-unknown-lowscore.jsonl",
+      "sha256": "5b2d0784c0758854e989186fbc9597a470ca9fbee6d6109cb3a33e65ff42d4dd",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C6b-no-hand-with-detections.jsonl",
+      "sha256": "228c49e1544cc108d5c7fa875357bdfa37d7e0c14bd1ae45b35c9afbe0b8f965",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C7-timeout-error-dropped-stale.jsonl",
+      "sha256": "f2fd5c5c9aa278afcd71dd171b02081ec669d3842023672d66ab541b9e229f24",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C8-duplicate-reorder-missing-restart.jsonl",
+      "sha256": "f402e2299d6382768480db2d5910f18e311ae0409ea65f8bd75a68558f15f83a",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C9-s01-equal.jsonl",
+      "sha256": "655c9c45ed668f42c15eead7f567783fed8a621a2773c3b1129b3314265ff07d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C9-s01-minus-1ns.jsonl",
+      "sha256": "0b8bd81f39907b42dce9ab11cd0f8a320c604532cb4ebe8b500ffbf82093c39f",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/logs/C9c-30fps-later-of.jsonl",
+      "sha256": "211848f4c04e7de0543c30dadd899224216d258194a676733ecec64b60d609fe",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/base_matrix/run_report.json",
+      "sha256": "57efe79dafbe7f21597ec5221d489ea5c71f7c7a36316a36b45c3d8667e3f034",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/c11_matrix/expected_freeze.json",
+      "sha256": "919ffc2774c966dc6a046a6e7460e2f361a504f7ebfaa9dfdb14a364978a4576",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/c11_matrix/logs/C11-duplicate-ack.jsonl",
+      "sha256": "d6e2ada5c376403bf22cde7bf5cfef9ec24230aa101de69220013ecae16a0d6c",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/c11_matrix/run_report.json",
+      "sha256": "5f5595f05a88886510224da33dda909551b80f6a88b92be5cb59de1a487b4987",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/s6a_selfcheck.json",
+      "sha256": "6d490ebcbd89f8b681e7544828de87f935262088c87aef5ee81da1f0800eb3df",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/outputs/sequence_boundary_probe.json",
+      "sha256": "675805d443d6dcd3eeac8b5f0ed7b092c0cda4264f317cf7ce3db52610c41ba2",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/probe_isolation.json",
+      "sha256": "8cdc951bed0b373c54393261b7094e3bcfded5ea1e5b4cbdc64bed6edd7266de",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/protected_worktree_check.json",
+      "sha256": "47ccb06c18f95ad5131a88d819b59b202c55872b1da6c09959976749d0cbb0be",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/base_matrix.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/base_matrix.stdout",
+      "sha256": "37d079dca09e1ad616ad878026b8ac349ac9a38f175e9fa3449809384404cb22",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/c11_matrix.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/c11_matrix.stdout",
+      "sha256": "ab22c079a425016fb1a1061a0d9d38fea8a2ecbde4993cc036c5d82d6f0c9a1a",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/checkout.stderr",
+      "sha256": "b1948a705110dec4cc35d75da2e807619cefb6ec1d1b3009af1def935ef0b578",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/checkout.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/clean_checkout_status.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/clean_checkout_status.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/clone.stderr",
+      "sha256": "f9d1da3364c1aa55c4577565e6aa20cc895ea9cf5551d5f1c0cb7d5711b4935b",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/clone.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/longpaths.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/longpaths.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/module_provenance.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/module_provenance.stdout",
+      "sha256": "f9a9cbfc2baf648fd1a38ba831ba6766c3144fbffba09543b41eb1b93e58b83a",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/new_evidence.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/new_evidence.stdout",
+      "sha256": "f34f249d52cc4851c2e87798bac998f6040d15c7e956eb5f7f508703e4e4e4e6",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/new_inputs.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/new_inputs.stdout",
+      "sha256": "7e3093c4678ceecc81dfd15cca70705ced4a009cff5d08ad23cd4ee42240734c",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/new_strict.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/new_strict.stdout",
+      "sha256": "15c44a408ce5ddca6dab9467f0b1319afb24eadf7403175866d82da6dae2fd0d",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/original_evidence.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/original_evidence.stdout",
+      "sha256": "0a3595178d90c9b26f9f065a3af46a680c135c9d6549844ef306354bbdfdb7eb",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/original_inputs.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/original_inputs.stdout",
+      "sha256": "8d496cf1ffb4afd6f5f7fbe1d27849cfbd6b34fda457a1cb408622056cc116a6",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/original_strict.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/original_strict.stdout",
+      "sha256": "fa692cfb25e34cab67fbf29bedb33269377b74a20ba28e5f84db2d20bd185f3c",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/packaging_preflight_failed.stdout",
+      "sha256": "0b09ccf5df0b2fd9db34307f78d4dae76312c60e66b157ba114ac9a6995a6bdf",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/packaging_preflight_source_failed.stdout",
+      "sha256": "073d60dcdab60c35e1addb388a173d6a9d104d6e3d2b02592d76329cb3ab742f",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/s6a_selfcheck.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/s6a_selfcheck.stdout",
+      "sha256": "c3817e4839ca8ce59f3b0d8e0a96792529c4ae4eee5762842011f2b6e0b9cff2",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/s6b_unittest.stderr",
+      "sha256": "c4d899ec7ed702b02e440219a8864ffa269313bdfddba424d54f4ff9d667bc04",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/s6b_unittest.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/s6c_unittest.stderr",
+      "sha256": "2d064149fc52137e28177ec509d0240b5822dcb9d20fb13487107032016e9bf3",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/raw/s6c_unittest.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/recover.py",
+      "sha256": "ed7b2f381e6cb8bbb7379c0e771256cb4386001cf21c0d940f7b089524bac874",
+      "role": "source",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/restoration.json",
+      "sha256": "f0cd28b413d59c5b1f185eb3d2b65222bc9a14665e1ca6a7f6007f5a9c28250a",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/upstream_relocation.json",
+      "sha256": "abdd360f214868709bbcde1eda1d0dc4e1ebac1904429c0e68ee627101fa1810",
+      "role": "result",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/inputs_manifest.json",
+      "sha256": "e4227831c4d90fed283d01be543ed31a0d395eba6623dcd0d7d06777a99132e6",
+      "role": "input",
+      "keep_reason": "恢复输入索引",
+      "hash_basis": "worktree_disk"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "checker_sha256": "00350ac813e928c052e43a5237fdf7a9be79d75c952cf691318eeb1e9fceeb8e",
+    "hashchecker_sha256": "10e3fe7121cc46665cfcd553dc5237833fe3134bc0dd00a8652d79fa290e85f6"
+  }
+}

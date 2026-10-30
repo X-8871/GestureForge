@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-C",
+  "run_id": "s6c_isolated_recovery_20261030_r01",
+  "source_commit": "44615bd3aad2a1f423af996b9af2b68cb8d20e57",
+  "evidence_dir": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "软件隔离恢复r07，不改变上游接口且不执行真实集成",
+  "hash_basis": "worktree_disk",
+  "checks": [
+    {
+      "name": "clone",
+      "status": "PASS",
+      "command": "git clone --shared --no-checkout D:\\codex-worktrees\\w6 D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone",
+      "exit_code": 0
+    },
+    {
+      "name": "longpaths",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone config core.longpaths true",
+      "exit_code": 0
+    },
+    {
+      "name": "checkout",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone checkout --detach 44615bd3aad2a1f423af996b9af2b68cb8d20e57",
+      "exit_code": 0
+    },
+    {
+      "name": "clean_checkout_status",
+      "status": "PASS",
+      "command": "git -C D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone status --porcelain",
+      "exit_code": 0
+    },
+    {
+      "name": "original_inputs",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_stage_delivery.py --mode inputs --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --manifest D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "original_evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_stage_delivery.py --mode evidence --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --manifest D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\delivery_manifest.json",
+      "exit_code": 0
+    },
+    {
+      "name": "original_strict",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\checkers\\check_manifest_hash_basis.py --repo D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --paths report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/inputs_manifest.json --paths report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/delivery_manifest.json --mode strict --json",
+      "exit_code": 0
+    },
+    {
+      "name": "s6b_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest discover -s verification -p test_s6b_*.py -v",
+      "exit_code": 0
+    },
+    {
+      "name": "s6c_unittest",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary -v",
+      "exit_code": 0
+    },
+    {
+      "name": "base_matrix",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --run-dir D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\outputs\\base_matrix --cases D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\ref\\case_matrix.json",
+      "exit_code": 0
+    },
+    {
+      "name": "c11_matrix",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --run-dir D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\outputs\\c11_matrix --cases D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\ref\\c11_case.json",
+      "exit_code": 0
+    },
+    {
+      "name": "s6a_selfcheck",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\selfcheck.py --json D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\hand_cases.json --upstream D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\execution_upstream.json --out D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_isolated_recovery_20261030_r01\\outputs\\s6a_selfcheck.json --project-root D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone --evidence-dir D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07 --manifest D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\delivery_manifest.json --state D:\\codex-worktrees\\w6\\tmp\\stage6\\S6-C\\s6c_isolated_recovery_20261030_r01\\clone\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r07\\inputs\\state_at_run.md",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "module_provenance",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -c \"import json, pathlib, sys\nfrom src.stage6 import s6_core,s6_actions,s6_params,s6_receipts\nfrom verification import s6b_run_cases\nroot=pathlib.Path.cwd().resolve()\nmods=[s6_core,s6_actions,s6_params,s6_receipts,s6b_run_cases]\nrows=[dict(module=m.__name__,file=m.__file__,inside_clone=pathlib.Path(m.__file__).resolve().is_relative_to(root)) for m in mods]\nassert all(x['inside_clone'] for x in rows)\nprint(json.dumps(dict(modules=rows,sys_path=sys.path,pythonpath_removed=True,pythonhome_removed=True),ensure_ascii=False,indent=2))\n\"",
+      "exit_code": 0
+    },
+    {
+      "name": "序号边界探针",
+      "status": "PASS",
+      "command": "recover.py: isolated run_boundary_probe()",
+      "exit_code": 0
+    },
+    {
+      "name": "逐字段与27日志比较",
+      "status": "PASS",
+      "command": "finalize.py: exact JSON pointer comparison and byte comparison",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "共享只读源Git对象，不是自包含Git归档；业务与fixtures均从固定对象恢复",
+    "本轮只证明独立文件系统恢复固定r07运行输入，孤立HEAD不是完整运行规格",
+    "6-D真实集成BLOCKED；P/T6-A03 NOT_RUN；6-E实物/G3及阶段G4/G5未通过",
+    "未调用硬件/Vivado/FPS流程；独立Reviewer未执行，不声明G2 PASS",
+    "Git Bash启动E_ACCESSDENIED，改用PowerShell启动UTF-8 Python；恢复脚本失败保留clone且不自动删除"
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/execution_upstream.json",
+      "sha256": "c1f7c9f77e00d74b1d47ba920feaa86c35f00b422f59710b587b4d08af2b21ed",
+      "role": "input",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/finalize.py",
+      "sha256": "1ef87f8f945da16acead3fdb1d571a179bb65a26c4500abaec4e5e83cd6b9677",
+      "role": "input",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/recover.py",
+      "sha256": "ed7b2f381e6cb8bbb7379c0e771256cb4386001cf21c0d940f7b089524bac874",
+      "role": "input",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/restoration.json",
+      "sha256": "f0cd28b413d59c5b1f185eb3d2b65222bc9a14665e1ca6a7f6007f5a9c28250a",
+      "role": "input",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/upstream_relocation.json",
+      "sha256": "abdd360f214868709bbcde1eda1d0dc4e1ebac1904429c0e68ee627101fa1810",
+      "role": "input",
+      "keep_reason": "隔离恢复运行与对照的可复核证据",
+      "hash_basis": "worktree_disk"
+    }
+  ]
+}

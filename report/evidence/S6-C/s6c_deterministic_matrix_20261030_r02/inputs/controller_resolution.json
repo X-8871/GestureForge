@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "artifact": "s6c_frame_sequence_boundary_resolution",
+  "resolved_date_utc8": "2026-10-30",
+  "user_direct_approval_scope": "Wong 批准同一 session_id 下回绕 frame_id 一律按 B23 拒绝。",
+  "delegated_decision_scope": "Wong 授权阶段6总控决定未决的 0xFFFFFFFE 阈值语义；具体内容为总控裁定，不归述为 Wong 直接给定。",
+  "controller_decision": {
+    "0xFFFFFFFE": "无特殊停发/换 session_id 阈值；同会话可合法递增至 0xFFFFFFFF。",
+    "wrap": "FE→0、FFFFFFFF→0 及任何较小值同会话均 B23 拒绝；不更新高水位、窗口和目标证据，单调期限照常评估。",
+    "new_session": "需要从 0 重新计数时使用新 session_id；新会话从 0 接受。"
+  },
+  "scope": "只适用于 S6-B/S6-C 离线序号边界，服从阶段4 s4-shared-io/1.3.0 r07。",
+  "user_receipt": "report/evidence/S6-A/s6a_b25_decision_20261030_r01/decision_receipt.json"
+}

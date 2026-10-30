@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "artifact": "s6c_sequence_boundary_independent_expected",
+  "expected_authorship": "总控依据规格与阶段4冻结契约手写；不由状态机输出生成。",
+  "expected_derivation": [
+    "S6-A M1 要求同目标推进帧达到 T6-C01=2；首个 FFFE 帧只建立 IDLE 目标并将连续计数置为 1。",
+    "B23 拒绝 FE→0，不推进窗口/目标/帧高水位，也不增加合法连续帧计数；随后 FFFFFFFF 是第二个合法同目标推进帧，故在该帧命中 M1。",
+    "B23 拒绝 FFFFFFFF→0，但 H-3 时间期限仍继续；以最后合法 TARGET_CONTINUES 的 t=2 加 T6-L02=300ms，精确到 300000002ns 命中 M10；该帧不命中 M11。",
+    "B25 规定 session_id 变化时本帧只作 RESET；下一帧新会话 frame_id=0 才是首个可接受结果，按 M1/C01 仍处 IDLE。"
+  ],
+  "l02_ns_from_approved_parameter": 300000000,
+  "cases": [
+    {
+      "case_id": "FE-first",
+      "session_id": "seq-old",
+      "frame_id": 4294967294,
+      "t_input_ns": 0
+    },
+    {
+      "case_id": "FE-to-zero",
+      "session_id": "seq-old",
+      "frame_id": 0,
+      "t_input_ns": 1
+    },
+    {
+      "case_id": "FE-to-FF",
+      "session_id": "seq-old",
+      "frame_id": 4294967295,
+      "t_input_ns": 2
+    },
+    {
+      "case_id": "FF-to-zero-at-L02",
+      "session_id": "seq-old",
+      "frame_id": 0,
+      "t_input_ns": 300000002
+    },
+    {
+      "case_id": "new-session-reset-zero",
+      "session_id": "seq-new",
+      "frame_id": 0,
+      "t_input_ns": 300000003
+    },
+    {
+      "case_id": "new-session-zero-accepted",
+      "session_id": "seq-new",
+      "frame_id": 0,
+      "t_input_ns": 300000004
+    }
+  ],
+  "expected_steps": [
+    {
+      "input_state": "OK",
+      "transition": null,
+      "to_state": "IDLE",
+      "state": "IDLE",
+      "candidate_streak": 1,
+      "last_frame_id": 4294967294,
+      "window_match_count": 1,
+      "t_last_target_continues_ns": 0,
+      "out_of_order_frames": 0,
+      "action_request": false,
+      "last_t_ns": 0
+    },
+    {
+      "input_state": "OUT_OF_ORDER",
+      "transition": null,
+      "to_state": "IDLE",
+      "state": "IDLE",
+      "candidate_streak": 1,
+      "last_frame_id": 4294967294,
+      "window_match_count": 1,
+      "t_last_target_continues_ns": 0,
+      "out_of_order_frames": 1,
+      "action_request": false,
+      "last_t_ns": 1
+    },
+    {
+      "input_state": "OK",
+      "transition": "M1",
+      "to_state": "CANDIDATE",
+      "state": "CANDIDATE",
+      "candidate_streak": 2,
+      "last_frame_id": 4294967295,
+      "window_match_count": 2,
+      "t_last_target_continues_ns": 2,
+      "out_of_order_frames": 1,
+      "action_request": false,
+      "last_t_ns": 2
+    },
+    {
+      "input_state": "OUT_OF_ORDER",
+      "transition": "M10",
+      "to_state": "LOST",
+      "state": "LOST",
+      "candidate_streak": 2,
+      "last_frame_id": 4294967295,
+      "window_match_count": 2,
+      "t_last_target_continues_ns": 2,
+      "out_of_order_frames": 2,
+      "action_request": false,
+      "last_t_ns": 300000002
+    },
+    {
+      "input_state": "OK",
+      "transition": "RESET",
+      "to_state": "IDLE",
+      "state": "IDLE",
+      "candidate_streak": 0,
+      "last_frame_id": null,
+      "window_match_count": 0,
+      "t_last_target_continues_ns": null,
+      "out_of_order_frames": 0,
+      "action_request": false,
+      "last_t_ns": 300000003
+    },
+    {
+      "input_state": "OK",
+      "transition": null,
+      "to_state": "IDLE",
+      "state": "IDLE",
+      "candidate_streak": 1,
+      "last_frame_id": 0,
+      "window_match_count": 1,
+      "t_last_target_continues_ns": 300000004,
+      "out_of_order_frames": 0,
+      "action_request": false,
+      "last_t_ns": 300000004
+    }
+  ],
+  "invariants": [
+    "FE→0 同会话拒绝，不更新高水位/窗口/目标连续锚点且无动作。",
+    "FE→FFFFFFFF 同会话合法递增。",
+    "FFFFFFFF→0 同会话拒绝，在 L02 边界仍触发 M10；高水位/窗口/锚点不被拒绝帧推进且无动作。",
+    "session_id 改变复位；后续新会话 frame_id=0 接受。",
+    "精确虚拟时间：0、1、2、300000002、300000003、300000004 ns。"
+  ]
+}

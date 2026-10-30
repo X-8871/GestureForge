@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "artifact": "s6c_execution_record",
+  "task_id": "S6-C",
+  "run_id": "s6c_deterministic_matrix_20261030_r04",
+  "source_commit": "e13c5532abde97771c9e8ce3776e837f0c6816df",
+  "branch": "stage6-interact-prep",
+  "prepared_at_utc8": "2026-10-30T14:55:27+08:00",
+  "status": "RUNS_PASS_PACKAGE_PENDING",
+  "hardware_access": "NOT_USED",
+  "commands": [
+    {
+      "name": "S6-B 回归 unittest",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest discover -s verification -p test_s6b_*.py -v",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/s6b_unittest.log",
+      "output_sha256": "a91fd38945337950fc6c58f57b25a208efbf49a1e58ebf2c3ecd5e26acececa4"
+    },
+    {
+      "name": "S6-C receipt boundary unittest",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B -m unittest verification.test_s6c_receipt_boundary -v",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/s6c_receipt_unittest.log",
+      "output_sha256": "8c96fea33bdfdf8450b0a7892abba2207ac7575a72919b87fa9ebb81963f4b95"
+    },
+    {
+      "name": "git diff --check 本轮规格和测试",
+      "command": "git -c core.longpaths=true -C D:\\codex-worktrees\\w6 diff --check -- docs/stage6/S6A_stage6_g0_behavior_spec_v1.md docs/stage6/s6a_stage6_g0_behavior_v1.json verification/test_s6b_core_regressions.py",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/git_diff_check.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "基础矩阵 expected freeze",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-C/s6c_deterministic_matrix_20261030_r04/outputs/base_matrix --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r04\\inputs\\ref\\case_matrix.json --freeze-only",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/base_matrix_freeze.log",
+      "output_sha256": "3ca44b3876b8e539741423ef7bd6ca6fc1ae1bfed443e22ea19bacc8062a491c"
+    },
+    {
+      "name": "基础矩阵 replay",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-C/s6c_deterministic_matrix_20261030_r04/outputs/base_matrix --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r04\\inputs\\ref\\case_matrix.json",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/base_matrix_run.log",
+      "output_sha256": "ce9bc17899277ec4f5b82e029875f1960711eca77e9ed18335abcc7a9c09d5a8"
+    },
+    {
+      "name": "C11 duplicate ACK expected freeze",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-C/s6c_deterministic_matrix_20261030_r04/outputs/c11_matrix --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r04\\inputs\\ref\\c11_case.json --freeze-only",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/c11_matrix_freeze.log",
+      "output_sha256": "1b57b3ee5eef445832ff1e36e1bad46ef3eee8cf35423dcca546344da4e2475a"
+    },
+    {
+      "name": "C11 duplicate ACK replay",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6b_run_cases.py --project-root D:\\codex-worktrees\\w6 --run-dir report/evidence/S6-C/s6c_deterministic_matrix_20261030_r04/outputs/c11_matrix --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-C\\s6c_deterministic_matrix_20261030_r04\\inputs\\ref\\c11_case.json",
+      "cwd": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "output_path": "outputs/c11_matrix_run.log",
+      "output_sha256": "52f7147c6f2ae868596347e39c8858ae423993480ac5516cfcaeb4867313bed2"
+    }
+  ],
+  "matrix_source_run_id": "s6b_current_20261029_r08",
+  "matrix_source_commit": "e735a5afb5b474793408ec1e61da111006c70e60",
+  "matrix_source_case_count": 26,
+  "expected_provenance": "旧 26-case expected 先独立冻结再运行；新增边界 expected 由总控依据规格/契约手写。",
+  "test_summaries": [
+    {
+      "suite": "S6-B",
+      "summary": "Ran 44 tests in 0.475s"
+    },
+    {
+      "suite": "S6-C",
+      "summary": "Ran 17 tests in 0.007s"
+    }
+  ],
+  "sequence_boundary": {
+    "status": "PASS",
+    "expected_sha256": "67d1ef165f368971c327f3738d2d8bcfef3eacf98e92f0e05dd9751878e685da",
+    "actual_sha256": "7ccf75f9ce5f0951f38eb7746eff49df1e8b9a00f49e3770b2b1dd77ad551a91"
+  },
+  "matrix_coverage_sha256": "983aa6c34019ae0a3aa95a910dfe3e64150577c5017696a66e9c18f18774e52a",
+  "finished_at_utc8": "2026-10-30T14:55:46+08:00"
+}

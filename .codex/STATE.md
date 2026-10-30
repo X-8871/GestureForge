@@ -1,5 +1,16 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 6-C 离线确定性矩阵收口（2026-10-30 15:12，UTC+8；优先于下方历史状态）
+
+- Wong 委托总控裁定：0xFFFFFFFE 无特殊停发阈值，FE→FFFFFFFF 可正常递增；同会话 FE→0/FFFFFFFF→0 一律 B23 拒绝，高水位/窗口/目标证据不更新，H3 单调期限继续；从零重计须新 session_id。24 项已批准参数值未改，未操作硬件或 FPS 优化。
+- `report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/`：44 项 S6-B（core 34）、17 项 receipt、26 条矩阵、重复 ACK 1 例、序号边界 6 步、S6-A 自检 17 项通过；正式矩阵 11/11 行覆盖。C11 实际83文件/82绑定，inputs/evidence/closing 均0，strict 114清单条目零不符；最终保存输出与复跑一致。
+- 独立 Reviewer s6c_final_review 对基线 e13c5532 与 r07 manifest SHA-256 460060de6fa4276ddfe2759e4895783c9b1cf8a70997e8e52eb7353d86aa92d7 返回 PASS，隔离复跑44+17/26+1/6步及17自检一致。6-C离线任务限定范围 G0/G1/G2/G4 满足；不代表阶段6整体关口通过。
+- 20261030 r01–r06 原位保留为权限、导入、先验预期及封包失败轨迹；r05/r06记录或部分检查通过不能覆盖其最终失败。历史 dc180833 与 f44bd3eb 的差异已证明是 CRLF→LF 哈希口径；精确对应见 r07/hash_reconciliation.json。
+- 恢复入口为 r07/source_bindings.json、inputs/src/behavior.md、inputs/src/behavior.json、inputs/state_at_run.md 与 execution_record.json；原 U6-02 规格/STATE 差异继续保留且不混入本轮提交，孤立 HEAD 不等于运行时完整规格。峰值内存及工具调用总量未测，单测耗时保留于日志；未运行重型流程。
+- 下一任务6-D仍 BLOCKED：固定阶段4 replay包及阶段5冻结输入未变，仍缺可信结果时间/stale/阳性状态映射；本轮不改上游。T6-A03 缺实测帧周期P保持 NOT_RUN，推理耗时47287ms不能代替P；6-E实物/G3及阶段G4/G5未通过，暂不上板，不开启阶段7。
+
+任务=`6-C离线矩阵收口及6-D依赖核验` | 负责人=`Codex阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`e13c5532abde97771c9e8ce3776e837f0c6816df` | 允许修改范围=`阶段6离线规格增量、测试、独立新RunId、STATE与字节保真规则` | 未提交改动归属=`原STATE/两份S6-A规格及14个历史未跟踪包保持原归属；本轮仅精确提交新增内容` | 让出声明=`Codex持续持有w6写权，未OFFER；无硬件操作` | 心跳(UTC+8)=`2026-10-30T15:12:00+08:00` | 证据入口=`report/evidence/S6-C/s6c_deterministic_matrix_20261030_r07/` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex；6-C离线限定验收完成，6-D等上游字段，阶段G5未通过`
+
 ## 回绕拒绝与证据修复（2026-10-30，UTC+8）
 
 - Wong 明确同会话回绕一律拒绝；B23/B25 与机器规格已统一，异常帧不刷新窗口/目标证据，H3 单调时间期限仍评估，新 session 才允许重新从零开始。0xFFFFFFFE 是否提前停发/换会话保持待裁决，旧强制表述已标历史非当前规则。帧率优化由 Wong 取消，按其确认的 0.08 fps 可用继续，本任务不启动 FPS 优化或硬件。

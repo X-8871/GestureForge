@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "artifact": "s6c_supplemental_deterministic_matrix",
+  "task_id": "S6-C",
+  "run_id": "s6c_deterministic_matrix_20261029_r02",
+  "basis_run_id": "s6b_current_20261029_r08",
+  "cases": [
+    {
+      "case_id": "C11-duplicate-ack",
+      "matrix_class": "动作失败/未观察/重复 ACK",
+      "description": "复用已冻结的fist稳定输入与独立expected；在首次成功回执后重放同一ACK一次，重复回执不得重复提交、生效或迁移。",
+      "events": [
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 0,
+          "frame_id": 1,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 2,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 3,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 4,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 5,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 6,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 7,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        },
+        {
+          "kind": "E_FRAME_RESULT",
+          "dt_ns": 100000000,
+          "frame_id": 8,
+          "state": "OK",
+          "detections": [
+            {
+              "class_id": 0,
+              "score": 0.9,
+              "xyxy": [
+                0.2,
+                0.2,
+                0.6,
+                0.6
+              ],
+              "source_order": 0
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "final_state": "COOLDOWN",
+        "transitions": [
+          "M1",
+          "M3",
+          "M5",
+          "M6"
+        ],
+        "submitted_at_frames": [
+          7
+        ],
+        "window_complete_ns": 500000000,
+        "action_summary": {
+          "action_submitted": 1,
+          "action_effective": 1,
+          "action_failed": 0,
+          "action_unobserved": 0,
+          "visible_state_changes": 1,
+          "final_display_state": "UI_MENU",
+          "final_channel": null
+        },
+        "core_counters": {
+          "no_hand_frames": 0,
+          "invalid": 0,
+          "action_submitted": 1
+        }
+      },
+      "outcome_policy": {
+        "duplicate_ack_attempts": [
+          1
+        ]
+      }
+    }
+  ]
+}

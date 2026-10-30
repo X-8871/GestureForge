@@ -1,5 +1,15 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 6-D 最新阶段5交付资格核验（2026-10-30 19:27，UTC+8；优先于下方历史状态）
+
+- `report/evidence/S6-D/s6d_handoff_qualification_20261030_r01/` 绑定main a25ee008的阶段5 G0/显示ABI/G3记录、w4 17fe51bb的显示消费者与G3-B结果包，以及旧w5 2decd0dc/r07。新交付在main/w4，旧w5未更新不等于阶段5没有新证据；仅消费固定提交，不改上游。
+- G3-B清单45项SHA/字节数一致；80B种子按32B头/16B检测步进解出8字段和3框，96B回读前80B一致。cap/inf四个时间字均0、status=1；已有GT时间槽和stale位，但本例为预置显示种子，src=real不证明真实推理。旧w5核对93成员声明结构及2个消费成员，未重跑159套件或声称93成员全部字节核验。
+- 字段矩阵11项，6-D资格仍BLOCKED：生产写端未交付，会话/结果序号与业务状态映射不完整，缺可信发布时间/时基与可重算年龄。显示stale超1帧及47.3s+16.7ms年龄口径不能直接替代交互已批200ms；参数未改。具体证据、责任输入见field_qualification.json与gaps.json，不补造事件或时间。
+- 独立Reviewer s6d_handoff_audit_review 对manifest SHA-256 2385b41eea0c01db759b37a2736bd20b7b4f297edcf7f821fdc33bec30443063 返回PASS；隔离重跑四份资格/解码结果逐字节一致。inputs/evidence/strict全0，65条清单项零不符、最终stdout一致；PASS限交付绑定与资格审计，不代表6-D集成通过。
+- 包装初轮15次调用失败轨迹与成功轮21次均保留；审计3.460秒、93次Git调用（版本查询另1次），峰内存未测。297个原文件在本轮STATE更新前未变，旧3处差异与14个历史包不混提交；恢复入口为本包audit.py、source_bindings.json及输入快照。core_event_constructed/core_step_called均false，preview/T6-A03 NOT_RUN，6-E实物及阶段G3/G4/G5未闭合；未上板。
+
+任务=`6-D正式交付绑定与输入资格审计收口` | 负责人=`Codex阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`ec1a35b5b367620c19d5a54597aad1b8d98e6c48` | 允许修改范围=`本轮6-D离线审计新证据、STATE新增段与字节保真规则` | 未提交改动归属=`原3处差异及14个历史包保持原归属；本轮精确提交新增内容` | 让出声明=`Codex持续持w6写权，未OFFER；无硬件操作` | 心跳(UTC+8)=`2026-10-30T19:27:17+08:00` | 证据入口=`report/evidence/S6-D/s6d_handoff_qualification_20261030_r01/` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex；资格审计PASS，6-D业务BLOCKED，等上游生产与语义交付`
+
 ## 6-C 隔离恢复验证（2026-10-30 18:06，UTC+8；优先于下方历史状态）
 
 - `report/evidence/S6-C/s6c_isolated_recovery_20261030_r01/` 从固定提交44615bd3完整干净检出，再按提交内快照恢复130项历史输入、10项canonical源码和1项运行STATE；7项上游只重定位path/git_repo，固定提交、相对路径、SHA及批准参数不变。5个业务模块均从隔离副本加载。

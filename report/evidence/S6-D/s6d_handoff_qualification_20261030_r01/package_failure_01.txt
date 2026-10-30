@@ -1,0 +1,4 @@
+2026-10-30 初轮 package.py 退出1：RuntimeError: 包装固定点未收敛。
+原因：将包装strict状态反向嵌入evidence检查状态，造成evidence输出与清单循环漂移。
+初轮每次真实失败stdout/stderr保存在preflight_<iteration>_<name>文件；完整每次包装输出保存在本RunId tmp目录0..4前缀。
+修复只移除反向状态嵌入；包装结果独立存入packaging_record.json，不改业务结论。

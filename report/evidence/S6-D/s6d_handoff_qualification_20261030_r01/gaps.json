@@ -1,0 +1,81 @@
+{
+  "status": "BLOCKED",
+  "gaps": [
+    {
+      "field": "class_score",
+      "qualification": "不可直接复用",
+      "available": "u8class/score_q8，显示按/255",
+      "evidence": "input_result_abi.h:S5ResultDet；input_real_source.c:S5Real_ScoreToPct",
+      "required_responsibility_input": "生产方提供五类语义、业务分数含义及冻结映射"
+    },
+    {
+      "field": "frame_id",
+      "qualification": "不可直接复用",
+      "available": "结果块u32帧号已有；UART frame是显示循环帧号",
+      "evidence": "binary0x04；input_uart.txt:frame=60/120/180",
+      "required_responsibility_input": "生产方冻结推理帧序、会话复位及回绕规则"
+    },
+    {
+      "field": "session_id_result_seq",
+      "qualification": "缺失",
+      "available": "32B头无session_id/result_seq",
+      "evidence": "input_result_abi.h:S5ResultHeader；binary0x00..0x1F",
+      "required_responsibility_input": "推理/解码生产方交付会话与结果序号命名空间"
+    },
+    {
+      "field": "capture_time",
+      "qualification": "不可直接复用",
+      "available": "cap_lo/hi为GT ticks，种子值不是实测采集时间",
+      "evidence": "binary0x0C/0x10；input_seed_block.json",
+      "required_responsibility_input": "生产方提供GT实测来源、频率、复位及单调域证明"
+    },
+    {
+      "field": "result_time",
+      "qualification": "缺失",
+      "available": "inf_lo/hi声明infer_done，无发布时刻及可信result_time_ns",
+      "evidence": "binary0x14/0x18；input_doc1.md:505-511",
+      "required_responsibility_input": "生产方冻结infer_done到发布语义及同域单调时钟"
+    },
+    {
+      "field": "stale_200ms",
+      "qualification": "不可直接复用",
+      "available": "status.bit2超1帧；显示允许年龄47.3s+16.7ms",
+      "evidence": "binary0x1Cbit2；input_doc0.md:133；input_result_abi.h:16",
+      "required_responsibility_input": "提供可重算age_result/age_frame，保持交互200ms"
+    },
+    {
+      "field": "business_state",
+      "qualification": "缺失",
+      "available": "valid/overrun/stale不等同OK/NO_HAND/ERROR/TIMEOUT",
+      "evidence": "binary0x1C；input_real_source.c:S5Real_Parse",
+      "required_responsibility_input": "接口责任方冻结业务状态映射及异常优先级"
+    },
+    {
+      "field": "producer_delivery",
+      "qualification": "缺失",
+      "available": "固定文档明确生产写端尚未实现，仅消费者和JTAG种子",
+      "evidence": "input_doc1.md:511；input_seed_block.json",
+      "required_responsibility_input": "推理/解码应用提交生产端与可恢复结果证据"
+    },
+    {
+      "field": "replay_scope",
+      "qualification": "不可直接复用",
+      "available": "旧replay capture0哨兵、result_time/stale=null、PRESENT未到OK",
+      "evidence": "input_replay0.jsonl/1.jsonl；old_replay_qualification.json",
+      "required_responsibility_input": "交付replay_only范围与真实时间来源，不补造事件"
+    },
+    {
+      "field": "hardware_acceptance",
+      "qualification": "不可直接复用",
+      "available": "显示G3声称通过；P3n计算回归未跑、不主张G4/G5",
+      "evidence": "input_doc2.md:81/104",
+      "required_responsibility_input": "显示S6-A..F旧误编号不替代w6交互6A/B/C验收"
+    }
+  ],
+  "hardware": "NOT_RUN",
+  "T6_A03": "NOT_RUN：缺实测P，47.3s推理耗时不替代P",
+  "G5": "未通过",
+  "independent_review": "NOT_RUN；总控另派Reviewer",
+  "P3n": "VDMA0x43C00000/GPIO0x43C10000，仅记录；无2B/preproc/VTC操作",
+  "upstream_state_progress": "不采用w4旧交互0%断言覆盖w6当前成果"
+}

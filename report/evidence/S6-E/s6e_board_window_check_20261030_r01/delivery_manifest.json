@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-E",
+  "run_id": "s6e_board_window_check_20261030_r01",
+  "source_commit": "8d30a9ff693284d5d8fffcd676c6ca94627e6790",
+  "evidence_dir": "report/evidence/S6-E/s6e_board_window_check_20261030_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅主机预检与只读拓扑枚举，不读写业务接口；P与业务实物验证不在本次操作范围",
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "包内新文件按磁盘字节保真；固定上游输入权威基座见source_bindings的commit_blob",
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.0.windows.2",
+    "powershell": "5.1.26100.8457"
+  },
+  "limitations": [
+    "包装CHECKS_OK不代表G3/G4/G5或业务验收",
+    "未执行T6-A03帧周期采集、6-E业务实物验收或200ms新鲜度验证",
+    "未交付真实生产推理结果，6-D不预判PASS",
+    "峰值内存未测"
+  ],
+  "checks": [
+    {
+      "name": "host_snapshot_query",
+      "status": "PASS",
+      "command": "capture.py capture --label pre; capture.py capture --label post",
+      "exit_code": 0,
+      "reason": "仅查询成功；post存在后继DSH会话，不声明主机空闲"
+    },
+    {
+      "name": "T6-A03",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "未执行真实帧周期事件采集"
+    },
+    {
+      "name": "S6-E-business-acceptance",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本次最多只读拓扑枚举，未执行业务实物验收"
+    },
+    {
+      "name": "readonly-topology-once",
+      "command": "{\"argv\": [\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\python\\\\python.exe\", \"-X\", \"utf8\", \"-B\", \"D:\\\\codex-worktrees\\\\w6\\\\report\\\\evidence\\\\S6-E\\\\s6e_board_window_check_20261030_r01\\\\enumerate_once.py\", \"--execute-once\"], \"working_directory\": \"D:\\\\FPGA_Competition\"}",
+      "status": "FAIL",
+      "exit_code": 1,
+      "reason": "一次枚举或收窗核验未通过；不重试，原始结果见execution.json"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/capture.py",
+      "sha256": "a0afe8de45f08b884b04c124ce4ff53251e160df438aa049b7ad5b31ef44fb39",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/check_evidence.json",
+      "sha256": "c00eb29209b3262e757aea5f5fd84bd437255ad847d7a0d409f47fe5893bf97b",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/check_inputs.json",
+      "sha256": "8f39b22b938622379bf830dbae1eb91c84828b55ae36614ec68eb078c5500d5c",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/check_strict.json",
+      "sha256": "89f844686efbfe914a302e749d63a79e542fed620827e2e7ebd86b6711e57a3d",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/diagnose_startup_static.py",
+      "sha256": "a1cb3351ddd1ca75abe9efb2207fe2922e43f331f6a904f17341e22ce4771e58",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/enumerate.tcl",
+      "sha256": "e54fc6bf975e321ccd11e66570c29388e9766aa2128aad1434f7ca319d8f31a1",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/enumerate_once.py",
+      "sha256": "a7c8f4174a55acc447259f68d5ba0584b2d35cf541f3cac61c8e162fba23e069",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/enumerate_selftest.json",
+      "sha256": "8aa560b0e42385e0f291f6f49e30f32911aac20a919a0de88ae5fcdfc69f2035",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/enumerate_selftest_r2_utf8.json",
+      "sha256": "c0776329f944e386f869f4333da14273e87bf6feecb432f7e4f3e61113a2d64f",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/enumerate_selftest_utf8.json",
+      "sha256": "f8706db3e2fab2ef0fcdb2fa1ea82d5b65cc36a37095861f36205f437ade4fec",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/execution.json",
+      "sha256": "0c94d775048190e4513cdbc32b25d9eda2847ab3f142c6915948d05393315e2f",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/host_snapshot.json",
+      "sha256": "b135f935dd78fbd024918c8d456d8d0b5ef5066bcf0bbe49585ba48a276b55a5",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/host_snapshot_post.json",
+      "sha256": "d86e59ed57c6b7916f9a7ec4f3a0476a4e5aa8ccb3f5656f663542f7a56fd44f",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/host_snapshot_pre.json",
+      "sha256": "0bf47e56b5b17d899d2861af29e24c91f88ac6c8199e0b8056b4933b89210ca6",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/hw_server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/input_cdx015_disk.md",
+      "sha256": "153fe175d6b606553fce971c66731a7a5c27f7171dba9e86b916dbc99f4b8294",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/input_check_manifest_hash_basis.py",
+      "sha256": "10e3fe7121cc46665cfcd553dc5237833fe3134bc0dd00a8652d79fa290e85f6",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/input_check_stage_delivery.py",
+      "sha256": "00350ac813e928c052e43a5237fdf7a9be79d75c952cf691318eeb1e9fceeb8e",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/input_dsh012.md",
+      "sha256": "3024dd5fe6a73b5dc1d4d9550b97c5427b74424a7093622b8de1bdd6dd0b4a77",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/input_offer_state.md",
+      "sha256": "d9ad28649ebb384152f4bcf99f9e0adee6616f6c74b421ba894321ec82285907",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/inputs_manifest.json",
+      "sha256": "7dc9044e61eba6da19d5b5ada7ebee639322c5a849c4719da212cc6926e244f9",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/package.py",
+      "sha256": "72a70ba26e06eab51b1196f122ae3f01418980af9fd400150a2f210f21342998",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_check_evidence.json",
+      "sha256": "c00eb29209b3262e757aea5f5fd84bd437255ad847d7a0d409f47fe5893bf97b",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_check_inputs.json",
+      "sha256": "8f39b22b938622379bf830dbae1eb91c84828b55ae36614ec68eb078c5500d5c",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_check_strict.json",
+      "sha256": "87b94715cd0107ab4529718bfca68b686bfd81c60fb464f98103ad75146502e5",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_delivery_manifest.json",
+      "sha256": "7198318b30d4ae07beb68a5f2b4b934b961bb40f5703f164a705cb040c41ac00",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_inputs_manifest.json",
+      "sha256": "7dc9044e61eba6da19d5b5ada7ebee639322c5a849c4719da212cc6926e244f9",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_package.py",
+      "sha256": "f6636dca6b0e7eea695c62c5d8e08f269a60e7b5d0d0fa13a7f018b295a1bf9f",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_qualification.json",
+      "sha256": "5662fc9ce576d268ac9dcf6932108e9d2eaf29764fce4fda50d04f060aa74a20",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/packaging_candidate_r01/candidate_r01_review_note.json",
+      "sha256": "80ccc4aec8708161af37c698efb86cb9520a1445ee0c5bf34b0ad8d316cd1327",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/protected_worktree_check.json",
+      "sha256": "88d3faca048b4444fecc68bb4a70bd5167ba76cbe08bf47ad8d3ff83f2f67d28",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/qualification.json",
+      "sha256": "59f66e35468d05c7a59e4ee388e6860e6f78b7b4dd378ad22b92df21a27576a5",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/review_r1_changes_required.json",
+      "sha256": "377332c45a490ba68f733fa224e2615cdb2a77e4994fcba7b18f2753a32504b9",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/review_receipt.json",
+      "sha256": "5686f5908a6d5d7c607ae63c4bd33b5731c98ca772638f55c3156f72aba22004",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/source_bindings.json",
+      "sha256": "acc5de16b73ed880750325ca15cbd49218b764dc0e5ee90a27d2fbce9e7be26a",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/static_startup_diagnosis.json",
+      "sha256": "08ac795a65c696741c4e38591547e192e7699c37fb11296a5f27c60baa1deae4",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_board_window_check_20261030_r01/xsdb.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    }
+  ]
+}

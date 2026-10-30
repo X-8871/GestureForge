@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-E",
+  "run_id": "s6e_board_window_check_20261030_r01",
+  "scope": "一次只读拓扑枚举尝试与主机预检；不等于业务实物验收",
+  "host_query_status": "PASS",
+  "worktree_identity_status": "PASS",
+  "protected_worktree_files": 297,
+  "protected_worktree_mismatches": [],
+  "authorization": {
+    "user_board_authorization": true,
+    "formal_offer_commit": "4646d4852fa1e8584e3ccf69582672b127335bd4",
+    "formal_offer_snapshot": "input_offer_state.md",
+    "claim": "总控已在w6本轮新增6-E段CLAIMED；不复用旧租约",
+    "source_review_and_execution_are_separate": true
+  },
+  "source_review": {
+    "status": "PASS",
+    "round": 2,
+    "receipt": "review_receipt.json",
+    "scope": "固定一次只读协调器源码；不代表真实拓扑或业务验收",
+    "first_review_blockers": "review_r1_changes_required.json"
+  },
+  "readonly_topology_attempt": {
+    "status": "FAIL_STOPPED",
+    "command": "enumerate_once.py --execute-once",
+    "wrapper_exit_code": 1,
+    "start_utc8": "2026-10-30T21:07:23+08:00",
+    "end_utc8": "2026-10-30T21:07:29+08:00",
+    "elapsed_seconds": 5.86,
+    "runs": 1,
+    "hw_server_pid": 56724,
+    "xsdb_pid": 61604,
+    "xsdb_exit_code_decimal": 3221225781,
+    "xsdb_exit_code_hex": "0xC0000135",
+    "hw_server_log_bytes": 0,
+    "xsdb_log_bytes": 0,
+    "tcl_begin_marker_observed": false,
+    "tcl_execution_confirmed": false,
+    "targets_verified": false,
+    "jtag_topology_verified": false,
+    "failure_classification": "主机裸XSDB入口启动失败；0xC0000135提示依赖或运行环境缺失，具体依赖尚未据本记录定位",
+    "board_fault_inferred": false,
+    "target_unreachable_inferred": false,
+    "retry_in_same_run_id": false
+  },
+  "cleanup": {
+    "execution_postflight_processes": [],
+    "execution_postflight_listeners": [],
+    "own_processes_56724_61604_absent_at_post_snapshot": true,
+    "later_host_idle": false,
+    "new_window_status": "BLOCKED_NEW_WINDOW",
+    "own_cleanup_failed": false,
+    "later_snapshot_time_utc8": "2026-10-30T21:08:40.748802+08:00",
+    "later_foreign_hw_server": {
+      "pid": 608,
+      "parent_python_pid": 61696,
+      "ancestor_dsh_pwsh_pid": 50564,
+      "executable_path": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\hw_server.exe",
+      "creation_time_windows_json": "/Date(1793365665493)/",
+      "listening_port": 3121,
+      "scope": "在本轮结束后创建的DSH进程；未停止、未连接、未接管"
+    },
+    "note": "执行时的本轮清理通过与稍后外部会话存在分别记录，不能声称当前全机零监听"
+  },
+  "business_statuses": {
+    "S6_E_business_hardware_acceptance": "NOT_RUN",
+    "T6_A03_real_frame_period_measurement": "NOT_RUN",
+    "P3q_deployment_identity": "NOT_VERIFIED",
+    "PS_core_stop_state": "NOT_VERIFIED",
+    "real_inference_output": "NOT_RECEIVED",
+    "stage6_G3_G4_G5": "NOT_PASSED",
+    "S6_D": "BLOCKED"
+  },
+  "S6_D_partial_qualification_boundary": {
+    "producer_delivery_received": false,
+    "accepted_for_later_partial_field_checks": "取得真实时基与预置检测项交付后，只核验实际有证据的ABI、坐标、步进、序号、计时器换算、状态位和内存可见性",
+    "not_qualified": [
+      "真实推理结果",
+      "真实端到端延迟与200ms新鲜度",
+      "模拟inf时间与真实事件的等价性",
+      "session_id/result_seq或权威外部封装",
+      "OK/NO_HAND/ERROR/TIMEOUT业务映射",
+      "可信结果发布时刻与可重算年龄"
+    ]
+  },
+  "hardware_memory_access_performed": false,
+  "offline_startup_diagnosis": {
+    "script": "diagnose_startup_static.py",
+    "result": "static_startup_diagnosis.json",
+    "exit_code": 0,
+    "finding": "PE直接导入tcl86t.dll；exe同目录缺少该DLL，Vitis lib/win64.o存在，当前PATH未含该库目录；vendor xsdb.bat调用setupEnv与loader，loader将RDI_LIBDIR加入PATH",
+    "interpretation": "与主机入口环境导致依赖加载失败一致，但未取得精确的loader故障项报告，不能独立锁定唯一缺失依赖",
+    "corrected_entrypoint_executed": false,
+    "hardware_retry_performed": false,
+    "initial_write_issue": "首次写结果受沙箱PermissionError拒绝；总控仅对同一结果路径提权后成功保存，未调用硬件"
+  },
+  "board_programmed": false,
+  "serial_opened": false,
+  "peak_memory_bytes": null,
+  "peak_memory_note": "未测量峰值内存",
+  "packaging_scope": "inputs/evidence/strict仅核验绑定与包装；FAIL_STOPPED证据包也可通过包装，不替代真实拓扑或实物验收"
+}

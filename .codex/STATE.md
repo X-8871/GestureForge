@@ -1,5 +1,16 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## 6-E 板卡只读窗口（2026-10-30 21:00，UTC+8；优先于下方历史状态）
+
+- Wong 本轮直接交付板卡；main `4646d4852fa1e8584e3ccf69582672b127335bd4` 的正式 OFFER 已核验。仅接管一次最多60秒的JTAG拓扑枚举，实际会话含清理最长5分钟；离线审查期间未启动硬件，不占会话窗口。不执行mrd/mwr、stop/con、reset、下载或改PL，不碰COM4与候选区；T6-A03另等真实P采集方案。
+- 独立新RunId为 `report/evidence/S6-E/s6e_board_window_check_20261030_r01/`。专项协调器R2独立审查PASS：2正例/8反例与5项内存mock通过；实际21:07:23–21:07:29运行5.860秒，退出1/FAIL_STOPPED。hw_server56724曾正常监听，XSDB61604以3221225781（0xC0000135）启动失败，0B日志且无Tcl开始标记；未取得板上目标、P3q身份或PS状态，不能判板故障。两个本轮进程已退出、21:07:29收尾无监听/相关残留；没有执行板上内存寄存器访问或程序控制，不重试旧RunId。
+- 已写main Codex信箱 `CDX-20261030-015-stage6-producer-partial-and-readonly-window.md`，接受真实时基+预置检测项用于取得证据后的6-D部分资格核验，不预判真实推理、新鲜度或业务映射通过；该回执由DSH持有方串行提交。6-D仍有未闭合项、T6-A03 NOT_RUN、6-E实物验收未执行、阶段G5未通过。
+- 21:08:40复查出现后继DSH hw_server608/父61696/祖父50564，占3121，创建约21:07:45，晚于本轮收窗；不得当作我方残留或结束它。收窗与后继占用已写CDX017/018。静态诊断见static_startup_diagnosis.json：tcl86t.dll在Vitis lib而不在exe旁、当前PATH缺该lib；vendor loader负责环境准备，与启动失败一致，未确定唯一缺失DLL、未运行修正入口。下次先在新RunId离线验证无connect的厂商启动入口并审查清理，再重新核对独占窗口。
+- 稍后main `e4db20fe5b62f079e6082e5dd882f118741f6fec` 的DSH-20261030-013已交生产者ELF与GT/序号/status实测材料；阶段6尚未消费该固定包，不能继续把“生产写端未交付”当当前事实。本轮证据只覆盖012/接板时点。013仍明确模拟框及7ms模拟推理；下一离线任务逐字段核验，cap事件不自动等于交互publish时刻、常量0xA55A不自动证明跨启动唯一session_id，不能预填真实推理/P/6-E通过。
+- 失败证据包38文件/37交付成员，inputs/evidence/strict全部0且最终输出复跑逐字节一致；独立Reviewer s6_board_readonly_review_1030最终PASS，manifest SHA-256=22d37457425896758ba9bdf4ab2a336665fcf78f3994c23a14ae525772c98052。包装PASS只证据可复核，不改变实际枚举FAIL。原297项保护通过，旧候选命令记录缺-X utf8/cwd问题已修正，8项旧候选材料保留，实际执行与日志不改；峰值内存未测。
+
+任务=`6-E只读枚举失败证据与收窗` | 负责人=`Codex阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`8d30a9ff693284d5d8fffcd676c6ca94627e6790` | 允许修改范围=`本轮新证据、STATE新增段与字节保真规则；不再操作硬件` | 未提交改动归属=`原3处差异与14旧RunId保留；本轮新内容精确提交，不混旧差异` | 让出声明=`本次板卡窗口21:07:29已关闭、不保留；w6写权仍归Codex且未OFFER，不接管main/w4` | 心跳(UTC+8)=`2026-10-30T21:17:50+08:00` | 证据入口=`report/evidence/S6-E/s6e_board_window_check_20261030_r01/` | 恢复命令=`先读execution.json、qualification.json和后继会话快照；不得复用RunId` | 状态/下一接手方=`IN_PROGRESS / Codex；失败证据独立复审PASS，实际枚举FAIL；后续先离线验证官方启动入口及消费013`
+
 ## 6-D 最新阶段5交付资格核验（2026-10-30 19:27，UTC+8；优先于下方历史状态）
 
 - `report/evidence/S6-D/s6d_handoff_qualification_20261030_r01/` 绑定main a25ee008的阶段5 G0/显示ABI/G3记录、w4 17fe51bb的显示消费者与G3-B结果包，以及旧w5 2decd0dc/r07。新交付在main/w4，旧w5未更新不等于阶段5没有新证据；仅消费固定提交，不改上游。

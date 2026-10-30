@@ -1,0 +1,20 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "round": 1,
+  "provenance": "总控转交独立Reviewer的准确问题与关闭条件；保留首次阻断事实，不替代R2最终审查回执",
+  "hash_basis": "worktree_disk",
+  "source_before_sha256": "f3da0e2ff7df1d4fa223bce3f9f19146c5c12f71511beef0926c8f0d8ec25b8b",
+  "source_after_sha256": "a7c8f4174a55acc447259f68d5ba0584b2d35cf541f3cac61c8e162fba23e069",
+  "findings": [
+    {
+      "issue": "server等待环的host可阻塞10秒，发现监听后跳出前未复核10/60秒期限，XSDB启动前无guard，可能在预算或租约变化后仍开XSDB",
+      "closure": "host返回后执行guard及10秒检查，紧贴XSDB启动前执行guard及deadline核验"
+    },
+    {
+      "issue": "XSDB快退出可能跳过guard循环，成功与清理后未guard，可能漏运行期间STATE或信箱变化",
+      "closure": "XSDB返回后执行guard及30秒检查，收窗host后执行guard，扫描循环每秒核验端口属于本server且无外部硬件进程"
+    }
+  ],
+  "r2_status_at_recording": "复审已确认修复路径，模拟失败场景验证仍进行中；最终结论以独立回执为准",
+  "hardware_called_for_review": false
+}

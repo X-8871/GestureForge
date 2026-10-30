@@ -146,6 +146,9 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **生产者 v3 身份 A 交付（2026-10-31 01:08）**：sidecar `+0x100`、`n_dets≤14` fail-closed、flush 288 B；8 个 ELF 新 sha（有界 `bef4abb5…`、长跑 **`e2d1b338…`**、idleprobe `a21382d2…`、cycle `410d6020…`、overrun `8b9e00a7…`、stale `b678b279…`、invalid `02a5c8ef…`、no_hand `1f23ef76…`）；自检 **case0c/case0d/case0e PASS**；冻结件 `S5_PRODUCER_V2_FREEZE.md` rev3/A `8c52305c…`；构建记录 `p3q_producer_A_rev3_record.json` `d60683b7…`。
+  证据归档 w4 `S6-T01/s6_producer_v3_identity_a_20261031_r01/`（门禁 OK）；rev2 原样存档 `build/rev2_archived/`（作废）。阶段5 冻结物未动。
+  下一板窗（Codex M3 后）：E1-lite → **E3-A**（`e2d1b338…`，sidecar `0x20800100` 回读）→ **E4-A ×4** → R-04 B 热机 → （Wong 断电）R-04 A 冷启。
 - **sidecar 身份裁定 A（2026-10-31 01:0x–01:1x，Wong）**：Wong 明确采用他已在 Codex 侧批准的 **A = 32 B ABI 不动 + sidecar `+0x100` + `n_dets ≤ 14`（>14 fail-closed 发 ERROR）+ flush 288 B**。
   · 我此前 rev2（`+0x120`/16 框/flush 0x140）**作废，仅存档**（`S6_T01/s6_producer_v2_rev2_20261031_r01/`，不得与 A 混用）。
   · 口径文件已出 **rev3**（`阶段6_交互控制_6D口径冻结_20261030.md`，main 已提交）：正式身份 A + 勘误/裁定记录（rev2 历史保留）。

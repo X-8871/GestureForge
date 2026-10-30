@@ -1,0 +1,34 @@
+# P3n 真实图像挂屏（raw 区灌 fixture）
+
+- RunId：`s5_g3_n_realimage_hold_20261030_r01`
+- 开窗：2026-10-30T17:36:52+08:00；收窗：2026-10-30T17:37:51+08:00
+- **STATIC_HOLD_AT=17:37:46**
+- **cores=STOPPED**（仅 CPU）
+- **PL=P3n sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0**
+- **ELF sha256=388a0a07101a16e3b3fb43a51b6b987f63bff9200821c3f9ddca1e896fe0752a**（284812 B）
+- fixture：`D:\codex-worktrees\w4\report\evidence\S4-T34\bringup_chainlite_b_20261028_r01\fixture\fixture_fist_000_640x480_bgr888.raw` sha256=ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4（921600 B）
+- raw 写入：addr=0x12000000、bytes=921600、chunks=15、write_elapsed_s=13.7
+- **raw 回读校验**：前 96 B equal=True、末 96 B equal=True、head96_sha256=4f70742fdca1ecb7076b823fb2ec315eba0768e8d2f6c4d0998c8b08334fbc61、tail96_sha256=1a9fc2c59bd098ddde221136ca6625a61c01d54f03953508e29459593ccb0673
+- VDMA_CR=65539（0x10003）、VDMA_SR=69632（0x11000）、UF_GPIO=1289294080
+- 停核后 VDMA 运行：CR.RS=1、SR.Halted=0 ⇒ 仍在读帧存 ✅
+- UART：src=None、nbox=3
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 预热期 UART 关键行
+
+```
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: read period = 5557923 ticks (16673 us) -> fps_dis=60 (display refresh)
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=0
+S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=240 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=300 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=360 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=420 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+```
+
+- 边界：禁 rst -system；禁读 0x43C30000；未烧 QSPI；未改线

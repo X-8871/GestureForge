@@ -1,0 +1,187 @@
+{
+  "mode": "g3a",
+  "criteria": [
+    {
+      "id": "K-1",
+      "desc": "RESULT 可解析",
+      "pass": true,
+      "detail": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 60,
+        "fps_upd": 30,
+        "fps_dis_idle": 0,
+        "idle_period_us": 0,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 764713996,
+        "fb_crc": 4263145958,
+        "uf_pix": 0,
+        "uf_frame": 264536211,
+        "uf_total": 0,
+        "src": "real"
+      }
+    },
+    {
+      "id": "K-2",
+      "desc": "pass==1",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "id": "K-3",
+      "desc": "vdma_err==0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "K-4",
+      "desc": "fps_dis>=55（且<=90）",
+      "pass": true,
+      "detail": {
+        "fps_dis": 60,
+        "fps_upd": 30
+      }
+    },
+    {
+      "id": "K-5",
+      "desc": "运行期 uf 增量≈0（以 +2 s 采样为准；+8 s 采样仅记录供参考）",
+      "pass": false,
+      "detail": {
+        "note": "有界 ELF 约 3 s 跑完（180 帧@60fps），+8 s 采样时应用可能已停 VDMA，其后计数会按满像素率增长属预期，不并入判据",
+        "passes": [
+          {
+            "tag": "S7_uf_sample_t2",
+            "delta": 168001566,
+            "rate_px_s": 33775948.1,
+            "ratio": 0.6108,
+            "vdma_cr": 65538,
+            "vdma_sr": 69633
+          },
+          {
+            "tag": "S7_uf_sample_t8",
+            "delta": 275121908,
+            "rate_px_s": 55245363.1,
+            "ratio": 0.9991,
+            "vdma_cr": 65538,
+            "vdma_sr": 69633
+          }
+        ]
+      }
+    }
+  ],
+  "verdict": "P3N_G3A_FAIL",
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":264536211,\"uf_total\":0,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "fps_dis_idle": 0,
+    "idle_period_us": 0,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 764713996,
+    "fb_crc": 4263145958,
+    "uf_pix": 0,
+    "uf_frame": 264536211,
+    "uf_total": 0,
+    "src": "real"
+  },
+  "extra": {
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "uf_pix_total": 0,
+    "uf_passes": [
+      {
+        "tag": "S7_uf_sample_t2",
+        "values": [
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          268784979,
+          280249458,
+          291698967,
+          303126716,
+          314404176,
+          325956179,
+          337568339,
+          348911031,
+          360608339,
+          372070312,
+          383398561,
+          394907116,
+          406321408,
+          417702739,
+          429211166
+        ],
+        "first": 261209600,
+        "last": 429211166,
+        "delta": 168001566,
+        "span_ms": 4974,
+        "vdma_cr": 65538,
+        "vdma_sr": 69633,
+        "xsdb_exit": 0,
+        "error_text": null,
+        "rate_px_s": 33775948.1,
+        "ratio_vs_pixel_rate": 0.6108
+      },
+      {
+        "tag": "S7_uf_sample_t8",
+        "values": [
+          538570591,
+          549865934,
+          561874352,
+          573431121,
+          584766909,
+          596243277,
+          607612499,
+          619127379,
+          630644078,
+          642093256,
+          653404974,
+          664948043,
+          676578791,
+          687852357,
+          699447379,
+          710816339,
+          722256828,
+          733853681,
+          745196757,
+          756589960,
+          768007909,
+          779427946,
+          790832890,
+          802257789,
+          813692499
+        ],
+        "first": 538570591,
+        "last": 813692499,
+        "delta": 275121908,
+        "span_ms": 4980,
+        "vdma_cr": 65538,
+        "vdma_sr": 69633,
+        "xsdb_exit": 0,
+        "error_text": null,
+        "rate_px_s": 55245363.1,
+        "ratio_vs_pixel_rate": 0.9991
+      }
+    ]
+  },
+  "utc8": "2026-10-30T17:43:28+08:00"
+}

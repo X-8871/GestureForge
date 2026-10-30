@@ -1,0 +1,190 @@
+{
+  "mode": "g3a",
+  "criteria": [
+    {
+      "id": "K-1",
+      "desc": "RESULT 可解析",
+      "pass": true,
+      "detail": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 60,
+        "fps_upd": 30,
+        "fps_dis_idle": 0,
+        "idle_period_us": 0,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 764713996,
+        "fb_crc": 4263145958,
+        "uf_pix": 0,
+        "uf_frame": 261506051,
+        "uf_total": 0,
+        "src": "real"
+      }
+    },
+    {
+      "id": "K-2",
+      "desc": "pass==1",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "id": "K-3",
+      "desc": "vdma_err==0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "K-4",
+      "desc": "fps_dis>=55（且<=90）",
+      "pass": true,
+      "detail": {
+        "fps_dis": 60,
+        "fps_upd": 30
+      }
+    },
+    {
+      "id": "K-5",
+      "desc": "运行期 uf 增量≈0（+1.5 s/50 ms 采样为准；+8 s 采样仅记录供参考）",
+      "pass": true,
+      "detail": {
+        "note": "有界 ELF 约 3 s 跑完（180 帧@60fps）：运行期采样窗取 +1.5 s 起 25×50 ms（1.2 s）；+8 s 采样时应用已停 VDMA，计数按满像素率增长属预期，不并入判据；另外应用自报 uf_pix 也是运行期直接证据",
+        "app_uf_pix": 0,
+        "app_uf_frame": 261506051,
+        "app_uf_total": 0,
+        "passes": [
+          {
+            "tag": "S7_uf_sample_t15",
+            "delta": 0,
+            "rate_px_s": 0.0,
+            "ratio": 0.0,
+            "vdma_cr": 65539,
+            "vdma_sr": 69632
+          },
+          {
+            "tag": "S7_uf_sample_t8",
+            "delta": 275351833,
+            "rate_px_s": 55247157.5,
+            "ratio": 0.9991,
+            "vdma_cr": 65538,
+            "vdma_sr": 69633
+          }
+        ]
+      }
+    }
+  ],
+  "verdict": "P3N_G3A_PASS",
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":261506051,\"uf_total\":0,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "fps_dis_idle": 0,
+    "idle_period_us": 0,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 764713996,
+    "fb_crc": 4263145958,
+    "uf_pix": 0,
+    "uf_frame": 261506051,
+    "uf_total": 0,
+    "src": "real"
+  },
+  "extra": {
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "uf_pix_total": 0,
+    "uf_passes": [
+      {
+        "tag": "S7_uf_sample_t15",
+        "values": [
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240,
+          258218240
+        ],
+        "first": 258218240,
+        "last": 258218240,
+        "delta": 0,
+        "span_ms": 1374,
+        "vdma_cr": 65539,
+        "vdma_sr": 69632,
+        "xsdb_exit": 0,
+        "error_text": null,
+        "rate_px_s": 0.0,
+        "ratio_vs_pixel_rate": 0.0
+      },
+      {
+        "tag": "S7_uf_sample_t8",
+        "values": [
+          486088954,
+          497565121,
+          508846715,
+          520430782,
+          531988698,
+          543631709,
+          555015082,
+          566402606,
+          577998298,
+          589452296,
+          600807675,
+          612399579,
+          623895258,
+          635327396,
+          646825472,
+          658263458,
+          669708348,
+          681211547,
+          692716410,
+          704054594,
+          715581901,
+          726950389,
+          738381035,
+          749918349,
+          761440787
+        ],
+        "first": 486088954,
+        "last": 761440787,
+        "delta": 275351833,
+        "span_ms": 4984,
+        "vdma_cr": 65538,
+        "vdma_sr": 69633,
+        "xsdb_exit": 0,
+        "error_text": null,
+        "rate_px_s": 55247157.5,
+        "ratio_vs_pixel_rate": 0.9991
+      }
+    ]
+  },
+  "utc8": "2026-10-30T17:45:40+08:00"
+}

@@ -1,0 +1,160 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_n_static_hold_20261030_r02",
+  "mode": "p3n_static_hold",
+  "started_utc8": "2026-10-30T17:33:14+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": {
+        "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.bit",
+        "sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0",
+        "expect": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0"
+      },
+      "xsa": {
+        "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.xsa",
+        "sha256": "a9953d04c5d9d89a5f9cc2adbd0693619d7c1cb053156651839b6a891ef45133"
+      },
+      "elf": {
+        "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+        "sha256": "388a0a07101a16e3b3fb43a51b6b987f63bff9200821c3f9ddca1e896fe0752a",
+        "expect": "388a0a07101a16e3b3fb43a51b6b987f63bff9200821c3f9ddca1e896fe0752a",
+        "size": 284812
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 3.23,
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 63588
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_longrun": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "run_state": "Running",
+      "elapsed_s": 5.8
+    },
+    "S7_warmup_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 17,
+      "key_lines": [
+        "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+        "TEST PATTERN DRAWN: bars8+border+cross",
+        "VDMA: read period = 5558027 ticks (16674 us) -> fps_dis=60 (display refresh)",
+        "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)",
+        "TEST PATTERN HOLD done, vdma_err=0"
+      ],
+      "last_lines": [
+        "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)",
+        "TEST PATTERN HOLD done, vdma_err=0",
+        "S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=240 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+      ]
+    },
+    "S7_stop_cpu": {
+      "status": "PASS",
+      "exit_code": 0,
+      "cpu_stopped": true,
+      "static_hold_at": "17:33:45",
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S8_readonly_confirm": {
+      "status": "PASS",
+      "exit_code": 0,
+      "values": {
+        "UF_GPIO": 258901760,
+        "VDMA_CR": 65539,
+        "VDMA_SR": 69632
+      },
+      "vdma_still_running": true,
+      "error_text": null
+    },
+    "S8_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "note": "静止画面由现场判读；此处仅确认停核后 VDMA 仍在读（CR.RS=1 且 SR.Halted=0）",
+      "vdma_cr": 65539,
+      "vdma_sr": 69632,
+      "conclusion": "P3N_STATIC_HOLD_OK"
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 63588,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": [],
+      "note": "仅杀 hw_server；CPU 已停、PL 与 VDMA 保持不动"
+    }
+  },
+  "purpose": "只停 CPU 两核、保留 PL 与 VDMA ⇒ 画面永久保持（不占 COM4、无需 keep-alive）",
+  "forbidden_ops": "禁 rst -system；禁读 0x43C30000",
+  "fpga_exit": 0,
+  "load_elf_exit": 0,
+  "warmup_uart": {
+    "lines": 17,
+    "key_lines": [
+      "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+      "TEST PATTERN DRAWN: bars8+border+cross",
+      "VDMA: read period = 5558027 ticks (16674 us) -> fps_dis=60 (display refresh)",
+      "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)",
+      "TEST PATTERN HOLD done, vdma_err=0"
+    ],
+    "last_lines": [
+      "TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)",
+      "TEST PATTERN HOLD done, vdma_err=0",
+      "S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=240 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+    ]
+  },
+  "static_hold_hhmmss": "17:33:45",
+  "readonly": {
+    "UF_GPIO": 258901760,
+    "VDMA_CR": 65539,
+    "VDMA_SR": 69632
+  },
+  "criterion_ok": true,
+  "conclusion": "P3N_STATIC_HOLD_OK",
+  "finished_utc8": "2026-10-30T17:33:51+08:00",
+  "stop_reason": null
+}

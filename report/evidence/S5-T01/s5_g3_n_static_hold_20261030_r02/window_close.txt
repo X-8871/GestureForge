@@ -1,0 +1,28 @@
+# P3n 静态永久挂屏（只停 CPU、VDMA 硬件继续读）
+
+- RunId：`s5_g3_n_static_hold_20261030_r02`
+- 开窗：2026-10-30T17:33:14+08:00；收窗：2026-10-30T17:33:51+08:00
+- **STATIC_HOLD_AT=17:33:45**
+- **cores=STOPPED**（`rst -processor -stop` 仅 CPU，未动 PL、未 reset 系统）
+- **PL=P3n sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0**
+- **ELF sha256=388a0a07101a16e3b3fb43a51b6b987f63bff9200821c3f9ddca1e896fe0752a**（284812 B）
+- VDMA_CR(0x43C00000) = 65539（0x10003）
+- VDMA_SR(0x43C00004) = 69632（0x11000）
+- UF_GPIO(0x43C10000) = 258901760（累计欠载 px）
+- 停核后 VDMA 是否仍运行：CR.RS=1、SR.Halted=0 ⇒ 仍在读帧存 ✅
+- fpga_exit=0、load_elf_ddr exit=0
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 预热期 UART 关键行
+
+```
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: read period = 5558027 ticks (16674 us) -> fps_dis=60 (display refresh)
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=0
+```
+
+- 说明：VDMA 是 PL 硬件，CPU 停核后仍按配置持续读 0x20000000/0x20384000 两帧存 ⇒ 画面保持；
+  PL 配置保持、不占 COM4；Wong 可随时看屏。
+- 边界：禁 rst -system；禁读 0x43C30000；未烧 QSPI；未改线

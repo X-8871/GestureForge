@@ -1,0 +1,552 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_a_p3n_20261030_r01",
+  "mode": "g3a",
+  "started_utc8": "2026-10-30T17:42:09+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.bit",
+          "sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0",
+          "expect": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0"
+        },
+        "xsa": {
+          "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.xsa",
+          "sha256": "a9953d04c5d9d89a5f9cc2adbd0693619d7c1cb053156651839b6a891ef45133"
+        },
+        "elf": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+          "sha256": "49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0",
+          "expect": "49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0"
+        },
+        "init_elf": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 3.38,
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 48040
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "elapsed_s": 5.9
+    },
+    "S7_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 20,
+      "ticks": 1,
+      "max_tick_gap_s": 0.0,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":264536211,\"uf_total\":0,\"src\":\"real\"}"
+    },
+    "S8_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "K-1",
+          "desc": "RESULT 可解析",
+          "pass": true,
+          "detail": {
+            "pass": 1,
+            "fps_cap": 0,
+            "fps_inf": 0,
+            "fps_dis": 60,
+            "fps_upd": 30,
+            "fps_dis_idle": 0,
+            "idle_period_us": 0,
+            "latency_ms": 0,
+            "age_ms": 0,
+            "vdma_err": 0,
+            "frames": 180,
+            "vcnt": 180,
+            "box_crc": 764713996,
+            "fb_crc": 4263145958,
+            "uf_pix": 0,
+            "uf_frame": 264536211,
+            "uf_total": 0,
+            "src": "real"
+          }
+        },
+        {
+          "id": "K-2",
+          "desc": "pass==1",
+          "pass": true,
+          "detail": 1
+        },
+        {
+          "id": "K-3",
+          "desc": "vdma_err==0",
+          "pass": true,
+          "detail": 0
+        },
+        {
+          "id": "K-4",
+          "desc": "fps_dis>=55（且<=90）",
+          "pass": true,
+          "detail": {
+            "fps_dis": 60,
+            "fps_upd": 30
+          }
+        },
+        {
+          "id": "K-5",
+          "desc": "运行期 uf 增量≈0（以 +2 s 采样为准；+8 s 采样仅记录供参考）",
+          "pass": false,
+          "detail": {
+            "note": "有界 ELF 约 3 s 跑完（180 帧@60fps），+8 s 采样时应用可能已停 VDMA，其后计数会按满像素率增长属预期，不并入判据",
+            "passes": [
+              {
+                "tag": "S7_uf_sample_t2",
+                "delta": 168001566,
+                "rate_px_s": 33775948.1,
+                "ratio": 0.6108,
+                "vdma_cr": 65538,
+                "vdma_sr": 69633
+              },
+              {
+                "tag": "S7_uf_sample_t8",
+                "delta": 275121908,
+                "rate_px_s": 55245363.1,
+                "ratio": 0.9991,
+                "vdma_cr": 65538,
+                "vdma_sr": 69633
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "S8b_reg_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshots": [
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "UF_GPIO": 3367635783
+        },
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "UF_GPIO": 3423438327
+        },
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "UF_GPIO": 3479282824
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 48040,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "bit": {
+    "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.bit",
+    "sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0"
+  },
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+    "sha256": "49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0"
+  },
+  "p3n_interface": {
+    "vdma_axi_lite": "0x43c00000",
+    "vtc": "absent（禁止读 0x43C30000）",
+    "uf_gpio": "0x43c10000",
+    "fb_a": "0x20000000",
+    "fb_bytes": 3686400,
+    "tmds_pins": [
+      "N18",
+      "V20",
+      "T20",
+      "N20"
+    ],
+    "sys_clk": "U18"
+  },
+  "forbidden_ops": "禁 rst -system；禁读 0x43C30000；不写 DDR（G3-B 种子白名单除外）",
+  "elf_provenance_note": "lead 原指定的 9a37e5d8… 已被 2026-10-30 15:38 重建覆盖；按 lead 2026-10-30 裁定，改用 video-sw 声明的 P3n 基线有界 ELF 49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281,624 B），语义相同：P3n（VDMA@0x43C00000、无 VTC、确定性测试图、uf_frame/uf_total 字段）；g3e 长跑用 388a0a07…（与 video-sw P3n 套件一致）；不使用 p3p（fsync）系列",
+  "fpga_exit": 0,
+  "load_elf_exit": 0,
+  "uart": {
+    "lines": 20,
+    "ticks": 1,
+    "max_tick_gap_s": 0.0,
+    "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":264536211,\"uf_total\":0,\"src\":\"real\"}",
+    "parsed": {
+      "pass": 1,
+      "fps_cap": 0,
+      "fps_inf": 0,
+      "fps_dis": 60,
+      "fps_upd": 30,
+      "fps_dis_idle": 0,
+      "idle_period_us": 0,
+      "latency_ms": 0,
+      "age_ms": 0,
+      "vdma_err": 0,
+      "frames": 180,
+      "vcnt": 180,
+      "box_crc": 764713996,
+      "fb_crc": 4263145958,
+      "uf_pix": 0,
+      "uf_frame": 264536211,
+      "uf_total": 0,
+      "src": "real"
+    },
+    "first_lines": [
+      "=== S5 P3B display app (P3b-sw, offline build) ===",
+      "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores",
+      "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)",
+      "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)",
+      "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+      "run mode: bounded, frames_cap=180, time_cap_ms=60000",
+      "VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）",
+      "TEST PATTERN DRAWN: bars8+border+cross"
+    ],
+    "last_lines": [
+      "TEST PATTERN HOLD done, vdma_err=0",
+      "S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "UF GPIO frame@43C10000=264536211 total@43C10008=0",
+      "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+      "S5DISP done frames=180 vcnt=180(sw) vdma_err=0 idle_fps=0 idle_us=0",
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":264536211,\"uf_total\":0,\"src\":\"real\"}"
+    ]
+  },
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":264536211,\"uf_total\":0,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "fps_dis_idle": 0,
+    "idle_period_us": 0,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 764713996,
+    "fb_crc": 4263145958,
+    "uf_pix": 0,
+    "uf_frame": 264536211,
+    "uf_total": 0,
+    "src": "real"
+  },
+  "uf_passes": [
+    {
+      "tag": "S7_uf_sample_t2",
+      "values": [
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        261209600,
+        268784979,
+        280249458,
+        291698967,
+        303126716,
+        314404176,
+        325956179,
+        337568339,
+        348911031,
+        360608339,
+        372070312,
+        383398561,
+        394907116,
+        406321408,
+        417702739,
+        429211166
+      ],
+      "first": 261209600,
+      "last": 429211166,
+      "delta": 168001566,
+      "span_ms": 4974,
+      "vdma_cr": 65538,
+      "vdma_sr": 69633,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "rate_px_s": 33775948.1,
+      "ratio_vs_pixel_rate": 0.6108
+    },
+    {
+      "tag": "S7_uf_sample_t8",
+      "values": [
+        538570591,
+        549865934,
+        561874352,
+        573431121,
+        584766909,
+        596243277,
+        607612499,
+        619127379,
+        630644078,
+        642093256,
+        653404974,
+        664948043,
+        676578791,
+        687852357,
+        699447379,
+        710816339,
+        722256828,
+        733853681,
+        745196757,
+        756589960,
+        768007909,
+        779427946,
+        790832890,
+        802257789,
+        813692499
+      ],
+      "first": 538570591,
+      "last": 813692499,
+      "delta": 275121908,
+      "span_ms": 4980,
+      "vdma_cr": 65538,
+      "vdma_sr": 69633,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "rate_px_s": 55245363.1,
+      "ratio_vs_pixel_rate": 0.9991
+    }
+  ],
+  "criteria": [
+    {
+      "id": "K-1",
+      "desc": "RESULT 可解析",
+      "pass": true,
+      "detail": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 60,
+        "fps_upd": 30,
+        "fps_dis_idle": 0,
+        "idle_period_us": 0,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 764713996,
+        "fb_crc": 4263145958,
+        "uf_pix": 0,
+        "uf_frame": 264536211,
+        "uf_total": 0,
+        "src": "real"
+      }
+    },
+    {
+      "id": "K-2",
+      "desc": "pass==1",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "id": "K-3",
+      "desc": "vdma_err==0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "K-4",
+      "desc": "fps_dis>=55（且<=90）",
+      "pass": true,
+      "detail": {
+        "fps_dis": 60,
+        "fps_upd": 30
+      }
+    },
+    {
+      "id": "K-5",
+      "desc": "运行期 uf 增量≈0（以 +2 s 采样为准；+8 s 采样仅记录供参考）",
+      "pass": false,
+      "detail": {
+        "note": "有界 ELF 约 3 s 跑完（180 帧@60fps），+8 s 采样时应用可能已停 VDMA，其后计数会按满像素率增长属预期，不并入判据",
+        "passes": [
+          {
+            "tag": "S7_uf_sample_t2",
+            "delta": 168001566,
+            "rate_px_s": 33775948.1,
+            "ratio": 0.6108,
+            "vdma_cr": 65538,
+            "vdma_sr": 69633
+          },
+          {
+            "tag": "S7_uf_sample_t8",
+            "delta": 275121908,
+            "rate_px_s": 55245363.1,
+            "ratio": 0.9991,
+            "vdma_cr": 65538,
+            "vdma_sr": 69633
+          }
+        ]
+      }
+    }
+  ],
+  "extra": {
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "uf_pix_total": 0,
+    "uf_passes": [
+      {
+        "tag": "S7_uf_sample_t2",
+        "values": [
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          261209600,
+          268784979,
+          280249458,
+          291698967,
+          303126716,
+          314404176,
+          325956179,
+          337568339,
+          348911031,
+          360608339,
+          372070312,
+          383398561,
+          394907116,
+          406321408,
+          417702739,
+          429211166
+        ],
+        "first": 261209600,
+        "last": 429211166,
+        "delta": 168001566,
+        "span_ms": 4974,
+        "vdma_cr": 65538,
+        "vdma_sr": 69633,
+        "xsdb_exit": 0,
+        "error_text": null,
+        "rate_px_s": 33775948.1,
+        "ratio_vs_pixel_rate": 0.6108
+      },
+      {
+        "tag": "S7_uf_sample_t8",
+        "values": [
+          538570591,
+          549865934,
+          561874352,
+          573431121,
+          584766909,
+          596243277,
+          607612499,
+          619127379,
+          630644078,
+          642093256,
+          653404974,
+          664948043,
+          676578791,
+          687852357,
+          699447379,
+          710816339,
+          722256828,
+          733853681,
+          745196757,
+          756589960,
+          768007909,
+          779427946,
+          790832890,
+          802257789,
+          813692499
+        ],
+        "first": 538570591,
+        "last": 813692499,
+        "delta": 275121908,
+        "span_ms": 4980,
+        "vdma_cr": 65538,
+        "vdma_sr": 69633,
+        "xsdb_exit": 0,
+        "error_text": null,
+        "rate_px_s": 55245363.1,
+        "ratio_vs_pixel_rate": 0.9991
+      }
+    ]
+  },
+  "criterion_ok": false,
+  "conclusion": "P3N_G3A_FAIL",
+  "registers": {
+    "snapshots": [
+      {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "UF_GPIO": 3367635783
+      },
+      {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "UF_GPIO": 3423438327
+      },
+      {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "UF_GPIO": 3479282824
+      }
+    ],
+    "error_text": null
+  },
+  "finished_utc8": "2026-10-30T17:43:36+08:00",
+  "stop_reason": "判据 FAIL",
+  "teardown_ok": true
+}

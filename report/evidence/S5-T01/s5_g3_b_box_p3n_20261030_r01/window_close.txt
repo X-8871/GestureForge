@@ -1,0 +1,27 @@
+# P3n G3 窗口（G3B）
+
+- RunId：`s5_g3_b_box_p3n_20261030_r01`
+- 开窗：2026-10-30T17:45:54+08:00；收窗：2026-10-30T17:47:22+08:00
+- 结论：**P3N_G3B_PASS**
+- stop_reason：None
+- 位流（P3n）：`D:\tmp\lead\p3n_video_20261030_r01\out\s4d_p3n_r01.bit` sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0
+- ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281624 B）
+- 接口：VDMA=0x43C00000、无 VTC（禁读 0x43C30000）、UF GPIO=0x43C10000、帧存 0x20000000/3,686,400 B
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 判据
+
+- B-1 box_crc==0x2d949c0c：**PASS** {"box_crc": 764713996, "expect": "0x2d949c0c"}
+- B-2 nbox==3：**PASS** {"nbox": 3}
+- B-3 src==real：**PASS** {"src": "real"}
+- B-4 boxes hex 匹配：**PASS** {"boxes_hex": "96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0", "expect_hex": "96 78 b4 12c 2ee 1c2 96 96 0 0 3c0 2d0", "boxes_line": "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0"}
+
+## UART 结果
+
+- `S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":30,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":764713996,"fb_crc":4263145958,"uf_pix":0,"uf_frame":345971731,"uf_total":0,"src":"real"}`
+
+- ticks=1、lines=20
+
+- 边界：禁 rst -system；禁读 0x43C30000；屏幕现象需人工目视
+- ELF 来源说明：lead 原指定的 9a37e5d8… 已被 2026-10-30 15:38 重建覆盖；按 lead 2026-10-30 裁定，改用 video-sw 声明的 P3n 基线有界 ELF 49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281,624 B），语义相同：P3n（VDMA@0x43C00000、无 VTC、确定性测试图、uf_frame/uf_total 字段）；g3e 长跑用 388a0a07…（与 video-sw P3n 套件一致）；不使用 p3p（fsync）系列
+- 画面现象：真实手部图像（raw 0x12000000 fixture 保持不动）+ 3 个检测框 + 右侧面板；Wong 已确认画面干净（2026-10-30 第二张照片）；本窗口不重写 raw 区

@@ -1,0 +1,34 @@
+# P3n G3 窗口（G3A）
+
+- RunId：`s5_g3_a_p3n_20261030_r02`
+- 开窗：2026-10-30T17:44:21+08:00；收窗：2026-10-30T17:45:48+08:00
+- 结论：**P3N_G3A_PASS**
+- stop_reason：None
+- 位流（P3n）：`D:\tmp\lead\p3n_video_20261030_r01\out\s4d_p3n_r01.bit` sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0
+- ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281624 B）
+- 接口：VDMA=0x43C00000、无 VTC（禁读 0x43C30000）、UF GPIO=0x43C10000、帧存 0x20000000/3,686,400 B
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 判据
+
+- K-1 RESULT 可解析：**PASS** {"pass": 1, "fps_cap": 0, "fps_inf": 0, "fps_dis": 60, "fps_upd": 30, "fps_dis_idle": 0, "idle_period_us": 0, "latency_ms": 0, "age_ms": 0, "vdma_err": 0, "frames": 180, "vcnt": 180, "box_crc": 764713996, "fb_crc": 4263145958, "uf_pix": 0, "uf_frame": 261506051, "uf_total": 0, "src": "real"}
+- K-2 pass==1：**PASS** 1
+- K-3 vdma_err==0：**PASS** 0
+- K-4 fps_dis>=55（且<=90）：**PASS** {"fps_dis": 60, "fps_upd": 30}
+- K-5 运行期 uf 增量≈0（+1.5 s/50 ms 采样为准；+8 s 采样仅记录供参考）：**PASS** {"note": "有界 ELF 约 3 s 跑完（180 帧@60fps）：运行期采样窗取 +1.5 s 起 25×50 ms（1.2 s）；+8 s 采样时应用已停 VDMA，计数按满像素率增长属预期，不并入判据；另外应用自报 uf_pix 也是运行期直接证据", "app_uf_pix": 0, "app_uf_frame": 261506051, "app_uf_total": 0, "passes": [{"tag": "S7_uf_sample_t15", "delta": 0, "rate_px_s": 0.0, "ratio": 0.0, "vdma_cr": 65539, "vdma_sr": 69632}, {"tag": "S7_uf_sample_t8", "delta": 275351833, "rate_px_s": 55247157.5, "ratio": 0.9991, "vdma_cr": 65538, "vdma_sr": 69633}]}
+
+## UART 结果
+
+- `S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":30,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":764713996,"fb_crc":4263145958,"uf_pix":0,"uf_frame":261506051,"uf_total":0,"src":"real"}`
+
+- ticks=1、lines=20
+
+## G3-A 欠载采样口径（防误读）
+
+- `+2 s` 采样（con 后 2 s、25×200 ms）＝**运行期判据 K-5**，要求差值 = 0；
+- `+8 s` 采样＝**仅记录参考、不并入判据**：有界 ELF 约 3 s 跑完 180 帧后应用已停 VDMA，
+  underflow 计数会按满有效像素率增长，属预期行为，不代表运行时欠载。
+
+- 边界：禁 rst -system；禁读 0x43C30000；屏幕现象需人工目视
+- ELF 来源说明：lead 原指定的 9a37e5d8… 已被 2026-10-30 15:38 重建覆盖；按 lead 2026-10-30 裁定，改用 video-sw 声明的 P3n 基线有界 ELF 49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281,624 B），语义相同：P3n（VDMA@0x43C00000、无 VTC、确定性测试图、uf_frame/uf_total 字段）；g3e 长跑用 388a0a07…（与 video-sw P3n 套件一致）；不使用 p3p（fsync）系列
+- 画面现象：真实手部图像（raw 0x12000000 fixture 保持不动）+ 3 个检测框 + 右侧面板；Wong 已确认画面干净（2026-10-30 第二张照片）；本窗口不重写 raw 区

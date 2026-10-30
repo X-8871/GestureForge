@@ -1,0 +1,340 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_c_fbcrc_p3n_20261030_r01",
+  "mode": "g3c",
+  "started_utc8": "2026-10-30T17:47:27+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.bit",
+          "sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0",
+          "expect": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0"
+        },
+        "xsa": {
+          "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.xsa",
+          "sha256": "a9953d04c5d9d89a5f9cc2adbd0693619d7c1cb053156651839b6a891ef45133"
+        },
+        "elf": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+          "sha256": "49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0",
+          "expect": "49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0"
+        },
+        "init_elf": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 3.44,
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 45440
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "elapsed_s": 5.8
+    },
+    "S7_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 20,
+      "ticks": 1,
+      "max_tick_gap_s": 0.0,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":262457178,\"uf_total\":0,\"src\":\"real\"}"
+    },
+    "S8_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "C-1",
+          "desc": "整帧 3,686,400 B 读回成功",
+          "pass": true,
+          "detail": [
+            {
+              "i": 0,
+              "exit": 0,
+              "bytes": 921600
+            },
+            {
+              "i": 1,
+              "exit": 0,
+              "bytes": 921600
+            },
+            {
+              "i": 2,
+              "exit": 0,
+              "bytes": 921600
+            },
+            {
+              "i": 3,
+              "exit": 0,
+              "bytes": 921600
+            }
+          ]
+        },
+        {
+          "id": "C-2",
+          "desc": "jtag fb_crc == app fb_crc",
+          "pass": true,
+          "detail": {
+            "jtag_crc32": 4263145958,
+            "jtag_crc32_hex": "0xfe1a71e6",
+            "app_fb_crc": 4263145958
+          }
+        }
+      ]
+    },
+    "S8b_reg_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshots": [
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "UF_GPIO": 4087192461
+        },
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "UF_GPIO": 4142982868
+        },
+        {
+          "VDMA_CR": 65538,
+          "VDMA_SR": 69633,
+          "UF_GPIO": 4198763019
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 45440,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "bit": {
+    "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.bit",
+    "sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0"
+  },
+  "elf": {
+    "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+    "sha256": "49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0"
+  },
+  "p3n_interface": {
+    "vdma_axi_lite": "0x43c00000",
+    "vtc": "absent（禁止读 0x43C30000）",
+    "uf_gpio": "0x43c10000",
+    "fb_a": "0x20000000",
+    "fb_bytes": 3686400,
+    "tmds_pins": [
+      "N18",
+      "V20",
+      "T20",
+      "N20"
+    ],
+    "sys_clk": "U18"
+  },
+  "forbidden_ops": "禁 rst -system；禁读 0x43C30000；不写 DDR（G3-B 种子白名单除外）",
+  "elf_provenance_note": "lead 原指定的 9a37e5d8… 已被 2026-10-30 15:38 重建覆盖；按 lead 2026-10-30 裁定，改用 video-sw 声明的 P3n 基线有界 ELF 49070390f8f08784fd9139af447b370d9eeb610c159a81590006bd2c25aa96c0（281,624 B），语义相同：P3n（VDMA@0x43C00000、无 VTC、确定性测试图、uf_frame/uf_total 字段）；g3e 长跑用 388a0a07…（与 video-sw P3n 套件一致）；不使用 p3p（fsync）系列",
+  "fpga_exit": 0,
+  "load_elf_exit": 0,
+  "uart": {
+    "lines": 20,
+    "ticks": 1,
+    "max_tick_gap_s": 0.0,
+    "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":262457178,\"uf_total\":0,\"src\":\"real\"}",
+    "parsed": {
+      "pass": 1,
+      "fps_cap": 0,
+      "fps_inf": 0,
+      "fps_dis": 60,
+      "fps_upd": 30,
+      "fps_dis_idle": 0,
+      "idle_period_us": 0,
+      "latency_ms": 0,
+      "age_ms": 0,
+      "vdma_err": 0,
+      "frames": 180,
+      "vcnt": 180,
+      "box_crc": 764713996,
+      "fb_crc": 4263145958,
+      "uf_pix": 0,
+      "uf_frame": 262457178,
+      "uf_total": 0,
+      "src": "real"
+    },
+    "first_lines": [
+      "=== S5 P3B display app (P3b-sw, offline build) ===",
+      "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores",
+      "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)",
+      "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)",
+      "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+      "run mode: bounded, frames_cap=180, time_cap_ms=60000",
+      "VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）",
+      "TEST PATTERN DRAWN: bars8+border+cross"
+    ],
+    "last_lines": [
+      "TEST PATTERN HOLD done, vdma_err=0",
+      "S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "UF GPIO frame@43C10000=262457178 total@43C10008=0",
+      "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+      "S5DISP done frames=180 vcnt=180(sw) vdma_err=0 idle_fps=0 idle_us=0",
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":262457178,\"uf_total\":0,\"src\":\"real\"}"
+    ]
+  },
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":764713996,\"fb_crc\":4263145958,\"uf_pix\":0,\"uf_frame\":262457178,\"uf_total\":0,\"src\":\"real\"}",
+  "parsed": {
+    "pass": 1,
+    "fps_cap": 0,
+    "fps_inf": 0,
+    "fps_dis": 60,
+    "fps_upd": 30,
+    "fps_dis_idle": 0,
+    "idle_period_us": 0,
+    "latency_ms": 0,
+    "age_ms": 0,
+    "vdma_err": 0,
+    "frames": 180,
+    "vcnt": 180,
+    "box_crc": 764713996,
+    "fb_crc": 4263145958,
+    "uf_pix": 0,
+    "uf_frame": 262457178,
+    "uf_total": 0,
+    "src": "real"
+  },
+  "uf_passes": [],
+  "criteria": [
+    {
+      "id": "C-1",
+      "desc": "整帧 3,686,400 B 读回成功",
+      "pass": true,
+      "detail": [
+        {
+          "i": 0,
+          "exit": 0,
+          "bytes": 921600
+        },
+        {
+          "i": 1,
+          "exit": 0,
+          "bytes": 921600
+        },
+        {
+          "i": 2,
+          "exit": 0,
+          "bytes": 921600
+        },
+        {
+          "i": 3,
+          "exit": 0,
+          "bytes": 921600
+        }
+      ]
+    },
+    {
+      "id": "C-2",
+      "desc": "jtag fb_crc == app fb_crc",
+      "pass": true,
+      "detail": {
+        "jtag_crc32": 4263145958,
+        "jtag_crc32_hex": "0xfe1a71e6",
+        "app_fb_crc": 4263145958
+      }
+    }
+  ],
+  "extra": {
+    "jtag_crc32": 4263145958,
+    "app_fb_crc": 4263145958,
+    "chunks": [
+      {
+        "i": 0,
+        "exit": 0,
+        "bytes": 921600
+      },
+      {
+        "i": 1,
+        "exit": 0,
+        "bytes": 921600
+      },
+      {
+        "i": 2,
+        "exit": 0,
+        "bytes": 921600
+      },
+      {
+        "i": 3,
+        "exit": 0,
+        "bytes": 921600
+      }
+    ]
+  },
+  "criterion_ok": true,
+  "conclusion": "P3N_G3C_PASS",
+  "registers": {
+    "snapshots": [
+      {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "UF_GPIO": 4087192461
+      },
+      {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "UF_GPIO": 4142982868
+      },
+      {
+        "VDMA_CR": 65538,
+        "VDMA_SR": 69633,
+        "UF_GPIO": 4198763019
+      }
+    ],
+    "error_text": null
+  },
+  "finished_utc8": "2026-10-30T17:49:08+08:00",
+  "stop_reason": null,
+  "teardown_ok": true
+}

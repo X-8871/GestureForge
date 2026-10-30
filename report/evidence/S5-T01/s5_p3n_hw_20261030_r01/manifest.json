@@ -1,0 +1,69 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_p3n_hw_20261030_r01",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "phase": "阶段5 P3n：P3m(axis_to_video) + VDMA 数据面 100 MHz（保持 720p60）",
+  "conclusion": "P3N_BUILD_PASS_UNDERFLOW_ZERO_FPS60",
+  "bit_sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0",
+  "bit_bytes": 4045762,
+  "xsa_sha256": "a9953d04c5d9d89a5f9cc2adbd0693619d7c1cb053156651839b6a891ef45133",
+  "xsa_bytes": 263571,
+  "timing": {
+    "WNS_ns": 4.252,
+    "WHS_ns": 0.056,
+    "TNS_ns": 0.0,
+    "failing_endpoints": 0,
+    "total_endpoints": 5606,
+    "note": "含 CDC set_max_delay；无约束原值口径见 P3m（-5.503/TNS -173.092/32 端点，假性违例）"
+  },
+  "pins": {
+    "TMDS_clk_p": "N18/P19",
+    "data_p": [
+      "V20/W20",
+      "T20/U20",
+      "N20/P20"
+    ],
+    "sys_clk": "U18",
+    "hdmi_oen": "V16"
+  },
+  "board_result": {
+    "fps_dis": 60,
+    "underflow_rate_px_s": 0.0,
+    "vdma_errors": 0,
+    "frames_monotonic": "+60/step"
+  },
+  "architecture": "P3k 骨架（MMCM 原语 + locked 复位 + 正确引脚）+ 自写 axis_to_video（720p60 自产时序）+ VDMA(MM2S/非SG/2帧存/MM侧100MHz) + rgb2dvi；已删除 VTC 与 v_axi4s_vid_out",
+  "items": [
+    {
+      "path": "report/evidence/S5-T01/s5_p3n_hw_20261030_r01/p3n_cdc.xdc",
+      "bytes": 2171,
+      "sha256": "4334592e84db7fec8837fbbacad7d4324b1b9cd520d4685a46d3d1552016d44c"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3n_hw_20261030_r01/P3N_REPORT.md",
+      "bytes": 10415,
+      "sha256": "ea9500d66f46432b1c76a1a6943a9256a0f9435b83fc2488e059d3f6105ccc67"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3n_hw_20261030_r01/top_p3n_drc_routed.rpt",
+      "bytes": 16743,
+      "sha256": "6422e8a4b7dfaeab26d8b697f661a6cb981f7b533a62ea226958c58ef1c8730e"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3n_hw_20261030_r01/top_p3n_io_placed.rpt",
+      "bytes": 125429,
+      "sha256": "ccf864f11becb3088c2fe8f984e748976163fee4ac625d14c2e72e0c96be625a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3n_hw_20261030_r01/top_p3n_timing_summary_routed.rpt",
+      "bytes": 1110987,
+      "sha256": "9dddce3da6e4b0809b8fc3554add83ce48db5106669448ce275e9f60be64b77a"
+    },
+    {
+      "path": "report/evidence/S5-T01/s5_p3n_hw_20261030_r01/top_p3n_utilization_placed.rpt",
+      "bytes": 11961,
+      "sha256": "6d498382322c8f76cdf24eeb3ba641743334b262a1ec1c422b9b0b292b8bdee7"
+    }
+  ]
+}

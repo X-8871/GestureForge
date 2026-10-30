@@ -1,0 +1,185 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_n_idleprobe_p3n_20261030_r01",
+  "mode": "p3n_idleprobe_hold",
+  "started_utc8": "2026-10-30T15:27:20+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": {
+        "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.bit",
+        "sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0",
+        "expect": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0"
+      },
+      "xsa": {
+        "path": "D:\\tmp\\lead\\p3n_video_20261030_r01\\out\\s4d_p3n_r01.xsa",
+        "sha256": "a9953d04c5d9d89a5f9cc2adbd0693619d7c1cb053156651839b6a891ef45133"
+      },
+      "elf": {
+        "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_idleprobe.elf",
+        "sha256": "49ca58fd9d6c3ba299997623e43508fcb3a5956cd806133358d29fd402db136f",
+        "expect": "49ca58fd9d6c3ba299997623e43508fcb3a5956cd806133358d29fd402db136f",
+        "size": 282820
+      }
+    },
+    "S2_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 17108
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_idleprobe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "run_state": "Running",
+      "elapsed_s": 5.9
+    },
+    "S7_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 16,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":60,\"idle_period_us\":16673,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":10,\"vcnt\":190,\"box_crc\":764713996,\"fb_crc\":1104924632,\"uf_pix\":269494167,\"src\":\"real\"}",
+      "idle_line": "S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0",
+      "parsed": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 60,
+        "fps_upd": 30,
+        "fps_dis_idle": 60,
+        "idle_period_us": 16673,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 10,
+        "vcnt": 190,
+        "box_crc": 764713996,
+        "fb_crc": 1104924632,
+        "uf_pix": 269494167,
+        "src": "real"
+      },
+      "key_lines": [
+        "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+        "VDMA: read period = 5558006 ticks (16674 us) -> fps_dis=60 (display refresh)",
+        "S5DISP idle start: stop rendering, VDMA keeps running 3000 ms",
+        "S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0",
+        "UF GPIO @43C10000 = 269494167 (underflow pixels)",
+        "S5DISP done frames=10 vcnt=190(sw) vdma_err=0 idle_fps=60 idle_us=16673",
+        "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":60,\"idle_period_us\":16673,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":10,\"vcnt\":190,\"box_crc\":764713996,\"fb_crc\":1104924632,\"uf_pix\":269494167,\"src\":\"real\"}"
+      ],
+      "last_lines": [
+        "S5DISP idle start: stop rendering, VDMA keeps running 3000 ms",
+        "S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0",
+        "UF GPIO @43C10000 = 269494167 (underflow pixels)",
+        "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+        "S5DISP done frames=10 vcnt=190(sw) vdma_err=0 idle_fps=60 idle_us=16673",
+        "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":60,\"idle_period_us\":16673,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":10,\"vcnt\":190,\"box_crc\":764713996,\"fb_crc\":1104924632,\"uf_pix\":269494167,\"src\":\"real\"}"
+      ],
+      "settle_seconds": 15.0
+    },
+    "S8_release": {
+      "status": "PASS",
+      "exit_code": 0,
+      "hold_released_at": "15:27:52",
+      "cores": "RUNNING",
+      "hw_server": "killed",
+      "pl": "P3n",
+      "listening_3121": 0,
+      "residual": []
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 17108,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": [],
+      "note": "仅杀 hw_server；不停核、不收窗，画面挂着"
+    }
+  },
+  "purpose": "区分②帧不同步 vs ③像素格式：渲染 10 帧后停写帧存、VDMA 继续读 ⇒ 应静止",
+  "forbidden_ops": "禁 rst -system",
+  "fpga_exit": 0,
+  "load_elf_exit": 0,
+  "uart": {
+    "lines": 16,
+    "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":60,\"idle_period_us\":16673,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":10,\"vcnt\":190,\"box_crc\":764713996,\"fb_crc\":1104924632,\"uf_pix\":269494167,\"src\":\"real\"}",
+    "idle_line": "S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0",
+    "parsed": {
+      "pass": 1,
+      "fps_cap": 0,
+      "fps_inf": 0,
+      "fps_dis": 60,
+      "fps_upd": 30,
+      "fps_dis_idle": 60,
+      "idle_period_us": 16673,
+      "latency_ms": 0,
+      "age_ms": 0,
+      "vdma_err": 0,
+      "frames": 10,
+      "vcnt": 190,
+      "box_crc": 764713996,
+      "fb_crc": 1104924632,
+      "uf_pix": 269494167,
+      "src": "real"
+    },
+    "key_lines": [
+      "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+      "VDMA: read period = 5558006 ticks (16674 us) -> fps_dis=60 (display refresh)",
+      "S5DISP idle start: stop rendering, VDMA keeps running 3000 ms",
+      "S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0",
+      "UF GPIO @43C10000 = 269494167 (underflow pixels)",
+      "S5DISP done frames=10 vcnt=190(sw) vdma_err=0 idle_fps=60 idle_us=16673",
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":60,\"idle_period_us\":16673,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":10,\"vcnt\":190,\"box_crc\":764713996,\"fb_crc\":1104924632,\"uf_pix\":269494167,\"src\":\"real\"}"
+    ],
+    "last_lines": [
+      "S5DISP idle start: stop rendering, VDMA keeps running 3000 ms",
+      "S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0",
+      "UF GPIO @43C10000 = 269494167 (underflow pixels)",
+      "S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0",
+      "S5DISP done frames=10 vcnt=190(sw) vdma_err=0 idle_fps=60 idle_us=16673",
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":30,\"fps_dis_idle\":60,\"idle_period_us\":16673,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":10,\"vcnt\":190,\"box_crc\":764713996,\"fb_crc\":1104924632,\"uf_pix\":269494167,\"src\":\"real\"}"
+    ],
+    "settle_seconds": 15.0
+  },
+  "hold_released_at": "2026-10-30T15:27:52+08:00",
+  "hold_released_hhmmss": "15:27:52",
+  "cores": "RUNNING",
+  "hw_server": "killed",
+  "pl": "P3n",
+  "pl_sha256": "80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0",
+  "elf_sha256": "49ca58fd9d6c3ba299997623e43508fcb3a5956cd806133358d29fd402db136f",
+  "listening_3121": 0,
+  "residual": [],
+  "note": "idleprobe 为有界程序：已渲染 10 帧并停写帧存，之后 VDMA 继续读 → 屏应静止",
+  "criterion_ok": true,
+  "conclusion": "P3N_IDLEPROBE_OK",
+  "finished_utc8": "2026-10-30T15:28:01+08:00",
+  "stop_reason": null
+}

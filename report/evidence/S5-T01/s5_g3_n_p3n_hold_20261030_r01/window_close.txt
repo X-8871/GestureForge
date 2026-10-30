@@ -1,0 +1,57 @@
+# P3n 窗口（候选 A：数据面 100 MHz，保 720p60）
+
+- RunId：`s5_g3_n_p3n_hold_20261030_r01`
+- 开窗：2026-10-30T15:14:43+08:00；释放：15:15:19
+- **HOLD_RELEASED_AT=15:15:19**
+- **EXPECTED_UNTIL=15:44:59**（长跑上限 1800 s，按 con 折算）
+- **cores=RUNNING**、**hw_server=killed**（3121 LISTENING=0、残留=[]）
+- **PL=P3n sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0**
+- ELF（P3m 长跑）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=2481b2d17b96ce65b1a6d2cc1284f824e98ca0ecc97fb9f1b57869cb846530e4
+- 位流：`D:\tmp\lead\p3n_video_20261030_r01\out\s4d_p3n_r01.bit`（4045762 B）
+- 执行：loadhw → 停两核 → 0xA → `xsdb fpga -file`（fpga_exit=0）→ 0xF → `load_elf_ddr`（exit=0）→ con → 等 8.0s → 采样
+
+## UF 原始值（0x43C10000，每 200 ms）
+
+| # | 值 | hex |
+|---|---|---|
+| 0 | 257711360 | 0xf5c5d00 |
+| 1 | 257711360 | 0xf5c5d00 |
+| 2 | 257711360 | 0xf5c5d00 |
+| 3 | 257711360 | 0xf5c5d00 |
+| 4 | 257711360 | 0xf5c5d00 |
+| 5 | 257711360 | 0xf5c5d00 |
+| 6 | 257711360 | 0xf5c5d00 |
+| 7 | 257711360 | 0xf5c5d00 |
+| 8 | 257711360 | 0xf5c5d00 |
+| 9 | 257711360 | 0xf5c5d00 |
+| 10 | 257711360 | 0xf5c5d00 |
+| 11 | 257711360 | 0xf5c5d00 |
+| 12 | 257711360 | 0xf5c5d00 |
+| 13 | 257711360 | 0xf5c5d00 |
+| 14 | 257711360 | 0xf5c5d00 |
+| 15 | 257711360 | 0xf5c5d00 |
+| 16 | 257711360 | 0xf5c5d00 |
+| 17 | 257711360 | 0xf5c5d00 |
+| 18 | 257711360 | 0xf5c5d00 |
+| 19 | 257711360 | 0xf5c5d00 |
+| 20 | 257711360 | 0xf5c5d00 |
+| 21 | 257711360 | 0xf5c5d00 |
+| 22 | 257711360 | 0xf5c5d00 |
+| 23 | 257711360 | 0xf5c5d00 |
+| 24 | 257711360 | 0xf5c5d00 |
+
+- 首值=257711360、末值=257711360、跨度=4969 ms
+- **差值=0 px ⇒ 0.0 px/s ⇒ 占有效像素率 0.0**
+- VDMA_CR=65539（0x10003）、VDMA_SR=69632（0x11000）
+- 判读：欠载率 <1% ⇒ 候选 A 成功（100 MHz 有效），画质应干净
+
+## UART（fps_dis / tick / RESULT）
+
+```
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: read period = 5558038 ticks (16674 us) -> fps_dis=60 (display refresh)
+```
+
+- 边界：禁 rst -system；采样不 rst -processor；未烧 QSPI；未改线

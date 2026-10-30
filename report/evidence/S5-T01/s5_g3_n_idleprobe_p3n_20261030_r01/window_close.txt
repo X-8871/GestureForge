@@ -1,0 +1,26 @@
+# P3n + idleprobe 定性窗口（10 帧后停写 ⇒ 应静止）
+
+- RunId：`s5_g3_n_idleprobe_p3n_20261030_r01`
+- 开窗：2026-10-30T15:27:20+08:00；释放：15:27:52
+- **HOLD_RELEASED_AT=15:27:52**
+- **PL=P3n sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0**
+- **ELF=idleprobe sha256=49ca58fd9d6c3ba299997623e43508fcb3a5956cd806133358d29fd402db136f**（282820 B）
+- `load_elf_ddr` exit=0；fpga_exit=0
+- UART 行数=16；**RESULT 行**：`S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":30,"fps_dis_idle":60,"idle_period_us":16673,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":10,"vcnt":190,"box_crc":764713996,"fb_crc":1104924632,"uf_pix":269494167,"src":"real"}`
+- **idle 行**：`S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0`
+
+## UART 关键行
+
+```
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+VDMA: read period = 5558006 ticks (16674 us) -> fps_dis=60 (display refresh)
+S5DISP idle start: stop rendering, VDMA keeps running 3000 ms
+S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0
+UF GPIO @43C10000 = 269494167 (underflow pixels)
+S5DISP done frames=10 vcnt=190(sw) vdma_err=0 idle_fps=60 idle_us=16673
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":30,"fps_dis_idle":60,"idle_period_us":16673,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":10,"vcnt":190,"box_crc":764713996,"fb_crc":1104924632,"uf_pix":269494167,"src":"real"}
+```
+
+- 判读：静止不闪 ⇒ ②帧不同步（需 fsync/双缓冲）；仍闪/彩色雪花 ⇒ ③像素格式/stride/缓存；
+  静止但图案为彩色块 ⇒ 启动测试图本身的样子，正常。
+- 边界：禁 rst -system；未烧 QSPI；未改线

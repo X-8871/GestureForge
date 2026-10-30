@@ -1,0 +1,16 @@
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+run mode: bounded, frames_cap=180, time_cap_ms=60000
+VTC=absent(P3m): PL axis_to_video 自产 720p60，软件不配置 VTC（跳过 12/12 回读检查）
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: read period = 5558006 ticks (16674 us) -> fps_dis=60 (display refresh)
+S5DISP idle start: stop rendering, VDMA keeps running 3000 ms
+S5DISP idle fps_dis=60 period_us=16673 frames=10 vcnt=190 err=0
+UF GPIO @43C10000 = 269494167 (underflow pixels)
+S5DISP boxes n=3 crc=764713996 hex=96 78 B4 12C 2EE 1C2 96 96 0 0 3C0 2D0
+S5DISP done frames=10 vcnt=190(sw) vdma_err=0 idle_fps=60 idle_us=16673
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":30,"fps_dis_idle":60,"idle_period_us":16673,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":10,"vcnt":190,"box_crc":764713996,"fb_crc":1104924632,"uf_pix":269494167,"src":"real"}

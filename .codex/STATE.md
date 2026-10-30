@@ -97,6 +97,10 @@
   bit `f55a9370…1485`（4,045,762 B）、XSA `1af694a0…6d84`；**WNS +0.228 / WHS +0.036、TNS=THS=0、失败端点 0/52,582**、DRC 435 条 **0 error**；
   LUT 26,021(48.91%)/FF 15,021(14.12%)/BRAM 36.5/**DSP 158(+0)**/MMCM 1/BUFG 5/OSERDESE2 8；时钟域自证 50/100/74.21875/371.09375 四域在位。
   **⚠ 带宽是否达标未上板验证**（理论 800 MB/s vs 需求 221 MB/s，按同效率估 ~380 MB/s 属估算）——明日第一件事就是拿 P3c 跑 G3-A 复测 `fps_dis`。
+- **阶段5 视频输出架构变更（2026-10-30 15:xx，P3m/P3n）**：定位并绕开失败块——**BD 的 `v_tc` + `v_axi4s_vid_out` 不出 HS/VS/DE**（P3g/P3h 均无信号；P3k 纯 PL 彩条证明前端全好）。
+  新架构 **P3m**：P3k 骨架（`U18` 50 MHz → MMCM 原语 → 74.21875/371.09375 + `locked` 复位、TMDS `N18/V20/T20/N20`）+ 自写 `axis_to_video.v`（自产 720p60 时序）+ VDMA(MM2S/非SG/2 帧存) + `rgb2dvi`，**删除 VTC 与 vid_out**；
+  **P3n** = P3m + VDMA 数据面 100 MHz（`m_axi_mm2s_aclk`/HP2/协议转换器=a100，Lite 保持 50）。板测：**`fps_dis` 52→60、运行期欠载 13.1%→0.0%**（UF 计数 25 点全等）、VDMA 无 DMA 错误、frame 单调 +60。
+  遗留：Wong 目视仍有花屏/闪烁 ⇒ 待查 ②无帧同步（fsync 版 P3p 在建）与 ③像素格式/stride/cache。证据 `S5-T01/s5_p3m*/s5_p3n_*`、`s5_g3_m_*`、`s5_g3_n_*`、`s5_g3_k_*`（门禁 OK）。
 - **HDMI 无信号根因定位（12:5x，D5-HDMI-DIFF 只读分析）**：**TMDS 引脚错**——10-22 亮屏设计用 `N18/V20/T20/N20`（ALINX demo XDC，`dbdf/tmp/3/S3-T05/.../hdmi_out.xdc`，今日实测出灰度条），
   我们 P3a/P3b/P3c 用 `U13/W14/Y18/Y16`（`course_s1/02_hdmi_out_test` 工程，另一板型/疑 HDMI IN）⇒ 信号送到错误球位。**P3g = P3b 仅改 4 个 PACKAGE_PIN**，待上板确认。
 - **HDMI 上屏无信号（2026-10-30 12:0x → 12:3x 结论更新）**：P3b/P3c/P3d(oen=0) 与厂商纯 PL `top.bit` 均无信号（`S5-T01/s5_g3_vendorref_20261030_r01/`）。

@@ -146,6 +146,9 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **板卡收回 / Codex 暂停（2026-10-31 02:2x，Wong）**：Wong "Codex 已休息，其任务暂时完成不了，板卡直接收回" ⇒ **M3 OFFER #3 撤回**（`DSH-20261031-027`），板卡收回 DSH（无 hw_server/xsdb、3121/3122 空、PL=P3q、核 stop、零残留）。
+  **顺延**：R-03 真实 M3 = BLOCKED（Codex 暂停，恢复需新 OFFER + 新 RunId）；CDX-008 权威 manifest 与 CDX-009 三项待 Codex 恢复后处理；R-05b 待下次 POR。
+  **我方无板卡任务**：今晚剩余时间用于文档收口（G4/G5 记录已补 C4+E6 结果、遗留清单状态更新）。
 - **R-13 关闭 / E6-A 最终 PASS（2026-10-31 02:12）**：Wong POR（02:09）→ `s6e_e1_recover_20261031_r06 --por` 清残态 → **`s6e_e6_age_r05_20261031_r01`**（v5 `6260250a…`，`por_precondition: satisfied`）：**E3-1..E3-12 全 PASS**，E3-11 `s1==s2` 全等、`s1` 全偶、**`retries_dist={"0":29}`、无 RETRY、无 TIMEOUT**；`age_pub=9 ms`、`seq` 步长 60、`sid=64027` 恒定、`state=OK`；sidecar `0x20800100`（`magic2`/`version`/`seq=1831`/`seqlock=3662=2×1831`、`result_time` 晚 `inf` 17.7 ms、`n_dets=2≤14`、flush 288 B）；显示流 `fps_dis=60`/16,673 µs/`CR=0x10003`/`SR=0x11000`。⇒ **rev4 协议（原子发布）在单板单 POR 会话内已验证**；跨 POR 唯一性不主张（R-14）。
   **E4-rev5 四窗 PASS**（`por_precondition: not_satisfied`，记录保留、不重跑）。门禁修正已生效（自检只读、仅 `--por` 清标记、每窗记 `por_precondition`）⇒ **R-15 规则落地**（R-05b 实验待）。
   证据 `S6-T01/s6e_e6_age_r05_*`、`s6e_e1_recover_20261031_r06`、`s6e_e4_*_rev5_*`（6 组，门禁 OK）。信箱 `DSH-20261031-026`（E6 最终结果 + 板卡可交 M3 窗口）。

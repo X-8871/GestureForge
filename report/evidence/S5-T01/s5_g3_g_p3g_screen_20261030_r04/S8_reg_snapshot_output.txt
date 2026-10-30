@@ -1,0 +1,20 @@
+$ cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ "*Cortex-A9*#0*"}; if {[catch {loadhw -hw D:/tmp/lead/p3g_video_20261030_r01/out/s4d_p3g_r01.xsa -mem-ranges {0x00000000 0x7FFFFFFF}} e]} { puts "LOADHW_SKIP: $e" } else { puts LOADHW_OK }; rst -processor -stop; targets -set -filter {name =~ "*Cortex-A9*#1*"}; rst -processor -stop; puts CORES_STOPPED; for {set i 0} {$i < 3} {incr i} { puts "SNAP$i VTC_CTL=[mrd -value 0x43C30000] VTC_GTSTAT=[mrd -value 0x43C30064] VTC_STATUS=[mrd -value 0x43C30004] VDMA_CR=[mrd -value 0x43C40000] VDMA_SR=[mrd -value 0x43C40004] VDMA_PARKPTR=[mrd -value 0x43C40028]"; if {$i < 2} { after 1000 } }; puts RBLK_BEGIN; puts [mrd 0x20800000 8]; puts RBLK_END; disconnect; exit
+exit=0 elapsed=4.519
+INFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds
+LOADHW_OK
+CORES_STOPPED
+SNAP0 VTC_CTL 5 VTC_GTSTAT 2 VTC_STATUS 78336 VDMA_CR 65539 VDMA_SR 69632 VDMA_PARKPTR 0
+SNAP1 VTC_CTL 5 VTC_GTSTAT 4 VTC_STATUS 78336 VDMA_CR 65539 VDMA_SR 69632 VDMA_PARKPTR 65536
+SNAP2 VTC_CTL 5 VTC_GTSTAT 4 VTC_STATUS 78336 VDMA_CR 65539 VDMA_SR 69632 VDMA_PARKPTR 0
+RBLK_BEGIN
+20800000:   53355253
+20800004:   00000001
+20800008:   00000003
+2080000C:   00000000
+20800010:   00000000
+20800014:   00000000
+20800018:   00000000
+2080001C:   00000001
+
+RBLK_END
+

@@ -1,0 +1,54 @@
+# P3g 点屏窗口 r04（load_elf_ddr 稳健版）
+
+- RunId：`s5_g3_g_p3g_screen_20261030_r05`
+- 开窗：2026-10-30T13:16:05+08:00；收窗：2026-10-30T13:18:33+08:00
+- 结论：**P3G_R04_WINDOW_OK**（屏幕现象由现场判读）
+- stop_reason：None
+- 位流（P3g）：`D:\tmp\lead\p3g_video_20261030_r01\out\s4d_p3g_r01.bit` sha256=221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d
+- XSA：`D:\tmp\lead\p3g_video_20261030_r01\out\s4d_p3g_r01.xsa` sha256=2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb；其内置 ps7_init sha256=2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e（与 P3b XSA ps7_init 逐字节相同）
+- 长跑 ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e
+- 编程工具：xsdb `fpga -file`（fpga_exit=0）
+- load_elf_ddr：exit=0（init.elf 跑 ps7_init → dow 长跑 ELF → 0xF → con）
+- 长跑保持：120.1 s、UART 行数=92、tick/帧行=69
+- UART 机器侧值：{"fps_dis": [54], "frames": [1954, 3908], "vcnt": [1954, 3908]}
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 停机后寄存器时间序列（只读 mrd，间隔 1 s）
+
+- 第 1 次：VTC_CTL=5、VTC_GTSTAT=4、VTC_STATUS=78336、VDMA_CR=65539、VDMA_SR=69632、VDMA_PARKPTR=0
+- 第 2 次：VTC_CTL=5、VTC_GTSTAT=4、VTC_STATUS=78336、VDMA_CR=65539、VDMA_SR=69632、VDMA_PARKPTR=65536
+- 第 3 次：VTC_CTL=5、VTC_GTSTAT=4、VTC_STATUS=78336、VDMA_CR=65539、VDMA_SR=69632、VDMA_PARKPTR=65536
+
+## 结果块首 8 word
+
+```
+20800000:   53355253
+20800004:   00000001
+20800008:   00000003
+2080000C:   00000000
+20800010:   00000000
+20800014:   00000000
+20800018:   00000000
+2080001C:   00000001
+```
+
+## UART 首尾行
+
+```
+=== S5 P3B display app (P3b-sw, offline build) ===
+canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores
+timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)
+source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)
+run mode: LONG(30min), frames_cap=0, time_cap_ms=1800000
+VTC: version=602000C
+...
+S5DISP frame=3720 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=3780 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=3840 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=3900 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP tick t=120 frames=3908 vcnt=3908 err=0
+S5DISP frame=3960 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+```
+
+- 屏幕：现场判读（Wong）；停核后画面消失属正常（VSYNC 停）
+- 边界：禁 rst -system；未烧 QSPI；未改线

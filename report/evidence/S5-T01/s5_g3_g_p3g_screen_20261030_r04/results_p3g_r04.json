@@ -1,0 +1,278 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_g_p3g_screen_20261030_r04",
+  "mode": "p3g_screen_r04_loadelfdr",
+  "started_utc8": "2026-10-30T13:05:09+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.bit",
+          "sha256": "221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d",
+          "expect": "221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d"
+        },
+        "xsa": {
+          "path": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.xsa",
+          "sha256": "2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb",
+          "expect": "2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb"
+        },
+        "elf_longrun": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+          "sha256": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e",
+          "expect": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e"
+        },
+        "io_report": {
+          "path": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\io_route.rpt",
+          "sha256": "115e9c433d1df78d46b02ebe1dd008d0a091392dd442810fe823091ebf706886"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 5.31,
+      "listening_3121": 0
+    },
+    "S2b_pin_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "report": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\io_route.rpt",
+      "hits": {
+        "N18": [
+          "| N18        | TMDS_clk_p          | High Range | IO_L13P_T2_MRCC_34      | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ],
+        "V20": [
+          "| V20        | TMDS_data_p[0]      | High Range | IO_L16P_T2_34           | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ],
+        "T20": [
+          "| T20        | TMDS_data_p[1]      | High Range | IO_L15P_T2_DQS_34       | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ],
+        "N20": [
+          "| N20        | TMDS_data_p[2]      | High Range | IO_L14P_T2_SRCC_34      | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ]
+      }
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 58260
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "loadhw_ok": true
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_error_text": null,
+      "bit": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.bit",
+      "bit_sha256": "221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d",
+      "lvl_0xA": "PASS",
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_longrun": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "elapsed_s": 5.8,
+      "elf": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+      "elf_sha256": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e",
+      "ps7_init_equivalence": {
+        "p3g_xsa_ps7_init_sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e",
+        "p3b_xsa_ps7_init_sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e",
+        "identical": true,
+        "note": "P3g XSA 与 P3b XSA 的 ps7_init.tcl 逐字节相同 ⇒ 用 P3b init.elf 执行等价 ps7_init"
+      }
+    },
+    "S7_uart_hold": {
+      "status": "PASS",
+      "exit_code": 0,
+      "uart_lines": 66,
+      "elapsed_s": 75.0,
+      "lines_total": 66,
+      "tick_lines": 43,
+      "fps_values": {
+        "fps_dis": [
+          54
+        ],
+        "frames": [
+          1954
+        ],
+        "vcnt": [
+          1954
+        ]
+      },
+      "first_lines": [
+        "=== S5 P3B display app (P3b-sw, offline build) ===",
+        "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores",
+        "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)",
+        "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)",
+        "run mode: LONG(30min), frames_cap=0, time_cap_ms=1800000",
+        "VTC: version=602000C",
+        "GHSIZE @43C30070 want=00000672 got=00000672 OK",
+        "GVSIZE @43C30074 want=02EE02EE got=02EE02EE OK"
+      ],
+      "last_lines": [
+        "S5DISP frame=2040 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2100 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2160 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2220 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2280 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2340 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2400 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2460 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+      ],
+      "tail_partial": ""
+    },
+    "S8_reg_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "snapshots": [
+        {
+          "VTC_CTL": 5,
+          "VTC_GTSTAT": 2,
+          "VTC_STATUS": 78336,
+          "VDMA_CR": 65539,
+          "VDMA_SR": 69632,
+          "VDMA_PARKPTR": 0
+        },
+        {
+          "VTC_CTL": 5,
+          "VTC_GTSTAT": 4,
+          "VTC_STATUS": 78336,
+          "VDMA_CR": 65539,
+          "VDMA_SR": 69632,
+          "VDMA_PARKPTR": 65536
+        },
+        {
+          "VTC_CTL": 5,
+          "VTC_GTSTAT": 4,
+          "VTC_STATUS": 78336,
+          "VDMA_CR": 65539,
+          "VDMA_SR": 69632,
+          "VDMA_PARKPTR": 0
+        }
+      ],
+      "result_block_raw": "20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001"
+    },
+    "S9_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "note": "只判执行完整性；亮屏由现场判读",
+      "conclusion": "P3G_R04_WINDOW_OK"
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 58260,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "programming_tool": "xsdb fpga -file",
+  "ps7_init_equivalence": {
+    "p3g_xsa_ps7_init_sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e",
+    "p3b_xsa_ps7_init_sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e",
+    "identical": true,
+    "note": "P3g XSA 与 P3b XSA 的 ps7_init.tcl 逐字节相同 ⇒ 用 P3b init.elf 执行等价 ps7_init"
+  },
+  "forbidden_ops": "全程禁 rst -system",
+  "fpga_exit": 0,
+  "load_elf_exit": 0,
+  "hold": {
+    "elapsed_s": 75.0,
+    "lines_total": 66,
+    "tick_lines": 43,
+    "fps_values": {
+      "fps_dis": [
+        54
+      ],
+      "frames": [
+        1954
+      ],
+      "vcnt": [
+        1954
+      ]
+    },
+    "first_lines": [
+      "=== S5 P3B display app (P3b-sw, offline build) ===",
+      "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores",
+      "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)",
+      "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)",
+      "run mode: LONG(30min), frames_cap=0, time_cap_ms=1800000",
+      "VTC: version=602000C",
+      "GHSIZE @43C30070 want=00000672 got=00000672 OK",
+      "GVSIZE @43C30074 want=02EE02EE got=02EE02EE OK"
+    ],
+    "last_lines": [
+      "S5DISP frame=2040 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2100 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2160 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2220 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2280 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2340 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2400 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2460 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+    ],
+    "tail_partial": ""
+  },
+  "registers": {
+    "snapshots": [
+      {
+        "VTC_CTL": 5,
+        "VTC_GTSTAT": 2,
+        "VTC_STATUS": 78336,
+        "VDMA_CR": 65539,
+        "VDMA_SR": 69632,
+        "VDMA_PARKPTR": 0
+      },
+      {
+        "VTC_CTL": 5,
+        "VTC_GTSTAT": 4,
+        "VTC_STATUS": 78336,
+        "VDMA_CR": 65539,
+        "VDMA_SR": 69632,
+        "VDMA_PARKPTR": 65536
+      },
+      {
+        "VTC_CTL": 5,
+        "VTC_GTSTAT": 4,
+        "VTC_STATUS": 78336,
+        "VDMA_CR": 65539,
+        "VDMA_SR": 69632,
+        "VDMA_PARKPTR": 0
+      }
+    ],
+    "result_block_raw": "20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001",
+    "error_text": null,
+    "loadhw_xsa": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.xsa",
+    "loadhw_xsa_sha256": "2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb"
+  },
+  "criterion_ok": true,
+  "conclusion": "P3G_R04_WINDOW_OK",
+  "finished_utc8": "2026-10-30T13:06:51+08:00",
+  "stop_reason": null
+}

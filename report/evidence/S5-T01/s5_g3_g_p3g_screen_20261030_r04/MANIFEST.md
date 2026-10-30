@@ -1,0 +1,45 @@
+# 阶段5 P3g 上板点屏窗口（引脚勘误后首测）
+
+| 文件 | 字节 | sha256 |
+|---|---|---|
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/cmp_ps7_init.py` | 892 | `03ec038d42334cf2ccbb2478b69a1274b00c42477089bf687c16a8066a20a2f9` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/console_output.txt` | 733 | `d090ccccadfc27ead70a3fefe6f8b550fc72590088d105ac63bafb991b840ee8` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/results_p3g_r04.json` | 10499 | `2057ad195bfd9e6a9801d0a9560ef57c64b78e43362a0ebe78d91da2fd32b8d9` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/run_p3g_screen_r04.py` | 18957 | `a65ff9d964867e78d3d30c74c49f9fa127b9cc63ce8ff3971312b82dec791005` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S1_IDENT.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S1_IDENT.json` | 1060 | `dcab1f77ca944891bb0cb229942a9a32a9e58ef0a2451cfc81a0ee334cc32b6f` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S2_preflight.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S2_preflight.json` | 134 | `d71ebfcdfc14fdc44754ddd458d6c615fad6d495b6f879d6e4507e35827bb84c` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S2b_pin_check.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S2b_pin_check.json` | 1469 | `0c7a6eb4d31a35662b2ed7b63835f92839eb0d4d2159b37cb33be1b84e78a5cc` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S3_enum.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S3_enum.json` | 41 | `b269e0bd91e0bf909bf0f75ba139e1cffb6d2611e5c36304134b187f8ac53d3b` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S3_enum_1.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S3_enum_1_output.txt` | 294 | `f22ff88f2cadbc6d72b25d3d7f34d3786e1a4117c232846e987eeadf76b8166d` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S3_hw_server.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S3_hw_server.json` | 93 | `5cb0db8d7afb14b01df31c5e1381aa7f0a54ecbe999f286c8bff12a2797f7918` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S4_loadhw_stop.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S4_loadhw_stop.json` | 102 | `c14a0119ae08a7ca828f615ac4a25e006d54a75a3c8e1d408048420ae631f955` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S4_loadhw_stop_output.txt` | 612 | `617544050c092410d36f3f948fa13b88f05ea30022a8286accb55734b0ca76e4` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S4_lvl_0xA.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S4_lvl_0xA_output.txt` | 616 | `3ad0f876a1b337055a0de46e49f0b871889017a67ee1dae12758f8610b083c14` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S5_fpga_file.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S5_fpga_file_output.txt` | 274 | `aa9a61a840b7010a8299a53ce9e0dc9717638197a013d8abb1a4b99be5abcbd5` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S5_lvl_0xF.exit_code.txt` | 8 | `2095d5302e465922147e220c0389f7a923ea0c1509a23097f04b3c220798aef8` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S5_lvl_0xF_output.txt` | 616 | `f70dcccc7f21a84634b7796b932f92a228fc7d1d172b7a6974b9eeb280d0bfdd` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S5_program_pl.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S5_program_pl.json` | 359 | `2666ad09ec89fdc6cae0c3299a5b3704aa3f3d140eb38a870cf2e8c023dbe3ed` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S6_load_longrun.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S6_load_longrun.json` | 625 | `f5b66bb5be788605663944a45ce37f3f6e444fb324d7277d1f2cfbf5921a70b7` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S6_load_longrun_output.txt` | 989 | `dc1898c1720fc04c66fbf865b849fd82bd4f4c4e2a838b71f7b5a15c4c8023af` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S7_uart_hold.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S7_uart_hold.json` | 1371 | `783dac7853a4350b68aa6af1590fc3b75ccfee6c7fac3dc6b80929a83fc2d078` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S7_uart_output.txt` | 3793 | `011fe52f808da811936a3a4254d19dfd75c4a80e03a5ea7b93b4210f8aa52036` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S8_reg_snapshot.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S8_reg_snapshot.json` | 771 | `8d8a6915dc8e0069d45daccf9ba4426f6e8ca85888ce935c2c7da9c7b5298207` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S8_reg_snapshot_output.txt` | 1406 | `7ef21ef5827c6d71c7ef2c858e4f712da152270415bb2e5c276e9b5229e64310` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S9_judgement.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S9_judgement.json` | 137 | `60dbb5c5da6656dbee8a61729ba47dacc3c554c661cfc2fc571f11326af17762` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S9_teardown.exit_code.txt` | 2 | `9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/S9_teardown.json` | 230 | `ab6d31f127cded3df7d63cbd2cf837422f56beccf06a1130d774fee24351b004` |
+| `report/evidence/S5-T01/s5_g3_g_p3g_screen_20261030_r04/window_close.txt` | 2658 | `58090ce564af3611debed9e691008c83eac2cb62523795314b7cbdf5024d625f` |

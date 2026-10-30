@@ -1,0 +1,149 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6_p3r_hw_20261031_r01",
+  "hash_basis": "commit_blob",
+  "path_convention": "仓库相对路径",
+  "phase": "R-07 集成位流 P3r（P3q + AN5642 采集→VDMA S2MM→0x12000000），build2 时序清零",
+  "conclusion": "P3R_BUILD2_TIMING_CLEAN",
+  "bit_sha256": "6202872e5958ee388e3df2825cb309dd420aaa4824e655317a3d09d6607dfb8c",
+  "bit_bytes": 4045762,
+  "xsa_sha256": "7b26a487abe00c70daa47dc64ea1766f075423dc5e22692ffcee4db89daaa3d6",
+  "xsa_bytes": 418944,
+  "timing": {
+    "WNS_ns": 0.019,
+    "TNS_ns": 0.0,
+    "failing_endpoints": 0,
+    "total_endpoints": 58726,
+    "WHS_ns": 0.061,
+    "per_clock": {
+      "cam_pclk": 3.52,
+      "clk_fpga_0": 0.019,
+      "clk_fpga_1": 3.089,
+      "clk_pixel_raw": 4.528
+    },
+    "round1": {
+      "WNS_ns": -5.493,
+      "TNS_ns": -5.493,
+      "failing_endpoints": 1,
+      "cause": "厂商 IP 内 fifo_ready→fifo_ready_maxis 异步跨域被当同步分析；用 set_max_delay -datapath_only 修复到 +9.180"
+    }
+  },
+  "resources": {
+    "LUT": "27,558 (51.80%)",
+    "FF": "17,028 (16.00%)",
+    "BRAM": "43.5 (31.07%)",
+    "DSP": 158,
+    "IOB": 24,
+    "BUFG": 5,
+    "MMCM": 1,
+    "OSERDES2": 8
+  },
+  "addresses": {
+    "2B": "0x43C00000",
+    "preproc": "0x43C10000",
+    "axi_dma": "0x43C20000",
+    "display_vdma": "0x43C40000",
+    "uf_gpio": "0x43C50000",
+    "camera_vdma": "0x43C60000",
+    "camera_gpio": "0x43C70000",
+    "camera_reset": "0x41200000"
+  },
+  "camera": {
+    "raw_base": "0x12000000",
+    "geometry": "640x480",
+    "bpp": 24,
+    "order": "B,G,R",
+    "stride": 1920,
+    "frame_bytes": 921600,
+    "subset_converter": "S=2B->M=3B, REMAP 与阶段3逐字相同，左对齐补零",
+    "i2c": "PS7 I2C0 via EMIO, SDA=F16, SCL=F19",
+    "pclk_pin": "K19",
+    "pclk_constraint_ns": 10.417,
+    "io_delay": "set_input_delay max 2.500 / min 1.500 —— 保守占位，待 V4 按手册 AC 表签核"
+  },
+  "bandwidth": "相机 27.6 + 显示 221.1 = 248.7 MB/s；HP2 有效约 380 MB/s ⇒ ~65% 占用，需板测",
+  "unverified": [
+    "相机出图/SCCB/VDMA 写入/帧计数/显示/2B 推理 全部未上板",
+    "DDR 并发带宽未测",
+    "WNS 余量仅 +0.019 ns",
+    "I/O delay 未签核",
+    "cam_pclk 实际频率待确认"
+  ],
+  "items": [
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/bd_p3r.tcl",
+      "bytes": 25762,
+      "sha256": "f40bcda05f73f27c9a31852583b5d5821a91ea68327275f933879179695131b3"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/p3r.xdc",
+      "bytes": 5479,
+      "sha256": "fce251d18155a81dcc260a5ba231c9fb148132116a70841f2a28ed392d93eade"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/p3r_cdc.xdc",
+      "bytes": 3514,
+      "sha256": "b685b3eabe0907bebc4b6a49835e2087fcab0f763d7de849b817d4af03310a8d"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/P3R_REPORT.md",
+      "bytes": 17811,
+      "sha256": "aaf64415b408af8f17044c3529cb367c22da24f7ba10424d37c3cedf0e107b3c"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_bus_skew_routed.rpt",
+      "bytes": 36749,
+      "sha256": "2cdd6fa572ed1505f68187be182acd31bb804e7fb1b893ad6b3792483867a202"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_clock_utilization_routed.rpt",
+      "bytes": 32738,
+      "sha256": "28b1b810b6dde01c217523cca40a319921c42a7d5cc0959bcd9e6faaefbdf895"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_control_sets_placed.rpt",
+      "bytes": 427913,
+      "sha256": "8e1e2160d1b8183ddbeacc84cf3917ddc3ae183dd11e18972ee25b881baed46b"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_drc_opted.rpt",
+      "bytes": 268856,
+      "sha256": "abc0c44e4a67ed522330d7ed642a6582e998017215ceeb364e32e74fe88b7db2"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_drc_routed.rpt",
+      "bytes": 274059,
+      "sha256": "ff57b6ded525fec1408a74b38f67cf157f5dcb98e320dd30c27121b59b8c34e7"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_io_placed.rpt",
+      "bytes": 125429,
+      "sha256": "87538f239c50330e270c875723fcae623f718975dcf124e76af2b0051e3ed155"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_methodology_drc_routed.rpt",
+      "bytes": 7890,
+      "sha256": "a32cbd1dc8252e1aafa60552b8328e744116ea3ef4ddc0babee086d8f958abe0"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_power_routed.rpt",
+      "bytes": 11895,
+      "sha256": "4843ac8026f94bb530ff42da70fe71f2e33a0c2486586ab8763a4353eb92097a"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_route_status.rpt",
+      "bytes": 651,
+      "sha256": "85b026489065f674bac1a02aafcc26c0dbdd6bf7b0390f827f9c25d908a985cb"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_timing_summary_routed.rpt",
+      "bytes": 1894699,
+      "sha256": "0f32ef05da5944c90061273779c434e490b061eea70154b2632c44d45281e31f"
+    },
+    {
+      "path": "report/evidence/S6-T01/s6_p3r_hw_20261031_r01/top_p3r_utilization_placed.rpt",
+      "bytes": 13172,
+      "sha256": "29fde533ce6a99d429dbddee1975d2f5fe5280f337246236763d17b92f374b76"
+    }
+  ]
+}

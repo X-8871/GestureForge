@@ -1,0 +1,478 @@
+{
+  "criteria": [
+    {
+      "id": "E3-1",
+      "desc": "S5CONS ≥3 行 + S5PROD ≥10 条",
+      "pass": true,
+      "detail": {
+        "cons": 29,
+        "prod": 1743
+      }
+    },
+    {
+      "id": "E3-2",
+      "desc": "age_pub ≤200 ms",
+      "pass": true,
+      "detail": {
+        "ages": [
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9
+        ]
+      }
+    },
+    {
+      "id": "E3-3",
+      "desc": "seqlock 全偶数",
+      "pass": true,
+      "detail": {
+        "seqlocks": [
+          120,
+          240,
+          360,
+          480,
+          600,
+          720,
+          840,
+          960,
+          1080,
+          1200,
+          1320,
+          1440,
+          1560,
+          1680,
+          1800,
+          1920,
+          2040,
+          2160,
+          2280,
+          2400,
+          2520,
+          2640,
+          2760,
+          2880,
+          3000,
+          3120,
+          3240,
+          3360,
+          3480
+        ]
+      }
+    },
+    {
+      "id": "E3-4",
+      "desc": "seq 严格递增",
+      "pass": true,
+      "detail": {
+        "seqs": [
+          60,
+          120,
+          180,
+          240,
+          300,
+          360,
+          420,
+          480,
+          540,
+          600,
+          660,
+          720,
+          780,
+          840,
+          900,
+          960,
+          1020,
+          1080,
+          1140,
+          1200,
+          1260,
+          1320,
+          1380,
+          1440,
+          1500,
+          1560,
+          1620,
+          1680,
+          1740
+        ]
+      }
+    },
+    {
+      "id": "E3-5",
+      "desc": "sid 恒定",
+      "pass": true,
+      "detail": {
+        "sids": [
+          "64027"
+        ]
+      }
+    },
+    {
+      "id": "E3-6",
+      "desc": "state ∈ {OK,NO_HAND}",
+      "pass": true,
+      "detail": {
+        "states": [
+          "OK"
+        ]
+      }
+    },
+    {
+      "id": "E3-11",
+      "desc": "消费者取锁成功（s1==s2 且偶、retries 有值、无 TIMEOUT）",
+      "pass": true,
+      "detail": {
+        "s1s2_pairs": [
+          [
+            2880,
+            2880
+          ],
+          [
+            3000,
+            3000
+          ],
+          [
+            3120,
+            3120
+          ],
+          [
+            3240,
+            3240
+          ],
+          [
+            3360,
+            3360
+          ],
+          [
+            3480,
+            3480
+          ]
+        ],
+        "s1s2_present": true,
+        "s1_all_even": true,
+        "retries_dist": {
+          "0": 29
+        },
+        "retry_events": 0,
+        "retry_event_dist": {},
+        "timeout_lines": [],
+        "seqlock_series": [
+          2640,
+          2760,
+          2880,
+          3000,
+          3120,
+          3240,
+          3360,
+          3480
+        ]
+      }
+    },
+    {
+      "id": "E3-7",
+      "desc": "sidecar magic2=0x53355831 且 version=1，且仅出现在声明偏移",
+      "pass": true,
+      "detail": {
+        "magic2": "0x53355831",
+        "version": 1,
+        "offset": "0x100",
+        "magic2_positions": [
+          256
+        ]
+      }
+    },
+    {
+      "id": "E3-8",
+      "desc": "sidecar result_time 与 UART/块头一致（±2000 ticks）",
+      "pass": true,
+      "detail": {
+        "uart_rtime_ticks": 32111000000,
+        "delta_ticks": 1002219965,
+        "delta_ms": 3006.66,
+        "rt64": 33113219965,
+        "route": "hdr_inf..+2frames",
+        "delta_vs_inf_ticks": 8744780,
+        "delta_vs_inf_ms": 26.234
+      }
+    },
+    {
+      "id": "E3-9",
+      "desc": "flush 覆盖 [0x20800000, 0x20800120)=288 B（身份 A 预期 288 B）",
+      "pass": true,
+      "detail": {
+        "flush_bytes": 288,
+        "offset": "0x100"
+      }
+    },
+    {
+      "id": "E3-10",
+      "desc": "块头 n_dets ≤14（fail-closed 生效；REJECT 行照实记录）",
+      "pass": true,
+      "detail": {
+        "n_dets": 2,
+        "reject_count": 0,
+        "reject_lines": []
+      }
+    },
+    {
+      "id": "E3-12",
+      "desc": "sidecar 字段自洽（sid==UART sid、seq==块头 frame_id、seqlock==2*seq）",
+      "pass": true,
+      "detail": {
+        "sid": 64027,
+        "seq": 1831,
+        "result_time_ticks": 33113219965,
+        "seqlock": 3662
+      }
+    }
+  ],
+  "verdict": "S6E_E3_OK",
+  "parsed": {
+    "cons_count": 29,
+    "prod_count": 1743,
+    "last_cons": [
+      {
+        "sid": "64027",
+        "seq": "1620",
+        "n": "1",
+        "status": "0x1",
+        "age_pub": "9",
+        "state": "OK",
+        "seqlock": "3240"
+      },
+      {
+        "sid": "64027",
+        "seq": "1680",
+        "n": "1",
+        "status": "0x1",
+        "age_pub": "9",
+        "state": "OK",
+        "seqlock": "3360"
+      },
+      {
+        "sid": "64027",
+        "seq": "1740",
+        "n": "1",
+        "status": "0x1",
+        "age_pub": "9",
+        "state": "OK",
+        "seqlock": "3480"
+      }
+    ],
+    "ages": [
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9
+    ],
+    "seqlocks": [
+      120,
+      240,
+      360,
+      480,
+      600,
+      720,
+      840,
+      960,
+      1080,
+      1200,
+      1320,
+      1440,
+      1560,
+      1680,
+      1800,
+      1920,
+      2040,
+      2160,
+      2280,
+      2400,
+      2520,
+      2640,
+      2760,
+      2880,
+      3000,
+      3120,
+      3240,
+      3360,
+      3480
+    ],
+    "seqs": [
+      60,
+      120,
+      180,
+      240,
+      300,
+      360,
+      420,
+      480,
+      540,
+      600,
+      660,
+      720,
+      780,
+      840,
+      900,
+      960,
+      1020,
+      1080,
+      1140,
+      1200,
+      1260,
+      1320,
+      1380,
+      1440,
+      1500,
+      1560,
+      1620,
+      1680,
+      1740
+    ],
+    "sids": [
+      "64027"
+    ],
+    "states": [
+      "OK"
+    ],
+    "s1s2_pairs": [
+      [
+        2880,
+        2880
+      ],
+      [
+        3000,
+        3000
+      ],
+      [
+        3120,
+        3120
+      ],
+      [
+        3240,
+        3240
+      ],
+      [
+        3360,
+        3360
+      ],
+      [
+        3480,
+        3480
+      ]
+    ],
+    "retries_dist": {
+      "0": 29
+    },
+    "retry_event_dist": {},
+    "timeout_lines": [],
+    "sidecar": {
+      "offset": "0x100",
+      "flush_bytes": 288,
+      "magic2": 1396004913,
+      "version": 1,
+      "words_hex": [
+        "0x53355831",
+        "0x00000001",
+        "0x0000FA1B",
+        "0x00000727",
+        "0xB5B3A37D",
+        "0x00000007",
+        "0x00000E4E",
+        "0x00000000"
+      ],
+      "header": {
+        "magic": "0x53355253",
+        "frame_id": 1831,
+        "n_dets": 2,
+        "cap_ticks": 33102141851,
+        "inf_ticks": 33104475185,
+        "status": 1,
+        "inf_minus_cap_ticks": 2333334
+      },
+      "n_dets": 2,
+      "n_dets_le_14": true,
+      "uart_last": {
+        "rtime_ms": 96333,
+        "cap_ms": 96309
+      },
+      "fields": {
+        "sid": 64027,
+        "seq": 1831,
+        "result_time_ticks": 33113219965,
+        "seqlock": 3662
+      },
+      "result_time_match": true,
+      "result_time_detail": {
+        "uart_rtime_ticks": 32111000000,
+        "delta_ticks": 1002219965,
+        "delta_ms": 3006.66,
+        "rt64": 33113219965,
+        "route": "hdr_inf..+2frames",
+        "delta_vs_inf_ticks": 8744780,
+        "delta_vs_inf_ms": 26.234
+      },
+      "magic2_positions": [
+        256
+      ],
+      "reject_lines": [],
+      "reject_count": 0,
+      "dump_bytes": 288,
+      "dump_rc": 0
+    }
+  },
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "utc8": "2026-10-31T02:11:59+08:00"
+}

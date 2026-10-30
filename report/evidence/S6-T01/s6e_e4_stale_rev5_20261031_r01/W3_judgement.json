@@ -1,0 +1,113 @@
+{
+  "criteria": [
+    {
+      "id": "E4-1",
+      "desc": "state 与映射一致（期望 TIMEOUT）",
+      "pass": true,
+      "detail": {
+        "expect": "TIMEOUT",
+        "states": [
+          "TIMEOUT"
+        ]
+      }
+    },
+    {
+      "id": "E4-2",
+      "desc": "收到 S5CONS/S5PROD 证据行",
+      "pass": true,
+      "detail": {
+        "cons": 3,
+        "prod": 181
+      }
+    },
+    {
+      "id": "E4-3",
+      "desc": "status 字段可读",
+      "pass": true,
+      "detail": {
+        "status_values": [
+          "0x5"
+        ]
+      }
+    }
+  ],
+  "verdict": "S6E_E4_OK",
+  "parsed": {
+    "cons_count": 3,
+    "prod_count": 181,
+    "last_cons": [
+      {
+        "sid": "12829",
+        "seq": "60",
+        "n": "1",
+        "status": "0x5",
+        "age_pub": "10",
+        "state": "TIMEOUT",
+        "seqlock": "120"
+      },
+      {
+        "sid": "12829",
+        "seq": "120",
+        "n": "1",
+        "status": "0x5",
+        "age_pub": "10",
+        "state": "TIMEOUT",
+        "seqlock": "240"
+      },
+      {
+        "sid": "12829",
+        "seq": "180",
+        "n": "1",
+        "status": "0x5",
+        "age_pub": "10",
+        "state": "TIMEOUT",
+        "seqlock": "360"
+      }
+    ],
+    "ages": [
+      10,
+      10,
+      10
+    ],
+    "seqlocks": [
+      120,
+      240,
+      360
+    ],
+    "seqs": [
+      60,
+      120,
+      180
+    ],
+    "sids": [
+      "12829"
+    ],
+    "states": [
+      "TIMEOUT"
+    ],
+    "s1s2_pairs": [
+      [
+        120,
+        120
+      ],
+      [
+        240,
+        240
+      ],
+      [
+        360,
+        360
+      ]
+    ],
+    "retries_dist": {
+      "0": 3
+    },
+    "retry_event_dist": {},
+    "timeout_lines": []
+  },
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "utc8": "2026-10-31T02:04:33+08:00"
+}

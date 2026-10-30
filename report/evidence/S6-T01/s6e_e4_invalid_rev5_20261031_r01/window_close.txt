@@ -1,0 +1,18 @@
+# 阶段6 E4 窗口（安全流程，零 rst）
+
+- RunId：`s6e_e4_invalid_rev5_20261031_r01`
+- 开窗：2026-10-31T02:04:37+08:00；收窗：2026-10-31T02:05:40+08:00
+- 结论：**S6E_E4_OK**
+- stop_reason：None
+- **por_precondition：not_satisfied**
+- 位流（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF：sha256=5e92ae693f054df20f0c29163adda6d62c56f358a111135d5f5523beec1cc6ab（expect 5e92ae693f054df20f0c29163adda6d62c56f358a111135d5f5523beec1cc6ab）
+
+- E4-1 state 与映射一致（期望 ERROR）：**PASS** {"expect": "ERROR", "states": ["ERROR"]}
+- E4-2 收到 S5CONS/S5PROD 证据行：**PASS** {"cons": 3, "prod": 181}
+- E4-3 status 字段可读：**PASS** {"status_values": ["0x0"]}
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 流程：hw_server→loadhw→stop→ps7_init→0xA→fpga→0xF→PL 只读探测→load_elf→采集→stop（零 rst）
+- 边界：禁 rst -system；未写候选区；未烧 QSPI

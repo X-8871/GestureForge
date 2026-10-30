@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-E",
+  "run_id": "s6e_xsdb_offline_entry_20261030_r01",
+  "source_commit": "b0f4a688aa618f891b673c9b779f6b68f6e7472c",
+  "evidence_dir": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "只验证官方XSDB离线入口与主机收尾；没有连接板卡，不消费业务接口",
+  "hash_basis": "worktree_disk",
+  "hash_basis_note": "新包按磁盘字节保真；固定输入权威基座见source_bindings的commit_blob",
+  "tool_versions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.0.windows.2",
+    "powershell": "5.1.26100.8457"
+  },
+  "limitations": [
+    "CHECKS_OK只证明包装和文件绑定，不代表G3/G4/G5或业务验收",
+    "本包没有connect、JTAG拓扑枚举、内存寄存器访问、程序控制或板卡状态核验",
+    "T6-A03、真实推理、200ms新鲜度与阶段6业务验收均未执行",
+    "主机查询与所列进程端口空闲观测分别记录，不证明板卡状态或独占租约",
+    "峰值内存未测"
+  ],
+  "checks": [
+    {
+      "name": "host-query-pre",
+      "status": "PASS",
+      "command": "{\"argv\": [\"powershell.exe\", \"-NoProfile\", \"-NonInteractive\", \"-Command\", \"\\n$ErrorActionPreference='Stop'\\n[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\\n$all=Get-CimInstance Win32_Process\\n$wanted=@($all | Where-Object { $_.Name -match '^(hw_server|xsdb|vivado|xsim|vitis|python)(\\\\.exe)?$' })\\n$ids=@($wanted.ProcessId)+@($wanted.ParentProcessId)\\n$processes=@($all | Where-Object { $_.ProcessId -in $ids -or $_.ParentProcessId -in @($wanted.ProcessId) } | Select-Object Name,ProcessId,ParentProcessId,ExecutablePath,CreationDate)\\n$devices=@(Get-PnpDevice | Where-Object { $_.InstanceId -match 'FTDI|VID_0403|VID_10C4' -or $_.FriendlyName -match 'FTDI|CP210' } | Select-Object Status,Class,FriendlyName,InstanceId)\\n$listeners=@(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in @(3121,23121) } | Select-Object LocalAddress,LocalPort,OwningProcess,State)\\n[pscustomobject]@{Processes=$processes; Devices=$devices; Listeners=$listeners; PowerShellVersion=$PSVersionTable.PSVersion.ToString()} | ConvertTo-Json -Depth 8\\n\"], \"working_directory\": \"D:\\\\codex-worktrees\\\\w6\"}",
+      "exit_code": 0,
+      "reason": "只表示CIM/设备/监听查询是否成功，空闲观测另见host_observation"
+    },
+    {
+      "name": "host-query-post",
+      "status": "PASS",
+      "command": "{\"argv\": [\"powershell.exe\", \"-NoProfile\", \"-NonInteractive\", \"-Command\", \"\\n$ErrorActionPreference='Stop'\\n[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\\n$all=Get-CimInstance Win32_Process\\n$wanted=@($all | Where-Object { $_.Name -match '^(hw_server|xsdb|vivado|xsim|vitis|python)(\\\\.exe)?$' })\\n$ids=@($wanted.ProcessId)+@($wanted.ParentProcessId)\\n$processes=@($all | Where-Object { $_.ProcessId -in $ids -or $_.ParentProcessId -in @($wanted.ProcessId) } | Select-Object Name,ProcessId,ParentProcessId,ExecutablePath,CreationDate)\\n$devices=@(Get-PnpDevice | Where-Object { $_.InstanceId -match 'FTDI|VID_0403|VID_10C4' -or $_.FriendlyName -match 'FTDI|CP210' } | Select-Object Status,Class,FriendlyName,InstanceId)\\n$listeners=@(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in @(3121,23121) } | Select-Object LocalAddress,LocalPort,OwningProcess,State)\\n[pscustomobject]@{Processes=$processes; Devices=$devices; Listeners=$listeners; PowerShellVersion=$PSVersionTable.PSVersion.ToString()} | ConvertTo-Json -Depth 8\\n\"], \"working_directory\": \"D:\\\\codex-worktrees\\\\w6\"}",
+      "exit_code": 0,
+      "reason": "只表示CIM/设备/监听查询是否成功，空闲观测另见host_observation"
+    },
+    {
+      "name": "official-xsdb-offline-entry",
+      "status": "PASS",
+      "command": "{\"argv\": [\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\python\\\\python.exe\", \"-X\", \"utf8\", \"-B\", \"D:\\\\codex-worktrees\\\\w6\\\\report\\\\evidence\\\\S6-E\\\\s6e_xsdb_offline_entry_20261030_r01\\\\launcher.py\", \"--execute-offline\", \"--output-dir\", \"D:\\\\codex-worktrees\\\\w6\\\\report\\\\evidence\\\\S6-E\\\\s6e_xsdb_offline_entry_20261030_r01\\\\runtime_offline_01\", \"--timeout-seconds\", \"30\"], \"working_directory\": \"D:\\\\FPGA_Competition\", \"exit_code\": 0}",
+      "exit_code": 0,
+      "reason": "仅验证离线入口及收尾；没有connect、板卡访问或业务验收"
+    },
+    {
+      "name": "JTAG-topology",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "离线入口验证范围不包含板卡或业务实物操作"
+    },
+    {
+      "name": "T6-A03",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "离线入口验证范围不包含板卡或业务实物操作"
+    },
+    {
+      "name": "S6-E-business-acceptance",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "离线入口验证范围不包含板卡或业务实物操作"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/capture.py",
+      "sha256": "868cd9799ff1207049a652937814d7cd70b8609d17e03e6922e97ab698365923",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/check_evidence.json",
+      "sha256": "780feed62aa89165b9e99268213b0bc3e1a2090630cfa414a08b4fc917d864c6",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/check_inputs.json",
+      "sha256": "d9c9364c8c5a7aec0ec777385522363ad442a68fa11a6f8b9a20f0b7903b23a3",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/check_strict.json",
+      "sha256": "648792529a3889d0669c714677ec95364ce70682ef6c156f9db8c3e65732f635",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/copy_failure_note.json",
+      "sha256": "3ac54f4a500890f0bc02af9bbb3c9c22fac8ab8a83bdac82784f193fe28258e8",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/execution.json",
+      "sha256": "f9cece05039372b2468bef23f7a18872c824a3b3b14df1223660a36275514d5d",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/host_snapshot_post.json",
+      "sha256": "0d256c37fcb5cfcfe7658da574b3ccf18f3d2703b6c6adf8aad8bceb59cebb17",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/host_snapshot_pre.json",
+      "sha256": "afa7493c43e1ad85dfde7c68a84e2cf0c921c9990d589d5dac26ad3dd376dc97",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/independent_11_review_summary_original.json",
+      "sha256": "abca2d1dbae10e94bab9ac7cfcb5068fef0019c7b3182843d3922183f320367b",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/independent_11_review_unittest.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/independent_11_review_unittest_original.log",
+      "sha256": "788ca5b35c73b0f9e48cce90a71f45f44d30e4ab7d31ffbefb06ba3f24a6206c",
+      "role": "log",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/independent_cmd_review_summary_original.json",
+      "sha256": "d2e3dd72c71d001bb4f08422e56ce67aa3b12c08fc38a8318214bf8002430d9e",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/independent_cmd_review_unittest_original.log",
+      "sha256": "4a6295a7ecd627064e5fda28e4ba0497b4bd3a1574fdb0d11c56e7e9e0e9f923",
+      "role": "log",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/input_check_manifest_hash_basis.py",
+      "sha256": "10e3fe7121cc46665cfcd553dc5237833fe3134bc0dd00a8652d79fa290e85f6",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/input_check_stage_delivery.py",
+      "sha256": "00350ac813e928c052e43a5237fdf7a9be79d75c952cf691318eeb1e9fceeb8e",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/input_dsh014.md",
+      "sha256": "bca3e675e49238a7cb691b7ccb21e2948a55310fe227d31ce037b502b69a032b",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/input_prior_delivery_manifest.json",
+      "sha256": "22d37457425896758ba9bdf4ab2a336665fcf78f3994c23a14ae525772c98052",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/input_prior_execution.json",
+      "sha256": "0c94d775048190e4513cdbc32b25d9eda2847ab3f142c6915948d05393315e2f",
+      "role": "input",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/inputs_manifest.json",
+      "sha256": "d8fd2911ef2ac8d266cb7f24ef265f6797cf66d7a8316683a9f1fb33e02e3baa",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/launcher.py",
+      "sha256": "4d8177fee75989c96730f1a2eb284349e937906ebcd0e6b68c02f9de2920b76f",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/launcher_tool_bindings.json",
+      "sha256": "650cab6049731205feaed4af056bcbeda97fd0b202831f3fa484459d54ac52ec",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/package.py",
+      "sha256": "f20d8c8609e08c80b0aee80abdebcfb4e8dc84cd64eb4e2424ee97083f59724a",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/probe.tcl",
+      "sha256": "0081d3aad0302efcc887e3b123c9bd7c61225f7738fe742597c5e34d12b29615",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/protected_worktree_check.json",
+      "sha256": "e25145bf2845c5692aacfdc79b6fcc113990ede547370b62749492ba8b7b6093",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/protected_worktree_check_post.json",
+      "sha256": "e25145bf2845c5692aacfdc79b6fcc113990ede547370b62749492ba8b7b6093",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/qualification.json",
+      "sha256": "475ea7492fb6b7a619da33f9abb6228b0aca9e20fc982e61649df9d1b8c9122d",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/review_receipt.json",
+      "sha256": "79883941a45d45d0c5099cf706245b10e48c897ad96564736fc6bef03011b802",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/runtime_offline_01/execution.json",
+      "sha256": "16899b2390fdb790e94bd4c57097376341b8062155fc044799910a851a4cf092",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/runtime_offline_01/launch_plan.json",
+      "sha256": "efea2e48ff4646589f1ca36d1541f1dc74ced4fe15ef36d7fb81e80ac709e15b",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/runtime_offline_01/stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/runtime_offline_01/stdout.bin",
+      "sha256": "b8c545ca3f7b9469eabb0ddc7b325580a9c642cf4e88005b342517c5306f4263",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/selftest_result.json",
+      "sha256": "b455b814008e4656a0d216c0739c01829b828eb378abc9d41ee76b7efdcc6d87",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/source_bindings.json",
+      "sha256": "a7f2ab409391859287dffa76b458921f8130160850cee4a413fe59e7828ecc97",
+      "role": "result",
+      "hash_basis": "worktree_disk"
+    },
+    {
+      "path": "report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/test_launcher.py",
+      "sha256": "7200c99dd7586e908c596cc96f0bc4a16c537c7cb424271a690bc837645af1b2",
+      "role": "source",
+      "hash_basis": "worktree_disk"
+    }
+  ]
+}

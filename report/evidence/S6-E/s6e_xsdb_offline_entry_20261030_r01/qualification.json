@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "task_id": "S6-E",
+  "run_id": "s6e_xsdb_offline_entry_20261030_r01",
+  "scope": "官方XSDB入口离线恢复验证；没有板卡操作",
+  "source_commit": "b0f4a688aa618f891b673c9b779f6b68f6e7472c",
+  "actual_entry_check": {
+    "name": "official-xsdb-offline-entry",
+    "status": "PASS",
+    "command": "{\"argv\": [\"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\python\\\\python.exe\", \"-X\", \"utf8\", \"-B\", \"D:\\\\codex-worktrees\\\\w6\\\\report\\\\evidence\\\\S6-E\\\\s6e_xsdb_offline_entry_20261030_r01\\\\launcher.py\", \"--execute-offline\", \"--output-dir\", \"D:\\\\codex-worktrees\\\\w6\\\\report\\\\evidence\\\\S6-E\\\\s6e_xsdb_offline_entry_20261030_r01\\\\runtime_offline_01\", \"--timeout-seconds\", \"30\"], \"working_directory\": \"D:\\\\FPGA_Competition\", \"exit_code\": 0}",
+    "exit_code": 0,
+    "reason": "仅验证离线入口及收尾；没有connect、板卡访问或业务验收"
+  },
+  "actual_runtime_observation": {
+    "runtime_status": "PASS",
+    "child_invocation": {
+      "argv": [
+        "C:\\WINDOWS\\System32\\cmd.exe",
+        "/d",
+        "/q",
+        "/v:off",
+        "/s",
+        "/c",
+        "\"\"D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat\" \"D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_xsdb_offline_entry_20261030_r01\\probe.tcl\"\""
+      ],
+      "command_line": "C:\\WINDOWS\\System32\\cmd.exe /d /q /v:off /s /c \"\"D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat\" \"D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_xsdb_offline_entry_20261030_r01\\probe.tcl\"\"",
+      "working_directory": "D:\\codex-worktrees\\w6\\report\\evidence\\S6-E\\s6e_xsdb_offline_entry_20261030_r01\\runtime_offline_01",
+      "application": "C:\\WINDOWS\\System32\\cmd.exe"
+    },
+    "root_exit_code": 0,
+    "root_exit_code_after_cleanup": 0,
+    "elapsed_seconds": 0.594,
+    "cleanup_confirmed": true,
+    "job_samples": [
+      {
+        "phase": "before_resume",
+        "TotalProcesses": 1,
+        "ActiveProcesses": 1,
+        "TotalTerminatedProcesses": 0,
+        "pids": [
+          17696
+        ]
+      },
+      {
+        "phase": "before_cleanup",
+        "TotalProcesses": 4,
+        "ActiveProcesses": 1,
+        "TotalTerminatedProcesses": 0,
+        "pids": [
+          57328
+        ]
+      },
+      {
+        "phase": "after_cleanup",
+        "TotalProcesses": 4,
+        "ActiveProcesses": 0,
+        "TotalTerminatedProcesses": 0,
+        "pids": []
+      }
+    ],
+    "stdout": "8.6.13\r\n",
+    "stdout_bytes": 8,
+    "stderr_bytes": 0,
+    "source": "runtime_offline_01/execution.json、launch_plan.json及原始stdout.bin/stderr.bin",
+    "vendor_execution_runs": 1
+  },
+  "execution_record": "execution.json",
+  "source_review_receipt": "review_receipt.json",
+  "source_review_status": "PASS",
+  "host_queries": {
+    "pre": "PASS",
+    "post": "PASS"
+  },
+  "worktree_identity": {
+    "pre": "PASS",
+    "post": "PASS"
+  },
+  "host_observations": {
+    "pre": {
+      "relevant_processes_present": false,
+      "listeners_present": false,
+      "observed_idle_for_listed_tools_and_ports": true,
+      "scope": "只针对已列工具与3121/23121端口；不证明板卡状态、租约或硬件身份"
+    },
+    "post": {
+      "relevant_processes_present": false,
+      "listeners_present": false,
+      "observed_idle_for_listed_tools_and_ports": true,
+      "scope": "只针对已列工具与3121/23121端口；不证明板卡状态、租约或硬件身份"
+    }
+  },
+  "protection": {
+    "protected_worktree_check.json": {
+      "files": 297,
+      "mismatches": []
+    },
+    "protected_worktree_check_post.json": {
+      "files": 297,
+      "mismatches": []
+    }
+  },
+  "hardware_connect_performed": false,
+  "hardware_memory_access_performed": false,
+  "board_programmed": false,
+  "serial_opened": false,
+  "hardware_scope_basis": "只复制总控execution的明确观察/声明；缺失项为null，不根据主机查询推断硬件状态",
+  "business_statuses": {
+    "JTAG_topology": "NOT_RUN",
+    "P3q_identity": "NOT_VERIFIED",
+    "PS_stop_state": "NOT_VERIFIED",
+    "T6_A03": "NOT_RUN",
+    "real_inference": "NOT_RUN",
+    "S6_E_business_acceptance": "NOT_RUN",
+    "stage6_G3_G4_G5": "NOT_PASSED"
+  },
+  "peak_memory_bytes": null,
+  "peak_memory_note": "未测量峰值内存",
+  "packaging_scope": "入口执行、独立源码审查与包装检查分开；包内CHECKS_OK不能替代实物验收"
+}

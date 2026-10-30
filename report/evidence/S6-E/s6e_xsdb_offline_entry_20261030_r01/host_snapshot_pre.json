@@ -1,0 +1,220 @@
+{
+  "captured_utc8": "2026-10-30T21:30:59.879196+08:00",
+  "label": "pre",
+  "worktree": "D:\\codex-worktrees\\w6",
+  "git_queries": {
+    "root": {
+      "argv": [
+        "C:\\Program Files\\Git\\cmd\\git.exe",
+        "--no-optional-locks",
+        "-c",
+        "core.longpaths=true",
+        "-C",
+        "D:\\codex-worktrees\\w6",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "working_directory": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "stdout": "D:/codex-worktrees/w6\n",
+      "stderr": "",
+      "duration_seconds": 0.042528
+    },
+    "branch": {
+      "argv": [
+        "C:\\Program Files\\Git\\cmd\\git.exe",
+        "--no-optional-locks",
+        "-c",
+        "core.longpaths=true",
+        "-C",
+        "D:\\codex-worktrees\\w6",
+        "branch",
+        "--show-current"
+      ],
+      "working_directory": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "stdout": "stage6-interact-prep\n",
+      "stderr": "",
+      "duration_seconds": 0.041812
+    },
+    "head": {
+      "argv": [
+        "C:\\Program Files\\Git\\cmd\\git.exe",
+        "--no-optional-locks",
+        "-c",
+        "core.longpaths=true",
+        "-C",
+        "D:\\codex-worktrees\\w6",
+        "rev-parse",
+        "HEAD"
+      ],
+      "working_directory": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "stdout": "b0f4a688aa618f891b673c9b779f6b68f6e7472c\n",
+      "stderr": "",
+      "duration_seconds": 0.040358
+    },
+    "index": {
+      "argv": [
+        "C:\\Program Files\\Git\\cmd\\git.exe",
+        "--no-optional-locks",
+        "-c",
+        "core.longpaths=true",
+        "-C",
+        "D:\\codex-worktrees\\w6",
+        "diff",
+        "--cached",
+        "--name-only"
+      ],
+      "working_directory": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "duration_seconds": 0.043201
+    },
+    "lock": {
+      "argv": [
+        "C:\\Program Files\\Git\\cmd\\git.exe",
+        "--no-optional-locks",
+        "-c",
+        "core.longpaths=true",
+        "-C",
+        "D:\\codex-worktrees\\w6",
+        "rev-parse",
+        "--git-path",
+        "index.lock"
+      ],
+      "working_directory": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "stdout": "D:/FPGA_Competition/.git/worktrees/w6/index.lock\n",
+      "stderr": "",
+      "duration_seconds": 0.045314
+    },
+    "status": {
+      "argv": [
+        "C:\\Program Files\\Git\\cmd\\git.exe",
+        "--no-optional-locks",
+        "-c",
+        "core.longpaths=true",
+        "-C",
+        "D:\\codex-worktrees\\w6",
+        "status",
+        "--short"
+      ],
+      "working_directory": "D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "stdout": " M .codex/STATE.md\n M .gitattributes\n M docs/stage6/S6A_stage6_g0_behavior_spec_v1.md\n M docs/stage6/s6a_stage6_g0_behavior_v1.json\n?? report/evidence/S6-A/s6a_g0_20261024_r14/\n?? report/evidence/S6-A/s6a_g0_20261024_r15/\n?? report/evidence/S6-A/s6a_g0_20261024_r16/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r01/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r02/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r03/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r04/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r05/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r06/\n?? report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/\n?? report/evidence/S6-B/s6b_core_20261024_r10/\n?? report/evidence/S6-B/s6b_core_20261024_r11/\n?? report/evidence/S6-B/s6b_core_20261024_r12/\n?? report/evidence/S6-B/s6b_core_20261024_r13/\n?? report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/\n",
+      "stderr": "",
+      "duration_seconds": 0.059749
+    }
+  },
+  "resolved_index_lock": "D:\\FPGA_Competition\\.git\\worktrees\\w6\\index.lock",
+  "index_lock_exists": false,
+  "identity_check": "PASS",
+  "host_query": {
+    "argv": [
+      "powershell.exe",
+      "-NoProfile",
+      "-NonInteractive",
+      "-Command",
+      "\n$ErrorActionPreference='Stop'\n[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$all=Get-CimInstance Win32_Process\n$wanted=@($all | Where-Object { $_.Name -match '^(hw_server|xsdb|vivado|xsim|vitis|python)(\\.exe)?$' })\n$ids=@($wanted.ProcessId)+@($wanted.ParentProcessId)\n$processes=@($all | Where-Object { $_.ProcessId -in $ids -or $_.ParentProcessId -in @($wanted.ProcessId) } | Select-Object Name,ProcessId,ParentProcessId,ExecutablePath,CreationDate)\n$devices=@(Get-PnpDevice | Where-Object { $_.InstanceId -match 'FTDI|VID_0403|VID_10C4' -or $_.FriendlyName -match 'FTDI|CP210' } | Select-Object Status,Class,FriendlyName,InstanceId)\n$listeners=@(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in @(3121,23121) } | Select-Object LocalAddress,LocalPort,OwningProcess,State)\n[pscustomobject]@{Processes=$processes; Devices=$devices; Listeners=$listeners; PowerShellVersion=$PSVersionTable.PSVersion.ToString()} | ConvertTo-Json -Depth 8\n"
+    ],
+    "working_directory": "D:\\codex-worktrees\\w6",
+    "exit_code": 0,
+    "stdout": "{\r\n    \"Processes\":  [\r\n                      {\r\n                          \"Name\":  \"DeepSeek Harness.exe\",\r\n                          \"ProcessId\":  20772,\r\n                          \"ParentProcessId\":  25280,\r\n                          \"ExecutablePath\":  \"D:\\\\DSH\\\\DeepSeek Harness.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793075117392)\\/\"\r\n                      },\r\n                      {\r\n                          \"Name\":  \"python.exe\",\r\n                          \"ProcessId\":  6116,\r\n                          \"ParentProcessId\":  20772,\r\n                          \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\AppData\\\\Local\\\\Programs\\\\vivado-mcp-server\\\\.venv\\\\Scripts\\\\python.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793075119843)\\/\"\r\n                      },\r\n                      {\r\n                          \"Name\":  \"conhost.exe\",\r\n                          \"ProcessId\":  8792,\r\n                          \"ParentProcessId\":  6116,\r\n                          \"ExecutablePath\":  \"C:\\\\WINDOWS\\\\system32\\\\conhost.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793075119847)\\/\"\r\n                      },\r\n                      {\r\n                          \"Name\":  \"python.exe\",\r\n                          \"ProcessId\":  3016,\r\n                          \"ParentProcessId\":  6116,\r\n                          \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793075119875)\\/\"\r\n                      },\r\n                      {\r\n                          \"Name\":  \"bash.exe\",\r\n                          \"ProcessId\":  36036,\r\n                          \"ParentProcessId\":  24424,\r\n                          \"ExecutablePath\":  \"C:\\\\Program Files\\\\Git\\\\bin\\\\..\\\\usr\\\\bin\\\\bash.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793367055391)\\/\"\r\n                      },\r\n                      {\r\n                          \"Name\":  \"python.exe\",\r\n                          \"ProcessId\":  49380,\r\n                          \"ParentProcessId\":  36036,\r\n                          \"ExecutablePath\":  \"C:\\\\Users\\\\22061\\\\.cache\\\\codex-runtimes\\\\codex-primary-runtime\\\\dependencies\\\\python\\\\python.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793367055617)\\/\"\r\n                      },\r\n                      {\r\n                          \"Name\":  \"powershell.exe\",\r\n                          \"ProcessId\":  19960,\r\n                          \"ParentProcessId\":  49380,\r\n                          \"ExecutablePath\":  \"C:\\\\windows\\\\system32\\\\windowspowershell\\\\v1.0\\\\powershell.exe\",\r\n                          \"CreationDate\":  \"\\/Date(1793367055972)\\/\"\r\n                      }\r\n                  ],\r\n    \"Devices\":  [\r\n                    {\r\n                        \"Status\":  \"Unknown\",\r\n                        \"Class\":  \"Ports\",\r\n                        \"FriendlyName\":  \"Silicon Labs CP210x USB to UART Bridge (COM6)\",\r\n                        \"InstanceId\":  \"USB\\\\VID_10C4\\u0026PID_EA60\\\\8A27BB0F7FF9EF11A3EF67135C2A50C9\"\r\n                    },\r\n                    {\r\n                        \"Status\":  \"Unknown\",\r\n                        \"Class\":  \"Ports\",\r\n                        \"FriendlyName\":  \"Silicon Labs CP210x USB to UART Bridge (COM5)\",\r\n                        \"InstanceId\":  \"USB\\\\VID_10C4\\u0026PID_EA60\\\\AAC6B2A5C5A1F011A62723A0D9065118\"\r\n                    },\r\n                    {\r\n                        \"Status\":  \"OK\",\r\n                        \"Class\":  \"USB\",\r\n                        \"FriendlyName\":  \"USB Serial Converter\",\r\n                        \"InstanceId\":  \"USB\\\\VID_0403\\u0026PID_6014\\\\210512180081\"\r\n                    },\r\n                    {\r\n                        \"Status\":  \"OK\",\r\n                        \"Class\":  \"Ports\",\r\n                        \"FriendlyName\":  \"Silicon Labs CP210x USB to UART Bridge (COM4)\",\r\n                        \"InstanceId\":  \"USB\\\\VID_10C4\\u0026PID_EA60\\\\D02E61162787ED11A536569F9D1CC348\"\r\n                    }\r\n                ],\r\n    \"Listeners\":  [\r\n\r\n                  ],\r\n    \"PowerShellVersion\":  \"5.1.26100.8457\"\r\n}\r\n",
+    "stderr": "",
+    "duration_seconds": 3.908903
+  },
+  "host_query_status": "PASS",
+  "hardware_api_called": false,
+  "serial_opened": false,
+  "peak_memory_bytes": null,
+  "peak_memory_note": "峰值内存未测；采集成功不自动声明主机空闲",
+  "host": {
+    "Processes": [
+      {
+        "Name": "DeepSeek Harness.exe",
+        "ProcessId": 20772,
+        "ParentProcessId": 25280,
+        "ExecutablePath": "D:\\DSH\\DeepSeek Harness.exe",
+        "CreationDate": "/Date(1793075117392)/"
+      },
+      {
+        "Name": "python.exe",
+        "ProcessId": 6116,
+        "ParentProcessId": 20772,
+        "ExecutablePath": "C:\\Users\\22061\\AppData\\Local\\Programs\\vivado-mcp-server\\.venv\\Scripts\\python.exe",
+        "CreationDate": "/Date(1793075119843)/"
+      },
+      {
+        "Name": "conhost.exe",
+        "ProcessId": 8792,
+        "ParentProcessId": 6116,
+        "ExecutablePath": "C:\\WINDOWS\\system32\\conhost.exe",
+        "CreationDate": "/Date(1793075119847)/"
+      },
+      {
+        "Name": "python.exe",
+        "ProcessId": 3016,
+        "ParentProcessId": 6116,
+        "ExecutablePath": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "CreationDate": "/Date(1793075119875)/"
+      },
+      {
+        "Name": "bash.exe",
+        "ProcessId": 36036,
+        "ParentProcessId": 24424,
+        "ExecutablePath": "C:\\Program Files\\Git\\bin\\..\\usr\\bin\\bash.exe",
+        "CreationDate": "/Date(1793367055391)/"
+      },
+      {
+        "Name": "python.exe",
+        "ProcessId": 49380,
+        "ParentProcessId": 36036,
+        "ExecutablePath": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "CreationDate": "/Date(1793367055617)/"
+      },
+      {
+        "Name": "powershell.exe",
+        "ProcessId": 19960,
+        "ParentProcessId": 49380,
+        "ExecutablePath": "C:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe",
+        "CreationDate": "/Date(1793367055972)/"
+      }
+    ],
+    "Devices": [
+      {
+        "Status": "Unknown",
+        "Class": "Ports",
+        "FriendlyName": "Silicon Labs CP210x USB to UART Bridge (COM6)",
+        "InstanceId": "USB\\VID_10C4&PID_EA60\\8A27BB0F7FF9EF11A3EF67135C2A50C9"
+      },
+      {
+        "Status": "Unknown",
+        "Class": "Ports",
+        "FriendlyName": "Silicon Labs CP210x USB to UART Bridge (COM5)",
+        "InstanceId": "USB\\VID_10C4&PID_EA60\\AAC6B2A5C5A1F011A62723A0D9065118"
+      },
+      {
+        "Status": "OK",
+        "Class": "USB",
+        "FriendlyName": "USB Serial Converter",
+        "InstanceId": "USB\\VID_0403&PID_6014\\210512180081"
+      },
+      {
+        "Status": "OK",
+        "Class": "Ports",
+        "FriendlyName": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "InstanceId": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348"
+      }
+    ],
+    "Listeners": [],
+    "PowerShellVersion": "5.1.26100.8457"
+  },
+  "host_observation": {
+    "relevant_processes_present": false,
+    "listeners_present": false,
+    "observed_idle_for_listed_tools_and_ports": true,
+    "scope": "只针对已列工具与3121/23121端口；不证明板卡状态、租约或硬件身份"
+  }
+}

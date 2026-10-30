@@ -1,5 +1,14 @@
 # 阶段6 STATE（S6-A/S6-B/S6-E 交互控制；离线部分）
 
+## C1官方XSDB入口离线收口（2026-10-31 00:14 UTC+8；优先于下方历史状态）
+
+- Wong确认的DSH-014入口方案已离线验证，RunId `report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/`。Tcl 8.6.13；探针、wrapper与根cmd退出码均为0；执行0.594秒，Job进程树清理后ActiveProcesses=0。探针仅打印版本并退出，无connect、JTAG、寄存器/内存访问或板卡操作。
+- 当前基线 `b0f4a688aa618f891b673c9b779f6b68f6e7472c` 上，34个清单文件磁盘哈希全匹配；inputs/evidence与strict hash检查均exit 0，strict检查39项零不符，5个commit_blob固定输入绑定一致。源文件独立审查PASS，12/12独立定向测试通过；C1证据包独立复核PASS。证据包装只证明C1离线入口与进程收尾。
+- 明确未做：JTAG拓扑、T6-A03实测、真实推理与S6-E业务验收均`NOT_RUN`；阶段6 G3/G4/G5未通过。阶段4真实回放若仍缺cv2与绑定冻结图像的独立raw-head黄金，保持`BLOCKED`并记录所需输入，不伪造结果。
+- C1关闭后按DSH-20261030-017提交本树正式交接。原有4个tracked差异（`.codex/STATE.md`、`.gitattributes`、两份S6-A规格文件）及14个历史S6-A/S6-B证据目录保留原状，本次C1提交不包含它们；交接后由DSH确认归属。未进行硬件/Vivado操作。
+
+任务=`阶段6 C1收口后将w6正式交接给DSH` | 负责人=`Codex阶段6总控（让出方）` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`b0f4a688aa618f891b673c9b779f6b68f6e7472c` | 允许修改范围=`C1离线证据包与本STATE交接记录；后续阶段6工作由DSH按任务卡接管；板级操作仍需单独硬件OFFER/授权` | 未提交改动归属=`保留4个tracked差异（本STATE历史增量、.gitattributes、S6-A Markdown/JSON规格）及14个旧证据目录（S6-A r14-r16/U6-02 r01-r07、S6-B r10-r13）；均不纳入C1提交` | 让出声明=`C1源与证据审查PASS、封包检查通过；只运行官方XSDB无connect离线探针；未操作硬件/Vivado；G3/G4/G5未通过` | 心跳(UTC+8)=`2026-10-31 00:14` | 证据入口=`report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/delivery_manifest.json；review_receipt.json；check_inputs.json；check_evidence.json；check_strict.json` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 rev-parse HEAD; git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`OFFERED / DSH项目总控显式CLAIM后接手；CLAIM前写权仍属Codex`
+
 ## 6-E 板卡只读窗口（2026-10-30 21:00，UTC+8；优先于下方历史状态）
 
 - Wong 本轮直接交付板卡；main `4646d4852fa1e8584e3ccf69582672b127335bd4` 的正式 OFFER 已核验。仅接管一次最多60秒的JTAG拓扑枚举，实际会话含清理最长5分钟；离线审查期间未启动硬件，不占会话窗口。不执行mrd/mwr、stop/con、reset、下载或改PL，不碰COM4与候选区；T6-A03另等真实P采集方案。

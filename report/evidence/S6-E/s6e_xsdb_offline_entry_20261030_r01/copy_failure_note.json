@@ -1,0 +1,19 @@
+{
+  "scope": "独立审查原始日志保存过程；不涉及厂商程序或硬件执行",
+  "failed_copy": [
+    {"actor": "root", "result": "PermissionError读取D:/tmp审查源日志；在读取前已创建0字节目标independent_11_review_unittest.log", "vendor_started": false},
+    {"actor": "Reviewer", "result": "普通进程能读源但w6写入拒绝；提升进程能写w6但D:/tmp读取拒绝", "vendor_started": false}
+  ],
+  "retained_partial_file": "independent_11_review_unittest.log",
+  "partial_file_is_original_log": false,
+  "recovery_method": "Reviewer普通进程只读源数据，经工具编排内存传递，提升进程仅在w6创建四个_original新目标；不经过第三方目录、不改ACL、不执行解码内容",
+  "recovered_files": [
+    {"path": "independent_11_review_unittest_original.log", "bytes": 1319, "sha256": "788ca5b35c73b0f9e48cce90a71f45f44d30e4ab7d31ffbefb06ba3f24a6206c", "hash_basis": "worktree_disk"},
+    {"path": "independent_11_review_summary_original.json", "bytes": 15889, "sha256": "abca2d1dbae10e94bab9ac7cfcb5068fef0019c7b3182843d3922183f320367b", "hash_basis": "worktree_disk"},
+    {"path": "independent_cmd_review_unittest_original.log", "bytes": 211, "sha256": "4a6295a7ecd627064e5fda28e4ba0497b4bd3a1574fdb0d11c56e7e9e0e9f923", "hash_basis": "worktree_disk"},
+    {"path": "independent_cmd_review_summary_original.json", "bytes": 2689, "sha256": "d2e3dd72c71d001bb4f08422e56ce67aa3b12c08fc38a8318214bf8002430d9e", "hash_basis": "worktree_disk"}
+  ],
+  "byte_comparison": "Reviewer读取后保存并读回逐字节相同；root按返回SHA另行核验",
+  "tests_rerun_during_recovery": false,
+  "existing_files_overwritten": false
+}

@@ -150,6 +150,11 @@
   · **PS I2C0 EMIO → 引脚路径不可用**：r19（build7 mode=0）`TX_OVR` 且无任何响应（时钟没送出）；r20（build5 + v5 诊断）`ISR=0x44`（**NACK+TX_OVR**）⇒ SCL 已发出但 SDA 方向/回读异常。登记 **R-17**（PS I2C0 EMIO 路径不可用），不再为它重建位流。
   · **决定：正式 SCCB 主控改用 `gpio_sccb` bit-bang 通道**（`video-sw` 实现 `S5_CAM_I2C_BACKEND=gpio` 默认）；`video-bd` 交付 **build8**（build7 整理版 + 保留 gpio_sccb，报告写明限制与"软件须切手动模式"）。
   · 位表以本机 `iicps_v3_19/xiicps_hw.h` 为准：`CR: RD_WR=0x1/MS=0x2/NEA=0x4/ACKEN=0x8/HOLD=0x10/SLVMON=0x20/CLR_FIFO=0x40`；`SR: BA=0x100/RXOVF=0x80/TXDV=0x40/RXDV=0x20`；`IXR: ARB_LOST=0x200/TX_OVR=0x40/RX_OVR=0x20/TO=0x8/NACK=0x4/COMP=0x1`（已回函 Codex `DSH-20261031-029` 纠正其位表与 ADDR 语义）。
+- **相机不通的最终根因（2026-10-31 18:1x，`video-bd` 网表实证）**：**`axi_vdma_1/s_axis_s2mm_tuser` 从未连接** —— `axis_subset_converter_0/m_axis_tuser` 只接到了新增的 `cam_sof` 计数器，TUSER 被从 AXIS 接口连接中摘掉（build6 起一直有 `WARNING [BD 41-1271] The connection to the pin /axis_subset_converter_0/m_axis_tuser has been overridden`，被误当噪音）。
+  · `axi_vdma_1` 为 `C_USE_S2MM_FSYNC=2`（用 tuser 作 SOF）⇒ 永远等不到帧首 ⇒ **`SR=0x14810`（ERR_INTERNAL 0x10 + ERR_FSZ_MORE 0x800）、`frmcnt=1`、raw 全 0**，且**与 VSIZE/HSIZE/STRIDE 无关**（r35 四组几何同错）。
+  · **阶段3 没有该计数器，TUSER 正常进 VDMA** ⇒ 这是"阶段3 能写真实像素、P3r 不能"的**唯一结构差异**；其余（subset converter 参数/REMAP/TLAST_REMAP、VDMA 参数 24bit/DRE/LINEBUFFER/MAX_BURST/FSYNC）与阶段3 逐项一致。
+  · **修复 = build10**：把 converter → VDMA 的 `tdata/tvalid/tlast/tuser` 经顶层标量直通（`assign cam_sof = conv_tuser`，同时保留 SOF 计数），并新增计数器 **`0x43CB0000`（tlast/tuser 脉冲）**、**`0x43CC0000`（tvalid&tready 有效拍 / tvalid&!tready 反压拍）**。
+  · 同期交付 **build9b**（WNS **+0.269**、0 失败端点、DRC 437 条 0 error），证实 build9 的 WNS −5.161 确为 cam_pclk→clk_100 格雷码 CDC 的假性违例（补 `set_max_delay -datapath_only` 后收敛），仅作测量对照、非交付。
 - **SCCB 真根因（2026-10-31 15:3x，Codex `CDX-20261031-024` + 我方实测确认）**：**CR 里没有置 `MASTER(0x20)` 位** ⇒ 控制器从未成为主机、不驱动 SCL ⇒ 从设备无 ACK、传输超时。
   · 实测 `CR=0x7E17`（`0x7E00` 分频 + `0x17=bit0|bit1|bit2|bit4`）；按 `xiicps_hw.h`：`RX_FIFO_CLR=0x01`、`TX_FIFO_CLR=0x02`、`ENABLE=0x04`、`ACKEN=0x08`、`NEA=0x10`、**`MASTER=0x20`**、`HOLD=0x40` ⇒ 我们**把 bit0(FIFO clear) 当成使能**、漏了 MASTER。
   · 第二条实锤：**写数据前先等 `TXDV`**（`SR=0x20`：`RXDV=1/TXDV=0` ⇒ `txdv_timeout`）；正确顺序是先写 `ADDR` 与 `DATA` FIFO，再等 `ISR` 的 `COMP/NACK/TO`。

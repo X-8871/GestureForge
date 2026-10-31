@@ -150,6 +150,9 @@
   · **PS I2C0 EMIO → 引脚路径不可用**：r19（build7 mode=0）`TX_OVR` 且无任何响应（时钟没送出）；r20（build5 + v5 诊断）`ISR=0x44`（**NACK+TX_OVR**）⇒ SCL 已发出但 SDA 方向/回读异常。登记 **R-17**（PS I2C0 EMIO 路径不可用），不再为它重建位流。
   · **决定：正式 SCCB 主控改用 `gpio_sccb` bit-bang 通道**（`video-sw` 实现 `S5_CAM_I2C_BACKEND=gpio` 默认）；`video-bd` 交付 **build8**（build7 整理版 + 保留 gpio_sccb，报告写明限制与"软件须切手动模式"）。
   · 位表以本机 `iicps_v3_19/xiicps_hw.h` 为准：`CR: RD_WR=0x1/MS=0x2/NEA=0x4/ACKEN=0x8/HOLD=0x10/SLVMON=0x20/CLR_FIFO=0x40`；`SR: BA=0x100/RXOVF=0x80/TXDV=0x40/RXDV=0x20`；`IXR: ARB_LOST=0x200/TX_OVR=0x40/RX_OVR=0x20/TO=0x8/NACK=0x4/COMP=0x1`（已回函 Codex `DSH-20261031-029` 纠正其位表与 ADDR 语义）。
+- **r38（2026-10-31 20:0x，build11a `C_USE_S2MM_FSYNC` 2→0 free-run）**：**`FSZ_MORE(0x800)` 与 `ERR_INTERNAL(0x10)` 全部消失**（cold/hot `SR=0x10000`、四组几何 `err=0x0`）⇒ 证明先前错误源于"等不到 tuser 帧首"；但同窗 **AXIS 侧计数器全归零/冻结**（`TL_TLAST=0`、`TL_TUSER=0`、`TAP_VALID=0x55`、`TAP_BP=0`），而 sensor 侧完全正常（15.0 fps、`pixels_per_frame=1,228,800`=1280×960、PCLK 84 MHz、`IP_RST=1`）。
+  · 反差：build10b2（FSYNC=2）时 `TL_HDR +5,579/8.26 s`、`TAP_BP +7.58M` 说明**当时确实有 tlast/tuser/tvalid 脉冲**⇒ build11a 的"条件连接"很可能把 tlast/tuser 显式网一并拆掉（计数器随之归零），不等于 IP 不出数。
+  · **下一步 build11b**：保持 FSYNC=0；用无条件显式网重建 `converter/m_axis_tlast→vdma/s_axis_s2mm_tlast`、`tvalid`、`tready`，`tuser` 只接计数器但网必须保留；构建前打印网表断言（接口网 + 4 条 1-bit 网成员）；并新增 **IP 输出侧计数器 `0x43CE0000`（IP `m_axis_video_tvalid/tlast/tuser/tready`）**，用于区分"IP 不出数"与"converter 丢数"；同时核对 converter 的 `aclk/aresetn`。
 - **r36/r37 两个关键验证（2026-10-31 19:0x–19:3x）**：
   · **r36（warmup 6500 ms）**：四组几何仍全错（`SR=0x14810`），三个 S2MM 侧计数器（`0x43CB/CC`、`GPIO_CAM`）**冻结** ⇒ IP 还没出 beat；推算 PCLK 若为 42 MHz 则 300M PCLK = **7.14 s > 6.5 s**。
   · **r37（warmup 12000 ms + settle 2000 ms，build10b2 + v19d）**：**计数器由冻结转为增长**（`TL_HDR +5,579`/8.26 s、`TAP_BP +7.58M`/8.26 s、`GPIO_CAM` 大增、`IP_RST=1`）⇒ **warmup 修复有效、TUSER 已到计数侧**；但 VDMA 仍 `SR=0x14810`（ERR_INTERNAL+ERR_FSZ_MORE）、`frmcnt=1`、raw 全 0，四个几何全一样，`cold SR=0x10000` 干净而 `hot` 出错。

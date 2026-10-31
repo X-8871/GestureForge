@@ -146,6 +146,11 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **XSA DDR 配置错误的全局核查（2026-10-31 14:1x）**：`D:\tmp\lead\` 下 **15 份 XSA（P2a→P3r build2/3/4）DDR 全部是 512 MiB 错配**（`MT41J128M8 JP-125`、`HIGHADDR=0x1FFFFFFF`）；仅**阶段3 冻结 XSA `1f5b138e…` 与 2B XSA 是 1 GiB 正确**（`MT41J256M16 RE-125`、`0x3FFFFFFF`）。
+  · 根因：P2a 首次建 PS7 时选错 DDR 器件，P2d→P3q→P3r 一路继承；**P3q 冻结 XSA `dfefc883…` 也错**。
+  · **已交付阶段4/5/6 板上证据不受影响**：所有板窗用 stage-4 `init.elf`（1 GiB）bring-up，FB/结果块在 1 GiB 内。
+  · 处理：① **P3r build5 已修正**（在建）；② 计划产 **`s4d_p3q_ddrfix`**（P3q + DDR 修正，另立 RunId，不动 stage5-freeze tag）；③ 文档勘误：交付说明必须写"XSA 自带 ps7_init 为 512 MiB，须配 1 GiB init.elf 或用修正件"。
+  · 登记为新遗留 **R-16（XSA DDR 配置错误·交付面）**。
 - **DDR 根因已由对照窗直接证实（2026-10-31 14:0x，`ecam_diag_20261031_r13`）**：**只用 stage-4 `init.elf`（DDR=1 GiB）、不跑 P3r ps7_init、不 rst** ⇒ UART 正常（580 B）、显示应用完整跑通（`fps_dis=60`、`vdma_err=0`、`frames=180`、`src=real_nobox`）。
   · 反之 r05/r06/r09/r10/r11/r12（凡用 P3r ps7_init 的窗）全部静默/中止/跑飞 ⇒ **P3r ps7_init 的 512 MiB DDR 是唯一根因**（r11 已知可用 P3q ELF 同样失败，排除应用自身）。
   · 补充事实：两份 ELF（P3q longrun `cbf5ebe3…` 与诊断 `f224f5e5…`）**section headers 均无 0x0 段**（入口都 0x100000）⇒ "诊断 ELF 缺向量表"推论不成立；r11/r12 的 0x0 内容差异只是运行期内存不同。

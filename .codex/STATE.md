@@ -146,6 +146,10 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **板级流程规则修订（2026-10-31 13:5x，Wong 知情/已 POR）**：允许**唯一一次 `rst -processor -stop`**，位置固定在"PS7 init（combo）+ PL 编程 + `0xF` 完成后、`dow app` 之前"，即 Vitis 标准序列；复位后必须复检 `APER_CLK_CTRL(0xF800012C)` 仍为期望值、两核 Stopped，异常即停手。
+  · 理由：JTAG `dow` 时 CPU 非复位态，应用卡在 Xilinx 启动代码 MMU 使能段（r06 实测 `PC=0x100248`，UART 静默）；历史可用流程 `load_elf_ddr` 内部正是 `rst -processor -stop` 后 dow。
+  · 仍禁止：`rst -system`、在 PS7 init 之前 rst、重复 rst、以及 `load_elf_ddr` 的隐式二次 `ps7_init`。
+  · r06 收窗后核不可 halt ⇒ 已如实记 `abnormal`，Wong POR 后由 `E1 --por` 解除。
 - **R-07 相机首轮上板失败与根因收敛（2026-10-31 10:2x–13:1x）**：P3r build3 上板后 `CAM: FAILED rc=-11`（SCCB 读 CHIPID 失败）；显示链路在 P3r 上正常（`fps_dis=60`/16,673 µs/`vdma_err=0`）。
   · **根因 1（已修，软件）**：`cmos_rstn`（`0x41200000`，低有效）从未被释放（快照恒 0）⇒ 相机一直在复位。`video-sw` 新增 `S5Cam_ResetSeq()`（1→500 ms→0→500 ms→1→500 ms，再 SCCB）；诊断窗实测 **`rst pin after=0x1` ✅**。
   · **根因 2（BD，待修）**：P3r 的 **PS7 配置关闭 UART0/UART1 CPU_1X 时钟**（`ps7_init.c`：`0xF800012C ← 0x014C000D`，bit20/21=0；bit18=I2C0=1、bit19=I2C1=1；**bit11 是 SDI1 不是 I2C0**）。用 P3r 自身 `ps7_init` 时应用 UART 0 行输出；补开 bit20/21 也无效（MIO 未配）。

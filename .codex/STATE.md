@@ -146,6 +146,10 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **DDR 根因已由对照窗直接证实（2026-10-31 14:0x，`ecam_diag_20261031_r13`）**：**只用 stage-4 `init.elf`（DDR=1 GiB）、不跑 P3r ps7_init、不 rst** ⇒ UART 正常（580 B）、显示应用完整跑通（`fps_dis=60`、`vdma_err=0`、`frames=180`、`src=real_nobox`）。
+  · 反之 r05/r06/r09/r10/r11/r12（凡用 P3r ps7_init 的窗）全部静默/中止/跑飞 ⇒ **P3r ps7_init 的 512 MiB DDR 是唯一根因**（r11 已知可用 P3q ELF 同样失败，排除应用自身）。
+  · 补充事实：两份 ELF（P3q longrun `cbf5ebe3…` 与诊断 `f224f5e5…`）**section headers 均无 0x0 段**（入口都 0x100000）⇒ "诊断 ELF 缺向量表"推论不成立；r11/r12 的 0x0 内容差异只是运行期内存不同。
+  · 待 `video-bd` 出 **build5**（DDR 改回 1 GiB、其余同 build4）后跑 `ecam_diag_20261031_r14`（combo + 先不加 rst）；`video-sw` 同步出 OCM 最小探针 `ecam_probe` 作为 DDR 隔离工具与平台自检。
 - **R-07 相机阻塞的最终根因（2026-10-31 14:0x，决定性）**：**P3r XSA 的 PS7 DDR 配成 512 MiB**（`PCW_UIPARAM_DDR_PARTNO=MT41J128M8 JP-125`、`PCW_DDR_RAM_HIGHADDR=0x1FFFFFFF`），而阶段3/5 与板级真值是 **1 GiB**（`MT41J256M16 RE-125`、`HIGHADDR=0x3FFFFFFF`）。
   · 结果：我们的应用帧存 `0x20000000/0x20384000`、结果块 `0x20800000` 在 P3r ps7_init 下**越界 ⇒ AXI 解码错误 ⇒ 数据中止**（`CPSR=0x1D7` 的 mode=ABT，非 FIQ），中止发生在写测试图时、早于任何 `CAM:` 打印 ⇒ 解释 r05/r06/r09/r10 全部现象（也解释为何 P3q 对照 ELF 同样中止）。
   · 历史窗口不受影响：此前所有 P3q/P3b 窗口跑的是 **stage-4 `init.elf`**（其 DDR=1 GiB），从未使用 P3q/P3r 自带 ps7_init ⇒ 结论仍然有效。

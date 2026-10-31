@@ -146,6 +146,12 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **r14 突破 + SCCB 代码根因（2026-10-31 14:3x–15:0x）**：**build5（DDR 1 GiB）**上板后 **DDR 窗口写读、APER、UART、显示链全通**（`fps_dis=60`、`vdma_err=0`、`CAM_RST=1`）⇒ DDR 根因闭环。
+  · 相机仍卡 SCCB：`probe ack=0`、`chipid=0`；窗后只读 `I2C0 CR=0x17 SR=0 ADDR=0x78 ISR=0x1`。
+  · **`video-sw` 只读核查定出三个代码根因**：① 每次事务**整体重写 CR** ⇒ 分频位被清 0 ⇒ **SCL 实际约 5 MHz**（`CR=0x17` 即 div=0，远超 SCCB 400 kHz 上限）⇒ 从设备无法 ACK、`ISR=0x1`(COMP) 是假完成；② **ISR 掩码常量错**（把 `NACK=0x4` 写成 0x10、`TO=0x8` 写成 0x800、`ARB_LOST=0x200` 写成 0x20）；③ 分频算法非标准（应为 `Fscl=Fpclk/(22*(div_a+1)*(div_b+1))`，100 kHz ⇒ `div_a=1/div_b=24` ⇒ `CR=0x5807`）。
+  · **排除项**：XCLK 不缺（双目模组自带 24 MHz 晶振 X3，阶段3 原理图证据）；`gpio_cam` 两通道**全输入**（帧计数/帧指针），无电源/PWDN 输出位 ⇒ `CAM_GPIO=0` 正常；PS7 EMIO I2C0 配置与 `report_io` 引脚（F19/F16）均正确。
+  · 模组：**与阶段3 相同的双目模组**、插 J11/CMOS2、期望 CHIPID `0x5640`、SCCB 地址 `0x3C`。
+  · 下一步：`video-sw` 出诊断 v2 + 修复版相机 ELF（CR 读改写、分频 0x5807、ISR 掩码、逐字节 dump、SCCB 地址扫描）→ 板级 `ecam_diag_20261031_r15` → 若 `chipid=0x5640` 同 POR 追加 `ecam_camera_20261031_r02`。
 - **XSA DDR 配置错误的全局核查（2026-10-31 14:1x）**：`D:\tmp\lead\` 下 **15 份 XSA（P2a→P3r build2/3/4）DDR 全部是 512 MiB 错配**（`MT41J128M8 JP-125`、`HIGHADDR=0x1FFFFFFF`）；仅**阶段3 冻结 XSA `1f5b138e…` 与 2B XSA 是 1 GiB 正确**（`MT41J256M16 RE-125`、`0x3FFFFFFF`）。
   · 根因：P2a 首次建 PS7 时选错 DDR 器件，P2d→P3q→P3r 一路继承；**P3q 冻结 XSA `dfefc883…` 也错**。
   · **已交付阶段4/5/6 板上证据不受影响**：所有板窗用 stage-4 `init.elf`（1 GiB）bring-up，FB/结果块在 1 GiB 内。

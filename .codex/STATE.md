@@ -146,6 +146,13 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **SCCB 真根因（2026-10-31 15:3x，Codex `CDX-20261031-024` + 我方实测确认）**：**CR 里没有置 `MASTER(0x20)` 位** ⇒ 控制器从未成为主机、不驱动 SCL ⇒ 从设备无 ACK、传输超时。
+  · 实测 `CR=0x7E17`（`0x7E00` 分频 + `0x17=bit0|bit1|bit2|bit4`）；按 `xiicps_hw.h`：`RX_FIFO_CLR=0x01`、`TX_FIFO_CLR=0x02`、`ENABLE=0x04`、`ACKEN=0x08`、`NEA=0x10`、**`MASTER=0x20`**、`HOLD=0x40` ⇒ 我们**把 bit0(FIFO clear) 当成使能**、漏了 MASTER。
+  · 第二条实锤：**写数据前先等 `TXDV`**（`SR=0x20`：`RXDV=1/TXDV=0` ⇒ `txdv_timeout`）；正确顺序是先写 `ADDR` 与 `DATA` FIFO，再等 `ISR` 的 `COMP/NACK/TO`。
+  · 第三条待核：Codex 称"`ADDR` 应填 `0x3C` 而非 `0x78`"；Xilinx `XIicPs_MasterSendPolled` 写的是 `SlaveAddr<<1`（0x78），要求 `video-sw` 引官方源码行核对后再定。
+  · **已排除**：I2C0 复位（`SLCR 0xF8000214=0x0`）、PS7 EMIO 配置（与阶段3 的 `ps7_init` I2C0 写入区间**差异 0**）、引脚映射与 PL wrapper IOBUF（与阶段3 逐字相同）。
+- **P3r build6 无效（2026-10-31 15:2x）**：想把 `PCW_I2C_PERIPHERAL_FREQMHZ`→127.777779、`PCW_I2C_RESET_SELECT`→Share reset pin 均被 Vivado **静默忽略**（派生/受限参数）；`.hwh` 仍是 111.111115/`<Select>`，功能等同 build5（bit `767fb736…`/XSA `8151fd0d…` 留档）。
+  · **build7（SCCB 测试通道）在建**：`gpio_sccb @0x43C80000`（`+0x00` 写：mode/SCL 拉低/SDA 拉低；`+0x08` 读：F16/F19 真实电平）+ IOBUF mux，默认 mode=0 直通 PS7（不改既有 I2C0 行为）⇒ 可在无示波器条件下判定"FPGA 未驱动 vs 线被外部拉住 vs 模组不响应"，并可手动 bit-bang 读 CHIPID。
 - **r14 突破 + SCCB 代码根因（2026-10-31 14:3x–15:0x）**：**build5（DDR 1 GiB）**上板后 **DDR 窗口写读、APER、UART、显示链全通**（`fps_dis=60`、`vdma_err=0`、`CAM_RST=1`）⇒ DDR 根因闭环。
   · 相机仍卡 SCCB：`probe ack=0`、`chipid=0`；窗后只读 `I2C0 CR=0x17 SR=0 ADDR=0x78 ISR=0x1`。
   · **`video-sw` 只读核查定出三个代码根因**：① 每次事务**整体重写 CR** ⇒ 分频位被清 0 ⇒ **SCL 实际约 5 MHz**（`CR=0x17` 即 div=0，远超 SCCB 400 kHz 上限）⇒ 从设备无法 ACK、`ISR=0x1`(COMP) 是假完成；② **ISR 掩码常量错**（把 `NACK=0x4` 写成 0x10、`TO=0x8` 写成 0x800、`ARB_LOST=0x200` 写成 0x20）；③ 分频算法非标准（应为 `Fscl=Fpclk/(22*(div_a+1)*(div_b+1))`，100 kHz ⇒ `div_a=1/div_b=24` ⇒ `CR=0x5807`）。

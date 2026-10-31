@@ -146,6 +146,13 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **R-07 相机首轮上板失败与根因收敛（2026-10-31 10:2x–13:1x）**：P3r build3 上板后 `CAM: FAILED rc=-11`（SCCB 读 CHIPID 失败）；显示链路在 P3r 上正常（`fps_dis=60`/16,673 µs/`vdma_err=0`）。
+  · **根因 1（已修，软件）**：`cmos_rstn`（`0x41200000`，低有效）从未被释放（快照恒 0）⇒ 相机一直在复位。`video-sw` 新增 `S5Cam_ResetSeq()`（1→500 ms→0→500 ms→1→500 ms，再 SCCB）；诊断窗实测 **`rst pin after=0x1` ✅**。
+  · **根因 2（BD，待修）**：P3r 的 **PS7 配置关闭 UART0/UART1 CPU_1X 时钟**（`ps7_init.c`：`0xF800012C ← 0x014C000D`，bit20/21=0；bit18=I2C0=1、bit19=I2C1=1；**bit11 是 SDI1 不是 I2C0**）。用 P3r 自身 `ps7_init` 时应用 UART 0 行输出；补开 bit20/21 也无效（MIO 未配）。
+  · **判据**：此前所有窗口用的是 **stage-4 `init.elf`**（另一版 PS7 配置，UART 正常但 **I2C0 未映射到 EMIO**）⇒ "stage-4 init + 开时钟"不可能让 SCCB 通；**唯一正解 = P3r PS7 同时启用 UART0(MIO) + I2C0(EMIO)**，用 P3r 自己的 ps7_init。
+  · 已让 `video-bd` 改 BD（UART0 MIO 启用、保留 I2C0 EMIO、`cmos_rst` `C_DOUT_DEFAULT=1`）并重建（沿用 build3 impl 策略、`-jobs 1`）；`board-runner` 已备好 `--init p3r_ps7init/--sourced-ps7init/--require-uart/APER 断言` 脚本与 `extract_p3r_ps7init.py`。
+  · **Wong 已断电重启（POR）**；等新 P3r XSA → 离线核 `ps7_init.c` 的 APER 期望（bit18/20/21 全 1）→ 干净窗 `ecam_diag_20261031_r05` → 若 `chipid=0x5640` 同 POR 追加 `ecam_camera_20261031_r02`（修复版 ELF `184949ed…`）。
+  · 证据：`S6-T01/ecam_camera_20261031_r01/`、`ecam_diag_20261031_r01..r04/`（含 r04 污染窗标注、`corrected_by=board-runner` 说明）。
 - **P3r 交付版改为 build3（2026-10-31 04:0x）**：**bit `648f3156…dcb9f4e`（4,045,762 B）**、**XSA `1284f637…bf3f81`（418,950 B）**；仅换 impl 策略（`Performance_ExplorePostRoutePhysOpt`），设计/约束与 build2 完全相同。
   · **时序：WNS +0.342 / TNS 0 / 失败端点 0（58,492）/ WHS +0.053**；DRC 430 条 0 error；LUT 27,536、DSP 158 不变 ⇒ 余量恢复到 P3q 的 92%。
   · build2（`6202872e…` / `7b26a487…`）**保留为对照，不删除不覆盖**。

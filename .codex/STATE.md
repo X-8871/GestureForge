@@ -150,6 +150,11 @@
   · **PS I2C0 EMIO → 引脚路径不可用**：r19（build7 mode=0）`TX_OVR` 且无任何响应（时钟没送出）；r20（build5 + v5 诊断）`ISR=0x44`（**NACK+TX_OVR**）⇒ SCL 已发出但 SDA 方向/回读异常。登记 **R-17**（PS I2C0 EMIO 路径不可用），不再为它重建位流。
   · **决定：正式 SCCB 主控改用 `gpio_sccb` bit-bang 通道**（`video-sw` 实现 `S5_CAM_I2C_BACKEND=gpio` 默认）；`video-bd` 交付 **build8**（build7 整理版 + 保留 gpio_sccb，报告写明限制与"软件须切手动模式"）。
   · 位表以本机 `iicps_v3_19/xiicps_hw.h` 为准：`CR: RD_WR=0x1/MS=0x2/NEA=0x4/ACKEN=0x8/HOLD=0x10/SLVMON=0x20/CLR_FIFO=0x40`；`SR: BA=0x100/RXOVF=0x80/TXDV=0x40/RXDV=0x20`；`IXR: ARB_LOST=0x200/TX_OVR=0x40/RX_OVR=0x20/TO=0x8/NACK=0x4/COMP=0x1`（已回函 Codex `DSH-20261031-029` 纠正其位表与 ADDR 语义）。
+- **厂商 IP 的上电就绪等待（2026-10-31 18:2x，`alinx_ov5640.v` RTL 实证）**：IP 内部 `reset_cnt` 计满 **200,000,000** 个 PCLK 才释放内部复位、`fifo_ready_cnt` 再等 **100,000,000** ⇒ 84 MHz 下约 **3.6 s**；此前 `wr_en = tvalid & fifo_ready` 恒 0、FIFO 不写数。
+  · `reset_cnt` 无复位输入 ⇒ **每次重新配置 PL 后都要重新等待**；我们此前所有相机窗口都是"stream on 后立刻配/看 VDMA"，**全部落在未就绪区间**（r35 四组几何每组仅 250 ms，必然全错）。
+  · IP 内部自行生成 `tlast`（`cmos_hblank_d0 & ~cmos_hblank`，href 上升沿=行尾）与 `tuser`（`cmos_vsync_d1==1 && cmos_vsync_d0==0`，vsync 下降沿=帧首），要求 **href/vsync 均高有效、PCLK 上升沿采样**；`m_axis_video_aresetn` 在 IP 内**未被引用**。
+- **软件对策 v18（`video-sw` 进行中）**：`stream on(0x3008=0x02)` → **延时 ≥6500 ms**（`S5_CAM_IP_WARMUP_MS` 宏）→ 再配置/启动 VDMA；诊断版在 warmup 后再做几何探测并打印 `since stream-on` 的毫秒数。
+- **板级对策**：脚本新增 `--hold-at-ms N --hold-ms M`（默认 4000/6500：运行到 stream on 后停核、等 IP 就绪、再 `con`），快照读 `0x43CB0000/0x43CC0000/0x43CD0000`。等 **build10b + v18** 后跑 `ecam_diag_20261031_r36`。
 - **相机不通的最终根因（2026-10-31 18:1x，`video-bd` 网表实证）**：**`axi_vdma_1/s_axis_s2mm_tuser` 从未连接** —— `axis_subset_converter_0/m_axis_tuser` 只接到了新增的 `cam_sof` 计数器，TUSER 被从 AXIS 接口连接中摘掉（build6 起一直有 `WARNING [BD 41-1271] The connection to the pin /axis_subset_converter_0/m_axis_tuser has been overridden`，被误当噪音）。
   · `axi_vdma_1` 为 `C_USE_S2MM_FSYNC=2`（用 tuser 作 SOF）⇒ 永远等不到帧首 ⇒ **`SR=0x14810`（ERR_INTERNAL 0x10 + ERR_FSZ_MORE 0x800）、`frmcnt=1`、raw 全 0**，且**与 VSIZE/HSIZE/STRIDE 无关**（r35 四组几何同错）。
   · **阶段3 没有该计数器，TUSER 正常进 VDMA** ⇒ 这是"阶段3 能写真实像素、P3r 不能"的**唯一结构差异**；其余（subset converter 参数/REMAP/TLAST_REMAP、VDMA 参数 24bit/DRE/LINEBUFFER/MAX_BURST/FSYNC）与阶段3 逐项一致。

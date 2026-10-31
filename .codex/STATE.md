@@ -146,6 +146,11 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **R-07 相机阻塞的最终根因（2026-10-31 14:0x，决定性）**：**P3r XSA 的 PS7 DDR 配成 512 MiB**（`PCW_UIPARAM_DDR_PARTNO=MT41J128M8 JP-125`、`PCW_DDR_RAM_HIGHADDR=0x1FFFFFFF`），而阶段3/5 与板级真值是 **1 GiB**（`MT41J256M16 RE-125`、`HIGHADDR=0x3FFFFFFF`）。
+  · 结果：我们的应用帧存 `0x20000000/0x20384000`、结果块 `0x20800000` 在 P3r ps7_init 下**越界 ⇒ AXI 解码错误 ⇒ 数据中止**（`CPSR=0x1D7` 的 mode=ABT，非 FIQ），中止发生在写测试图时、早于任何 `CAM:` 打印 ⇒ 解释 r05/r06/r09/r10 全部现象（也解释为何 P3q 对照 ELF 同样中止）。
+  · 历史窗口不受影响：此前所有 P3q/P3b 窗口跑的是 **stage-4 `init.elf`**（其 DDR=1 GiB），从未使用 P3q/P3r 自带 ps7_init ⇒ 结论仍然有效。
+  · **修订**：让 `video-bd` 按阶段3/5 逐项照抄 DDR 参数重建 **build5**（并给 `ps7_init.c` DDR 差异表）；`video-sw` 只读核查确认 ELF **零 Xilinx 驱动**（全裸 `Xil_In32/Out32`、无 `LookupConfig`/GIC/中断）⇒ 无 device-ID/NULL 风险，问题不在应用代码。
+  · 附带修正：`CPSR 0x1D7` mode bits = **0x17 = ABT**（此前误判为 FIQ）；PL 中断全部悬空、PS7 `IRQ_F2P` 未使能 ⇒ 中断假设排除。
 - **板级流程规则修订（2026-10-31 13:5x，Wong 知情/已 POR）**：允许**唯一一次 `rst -processor -stop`**，位置固定在"PS7 init（combo）+ PL 编程 + `0xF` 完成后、`dow app` 之前"，即 Vitis 标准序列；复位后必须复检 `APER_CLK_CTRL(0xF800012C)` 仍为期望值、两核 Stopped，异常即停手。
   · 理由：JTAG `dow` 时 CPU 非复位态，应用卡在 Xilinx 启动代码 MMU 使能段（r06 实测 `PC=0x100248`，UART 静默）；历史可用流程 `load_elf_ddr` 内部正是 `rst -processor -stop` 后 dow。
   · 仍禁止：`rst -system`、在 PS7 init 之前 rst、重复 rst、以及 `load_elf_ddr` 的隐式二次 `ps7_init`。

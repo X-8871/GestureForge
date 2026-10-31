@@ -150,6 +150,11 @@
   · **PS I2C0 EMIO → 引脚路径不可用**：r19（build7 mode=0）`TX_OVR` 且无任何响应（时钟没送出）；r20（build5 + v5 诊断）`ISR=0x44`（**NACK+TX_OVR**）⇒ SCL 已发出但 SDA 方向/回读异常。登记 **R-17**（PS I2C0 EMIO 路径不可用），不再为它重建位流。
   · **决定：正式 SCCB 主控改用 `gpio_sccb` bit-bang 通道**（`video-sw` 实现 `S5_CAM_I2C_BACKEND=gpio` 默认）；`video-bd` 交付 **build8**（build7 整理版 + 保留 gpio_sccb，报告写明限制与"软件须切手动模式"）。
   · 位表以本机 `iicps_v3_19/xiicps_hw.h` 为准：`CR: RD_WR=0x1/MS=0x2/NEA=0x4/ACKEN=0x8/HOLD=0x10/SLVMON=0x20/CLR_FIFO=0x40`；`SR: BA=0x100/RXOVF=0x80/TXDV=0x40/RXDV=0x20`；`IXR: ARB_LOST=0x200/TX_OVR=0x40/RX_OVR=0x20/TO=0x8/NACK=0x4/COMP=0x1`（已回函 Codex `DSH-20261031-029` 纠正其位表与 ADDR 语义）。
+- **r36/r37 两个关键验证（2026-10-31 19:0x–19:3x）**：
+  · **r36（warmup 6500 ms）**：四组几何仍全错（`SR=0x14810`），三个 S2MM 侧计数器（`0x43CB/CC`、`GPIO_CAM`）**冻结** ⇒ IP 还没出 beat；推算 PCLK 若为 42 MHz 则 300M PCLK = **7.14 s > 6.5 s**。
+  · **r37（warmup 12000 ms + settle 2000 ms，build10b2 + v19d）**：**计数器由冻结转为增长**（`TL_HDR +5,579`/8.26 s、`TAP_BP +7.58M`/8.26 s、`GPIO_CAM` 大增、`IP_RST=1`）⇒ **warmup 修复有效、TUSER 已到计数侧**；但 VDMA 仍 `SR=0x14810`（ERR_INTERNAL+ERR_FSZ_MORE）、`frmcnt=1`、raw 全 0，四个几何全一样，`cold SR=0x10000` 干净而 `hot` 出错。
+  · 定量疑点：`TL_HDR` 增量 ≈ **675/s**（tuser 应 ≈15/s、tlast 应 ≈14,400/s 均不符）⇒ tlast/tuser 的帧/行结构异常或寄存器混算；`TAP_BP` ≈918k 拍/s（24bpp 下应 ≈18.4M/s）⇒ 严重反压/被拒收。
+  · **下一步 build11a**：`C_USE_S2MM_FSYNC` 由 **2（tuser 帧同步）改为 0（free-run，仅 tlast 分行）**，并把 tlast/tuser 拆成独立计数器（现混算无法判读）；可选 build11b（FSYNC=2 + tuser 反相对照）。板级 r38 用 v19d（warmup 12 s）即可。
 - **厂商 IP 的上电就绪等待（2026-10-31 18:2x，`alinx_ov5640.v` RTL 实证）**：IP 内部 `reset_cnt` 计满 **200,000,000** 个 PCLK 才释放内部复位、`fifo_ready_cnt` 再等 **100,000,000** ⇒ 84 MHz 下约 **3.6 s**；此前 `wr_en = tvalid & fifo_ready` 恒 0、FIFO 不写数。
   · `reset_cnt` 无复位输入 ⇒ **每次重新配置 PL 后都要重新等待**；我们此前所有相机窗口都是"stream on 后立刻配/看 VDMA"，**全部落在未就绪区间**（r35 四组几何每组仅 250 ms，必然全错）。
   · IP 内部自行生成 `tlast`（`cmos_hblank_d0 & ~cmos_hblank`，href 上升沿=行尾）与 `tuser`（`cmos_vsync_d1==1 && cmos_vsync_d0==0`，vsync 下降沿=帧首），要求 **href/vsync 均高有效、PCLK 上升沿采样**；`m_axis_video_aresetn` 在 IP 内**未被引用**。

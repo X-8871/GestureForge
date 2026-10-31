@@ -146,6 +146,10 @@
   **G3-E 30 min 未跑**；**屏幕内容待 Wong 明日目视**。
 - **R-08 关闭（2026-10-31 00:5x）**：Codex 已写 w6 正式 OFFER 行（11 字段，心跳 00:46:43），我方 **CLAIMED**；w6 转只读归档，Codex 受托任务在 `w6/legacy_codex_20261031/` 等独立目录写、提交由 DSH 串行（信箱 `DSH-20261031-020`）。
 - **6-D 口径 rev2 勘误（2026-10-31 00:5x，Codex 指出）**：sidecar 偏移 `+0x100` → **`+0x120`**（32 B 头 + 16×16 B 项 = 0x120，`+0x100` 落在第 14 号检测项）；flush `[0x20800000,0x20800140)`；`n_dets ≤16` fail-closed。文档 main `cd81325`；**生产者 v2 需重编到 rev2**（已交 video-sw），E3 证据为 rev1 偏移、需新 RunId 复验。
+- **引脚级定案（2026-10-31 16:0x，`sccb_pin_20261031_r02`，build7）**：手动 bit-bang（`0x43C80000`/`+0x08`）**完整读到 OV5640 CHIPID=0x5640**（ACK78/30/0A/79 全 1、RX0=0x56/RX1=0x40）；电平测试 SCL/SDA 双向可控、释放回高、9 脉冲恢复有效 ⇒ **模组、插线、上拉、引脚全部正常**。
+  · **PS I2C0 EMIO → 引脚路径不可用**：r19（build7 mode=0）`TX_OVR` 且无任何响应（时钟没送出）；r20（build5 + v5 诊断）`ISR=0x44`（**NACK+TX_OVR**）⇒ SCL 已发出但 SDA 方向/回读异常。登记 **R-17**（PS I2C0 EMIO 路径不可用），不再为它重建位流。
+  · **决定：正式 SCCB 主控改用 `gpio_sccb` bit-bang 通道**（`video-sw` 实现 `S5_CAM_I2C_BACKEND=gpio` 默认）；`video-bd` 交付 **build8**（build7 整理版 + 保留 gpio_sccb，报告写明限制与"软件须切手动模式"）。
+  · 位表以本机 `iicps_v3_19/xiicps_hw.h` 为准：`CR: RD_WR=0x1/MS=0x2/NEA=0x4/ACKEN=0x8/HOLD=0x10/SLVMON=0x20/CLR_FIFO=0x40`；`SR: BA=0x100/RXOVF=0x80/TXDV=0x40/RXDV=0x20`；`IXR: ARB_LOST=0x200/TX_OVR=0x40/RX_OVR=0x20/TO=0x8/NACK=0x4/COMP=0x1`（已回函 Codex `DSH-20261031-029` 纠正其位表与 ADDR 语义）。
 - **SCCB 真根因（2026-10-31 15:3x，Codex `CDX-20261031-024` + 我方实测确认）**：**CR 里没有置 `MASTER(0x20)` 位** ⇒ 控制器从未成为主机、不驱动 SCL ⇒ 从设备无 ACK、传输超时。
   · 实测 `CR=0x7E17`（`0x7E00` 分频 + `0x17=bit0|bit1|bit2|bit4`）；按 `xiicps_hw.h`：`RX_FIFO_CLR=0x01`、`TX_FIFO_CLR=0x02`、`ENABLE=0x04`、`ACKEN=0x08`、`NEA=0x10`、**`MASTER=0x20`**、`HOLD=0x40` ⇒ 我们**把 bit0(FIFO clear) 当成使能**、漏了 MASTER。
   · 第二条实锤：**写数据前先等 `TXDV`**（`SR=0x20`：`RXDV=1/TXDV=0` ⇒ `txdv_timeout`）；正确顺序是先写 `ADDR` 与 `DATA` FIFO，再等 `ISR` 的 `COMP/NACK/TO`。

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_identity": "/root/visibility_proof_review",
+  "review_scope": "PASS_LIMITED_SCOPE: approve profile visibility_parameter=1 only with cold_reset_only=true; this is not G3/G4/G5, full-model DMA visibility, or board acceptance.",
+  "approved_profile_sha256": "6c379a78a626e932c0de707cadb815ec0d14171edac713716694d7423ca0c61c",
+  "visibility_parameter": 1,
+  "cold_reset_only": true,
+  "reviewed_at_utc8": "2026-10-16T22:09:23+08:00",
+  "baseline_head": "4ebeed160ca676f7efa4e41856a220013e28828a",
+  "checks": {
+    "schema_and_profile_0_1_17": "PASS; schema_version=1, profile_version=s2b-inference-platform/0.1.17.",
+    "proof_sha256": "PASS; raw visibility_proof.json SHA-256 equals approved_profile_sha256.",
+    "source_closure_34": "PASS; all 34 source_sha256 entries match current files; check_static returned exit code 0.",
+    "hp_path_and_axi3_basis": "PASS_LIMITED_SCOPE; current post-route query is bound to the R08 routed DCP (SHA-256 990d8efa4cdbd3e1a33d11ad8bbfcb13e9ca3876153fc4cc11b245657c9c6f56), reports one PS7, 317 HP0 pins, zero required unconnected pins, and eight AxCACHE bits grounded. Adapter source and interface specification bind AxCACHE=0000 and no intervening bridge/early write response. The AXI3 Device Non-bufferable basis is supported by the official-basis candidate and its prior independent PASS_CANDIDATE_BASIS_ONLY review; this is not live HP traffic evidence.",
+    "ps_cache_and_ownership": "PASS_LIMITED_SCOPE; the probe binds the actual T15 ELF/BSP/MMU/macros/PS init and records two CPU↔DAP phases of 256 bytes each, with cache maintenance, returned data and CRC/sequence checks, epoch=0/IDLE_PS/no UART LOAD or START, and CPU1 stopped. Source bridge is metadata/profile closure only; current RTL hashes match the measured probe source. This does not test HP DMA ownership or a full 32 MiB/model transfer.",
+    "cold_reset_scope": "PASS_LIMITED_SCOPE; operator confirmation records an external power restart of about 10 seconds, followed by BOOT_MODE=0 before/after system reset, EOS 0→1, DDR init return 0 with operating_mode=1, and authorized CPU1 stop. The raw probe cold_lifecycle_proven=false remains unchanged. The confirmation time is not a measured POR edge; this review does not claim a measured power interval, POR edge, DDR clear, or hardware-detected unified reset. cold_reset_only is a mandatory operator/deployment constraint for this limited enablement.",
+    "evidence_bindings": "PASS; hp_path_audit and ps_cache_proof source closures match the proof; all 7 HP and 21 PS raw evidence file hashes, and the proof runtime binding hashes, match the current files."
+  },
+  "limitations": [
+    "No visibility=1 full-model HP DMA run, CPU golden comparison, complete 32 MiB arena measurement, or inference acceptance is established.",
+    "The CPU↔DAP cache probe is a bounded prior observation and does not establish HP↔DDR cache visibility or end-to-end DMA ownership behavior.",
+    "Raw probe cold_lifecycle_proven=false remains authoritative for that probe; operator confirmation and later boot/configuration observations are separately scoped evidence, not a measured POR edge or DDR-clear proof.",
+    "The route query is static topology evidence from a visibility0 routed DCP, not board-level HP traffic or throughput evidence."
+  ],
+  "reviewed_artifacts": {
+    "visibility_proof": "report/evidence/S2B-T19/visibility_proof_current_20261016_r01/visibility_proof.json",
+    "hp_path_audit": "report/evidence/S2B-T19/visibility_proof_current_20261016_r01/hp_path_audit.json",
+    "ps_cache_proof": "report/evidence/S2B-T19/visibility_proof_current_20261016_r01/ps_cache_proof.json",
+    "official_axi3_basis_candidate": "report/evidence/S2B-T19/official_reset_basis_20261011_r01/hp_visibility_basis_candidate.json",
+    "official_basis_independent_review": "report/evidence/S2B-T19/independent_basis_review_20261011_r01/receipt.json",
+    "cache_probe_independent_review": "report/evidence/S2B-T19/cache_probe_independent_20261016_r01/review_provenance.json"
+  }
+}

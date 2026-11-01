@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-external-por-no-hp-custody-chain/1.0.0",
+  "scope": "visibility1_sample000_single_job_precondition",
+  "status": "CANDIDATE_FOR_INDEPENDENT_REVIEW",
+  "official_reset_basis": {
+    "path": "report/evidence/S2B-T19/official_reset_basis_20261011_r01/cold_reset_basis_candidate.json",
+    "sha256": "2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3",
+    "limitation": "The official reset-semantics document is a candidate scope basis and does not itself prove POR or board behavior."
+  },
+  "operator_por_confirmation": {
+    "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r05/operator_confirmation.json",
+    "sha256": "cf736301d41333d82c36697dc76c50eebb1176d028864a3b3bb87fb82bf8c64a",
+    "por_time_utc8": "2026-10-17T02:10:00+08:00",
+    "continuity_confirmed_at_utc8": "2026-10-17T02:29:07+08:00",
+    "evidence_origin": "Direct user messages; power-off duration and operator activity are reported by the user, not instrument measured."
+  },
+  "last_probe": {
+    "path": "report/evidence/S2B-T19/cache_probe_execution_20261017_r02/visibility_probe_result.json",
+    "sha256": "85f7c52f9444ed1e62f490a85a1c632d837c043b53f0b625a12b4e8b99bde03d",
+    "started_at_utc8": "2026-10-17T02:12:15.369198+08:00",
+    "finished_at_utc8": "2026-10-17T02:13:33.984019+08:00",
+    "observed_status": "API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING",
+    "native_exit_code": 0,
+    "cold_lifecycle_proven": false,
+    "cleanup_errors": [],
+    "serial_closed": true,
+    "scope": "two OP4 CPU↔DAP cache observation phases; no HP DMA, model LOAD, START, or inference"
+  },
+  "server_release": {
+    "identity_path": "tmp/2B/S2B-T19/board_probe_20261017_r02/hw_server_identity.json",
+    "identity_sha256": "8c9b3360c5d5414cc6b91f9bb3d24d1183556b5f5db5b452d28cb0c2f11eb73a",
+    "close_path": "tmp/2B/S2B-T19/board_probe_20261017_r02/server_close.json",
+    "close_sha256": "083f0a404e3df2ee65ab535bd9864362bbe6356b4524f33b60d09afee510a7e4",
+    "closed_at_utc8": "2026-10-17T02:14:20.8776317+08:00",
+    "pid": 27220,
+    "creation_time_filetime_utc": "134366478619836890",
+    "after_process_present": false,
+    "after_port_3121_listeners": []
+  },
+  "events": [
+    {
+      "time_utc8": "2026-10-17T02:10:00+08:00",
+      "action": "EXTERNAL_POR",
+      "evidence": {
+        "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r05/operator_confirmation.json",
+        "sha256": "cf736301d41333d82c36697dc76c50eebb1176d028864a3b3bb87fb82bf8c64a"
+      }
+    },
+    {
+      "time_utc8": "2026-10-17T02:13:33.984019+08:00",
+      "action": "CPU_DAP_CACHE_PROBE_NO_HP",
+      "evidence": {
+        "path": "report/evidence/S2B-T19/cache_probe_execution_20261017_r02/visibility_probe_result.json",
+        "sha256": "85f7c52f9444ed1e62f490a85a1c632d837c043b53f0b625a12b4e8b99bde03d"
+      }
+    },
+    {
+      "time_utc8": "2026-10-17T02:29:07+08:00",
+      "action": "EXCLUSIVE_CUSTODY_NO_HP",
+      "evidence": {
+        "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r05/user_message.json",
+        "sha256": "87c94660cc64de7444efed4ac887e967ed1dbaa7c1f9a665a39e24b2fcc39662"
+      }
+    }
+  ],
+  "exclusive_until_utc8": "2026-10-17T03:30:00+08:00",
+  "limitations": [
+    "POR time, full power-off duration, and no-operation continuity are operator-reported, not instrument measured.",
+    "The 02:29 user confirmation covers the interval through 02:29; the declared 03:30 validity is a controlled-run window and must be rechecked immediately before sample startup.",
+    "This event chain does not upgrade the original probe to acceptance or set cold_lifecycle_proven=true.",
+    "No claim is made for physical DDR identity/qualification, HP0, model LOAD/START, inference, 109 golden samples, 1000 continuous tasks, exception recovery, G3, G4, or G5."
+  ]
+}

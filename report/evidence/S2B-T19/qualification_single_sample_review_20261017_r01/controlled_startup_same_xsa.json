@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-qualification-review-check/1.0.0",
+  "check": "controlled_startup_same_xsa",
+  "status": "PASS",
+  "mechanism_review": "PASS",
+  "hardware_execution": "NOT_RUN",
+  "sample000_result": "NOT_RUN",
+  "finding": "Mechanism-only PASS: runner binds and re-verifies the same XSA/bit/init.elf/app.elf before and during deploy; controller downloads init.elf and checks entry/ready/fail/return/DDRC, downloads bit from bound bit path and checks EOS, derives postconfig from bound XSA and validates CSR defaults, downloads bound app ELF and checks entry PC, then verifies runtime and a UART banner carrying app-source SHA plus fixed XSA SHA before calling exactly one sample000 job. This evidence certifies gate mechanics and first-trial eligibility only; it does not say startup or sample000 has executed.",
+  "inputs": [
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_qualification.py",
+      "sha256": "3e3f9826a6c38bfa72d753519d00cd54674d4101458b4c544803f4642b3afc70"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py",
+      "sha256": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\build_details.json",
+      "sha256": "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db"
+    }
+  ]
+}

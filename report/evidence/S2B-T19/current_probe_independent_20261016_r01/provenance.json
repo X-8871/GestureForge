@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "review_kind": "S2B-T19 visibility0 runtime-platform compatibility",
+  "reviewer_role": "INDEPENDENT_REVIEWER",
+  "reviewed_at_utc8": "2026-10-16T17:52:19+08:00",
+  "workspace": "D:\\FPGA_Competition\\w2b",
+  "head": "6448ba4e1bfbab5275741fd55184cdfb588c4fc9",
+  "scope": "visibility0_cache_probe_only",
+  "decision": "PASS",
+  "out_of_scope": [
+    "板上执行、DDR/HP0可见性结论、正式109样本、1000连续任务、G0/G3/G4/G5。",
+    "旧单样本 qualification 的历史ReviewerTask身份；本回执是本轮独立review，不冒认旧任务身份。"
+  ],
+  "r08_binding": {
+    "run": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r08",
+    "result_sha256": "655577e0d5d71aa8798dfb213b70766fc19f0f544628f4f7c89be36e620e258e",
+    "input_record_sha256": "6fec188f16a0a709e6a720e9d1ea10d958f9d60b76899cea1d529f962a137ebe",
+    "platform_manifest": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r08/platform_delivery_manifest.json",
+    "platform_manifest_sha256": "ae722467423c20bf6bc5b144e9f9bb3f08bd7e576c8f84014b6866f8346bb9c1",
+    "offline_result_status": "PASS_ARTIFACTS_PENDING_INDEPENDENT_REVIEW",
+    "source_run": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r07",
+    "source_run_original_status_preserved": "FAIL",
+    "source_run_result_sha256": "31e2a3a3985b9e54301db0be4f5c751cce1c0af11af392a2fe1a380f30fa8b01",
+    "source_native_job": {
+      "status": "PASS",
+      "exit_code": 0,
+      "cleanup_confirmed": true,
+      "seconds": 544.391,
+      "execution_note": "R08引用R07真实native Job；R08自身仅离线封装，没有启动Vivado。"
+    },
+    "timing": {
+      "clock_period_ns": 20.0,
+      "clock_frequency_mhz": 50.0,
+      "setup_wns_ns": 0.464,
+      "setup_tns_ns": 0.0,
+      "hold_whs_ns": 0.041,
+      "hold_ths_ns": 0.0,
+      "pulse_min_slack_ns": 8.870,
+      "check_timing_findings": 0,
+      "route_errors": 0,
+      "methodology_findings": 0,
+      "drc": {
+        "checks_found": 393,
+        "errors": 0,
+        "warnings": {
+          "DPIP-1": 119,
+          "DPOP-1": 137,
+          "DPOP-2": 137
+        },
+        "warning_scope": "DSP pipeline recommendation warnings；保留原报告，不作为timing pass替代。"
+      }
+    },
+    "bit_reconciliation": {
+      "standalone_bit_sha256": "cec64cd0644ba39b8b311fd5bce38c9cfd03b2148052da4c5d2af7c56520145a",
+      "implemented_xsa_sha256": "d3f1f14711322df567def1836ff2bbdef0f4c7d986e8e379c9f203dd206ca938",
+      "exactly_one_embedded_bit": true,
+      "embedded_bit_is_byte_exact_standalone_bit": true,
+      "reconciliation_method": "只读解包XSA到内存并逐字节比较；结果hash与R08 reconciliation记录一致。"
+    },
+    "reconciliation_limit": "R07原始overall FAIL保持；R08离线reconciliation绑定原生XSA内bit作为canonical bit，说明raw bit与XSA内bit仅 .bit 时间头字段不同且完整配置payload一致。没有把R07 FAIL改成PASS。"
+  },
+  "compiled_platform_binding": {
+    "t13_no_bit_xsa_sha256": "0607120b1733ee17582ab0c508c366fca7b1f49d32afffe87a070a346df04252",
+    "t13_delivery_manifest_sha256": "d91726e83102bcf6c5507c2192e97782d8a14fbc74bcde9728d9d1f7529d35bb",
+    "t15_manifest_sha256": "17b6c017740972565755aa2d75a1b19fb51dce3d5482de8427c465184ce71b79",
+    "t15_build_details_sha256": "e96bb5042a9824b20231060e60a475effd0dd8c0c8d2db599b1112844aa3f104",
+    "t15_build_status": "PASS_OFFLINE_FULL_XSA_BUILD",
+    "t15_hardware_execution": "NOT_RUN",
+    "t15_inner_build_exit_code": 0,
+    "t15_source_commit": "3942603390435e7eba3cb8e7ce32e48838dfa7bb",
+    "t15_source_commit_is_ancestor_of_current_head": true,
+    "t15_source_hashes_checked": 9,
+    "t15_source_hash_mismatches": 0,
+    "ps7_init_files_compared": {
+      "ps7_init.c": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba",
+      "ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+      "ps7_init.html": "059452166558e3fd504384018920f19dd928cc550c371e2444d63017586d1444",
+      "ps7_init.tcl": "430030c232057ae1e8a91f7e63cd30c06aaa27b78ac9eda52c5bc4deca81510c",
+      "ps7_init_gpl.c": "4195f3471fff5f9134321e41c8ed701394c738edc56dce1adba65eb32fda9f89",
+      "ps7_init_gpl.h": "10d682e5bd16bfc11504f8862b88fee6a2654b39871eb74b4b594d8d91cf2f83"
+    },
+    "ps7_init_comparison": "六个init文件在T13 no-bit XSA与R08 implemented XSA中内容相同；T15 BSP ps7_init.c/h/tcl也逐字节匹配对应的XSA条目。两个XSA的s2b_inference.hwh与s2b_inference.bda也逐字节相同。"
+  },
+  "runtime_contract_review": {
+    "same_ps7_config": {
+      "pass": true,
+      "evidence": "T13/R08 XSA的六个ps7_init条目、s2b_inference.hwh及s2b_inference.bda均逐字节相同。"
+    },
+    "same_ps_init_bytes": {
+      "pass": true,
+      "evidence": "T13/R08六项init相同；T15 BSP ps7_init.c/h/tcl与同名XSA条目相同。"
+    },
+    "same_bsp_mmu_macros": {
+      "pass": true,
+      "evidence": "T15 build_details绑定T13 no-bit XSA；infer.elf的initial_mmu_table为PASS_STATIC_INITIAL_MMU_TABLE并绑定infer.elf SHA。NOLOAD .s2b_tensor_ddr位于0x10000000、长度0x02000000；32个1MiB段identity/cacheable映射。NORM_WB_CACHE=0x15DE6，DEVICE_MEMORY=0xC06，DDR宏范围0x00100000..0x3fffffff，non_amp_compile=true；CSR的1MiB项静态设置为Device。"
+    },
+    "same_uart_ddr_csr_clocks": {
+      "pass": true,
+      "evidence": "T15 UART1=0xE0001000、输入时钟100MHz；DDR宏与MMU报告一致；应用CSR_BASE=0x43C00000；R08 routed clocks.rpt为20ns/50MHz，constraints绑定该平台。"
+    },
+    "full_model_core_present": {
+      "pass": true,
+      "evidence": "checker返回的18项rtl_sources逐项SHA与T13平台清单绑定的18份源快照一致（18/18）。公开顶层实例化s2b_stage2b_core；checker静态闭包也验证当前源码结构及平台profile。"
+    },
+    "postroute_timing_pass": {
+      "pass": true,
+      "evidence": "R07真实路由/STA报告绑定至R08：WNS/TNS/hold/pulse均通过，check_timing 12项均为0，route errors 0，methodology checks 0。DPOP/DPIP共393项均为Warning级DSP流水建议，没有Error。"
+    },
+    "ps_init_only_semantics": "T15 initializer ELF离线构建和静态source链核验不表示其已经执行；本回执只判断与R08平台输入兼容。",
+    "cache_maintenance_and_gp0": "应用源码/预处理与真实infer.elf反汇编可见Xil_DCacheFlushRange、Xil_DCacheInvalidateRange、Xil_SetTlbAttributes；CSR使用Xil_In32/Xil_Out32。ARM反汇编在CSR_BASE=0x43C00000上为32-bit LDR/STR单次寄存器访问，平台接口为32-bit AXI GP0-Lite。此为静态/反汇编依据，不是已发生的AXI总线波形或板上访问。"
+  },
+  "independent_commands": [
+    {
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/check_s2b_inference_platform.py",
+      "exit_code": 0,
+      "result": "PLATFORM_STATIC:OK visibility=0 rtl_sources=18"
+    },
+    {
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r08/platform_delivery_manifest.json",
+      "exit_code": 0,
+      "result": "CHECKS_OK; native_r07_implementation_sta=PASS; native_bit_header_reconciliation=PASS; hardware_validation=NOT_APPLICABLE"
+    },
+    {
+      "action": "PowerShell Get-FileHash; ZIP entry byte/hash comparison in memory; RTL/profile and T15 source hash comparisons",
+      "exit_code": 0,
+      "result": "7 receipt artifact hashes match; XSA embedded bit exact; PS init/HWH/BDA exact; 18/18 RTL and 9/9 T15 build source hashes match."
+    },
+    {
+      "command": "git merge-base --is-ancestor 3942603390435e7eba3cb8e7ce32e48838dfa7bb 6448ba4e1bfbab5275741fd55184cdfb588c4fc9",
+      "exit_code": 0,
+      "result": "T15 build source commit is an ancestor of current HEAD."
+    }
+  ],
+  "limitations": [
+    "R08是离线封包/对账，不是新Vivado执行；其job引用R07真实native Job，R07原overall FAIL仍保留。",
+    "R08 DRC报告含393条Warning级DSP流水建议；本审查确认无DRC Error，未将建议性warning宣称为零。",
+    "T15 MMU、ELF、缓存调用及CSR属性更新属于静态证据；不证明初始化执行后页表状态、DDR访问、HP0可见性、实际cache清理效果或实板功能。",
+    "R08与T15均为visibility=0离线/平台依据；此PASS仅为生成visibility0_cache_probe配置所需的运行时平台兼容回执，不是板测批准或G0/G3/G4/G5。"
+  ]
+}

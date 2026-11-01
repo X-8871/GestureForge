@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cold_confirmation_20261017_r06",
+  "source_commit": "a270d0244e275e3a042d80ca7086b82d7073657a",
+  "evidence_dir": "report/evidence/S2B-T19/cold_confirmation_20261017_r06",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅记录操作者连续性确认。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r06/user_message.json",
+      "sha256": "c250504f9931969afd3c05f9e53703d27896fe8eb7effe30ff367cd0f1e649b6",
+      "role": "artifact"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r06/custody_supplement.json",
+      "sha256": "be1f810df89b9d32b16db4e16313caa6da9827b023329f2ce877a693a7d40036",
+      "role": "result"
+    },
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "3e3f9826a6c38bfa72d753519d00cd54674d4101458b4c544803f4642b3afc70",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r06/delivery_manifest.json",
+      "sha256": "688080b0db940af6f8664bc3877ab50d55ac0949b59928f1294b8e76a913db54",
+      "role": "diagnostic",
+      "keep_reason": "保留首次包装失败以反映清单修订过程。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "用户连续性确认原文与范围",
+      "status": "PASS",
+      "command": "绑定对话原文及捕获时间",
+      "exit_code": 0,
+      "reason": "仅表示用户陈述已记录。"
+    },
+    {
+      "name": "qualification入口源码绑定",
+      "status": "PASS",
+      "command": "SHA-256读取当前入口源码",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "非仪器测量或硬件级证明，不代表qualification/G3/G4/G5通过。"
+  ],
+  "tool_versions": {
+    "runtime": "Codex task user-message capture"
+  }
+}

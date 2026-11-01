@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "g0_board_candidate_scope_review_20261017_r01",
+  "source_commit": "b0099b8ba450dc4d336f97a6fe368670d9bc6244",
+  "evidence_dir": "report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r01",
+  "interfaces": [{"name": "阶段2B物理接口候选", "version": "s2b-physical-candidate/0.1.2", "frozen": false, "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md", "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"}],
+  "files": [
+    {"path": "report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r01/independent_g0_review_outcome.json", "sha256": "2113ba8e13737cd00c7eb6c8af73b6f0fb1eb3e0deb284504d56989b1d5c04c7", "role": "result"},
+    {"path": "report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r01/g0_candidate_execution_basis.json", "sha256": "fb4a7673134c59a8bb11729498f5a9d3c1d953c6e26a25bcc9c993b451226731", "role": "input", "keep_reason": "绑定独立Reviewer核查的原始候选范围。"},
+    {"path": "report/evidence/S2B-T19/g0_board_candidate_scope_20261017_r01/delivery_manifest.json", "sha256": "97dc6061bae8f6f5e1414939e3fb370842979faf5d81b1d452377e9443e2fbe1", "role": "input", "keep_reason": "保留原始清单及Reviewer运行前NOT_RUN状态。"},
+    {"path": "vitis/run_s2b_model_qualification.py", "sha256": "fa6009a1d8cd41cde483660e5297e2ca0c764edc83ff3a053ad42bc7b0d4d584", "role": "source", "keep_reason": "绑定Reviewer检查的资格入口基线。"}
+  ],
+  "checks": [
+    {"name": "独立候选G0审查", "status": "PASS", "command": "Codex subagent read-only review", "exit_code": 0, "reason": "PASS_LIMITED_CANDIDATE_G0；仅支持手册DDR候选易失验证，不证明实装身份、冷生命周期或G3/G4/G5。"},
+    {"name": "原候选包中的Reviewer状态", "status": "NOT_RUN", "command": "NOT_RUN", "exit_code": null, "reason": "原始delivery_manifest未被改写；本补充manifest单独绑定审查结果。"}
+  ],
+  "limitations": ["实装DDR/PCB修订未知。", "冷生命周期锚点尚未建立。", "R04原始构建记录仍FAIL；R12资格门仍NOT_PASSED且硬件NOT_RUN。"],
+  "tool_versions": {"reviewer_model": "gpt-6-luna", "reviewer_effort": "high", "review_transport": "Codex subagent"}
+}

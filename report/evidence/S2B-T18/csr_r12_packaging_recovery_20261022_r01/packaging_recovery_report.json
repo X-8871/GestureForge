@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T18",
+  "run_id": "csr_r12_packaging_recovery_20261022_r01",
+  "source_commit": "6e66bfc553abbe2c2cedde47b49d060439928ef5",
+  "replay_scope": "offline packaging diagnosis and evidence-only repackaging; no hardware, business source, original R12 file, STATE, or HEAD mutation",
+  "original_scope": {
+    "acceptance_result_status": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+    "deadline_scope_status": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+    "max_start_elapsed_seconds": 47.4058308,
+    "safe_ack": "CORE timeout and DRAIN limit passed",
+    "diag0_and_golden_recovery": "PASS",
+    "static_matrix": "19 quiet scenarios completed; original blockers remain as recorded",
+    "cleanup_errors": []
+  },
+  "packaging_diagnosis": {
+    "finalize_evidence_missing_step": "interfaces is never populated in finalize_evidence(); strict schema-1 validator requires interfaces array and frozen interface references for this task",
+    "manifest_input": "original R12 delivery_manifest.json has schema_version=1 but interfaces is null/missing effective declaration; previous read-only evidence check failed",
+    "orchestrator_snapshot": "original orchestrator_result.json status PASS is the pre-finalize snapshot saved before packaging completed and is not final runner exit evidence",
+    "launcher": "official Vitis launcher printed generic deployment/acceptance failure and returned 0; actual runner SCRIPT exit was not captured in available evidence",
+    "conclusion": "The packaging failure is attributable to incomplete schema-1 delivery manifest interface binding; no claim is made that actual runner exit was 0."
+  },
+  "evidence_preservation": {
+    "original_r12_mutated": false,
+    "failed_or_unknown_records_rewritten": false,
+    "original_failed_unknown_statuses": "retained verbatim in original R12 acceptance files and original manifest copies",
+    "subscope_only_claim": "PASS_CSR_DEADLINE_SCOPE_ONLY"
+  },
+  "replay_method": "Offline clone/repackaging only: copy immutable R12 result/manifest snapshots, bind current source/document hashes and validate manifests with verification/check_stage_delivery.py. This does not rerun hardware or execute the original runner finalizer.",
+  "limitations": [
+    "Original Vitis runner process exit code was not captured; launcher exit 0 does not establish runner success.",
+    "Original finalizer exception/traceback was not persisted, so the observed failure cause is the missing schema-1 interfaces field and pre-finalize snapshot ordering, not a recovered Python exception.",
+    "CHECKS_OK confirms manifest/file binding only; it does not establish G4/G5, independent review, or new hardware acceptance.",
+    "The static negative matrix retains its original unresolved BRESP blockers and is not upgraded by this packaging repair."
+  ]
+}

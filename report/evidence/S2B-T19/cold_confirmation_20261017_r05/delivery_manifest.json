@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cold_confirmation_20261017_r05",
+  "source_commit": "11484c172d6fb25f388cbd156ae195c7622f7b22",
+  "evidence_dir": "report/evidence/S2B-T19/cold_confirmation_20261017_r05",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "This package records direct user-provided POR and custody confirmation for a board qualification precondition; it does not define a design interface.",
+  "files": [
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "19c084f9f692175624ad499b446c7a78e37ea769f4f875697c1917258c358acf",
+      "role": "source",
+      "keep_reason": "The exact qualification entry source specifies UTC+8 and operator confirmation fields."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r05/user_message.json",
+      "sha256": "87c94660cc64de7444efed4ac887e967ed1dbaa7c1f9a665a39e24b2fcc39662",
+      "role": "input",
+      "keep_reason": "Preserves the user's exact response covering no board operation since POR except the known no-HP visibility0 probe."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r05/operator_confirmation.json",
+      "sha256": "cf736301d41333d82c36697dc76c50eebb1176d028864a3b3bb87fb82bf8c64a",
+      "role": "result",
+      "keep_reason": "Binds the user's original POR statement and later continuity confirmation into the qualification operator schema."
+    }
+  ],
+  "checks": [
+    {
+      "name": "operator_confirmation_source_binding",
+      "status": "PASS",
+      "command": "Hashed the exact captured user message and bound its SHA-256 into operator_confirmation.json.",
+      "exit_code": 0
+    }
+  ],
+  "tool_versions": {
+    "runtime": "Codex task user-message capture",
+    "qualification_entry": "visibility1_sample000_single_job"
+  },
+  "limitations": [
+    "Power-off duration, physical POR time, and no-operation continuity are operator-reported, not instrument measured.",
+    "This confirmation does not qualify DDR, HP0, model inference, golden samples, continuous tasks, or stage acceptance."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_identity": "/root/visibility_proof_review",
+  "reviewed_at_utc8": "2026-10-16T22:16:08+08:00",
+  "scope": "修正后完整 visibility=1 启动器准入路径及 T15 历史输入绑定；只读审查。",
+  "launcher": {
+    "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r01/launch_visibility1_build.py",
+    "sha256": "4d334da3194fd17f95b056976e604bdb4b360944c7fbef4134b15a34b6f1c30f",
+    "pinned_final_manifest_sha256": "72fbf59b374665db43452d6ccb2ae4845b20f1042f233697a8802842771edfa9",
+    "verdict": "PASS; pinned final-manifest digest matches the independently hashed raw file. The reviewed execution path retains proof/review checks, T15 manifest and ELF checks, Vivado/process/resource gates, and isolated-output checks before launching the build. No launch or build was performed."
+  },
+  "t15_inputs": {
+    "final_delivery_manifest": {
+      "path": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/final_delivery_manifest.json",
+      "sha256": "72fbf59b374665db43452d6ccb2ae4845b20f1042f233697a8802842771edfa9"
+    },
+    "delivery_manifest": {
+      "path": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/delivery_manifest.json",
+      "sha256": "17b6c017740972565755aa2d75a1b19fb51dce3d5482de8427c465184ce71b79"
+    },
+    "infer_elf": {
+      "path": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/artifacts/infer.elf",
+      "sha256": "a7fbbab2b1aecfe6b46c84118180303362483f4b7742d9e7cfe3fb59ae02ce82"
+    },
+    "init_elf": {
+      "path": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/artifacts/init.elf",
+      "sha256": "26824eb5ec3a73d3dc606b7f7797591b12ca82cf8fb8dc0e40f3a8756efaaadc"
+    }
+  },
+  "historical_interface_binding": {
+    "t15_interface_version": "s2b-physical-candidate/0.1.2",
+    "t15_interface_frozen": false,
+    "sha256_recorded_in_t15_manifest": "1486a7f69e7a2053acfcad05151a9c54cfffab776d4154141741236aa88c401b",
+    "current_document_sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+    "assessment": "该文档哈希差异对应后来更新的同路径接口正文；T15当时0.1.2明确未冻结，当前1.0.0另由当前proof/G0绑定。它不构成T15清单或ELF原件被篡改的证据；本回执不把T15历史接口引用称作当前冻结依据。"
+  },
+  "limitations": [
+    "启动器在当前工作树中为未跟踪文件，因此不存在可供独立核对的Git前版diff；本审查确认当前文件哈希、固定清单值及完整当前控制流，但不能证明相对改前快照只改了一行。",
+    "T15 final manifest 的当前 evidence 检查因历史接口文档SHA与现正文不同而失败；其原接口版本未冻结。当前结论仅确认其精确原件哈希及启动器明确固定的两个 ELF 哈希。",
+    "未启动脚本、Vivado或任何构建任务。"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "status": "PASS_LIMITED_SCOPE",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_identity": "/root/visibility_proof_review",
+  "reviewed_at_utc8": "2026-10-16T22:23:50+08:00",
+  "run_id": "visibility1_csr_fixed_20261016_r02",
+  "review_scope": "只读审查r02 launcher/Tcl、r01失败边界、RunId路径隔离及准入绑定；没有执行构建。",
+  "reviewed_files": {
+    "launcher": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r02/launch_visibility1_build.py",
+      "sha256": "62431b5451c9d6788ea1ee6d7797f6d48ae2f0fffa690c27da904bdd4effa89b",
+      "r01_path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r01/launch_visibility1_build.py",
+      "comparison": "字节一致；保留精确 vivado-mcp-server- 前缀排除、T15清单/ELF固定SHA、proof/review checker、单重型作业和RAM/超时门禁、源码与产物绑定、失败条件。"
+    },
+    "tcl": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r02/build_visibility1.tcl",
+      "sha256": "d4852d0d13116372e635e54d350680c27d2be1dbd79ac3d988ebeac0e95bb9a4",
+      "diff_from_r01": [
+        "参数数目错误分支：puts stderr 改为 puts；保留 exit 2。",
+        "catch错误处理：错误摘要 puts stderr 改为 puts。",
+        "catch错误处理：-errorinfo 的 puts stderr 改为 puts；随后仍 catch close_project 并 exit 1。"
+      ]
+    },
+    "preparation": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r02/preparation.json",
+      "sha256": "af5b440eec771d8bb8a01591e2490de9308a7471d4cdcf7e60a8209094a48517",
+      "head_matches_current": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+      "proof_sha256": "6c379a78a626e932c0de707cadb815ec0d14171edac713716694d7423ca0c61c",
+      "review_sha256": "e777d2a4c982efe93260ef86c4298a1568927567cda235c428b9f400d4c94aa5",
+      "recorded_core_synthesis_budget": "10 total; 3 prior runs; r01 failed before synthesis and is recorded as not consuming a synthesis run."
+    }
+  },
+  "r01_failure_review": {
+    "input_record_path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r01/input_record.json",
+    "input_record_sha256": "939a54c52aeceacbcc43907eaf95da38f720c59a9bc13fcb97038a14e9884429",
+    "stdout_log_path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r01/vivado.stdout.log",
+    "stdout_log_sha256": "1c82f2de699faffef1fef5494cf0bc07d9c598aa5464de38b08d82bc73c37bc0",
+    "result": "FAIL before synthesis; stdout_has_synth_complete=false and neither Vivado stdout nor native log contains CHECKPOINT SYNTH_COMPLETE. The underlying last IP configuration failed while renaming an attempts.tcldict temporary file; then the Tcl catch handler raised can not find channel named stderr, masking the original error and preventing its intended exit 1. The outer launcher recorded status FAIL. The supervised process Job cleanup is confirmed PASS: stable empty Job PID reads twice, active_processes=0, handles closed, errors empty.",
+    "hardware_execution": "NOT_RUN"
+  },
+  "r02_isolation_review": {
+    "result": "PASS; RUN is derived from the r02 script directory and RUN_ID; WORK is ROOT/tmp/2B/S2B-T19/<RUN_ID>, OUTPUT is this run directory's artifacts. The r02 WORK and artifacts directories were absent at review time; launcher rejects pre-existing targets. No r01 path is hardcoded into the r02 launcher or Tcl arguments.",
+    "r02_work_exists_at_review": false,
+    "r02_artifacts_exists_at_review": false
+  },
+  "verdict": "PASS_LIMITED_SCOPE; the Tcl change correctly routes diagnostics to Tcl's default stdout and preserves explicit nonzero exits (2 for invalid argument count, 1 for caught build errors). It fixes error reporting/exit semantics, not the underlying r01 attempts-file rename failure; that may recur and should then be recorded as a genuine pre-synthesis failure. No build was launched."
+}

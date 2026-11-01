@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "hardware_session_release_20261017_r01",
+  "source_commit": "b0099b8ba450dc4d336f97a6fe368670d9bc6244",
+  "evidence_dir": "report/evidence/S2B-T19/hardware_session_release_20261017_r01",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.2",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/hardware_session_release_20261017_r01/host_session_release.json",
+      "sha256": "7fefb83bbe89aad9407d130a5414f68c30779e0139346ecae2126b3f11d31048",
+      "role": "result"
+    },
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "fa6009a1d8cd41cde483660e5297e2ca0c764edc83ff3a053ad42bc7b0d4d584",
+      "role": "source",
+      "keep_reason": "绑定被暂停的当前单样本资格入口，证明此记录未改变执行门禁。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "停止已授权的Vivado硬件会话进程",
+      "status": "PASS",
+      "command": "Get-Process -Id 6684,12640,23720,16204; netstat -ano | findstr \":3121\"",
+      "exit_code": 0,
+      "reason": "四个已核实关联进程退出，复查未发现3121监听或连接；不表示外部POR生命周期链或板卡验收通过。"
+    },
+    {
+      "name": "新板卡探针",
+      "status": "NOT_RUN",
+      "command": "NOT_RUN",
+      "exit_code": null,
+      "reason": "用户报告的1:37 POR发生在会话释放之前，需服务关闭后的新POR及无JTAG/XSDB/HP操作确认。"
+    }
+  ],
+  "limitations": [
+    "该证据只证明本机列出的硬件服务会话进程停止以及3121端口无连接。",
+    "不能从先前活动连接推断其间是否发送过硬件命令。",
+    "没有运行XSDB/JTAG目标命令、硬件探针、PS/DDR测试、模型推理或正式验收。"
+  ],
+  "tool_versions": {
+    "host": "Windows",
+    "powershell": "Get-Process/Stop-Process/Get-NetTCPConnection"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_identity": "/root/visibility_proof_review",
+  "reviewed_at_utc8": "2026-10-16T22:17:49+08:00",
+  "scope": "只读复核当前完整 visibility=1 launcher、MCP server 进程排除规则及其他准入门禁。未修改或启动 launcher。",
+  "launcher": {
+    "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r01/launch_visibility1_build.py",
+    "sha256": "62431b5451c9d6788ea1ee6d7797f6d48ae2f0fffa690c27da904bdd4effa89b",
+    "previous_reviewed_sha256": "4d334da3194fd17f95b056976e604bdb4b360944c7fbef4134b15a34b6f1c30f",
+    "previous_review_receipt": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r01/independent_launcher_review.json",
+      "sha256": "90bf039d18418c6bd2a685b954fe29f00dd3815bbd8825b17c2553bd3b7f8659"
+    }
+  },
+  "process_filter_review": {
+    "current_rule": "if not name.startswith(\"vivado-mcp-server-\") and (\"vivado\" in name or (\"vivado\" in command and (\"-mode tcl\" in command or \"vivado.bat\" in command)))",
+    "verdict": "PASS; case-normalized process names beginning with the exact prefix vivado-mcp-server- are excluded from the heavy-build detector. All other executable names containing vivado remain detectable, and command-line detection for vivado plus -mode tcl or vivado.bat remains active. The supplied three MCP server PIDs therefore do not block the launch, while a Vivado child process remains detectable by its own name or command line.",
+    "single_change_reconstruction": {
+      "method": "只在内存中将当前筛选条件反向替换为此前审查版本的谓词，再计算完整UTF-8文件SHA-256；未写盘。",
+      "replacement_count": 1,
+      "reconstructed_previous_launcher_sha256": "4d334da3194fd17f95b056976e604bdb4b360944c7fbef4134b15a34b6f1c30f",
+      "previously_reviewed_launcher_sha256": "4d334da3194fd17f95b056976e604bdb4b360944c7fbef4134b15a34b6f1c30f",
+      "matches": true
+    },
+    "provided_process_observation": "三项已确认进程的命令行均为vivado-mcp-server-windows-amd64-2026.9.1.exe --stdio，RSS约23–24 MB；这是任务输入提供的观测，本审查未枚举或操作进程。"
+  },
+  "unchanged_gates_review": {
+    "verdict": "PASS; compared with the previously reviewed full launcher in this thread, no other changes were observed.",
+    "gates": [
+      "固定 Python 3.12 可执行文件和版本校验。",
+      "proof/review 绝对路径、64位小写审查SHA、非空预算批准引用及显式 --execute 才进入执行路径。",
+      "T15 delivery/final manifest 与 infer/init ELF 固定哈希校验。",
+      "平台 checker 必须退出0并精确输出 VISIBILITY_PROFILE:BINDINGS_VERIFIED。",
+      "Vivado heavy-build 互斥检查；工作目录/输出目录不存在及所有同名构建产物冲突拒绝。",
+      "源码、proof/review、脚本、工具与本次输入记录绑定；构建后核对绑定未变。",
+      "单重型作业门禁及监督器启动/停止可用内存、30分钟超时、0.25秒采样和最大1秒采样间隔。",
+      "版本/器件/频率记录仍为 Vivado 2026.1、xc7z020clg400-2、50 MHz；构建后仍要求完整产物、路由时序非负和 XSA 内 bit 与独立 bit 一致。"
+    ]
+  },
+  "limitations": [
+    "launcher 仍为当前 Git 工作树中的未跟踪文件，没有 Git diff；因此通过反向替换单一筛选条件并精确复算前版文件SHA验证差异，不能提供Git索引级diff。",
+    "运行进程的PID/RSS事实来自总控本轮提供的信息，本审查没有枚举或改变进程状态。",
+    "本审查不表示Vivado/实现已启动，也不表示本轮硬件或整网验收通过。"
+  ]
+}

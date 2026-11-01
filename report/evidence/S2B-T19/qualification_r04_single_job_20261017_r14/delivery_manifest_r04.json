@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "qualification_r04_single_job_20261017_r14",
+  "source_commit": "a270d0244e275e3a042d80ca7086b82d7073657a",
+  "evidence_dir": "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r14",
+  "interfaces": [
+    {
+      "name": "阶段2B物理接口候选",
+      "version": "s2b-physical-candidate/0.1.2",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r14/delivery_manifest.json",
+      "sha256": "3da514dbd10e99c8aaf2d2d874b9be7a08b53627c0f3d5ede7d023174a55826b",
+      "role": "diagnostic"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r14/offline_preflight_report.json",
+      "sha256": "317ac066a3bfa74bbe5af4880a272ba932777761698159315b4eadcdaeeb4ecd",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r14/qualification_config.json",
+      "sha256": "540c6c8d51e249e5256a7924360e6facd9a2fe27eb95405d59ddf575bd0915d8",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r14/r05_input_manifest.json",
+      "sha256": "ed030dda8a00758a1da941eac631c99614776a34af8b50e2eb914e3ffa10977b",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_hardware_identity_20261017_r14/delivery_manifest.json",
+      "sha256": "b2349d578d120ac901f1be21d30de994361fa00cc12d3a6452727c6a0c6957b5",
+      "role": "input"
+    },
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "3e3f9826a6c38bfa72d753519d00cd54674d4101458b4c544803f4642b3afc70",
+      "role": "source"
+    },
+    {
+      "path": "vitis/prepare_s2b_model_qualification_r05_offline.py",
+      "sha256": "45c88c6f3a0ee1f1e3c6e6c7bef462fe69661943fc554c926d42d0ff50f28a52",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s2b_model_qualification_entry.py",
+      "sha256": "234cc828cd877c4f8a2032b8f5200d390f0ee241e0d49fa236be971a072d0763",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_hardware_identity_20261017_r14/qualification_runtime_identity_snapshot.json",
+      "sha256": "b76a4aee3531299211276896eca6a9e32fe6ee30706ad380651d770bb91356a6",
+      "role": "input",
+      "keep_reason": "绑定资格入口运行时取得的本机hw_server与UART身份快照。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/qualification_r04_single_job_20261017_r14/delivery_manifest_r02.json",
+      "sha256": "57a9cba8b1f5ed31e5ebdf132be429d8a375a871c26e4536da1fc3aaaede3b8d",
+      "role": "result",
+      "keep_reason": "保留首次清单核验失败记录，供审计修订过程。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "R04静态绑定与离线preflight",
+      "status": "BLOCKED",
+      "command": "run_s2b_model_qualification.py --preflight",
+      "exit_code": null,
+      "reason": "唯一缺失锚点为当前qualification Reviewer回执，资格与硬件保持NOT_RUN。"
+    },
+    {
+      "name": "单样本板卡资格",
+      "status": "NOT_RUN",
+      "command": "NOT_RUN",
+      "exit_code": null,
+      "reason": "未连接目标或启动qualification main。"
+    },
+    {
+      "name": "109样本/1000连续任务",
+      "status": "NOT_RUN",
+      "command": "NOT_RUN",
+      "exit_code": null,
+      "reason": "单样本资格回执及运行尚未完成。"
+    }
+  ],
+  "limitations": [
+    "当前单样本入口与candidate配置准备完成，但硬件门仍失败关闭。",
+    "DDR候选依据仍为手册MT41K256M16TW-107；实装料号与PCB/BOM仍未确认。",
+    "R04 input_record仍为FAIL；R02 visibility探针仍pending。"
+  ],
+  "tool_versions": {
+    "Python": "3.12.14",
+    "Vitis": "2026.1"
+  }
+}

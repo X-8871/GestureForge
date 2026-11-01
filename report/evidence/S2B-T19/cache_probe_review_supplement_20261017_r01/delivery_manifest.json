@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cache_probe_review_supplement_20261017_r01",
+  "source_commit": "11484c172d6fb25f388cbd156ae195c7622f7b22",
+  "evidence_dir": "report/evidence/S2B-T19/cache_probe_review_supplement_20261017_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "This is a supplemental evidence attachment for closure of an already executed visibility0 cache-probe server lifecycle record; it does not introduce or qualify a design interface.",
+  "files": [
+    {
+      "path": "vitis/run_s2b_visibility_probe.py",
+      "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "role": "source",
+      "keep_reason": "The exact probe entry source bound by the original R02 input configuration."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_review_supplement_20261017_r01/server_release_attachment.json",
+      "sha256": "43773857f4393819b593f7598d1d11a5ac3a1ae1e211e7b9c1f47e97e2e68df0",
+      "role": "result",
+      "keep_reason": "Binds the existing probe/configuration, user POR statement, owned hw_server identity and post-run close snapshot for independent follow-up review."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_review_supplement_20261017_r01/review_history.json",
+      "sha256": "56bec7ab2ea93d66df81499e3e22cf2d1d04f545c63c82d88dda82c0feabd999",
+      "role": "diagnostic",
+      "keep_reason": "Preserves the initial independent review finding and explicitly requests a limited follow-up review without changing the original run."
+    }
+  ],
+  "checks": [
+    {
+      "name": "server_close_snapshot_recorded",
+      "status": "PASS",
+      "command": "Bound existing server_close.json and hw_server_identity.json by absolute source path and SHA-256 in server_release_attachment.json.",
+      "exit_code": 0
+    },
+    {
+      "name": "independent_followup_review",
+      "status": "NOT_RUN",
+      "command": "Not yet performed: the immutable supplement was just prepared and has been sent to the independent reviewer; no acceptance claim is made by this package.",
+      "reason": "Independent follow-up verdict is pending and must be recorded before this limited observation can be treated as reviewed.",
+      "exit_code": null
+    }
+  ],
+  "tool_versions": {
+    "vivado_vitis": "2026.1",
+    "qualification_probe": "visibility0 cache probe, original run report/evidence/S2B-T19/cache_probe_execution_20261017_r02"
+  },
+  "limitations": [
+    "This package does not overwrite or change the original probe result or the initial CHANGES_REQUIRED review.",
+    "Scope is limited to run-bound owned hw_server release evidence for visibility0_cache_probe_only.",
+    "No qualification or stage acceptance is claimed. Physical DDR, HP0, model inference, 109 golden samples, 1000 continuous tasks, exception recovery, G3, G4, and G5 remain unverified."
+  ]
+}

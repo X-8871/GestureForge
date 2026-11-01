@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cold_lifecycle_basis_20261017_r02",
+  "source_commit": "11484c172d6fb25f388cbd156ae195c7622f7b22",
+  "evidence_dir": "report/evidence/S2B-T19/cold_lifecycle_basis_20261017_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "This is the current candidate operator POR and no-HP custody chain for the single-sample qualification precondition; it does not define a design interface.",
+  "files": [
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "19c084f9f692175624ad499b446c7a78e37ea769f4f875697c1917258c358acf",
+      "role": "source",
+      "keep_reason": "Exact qualification entry source defines the accepted custody-chain fields and event checks."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_lifecycle_basis_20261017_r02/cold_lifecycle_basis.json",
+      "sha256": "0ee98973d290e83c49eed41664f0b80aa5c4ef550c7aab04168fff4806ab5552",
+      "role": "result",
+      "keep_reason": "Binds direct POR and continuity statements, the no-HP probe, the owned server release, and the ordered evidence events for independent review."
+    }
+  ],
+  "checks": [
+    {
+      "name": "event_time_and_source_hash_consistency",
+      "status": "PASS",
+      "command": "Bound exact files and hashes; checked event ordering from POR 02:10 through user continuity confirmation 02:29.",
+      "exit_code": 0
+    },
+    {
+      "name": "independent_cold_chain_review",
+      "status": "NOT_RUN",
+      "command": "Awaiting independent reviewer recheck of the corrected custody interval.",
+      "reason": "The cold lifecycle candidate is newly bound to the user's 02:29 confirmation and has not yet received a reviewer verdict.",
+      "exit_code": null
+    }
+  ],
+  "tool_versions": {
+    "vivado_vitis": "2026.1",
+    "qualification_entry": "visibility1_sample000_single_job"
+  },
+  "limitations": [
+    "POR, power-off duration and no-operation continuity are user-reported, not instrument measured.",
+    "The time window must be checked again immediately before sample startup.",
+    "The original R02 probe remains acceptance pending; no model or stage acceptance is claimed."
+  ]
+}

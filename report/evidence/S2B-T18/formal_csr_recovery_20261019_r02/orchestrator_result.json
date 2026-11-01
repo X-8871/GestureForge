@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "scope": "csr",
+  "hardware_execution": "REQUESTED_BY_EXPLICIT_CONFIG",
+  "source_commit": "50d68308ae6431775cff99c135628cd31773dc74",
+  "run_id": "formal_csr_recovery_20261019_r02",
+  "started_at_utc8": "2026-10-19T16:46:01.800148+08:00",
+  "identity_snapshots": [
+    {
+      "label": "before_runtime",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_connect",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "before_serial",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_serial_open",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_cleanup",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "0de0f0be64d434946139fcc43f9d2183b31eb08f45774864bac033813c39f7df",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 10116,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134368114282744990"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 10116
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 10116,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134368114282744990"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 10116
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    }
+  ],
+  "cleanup_steps": [
+    {
+      "step": "serial.close",
+      "status": "PASS"
+    },
+    {
+      "step": "rx.close",
+      "status": "PASS"
+    },
+    {
+      "step": "tx.close",
+      "status": "PASS"
+    },
+    {
+      "step": "csr_debug_map.clear",
+      "status": "NOT_NEEDED"
+    },
+    {
+      "step": "session.disconnect",
+      "status": "PASS"
+    },
+    {
+      "step": "xsdb.dispose",
+      "status": "PASS"
+    }
+  ],
+  "cleanup_errors": [
+    {
+      "step": "controller.close",
+      "error": "RunnerError('JTAG controller 或自有断点清理失败')"
+    }
+  ],
+  "limitations": [
+    "本入口不执行 Vitis build；build_details 与全部部署产物须预先绑定。",
+    "只核验 visibility1 文件与独审回执绑定；独立 Reviewer 身份由总控确认。",
+    "本scope只执行固定CSR恢复顺序，不代表109样本或1000次压力完成。",
+    "硬件进程峰值内存未测。"
+  ],
+  "csr_debug_map_helper": {
+    "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_visibility_probe.py",
+    "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
+  },
+  "error": "RunnerError('部署或模型验收阶段异常；已锁存失败状态')",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py\", line 647, in execute_board_flow\n    controller.select_and_gate()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 420, in select_and_gate\n    return self.guarded(action)\n           ~~~~~~~~~~~~^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 373, in guarded\n    return function()\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 417, in action\n    self.gate()\n    ~~~~~~~~~^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 398, in gate\n    require(self.state(\"cpu0\").startswith(\"Stopped\"), \"CPU0未停止\")\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 85, in require\n    raise JtagError(message)\nverification.s2b_board_jtag.JtagError: CPU0未停止\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py\", line 1076, in run\n    result = execute_board_flow(objects[\"controller\"], objects[\"wire\"], config, checked, apis,\n                                journal, scope=scope, csr_map=objects[\"csr_map\"])\n  File \"D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py\", line 728, in execute_board_flow\n    raise RunnerError(\"部署或模型验收阶段异常；已锁存失败状态\") from error\nRunnerError: 部署或模型验收阶段异常；已锁存失败状态\n",
+  "finished_at_utc8": "2026-10-19T16:46:18.030040+08:00",
+  "elapsed_seconds": 16.229881400009617,
+  "native_exit_code": 2
+}

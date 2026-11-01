@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cache_probe_review_supplement_20261017_r02",
+  "source_commit": "11484c172d6fb25f388cbd156ae195c7622f7b22",
+  "evidence_dir": "report/evidence/S2B-T19/cache_probe_review_supplement_20261017_r02",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "This is a supplemental evidence attachment for closure of an already executed visibility0 cache-probe server lifecycle record; it does not introduce or qualify a design interface.",
+  "files": [
+    {
+      "path": "vitis/run_s2b_visibility_probe.py",
+      "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "role": "source",
+      "keep_reason": "The exact probe entry source bound by the original R02 input configuration."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_review_supplement_20261017_r02/server_release_attachment.json",
+      "sha256": "469d295f717f17f46dc7b1ad445cec644bcfcc5efb2e3e2f71a5d3cf3a7d3a96",
+      "role": "result",
+      "keep_reason": "Binds the existing probe/configuration, user POR statement, owned hw_server identity and post-run close snapshot for independent follow-up review."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_review_supplement_20261017_r02/review_history.json",
+      "sha256": "a954ef5d8f0f8193f7898e25398e697edc4cc840b644ffc847e28c3b00a549d6",
+      "role": "diagnostic",
+      "keep_reason": "Preserves the initial probe review and r01 supplement correction finding, and requests independent review without changing prior evidence."
+    }
+  ],
+  "checks": [
+    {
+      "name": "server_close_snapshot_hash_verified_by_reviewer",
+      "status": "PASS",
+      "command": "Reviewer independently computed and reported the exact SHA-256 for the referenced server_close.json; bound here as 083f0a404e3df2ee65ab535bd9864362bbe6356b4524f33b60d09afee510a7e4.",
+      "exit_code": 0
+    },
+    {
+      "name": "independent_r02_followup_review",
+      "status": "NOT_RUN",
+      "command": "Pending independent reviewer follow-up; this package makes no acceptance claim.",
+      "reason": "The reviewer has not yet reviewed this corrected r02 package.",
+      "exit_code": null
+    }
+  ],
+  "tool_versions": {
+    "vivado_vitis": "2026.1",
+    "qualification_probe": "visibility0 cache probe, original run report/evidence/S2B-T19/cache_probe_execution_20261017_r02"
+  },
+  "limitations": [
+    "This package does not overwrite or change the original probe result or the prior supplement packages.",
+    "Scope is limited to run-bound owned hw_server release evidence for visibility0_cache_probe_only.",
+    "No qualification or stage acceptance is claimed. Physical DDR, HP0, model inference, 109 golden samples, 1000 continuous tasks, exception recovery, G3, G4, and G5 remain unverified."
+  ]
+}

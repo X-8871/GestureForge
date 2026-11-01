@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-qualification-review-check/1.0.0",
+  "check": "single_job_arena_cache_retention",
+  "status": "PASS",
+  "mechanism_review": "PASS",
+  "hardware_execution": "NOT_RUN",
+  "finding": "ELF binds .s2b_tensor_ddr NOBITS at 0x10000000, size 0x02000000, align 64; initial MMU output binds 32 identity cacheable sections, no physical aliases. Bound app declares a dedicated aligned 32 MiB arena, performs input/weight flush, feature flush+invalidate and post-terminal invalidate with barriers, gates arena decode on safe terminal snapshot, and runner limits this attempt to sample_index 0/frame 0/repeat 1, one WEIGHTS/RUN path then fail-stop. Static software/layout review only; actual DDR/cache visibility and retained results are NOT_RUN.",
+  "inputs": [
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\build_details.json",
+      "sha256": "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\initial_mmu_table.json",
+      "sha256": "f75991497a43b8ec19f49972099dfd9c60b3982c113f412b50609a88338902db"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\elf_layout.json",
+      "sha256": "d51d5833d763e16f72aa93516761bc42705a0dc6991265d654eab629022e401f"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\w2b\\vitis\\s2b_inference_app.c",
+      "sha256": "9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39"
+    }
+  ]
+}

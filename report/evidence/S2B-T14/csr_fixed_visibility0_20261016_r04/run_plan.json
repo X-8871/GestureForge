@@ -1,0 +1,45 @@
+{
+  "run_id": "csr_fixed_visibility0_20261016_r04",
+  "purpose": "在 core-only R03 真实通过后复用四个 OOC 综合结果，仅执行顶层 synth_1 与 impl_1 到 write_bitstream，并保存完整 timing/route/bit/XSA 证据。",
+  "status": "PREPARED_NOT_RUN",
+  "launch_script": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r04/launch_build.py",
+  "vivado_tcl": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r04/build.tcl",
+  "windows_wrapper": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r04/build.cmd",
+  "working_directory": "tmp/2B/S2B-T14/csr_fixed_visibility0_20261016_r04",
+  "project_xpr": "tmp/2B/S2B-T13/platform_csr_fixed_20261016_r03/project/s2b_inference_candidate.xpr",
+  "prelaunch_gate": [
+    "R03 result.json 必须为 PASS_CORE_OOC_SYNTH，supervisor status PASS、exit_code 0、cleanup_confirmed true。",
+    "R03 必须记录本轮 runme 成功段、Vivado complete/end marker，且无 running/error marker。",
+    "验证 core OOC DCP 的实际 SHA 与 R03 结果一致且非空。",
+    "验证三个已完成 IP DCP 的实际 SHA 与 R03 结果及 R02 原失败包内复用快照逐一相同。",
+    "验证 18 路 RTL、快照、XPR 与当前冻结输入哈希未漂移。"
+  ],
+  "post_open_project_gate": [
+    "PART 必须为 xc7z020clg400-2，顶层为 s2b_inference_wrapper，BD 唯一。",
+    "infer_0、ps7_0、axi_gp0_lite_0、rst_fclk0_0 四个 OOC run 必须 progress=100%、status 含 Complete、NEEDS_REFRESH=false，且对应 DCP 非空。",
+    "只有全部 OOC 门槛通过后才 launch_runs synth_1；脚本不调用 create_ip_run 或 reset_run。"
+  ],
+  "run_sequence": [
+    "顶层 synth_1 -jobs 1 并 wait_on_run。",
+    "impl_1 -to_step write_bitstream -jobs 1 并 wait_on_run。",
+    "导出 min/max summary、setup/hold path、pulse width、clock interaction、clocks、check_timing、route status、utilization、DRC、methodology JSON/text、constraints、routed DCP、bit 与 fixed include-bit XSA。"
+  ],
+  "budget": {
+    "synthesis_attempt": "3/3",
+    "start_floor_bytes": 4831838208,
+    "stop_floor_bytes": 2147483648,
+    "timeout_seconds": 1800,
+    "max_concurrent_heavy_runs": 1
+  },
+  "completion_evidence": [
+    "supervisor 原生 exit_code=0、status=PASS 且 cleanup_confirmed=true。",
+    "Vivado native log 包含四路 OOC gate、SYNTH_COMPLETE、BITSTREAM_COMPLETE 与最终 sentinel，无 BUILD_FAILED。",
+    "所有报告、routed DCP、bit、XSA 文件均非空，且 XSA 压缩目录实际包含 .bit。",
+    "时序 metrics 中 setup_slack 与 hold_slack 均非负。"
+  ],
+  "limitations": [
+    "当前仅准备脚本，尚未启动 Vivado；所有实现结果及产物仍待总控串行执行。",
+    "G0/综合/实现报告不代表板上执行，硬件执行保持 NOT_RUN。",
+    "成功状态仍待独立审查；脚本不声称时序以外的阶段验收完成。"
+  ]
+}

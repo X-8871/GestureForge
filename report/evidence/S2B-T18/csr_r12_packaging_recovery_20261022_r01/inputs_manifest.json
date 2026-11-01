@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "csr_r12_packaging_recovery_20261022_r01",
+  "source_commit": "6e66bfc553abbe2c2cedde47b49d060439928ef5",
+  "interfaces": [
+    {
+      "name": "s2b_board_transport",
+      "version": "s2bu/1.1",
+      "frozen": true,
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb"
+    },
+    {
+      "name": "s2b_physical_interface",
+      "version": "s2b-physical/1.0.0",
+      "frozen": true,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "role": "input"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "frozen_s2b_interfaces_sha256",
+      "status": "PASS",
+      "command": "sha256 verification by check_stage_delivery.py inputs mode",
+      "exit_code": 0
+    }
+  ],
+  "limitations": [
+    "Original Vitis runner process exit code was not captured; launcher exit 0 does not establish runner success.",
+    "Original finalizer exception/traceback was not persisted, so the observed failure cause is the missing schema-1 interfaces field and pre-finalize snapshot ordering, not a recovered Python exception.",
+    "CHECKS_OK confirms manifest/file binding only; it does not establish G4/G5, independent review, or new hardware acceptance.",
+    "The static negative matrix retains its original unresolved BRESP blockers and is not upgraded by this packaging repair."
+  ],
+  "evidence_dir": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01"
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "status": "PREPARED_NOT_RUN_RESOURCE_PREFLIGHT_PENDING",
+  "run_id": "visibility1_csr_fixed_20261016_r04",
+  "prepared_at_local": "2026-10-16",
+  "current_repository_head_observed": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+  "task_card_head_was": "dc50bc5b70b0bd4e53c533606b34f8511472842a",
+  "head_note": "实际仓库HEAD与任务卡基线不同；启动器执行时会记录实际HEAD，并由可见性检查器核实当时完整源码闭包。",
+  "entrypoint": {
+    "path": "vivado/s2b_inference_platform.tcl",
+    "sha256_at_preparation": "700a02ff3e6f515e3f53a90d17abde2fd3be3ed9c85e928887a54f0652d86949",
+    "run_signature": "::s2b_inference_platform::run {repo_root project_dir evidence_dir helper native_log {proof \"\"} {review \"\"} {review_sha256 \"\"}}"
+  },
+  "platform": {
+    "visibility_parameter": 1,
+    "rtl_source_count": 18,
+    "part": "xc7z020clg400-2",
+    "board_marking": "XC7Z020-2CLG400I",
+    "clock_hz": 50000000,
+    "ddr_manual_reference": "MT41K256M16TW-107",
+    "ps_bsp_rebuild": false,
+    "t15_manifest_sha256": "17b6c017740972565755aa2d75a1b19fb51dce3d5482de8427c465184ce71b79",
+    "t15_final_delivery_manifest_sha256": "72fbf59b374665db43452d6ccb2ae4845b20f1042f233697a8802842771edfa9",
+    "t15_infer_elf_sha256": "a7fbbab2b1aecfe6b46c84118180303362483f4b7742d9e7cfe3fb59ae02ce82",
+    "t15_init_elf_sha256": "26824eb5ec3a73d3dc606b7f7797591b12ca82cf8fb8dc0e40f3a8756efaaadc",
+    "intended_use": "新BD和实现XSA用于兼容桥及PL位流；沿用T15r03同一ELF，不重新构建PS/BSP。"
+  },
+  "execution_gate": {
+    "proof_and_independent_review": "visibility_proof_current_20261016_r01/visibility_proof.json与independent_review.json已绑定；检查器返回VISIBILITY_PROFILE:BINDINGS_VERIFIED。",
+    "additional_synthesis_budget": "Wong将核心综合总预算提高至10次；已有5次实际启动，其中2次资源停止；R01在综合前失败不计。",
+    "budget_approval_reference_required": true,
+    "active_heavy_job_at_preparation": "R03综合因available RAM低于2GiB停止，Job清理确认；按用户授权关闭PhoneExperienceHost与ShareX，启动前重新核实可用内存。保留ChatGPT/Codex、Vivado MCP服务、安全软件与风扇控制进程。",
+    "execute_flag_required": true,
+    "hardware_access": "NOT_RUN",
+    "status": "NOT_RUN"
+  },
+  "resource_limits": {
+    "single_heavy_job": true,
+    "start_floor_bytes": 4831838208,
+    "stop_floor_bytes": 2147483648,
+    "timeout_seconds": 1800,
+    "sample_interval_seconds": 0.25,
+    "max_sample_gap_seconds": 1.0,
+    "threads": 1
+  },
+  "post_route_policy": {
+    "trigger": "首次原生路由setup或hold slack小于0ns时触发一次。",
+    "action": "在当前已打开的项目中记录优化前setup/hold真实路径与slack；执行phys_opt_design -directive AggressiveExplore，再执行route_design -directive Explore，并记录优化后真实路径、slack、报告、routed checkpoint和bitgen_raw.bit。保留products函数生成的s2b_inference_no_bit.xsa；把raw bit复制到本Run自有impl_1预期路径，再由Vivado原生write_hw_platform -include_bit导出含bit XSA。启动器从XSA提取唯一s2b_inference.bit作为canonical bit，同时保留raw bit，并按Xilinx a/b/c/d/e头结构核对设计字段a、器件字段b和字段e配置payload；仅日期/时间字段c/d可变化。",
+    "retry_limit": 1,
+    "timing_pass_rule": "最终setup和hold slack均非负；否则保留失败证据并退出失败。",
+    "no_bit_xsa_name_from_products_function": "s2b_inference_no_bit.xsa",
+    "raw_bit_name": "bitgen_raw.bit",
+    "canonical_bit_name": "s2b_inference.bit",
+    "embedded_bit_validation": "XSA中必须恰有一个.bit成员，成员SHA-256必须逐字节等于本Run独立s2b_inference.bit。"
+  },
+  "files": {
+    "launcher": "launch_visibility1_build.py",
+    "tcl_driver": "build_visibility1.tcl",
+    "future_runtime_workspace": "tmp/2B/S2B-T19/visibility1_csr_fixed_20261016_r04",
+    "future_build_outputs": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts"
+  }
+}

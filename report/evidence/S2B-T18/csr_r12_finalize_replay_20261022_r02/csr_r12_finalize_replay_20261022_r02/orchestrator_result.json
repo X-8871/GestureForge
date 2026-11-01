@@ -1,0 +1,1848 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "scope": "csr",
+  "hardware_execution": "REQUESTED_BY_EXPLICIT_CONFIG",
+  "source_commit": "6e66bfc553abbe2c2cedde47b49d060439928ef5",
+  "run_id": "csr_r12_finalize_replay_20261022_r02",
+  "started_at_utc8": "2026-10-21T21:10:08.602881+08:00",
+  "identity_snapshots": [
+    {
+      "label": "before_runtime",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "1a6868aa50f999a587aaa402afe4995926579843cc2b304fd42ff8ca383a8a61",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 28624,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134370593467506410"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 28624
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 28624,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134370593467506410"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28624
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_connect",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "1a6868aa50f999a587aaa402afe4995926579843cc2b304fd42ff8ca383a8a61",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 28624,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134370593467506410"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 28624
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 28624,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134370593467506410"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28624
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "before_serial",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "1a6868aa50f999a587aaa402afe4995926579843cc2b304fd42ff8ca383a8a61",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 28624,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134370593467506410"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 28624
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 28624,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134370593467506410"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28624
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_serial_open",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "1a6868aa50f999a587aaa402afe4995926579843cc2b304fd42ff8ca383a8a61",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 28624,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134370593467506410"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 28624
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 28624,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134370593467506410"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28624
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    },
+    {
+      "label": "after_cleanup",
+      "capture": {
+        "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+        "native_exit_code": 0,
+        "stdout_sha256": "1a6868aa50f999a587aaa402afe4995926579843cc2b304fd42ff8ca383a8a61",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "snapshot": {
+          "servers": [
+            {
+              "ProcessId": 28624,
+              "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+              "CreationTimeFileTimeUtc": "134370593467506410"
+            }
+          ],
+          "listeners": [
+            {
+              "LocalAddress": "0.0.0.0",
+              "LocalPort": 3121,
+              "OwningProcess": 28624
+            }
+          ],
+          "ports": [
+            {
+              "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+              "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+              "ConfigManagerErrorCode": 0
+            }
+          ]
+        }
+      },
+      "validated": {
+        "server": {
+          "ProcessId": 28624,
+          "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+          "CreationTimeFileTimeUtc": "134370593467506410"
+        },
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28624
+          }
+        ],
+        "uart": {
+          "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+          "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+          "ConfigManagerErrorCode": 0
+        }
+      }
+    }
+  ],
+  "cleanup_steps": [
+    {
+      "step": "serial.close",
+      "status": "PASS"
+    },
+    {
+      "step": "rx.close",
+      "status": "PASS"
+    },
+    {
+      "step": "tx.close",
+      "status": "PASS"
+    },
+    {
+      "step": "controller.close",
+      "status": "PASS"
+    },
+    {
+      "step": "csr_debug_map.clear",
+      "status": "PASS"
+    },
+    {
+      "step": "session.disconnect",
+      "status": "PASS"
+    },
+    {
+      "step": "xsdb.dispose",
+      "status": "PASS"
+    }
+  ],
+  "cleanup_errors": [],
+  "limitations": [
+    "本入口不执行 Vitis build；build_details 与全部部署产物须预先绑定。",
+    "只核验 visibility1 文件与独审回执绑定；独立 Reviewer 身份由总控确认。",
+    "本scope只执行固定CSR恢复顺序，不代表109样本或1000次压力完成。",
+    "硬件进程峰值内存未测。"
+  ],
+  "csr_debug_map_helper": {
+    "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_visibility_probe.py",
+    "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a"
+  },
+  "acceptance": {
+    "schema_version": 1,
+    "scope": "CSR_DEADLINE_LIMITED",
+    "status": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+    "hardware_execution": "BORROWED_SESSION_UART_DAP_REQUESTED",
+    "stages": [
+      {
+        "name": "sample000_seed_frame0",
+        "status": "PASS_SAMPLE000_SEED_ONLY",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000"
+      },
+      {
+        "name": "actual_deadline_and_golden_recovery",
+        "status": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12\\deadline_scope"
+      },
+      {
+        "name": "static_csr_negative_matrix",
+        "status": "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      }
+    ],
+    "t20_outputs": [
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_core_timeout\\csr_events.jsonl",
+        "sha256": "8b93dde6d7cf7bb77641f754d83b0301fb2e04fb786194f26ab95396e46d4568"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_core_timeout\\csr_result.json",
+        "sha256": "6b29cebb471dbf5c5979bc244f9f76ff46987a197b8321f2f2c789556dc721ee"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit\\csr_events.jsonl",
+        "sha256": "add815e0d40beb839523d0eae1a5777eaa2f16de7bbdc0bedef076856918aab3"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit\\csr_result.json",
+        "sha256": "0157118e03a81f483e6c4cef0c0ddc15c04cf5a1cd43a205fb7176881e7a7da5"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit\\stage_binding.json",
+        "sha256": "aa08882d7d86b8db51d0c1abe779e2e8624e2330441f2b711d06096e8f2957f8"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement\\csr_events.jsonl",
+        "sha256": "edb3bcea8ce99a4153659325194bb517d57f35450fcae651bc1698650849fcc3"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement\\csr_result.json",
+        "sha256": "80588774d1645f003698939ab95fe331291e707575aa6be8ecc9f94f8211e938"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\acceptance_result.json",
+        "sha256": "6bc27258023e170ff659170d4f8ca79f5ef2923bbf029b817d039c882c7c4756"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\boxes.json",
+        "sha256": "7566fe74e17acbb546bbdc0885e10546d6ab30a2891b8558a722ab99933edc4e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\capture.json",
+        "sha256": "92b624fa9a907476a91dfb768e8f02f561b98c3caacf599a8e72526e372fa291"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\capture_check.json",
+        "sha256": "477e264d7c61baee75a82793ae7a92850d66b165cce5fe1c7c4f6d2b1e2ae9f8"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\head13.bin",
+        "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\head26.bin",
+        "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\metadata.json",
+        "sha256": "c14ddfc8af770f5a52ffd039f748de31aecbc39daab4e6314591d7c7bb339bf7"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\result.json",
+        "sha256": "213035f8e9bf6970fdabbdc012c549a500005e830d9823f3ee3e6b66f0f4dfb8"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\uart_response_raw.bin",
+        "sha256": "533a26e4a41ea0560075369a24c5e58d19fad59c688f6a7abfa33f3d352c8c5c"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\progress.jsonl",
+        "sha256": "0c5fda0247d56f5dac312c269f02ebec187857cc970fae81d153a60efed2c37b"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\request_00000004.json",
+        "sha256": "9eb0bd0ed6e0569b1e306d70673c8cb60ed174e7cb3bf7076c61112f4c334c85"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\send_00000004.json",
+        "sha256": "482cb103398f865ec3fd48bd5ff1826597f74966c37ab30f0f0719a8b1473a50"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\started.json",
+        "sha256": "07c9b3c495cac88e1a4cadee82ed6aa2619ef361e06fc552e5fcb5a059bc7aa9"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\acceptance_result.json",
+        "sha256": "f998e9851c707c341ed5e353c63e7d0c42a58458d4f664b0f8322c643137dfb6"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\boxes.json",
+        "sha256": "7566fe74e17acbb546bbdc0885e10546d6ab30a2891b8558a722ab99933edc4e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\capture.json",
+        "sha256": "73f95816174c89f002976e958b62704d2d41f72bc76a3b0d9b9a19b3509940c0"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\capture_check.json",
+        "sha256": "0ea14326e7e6fb7331a34632caf276a3a85ef2bfd53c018d00e9e9ee952daec7"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\head13.bin",
+        "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\head26.bin",
+        "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\metadata.json",
+        "sha256": "ba3cb0db66966a9eae859c20dd1d3ac5d241ad9a172ab8fd6451a67b38843168"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\result.json",
+        "sha256": "f0955e5e9ba0f2779da57139b32a69529a6ddb13f9ee3fa05c1f69bd81ad76e6"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\csr_seed_00000000\\uart_response_raw.bin",
+        "sha256": "d21f5bab7c1af149b683ab4e0d3d4c5c28ff49ffbb7cb510cd9a53f47612f119"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\progress.jsonl",
+        "sha256": "5c4cf92692521592a2248e5976a8d24c5ddec1d42447c5b39ca36ac895c37c15"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\request_00000001.json",
+        "sha256": "8ce9780887a8d907ee46008484c0e039a9731352c4cf5d666691c18509543665"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\request_00000002.json",
+        "sha256": "e286b5ce2280a510d2331b0f555e288f26608a2ed887e924e437d193b838898e"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\send_00000001.json",
+        "sha256": "ebbcdc176394acb2054d6af2359194f69d45942e43a38bc9b59523243f2b5c2b"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\send_00000002.json",
+        "sha256": "0161953d44036404da8c981627cf0d0cc102a68f54eea5ae7d3421cd49b3039b"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\started.json",
+        "sha256": "5f86b255189a539082c661271e74f4947a3175ec2c37f2e12ca8e5bdc836eef6"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\weights_00000000\\boxes.json",
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\weights_00000000\\metadata.json",
+        "sha256": "c508fbe70f0bc203bad0ba8565c8d38e87c93cb9342bb7b4f1dc9a1f81928890"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\weights_00000000\\result.json",
+        "sha256": "92e222951086918387220a467006955238673a5167a4bdcbed3a664dc268724c"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_seed_sample000\\weights_00000000\\uart_response_raw.bin",
+        "sha256": "25b07f68a6253f1dfdb63ab3997fca696e5a075afb878b2bcd5156b5d234dbd2"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix\\csr_events.jsonl",
+        "sha256": "a244d2313ed72307373676e41fcf5c5be7777f394c776274b0ee403a54355517"
+      },
+      {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix\\csr_result.json",
+        "sha256": "751c8c4bb6825676193e04c46fe52f304ff36ac7e58e2a4b89a6ccb8c97d8a9e"
+      }
+    ],
+    "blockers": [
+      {
+        "name": "idle_bad_encoding",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "terminal_start",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "wrong_ack",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:input_range",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:gf8_range",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:input_length",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:gf8_length",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:zero_core_deadline",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:zero_drain_deadline",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:range_over_length_argument",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      },
+      {
+        "name": "duplicate_ack:length_over_argument",
+        "status": "BLOCKED_BRESP_UNRESOLVED",
+        "native_response": "UNKNOWN",
+        "classification": "AHB_AP_TRANSACTION_ERROR_BRESP_UNRESOLVED",
+        "reason": "精确AHB AP错误签名与CSR拒绝副作用相符；原生BRESP不可见，保留为BLOCKED。",
+        "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_static_matrix"
+      }
+    ],
+    "limitations": [
+      "不代表109样本corpus或1000次连续压力完成。",
+      "此profile只声明deadline有限范围；busy与ABORT本profile未运行，未证明真实pending晚响应。",
+      "静止矩阵busy_start为BLOCKED；此profile不运行真实BusyObserver。",
+      "静止矩阵wire_after_external_csr仍为BLOCKED；该helper没有外部epoch同步。",
+      "静止矩阵拒绝场景的精确AHB错误及CSR副作用已核验，但原生BRESP未知；逐项保留BLOCKED，不视为SLVERR通过。"
+    ],
+    "deadline_scope": {
+      "schema_version": 1,
+      "scope": "CSR_MAX_DEADLINE_MEASUREMENT_CORE_TIMEOUT_DRAIN_LIMIT_SAFE_ACK_ONLY",
+      "status": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+      "hardware_execution": "BORROWED_SESSION_UART_DAP_REQUESTED",
+      "entrypoint": "execute_after_seed",
+      "seed_mode": "REUSE_PRIOR_VALIDATED_SAMPLE000",
+      "source_commit": "6e66bfc553abbe2c2cedde47b49d060439928ef5",
+      "stages": [
+        {
+          "name": "sample000_seed_reused",
+          "status": "PASS_REUSED_PRIOR_REAL_SAMPLE000_SESSION",
+          "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12\\deadline_scope",
+          "initial_uart_epoch": 1,
+          "final_uart_epoch": 1,
+          "frame": 0,
+          "proof": {
+            "status": "PASS_REUSED_PRIOR_REAL_SAMPLE000_SESSION",
+            "validation": "csr.prior_model_success completed before this record",
+            "preparation": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_online_20261018_r01\\preparation_stress_first_csr_r04.json",
+              "sha256": "b6605206733fd8d9603e1a6e8eafef121342210c8bd4b9f128db8d5686aadfcb"
+            },
+            "weights": {
+              "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\candidate8x8_109_20261006_130252\\fixtures\\common\\weights.gf8",
+              "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+              "bytes": 5903100
+            },
+            "sample000_input": {
+              "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\candidate8x8_109_20261006_130252\\fixtures\\sample_000\\input_chw_int8.bin",
+              "sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+              "bytes": 519168
+            },
+            "sample000_reference": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\model_assets_20261016_r02\\prep\\reference_000.json",
+              "sha256": "4217821fca4351c7dbaee6e011d9c3257b919af1eaf6d3506b3255f1b1df1661"
+            },
+            "epoch": 1,
+            "last_sequence": 2,
+            "last_request": {
+              "op": 2,
+              "frame": 0,
+              "header_hex": "53324255010002000200000000000000a0050000800700000100000008ec07002112ba87a8dfc68b",
+              "payload_sha256": "79e891401a01bb91c1c31c854e3f698ec97972e9e86e5eb89fe111f7e5dca8d2"
+            },
+            "receipt_count": 2,
+            "tx_header_file": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\uart_tx_raw.bin",
+              "bytes": 80,
+              "sha256": "878198965b83bf43bb4fd5b26eee31f80edd2efd4e7d4199e8728f38b107113e"
+            },
+            "rx_raw_file": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\uart_rx_raw.bin",
+              "bytes": 25793,
+              "sha256": "48f910447f2df6724bc0fe1985f4ed7122ce7e0dd485bd0f0fbe602eb5bf518f"
+            }
+          }
+        },
+        {
+          "name": "maximum_deadline_start_measurement",
+          "status": "PASS_DONE_SAFE_MEASURED_ACKED",
+          "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement",
+          "result": {
+            "status": "PASS_DONE_SAFE_MEASURED_ACKED",
+            "start_monotonic_ns": 23779165251300,
+            "safe_monotonic_ns": 23826571082100,
+            "elapsed_ns_upper_bound": 47405830800,
+            "clock_hz_configured": 50000000,
+            "clock_basis": {
+              "member_sha256": {
+                "ps7_init.c": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba",
+                "ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+                "s2b_inference.hwh": "d4dfd4262e9864f978c17b739d7b90b9a68215f0d46a08d73357bac8e092f868"
+              },
+              "tables": {
+                "1_0": {
+                  "operations": [
+                    [
+                      "WRITE",
+                      4160749576,
+                      57101
+                    ],
+                    [
+                      "MASKWRITE",
+                      4160751872,
+                      15,
+                      15
+                    ],
+                    [
+                      "MASKWRITE",
+                      4160750144,
+                      4294967295,
+                      0
+                    ],
+                    [
+                      "WRITE",
+                      4160749572,
+                      30331
+                    ],
+                    [
+                      "EXIT"
+                    ]
+                  ],
+                  "clock": [
+                    "MASKWRITE",
+                    4160749936,
+                    66076464,
+                    6292992
+                  ],
+                  "pll_masks": [
+                    1,
+                    2,
+                    4
+                  ]
+                },
+                "2_0": {
+                  "operations": [
+                    [
+                      "WRITE",
+                      4160749576,
+                      57101
+                    ],
+                    [
+                      "MASKWRITE",
+                      4160751872,
+                      15,
+                      15
+                    ],
+                    [
+                      "MASKWRITE",
+                      4160750144,
+                      4294967295,
+                      0
+                    ],
+                    [
+                      "WRITE",
+                      4160749572,
+                      30331
+                    ],
+                    [
+                      "EXIT"
+                    ]
+                  ],
+                  "clock": [
+                    "MASKWRITE",
+                    4160749936,
+                    66076464,
+                    6292992
+                  ],
+                  "pll_masks": [
+                    1,
+                    2,
+                    4
+                  ]
+                },
+                "3_0": {
+                  "operations": [
+                    [
+                      "WRITE",
+                      4160749576,
+                      57101
+                    ],
+                    [
+                      "MASKWRITE",
+                      4160751872,
+                      15,
+                      15
+                    ],
+                    [
+                      "MASKWRITE",
+                      4160750144,
+                      4294967295,
+                      0
+                    ],
+                    [
+                      "WRITE",
+                      4160749572,
+                      30331
+                    ],
+                    [
+                      "EXIT"
+                    ]
+                  ],
+                  "clock": [
+                    "MASKWRITE",
+                    4160749936,
+                    66076464,
+                    6292992
+                  ],
+                  "pll_masks": [
+                    1,
+                    2,
+                    4
+                  ]
+                }
+              },
+              "hwh_clock_hz": 50000000,
+              "hwh_clock_consumers": [
+                [
+                  "axi_gp0_lite",
+                  "aclk"
+                ],
+                [
+                  "infer",
+                  "clk"
+                ],
+                [
+                  "ps7",
+                  "M_AXI_GP0_ACLK"
+                ],
+                [
+                  "ps7",
+                  "S_AXI_HP0_ACLK"
+                ],
+                [
+                  "rst_fclk0",
+                  "slowest_sync_clk"
+                ]
+              ],
+              "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"
+            },
+            "cycles_interpretation": "基于绑定XSA/HWH配置时钟假设的wall-time cycles上界，不是实测FCLK或精确PL cycles",
+            "cycles_upper_bound": 2370291540,
+            "margin_factor": "1.25",
+            "margin_check": "PASS",
+            "margin_equation": "cycles_upper_bound*5 <= 0xffffffff*4",
+            "observation_count": 953,
+            "frame": 1,
+            "epoch": 2,
+            "terminal": {
+              "0": 1395802704,
+              "4": 256,
+              "12": 3588,
+              "16": 0,
+              "20": 1,
+              "24": 0,
+              "28": 519168,
+              "32": 1048576,
+              "36": 5903100,
+              "40": 4294967295,
+              "44": 4294967295,
+              "48": 268435456,
+              "52": 33554432,
+              "56": 16777216,
+              "60": 28159416,
+              "64": 27549952,
+              "68": 5070,
+              "72": 28139136,
+              "76": 20280,
+              "80": 2,
+              "84": 0,
+              "88": 1,
+              "92": 1,
+              "96": 0,
+              "100": 0,
+              "104": 0,
+              "108": 0,
+              "112": 0,
+              "116": 0
+            },
+            "golden_comparison": "NOT_APPLICABLE_TO_DIRECT_DAP_START",
+            "after_ack": {
+              "0": 1395802704,
+              "4": 256,
+              "12": 1024,
+              "16": 0,
+              "20": 1,
+              "24": 0,
+              "28": 519168,
+              "32": 1048576,
+              "36": 5903100,
+              "40": 4294967295,
+              "44": 4294967295,
+              "48": 268435456,
+              "52": 33554432,
+              "56": 16777216,
+              "60": 28159416,
+              "64": 27549952,
+              "68": 5070,
+              "72": 28139136,
+              "76": 20280,
+              "80": 2,
+              "84": 0,
+              "88": 1,
+              "92": 2,
+              "96": 0,
+              "100": 0,
+              "104": 0,
+              "108": 0,
+              "112": 0,
+              "116": 0
+            }
+          }
+        },
+        {
+          "name": "core_timeout_code5_safe_ack",
+          "status": "PASS",
+          "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_core_timeout",
+          "result": {
+            "name": "short_deadline",
+            "status": "PASS",
+            "terminal": {
+              "0": 1395802704,
+              "4": 256,
+              "12": 3077,
+              "16": 5,
+              "20": 2,
+              "24": 0,
+              "28": 519168,
+              "32": 1048576,
+              "36": 5903100,
+              "40": 10000,
+              "44": 4294967295,
+              "48": 268435456,
+              "52": 33554432,
+              "56": 16777216,
+              "60": 28159416,
+              "64": 27549952,
+              "68": 5070,
+              "72": 28139136,
+              "76": 20280,
+              "80": 3,
+              "84": 0,
+              "88": 2,
+              "92": 2,
+              "96": 0,
+              "100": 0,
+              "104": 0,
+              "108": 0,
+              "112": 0,
+              "116": 0
+            },
+            "isolated_seen": false,
+            "hot_golden_recovery": "BLOCKED",
+            "reason": "只证明实际core timeout/code5安全排空及匹配ACK；DAP改变epoch，旧UART无同步入口。",
+            "next": "总控另行核实统一冷恢复→同位流/ELF重新部署→正常sample000黄金比对；该结果须独立记录冷恢复。"
+          }
+        },
+        {
+          "name": "drain_limit_and_safe_return",
+          "status": "PASS_DRAIN_LIMIT_AND_SAFE_RETURN_ONLY",
+          "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit",
+          "result": {
+            "name": "short_deadline",
+            "status": "PASS",
+            "terminal": {
+              "0": 1395802704,
+              "4": 256,
+              "12": 3077,
+              "16": 5,
+              "20": 3,
+              "24": 0,
+              "28": 519168,
+              "32": 1048576,
+              "36": 5903100,
+              "40": 10000,
+              "44": 1,
+              "48": 268435456,
+              "52": 33554432,
+              "56": 16777216,
+              "60": 28159416,
+              "64": 27549952,
+              "68": 5070,
+              "72": 28139136,
+              "76": 20280,
+              "80": 4,
+              "84": 0,
+              "88": 3,
+              "92": 3,
+              "96": 0,
+              "100": 0,
+              "104": 0,
+              "108": 0,
+              "112": 0,
+              "116": 8
+            },
+            "isolated_seen": false,
+            "hot_golden_recovery": "BLOCKED",
+            "reason": "只证明实际core timeout/code5安全排空及匹配ACK；DAP改变epoch，旧UART无同步入口。",
+            "next": "总控另行核实统一冷恢复→同位流/ELF重新部署→正常sample000黄金比对；该结果须独立记录冷恢复。",
+            "acceptance_scope": "PASS_DRAIN_LIMIT_AND_SAFE_RETURN_ONLY",
+            "late_pending_response": "NOT_CLAIMED",
+            "before_snapshot": {
+              "0": 1395802704,
+              "4": 256,
+              "12": 1024,
+              "16": 0,
+              "20": 2,
+              "24": 0,
+              "28": 519168,
+              "32": 1048576,
+              "36": 5903100,
+              "40": 10000,
+              "44": 4294967295,
+              "48": 268435456,
+              "52": 33554432,
+              "56": 16777216,
+              "60": 28159416,
+              "64": 27549952,
+              "68": 5070,
+              "72": 28139136,
+              "76": 20280,
+              "80": 3,
+              "84": 0,
+              "88": 2,
+              "92": 3,
+              "96": 0,
+              "100": 0,
+              "104": 0,
+              "108": 0,
+              "112": 0,
+              "116": 0
+            },
+            "after_ack_snapshot": {
+              "0": 1395802704,
+              "4": 256,
+              "12": 1024,
+              "16": 0,
+              "20": 3,
+              "24": 0,
+              "28": 519168,
+              "32": 1048576,
+              "36": 5903100,
+              "40": 10000,
+              "44": 1,
+              "48": 268435456,
+              "52": 33554432,
+              "56": 16777216,
+              "60": 28159416,
+              "64": 27549952,
+              "68": 5070,
+              "72": 28139136,
+              "76": 20280,
+              "80": 4,
+              "84": 0,
+              "88": 3,
+              "92": 4,
+              "96": 0,
+              "100": 0,
+              "104": 0,
+              "108": 0,
+              "112": 0,
+              "116": 0
+            }
+          }
+        },
+        {
+          "name": "real_mode0_epoch_reconciliation",
+          "status": "PASS_REAL_DIAG_MODE0_EPOCH_RECONCILIATION",
+          "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12\\deadline_scope",
+          "prior_uart_epoch": 1,
+          "external_csr_epoch": 4,
+          "reconciled_uart_epoch": 4
+        },
+        {
+          "name": "sample000_golden_recovery",
+          "status": "PASS_SAMPLE000_DEADLINE_RECOVERY_GOLDEN",
+          "evidence_dir": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery",
+          "before_epoch": 4,
+          "result_epoch": 5,
+          "sample_index": 0,
+          "frame": 0
+        }
+      ],
+      "t20_outputs": [
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_core_timeout\\csr_events.jsonl",
+          "sha256": "8b93dde6d7cf7bb77641f754d83b0301fb2e04fb786194f26ab95396e46d4568"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_core_timeout\\csr_result.json",
+          "sha256": "6b29cebb471dbf5c5979bc244f9f76ff46987a197b8321f2f2c789556dc721ee"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit\\csr_events.jsonl",
+          "sha256": "add815e0d40beb839523d0eae1a5777eaa2f16de7bbdc0bedef076856918aab3"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit\\csr_result.json",
+          "sha256": "0157118e03a81f483e6c4cef0c0ddc15c04cf5a1cd43a205fb7176881e7a7da5"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_drain_limit\\stage_binding.json",
+          "sha256": "aa08882d7d86b8db51d0c1abe779e2e8624e2330441f2b711d06096e8f2957f8"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement\\csr_events.jsonl",
+          "sha256": "edb3bcea8ce99a4153659325194bb517d57f35450fcae651bc1698650849fcc3"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement\\csr_result.json",
+          "sha256": "80588774d1645f003698939ab95fe331291e707575aa6be8ecc9f94f8211e938"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\acceptance_result.json",
+          "sha256": "6bc27258023e170ff659170d4f8ca79f5ef2923bbf029b817d039c882c7c4756"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\boxes.json",
+          "sha256": "7566fe74e17acbb546bbdc0885e10546d6ab30a2891b8558a722ab99933edc4e"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\capture.json",
+          "sha256": "92b624fa9a907476a91dfb768e8f02f561b98c3caacf599a8e72526e372fa291"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\capture_check.json",
+          "sha256": "477e264d7c61baee75a82793ae7a92850d66b165cce5fe1c7c4f6d2b1e2ae9f8"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\head13.bin",
+          "sha256": "07b59ca389890e8ac2ac704d97364e9717164becbbe90950dc10e9ed28d2cab6"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\head26.bin",
+          "sha256": "7524ce5c60a1a0af3b7275dda1481158f808c1d2354141a66c10de2afe7be14e"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\metadata.json",
+          "sha256": "c14ddfc8af770f5a52ffd039f748de31aecbc39daab4e6314591d7c7bb339bf7"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\result.json",
+          "sha256": "213035f8e9bf6970fdabbdc012c549a500005e830d9823f3ee3e6b66f0f4dfb8"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\csr_deadline_recovery_00000000\\uart_response_raw.bin",
+          "sha256": "533a26e4a41ea0560075369a24c5e58d19fad59c688f6a7abfa33f3d352c8c5c"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\progress.jsonl",
+          "sha256": "0c5fda0247d56f5dac312c269f02ebec187857cc970fae81d153a60efed2c37b"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\request_00000004.json",
+          "sha256": "9eb0bd0ed6e0569b1e306d70673c8cb60ed174e7cb3bf7076c61112f4c334c85"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\send_00000004.json",
+          "sha256": "482cb103398f865ec3fd48bd5ff1826597f74966c37ab30f0f0719a8b1473a50"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T20\\formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery\\started.json",
+          "sha256": "07c9b3c495cac88e1a4cadee82ed6aa2619ef361e06fc552e5fcb5a059bc7aa9"
+        }
+      ],
+      "uart_epoch_state": "RECONCILED_TO_EXTERNAL_CSR_EPOCH",
+      "uart_epoch_reconciliation": "PASS_REAL_DIAG_MODE0_RESPONSE",
+      "hot_golden_recovery": "PASS_SAMPLE000_DEADLINE_RECOVERY_GOLDEN",
+      "limitations": [
+        "不代表完整2B验收、真实pending晚排空或busy/pending reset通过。",
+        "DRAIN阶段只验收真实bit3超限、后续安全终态和ACK；不声称采到真实pending响应。",
+        "模型黄金恢复只在mode0真实外部epoch对账成功后执行。"
+      ],
+      "preflight": {
+        "status": "PASS",
+        "config_binding": {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12\\deadline_scope\\before_deadline_sequence_config.json",
+          "sha256": "46193467564df99bfa0c4d5a602fca0181dc0b15755974521cb84051e8ae29a6"
+        },
+        "snapshot": {
+          "0": 1395802704,
+          "4": 256,
+          "12": 1024,
+          "16": 0,
+          "20": 0,
+          "24": 0,
+          "28": 519168,
+          "32": 1048576,
+          "36": 5903100,
+          "40": 4294967295,
+          "44": 4294967295,
+          "48": 268435456,
+          "52": 33554432,
+          "56": 16777216,
+          "60": 28159416,
+          "64": 27549952,
+          "68": 5070,
+          "72": 28139136,
+          "76": 20280,
+          "80": 1,
+          "84": 0,
+          "88": 0,
+          "92": 1,
+          "96": 0,
+          "100": 0,
+          "104": 0,
+          "108": 0,
+          "112": 0,
+          "116": 0
+        },
+        "admission": {
+          "build_details": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\build_details.json",
+            "sha256": "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db"
+          },
+          "visibility_proof": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_review_20261018_r01\\visibility_proof_r02.json",
+            "sha256": "b35b94233f596ab5ed7d77fd2bb26179bf78a07e3ccef6d355e13dfe937b4190"
+          },
+          "visibility_review": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_review_20261018_r01\\visibility_review_r02.json",
+            "sha256": "6e105bf92cf8acc8a1a5c143d52179fa9beb78127dfe9f3224ee9e3cd2538dfa"
+          },
+          "final_manifest": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_review_20261018_r01\\final_platform_manifest_r02.json",
+            "sha256": "ca787834251d626c6ca3d07d7381ce0df7c73974aaa6cc0bbed8420162852276"
+          },
+          "final_review": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\final_platform_review_20261018_r01\\final_review.json",
+            "sha256": "38033cfd323cb9a07de988aa371b37b3f683135f80c2f4d8d845de6a790693df"
+          },
+          "deployment_bindings": {
+            "init_elf": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+              "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+            },
+            "app_elf": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+              "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+            },
+            "xsa": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+              "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+            },
+            "bit": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+              "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+            },
+            "csr_source": {
+              "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_control_csr.sv",
+              "sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1"
+            },
+            "interface": {
+              "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_physical_interface_candidate.md",
+              "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+            },
+            "sdk_target": {
+              "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+              "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71"
+            },
+            "tool_source": {
+              "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py",
+              "sha256": "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
+            },
+            "elf_parser": {
+              "path": "D:\\FPGA_Competition\\w2b\\verification\\check_s2b_ps_smoke_layout.py",
+              "sha256": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77"
+            },
+            "delivery_parser": {
+              "path": "D:\\FPGA_Competition\\w2b\\verification\\check_stage_delivery.py",
+              "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112"
+            },
+            "transport_source": {
+              "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_transport.py",
+              "sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334"
+            },
+            "acceptance_source": {
+              "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_acceptance.py",
+              "sha256": "17c35429833c7267f35479caf5704e123127f1c637470acb210d429f3507eced"
+            },
+            "runner_source": {
+              "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py",
+              "sha256": "d32bc9adc0ade31827481c3b1c882133a1e6d32ae81ec024e217532974657ad3"
+            },
+            "uart_interface": {
+              "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_board_transport.md",
+              "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb"
+            }
+          },
+          "scope": "机器仅核验文件绑定；独立Reviewer真实来源由总控负责。"
+        },
+        "source_commit": "6e66bfc553abbe2c2cedde47b49d060439928ef5",
+        "bindings": {
+          "init_elf": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+            "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+          },
+          "app_elf": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+            "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+          },
+          "xsa": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+            "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+          },
+          "bit": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+            "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+          },
+          "csr_source": {
+            "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_control_csr.sv",
+            "sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1"
+          },
+          "interface": {
+            "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_physical_interface_candidate.md",
+            "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+          },
+          "sdk_target": {
+            "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+            "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71"
+          },
+          "tool_source": {
+            "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py",
+            "sha256": "dbd1de2241518e679312746a7386c7e5fb1a5a2e242b88dff052b1ca8907b0c6"
+          },
+          "elf_parser": {
+            "path": "D:\\FPGA_Competition\\w2b\\verification\\check_s2b_ps_smoke_layout.py",
+            "sha256": "6c12023cc9660d392a0f3e393df2ebaf425af8a4cbb51886a35749d0c6fa0f77"
+          },
+          "delivery_parser": {
+            "path": "D:\\FPGA_Competition\\w2b\\verification\\check_stage_delivery.py",
+            "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112"
+          },
+          "transport_source": {
+            "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_transport.py",
+            "sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334"
+          },
+          "acceptance_source": {
+            "path": "D:\\FPGA_Competition\\w2b\\verification\\s2b_board_acceptance.py",
+            "sha256": "17c35429833c7267f35479caf5704e123127f1c637470acb210d429f3507eced"
+          },
+          "runner_source": {
+            "path": "D:\\FPGA_Competition\\w2b\\vitis\\run_s2b_model_acceptance.py",
+            "sha256": "d32bc9adc0ade31827481c3b1c882133a1e6d32ae81ec024e217532974657ad3"
+          },
+          "uart_interface": {
+            "path": "D:\\FPGA_Competition\\w2b\\docs\\obsidian-project\\02-方案设计\\s2b_board_transport.md",
+            "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb"
+          }
+        }
+      },
+      "configured_pl_clock": {
+        "clock_hz": 50000000,
+        "xsa_binding": {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+          "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+        },
+        "hwh_clock_evidence": {
+          "member_sha256": {
+            "ps7_init.c": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba",
+            "ps7_init.h": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc",
+            "s2b_inference.hwh": "d4dfd4262e9864f978c17b739d7b90b9a68215f0d46a08d73357bac8e092f868"
+          },
+          "tables": {
+            "1_0": {
+              "operations": [
+                [
+                  "WRITE",
+                  4160749576,
+                  57101
+                ],
+                [
+                  "MASKWRITE",
+                  4160751872,
+                  15,
+                  15
+                ],
+                [
+                  "MASKWRITE",
+                  4160750144,
+                  4294967295,
+                  0
+                ],
+                [
+                  "WRITE",
+                  4160749572,
+                  30331
+                ],
+                [
+                  "EXIT"
+                ]
+              ],
+              "clock": [
+                "MASKWRITE",
+                4160749936,
+                66076464,
+                6292992
+              ],
+              "pll_masks": [
+                1,
+                2,
+                4
+              ]
+            },
+            "2_0": {
+              "operations": [
+                [
+                  "WRITE",
+                  4160749576,
+                  57101
+                ],
+                [
+                  "MASKWRITE",
+                  4160751872,
+                  15,
+                  15
+                ],
+                [
+                  "MASKWRITE",
+                  4160750144,
+                  4294967295,
+                  0
+                ],
+                [
+                  "WRITE",
+                  4160749572,
+                  30331
+                ],
+                [
+                  "EXIT"
+                ]
+              ],
+              "clock": [
+                "MASKWRITE",
+                4160749936,
+                66076464,
+                6292992
+              ],
+              "pll_masks": [
+                1,
+                2,
+                4
+              ]
+            },
+            "3_0": {
+              "operations": [
+                [
+                  "WRITE",
+                  4160749576,
+                  57101
+                ],
+                [
+                  "MASKWRITE",
+                  4160751872,
+                  15,
+                  15
+                ],
+                [
+                  "MASKWRITE",
+                  4160750144,
+                  4294967295,
+                  0
+                ],
+                [
+                  "WRITE",
+                  4160749572,
+                  30331
+                ],
+                [
+                  "EXIT"
+                ]
+              ],
+              "clock": [
+                "MASKWRITE",
+                4160749936,
+                66076464,
+                6292992
+              ],
+              "pll_masks": [
+                1,
+                2,
+                4
+              ]
+            }
+          },
+          "hwh_clock_hz": 50000000,
+          "hwh_clock_consumers": [
+            [
+              "axi_gp0_lite",
+              "aclk"
+            ],
+            [
+              "infer",
+              "clk"
+            ],
+            [
+              "ps7",
+              "M_AXI_GP0_ACLK"
+            ],
+            [
+              "ps7",
+              "S_AXI_HP0_ACLK"
+            ],
+            [
+              "rst_fclk0",
+              "slowest_sync_clk"
+            ]
+          ],
+          "meaning": "编译XSA的生成依据；implemented连接仍须T19独立兼容闭包批准，寄存器读回不等于实测频率。"
+        },
+        "meaning": "绑定XSA/HWH中的配置频率；不代表本轮实测FCLK。"
+      },
+      "epoch_causality": {
+        "seed_uart_epoch": 1,
+        "normal_start_terminal_epoch": 2,
+        "uart_epoch_after_normal_start": 1,
+        "after_normal_ack_csr_epoch": 2,
+        "after_normal_ack_snapshot": {
+          "0": 1395802704,
+          "4": 256,
+          "12": 1024,
+          "16": 0,
+          "20": 1,
+          "24": 0,
+          "28": 519168,
+          "32": 1048576,
+          "36": 5903100,
+          "40": 4294967295,
+          "44": 4294967295,
+          "48": 268435456,
+          "52": 33554432,
+          "56": 16777216,
+          "60": 28159416,
+          "64": 27549952,
+          "68": 5070,
+          "72": 28139136,
+          "76": 20280,
+          "80": 2,
+          "84": 0,
+          "88": 1,
+          "92": 2,
+          "96": 0,
+          "100": 0,
+          "104": 0,
+          "108": 0,
+          "112": 0,
+          "116": 0
+        },
+        "core_timeout_terminal_epoch": 3,
+        "after_core_ack_csr_epoch": 3,
+        "after_core_ack_snapshot": {
+          "0": 1395802704,
+          "4": 256,
+          "12": 1024,
+          "16": 0,
+          "20": 2,
+          "24": 0,
+          "28": 519168,
+          "32": 1048576,
+          "36": 5903100,
+          "40": 10000,
+          "44": 4294967295,
+          "48": 268435456,
+          "52": 33554432,
+          "56": 16777216,
+          "60": 28159416,
+          "64": 27549952,
+          "68": 5070,
+          "72": 28139136,
+          "76": 20280,
+          "80": 3,
+          "84": 0,
+          "88": 2,
+          "92": 3,
+          "96": 0,
+          "100": 0,
+          "104": 0,
+          "108": 0,
+          "112": 0,
+          "116": 0
+        },
+        "next_drain_start_expected_epoch": 4,
+        "drain_timeout_terminal_epoch": 4,
+        "after_drain_ack_csr_epoch": 4,
+        "after_drain_ack_snapshot": {
+          "0": 1395802704,
+          "4": 256,
+          "12": 1024,
+          "16": 0,
+          "20": 3,
+          "24": 0,
+          "28": 519168,
+          "32": 1048576,
+          "36": 5903100,
+          "40": 10000,
+          "44": 1,
+          "48": 268435456,
+          "52": 33554432,
+          "56": 16777216,
+          "60": 28159416,
+          "64": 27549952,
+          "68": 5070,
+          "72": 28139136,
+          "76": 20280,
+          "80": 4,
+          "84": 0,
+          "88": 3,
+          "92": 4,
+          "96": 0,
+          "100": 0,
+          "104": 0,
+          "108": 0,
+          "112": 0,
+          "116": 0
+        }
+      },
+      "external_epoch_reconciliation": {
+        "status": "PASS_REAL_DIAG_MODE0_EPOCH_RECONCILIATION",
+        "prior_uart_epoch": 1,
+        "external_csr_epoch": 4,
+        "reconciled_uart_epoch": 4,
+        "request": {
+          "sequence": 3,
+          "frame": 0,
+          "header_hex": "533242550100030003000000000000000000000000000000010000000c0000006fc6d57b523702c4",
+          "payload_hex": "000000000000000000000000",
+          "source": {
+            "kind": "csr_deadline_external_epoch_reconciliation",
+            "expected_csr_epoch": 4,
+            "prior_uart_epoch": 1,
+            "csr_status_offset": "0x00c",
+            "csr_epoch_offsets": [
+              "0x050",
+              "0x054"
+            ]
+          }
+        },
+        "response": {
+          "header_hex": "5332425501000380030000000000000000000000000000000100000028000000b4dd58ce5cf55c80",
+          "payload_hex": "04000000000000000004000000000000000000000000000000000000000000000100000000000000",
+          "meta": {
+            "epoch": 4,
+            "phys_status": 1024,
+            "error_code": 0,
+            "last_reject": 0,
+            "raw_candidate_count": 0,
+            "box_count": 0,
+            "index": 0,
+            "total": 1,
+            "response_code": 0
+          },
+          "raw_uart_binding": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\uart_rx_raw.bin",
+            "offset": 25793,
+            "bytes": 80,
+            "sha256": "dccc3126c2a3ddd139dae59749369dba9741e6a127ce0ca38a960a49a3befd64"
+          },
+          "rx_chunk_count": 2,
+          "wire_quiescence_after": {
+            "sent_sequences": [
+              1,
+              2,
+              3
+            ],
+            "completed_receipt_count": 3,
+            "rx_file": {
+              "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\uart_rx_raw.bin",
+              "bytes": 25873,
+              "sha256": "f5ad0c95bab89c8cd9dc566f2c720d67ffc9708bf6a4ba7f79a9050893ef7fbe"
+            },
+            "serial_in_waiting": 0
+          }
+        },
+        "wire_quiescence_before": {
+          "sent_sequences": [
+            1,
+            2
+          ],
+          "completed_receipt_count": 2,
+          "rx_file": {
+            "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\uart_rx_raw.bin",
+            "bytes": 25793,
+            "sha256": "48f910447f2df6724bc0fe1985f4ed7122ce7e0dd485bd0f0fbe602eb5bf518f"
+          },
+          "serial_in_waiting": 0
+        }
+      },
+      "final_snapshot": {
+        "0": 1395802704,
+        "4": 256,
+        "12": 1024,
+        "16": 0,
+        "20": 0,
+        "24": 0,
+        "28": 519168,
+        "32": 1048576,
+        "36": 5903100,
+        "40": 4294967295,
+        "44": 4294967295,
+        "48": 268435456,
+        "52": 33554432,
+        "56": 16777216,
+        "60": 28159416,
+        "64": 27549952,
+        "68": 5070,
+        "72": 28139136,
+        "76": 20280,
+        "80": 5,
+        "84": 0,
+        "88": 0,
+        "92": 5,
+        "96": 0,
+        "100": 0,
+        "104": 0,
+        "108": 0,
+        "112": 0,
+        "116": 0
+      },
+      "wire_epoch": {
+        "epoch": 5,
+        "sequence": 4,
+        "receipt_count": 4,
+        "sent_count": 4,
+        "cpu0": "Stopped: (Suspended)",
+        "cpu1": "Stopped: (Suspended)"
+      },
+      "scope_details": {
+        "core_timeout_code5_safe_return_and_ack": "PASS",
+        "drain_timeout_flag3_safe_return_and_ack": "PASS_DRAIN_LIMIT_AND_SAFE_RETURN_ONLY",
+        "actual_pending_drain_and_late_response": "NOT_CLAIMED",
+        "busy_or_pending_reset": "NOT_RUN",
+        "uart_epoch_reconciliation": "PASS_REAL_DIAG_MODE0_RESPONSE",
+        "sample000_golden_recovery": "PASS_SAMPLE000_DEADLINE_RECOVERY_GOLDEN",
+        "model_corpus_109": "NOT_RUN",
+        "continuous_stress_1000": "NOT_RUN",
+        "cpu_state_at_exit": "STOPPED",
+        "maximum_deadline_start_measurement": {
+          "status": "PASS_DONE_SAFE_MEASURED_ACKED",
+          "elapsed_ns_upper_bound": 47405830800,
+          "cycles_upper_bound": 2370291540,
+          "clock_hz_configured": 50000000,
+          "margin_check": "PASS"
+        }
+      }
+    },
+    "scope_details": {
+      "model_corpus_109": "NOT_RUN",
+      "continuous_stress_1000": "NOT_RUN",
+      "short_deadline": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+      "profile": "deadline有限范围；本profile的busy与ABORT为NOT_RUN",
+      "late_pending_response": "NOT_CLAIMED",
+      "static_matrix_busy_start": "BLOCKED_UNCHANGED; 真实BusyObserver在本profile为NOT_RUN",
+      "static_matrix_native_bresp": [
+        "idle_bad_encoding",
+        "terminal_start",
+        "wrong_ack",
+        "duplicate_ack:input_range",
+        "duplicate_ack:gf8_range",
+        "duplicate_ack:input_length",
+        "duplicate_ack:gf8_length",
+        "duplicate_ack:zero_core_deadline",
+        "duplicate_ack:zero_drain_deadline",
+        "duplicate_ack:range_over_length_argument",
+        "duplicate_ack:length_over_argument"
+      ],
+      "static_matrix_wire_after_external_csr": "BLOCKED_UNCHANGED; the T20 helper cannot synchronize UART epoch",
+      "frame_identity": "The accepted requests use sample000 with frame 0 repeatedly; UART sequence and epoch are checked by existing helpers.",
+      "weights": "Transferred once and used by this profile's sample000 seed and subsequent stages."
+    },
+    "startup_banner": {
+      "returned": {
+        "bytes": 235,
+        "sha256": "ed1207485f2c6f1750f66f68ea70cc7c54bb86df2c14bf5b698910ecedc8ca69",
+        "text": "S2B-INFERENCE/1 READY SOURCE=9ed222a1d132d8cc836c362b4fbe453f833387bc66173dd5eb7d5388447e9a39 XSA=ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6 MODEL=9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a\r\n"
+      },
+      "rx_prefix": {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\uart_rx_raw.bin",
+        "offset": 0,
+        "bytes": 235,
+        "sha256": "ed1207485f2c6f1750f66f68ea70cc7c54bb86df2c14bf5b698910ecedc8ca69"
+      }
+    }
+  },
+  "debug_memory_map": {
+    "status": "REGISTERED_CSR_ONLY",
+    "implemented_xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+    },
+    "hwh_region": {
+      "ADDRESSBLOCK": "reg0",
+      "BASENAME": "C_BASEADDR",
+      "BASEVALUE": "0x43C00000",
+      "HIGHNAME": "C_HIGHADDR",
+      "HIGHVALUE": "0x43C0FFFF",
+      "INSTANCE": "infer",
+      "IS_DATA": "TRUE",
+      "IS_INSTRUCTION": "TRUE",
+      "MASTERBUSINTERFACE": "M_AXI_GP0",
+      "MEMTYPE": "REGISTER",
+      "SLAVEBUSINTERFACE": "S_AXI"
+    },
+    "apu_id": 1,
+    "apu_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+    "range": [
+      1136656384,
+      1136721919
+    ],
+    "cleanup": "OWNED_HW_MAP_CLEARED",
+    "sdk_regions": {
+      "infer_S_AXI": {
+        "name": "infer",
+        "base": 1136656384,
+        "high": 1136721919,
+        "size": 65536,
+        "slaveintf": "S_AXI",
+        "type": "REGISTER",
+        "flags": 3,
+        "segment": "",
+        "acctype": "",
+        "tz": ""
+      }
+    },
+    "sdk_entries": [
+      {
+        "Addr": 1136656384,
+        "Size": 65536,
+        "Flags": 3,
+        "ID": "1136656384"
+      }
+    ],
+    "unload_stack_diagnostic": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\sdk_unload_stack.log",
+      "delay_seconds": 30,
+      "repeat": false,
+      "status": "CANCELLED_WITHOUT_DUMP",
+      "dump_observed": false,
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "finished_at_utc8": "2026-10-21T21:23:21.287768+08:00",
+  "elapsed_seconds": 792.6848768999989,
+  "native_exit_code": 2,
+  "delivery_manifest_check": {
+    "status": "CHECKS_FAILED",
+    "mode": "evidence",
+    "task_id": "S2B-T18",
+    "run_id": "csr_r12_finalize_replay_20261022_r02",
+    "interfaces_not_applicable": null,
+    "check_statuses": [
+      {
+        "status": "PASS",
+        "name": "CSR恢复固定顺序",
+        "reason": "deadline有限范围通过；本profile的busy与ABORT未运行，真实pending晚响应未声称。静止矩阵BRESP仍未解析并保持BLOCKED：idle_bad_encoding, terminal_start, wrong_ack, duplicate_ack:input_range, duplicate_ack:gf8_range, duplicate_ack:input_length, duplicate_ack:gf8_length, duplicate_ack:zero_core_deadline, duplicate_ack:zero_drain_deadline, duplicate_ack:range_over_length_argument, duplicate_ack:length_over_argument。"
+      }
+    ],
+    "errors": [
+      "清单缺少字段：interfaces",
+      "evidence_dir 必须精确等于 report/evidence/S2B-T18/csr_r12_finalize_replay_20261022_r02",
+      "interfaces 必须是数组"
+    ],
+    "warnings": [],
+    "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+  },
+  "evidence_packaging_error": "首次 delivery manifest 核验失败",
+  "deployment_log": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_csr_recovery_20261021_r12_deployment\\orchestrator_calls.jsonl",
+    "sha256": "1c0a2e6cbfeb6ee292861ee969622c12b89d6b3eb3103b1f64e4a7dea9df5f0b"
+  },
+  "owned_resources": {
+    "serial_open": false,
+    "session_connected": false,
+    "hw_server": "borrowed; runner does not start, stop, or terminate it"
+  }
+}

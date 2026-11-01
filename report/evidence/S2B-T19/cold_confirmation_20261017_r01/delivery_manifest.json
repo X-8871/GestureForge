@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cold_confirmation_20261017_r01",
+  "source_commit": "b0099b8ba450dc4d336f97a6fe368670d9bc6244",
+  "evidence_dir": "report/evidence/S2B-T19/cold_confirmation_20261017_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本运行只记录操作者POR与保管陈述，不执行或判定任何工程接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r01/user_message.json",
+      "sha256": "2983f7673bcd3cb88484ae414dc5740ca53382c0077323afb6c5621391feb676",
+      "role": "artifact",
+      "keep_reason": "保留用户关于断电时间与持续时长的原始回复和解释边界。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r01/custody_supplement.json",
+      "sha256": "223325fa267876dacf05730252aad8af4407072e972ea3e95c018361f32d30bf",
+      "role": "artifact",
+      "keep_reason": "保留POR后无人操作的用户确认及已知主机侧动作范围。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_confirmation_20261017_r01/operator_confirmation.json",
+      "sha256": "cba897e2b713cdee111d091a3bcecc09323b1e2ce6a78e948a0073793aa5509f",
+      "role": "result",
+      "keep_reason": "绑定两份操作者陈述与可信边界，不将其描述为仪器测量或独立审查。"
+    },
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "fa6009a1d8cd41cde483660e5297e2ca0c764edc83ff3a053ad42bc7b0d4d584",
+      "role": "source",
+      "keep_reason": "绑定说明该操作者记录不替代资格入口的Reviewer/G0/冷生命周期门禁。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "操作者POR及保管陈述已记录",
+      "status": "PASS",
+      "command": "核对本任务对话中的用户原文并写入本运行JSON",
+      "exit_code": 0,
+      "reason": "只确认陈述已接收与绑定，不证明硬件POR沿或无人操作的独立真实性。"
+    },
+    {
+      "name": "正式G0与资格Reviewer审查",
+      "status": "NOT_RUN",
+      "command": "NOT_RUN",
+      "exit_code": null,
+      "reason": "本包只保存POR/保管陈述，不批准硬件资格。"
+    }
+  ],
+  "limitations": [
+    "POR时间与断电时长由用户报告，非仪器测量。",
+    "无人操作是操作者陈述，尚非独立验证。",
+    "本包不构成G0、资格Reviewer回执、DDR测试结果或板上执行通过。"
+  ],
+  "tool_versions": {
+    "host": "Windows",
+    "git": "2.56.0.windows.2",
+    "python": "3.12.14"
+  }
+}

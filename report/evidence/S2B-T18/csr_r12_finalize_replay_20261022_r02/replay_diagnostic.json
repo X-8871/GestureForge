@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "diagnostic": "生产 finalize_evidence() 对完整R12运行目录副本的实际离线重放",
+  "hardware_access": "NONE",
+  "checked_controller": "None",
+  "checked_wire": "None",
+  "runtime_objects": {},
+  "deployment_facts": "仅读取原R12部署目录；无JTAG/UART调用",
+  "original_r12_mutated": false,
+  "original_run_id": "formal_csr_recovery_20261021_r12",
+  "clone_run_id": "csr_r12_finalize_replay_20261022_r02",
+  "result": {
+    "status": "CHECKS_FAILED",
+    "mode": "evidence",
+    "task_id": "S2B-T18",
+    "run_id": "csr_r12_finalize_replay_20261022_r02",
+    "interfaces_not_applicable": null,
+    "check_statuses": [
+      {
+        "status": "PASS",
+        "name": "CSR恢复固定顺序",
+        "reason": "deadline有限范围通过；本profile的busy与ABORT未运行，真实pending晚响应未声称。静止矩阵BRESP仍未解析并保持BLOCKED：idle_bad_encoding, terminal_start, wrong_ack, duplicate_ack:input_range, duplicate_ack:gf8_range, duplicate_ack:input_length, duplicate_ack:gf8_length, duplicate_ack:zero_core_deadline, duplicate_ack:zero_drain_deadline, duplicate_ack:range_over_length_argument, duplicate_ack:length_over_argument。"
+      }
+    ],
+    "errors": [
+      "清单缺少字段：interfaces",
+      "evidence_dir 必须精确等于 report/evidence/S2B-T18/csr_r12_finalize_replay_20261022_r02",
+      "interfaces 必须是数组"
+    ],
+    "warnings": [],
+    "scope_statement": "检查结果不代表 G0/G4/G5 或实物验收。"
+  },
+  "exception": "RunnerError('S2B-T18 最终 T18 delivery manifest 核验失败')",
+  "traceback": "Traceback (most recent call last):\n  File \"<stdin>\", line 17, in <module>\nvitis.run_s2b_model_acceptance.RunnerError: S2B-T18 最终 T18 delivery manifest 核验失败\n",
+  "finalizer_written_input_config": true,
+  "manifest_interfaces_value": null,
+  "manifest_errors": [
+    "清单缺少字段：interfaces",
+    "evidence_dir 必须精确等于 report/evidence/S2B-T18/csr_r12_finalize_replay_20261022_r02",
+    "interfaces 必须是数组"
+  ]
+}

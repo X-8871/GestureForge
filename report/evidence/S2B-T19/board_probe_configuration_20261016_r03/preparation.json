@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "status": "PREPARED_DEPENDENCIES_PENDING",
+  "hardware_execution": "NOT_RUN_BY_PREPARATION_TASK",
+  "created_at_utc8": "2026-10-16T17:08:00+08:00",
+  "source_commit_at_preparation": "3942603390435e7eba3cb8e7ce32e48838dfa7bb",
+  "scope": "为visibility0限定缓存先验生成器准备当前离线绑定；不连接板卡、不编程、不产生input_config.json。",
+  "offline_facts": {
+    "t13_platform": {
+      "evidence_dir": "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03",
+      "xsa": "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/s2b_inference_no_bit.xsa",
+      "xsa_sha256": "0607120b1733ee17582ab0c508c366fca7b1f49d32afffe87a070a346df04252",
+      "delivery_manifest_sha256": "d91726e83102bcf6c5507c2192e97782d8a14fbc74bcde9728d9d1f7529d35bb",
+      "independent_review": "PASS"
+    },
+    "t15_offline_build": {
+      "evidence_dir": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03",
+      "build_details": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/artifacts/build_details.json",
+      "delivery_manifest": "report/evidence/S2B-T15/csr_fixed_platform_offline_20261016_r03/delivery_manifest.json",
+      "build_details_sha256": "e96bb5042a9824b20231060e60a475effd0dd8c0c8d2db599b1112844aa3f104",
+      "manifest_sha256": "17b6c017740972565755aa2d75a1b19fb51dce3d5482de8427c465184ce71b79",
+      "status": "PASS_OFFLINE_FULL_XSA_BUILD",
+      "independent_review": "PASS",
+      "hardware_execution": "NOT_RUN"
+    },
+    "visibility0_platform_run": {
+      "failed_run": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r04",
+      "failed_result_status": "FAIL",
+      "failed_result_hardware_execution": "NOT_RUN",
+      "failed_result_missing_artifacts": [
+        "timing_summary.rpt",
+        "actual_timing_setup.rpt",
+        "actual_timing_hold.rpt",
+        "pulse_width.rpt",
+        "clock_interaction.rpt",
+        "clocks.rpt",
+        "check_timing.rpt",
+        "route_status.rpt",
+        "utilization.rpt",
+        "drc.rpt",
+        "methodology.rpt",
+        "methodology.json",
+        "constraints.xdc",
+        "routed.dcp",
+        "s2b_inference.xsa",
+        "s2b_inference.bit",
+        "timing_metrics.tcldict"
+      ],
+      "current_run": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r05",
+      "current_run_status": "RUNNING_AS_REPORTED_BY_ROOT",
+      "current_run_exec_session": 95114,
+      "required_before_generation": "R05终态PASS、完整产物和时序/含位流XSA门槛；生成器通过--platform-run读取实际结果，不使用R04。"
+    },
+    "board_identity": {
+      "uart_identity": "report/evidence/S2B-T19/board_probe_configuration_20261016_r03/uart_identity.json",
+      "port": "COM4",
+      "pnp_device_id": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+      "jtag_serial": "210512180081",
+      "scope": "既有只读身份核验；不单独证明连接、电平、协议或DDR功能。"
+    },
+    "owned_server": {
+      "identity": "tmp/2B/S2B-T19/board_probe_20261016_r03/hw_server_identity.json",
+      "sha256_at_preparation": "a98fe28f69ff829458fc5b1e07f6d44fea08062dc1612fab662410cbd203d329",
+      "pid": 24632,
+      "created_filetime_utc": "134366151561729090",
+      "observed_at_utc8": "2026-10-16T17:05:57+08:00",
+      "status": "OWNED_SERVER_READY",
+      "board_connection_or_programming": "NOT_RUN"
+    },
+    "external_por_confirmation": {
+      "record": "report/evidence/S2B-T19/cold_confirmation_20261016_r01/operator_confirmation.json",
+      "kind": "external-por-operator-confirmation/1.0.0",
+      "operator": "Wong",
+      "recorded_at_utc8": "2026-10-16T13:46:01+08:00",
+      "meaning": "人工回复确认按请求断电约10秒后重新上电；此时间是回执时间，不是测得的POR沿或确切上电时刻。"
+    }
+  },
+  "generation_gate": {
+    "required_inputs": [
+      "通过的T14 visibility0平台Run目录及其完整bit/XSA/时序产物",
+      "由独立Reviewer交付并绑定当前源码、当前T13/T15/T14产物和最终平台清单的compatibility receipt",
+      "当前专属hw_server identity文件",
+      "当前checkout提交与T15源码摘要闭包一致"
+    ],
+    "generator": "report/evidence/S2B-T19/board_probe_configuration_20261016_r03/generate_input_config.py",
+    "command_template": "python report/evidence/S2B-T19/board_probe_configuration_20261016_r03/generate_input_config.py --platform-run report/evidence/S2B-T14/<通过的RunId> --compat-review <Reviewer交付的当前compatibility receipt.json> --owned-server-identity tmp/2B/S2B-T19/board_probe_20261016_r03/hw_server_identity.json --run-id cache_probe_visibility0_20261016_r01",
+    "writes_after_all_gates": "仅在本准备目录独占创建input_config.json；探针运行目录由run-id指定且必须尚不存在。",
+    "stale_template_policy": "旧input_config.json只提供schema及非身份常量seed/timeout、SDK和pyserial安装位置提示。仓库内路径、文件摘要、源码提交、XSA/ELF/bit、compat receipt、服务身份及SDK/pyserial闭包均从当前实文件重新生成。"
+  },
+  "after_probe_minimum_path": [
+    {
+      "gate": "G0冻结",
+      "minimum_work": "先完成visibility0限定先验及独立审查；核对当前s2b-physical-candidate/0.1.2与端口/时序/软件契约，提交新的G0证据和独立审查收据。当前候选仍为CANDIDATE_NOT_FROZEN，不因visibility0通过自动冻结。"
+    },
+    {
+      "gate": "visibility1单样本",
+      "minimum_work": "现有run_s2b_model_qualification.py固定旧人工信任根路径/摘要；启用新平台前须按当前G0与visibility0证据更新信任锚绑定，并复审canonical digest/入口源码。新proof、visibility_parameter=1且cold_reset_only=true的Reviewer receipt、精确XSA/bit/ELF/BSP/MMU/模型资产绑定均须另行产生；visibility0 receipt不能复用。"
+    },
+    {
+      "gate": "T18正式验收",
+      "minimum_work": "复用model_assets_20261016_r01已准备的109样本及黄金输出（重新核当前源码/资产hash）；通过资格门后独立启动T18，保留109/109黄金比较及同一输入连续1000次标准。模型、CSR/T16恢复与阶段验收收据分开核验。"
+    }
+  ],
+  "limitations": [
+    "准备工作未调用Vitis、XSDB、pyserial、串口、JTAG或硬件服务client；未LOAD/START/FPGA下载/DDR访问。",
+    "T14 r04失败结果保留；r05当前状态仅引用总控报告，尚未由本准备任务核读或改变。",
+    "尚无当前T14完整实现产物或新独立visibility0兼容收据，故input_config.json未生成，无法声明visibility0探针G0。",
+    "POR人工回复是操作确认，不是板上测量或冷生命周期证明；受限cache probe即使成功也不发布visibility PASS。"
+  ]
+}

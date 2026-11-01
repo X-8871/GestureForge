@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cold_lifecycle_basis_20261017_r01",
+  "source_commit": "11484c172d6fb25f388cbd156ae195c7622f7b22",
+  "evidence_dir": "report/evidence/S2B-T19/cold_lifecycle_basis_20261017_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "This is a candidate operator POR and no-HP custody-chain evidence package for the sample qualification precondition; it does not define a design interface.",
+  "files": [
+    {
+      "path": "vitis/run_s2b_model_qualification.py",
+      "sha256": "19c084f9f692175624ad499b446c7a78e37ea769f4f875697c1917258c358acf",
+      "role": "source",
+      "keep_reason": "The exact qualification entry source defines the event sequence and immutable user/operator confirmation checks."
+    },
+    {
+      "path": "report/evidence/S2B-T19/cold_lifecycle_basis_20261017_r01/cold_lifecycle_basis.json",
+      "sha256": "3f7cc611cd9174b22c956bded1eec8229529e4e2e0df57554b2204e77ba5ac43",
+      "role": "result",
+      "keep_reason": "Binds the official reset-semantics candidate, user POR confirmation, no-HP probe, owned hw_server close, and ordered custody events for independent review."
+    }
+  ],
+  "checks": [
+    {
+      "name": "event_time_and_source_hash_consistency",
+      "status": "PASS",
+      "command": "Bound each source path and SHA-256 to the existing immutable record; verified event timestamps are ordered from 02:10 POR through 02:14:20 server close.",
+      "exit_code": 0
+    },
+    {
+      "name": "independent_cold_chain_review",
+      "status": "NOT_RUN",
+      "command": "Awaiting read-only independent reviewer assessment.",
+      "reason": "No reviewer verdict is yet recorded for this candidate chain.",
+      "exit_code": null
+    }
+  ],
+  "tool_versions": {
+    "vivado_vitis": "2026.1",
+    "qualification_entry": "visibility1_sample000_single_job"
+  },
+  "limitations": [
+    "Cold start time, full power-off duration, and no-user-operation statement are operator-reported, not instrument measured.",
+    "Original visibility0 cache probe remains acceptance pending; this package does not assert cold_lifecycle_proven=true.",
+    "No model deployment or sample/continuous-task qualification is claimed."
+  ]
+}

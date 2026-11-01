@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "run_id": "stage3_to_2b_restore_20261022_r02",
+  "scope": "RESTORE_FROM_VERIFIED_BOOTROM_TO_R04_2B_NOT_ACCEPTANCE",
+  "status": "FAILED_RESTORE",
+  "source_commit": "91151507b769a29db3145a07a2d4ad92d78ec53a",
+  "input_config_sha256": "ac9abd0abfbdcf16a7f09e3b2cc0d42f6e2bf9682c0cf9dae441b8f0ffa260a7",
+  "prior_failure_locator": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage3_to_2b_restore_20261022_r01\\restore_result.json",
+    "sha256": "66cbd23a74fb60fb729048529c6f7e4762275ee7a30047d60da558e48cf3e54e",
+    "use": "PC_LOCATOR_ONLY_NO_RESET_OR_COLD_CONTINUITY_REUSE"
+  },
+  "cleanup_errors": [],
+  "continuity": "不复用旧DDR、权重、VDMA或POR连续性",
+  "limitations": [
+    "不执行UART模型请求、不做G3/G4/G5验收。",
+    "不修改传感器/I2C寄存器；部署仅用已绑定R04 init/XSA/full bit/original infer。",
+    "system reset不证明物理POR或旧AXI生命周期终止。",
+    "峰值内存未测。"
+  ],
+  "runtime_identity": {
+    "capture": {
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+      "native_exit_code": 0,
+      "stdout_sha256": "fc9e75a4e2b49db210c0fc3cabce0205f1eee7f4aa39dcaf5b6836775c9ac319",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 4812,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134371091860065760"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 4812
+          }
+        ],
+        "ports": [
+          {
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    },
+    "validated": {
+      "server": {
+        "ProcessId": 4812,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "CreationTimeFileTimeUtc": "134371091860065760"
+      },
+      "listeners": [
+        {
+          "LocalAddress": "0.0.0.0",
+          "LocalPort": 3121,
+          "OwningProcess": 4812
+        }
+      ],
+      "uart": {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    }
+  },
+  "error": "JtagError('CPU1未停止')",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\tmp\\2B\\restore_2b_from_bootrom_20261022_r02.py\", line 133, in main\n    controller.select_and_gate()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 441, in select_and_gate\n    return self.guarded(action)\n           ~~~~~~~~~~~~^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 394, in guarded\n    return function()\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 438, in action\n    self.gate()\n    ~~~~~~~~~^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 417, in gate\n    require(self.state(\"cpu1\").startswith(\"Stopped\"), \"CPU1未停止\")\n    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 106, in require\n    raise JtagError(message)\nverification.s2b_board_jtag.JtagError: CPU1未停止\n",
+  "finished_at_utc8": "2026-10-22T10:45:39.988663+08:00"
+}

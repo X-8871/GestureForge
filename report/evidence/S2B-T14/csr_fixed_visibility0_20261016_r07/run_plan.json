@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T14",
+  "run_id": "csr_fixed_visibility0_20261016_r07",
+  "intent": "仅对R05实测routed.dcp做一次post-route phys_opt与重新布线；不执行综合、不创建或重置OOC run、不修改RTL、时钟或约束。",
+  "input": {
+    "r05_result": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r05/result.json",
+    "r05_routed_dcp": "report/evidence/S2B-T14/csr_fixed_visibility0_20261016_r05/routed.dcp",
+    "project": "tmp/2B/S2B-T13/platform_csr_fixed_20261016_r03/project/s2b_inference_candidate.xpr",
+    "implementation_run_bit": "tmp/2B/S2B-T13/platform_csr_fixed_20261016_r03/project/s2b_inference_candidate.runs/impl_1/s2b_inference_wrapper.bit"
+  },
+  "steps": [
+    "读取并核验R05失败结果、routed.dcp SHA、R05 bit/XSA、源快照与四个OOC DCP；确认R05失败原因包含负setup slack。",
+    "核对临时impl_1 bit仍等于R05已归档bit SHA后，open原工程并打开R05 routed.dcp。",
+    "运行phys_opt_design -directive AggressiveExplore，然后route_design -directive Explore。",
+    "保存完整时序、脉宽、route、利用率、DRC、methodology、check_timing、XDC和新的routed DCP。",
+    "从当前优化设计生成R07新bit，将其复制到自有临时impl_1 bit位置供原生write_hw_platform -include_bit使用；R05证据目录内原bit/XSA/DCP保持不动。",
+    "用ZIP读取器验证R07 XSA内唯一.bit逐字节SHA与R07独立bit相同。"
+  ],
+  "resource_limits": {
+    "supervisor": "从R05已审source_snapshot原字节复制的s2b_process_supervisor.py与s15_job_guard.py",
+    "python": "可信Python 3.12，且运行时需可导入psutil",
+    "single_heavy_job": true,
+    "minimum_start_available_ram_bytes": 4831838208,
+    "minimum_stop_available_ram_bytes": 2147483648,
+    "wall_timeout_seconds": 1800,
+    "sample_interval_seconds": 0.25,
+    "maximum_sample_gap_seconds": 1.0
+  },
+  "acceptance": {
+    "success_status": "PASS_ARTIFACTS_PENDING_INDEPENDENT_REVIEW",
+    "success_requires": [
+      "native process exit 0 and supervisor cleanup_confirmed",
+      "all artifacts are present and nonempty",
+      "setup WNS/TNS, hold WHS/THS and pulse-width WNS/TPWS are all nonnegative",
+      "R07 XSA contains exactly one bitstream whose SHA matches R07 s2b_inference.bit",
+      "all source and four OOC DCP input hashes remain unchanged"
+    ],
+    "timing_failure_status": "FAIL_TIMING",
+    "limitations": [
+      "任何负slack均保留真实报告并FAIL，不把物理优化视为时序通过。",
+      "本Run只生成离线实现产物，不代表G0、独立审查、G3板卡、G4或G5通过。"
+    ]
+  }
+}

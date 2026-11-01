@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "scope": "只读提取AX7Z020手册PS_CLK、UART MIO与相关电压条目，并与R04硬件交付配置对照；不代表板卡修订/实装对应关系或电气实测。",
+  "source_pdf": {
+    "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\AX7Z020开发板用户手册.pdf",
+    "sha256": "7d9e34045501637bc6277f7ad372f168165fc6969c640092909f1317b10ccedf",
+    "size_bytes": 2535861,
+    "page_count": 50
+  },
+  "extraction": {
+    "tool": "read-pdf-reliably",
+    "docling_version": "2.115.0",
+    "ocr_enabled": false,
+    "full_text_manifest": "full_manual_manifest.json",
+    "full_text_manifest_sha256": "4089e39d2437e6c74a80ed2b3a95e5a0c4c2e03833da8b49fbf2cd168435ee46",
+    "full_text_document": "full_manual_document.md",
+    "full_text_document_sha256": "8f04e1b11cb30194534c21dbe6a7c16cd491c25ad3d45e4b20c4f6a22365c967",
+    "rendered_key_pages_directory": "key_pages/",
+    "key_page_manifest": "key_page_manifest.json",
+    "key_page_manifest_sha256": "91c991e1d7a2f0045f99bd00e985c1909a5be32da619d1c3eaf1d8d6b600b5a1",
+    "key_page_text": "key_page_text.md",
+    "key_page_text_sha256": "9165f65c8d9f542069a2790d14628e93c6833e992c41e4343c586c6e883bba1d",
+    "page_png_sha256": {
+      "17": "cad56501a47c81fcef673ba90310af5f3daa325691b338600f9cf3f9aa735f32",
+      "18": "4884a7ebff49cbd68f60d9b5d0b5d966d21b255e217d3eafcb4fbdbcbc8be23f1",
+      "19": "c16818f127c1a964599dc5df03c7c8bd604ae036cf2f37e6d1a17516ce2b4771",
+      "20": "482e9c0b61d3d9105349cdcd77a6502793879ba36826f582569aa99a611eab33",
+      "33": "5f0ffd72be2a97f9d7c05f0ea0a301538ec5609d34f848294a6347266249da83",
+      "34": "5ea7a9107b34957f58d3769891b282e53acbe26670b2b00fdf968cab824e3f98"
+    }
+  },
+  "manual_facts": [
+    {
+      "pdf_page": 17,
+      "claim": "PS系统时钟源为核心板X1晶振，频率33.333333 MHz，连接BANK500的PS_CLK_500；图2-5-1显示晶振供电与PS_CLK连接。",
+      "image": "key_pages/page-0017.png"
+    },
+    {
+      "pdf_page": 18,
+      "claim": "时钟引脚表列PS_CLK_500引脚E7。",
+      "image": "key_pages/page-0018.png"
+    },
+    {
+      "pdf_page": 19,
+      "claim": "电源表列+1.8V为ZYNQ PS/PL辅助电压及BANK501 IO电压；另列+1.5V为DDR3、ZYNQ Bank501。两条对BANK501表述相互冲突，不能单凭此表确认BANK501电压。",
+      "image": "key_pages/page-0019.png"
+    },
+    {
+      "pdf_page": 33,
+      "claim": "USB转UART使用Silicon Labs CP2102GM、MINI USB，并有TXS0102电平转换器示意；图中ZYNQ侧标注BANK500，与MIO48/49引脚表需并列保留，不能静默当作完全一致。",
+      "image": "key_pages/page-0033.png"
+    },
+    {
+      "pdf_page": 34,
+      "claim": "UART_RX=PS_MIO49/C12；UART_TX=PS_MIO48/B12。",
+      "image": "key_pages/page-0034.png"
+    }
+  ],
+  "r04_artifacts": {
+    "xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "hwh_member": "s2b_inference.hwh",
+      "hwh_member_sha256": "d4dfd4262e9864f978c17b739d7b90b9a68215f0d46a08d73357bac8e092f868",
+      "extracted_hwh_copy": "s2b_inference.hwh"
+    },
+    "ps7_readback": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_readback.tcldict",
+      "sha256": "931132b5fe645c66737c9fd3543812a6cecc906a160fb4c341e7a8d8bf17097e",
+      "requested_equals_actual": true,
+      "values": {
+        "PCW_CRYSTAL_PERIPHERAL_FREQMHZ": "33.333333",
+        "PCW_UART1_PERIPHERAL_ENABLE": "1",
+        "PCW_UART1_UART1_IO": "MIO 48 .. 49",
+        "PCW_MIO_48_IOTYPE": "LVCMOS 1.8V",
+        "PCW_MIO_49_IOTYPE": "LVCMOS 1.8V",
+        "PCW_PRESET_BANK1_VOLTAGE": "LVCMOS 1.8V",
+        "PCW_UART_PERIPHERAL_FREQMHZ": "100",
+        "PCW_UIPARAM_DDR_PARTNO": "MT41K256M16TW-107"
+      }
+    },
+    "hwh_values": {
+      "PCW_CRYSTAL_PERIPHERAL_FREQMHZ": "33.333333",
+      "PCW_EN_UART1": "1",
+      "PCW_UART1_UART1_IO": "MIO 48 .. 49",
+      "PCW_MIO_48_DIRECTION": "out",
+      "PCW_MIO_49_DIRECTION": "in",
+      "PCW_MIO_48_IOTYPE": "LVCMOS 1.8V",
+      "PCW_MIO_49_IOTYPE": "LVCMOS 1.8V",
+      "PCW_PRESET_BANK1_VOLTAGE": "LVCMOS 1.8V",
+      "PCW_UART1_BASEADDR": "0xE0001000",
+      "PCW_UART1_BAUD_RATE": "115200"
+    },
+    "ps7_readback_artifact_sha256": "931132b5fe645c66737c9fd3543812a6cecc906a160fb4c341e7a8d8bf17097e",
+    "ps7_init_source": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_init.c",
+      "sha256": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daaa76dba",
+      "note": "由R04平台生成的PS初始化源；HWH/PS7 readback描述设计配置，软件实际调用/运行情况另依具体运行记录判断。"
+    },
+    "r04_init_wrapper": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\s2b_ps_init.c",
+      "sha256": "813c09cda9e5843cb09690b7f166edec0325fcf9dec403a598928c6e3d828796",
+      "note": "代码在CPU0调用ps7_init()并对返回值分流；这是离线构建输入，不作为板上执行证明。"
+    },
+    "r04_init_elf": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+      "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+    },
+    "r04_xsa_rebuild_record": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\build_details.json",
+      "sha256": "59c42968085d656148de9aec13f4c9e623b7688fc79101038f2b661510c5c0db",
+      "status": "PASS_OFFLINE_FULL_XSA_BUILD",
+      "hardware_execution": "NOT_RUN",
+      "xsa_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "uart1_base_from_xsa_metadata": "3758100480"
+    }
+  },
+  "limitations": [
+    "手册第19页对BANK501电源有冲突表述；第33页UART示意图标BANK500而第34页给出MIO48/49。配置读回不能裁定手册或实际PCB连线哪一处错误。",
+    "HWH/PS7 readback是R04生成配置及硬件交付描述，不是当前实物电压、时钟频率或PCB修订实测。",
+    "COM4/115200/8N1及UART双向收发另由S2B-T19/cache_probe_execution_20261017_r02记录；该运行绑定较早平台身份，不改写成R04实板探针。"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "kind": "external-por-operator-confirmation/1.0.0",
+  "operator": "Wong",
+  "reported_time_utc8": "2026-10-17T01:11+08:00",
+  "time_precision": "minute",
+  "reported_power_off_duration_seconds": 10,
+  "statement": "Wong回复“1.11 10s”，按本项目默认南京时间解释为01:11断电约10秒后上电。该内容是操作者报告，不是POR沿或电源轨测量。",
+  "post_por_custody": "USER_ATTESTED_NO_OTHER_BOARD_OPERATOR_OR_BOARD_ACTION_EXCEPT_LISTED_HOST_READS",
+  "post_por_other_operator_or_probe_activity": "USER_CONFIRMED_NONE",
+  "agent_activity_after_confirmation": "先执行主机侧COM4枚举、串口参数查询、文件检查和Vivado空闲状态读取；随后总控启动自有hw_server PID 25944，发现既有Vivado hw_server PID 16204已监听127.0.0.1:3121且有三个ESTABLISHED TCP连接，未执行XSDB/JTAG目标命令或板卡写入，并仅停止本次PID 25944。保留该服务器启动可能枚举硬件的限制，不宣称完成新的last_probe。",
+  "qualification_anchor_status": "OPERATOR_POR_AND_CUSTODY_STATEMENTS_RECORDED_NOT_INDEPENDENTLY_VERIFIED",
+  "source": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\cold_confirmation_20261017_r01\\user_message.json",
+    "sha256": "4000ce2d1a3f6b67fb2b107d0e80348e670bf5ccafe3c5aed08eb392f2bd7acb"
+  },
+  "custody_supplement": {
+    "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\cold_confirmation_20261017_r01\\custody_supplement.json",
+    "sha256": "223325fa267876dacf05730252aad8af4407072e972ea3e95c018361f32d30bf"
+  },
+  "post_confirmation_host_observation": {
+    "existing_vivado_hw_server_pid": 16204,
+    "existing_server_listening_port": 3121,
+    "existing_established_tcp_connections": 3,
+    "owned_probe_server_pid_started_and_stopped": 25944,
+    "owned_probe_server_stopped": true,
+    "xsdb_or_jtag_target_command_after_por": false,
+    "new_last_probe_created": false
+  }
+}

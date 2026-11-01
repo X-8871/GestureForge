@@ -1,0 +1,320 @@
+{
+  "current_scene": "STAGE3_V10_READ",
+  "preflight_cpu": {
+    "states_before": {
+      "cpu0": "Stopped: (Suspended)",
+      "cpu1": "Stopped: (Suspended)"
+    },
+    "pc_before": {
+      "cpu0": 1072464,
+      "cpu1": 4294967092
+    },
+    "stop_authorization": {
+      "cpu0": "当前2B恢复任务独占硬件；用户已授权恢复已结束的stage3应用，root明确授权本任务XSDB stop CPU0。",
+      "cpu1": "当前2B恢复任务独占硬件；用户已授权恢复已结束的stage3应用，root明确授权本任务XSDB stop CPU1。"
+    },
+    "states_after": {
+      "cpu0": "Stopped: (Suspended)",
+      "cpu1": "Stopped: (Suspended)"
+    },
+    "pc_after": {
+      "cpu0": 1072464,
+      "cpu1": 4294967092
+    },
+    "2b_pc_match_error": "RunnerError('CPU0 PC处实读16字节指令与绑定应用ELF不一致')"
+  },
+  "stage3_pc_match": {
+    "pc": 1072464,
+    "cpsr": 1611595999,
+    "thumb_state": false,
+    "section": ".text",
+    "segment_virtual": 1048576,
+    "instruction_bytes": 16,
+    "instruction_bytes_sha256": "958a0bee593efa686f3779564956434db49bc412a00a0e32ca73bd663dc5fab5",
+    "elf_file_offset": 27984,
+    "verification": "MATCH_EXECUTABLE_LOAD_AND_SECTION"
+  },
+  "stage3_vdma_hwh_ranges": [
+    {
+      "ADDRESSBLOCK": "Reg",
+      "BASENAME": "C_BASEADDR",
+      "BASEVALUE": "0x43000000",
+      "HIGHNAME": "C_HIGHADDR",
+      "HIGHVALUE": "0x4300FFFF",
+      "INSTANCE": "axi_vdma_0",
+      "IS_DATA": "TRUE",
+      "IS_INSTRUCTION": "TRUE",
+      "MASTERBUSINTERFACE": "M_AXI_GP0",
+      "MEMTYPE": "REGISTER",
+      "SLAVEBUSINTERFACE": "S_AXI_LITE"
+    },
+    {
+      "ADDRESSBLOCK": "Reg",
+      "BASENAME": "C_BASEADDR",
+      "BASEVALUE": "0x43010000",
+      "HIGHNAME": "C_HIGHADDR",
+      "HIGHVALUE": "0x4301FFFF",
+      "INSTANCE": "axi_vdma_1",
+      "IS_DATA": "TRUE",
+      "IS_INSTRUCTION": "TRUE",
+      "MASTERBUSINTERFACE": "M_AXI_GP0",
+      "MEMTYPE": "REGISTER",
+      "SLAVEBUSINTERFACE": "S_AXI_LITE"
+    }
+  ],
+  "stage3_mapping_attempted": false,
+  "stage3_vdma_map": {
+    "xsa": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_gray_20261021_r01\\design_1_wrapper.xsa",
+    "ranges": {
+      "axi_vdma_0_S_AXI_LITE": {
+        "name": "axi_vdma_0",
+        "base": 1124073472,
+        "high": 1124139007,
+        "size": 65536,
+        "slaveintf": "S_AXI_LITE",
+        "type": "REGISTER",
+        "flags": 3,
+        "segment": "",
+        "acctype": "",
+        "tz": ""
+      },
+      "axi_vdma_1_S_AXI_LITE": {
+        "name": "axi_vdma_1",
+        "base": 1124139008,
+        "high": 1124204543,
+        "size": 65536,
+        "slaveintf": "S_AXI_LITE",
+        "type": "REGISTER",
+        "flags": 3,
+        "segment": "",
+        "acctype": "",
+        "tz": ""
+      }
+    }
+  },
+  "vdma": [
+    {
+      "channel": "MM2S",
+      "control_address": 1124073472,
+      "before": [
+        65537,
+        69632
+      ],
+      "poll": [
+        [
+          65536,
+          69633
+        ]
+      ],
+      "status": "HALTED_RUNSTOP0"
+    },
+    {
+      "channel": "S2MM",
+      "control_address": 1124139056,
+      "before": [
+        98307,
+        88080
+      ],
+      "poll": [
+        [
+          98306,
+          88081
+        ]
+      ],
+      "status": "HALTED_RUNSTOP0"
+    }
+  ],
+  "stage3_vdma_map_cleanup": "UNLOADED_AND_SDK_MAP_EMPTY",
+  "stage3_quiescence": "BOTH_VDMA_HALTED_AND_MAPPING_UNLOADED",
+  "stage3_system_reset": {
+    "basis": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\formal_review_20261018_r01\\cold_lifecycle_receipt.json",
+      "sha256": "62dd8423a9f29446845f1c30236e599104f366a1bafed8ddc7287a85b100c9e2"
+    },
+    "cold_lifecycle_proven": false,
+    "before": {
+      "boot_mode": 0,
+      "reboot_status": 5242882,
+      "ocm_cfg": 24,
+      "cpu0_pc": 1072464,
+      "cpu1_pc": 4294967092
+    },
+    "after": {
+      "boot_mode": 0,
+      "reboot_status": 5242882,
+      "ocm_cfg": 24,
+      "cpu0_pc": 4294967080,
+      "cpu1_pc": 4294967092
+    },
+    "meaning": "TCF XilinxReset system-stop实际执行；总控结合官方non-POR范围与实测另行判断统一冷生命周期。"
+  },
+  "stage3_eos0": [
+    {
+      "phase": "after_system_reset",
+      "expected_eos": 0,
+      "status": "PASS",
+      "call_index": 88,
+      "status_word": 1174413068,
+      "status_word_hex": "0x46001F0C",
+      "fields": [
+        {
+          "name": "CRC ERROR",
+          "high": 0,
+          "low": 0,
+          "value": 0
+        },
+        {
+          "name": "DECRYPTOR ENABLE",
+          "high": 1,
+          "low": 1,
+          "value": 0
+        },
+        {
+          "name": "PLL LOCK STATUS",
+          "high": 2,
+          "low": 2,
+          "value": 1
+        },
+        {
+          "name": "DCI MATCH STATUS",
+          "high": 3,
+          "low": 3,
+          "value": 1
+        },
+        {
+          "name": "END OF STARTUP (EOS) STATUS",
+          "high": 4,
+          "low": 4,
+          "value": 0
+        },
+        {
+          "name": "GTS_CFG_B STATUS",
+          "high": 5,
+          "low": 5,
+          "value": 0
+        },
+        {
+          "name": "GWE STATUS",
+          "high": 6,
+          "low": 6,
+          "value": 0
+        },
+        {
+          "name": "GHIGH STATUS",
+          "high": 7,
+          "low": 7,
+          "value": 0
+        },
+        {
+          "name": "MODE PIN M[0]",
+          "high": 8,
+          "low": 8,
+          "value": 1
+        },
+        {
+          "name": "MODE PIN M[1]",
+          "high": 9,
+          "low": 9,
+          "value": 1
+        },
+        {
+          "name": "MODE PIN M[2]",
+          "high": 10,
+          "low": 10,
+          "value": 1
+        },
+        {
+          "name": "INIT_B INTERNAL SIGNAL STATUS",
+          "high": 11,
+          "low": 11,
+          "value": 1
+        },
+        {
+          "name": "INIT_B PIN",
+          "high": 12,
+          "low": 12,
+          "value": 1
+        },
+        {
+          "name": "DONE INTERNAL SIGNAL STATUS",
+          "high": 13,
+          "low": 13,
+          "value": 0
+        },
+        {
+          "name": "DONE PIN",
+          "high": 14,
+          "low": 14,
+          "value": 0
+        },
+        {
+          "name": "IDCODE ERROR",
+          "high": 15,
+          "low": 15,
+          "value": 0
+        },
+        {
+          "name": "SECURITY ERROR",
+          "high": 16,
+          "low": 16,
+          "value": 0
+        },
+        {
+          "name": "SYSTEM MONITOR OVER-TEMP ALARM STATUS",
+          "high": 17,
+          "low": 17,
+          "value": 0
+        },
+        {
+          "name": "CFG STARTUP STATE MACHINE PHASE",
+          "high": 20,
+          "low": 18,
+          "value": 0
+        },
+        {
+          "name": "RESERVED",
+          "high": 24,
+          "low": 21,
+          "value": 0
+        },
+        {
+          "name": "CFG BUS WIDTH DETECTION",
+          "high": 26,
+          "low": 25,
+          "value": 3
+        },
+        {
+          "name": "HMAC ERROR",
+          "high": 27,
+          "low": 27,
+          "value": 0
+        },
+        {
+          "name": "PUDC_B PIN",
+          "high": 28,
+          "low": 28,
+          "value": 0
+        },
+        {
+          "name": "BAD PACKET ERROR",
+          "high": 29,
+          "low": 29,
+          "value": 0
+        },
+        {
+          "name": "CFGBVS PIN",
+          "high": 30,
+          "low": 30,
+          "value": 1
+        },
+        {
+          "name": "RESERVED",
+          "high": 31,
+          "low": 31,
+          "value": 0
+        }
+      ],
+      "eos": 0
+    }
+  ]
+}

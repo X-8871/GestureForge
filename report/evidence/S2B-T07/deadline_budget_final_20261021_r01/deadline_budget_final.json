@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "record_kind": "candidate_deadline_budget_quantification",
+  "task_id": "S2B-T07",
+  "run_id": "deadline_budget_final_20261021_r01",
+  "created_at_utc8": "2026-10-21",
+  "interface": {
+    "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+    "version": "s2b-physical/1.0.0",
+    "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+    "section": "§202",
+    "status": "G0_FROZEN_INTERFACE_AND_CONTROLLED_EXPERIMENTS_ONLY"
+  },
+  "candidate_configuration": {
+    "core_timeout_cycles": 4294967295,
+    "drain_timeout_cycles": 4294967295,
+    "configured_pl_clock_hz": 50000000,
+    "clock_evidence_kind": "XSA_HWH_GENERATED_CONFIGURATION",
+    "clock_is_measured_on_board": false,
+    "counter_width_bits": 32,
+    "counter_max": 4294967295,
+    "maximum_deadline_nominal_seconds": 85.8993459,
+    "margin_factor": "1.25"
+  },
+  "frozen_model_workload_basis": {
+    "model": "tiny416",
+    "input_width": 416,
+    "input_height": 416,
+    "layer_count": 38,
+    "logical_read_requests": 84753811,
+    "logical_write_requests": 11382150,
+    "logical_byte_requests_total": 96135961,
+    "conv_compute_iterations": 424506368,
+    "minimum_request_state_cycles": 192271922,
+    "optimistic_core_lower_bound_cycles": 616778290,
+    "optimistic_core_lower_bound_seconds_at_configured_clock": 12.3355658,
+    "lower_bound_scope": "compute_iterations_plus_two_minimum_request_state_cycles_per_logical_byte_request; excludes setup, scans, requantization, output, HP wait/backpressure, host and other control work",
+    "source_hash_audit": "MATCH_ALL_12_FILES_AGAINST_20261019_R02_BUDGET"
+  },
+  "normal_start_measurements": [
+    {
+      "run_id": "formal_csr_recovery_20261021_r11",
+      "status": "PASS_DONE_SAFE_MEASURED_ACKED",
+      "elapsed_ns_upper_bound": 47401796200,
+      "configured_clock_hz": 50000000,
+      "cycles_upper_bound": 2370089810,
+      "margin_factor": "1.25",
+      "margin_check": "PASS",
+      "margin_cycles_ceil": 2962612263,
+      "remaining_cycles_to_counter_max": 1332355032,
+      "terminal": "DONE_SAFE + HEAD_VALID + SAFE_TO_REUSE; ACK returned to IDLE",
+      "whole_run_failed": true,
+      "whole_run_failure_reason": "Later evidence save collided with an existing immutable deadline_epoch_causality.json; preserve R11 overall FAILED/native exit 2."
+    },
+    {
+      "run_id": "formal_csr_recovery_20261021_r12",
+      "status": "PASS_DONE_SAFE_MEASURED_ACKED",
+      "elapsed_ns_upper_bound": 47405830800,
+      "configured_clock_hz": 50000000,
+      "cycles_upper_bound": 2370291540,
+      "margin_factor": "1.25",
+      "margin_check": "PASS",
+      "margin_cycles_ceil": 2962864425,
+      "remaining_cycles_to_counter_max": 1332102870,
+      "terminal": "DONE_SAFE + HEAD_VALID + SAFE_TO_REUSE; ACK returned to IDLE",
+      "scope_artifact_status": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+      "outer_launcher_status": "FAILURE_REPORTED",
+      "outer_launcher_native_exit_code": 8405,
+      "orchestrator_snapshot_status": "PASS",
+      "orchestrator_snapshot_native_exit_code": 0,
+      "orchestrator_snapshot_timing": "PRE_FINALIZATION_SNAPSHOT_ONLY",
+      "delivery_packaging_status": "FAILED_OR_INCOMPLETE",
+      "failure_evidence_limitation": "The final outer-run failure was printed by the Vitis launcher but not persisted as a final orchestrator_result; the original scope artifact remains valid for its declared deadline-only scope.",
+      "frame": 1,
+      "epoch": 2
+    }
+  ],
+  "normal_budget_assessment": {
+    "largest_observed_whole_run_elapsed_ns_upper_bound": 47405830800,
+    "largest_observed_cycles_upper_bound": 2370291540,
+    "margin_cycles_ceil": 2962864425,
+    "counter_max": 4294967295,
+    "arithmetic_check": "PASS",
+    "interpretation": "Two actual normal START-to-safe-terminal host-monotonic intervals, converted using the bound XSA/HWH configured 50 MHz clock. This is a gross HP-inclusive whole-run wall envelope for those runs; it includes compute, HP responses/backpressure, control, polling and host overhead.",
+    "hp_specific_latency_or_wait_sum_measured": false,
+    "exact_pl_cycles_measured": false,
+    "future_or_worst_case_hp_bound_proven": false,
+    "deployment_requirement_status": "PARTIAL_EVIDENCE_REQUIRES_INDEPENDENT_REVIEW_AND_SCOPE_CLOSURE"
+  },
+  "drain_evidence": {
+    "final_candidate_drain_timeout_cycles": 4294967295,
+    "final_candidate_nominal_deadline_seconds_at_configured_clock": 85.8993459,
+    "r12_test_status": "PASS_DRAIN_LIMIT_AND_SAFE_RETURN_ONLY",
+    "r12_test_core_timeout_cycles": 10000,
+    "r12_test_drain_timeout_cycles": 1,
+    "r12_fault_detail_bit3": true,
+    "r12_terminal_error_code": 5,
+    "r12_terminal_error_safe_and_ledger_zero": true,
+    "r12_matching_ack_returned_to_idle": true,
+    "r12_fault_isolated_phase_observed": false,
+    "r12_late_pending_response_claim": "NOT_CLAIMED",
+    "start_write_to_first_observed_terminal_host_api_entry_elapsed_ns": 42262000,
+    "host_observation_bracket_seconds": 0.042262,
+    "bracket_method": "DAP API-entry timestamp for START CSR write to DAP API-entry timestamp for first CSR snapshot showing safe terminal state",
+    "bracket_is_exact_hardware_transition_time": false,
+    "maximum_drain_configuration_safe_return_interval_measured": false,
+    "drain_isolation_semantics": "On DRAIN deadline expiry, enter FAULT_ISOLATED while continuing to accept B/R responses; a finite timeout value does not prove that outstanding transactions will drain within a finite wall interval.",
+    "deployment_observation_deadline_basis_status": "OPEN"
+  },
+  "r12_scope_status": {
+    "deadline_scope_artifact": "PASS_CSR_DEADLINE_SCOPE_ONLY",
+    "outer_launcher": "FAILURE_REPORTED_NATIVE_EXIT_8405",
+    "orchestrator_result": "PRE_FINALIZATION_PASS_NATIVE_EXIT_0_SNAPSHOT_ONLY",
+    "delivery_packaging": "FAILED_OR_INCOMPLETE; original delivery_manifest lacks interfaces field; CLI packaging check reported CHECKS_FAILED",
+    "real_diag_mode0_epoch_reconciliation": "PASS_REAL_DIAG_MODE0_EPOCH_RECONCILIATION",
+    "sample000_golden_recovery": "PASS_SAMPLE000_DEADLINE_RECOVERY_GOLDEN",
+    "core_timeout_safe_ack": "PASS",
+    "drain_limit_safe_ack": "PASS_DRAIN_LIMIT_AND_SAFE_RETURN_ONLY",
+    "model_corpus_109": "NOT_RUN",
+    "continuous_stress_1000": "NOT_RUN",
+    "actual_pending_drain_and_late_response": "NOT_CLAIMED",
+    "busy_or_pending_reset": "NOT_RUN",
+    "cpu_state_at_exit": "STOPPED"
+  },
+  "separate_static_matrix_status": {
+    "status": "SCENARIO_RESULTS_SAVED_NOT_STAGE_ACCEPTANCE",
+    "native_bresp_scenarios": "BLOCKED_BRESP_UNRESOLVED",
+    "busy_start": "BLOCKED",
+    "implication": "Do not describe the deadline-only R12 scope as complete S2B stage acceptance."
+  },
+  "overall_assessment": {
+    "normal_start_arithmetic_margin": "PASS_FOR_TWO_OBSERVED_RUNS",
+    "drain_limit_quantitative_basis": "BLOCKED_FOR_FINAL_MAXIMUM_CONFIGURATION",
+    "section_202_final_deployment_deadline_requirement": "NOT_CLOSED",
+    "stage_acceptance": "NOT_CLAIMED",
+    "status": "CANDIDATE_BUDGET_BLOCKED_PENDING_REVIEW_AND_ADDITIONAL_EVIDENCE",
+    "preserve_historical_r11_failure": true
+  },
+  "source_evidence": [
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r02/deadline_budget.json",
+      "sha256": "27f9c6b89748125d7944e263066a2cf80511a5e3ea00b65d9d63cc63a7f16c30",
+      "bytes": 35477
+    },
+    {
+      "path": "report/evidence/S2B-T07/deadline_budget_20261019_r02/delivery_manifest.json",
+      "sha256": "0ff6db98a0112db46031bf0fdf93d2e5de8f0e384e9d8149de786fd20a025da4",
+      "bytes": 3549
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r11/deadline_scope/acceptance_result.json",
+      "sha256": "af053e2076bf9f2f972377ea505fba076199ba62e6d88850ea6e95e6c2afe7fd",
+      "bytes": 26435
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r11/acceptance_result.json",
+      "sha256": "60ced675e4def280b6bb27a9d5163a1d401e3b6d8a8af38b30821fcb64a5855b",
+      "bytes": 35756
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r11/orchestrator_result.json",
+      "sha256": "676bd55e1a7c9a800d6d142599c42e215be638278bc25b09d7a8e52a8a626f73",
+      "bytes": 53194
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r11_csr_deadline_max_start_measurement/csr_result.json",
+      "sha256": "80417e10dcd3153a0ee4ca25c82b55291127e27633449382be2867e935ea40e0",
+      "bytes": 20549617
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r11_csr_deadline_max_start_measurement/csr_events.jsonl",
+      "sha256": "a8abadfbcefa8fc41541ad0b6e4d32ba8f4bfb09ee6ab395f58e730bc412bb47",
+      "bytes": 463854
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r11_csr_deadline_core_timeout/csr_result.json",
+      "sha256": "9b810dfa5c813580f52aef9ab528fb19d4132eceb67dd171d1c3a128b6aeaf52",
+      "bytes": 14044860
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r12/deadline_scope/acceptance_result.json",
+      "sha256": "ca0ddc570dd170fc627221b2b710a64dd5bc08bff08adc68a443dffdc5eafe7a",
+      "bytes": 37679
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r12/acceptance_result.json",
+      "sha256": "4d03a74243ba155b94274d712175a2a053d9833d41ae4fbf50c92bb6430617fc",
+      "bytes": 57922
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r12/orchestrator_result.json",
+      "sha256": "eada1f739f957f4f075845ca2224be78d502d76eaf9fd1e0caa0c764ffdabcc0",
+      "bytes": 76491
+    },
+    {
+      "path": "report/evidence/S2B-T18/formal_csr_recovery_20261021_r12/deadline_scope/external_epoch_reconciliation.json",
+      "sha256": "25a8117ac31f15382bc0b9e3cb39712d2828370cf26b94847e54f83f3abf06c7",
+      "bytes": 2208
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement/csr_result.json",
+      "sha256": "80588774d1645f003698939ab95fe331291e707575aa6be8ecc9f94f8211e938",
+      "bytes": 20573499
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_deadline_max_start_measurement/csr_events.jsonl",
+      "sha256": "edb3bcea8ce99a4153659325194bb517d57f35450fcae651bc1698650849fcc3",
+      "bytes": 465302
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_deadline_core_timeout/csr_result.json",
+      "sha256": "6b29cebb471dbf5c5979bc244f9f76ff46987a197b8321f2f2c789556dc721ee",
+      "bytes": 14048009
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_deadline_drain_limit/csr_result.json",
+      "sha256": "0157118e03a81f483e6c4cef0c0ddc15c04cf5a1cd43a205fb7176881e7a7da5",
+      "bytes": 14074719
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_deadline_drain_limit/csr_events.jsonl",
+      "sha256": "add815e0d40beb839523d0eae1a5777eaa2f16de7bbdc0bedef076856918aab3",
+      "bytes": 6765
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_static_matrix/csr_result.json",
+      "sha256": "751c8c4bb6825676193e04c46fe52f304ff36ac7e58e2a4b89a6ccb8c97d8a9e",
+      "bytes": 16521036
+    },
+    {
+      "path": "report/evidence/S2B-T20/formal_csr_recovery_20261021_r12_csr_deadline_sample000_recovery/acceptance_result.json",
+      "sha256": "6bc27258023e170ff659170d4f8ca79f5ef2923bbf029b817d039c882c7c4756",
+      "bytes": 10586
+    }
+  ]
+}

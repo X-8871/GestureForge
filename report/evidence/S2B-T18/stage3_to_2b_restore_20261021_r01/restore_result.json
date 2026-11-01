@@ -1,0 +1,100 @@
+{
+  "status": "FAILED_RESTORE",
+  "scope": "RESTORE_ONLY_NOT_ACCEPTANCE",
+  "cleanup_errors": [],
+  "stage3_writes": "仅清除两个VDMA通道RUNSTOP并等HALTED；不恢复旧视频上下文",
+  "csr_debug_map_evidence": {
+    "verified_inputs": {
+      "compat_artifacts": {
+        "implemented_xsa": {
+          "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+          "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+        }
+      }
+    },
+    "cleanup_errors": []
+  },
+  "identity": {
+    "capture": {
+      "command": "$ErrorActionPreference='Stop'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)\n$servers=@(Get-CimInstance Win32_Process -Filter \"Name='hw_server.exe'\" | Select-Object ProcessId,ExecutablePath,@{Name='CreationTimeFileTimeUtc';Expression={[string]$_.CreationDate.ToFileTimeUtc()}})\n$listeners=@(Get-NetTCPConnection -LocalPort 3121 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess)\n$ports=@(Get-CimInstance Win32_PnPEntity -Filter \"PNPClass='Ports'\" | Select-Object Name,PNPDeviceID,ConfigManagerErrorCode)\n[pscustomobject]@{servers=$servers;listeners=$listeners;ports=$ports}|ConvertTo-Json -Depth 5",
+      "native_exit_code": 0,
+      "stdout_sha256": "1a6868aa50f999a587aaa402afe4995926579843cc2b304fd42ff8ca383a8a61",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "snapshot": {
+        "servers": [
+          {
+            "ProcessId": 28624,
+            "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+            "CreationTimeFileTimeUtc": "134370593467506410"
+          }
+        ],
+        "listeners": [
+          {
+            "LocalAddress": "0.0.0.0",
+            "LocalPort": 3121,
+            "OwningProcess": 28624
+          }
+        ],
+        "ports": [
+          {
+            "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+            "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+            "ConfigManagerErrorCode": 0
+          }
+        ]
+      }
+    },
+    "validated": {
+      "server": {
+        "ProcessId": 28624,
+        "ExecutablePath": "D:\\Xilinx\\2026.1\\Vitis\\bin\\unwrapped\\win64.o\\hw_server.exe",
+        "CreationTimeFileTimeUtc": "134370593467506410"
+      },
+      "listeners": [
+        {
+          "LocalAddress": "0.0.0.0",
+          "LocalPort": 3121,
+          "OwningProcess": 28624
+        }
+      ],
+      "uart": {
+        "Name": "Silicon Labs CP210x USB to UART Bridge (COM4)",
+        "PNPDeviceID": "USB\\VID_10C4&PID_EA60\\D02E61162787ED11A536569F9D1CC348",
+        "ConfigManagerErrorCode": 0
+      }
+    }
+  },
+  "stage3_handoff": {
+    "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-CTRL\\S3-T05\\S3CTRL-20261021-003-handoff-to-dsh-stage3.md",
+    "sha256": "16927b5caec18c6d554b53cf08beb7476722713ac456822fdcae5d6cec87ae8f"
+  },
+  "stage3_state": {
+    "path": "D:\\codex-worktrees\\dbdf\\.codex\\STATE.md",
+    "sha256": "2fbc580cf600b58db7c3659eafca76a739ab0b5fa6df7bd7da1ffe24c5d95975",
+    "last_line": "任务=`S3-T05 阶段3：修复 DVP MSB 缺失/色彩并完成适用验收` | 负责人=`Codex 阶段三总控（交出）→DSH 阶段三总控（待接手）` | 工作树/分支=`D:\\codex-worktrees\\dbdf`/`codex/stage3-video` | 起始提交=`0d47801266a96c950d025702c158734f9bbd25de` | 允许修改范围=`board/stage3/**`、`scripts/stage3_t03b/**`、`scripts/stage3_t04/**`、`scripts/stage3_t05/**`、`report/evidence/S3-T05/**`、`report/evidence/S3-CTRL/**`、`.codex/STATE.md` | 未提交改动归属=`NA/、clockInfo.txt 原有散落件保留不动；仅本交接文档和 STATE 由 Codex 作最后一次提交；tmp/** 保留不入提交` | 让出声明=`Codex 于 2026-10-21 19:53 OFFERED；除本次交接提交外已停止写入，提交后不再运行构建/板测/心跳任务，DSH 核验后可 CLAIMED→IN_PROGRESS` | 心跳(UTC+8)=`2026-10-21 19:53` | 证据入口=`report/evidence/S3-CTRL/S3-T05/S3CTRL-20261021-003-handoff-to-dsh-stage3.md`；`report/evidence/S3-T05/t05_display_bluefix_board_20261021_r01/README.md` | 恢复命令=`先完整读 STATE、003交接及主仓AGENTS；核验分支/HEAD/锁/进程/2B会话后接管；补充 DVP 使能/位序回读，按003路线推进；不重启固定旧RunId，不把近似补偿当修复` | 状态/下一接手方=`OFFERED / DSH 阶段三总控`"
+  },
+  "stage3_app_match": {
+    "pc": 1072396,
+    "cpsr": 2148466911,
+    "thumb_state": false,
+    "section": ".text",
+    "segment_virtual": 1048576,
+    "instruction_bytes": 16,
+    "instruction_bytes_sha256": "ab3504de53edff4c05383fe068e8f2ccc5d9efcfa17f1ead2b3d296be035ae3d",
+    "elf_file_offset": 27916,
+    "verification": "MATCH_EXECUTABLE_LOAD_AND_SECTION"
+  },
+  "vdma": [
+    {
+      "channel": "MM2S",
+      "control_address": 1124073472,
+      "before": [
+        65537,
+        69632
+      ],
+      "poll": []
+    }
+  ],
+  "error": "Exception('TCF command exception:\\nCommand: Memory set \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\", 1124073472, 0, 4...\\nException: Memory write error at 0x43000000. Blocked address 0x43000000. PL AXI slave ports access is not allowed. This address has not been added to the memory map\\nError code: 1')",
+  "traceback": "Traceback (most recent call last):\n  File \"D:\\FPGA_Competition\\w2b\\tmp\\2B\\restore_2b_after_stage3_20261021.py\", line 79, in <module>\n    controller.call(\"apu.mwr.vdma_stop.\" + label, controller.targets[\"apu\"].mwr, \"--bypass_cache_synq\",\n    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                    address=address, size=1, word_size=4, words=[before[0] & ~1])\n                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\FPGA_Competition\\w2b\\verification\\s2b_board_jtag.py\", line 376, in call\n    result = function(*args, **kwargs)\n  File \"D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py\", line 2937, in mwr\n    exec_in_dispatch_thread(node.mem_write, address, 0, buf_list, 0, num_bytes, mode)\n    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_utils.py\", line 222, in exec_in_dispatch_thread\n    raise Exception(f\"{sync.error}\") from None\nException: TCF command exception:\nCommand: Memory set \"JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0\", 1124073472, 0, 4...\nException: Memory write error at 0x43000000. Blocked address 0x43000000. PL AXI slave ports access is not allowed. This address has not been added to the memory map\nError code: 1\n"
+}

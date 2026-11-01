@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "status": "PASS_LIMITED_SCOPE",
+  "role": "INDEPENDENT_REVIEWER",
+  "reviewer_identity": "/root/visibility_proof_review",
+  "reviewed_at_utc8": "2026-10-16T22:35:36+08:00",
+  "run_id": "visibility1_csr_fixed_20261016_r03",
+  "review_scope": "只读复核R03准备记录、启动器/Tcl与已审R02版本一致性、RunId路径隔离及资源中止记录；没有执行构建。",
+  "files": {
+    "launcher": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r03/launch_visibility1_build.py",
+      "sha256": "62431b5451c9d6788ea1ee6d7797f6d48ae2f0fffa690c27da904bdd4effa89b",
+      "matches_reviewed_r02_byte_for_byte": true
+    },
+    "tcl_driver": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r03/build_visibility1.tcl",
+      "sha256": "d4852d0d13116372e635e54d350680c27d2be1dbd79ac3d988ebeac0e95bb9a4",
+      "matches_reviewed_r02_byte_for_byte": true
+    },
+    "preparation": {
+      "path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r03/preparation.json",
+      "sha256": "cd94c6e180eec19d79bd4cda81beb00a90d72758b626c9eade7cf6b11c52dec7",
+      "json_parse": "PASS",
+      "current_head": "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+      "recorded_head_matches_current": true,
+      "status": "PREPARED_NOT_RUN_RESOURCE_PREFLIGHT_PENDING",
+      "hardware_access": "NOT_RUN",
+      "budget_record": "总预算10次；3次历史成功，R02因RAM停止线中止，累计4次已启动；R01在综合前失败，不计入已启动的核心综合。",
+      "r02_record_supports_resource_abort": true
+    }
+  },
+  "isolation": {
+    "launcher_uses_run_directory_and_name": true,
+    "work_path": "tmp/2B/S2B-T19/visibility1_csr_fixed_20261016_r03",
+    "output_path": "report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r03/artifacts",
+    "launcher_rejects_existing_work_directory": true,
+    "r03_work_directory_exists_at_review": false,
+    "r03_artifacts_directory_exists_at_review": false
+  },
+  "review_notes": [
+    "启动器含已审的MCP服务前缀过滤及T15 manifest/ELF SHA-256固定值；本次未重审更早proof语义，仅确认文件与已审版相同。",
+    "R02 input_record记录因available RAM低于2GiB停止线而失败，监督Job清理确认；记录stdout_has_synth_complete=false。R03准备记录将其计入已启动预算，口径一致。",
+    "R03准备记录的HEAD与当前仓库HEAD一致；proof/review绑定信息沿用已审R02准备项。内存清理后6.40GiB为准备记录所载观察值，不代表本审查重新测量。"
+  ],
+  "verdict": "PASS_LIMITED_SCOPE；R03所用脚本与已审R02逐字节一致，RunId路径隔离有效，准备记录中的总预算/已启动次数与R02资源停止记录相符。该结论仅覆盖准备状态与脚本一致性，不构成R03综合通过、硬件验证或资源预检通过。未启动构建。"
+}

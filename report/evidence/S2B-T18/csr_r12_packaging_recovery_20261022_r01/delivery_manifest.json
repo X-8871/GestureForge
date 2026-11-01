@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T18",
+  "run_id": "csr_r12_packaging_recovery_20261022_r01",
+  "source_commit": "6e66bfc553abbe2c2cedde47b49d060439928ef5",
+  "evidence_dir": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01",
+  "interfaces": [
+    {
+      "name": "s2b_board_transport",
+      "version": "s2bu/1.1",
+      "frozen": true,
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb"
+    },
+    {
+      "name": "s2b_physical_interface",
+      "version": "s2b-physical/1.0.0",
+      "frozen": true,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_board_transport.md",
+      "sha256": "b305c84c8b3255ca2c2960b3bce8c08b1c60fc32d0bdc7fa11609c1b609ce6cb",
+      "role": "input"
+    },
+    {
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "c5559f6462b964ee1f7469b006fcd134412702fb074193bf34c1451120f761b0",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01/deadline_scope_acceptance_result.json",
+      "sha256": "ca0ddc570dd170fc627221b2b710a64dd5bc08bff08adc68a443dffdc5eafe7a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01/inputs_manifest.json",
+      "sha256": "db1940c3cbfc576bf7ae43a1c98946954e7c236c7f605e83bf7dcd45ec7ccad2",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01/original_acceptance_result.json",
+      "sha256": "4d03a74243ba155b94274d712175a2a053d9833d41ae4fbf50c92bb6430617fc",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01/original_delivery_manifest.json",
+      "sha256": "4affaa096bc136b486aa509c219325ebca3a75a3ac5ca543cac5a442e4fdcbfa",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01/packaging_recovery_report.json",
+      "sha256": "5bfa7410989810e1e23648df9be65c09137dc2afb026ee819409abc6c176a45a",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T18/csr_r12_packaging_recovery_20261022_r01/pre_finalize_orchestrator_result.json",
+      "sha256": "eada1f739f957f4f075845ca2224be78d502d76eaf9fd1e0caa0c764ffdabcc0",
+      "role": "result"
+    },
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "788ddcef961cab1a1db917292abbceb41dc6957ca4b8f1c76841158ddc48c112",
+      "role": "source"
+    },
+    {
+      "path": "vitis/run_s2b_model_acceptance.py",
+      "sha256": "d32bc9adc0ade31827481c3b1c882133a1e6d32ae81ec024e217532974657ad3",
+      "role": "source"
+    }
+  ],
+  "checks": [
+    {
+      "name": "offline_schema1_repackaging",
+      "status": "PASS",
+      "command": "offline evidence manifest construction and hash binding",
+      "exit_code": 0
+    },
+    {
+      "name": "original_vitis_runner_exit",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "实际runner脚本退出码未捕获；官方launcher返回0并打印通用部署/验收失败。"
+    }
+  ],
+  "limitations": [
+    "Original Vitis runner process exit code was not captured; launcher exit 0 does not establish runner success.",
+    "Original finalizer exception/traceback was not persisted, so the observed failure cause is the missing schema-1 interfaces field and pre-finalize snapshot ordering, not a recovered Python exception.",
+    "CHECKS_OK confirms manifest/file binding only; it does not establish G4/G5, independent review, or new hardware acceptance.",
+    "The static negative matrix retains its original unresolved BRESP blockers and is not upgraded by this packaging repair."
+  ],
+  "tool_versions": {
+    "python": "3.x (bundled runtime)",
+    "delivery_checker": "repository source at source_commit 6e66bfc553abbe2c2cedde47b49d060439928ef5"
+  }
+}

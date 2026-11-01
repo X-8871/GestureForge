@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T11",
+  "run_id": "control_r18_csr_recovery_matrix_20261016",
+  "source_commit": "aeaea942dfba1add885a926a6056b55ee1840df9",
+  "source_file": "sim/tb_s2b_control_csr.sv",
+  "source_sha256": "567cac8198c55dabc15acd8a460d421ad5fd1059ac5dbf8deae3bf8cc65742ce",
+  "status": "FAIL_TIMEOUT",
+  "result": "TB新增向量未执行；compile达到360秒限制并触发runner失败关闭；simulation未启动且无simulation.log。",
+  "run_start_local": "2026-10-16T00:51:38.825+08:00",
+  "run_finish_local": "2026-10-16T00:58:08.911+08:00",
+  "runner_elapsed_seconds": 390.234,
+  "compile_timeout_seconds": 360,
+  "compile_timed_out": true,
+  "compile_child_exit_code": 1,
+  "simulation_started": false,
+  "simulation_exit_code": null,
+  "simulation_not_run_reason": "compile 阶段达到 360 秒硬超时并失败；runner 未启动仿真。",
+  "runner_process_exit_code": null,
+  "runner_process_exit_code_note": "主runner的外层Start-Process监控在Get-CimInstance拒绝访问时异常退出，未捕获runner主进程句柄退出码；result.json状态按runner代码对应非零失败退出，具体主进程退出码未直接记录。",
+  "compile_cleanup_status": "FAIL_TIMEOUT_CLEANUP_UNCONFIRMED",
+  "runner_taskkill_result": "taskkill /PID 25152 /T /F返回exit_code=1，Access Denied；result.json记录tree_termination_confirmed=false。",
+  "independent_cleanup_scan": "NO_RELEVANT_PROCESSES",
+  "cleanup_scan_path": "report/evidence/S2B-T11/control_r18_csr_recovery_matrix_20261016/post_cleanup_process_check.json",
+  "independent_cleanup_scan_at": "2026-10-16T01:01:13.2115134+08:00",
+  "simulation_status": "NOT_RUN_COMPILE_TIMEOUT",
+  "compile_log_sha256": "9e0612c667f58aa102c25515caeb2639d3cd4ce464c8c738d2966975f9a5d79a",
+  "tools": {
+    "python": "3.12.14",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702",
+    "jobs": 1,
+    "threads": 1
+  },
+  "resource_sampling": {
+    "requested_interval_seconds": 15,
+    "captured_samples": 19,
+    "first_captured_elapsed_seconds": 101.3,
+    "last_captured_elapsed_seconds": 390.1,
+    "minimum_system_available_memory_mb": 2061.0,
+    "peak_sampled_process_working_set": {
+      "name": "cc1plus",
+      "pid": 23776,
+      "working_set_bytes": 5496082432,
+      "elapsed_seconds": 261.8
+    },
+    "peak_sampled_run_process_working_set_bytes": 5516992512.0,
+    "memory_stop_threshold_mb": 2048,
+    "threshold_crossed": false,
+    "gap": "原监控wrapper在elapsed约45秒因Get-CimInstance Win32_Process拒绝访问异常退出；备用Get-Process采样从elapsed约101秒恢复，故elapsed45至101秒没有资源样本。runner自身15秒检查点仍连续。"
+  },
+  "public_vectors_written_not_executed": [
+    {
+      "stage": "start_rejected_in_arming",
+      "checks": "ARMING状态0x101、LAST_REJECT=BUSY(1)、frame/epoch/owner保持。"
+    },
+    {
+      "stage": "done_blocked_by_core_mem_valid",
+      "checks": "DONE不能在core_mem_valid=1时离开RUN；清零后才DONE_SAFE。"
+    },
+    {
+      "stage": "done_blocked_by_unfinished_ledger",
+      "checks": "DONE不能在ledger_empty=0时离开RUN；账本闭合后才DONE_SAFE。"
+    },
+    {
+      "stage": "start_rejected_recovering_and_wrong_epoch",
+      "checks": "RECOVERING拒绝START并保留首错；wrong ledger epoch进入FAULT，保留首错、置bit4，并拒绝START/ACK/ABORT。"
+    },
+    {
+      "stage": "late_invalid_rid_or_last_0",
+      "checks": "首错5保持；非法RID触发协议bit4、不清账；后续合法R清账但隔离不解除。"
+    },
+    {
+      "stage": "late_invalid_rid_or_last_1",
+      "checks": "首错5保持；非法LAST触发协议bit4、不清账；后续合法R清账但隔离不解除。"
+    },
+    {
+      "stage": "late_exokay_r_after_first_error",
+      "checks": "EXOKAY R被物理消费；首错5保持，协议bit4置位，FAULT状态/owner保持。"
+    },
+    {
+      "stage": "duplicate_r_after_first_error",
+      "checks": "匹配R完成排空并到ERROR_SAFE后再送重复R，首错5保持并进入协议FAULT。"
+    },
+    {
+      "stage": "late_invalid_bid_after_first_error",
+      "checks": "错误BID不清账，detail.bit4与write bit置位；合法晚B仅闭合账本且不解除隔离。"
+    },
+    {
+      "stage": "late_exokay_b_after_first_error",
+      "checks": "EXOKAY B被物理消费；首错5保持并设置协议bit4/write bit。"
+    },
+    {
+      "stage": "unmatched_b_after_first_error",
+      "checks": "ERROR_SAFE后无请求B触发协议FAULT，首错5保留。"
+    },
+    {
+      "stage": "drain_timeout_retains_first_error_and_continues_drain",
+      "checks": "公开ABORT为首错8，DRAIN_TIMEOUT配置12周期；预期detail.bit3置位、PHYS_STATUS=0x1106，合法晚R继续排空并到ERROR_SAFE，ERROR_CODE仍为8。"
+    },
+    {
+      "stage": "permanent_unfinished_ledger_rejects_all_commands",
+      "checks": "永久未完成真实读事务保持ownerPL/safe0、首错8/detail.bit3和账本pending；拒绝START/ACK/ABORT。"
+    }
+  ],
+  "drain_timeout_code12_reachability": "不覆盖/不宣称ERROR_CODE=12：正式候选接口公开进入RECOVERING的路径均已选择更早首错；仅测试公开超限bit3/FAULT状态、首错保留及继续排空。!first_selected的code12仅为防御分支。",
+  "runner_monitoring_note": "外层资源wrapper的Get-CimInstance受拒绝访问；后段监控以Get-Process按编译器名称采样。taskkill Access Denied与本Run结束后的独立无残留进程扫描均保留，不能把cleanup表述为runner已确认。",
+  "compile_log_final_sha256": "2cb040e7eba0e1a65be3cf76661b65ad1e05a6aec114a65f5071e2d453e7fc50",
+  "compile_log_final_bytes": 7810,
+  "compile_log_final_verified_at": "2026-10-16T01:01:32+08:00",
+  "post_runner_log_growth": "runner在00:58:08.911+08退出并记录compile.log为6785 bytes/hash=9e0612c667f58aa102c25515caeb2639d3cd4ce464c8c738d2966975f9a5d79a；因taskkill Access Denied，编译子进程在runner退出后继续追加。独立无残留进程扫描于01:01:13.2115134+08完成（见post_cleanup_process_check.json）；compile.log最终7810 bytes及哈希于01:01:32+08复核。两项时间分别对应进程扫描与日志复核。result.json保留runner原始观测；delivery_manifest绑定最终日志哈希。"
+}

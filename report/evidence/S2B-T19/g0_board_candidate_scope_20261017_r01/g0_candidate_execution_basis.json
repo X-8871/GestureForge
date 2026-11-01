@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-user-authorized-board-candidate-scope/1.0.0",
+  "status": "USER_AUTHORIZED_CANDIDATE_SCOPE_PENDING_INDEPENDENT_G0_REVIEW",
+  "task_id": "S2B-T19",
+  "created_utc8": "2026-10-17T01:29:14+08:00",
+  "authorization_sources": [
+    {
+      "statement": "目标：完成阶段2B；目标芯片XC7Z020-2CLG400I；部署冻结tiny416；至少100个样本黄金比对及1000次连续任务；不降低标准，不把未完成项记为通过。",
+      "scope": "目标器件、冻结模型和2B正式验收要求"
+    },
+    {
+      "statement": "DDR型号尚待厂家确认，暂时以MT41K256M16TW-107为准，进行后续步骤。",
+      "scope": "以AX7Z020手册MT41K256M16TW-107作为易失候选配置，不宣称已确认实装"
+    },
+    {
+      "statement": "板子已插上；继续完成任务并尽快运行1000连续任务。",
+      "scope": "授权在既定门禁内推进当前板卡任务"
+    }
+  ],
+  "target": {
+    "board_reported_by_user": "AX7Z020",
+    "silicon_reported_by_user": "XC7Z020-2CLG400I",
+    "vivado_part": "xc7z020clg400-2",
+    "pcb_revision": "UNKNOWN",
+    "physical_ddr_part": "UNKNOWN",
+    "photo_marking": "D9PSK_UNDECODED"
+  },
+  "candidate_ddr_input": {
+    "part": "MT41K256M16TW-107",
+    "source": "AX7Z020 user manual, pages 8 and 12",
+    "manual_sha256": "7d9e34045501637bc6277f7ad372f168165fc6969c640092909f1317b10ccedf",
+    "physical_correspondence": "NOT_ESTABLISHED",
+    "manufacturer_exact_timing_source": "NOT_AVAILABLE"
+  },
+  "candidate_build": {
+    "build_source_commit": "03faa2d47a6e49d7475e387cf6b33edda4962c68",
+    "xsa_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+    "bit_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+    "app_elf_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+    "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+    "original_r04_input_record": "FAIL_RETAINED_UNCHANGED"
+  },
+  "interfaces_and_baseline": {
+    "physical_interface": "s2b-physical-candidate/0.1.2 (not frozen)",
+    "model": "frozen tiny416; fixed 109-sample input/reference set",
+    "qualification_entry_commit": "b0099b8ba450dc4d336f97a6fe368670d9bc6244",
+    "offline_binding_run": "single_sample_qualification_20261017_r12"
+  },
+  "ordered_acceptance": [
+    "复核本记录和资格入口的独立Reviewer/G0/冷生命周期绑定；所有FAIL关闭项先处理。",
+    "以同一候选XSA完成PS初始化和可辨认UART输出。",
+    "在由当前XSA与链接布局确认的独占DDR区域执行规定写读模式，记录范围、次数及零不匹配；任何布局不确定、错误或超时即停止。",
+    "受控首样本sample000/frame0/repeat1逐头黄金比对通过后，才运行109个冻结样本的正式黄金验收。",
+    "109样本全部通过后，才运行1000次连续任务；不得用重复sample000替代正式样本覆盖或错误恢复验收。",
+    "完成异常、复位与恢复矩阵；任何丢失、重复、死锁、mismatch或超时均判FAIL并保留原始证据。"
+  ],
+  "formal_acceptance": {
+    "golden_samples_minimum": 100,
+    "frozen_sample_set_count": 109,
+    "continuous_tasks_minimum": 1000,
+    "task_loss_allowed": 0,
+    "duplicate_results_allowed": 0,
+    "deadlocks_allowed": 0,
+    "tensor_mismatches_allowed": 0,
+    "exception_recovery_required": true
+  },
+  "scope_exclusions": [
+    "不操作QSPI、Flash或其他非易失存储。",
+    "不宣称照片DDR丝印解码、实装DDR型号、PCB/BOM修订或DDR时序兼容性已确认。",
+    "本用户授权和本候选配置记录本身不代表G3/G4/G5或硬件测试通过。"
+  ],
+  "stop_conditions": [
+    "PS/UART前置失败。",
+    "DDR测试范围与当前XSA/链接器独占区不一致或出现任一数据不匹配。",
+    "发生UART协议错误、样本/任务丢失或重复、CORE/DRAIN/响应超时、死锁或清理失败。",
+    "任何物理资料与候选配置冲突；保留证据并停止依赖DDR的整网验收。"
+  ],
+  "limitations": [
+    "此文档记录用户已授权的候选实验范围，独立G0审查尚未完成。",
+    "外部POR时间和无人操作范围来自用户陈述，非仪器测量；未独立证明物理接触链。",
+    "正式2B验收仍须满足原始样本、任务、错误恢复与时序/约束标准。"
+  ]
+}

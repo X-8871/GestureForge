@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "s2b-host-hardware-session-release/1.0.0",
+  "task_id": "S2B-T19",
+  "run_id": "hardware_session_release_20261017_r01",
+  "source_commit": "b0099b8ba450dc4d336f97a6fe368670d9bc6244",
+  "observed_utc8": "2026-10-17T01:39:06+08:00",
+  "authorization": {
+    "user_statement": "如果还有进程就你自己去关闭",
+    "scope": "关闭当前占用JTAG硬件服务端口3121的Vivado/XSDB进程"
+  },
+  "before": {
+    "listener": {
+      "pid": 16204,
+      "image": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\hw_server.exe",
+      "local_endpoint": "127.0.0.1:3121",
+      "state": "LISTENING"
+    },
+    "connections": [
+      {"client_pid": 6684, "local_port": 6856, "state": "ESTABLISHED", "image": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe"},
+      {"client_pid": 12640, "local_port": 6880, "state": "ESTABLISHED", "image": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\cs_server.exe"},
+      {"client_pid": 23720, "local_port": 6905, "state": "ESTABLISHED", "image": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\xsdb.exe"}
+    ]
+  },
+  "actions": [
+    {"pid": 16204, "action": "Stop-Process -Force", "result": "EXITED"},
+    {"pid": 6684, "action": "Stop-Process -Force", "result": "EXITED"},
+    {"pid": 12640, "action": "Stop-Process -Force", "result": "EXITED"},
+    {"pid": 23720, "action": "Stop-Process -Force", "result": "EXITED"}
+  ],
+  "after": {
+    "wait_seconds": 3,
+    "processes_remaining_from_list": [],
+    "port_3121_listeners_and_connections": [],
+    "verification_command": "Get-Process -Id 6684,12640,23720,16204; netstat -ano | findstr \":3121\""
+  },
+  "board_state": {
+    "user_reported_por_utc8": "2026-10-17T01:37:00+08:00",
+    "por_occurred_before_session_release": true,
+    "new_board_probe_executed": false,
+    "new_probe_result": "NOT_RUN",
+    "next_required_action": "在硬件服务及客户端全部退出后重新完整断电至少10秒并记录期间无人执行JTAG/XSDB/HP探针，再进行新的受控探针。"
+  },
+  "limitations": [
+    "PID身份与端口状态来自本机进程/网络观察；没有读取或改变板卡状态。",
+    "无法从活动TCP连接推断之前是否发送过硬件命令；本记录不声称POR后独占保管链成立。",
+    "1:37冷启动早于会话关闭，不能作为会话释放后的生命周期锚点。",
+    "没有执行新XSDB/JTAG目标命令、硬件探针、板卡写入或模型推理。"
+  ]
+}

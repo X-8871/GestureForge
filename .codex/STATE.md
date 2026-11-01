@@ -1,5 +1,14 @@
 # 阶段3 状态（AN5642 原始视频链路）
 
+## 2026-11-01 管理权更新（优先于下方旧归属记录）
+
+Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控接管，取消 DSH 最高管理权。项目最高总控、主目录与本树写权、任务分派、串行提交和硬件窗口协调均归 Codex；Wong 保留最终决策与明确审批权。DSH 仅可执行 Codex 后续明确委派的任务，不再持有全局否决权、独占调度权或必须经其 OFFER 的前置权。
+
+权威规则：`D:\FPGA_Competition\AGENTS.md`；接管决策及全树基线：`D:\FPGA_Competition\report\evidence\CTRL-DSH-HANDOFF\decisions\codex_project_takeover_20261101_r01.md`。本次依据用户直接指令，非伪造 DSH OFFER/CLAIM。下方旧写权、租约及 DSH 提交权仅作历史，不再授权；历史技术证据与未提交改动归属保留。接管不等于新板级窗口授权、阶段验收通过或允许覆盖既有工作；单写者、资源核验、证据保全和独立审查继续有效。
+
+本树当前管理/写入负责人：Codex 项目总控；技术状态和冻结版本按原证据逐项核对。
+
+
 ## 2026-10-26 正式认领（DSH 阶段三总控）—— 写权已交接
 - 让出方 Codex 阶段3总控于 **2026-10-26 19:05（UTC+8）** 在工作区写入 **`OFFERED`** 交接行（含让出声明、心跳、未提交改动归属、证据入口、恢复命令）。
 - 我方以认领记录 `report/evidence/S3-T17/t17_takeover_20261026_r01/claim_record_offered_20261026.json` 执行正式核验：**`handoff_check --claim` = `HANDOFF_OK`，退出码 0**（a–i 全部 PASS；检查器原始输出见同目录 `handoff_check_claim.json`）。**认领对象 = 本工作树 `.codex/STATE.md`；状态推进为 `CLAIMED→IN_PROGRESS`，负责人 = DSH 阶段三总控。**

@@ -4,7 +4,7 @@
 
 Wong 已决定退出本次竞赛，暂停项目；当前只整理和上传恢复所需成果至 `https://github.com/X-8871/GestureForge`，不继续开发、训练、综合或板级操作。恢复入口 `RESUME.md`；清理方案已提出但训练集、工作树及原始证据尚未删除。本地原分支/标签保留；未提交工程快照另放 `codex/archive/20261101/*`，不伪装成已验收成果。上传状态以远端核验回执为准，不以本段预先宣称已上传成功。
 
-本轮归档提交 `17a7056`：317项归档文件、九树31632项快照内容校验通过，独立审查PASS，原有16项main业务差异保留。上传现状 `UPLOAD_BLOCKED_NETWORK`：约482 MiB时连接重置，后续直连失败、公开API限流，未完成远端引用确认或GitHub独立克隆。准备18分支/19标签离线bundle保全；事实与限制见 `report/evidence/CTRL-ARCHIVE/github_archive_20261101_r01/receipt.json`。网络恢复后分批续传并核对远端；不得据此清理原训练集、工作树或原始证据。
+本轮归档提交 `17a7056`，当前上传状态 `UPLOADED_AND_FRESH_CLONE_VERIFIED`（2026-11-01 13:52 UTC+8）：18分支/19标签远端SHA一致；从GitHub独立网络克隆被测main `653d94f`，317项归档文件和九树31632项快照内容身份校验通过。独立审查PASS，原有16项main业务差异保留。成功回执 `report/evidence/CTRL-ARCHIVE/github_archive_20261101_r02/receipt.json`；r01网络受阻回执保留历史。离线bundle亦已独立恢复核验。未编译、未上板，不提高阶段验收结论；原训练集、工作树、大型证据尚未清理，omitted不等于可删除。
 
 ## 当前管理权（2026-11-01，优先于下方历史记录）
 

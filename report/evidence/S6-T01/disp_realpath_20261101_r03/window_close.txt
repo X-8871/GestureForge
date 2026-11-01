@@ -1,0 +1,15 @@
+# S5RS+合成图 显示链路验证 — `disp_realpath_20261101_r03`
+
+- 开窗：2026-11-01T03:36:27+08:00；收窗：2026-11-01T03:37:31+08:00
+- 结论：**DISP_S5RS_PATH_OK**（error=None）
+- **合成数据**：`frame_source=jtag_injected_test_pattern`（1280×200 红/蓝带）、`result_source=jtag_injected_s5rs`（magic=0x53355253、status@0x1C=0x1、n_dets=1、检测项 x=200 y=150 w=240 h=240 cls=2 数字一 score_q8=235）
+- 位流：`e340066009ed59383c9588ae06e574006f2f464d253e8056a521b80d6d148fff`；显示 ELF：`d1ecc0d8592cec2d414dc73e2c47ee19c7e0c1eaf9ff25eefcc93465058e5743`
+
+- V1 src=real（非 real_nobox）：**PASS** ["S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1", "S5DISP frame=120 lat=65535 age=65535 st=B sr=11000 src=real nbox=1", "S5DISP frame=180 lat=65535 age=65535 st=B sr=11000 src=real nbox=1"]
+- V2 FB 变化：**PASS** {"before": ["0xffffff", "0xffffff", "0xffffff", "0xffffff", "0xffffff", "0xffffff"], "after": ["0x2ecc71", "0x2ecc71", "0x2ecc71", "0x2ecc71", "0x2ecc71", "0x2ecc71"]}
+- V3 S5DISP boxes n>=1：**PASS** ["S5DISP boxes n=1 crc=-1780019455 hex=12C E1 168 168"]
+- V4 APP: gesture=数字一 / gesture_changed：**PASS** ["APP: gesture_changed from=none to=数字一"]
+- `S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":29,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":65535,"age_ms":65535,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":2514947841,"fb_crc":1247535302,"uf_pix":1206067587,"uf_frame":847712,"uf_total":1206067587,"src":"real"}`
+
+- 收窗残留：[]
+- 边界：只写 0x20800000（合成结果块）与 0x12000000（合成图）；未改 PL/PS 配置；未烧 QSPI

@@ -1,0 +1,92 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "s4d_timer_diag_20261029_r01",
+  "phase": "时间基座诊断（全局定时器 vs XTime_GetTime vs 主机时间戳）",
+  "elf": "D:\\tmp\\lead\\timer_diag_20261029_r01\\build\\s4d_timer_diag.elf",
+  "started_utc8": "2026-10-29T18:09:19+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "diag_elf",
+          "path": "D:\\tmp\\lead\\timer_diag_20261029_r01\\build\\s4d_timer_diag.elf",
+          "sha256": "6597455b481b3a485eee6d1a222accad9d6a35e1e48fa0efecb8fdf21169f01a",
+          "bytes": 140364,
+          "match": true
+        }
+      ],
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "exit_code": 0
+    },
+    "P1_enum": {
+      "status": "PASS",
+      "exit_code": 0,
+      "used_attempt": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "utc8": "2026-10-29T18:09:26+08:00",
+          "xsdb_exit": 0,
+          "targets_raw": "1  APU\n     2  ARM Cortex-A9 MPCore #0 (Running)\n     3  ARM Cortex-A9 MPCore #1 (Running)\n  4  xc7z020",
+          "a9_present": true
+        }
+      ]
+    },
+    "W2_load": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_error_text": null
+    },
+    "W3_diag": {
+      "status": "PASS",
+      "exit_code": 0,
+      "meta": {
+        "n": 4,
+        "window_s": 4.2
+      },
+      "parsed": {
+        "cps": 333333343,
+        "gt_delta": 1350000068,
+        "ms_gt": 1012,
+        "xt_delta": 1350000060,
+        "ms_xt": 1012,
+        "host_s": {
+          "start_to_gt": 3.008,
+          "start_to_xt": 3.008,
+          "start_to_done": 3.008
+        }
+      },
+      "verdict": {
+        "host_s_start_to_gt": 3.008,
+        "elf_ms_gt": 1012,
+        "elf_ms_xt": 1012,
+        "gt_vs_host_ratio": 0.336,
+        "xt_vs_gt_ratio": 1.0
+      },
+      "lines_tail": [
+        "TIMERDIAG START counts_per_sec=333333343",
+        "TIMERDIAG GT delta=1350000068 ms_gt=1012",
+        "TIMERDIAG XT delta=1350000060 ms_xt=1012",
+        "TIMERDIAG acc=3992170112 DONE"
+      ]
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {}
+    }
+  },
+  "stop_reason": null,
+  "boundary": "纯诊断；只读 CPU 寄存器；ENABLE=0；不主张 G3/G4/G5",
+  "finished_utc8": "2026-10-29T18:09:38+08:00"
+}

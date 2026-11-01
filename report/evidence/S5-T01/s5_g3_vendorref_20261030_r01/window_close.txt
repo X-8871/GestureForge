@@ -1,0 +1,27 @@
+# 厂商 HDMI 参考位流 A/B 对照窗口（xsdb fpga -file）
+
+- RunId：`s5_g3_vendorref_20261030_r01`
+- 开窗：2026-10-30T12:04:22+08:00；收窗：2026-10-30T12:05:44+08:00
+- 结论：**VENDOR_REF_PL_PROGRAMMED**
+- stop_reason：None
+- 厂商位流（只读引用，未复制/未改）：`D:\FPGA\AX7Z020\AX7Z020\course_s1\course_s1\02_hdmi_out_test\hdmi_out_test.runs\impl_1\top.bit`
+  - sha256=7dfad3627137bb75f9e6ec597d29f8d9325c04c846f2dcb8f0cb51959fa81bf1、size=4045663 B、mtime=2019-10-14
+- **PL 编程工具：xsdb `fpga -file`（lead 2026-10-30 授权；非平时 program_hw_devices）**
+  - fpga_exit=0、FPGA_FILE_DONE=True、error_text=None
+  - 读回 LVL_SHFTR_EN(0xF8000900) before_0xF=[mrd -value 0xF8000900]"; disconnect; exit、after_0xF=0xf
+- PL 保持时长：60.0 s
+- 收窗：3121 LISTENING=0、残留=['vivado']
+- 边界：PL-only；未装 ELF/未写 DDR/未动 QSPI；全程禁 rst -system；屏幕现象需人工目视
+- 用途：仅厂商参考位流 A/B 诊断；不影响既有 G3 证据口径
+
+## 收窗前只读记录（未写）
+
+- cand_first96：{"addr": "0x12000000", "exit": 0, "bytes": 96, "sha256": "0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35"}
+- result_block_first96：{"addr": "0x20800000", "exit": 0, "bytes": 96, "sha256": "07d4df1f77728eaeddfa97c590f54849c81a1255b6dead47b8add5982215306f"}
+
+## 收窗备注（人工补充）
+
+- S9_teardown 判 FAIL 仅因 heavy_processes 含**并行 P3e 构建的 vivado**（lead 2026-10-30 已批准并行诊断窗口）；实际 hw_server/xsdb=0、tcp:3121 无 LISTENING，本窗口零残留。
+- lvl_shifter_readback_after_program 字段是 xsdb 日志首行命令回显被误解析所致；编程后 0xF 写入的双读回断言通过（readback=0xf）。
+- 本窗口结束后 PL 保持**厂商设计**（未恢复我们的设计，符合 lead『不恢复』要求）；下一次我们自己的窗口需重新编程 P3c/P3e 位流。
+

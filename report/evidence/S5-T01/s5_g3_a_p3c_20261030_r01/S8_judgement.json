@@ -1,0 +1,57 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "K-1",
+      "desc": "S5DISP RESULT 可解析",
+      "pass": true,
+      "detail": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 45,
+        "fps_upd": 34,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 2292208387,
+        "fb_crc": 3691911028,
+        "src": "real"
+      }
+    },
+    {
+      "id": "K-2",
+      "desc": "pass==1",
+      "pass": true,
+      "detail": 1
+    },
+    {
+      "id": "K-3",
+      "desc": "vdma_err==0",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "K-4",
+      "desc": "fps_dis>=55（P3c 带宽修复验证点，且<=90）",
+      "pass": false,
+      "detail": {
+        "fps_dis": 45,
+        "fps_upd": 34,
+        "vdma_read_period_line": "VDMA: read period = 7410522 ticks (22231 us) -> fps_dis=45 (display refresh)"
+      }
+    },
+    {
+      "id": "K-5",
+      "desc": "frames/vcnt 记录（不判）",
+      "pass": true,
+      "detail": {
+        "frames": 180,
+        "vcnt": 180
+      }
+    }
+  ]
+}

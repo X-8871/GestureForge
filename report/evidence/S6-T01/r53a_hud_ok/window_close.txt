@@ -1,0 +1,41 @@
+# HUD 单验窗 — `r53a_hud_ok`
+
+- 开窗：2026-11-01T00:19:40+08:00；收窗：2026-11-01T00:20:43+08:00
+- 结论：**HUD_OK_视觉待确认**；stop_reason=HUD 判据通过（视觉待确认）
+- **por_precondition：satisfied**
+- 位流：`4ae379a9aa2dd4ca69e12032eff8f4606104411c595bb3adfb55cf1f924e6313`；显示 ELF：`6a4a252da120f7712c4e566f33cf44306ffccf639814c08b88323d256c431df7`
+
+- H1 HUD 逻辑：`APP: gesture=<中文>` 或 `APP: gesture_changed` 出现：**PASS** ["APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0", "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0", "APP: gesture_changed from=none to=拳头"]
+- H2 显示链：`S5DISP RESULT` 行出现：**PASS** ["S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":3869943615,\"uf_pix\":1122143360,\"uf_frame\":568333,\"uf_total\":1122143360,\"src\":\"real_nobox\",\"reason\":\"result_magic_mismatch\"}"]
+- H3 `CAM:` 行已记录（相机失败属正常，仅记录）：**PASS** {"seen": true, "lines": 4}
+- H4 屏幕目视 HUD 显示“手势：xxx”：**FAIL** "visual_check: pending（需 Wong/lead 目视或拍照，存本目录）"
+
+## UART 关键行
+
+- `CAM:`：['CAM: init OK chip=0x5640 640x480 stride=3840 raw=0x12000000 (24bpp BGR888)', 'CAM: sr=0x10000 frames=1', 'CAM: sr=0x10000 frames=1', 'CAM: sr=0x10000 frames=1']
+- `APP: gesture=`：['APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0']
+- `APP: gesture_changed`：['APP: gesture_changed from=none to=拳头']
+- `S5DISP RESULT`：['S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":29,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":0,"fb_crc":3869943615,"uf_pix":1122143360,"uf_frame":568333,"uf_total":1122143360,"src":"real_nobox","reason":"result_magic_mismatch"}']
+- `MVP`：[]
+
+## 停核快照
+
+- 0x20800000 首 8 字：['0xfffffffe', '0xff9fffff', '0xffffffff', '0xfffffffb', '0xffffffff', '0xffffffff', '0xffffffff', '0xffffffff']
+- 0x20000000 (FB) 首 16 字：['0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d', '0x7f8c8d']
+- 0x12000000 首 4 字：['0x486bdbf', '0x80329bf4', '0x1580ddfe', '0x6223bfb0']
+- camera VDMA CR=0x00010001 SR=0x00010000
+- 2B CSR=0x53324250
+
+- visual_check：pending（HUD 是否显示「手势：xxx」需 Wong/lead 目视或拍照）
+- DAP/halt：未命中；收窗残留：[]
+- 边界：禁 rst -system；未写候选区；未烧 QSPI
+
+---
+
+## 越界说明（00:52 补记，Team Lead 指示）
+
+- 本窗实际板卡占用时段：**2026-11-01T00:19:40 – 00:20:43（UTC+8）**，**落在 Codex 独占窗口内**（Codex CLAIM 至 01:00）。
+- 我方误判依据：`board_state.last_clean_run=m3_pair_20261101_r05`（00:18:16）曾显示 Codex 收窗，但其 CLAIM 实际未结束 ⇒ **本窗属我方越界**（DSH 侧已由 `DSH-20261101-001` 正式承认）。
+- 处置：**证据保留、不重跑、不主张本窗板卡状态**；本窗不作为 R-15/Codex 窗口的验收依据。
+- 自 00:52 起停止一切板卡写入；01:00 后按 lead 指令先物理 POR + `E1 --por` 再开正式窗。
+- 详见 `window_close_overreach_note.md`

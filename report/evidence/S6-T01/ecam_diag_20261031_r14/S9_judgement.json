@@ -1,0 +1,107 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "D1",
+      "desc": "CAM: rst pin after = 0x1（复位已释放）",
+      "pass": true,
+      "detail": {
+        "rst_after": 1,
+        "rst_lines": [
+          "CAM: rst pin before=0x1 (reg 0x41200000)",
+          "CAM: rst pin after=0x1 (低有效: 1=释放)"
+        ],
+        "snapshot_CAM_RST": "0x1"
+      }
+    },
+    {
+      "id": "D2",
+      "desc": "reset seq 出现且含两次 release(1)",
+      "pass": true,
+      "detail": {
+        "line": "CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms"
+      }
+    },
+    {
+      "id": "D3",
+      "desc": "i2c clk 诊断行 ≥1",
+      "pass": true,
+      "detail": {
+        "lines": [
+          "CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0"
+        ]
+      }
+    },
+    {
+      "id": "D4",
+      "desc": "probe ack=1",
+      "pass": false,
+      "detail": {
+        "probe": "CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2",
+        "ack": 0,
+        "rc": -2,
+        "isr_addr": "0x0"
+      }
+    },
+    {
+      "id": "D5",
+      "desc": "chipid=0x5640",
+      "pass": false,
+      "detail": {
+        "chipid": "0x0",
+        "chipid_lines": [
+          "CAM: chipid reg0x300A=0x00 reg0x300B=0x00"
+        ]
+      }
+    },
+    {
+      "id": "D6",
+      "desc": "无 CAM: FAIL",
+      "pass": false,
+      "detail": {
+        "fail_lines": [
+          "CAM: FAIL sub=-2 stage=addr/ack reg=0x300A val=0x300A isr=0x0",
+          "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"
+        ]
+      }
+    },
+    {
+      "id": "K1",
+      "desc": "SLCR APER_CLK_CTRL(0xF800012C) bit18（I2C0 外设时钟，P3r ps7_init.c 映射）= 1",
+      "pass": true,
+      "detail": {
+        "APER": "0x17c000d",
+        "bit18_I2C0": 1,
+        "bit11_SDI1": 0,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    {
+      "id": "K3",
+      "desc": "UART0/UART1 外设时钟已开（APER bit20/bit21=1；--enable-uart-clocks）",
+      "pass": true,
+      "detail": {
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    {
+      "id": "K2",
+      "desc": "I2C0 寄存器 CR/SR/DIV/ISR 可读",
+      "pass": true,
+      "detail": {
+        "I2C0_CR": "0x0",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff"
+      }
+    }
+  ]
+}

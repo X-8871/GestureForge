@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "ps_decode_link_20261028_r01",
+  "artifact": "PS 应用长跑变体（LONGRUN_SELFCHECK：SW 预处理 + 循环[START->DONE_SAFE->解码->ACK]）",
+  "source": {
+    "app": {
+      "path": "vitis/stage4/ps/s4d_ps_app.c",
+      "sha256_worktree_disk": "0a97ace45a16e8422deee3b8943b426ee669b43cf5ef05874fc2e59cfe539991",
+      "hash_basis": "worktree_disk"
+    },
+    "sw_preproc": {
+      "path": "vitis/stage4/ps/s4d_sw_preproc.c",
+      "sha256_worktree_disk": "2c645e201785eb5ff1af88fb8723cb96f8bfdc1fc00b399499ccdf7fa87c647a",
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "build": {
+    "command": "python -B scripts/stage4_s4b/build_s4d_ps_app_v2.py --define S4D_LONGRUN_SELFCHECK=1 --out-tag longrun",
+    "toolchain": {
+      "gcc": "D:\\Xilinx\\2026.1\\Vitis\\gnu\\aarch32\\nt\\gcc-arm-none-eabi\\bin\\arm-none-eabi-gcc.exe",
+      "flags": "-mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -DSDT -DPREPROC_SRC={0,1} -DS4D_LONGRUN_SELFCHECK=1 -O2 -g3 -std=gnu11"
+    },
+    "exit_code": 0
+  },
+  "outputs": {
+    "sw0_longrun": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrun/s4d_ps_app_sw0_longrun.elf",
+      "elf_sha256": "f9951d78d3fbbb50d280e0740d2fc3e989fcd85a4ecf9af67427b6ec58177031",
+      "elf_size": 271904,
+      "map_sha256": "3c51e78a7b96d75f33611980dc6e0ae0b3bdc97b80957ffe34e2d6ac09ffdc8b",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    },
+    "pl_longrun": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrun/s4d_ps_app_pl_longrun.elf",
+      "elf_sha256": "570ba45d9b5c59f6bb2a2fa0cfedb05f2543c4306e94047a5b05d5ec0d57a156",
+      "elf_size": 271904,
+      "map_sha256": "6bdde795e932249aa3f4f50eeff16d3f435511d34ab455d1c09f21aeaee5ee33",
+      "nm_strong_T": {
+        "s2a_t62_decode_nms": true
+      },
+      "hash_basis": "worktree_disk"
+    }
+  },
+  "judgement_frozen_in_evidence": {
+    "file": "report/evidence/S4-T34/bringup_longrun_20261028_r01/README.md（窗口执行时生成，判据事先写死）",
+    "rules": [
+      "wall_ms >= 1800000",
+      "iterations >= 140",
+      "failures == 0",
+      "每轮 status==0x00000E04 (DONE_SAFE) 且 error==0",
+      "每轮 decode_rc==0 且 count==1 且 raw==2 且 ack_idle==1",
+      "框 8 字段逐轮逐位一致（第一轮框另由主机侧与离线参考比对）",
+      "epoch 单调递增"
+    ],
+    "stop": "任一轮失败即停并打印失败轮次/状态；wall>=1800 s 或 iter>=160 先到者"
+  },
+  "verification": {
+    "script": "scripts/stage4_s4b/verify_longrun_v1.py",
+    "result": {
+      "script": "scripts/stage4_s4b/verify_longrun_v1.py",
+      "verdict": "PASS",
+      "checks": 7,
+      "fail": [],
+      "exit_code": 0,
+      "evidence": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrun/verify_longrun_v1.json"
+    }
+  },
+  "boundary": "离线构建；未上板长跑；ENABLE=0；未写 QSPI；未改线；未 push；不主张 G3/G4/G5；M3/M2 未闭合"
+}

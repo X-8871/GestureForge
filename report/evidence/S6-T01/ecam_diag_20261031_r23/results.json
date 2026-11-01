@@ -1,0 +1,195 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_diag_20261031_r23",
+  "started_utc8": "2026-10-31T16:43:20+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "7acea72617024db9cf2540e22fb422f1f6f8fe302cc8afa1a99c4f3372922a2d",
+      "xsa_sha": "07728bd2cf900891371e168371d718fa09d0bfec0c1caf149d59b97c503eac75",
+      "elf_sha": "5e27e10145fc1719ba5e84d986de75965f05313a08099a9de5d486af15857970"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S2d_ddr_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ddr_pre": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x0"
+      }
+    },
+    "S3a_init_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "note": "stage-4 init.elf：CPU/DDR/UART 基础状态"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3e_ddr_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x0"
+      },
+      "post": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x0"
+      },
+      "problems": []
+    },
+    "S3f_ddr_window": {
+      "status": "PASS",
+      "exit_code": 0,
+      "addr": "0x20000000",
+      "wrote": "0xDEADBEEF",
+      "readback": "0xdeadbeef",
+      "note": "DDR 高区（帧存 A 首字）写读一致性；失败 ⇒ 该地址窗口不可用"
+    },
+    "S3d_ps7_accept": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d",
+      "bits": {
+        "bit18_I2C0": 1,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      },
+      "i2c0": {
+        "I2C0_CR": "0x7e1e",
+        "I2C0_SR": "0x40",
+        "I2C0_DIV": "0x10",
+        "I2C0_ISR": "0x2ff"
+      },
+      "expect_aper": "0x17c000d",
+      "skipped": false,
+      "note": "断言 APER == expect_aper 且 bit18/20/21 全为 1"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": "0x53324250",
+        "DISP_VER": "0x62000050",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "CAM_RST": "0x1"
+      }
+    },
+    "S5b_aper_i2c": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ab_check": {
+        "APER": "0x17c000d",
+        "I2C0_CR": "0x7e1e",
+        "I2C0_SR": "0x40",
+        "I2C0_DIV": "0x10",
+        "I2C0_ISR": "0x2ff",
+        "RST": "0x1",
+        "aper_bit11": "0x0",
+        "aper_bit18": "0x1",
+        "aper_bit19": "0x1",
+        "aper_bit20": "0x1",
+        "aper_bit21": "0x1"
+      },
+      "note": "bit11=1 ⇒ I2C0 外设时钟已开；若 bit11=0 ⇒ 根因=PS7 init 未启用 I2C0 时钟"
+    },
+    "S5c_bus_check": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "pre": "0x2b",
+      "post": "0x2b",
+      "pulses_used": true,
+      "note": "0x43C80008=3 表示 SCL=1/SDA=1 空闲；≠3 时已用 9 脉冲恢复并切回 mode=0"
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 65072,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "7acea72617024db9cf2540e22fb422f1f6f8fe302cc8afa1a99c4f3372922a2d",
+    "expect": "7acea72617024db9cf2540e22fb422f1f6f8fe302cc8afa1a99c4f3372922a2d"
+  },
+  "xsa": {
+    "sha": "07728bd2cf900891371e168371d718fa09d0bfec0c1caf149d59b97c503eac75",
+    "expect": "07728bd2cf900891371e168371d718fa09d0bfec0c1caf149d59b97c503eac75"
+  },
+  "elf": {
+    "sha": "5e27e10145fc1719ba5e84d986de75965f05313a08099a9de5d486af15857970",
+    "expect": "5e27e10145fc1719ba5e84d986de75965f05313a08099a9de5d486af15857970"
+  },
+  "por_precondition": "satisfied",
+  "ddr_pre": {
+    "DDR_RAW": 0,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 0
+  },
+  "ps7init_mode": "combo(stage4_elf+ps7init_tcl)",
+  "ddr_post": {
+    "DDR_RAW": 0,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 0
+  },
+  "ddr_window": {
+    "write_ok": true,
+    "readback": 3735928559
+  },
+  "ps7_accept": {
+    "APER": 24903693,
+    "I2C0_CR": 32286,
+    "I2C0_SR": 64,
+    "I2C0_DIV": 16,
+    "I2C0_ISR": 767,
+    "bit18_I2C0": 1,
+    "bit20_UART0": 1,
+    "bit21_UART1": 1
+  },
+  "ab_check": {
+    "APER": 24903693,
+    "I2C0_CR": 32286,
+    "I2C0_SR": 64,
+    "I2C0_DIV": 16,
+    "I2C0_ISR": 767,
+    "RST": 1,
+    "aper_bit11": 0,
+    "aper_bit18": 1,
+    "aper_bit19": 1,
+    "aper_bit20": 1,
+    "aper_bit21": 1
+  },
+  "bus_check": {
+    "pre": 43,
+    "post": 43,
+    "pulses": true,
+    "ok": false
+  },
+  "stop_reason": "SCCB 总线体检后仍非空闲(≠3)——停手",
+  "finished_utc8": "2026-10-31T16:43:56+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

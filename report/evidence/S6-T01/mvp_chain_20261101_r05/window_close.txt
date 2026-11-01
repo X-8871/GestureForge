@@ -1,0 +1,47 @@
+# MVP 单链板级串联窗 — `mvp_chain_20261101_r05`
+
+- 开窗：2026-11-01T02:06:24+08:00；收窗：2026-11-01T02:09:39+08:00
+- 结论：**MVP_CHAIN_PARTIAL**；stop_reason=MVP 判据未全绿（详见 S12_judgement）
+- **por_precondition：satisfied**
+- rst -system：**1 次**（init 阶段一次性，PL 编程前；mode=rst-system）
+- 位流：`e340066009ed59383c9588ae06e574006f2f464d253e8056a521b80d6d148fff`；XSA：`e945d02622df5e4d7d3b17a3606caad25f111aba788ec03cbc495b7c4542e0f9`
+- core0 显示 ELF：`6bae254b187853bebc7244a156b59b49d96ab7d0001f826e0a0df3360b0d54e9`；core1 推理 ELF：`1acf5d8151e9c6fdb2f96a2335da6496af8c5248357bacd1c1e19eb40f345de5`
+- 权重：`f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39` → 0x10100000
+
+- J1 相机：`CAM: init OK` 且 0x12000000 采样非零：**PASS** {"cam": true, "raw_nonzero": {"head": 1, "mid": 0, "last": 0}, "MVP NOTE raw_blank": false}
+- J2 显示链运行：`S5DISP frame` 行出现（src/nbox 见 J5）：**PASS** {"lines": 3, "sample": ["S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"]}
+- J3 权重：`verify -data` rc=0 且 `MVP WEIGHTS: GFINT8W1 OK`：**PASS** {"attempts": [{"attempt": 1, "dow": true, "verify_rc_ok": true, "wm0": "0x4e494647", "wm1": "0x31573854"}], "line": ["MVP WEIGHTS: GFINT8W1 OK @0x10100000"]}
+- J4 推理：≥1 条 `MVP TIME` 且 raw_nz>0 且 dt_pl≤90000 ms：**PASS** {"lines": ["MVP TIME t0_pre=54762 t1_pl=102256 t2_decode=102263 t3_pub=102263 dt_pre=86 dt_pl=47494 dt_dec=6 dt_all=47587 raw_nz=40"], "raw_nz": 40, "dt_pl": 47494}
+- J5 结果块：`MVP S5RS … magic=0x53355253`（n_dets 0..15 合法）+ 显示 real 且有框/或 RESULT 合格：**FAIL** {"s5rs_lines": ["MVP S5RS frame=0 n_dets=0 magic=0x53355253"], "n_dets": [0], "disp_real_lines": ["S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"], "result": null}
+- J6 HUD：`APP: gesture_changed` 或 `S5DISP frame … src=real nbox≥1`：**PASS** {"changed": ["APP: gesture_changed from=none to=拳头"], "disp_real": false, "note": "APP: gesture= 每 30 帧才打印（≈23 min/次），本窗不作判据"}
+
+## UART 关键行（原文，各最多 3 条）
+
+- `CAM: init OK`：['CAM: init OK chip=0x5640 1280x720 stride=3840 raw=0x12000000 (24bpp BGR888)']
+- `MVP WEIGHTS`：['MVP WEIGHTS: GFINT8W1 OK @0x10100000']
+- `MVP TIME`：['MVP TIME t0_pre=54762 t1_pl=102256 t2_decode=102263 t3_pub=102263 dt_pre=86 dt_pl=47494 dt_dec=6 dt_all=47587 raw_nz=40']
+- `MVP S5RS`：['MVP S5RS frame=0 n_dets=0 magic=0x53355253']
+- `MVP NOTE`：[]
+- `MVP APP`：['MVP APP: CAM=1 raw=0x12000000 1280x720 bgr888 bytes=2764800 s5rs=0x20800000']
+- `APP: gesture=`：['APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=41']
+- `APP: gesture_changed`：['APP: gesture_changed from=none to=拳头']
+- `S5DISP frame`：['S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0', 'S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0', 'S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0']
+- `S5DISP RESULT`：['S5DISP RESULT={"pass":0,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":5,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,nbox_crc"c0,2 framc=:2258021530,"uf_pix":3103882318,"uf_frame":63799,"uf_total":3103882318,"src":"real_nobox","reason":"frame_check_failed"}']
+- `CAM: FAIL`：[]
+
+## 停核快照（只读）
+
+- 0x12000000 head/mid/last 非零计数：{'head': 1, 'mid': 0, 'last': 0}
+- 0x20800000 前 8 字：['0x53355253', '0x378', '0x0', '0x131c9cb3', '0xe', '0x1321e698', '0xe', '0x0']
+- S5RS magic 命中：True
+- camera VDMA CR=0x00010001 SR=0x00014810
+- 2B CSR(0x43C00000)=0x53324250
+
+## 判读规则
+
+- M1 CAM init + raw 非零；M2 weights OK + raw_nz>0；M3 S5RS n_dets≥1/cls∈0..4；M4 APP gesture 中文名；M5 gesture_changed 出现
+- 任一 DAP/halt 异常 ⇒ 停手，不重试
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：rst -system 仅 init 一次；未写候选区；未烧 QSPI

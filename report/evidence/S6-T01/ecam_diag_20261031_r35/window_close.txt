@@ -1,0 +1,45 @@
+# E-cam 诊断窗（复位修复验证） — `ecam_diag_20261031_r35`
+
+- 开窗：2026-10-31T18:07:53+08:00；收窗：2026-10-31T18:09:19+08:00
+- 结论：**ECAM_DIAG_FAIL**；stop_reason=判据 FAIL
+- **por_precondition：satisfied**
+- 位流 P3r build3：`25310a64545255bc1d09f11939f32af4a2a5740c040db3dbcfa433c79e2e32db`；ELF：`8d70bb61aa66bd57ace79cac3b5f2a3e877975a24cb1115b4a0c7c2f9a900b2c`
+
+- D1 CAM: rst pin after = 0x1（复位已释放）：**FAIL** {"rst_after": null, "rst_lines": ["CAM: rst pin before=0x1 (reg 0x41200000)"], "snapshot_CAM_RST": "0x1"}
+- D2 reset seq 出现且含两次 release(1)：**FAIL** {"line": "CAM: reset seq: 1(release) 500 ms -> 0(assert) 500 ms -> 1(release) 500 ms; pin before=0x1 after=0x1"}
+- D3 i2c clk 诊断行 ≥1：**PASS** {"lines": ["CAM: i2c init rc=0 Fpclk=111111115 div_a=0 div_b=40 Fscl=123183 cr=0x1 sr=0x3"]}
+- D4 probe ack=1：**FAIL** {"probe": null, "ack": null, "rc": null, "isr_addr": null}
+- D5 chipid=0x5640：**FAIL** {"chipid": null, "chipid_lines": ["CAM: try1 chipid=0x5640 OK", "CAM: try2 chipid=0x5640 OK"]}
+- D6 无 CAM: FAIL：**FAIL** {"fail_lines": ["CAM: FAILED rc=-14（I2C/覆盖表/回读/S2MM 配置阶段失��）→ 继续显示测试图"]}
+- K1 SLCR APER_CLK_CTRL(0xF800012C) bit18（I2C0 外设时钟，P3r ps7_init.c 映射）= 1：**PASS** {"APER": "0x17c000d", "bit18_I2C0": 1, "bit11_SDI1": 0, "bit20_UART0": 1, "bit21_UART1": 1}
+- K3 UART0/UART1 外设时钟已开（APER bit20/bit21=1；--enable-uart-clocks）：**PASS** {"bit20_UART0": 1, "bit21_UART1": 1}
+- K2 I2C0 寄存器 CR/SR/DIV/ISR 可读：**PASS** {"I2C0_CR": "0x7e1e", "I2C0_SR": "0x40", "I2C0_DIV": "0x10", "I2C0_ISR": "0x2ff"}
+
+## 判读关键（UART 原文）
+
+- `rst pin before/after` 行：['CAM: rst pin before=0x1 (reg 0x41200000)']
+- `reset seq` 行：CAM: reset seq: 1(release) 500 ms -> 0(assert) 500 ms -> 1(release) 500 ms; pin before=0x1 after=0x1
+- `i2c clk` 行（1 条）：['CAM: i2c init rc=0 Fpclk=111111115 div_a=0 div_b=40 Fscl=123183 cr=0x1 sr=0x3']
+- `probe` 行：None
+- `chipid` 行：['CAM: try1 chipid=0x5640 OK', 'CAM: try2 chipid=0x5640 OK']
+
+## 停核快照（只读）
+
+- **0x41200000 (cmos_rstn) = 0x00000001**（期望 1）
+- 0x43C70000 (CAM_GPIO) = 0x003B3375
+- camera VDMA CR=0x00000000 SR=0x00000000
+- **SLCR APER_CLK_CTRL(0xF800012C)=0x017C000D bit11=0**
+- I2C0 CR=0x00007E1E SR=0x00000040 DIV=0x00000010 ISR=0x000002FF
+- ps7init 模式：combo(stage4_elf+ps7init_tcl)
+- display VDMA CR=0x00010002 SR=0x00011001
+- UF frame=0x00018600 total=0xA44E64ED
+
+## 判读规则
+
+- `rst pin after=0x1` + `probe ack=1` ⇒ **复位修复成功**（可进修复版相机窗）
+- `ack=0` 且 `isr_addr` 含 0x10(NACK) ⇒ 器件无响应（接线/供电/上拉/地址）
+- `rc=-2` 且 `isr_addr=0` ⇒ I2C 起步异常
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI

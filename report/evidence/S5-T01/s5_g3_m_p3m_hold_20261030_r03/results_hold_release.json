@@ -1,0 +1,164 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_m_p3m_hold_20261030_r03",
+  "mode": "p3m_hold_release",
+  "started_utc8": "2026-10-30T14:51:50+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": {
+        "path": "D:\\tmp\\lead\\p3m_axis_to_video_20261030_r01\\out\\s4d_p3m_r01.bit",
+        "sha256": "b7220b6dfed20264d16719f297a4c5c1440d9ae4cc9c25749339780479de017c",
+        "expect": "b7220b6dfed20264d16719f297a4c5c1440d9ae4cc9c25749339780479de017c"
+      },
+      "xsa": {
+        "path": "D:\\tmp\\lead\\p3m_axis_to_video_20261030_r01\\out\\s4d_p3m_r01.xsa",
+        "sha256": "2b8845eef291257631bd3ba79a2c33719f34d86bfc794eeb0eb2ee50d2165d2c"
+      },
+      "elf": {
+        "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+        "sha256": "2481b2d17b96ce65b1a6d2cc1284f824e98ca0ecc97fb9f1b57869cb846530e4",
+        "expect": "2481b2d17b96ce65b1a6d2cc1284f824e98ca0ecc97fb9f1b57869cb846530e4",
+        "size": 281956
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "free_gb": 4.86,
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 62268
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_longrun": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "run_state": "Running",
+      "elapsed_s": 5.9,
+      "elf_sha256": "2481b2d17b96ce65b1a6d2cc1284f824e98ca0ecc97fb9f1b57869cb846530e4"
+    },
+    "S7_release": {
+      "status": "PASS",
+      "exit_code": 0,
+      "hold_released_at": "14:52:12",
+      "expected_until": "15:22:04",
+      "cores": "RUNNING",
+      "hw_server": "killed",
+      "pl": "P3m",
+      "listening_3121": 0,
+      "residual": []
+    },
+    "S8_uart_after_release": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 62.2,
+      "lines": 47,
+      "key_lines": [
+        "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+        "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+        "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)",
+        "VDMA: read period = 6409939 ticks (19229 us) -> fps_dis=52 (display refresh)",
+        "S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=240 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=300 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=360 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=420 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=480 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=540 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=600 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=660 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=720 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=780 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=840 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=900 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=960 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+      ],
+      "last_lines": [
+        "S5DISP tick t=60 frames=1876 vcnt=1876 err=0",
+        "S5DISP frame=1920 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=1980 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2040 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2100 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+        "S5DISP frame=2160 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+      ]
+    }
+  },
+  "programming_tool": "xsdb fpga -file",
+  "hold_policy": "con 后稳定 3 s 杀 hw_server；不停核/不收窗；PS 继续跑、画面持续",
+  "forbidden_ops": "禁 rst -system",
+  "hold_released_at": "2026-10-30T14:52:12+08:00",
+  "hold_released_hhmmss": "14:52:12",
+  "expected_until_hhmmss": "15:22:04",
+  "expected_until": "2026-10-30T15:22:04+08:00",
+  "cores": "RUNNING",
+  "hw_server": "killed",
+  "pl": "P3m",
+  "pl_sha256": "b7220b6dfed20264d16719f297a4c5c1440d9ae4cc9c25749339780479de017c",
+  "elf_sha256": "2481b2d17b96ce65b1a6d2cc1284f824e98ca0ecc97fb9f1b57869cb846530e4",
+  "listening_3121_after_kill": 0,
+  "residual": [],
+  "uart_after_release": {
+    "elapsed_s": 62.2,
+    "lines": 47,
+    "key_lines": [
+      "hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000",
+      "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+      "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)",
+      "VDMA: read period = 6409939 ticks (19229 us) -> fps_dis=52 (display refresh)",
+      "S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=240 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=300 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=360 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=420 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=480 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=540 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=600 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=660 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=720 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=780 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=840 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=900 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=960 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+    ],
+    "last_lines": [
+      "S5DISP tick t=60 frames=1876 vcnt=1876 err=0",
+      "S5DISP frame=1920 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=1980 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2040 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2100 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+      "S5DISP frame=2160 lat=0 age=0 st=3 sr=11000 src=real nbox=3"
+    ]
+  }
+}

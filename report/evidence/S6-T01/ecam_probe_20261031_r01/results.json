@@ -1,0 +1,175 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_probe_20261031_r01",
+  "started_utc8": "2026-10-31T14:01:44+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460",
+      "xsa_sha": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2",
+      "elf_sha": "3ec8fd91f937fb2929b2ed78d47975e8d13b1c2344854d2b50e52052f0a352ec"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S2d_ddr_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ddr_pre": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x0"
+      }
+    },
+    "S3a_init_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "note": "stage-4 init.elf：CPU/DDR/UART 基础状态"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3e_ddr_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x0"
+      },
+      "post": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0xffffffff"
+      },
+      "problems": []
+    },
+    "S3d_ps7_accept": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d",
+      "bits": {
+        "bit18_I2C0": 1,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      },
+      "i2c0": {
+        "I2C0_CR": "0x17",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff"
+      },
+      "expect_aper": "0x17c000d",
+      "skipped": false,
+      "note": "断言 APER == expect_aper 且 bit18/20/21 全为 1"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": "0x53324250",
+        "DISP_VER": "0x62000050",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "CAM_RST": "0x1"
+      }
+    },
+    "S5b_aper_i2c": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ab_check": {
+        "APER": "0x17c000d",
+        "I2C0_CR": "0x17",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff",
+        "RST": "0x1",
+        "aper_bit11": "0x0",
+        "aper_bit18": "0x1",
+        "aper_bit19": "0x1",
+        "aper_bit20": "0x1",
+        "aper_bit21": "0x1"
+      },
+      "note": "bit11=1 ⇒ I2C0 外设时钟已开；若 bit11=0 ⇒ 根因=PS7 init 未启用 I2C0 时钟"
+    },
+    "S6_load_app": {
+      "status": "FAIL",
+      "exit_code": 1
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 57156,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ]
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460",
+    "expect": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460"
+  },
+  "xsa": {
+    "sha": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2",
+    "expect": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2"
+  },
+  "elf": {
+    "sha": "3ec8fd91f937fb2929b2ed78d47975e8d13b1c2344854d2b50e52052f0a352ec",
+    "expect": "3ec8fd91f937fb2929b2ed78d47975e8d13b1c2344854d2b50e52052f0a352ec"
+  },
+  "por_precondition": "satisfied",
+  "ddr_pre": {
+    "DDR_RAW": 0,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 0
+  },
+  "ps7init_mode": "combo(stage4_elf+ps7init_tcl)",
+  "ddr_post": {
+    "DDR_RAW": 0,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 4294967295
+  },
+  "ps7_accept": {
+    "APER": 24903693,
+    "I2C0_CR": 23,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "bit18_I2C0": 1,
+    "bit20_UART0": 1,
+    "bit21_UART1": 1
+  },
+  "ab_check": {
+    "APER": 24903693,
+    "I2C0_CR": 23,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "RST": 1,
+    "aper_bit11": 0,
+    "aper_bit18": 1,
+    "aper_bit19": 1,
+    "aper_bit20": 1,
+    "aper_bit21": 1
+  },
+  "stop_reason": "诊断 ELF 未进入 Running",
+  "finished_utc8": "2026-10-31T14:02:19+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

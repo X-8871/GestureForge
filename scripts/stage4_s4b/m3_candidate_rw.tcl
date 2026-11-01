@@ -48,26 +48,17 @@ if {$mode == "snapshot" || $mode == "readback"} {
     puts "M3_DUMP=$binfile"
     puts "M3_RESULT=READ_OK"
 } elseif {$mode == "write"} {
-    set chunk_words 16384
-    set chunks [expr {($WORDS + $chunk_words - 1) / $chunk_words}]
-    for {set c 0} {$c < $chunks} {incr c} {
-        set addr [expr {$BASE + $c * $chunk_words * 4}]
-        set remain [expr {$WORDS - $c * $chunk_words}]
-        set n [expr {$remain < $chunk_words ? $remain : $chunk_words}]
-        set marker [format "0x5A5A%04X" $c]
-        if {[catch {
-            mwr $addr $marker
-            if {$n > 1} { mwr -pattern 0xA5A5A5A5 [expr {$addr + 4}] [expr {$n - 1}] }
-        } err]} {
-            puts "M3_ERROR=mwr:$err"
-            disconnect
-            exit 7
-        }
+    # 修订（窗口5 后）：xsdb 2026.1 的 mwr **无 -pattern 选项**；改为写入由驱动预生成的图案文件
+    # （图案文件自带每块标记字 + 0xA5A5A5A5 填充），一次性整区写入。
+    if {[catch {mwr -bin -file $binfile $BASE $WORDS} err]} {
+        puts "M3_ERROR=mwr:$err"
+        disconnect
+        exit 7
     }
-    puts "M3_CHUNKS=$chunks"
     puts "M3_RESULT=WRITE_OK"
 } elseif {$mode == "restore"} {
-    if {[catch {mwr -bin -file $binfile $BASE} err]} {
+    # 修订（窗口5 后）：`mwr -bin -file` 必须显式给出字数，否则报 wrong # of args。
+    if {[catch {mwr -bin -file $binfile $BASE $WORDS} err]} {
         puts "M3_ERROR=mwr:$err"
         disconnect
         exit 7

@@ -1,0 +1,248 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_b_box_20261030_r02",
+  "mode": "g3b",
+  "started_utc8": "2026-10-30T03:05:21+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3b_video_20261030_r01\\out\\s4d_p3b_r01.bit",
+          "sha256": "1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572",
+          "expect": "1670b0b3"
+        },
+        "elf": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+          "sha256": "62f3595c950ddc24cf4ccb2307e7c35d5777f571ffa42993d92d456367c486f6",
+          "expect": "62f3595c950ddc24cf4ccb2307e7c35d5777f571ffa42993d92d456367c486f6"
+        },
+        "init_elf": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959"
+        },
+        "driver": {
+          "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "expect": "6c41ff4c"
+        }
+      }
+    },
+    "S2_P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "exit_code": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 54736
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0,
+      "targets": "1  APU\n     2  ARM Cortex-A9 MPCore #0 (Running)\n     3  ARM Cortex-A9 MPCore #1 (Running)\n  4  xc7z020"
+    },
+    "S4_prestop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S4_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": "PASS",
+      "program_pl_exit": 0,
+      "lvl_0xF": "PASS"
+    },
+    "S5_seed_block": {
+      "status": "PASS",
+      "exit_code": 0,
+      "addr": "0x20800000",
+      "bytes": 80,
+      "words": 20,
+      "write_exit": 0,
+      "write_error": null,
+      "readback_exit": 0,
+      "readback_equal": true,
+      "expect_box_crc32": "0x2d949c0c",
+      "seed_sha256": "3815ac0293727164649ed09c057874f455a68d765e58f60e00f3b483a0cdb3db"
+    },
+    "S5_load_display": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_exit": 0,
+      "elapsed_s": 5.8,
+      "elf": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+      "elf_sha256": "62f3595c950ddc24cf4ccb2307e7c35d5777f571ffa42993d92d456367c486f6"
+    },
+    "S6_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 3.6,
+      "seconds_budget": 90,
+      "lines_total": 29,
+      "tick_lines": 0,
+      "result_seen": true,
+      "tail_partial_bytes": 0,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":384897389,\"fb_crc\":1712421811,\"src\":\"real\"}"
+    },
+    "S7_stop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S7_core_states": {
+      "status": "PASS",
+      "exit_code": 0,
+      "raw": "$ cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; puts S0=[state]; targets -set -filter {name =~ \"*Cortex-A9*#1*\"}; puts S1=[state]; disconnect; exit\nexit=0 elapsed=0.782\nS0=Stopped: (Vector Catch)\nS1=Stopped: (Vector Catch)"
+    },
+    "S7_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "J-1",
+          "desc": "S5DISP RESULT 可解析且含基础键",
+          "pass": true,
+          "detail": {
+            "missing": []
+          }
+        },
+        {
+          "id": "J-2",
+          "desc": "pass==1",
+          "pass": true,
+          "detail": {
+            "pass": 1
+          }
+        },
+        {
+          "id": "J-3",
+          "desc": "vdma_err==0",
+          "pass": true,
+          "detail": {
+            "vdma_err": 0
+          }
+        },
+        {
+          "id": "J-4",
+          "desc": "55<=fps_dis<=90",
+          "pass": false,
+          "detail": {
+            "fps_dis": 52,
+            "fps_upd": 34
+          }
+        },
+        {
+          "id": "J-5",
+          "desc": "age_ms<=47317",
+          "pass": true,
+          "detail": {
+            "age_ms": 0
+          }
+        },
+        {
+          "id": "J-6",
+          "desc": "0<=latency_ms<=1000",
+          "pass": true,
+          "detail": {
+            "latency_ms": 0
+          }
+        },
+        {
+          "id": "J-7",
+          "desc": "无 error/timeout 语义",
+          "pass": true,
+          "detail": {
+            "bad_tokens": []
+          }
+        },
+        {
+          "id": "J-8",
+          "desc": "UART 结果窗>=60 s 且尾半行丢弃",
+          "pass": true,
+          "detail": {
+            "elapsed_s": 6.0
+          }
+        },
+        {
+          "id": "B-1",
+          "desc": "B-1",
+          "pass": false,
+          "detail": {
+            "box_crc": 384897389,
+            "expect": "0x2d949c0c"
+          }
+        },
+        {
+          "id": "B-2",
+          "desc": "B-2",
+          "pass": false,
+          "detail": {
+            "nbox": null
+          }
+        },
+        {
+          "id": "B-3",
+          "desc": "B-3",
+          "pass": true,
+          "detail": {
+            "src": "real"
+          }
+        }
+      ],
+      "extra": {
+        "box_crc": 384897389,
+        "expect_box_crc": "0x2d949c0c",
+        "nbox": null,
+        "expect_nbox": 3,
+        "src": "real",
+        "expect_src": "real"
+      },
+      "parsed": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 52,
+        "fps_upd": 34,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 384897389,
+        "fb_crc": 1712421811,
+        "src": "real"
+      }
+    },
+    "S8_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 54736,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": "判据 FAIL",
+  "authorization_file": "D:\\tmp\\lead\\p3b_smoke_20261030_r01\\authorization_g3.json",
+  "criterion_ok": false,
+  "conclusion": "FAIL",
+  "finished_utc8": "2026-10-30T03:06:23+08:00",
+  "teardown_ok": true
+}

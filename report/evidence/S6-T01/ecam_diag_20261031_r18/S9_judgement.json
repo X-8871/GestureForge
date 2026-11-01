@@ -1,0 +1,100 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "D1",
+      "desc": "CAM: rst pin after = 0x1（复位已释放）",
+      "pass": false,
+      "detail": {
+        "rst_after": null,
+        "rst_lines": [
+          "CAM: rst pin before=0x1 (reg 0x41200000)"
+        ],
+        "snapshot_CAM_RST": "0x1"
+      }
+    },
+    {
+      "id": "D2",
+      "desc": "reset seq 出现且含两次 release(1)",
+      "pass": false,
+      "detail": {
+        "line": "CAM: reset seq: 1(release) 500 ms -> 0(assert) 500 ms -> 1(release) 500 ms; pin before=0x1 after=0x1"
+      }
+    },
+    {
+      "id": "D3",
+      "desc": "i2c clk 诊断行 ≥1",
+      "pass": true,
+      "detail": {
+        "lines": [
+          "CAM: i2c cr_raw_before=0x7E17 sr=0x20 impr=0x2FF (init 前原始状态)",
+          "CAM: i2c init rc=0 Fpclk=111111115 div_a=1 div_b=62 Fscl=40083 cr=0x7E06 sr=0x20"
+        ]
+      }
+    },
+    {
+      "id": "D4",
+      "desc": "probe ack=1",
+      "pass": false,
+      "detail": {
+        "probe": null,
+        "ack": null,
+        "rc": null,
+        "isr_addr": null
+      }
+    },
+    {
+      "id": "D5",
+      "desc": "chipid=0x5640",
+      "pass": false,
+      "detail": {
+        "chipid": null,
+        "chipid_lines": []
+      }
+    },
+    {
+      "id": "D6",
+      "desc": "无 CAM: FAIL",
+      "pass": false,
+      "detail": {
+        "fail_lines": [
+          "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图",
+          "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"
+        ]
+      }
+    },
+    {
+      "id": "K1",
+      "desc": "SLCR APER_CLK_CTRL(0xF800012C) bit18（I2C0 外设时钟，P3r ps7_init.c 映射）= 1",
+      "pass": true,
+      "detail": {
+        "APER": "0x17c000d",
+        "bit18_I2C0": 1,
+        "bit11_SDI1": 0,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    {
+      "id": "K3",
+      "desc": "UART0/UART1 外设时钟已开（APER bit20/bit21=1；--enable-uart-clocks）",
+      "pass": true,
+      "detail": {
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    {
+      "id": "K2",
+      "desc": "I2C0 寄存器 CR/SR/DIV/ISR 可读",
+      "pass": true,
+      "detail": {
+        "I2C0_CR": "0x7e17",
+        "I2C0_SR": "0x20",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff"
+      }
+    }
+  ]
+}

@@ -1,0 +1,416 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "g4_q_concurrent_display_2b_20261030_r05",
+  "mode": "g4_q_concurrent_r05_continue",
+  "started_utc8": "2026-10-30T19:20:18+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "m4b_sha": "553fbf7ea7de8bc75edaf99c0b4d5cb79ef39e556e768b91abd459d1cf240e84",
+      "disp_sha": "6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f",
+      "m4b_entry": 1048576,
+      "disp_entry": 1048576,
+      "board_state_note": "沿用 r03 结束状态：PL=P3q、ps7_init 已执行、M4-b 预置+投毒已在 DDR、两核已 stop"
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 47604
+      }
+    },
+    "S3_enum_loadhw": {
+      "status": "PASS",
+      "exit_code": 0,
+      "dap_clean": true,
+      "has_a9": true,
+      "loadhw_ok": true
+    },
+    "S4_dual_dow_pc": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pc0": "0x100000",
+      "expect_core0_entry": "0x100000",
+      "pc1": "0x100000",
+      "expect_core1_entry": "0x100000",
+      "map_ok": true,
+      "error_text": null
+    },
+    "S5_uart_open": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S6a_pre_identity": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "note": "con core1 后 5 s：只见 S5DISP ⇒ core1=显示长跑；两核 pc 均=0x100000 entry 无法区分镜像，故以观测输出为归属证据",
+      "lines": 0,
+      "s5disp_lines": 0,
+      "m4b_lines": 0,
+      "sample": []
+    },
+    "S6_con_both": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "disp_con_first": false,
+      "m4b_con_after_5s": true,
+      "pre_lines": 0,
+      "error_text": null
+    },
+    "S7_collect": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "lines": 47,
+      "m4b_result_raw": null,
+      "m4b": {},
+      "disp_fps_values": [
+        60
+      ],
+      "uf_frame": null,
+      "uf_total": null,
+      "uf_during": {
+        "values": [
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976
+        ],
+        "first": 1543660976,
+        "last": 1543660976,
+        "delta": 0,
+        "span_ms": 1383,
+        "gpio_frame": 0,
+        "vdma_cr": 65539,
+        "vdma_sr": 69632
+      }
+    },
+    "S7b_stop_snapshot": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "snapshots": []
+    },
+    "S7c_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "J-0",
+          "desc": "镜像归属观测：先 con core1 仅见 S5DISP（无 M4B/S4D）",
+          "pass": false,
+          "detail": {
+            "lines": 0,
+            "s5disp_lines": 0,
+            "m4b_lines": 0,
+            "sample": []
+          }
+        },
+        {
+          "id": "J-1",
+          "desc": "两核 dow 后 pc == ELF entry（dump 一致性，不区分镜像）",
+          "pass": true,
+          "detail": {
+            "pc0": "0x100000",
+            "m4b_entry": "0x100000",
+            "pc1": "0x100000",
+            "disp_entry": "0x100000"
+          }
+        },
+        {
+          "id": "J-2",
+          "desc": "M4-b RESULT 可解析",
+          "pass": false,
+          "detail": {}
+        },
+        {
+          "id": "J-3",
+          "desc": "M4-b pass==1",
+          "pass": false,
+          "detail": null
+        },
+        {
+          "id": "J-4",
+          "desc": "M4-b elapsed_ms 记录（对比基线 47287，差值如实记录）",
+          "pass": false,
+          "detail": {
+            "elapsed_ms": null,
+            "baseline_ms": 47287,
+            "delta_ms": null
+          }
+        },
+        {
+          "id": "J-5",
+          "desc": "显示侧 fps_dis≥55",
+          "pass": true,
+          "detail": {
+            "fps_dis_values": [
+              60
+            ]
+          }
+        },
+        {
+          "id": "J-6",
+          "desc": "并发期累计欠载增量=0（0x43C50008）",
+          "pass": true,
+          "detail": {
+            "values": [
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976,
+              1543660976
+            ],
+            "first": 1543660976,
+            "last": 1543660976,
+            "delta": 0,
+            "span_ms": 1383,
+            "gpio_frame": 0,
+            "vdma_cr": 65539,
+            "vdma_sr": 69632
+          }
+        },
+        {
+          "id": "J-7",
+          "desc": "全程无 DAP/APB 错误",
+          "pass": true,
+          "detail": {
+            "hit": false,
+            "detail": ""
+          }
+        }
+      ]
+    },
+    "S8_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 47604,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "policy": "续跑窗：不重编 PL、不做任何 rst；dow 后用 rrd pc 校验镜像-核映射；先 con core1（显示先跑 5 s）再 con core0（M4-b）",
+  "baseline_no_display_ms": 47287,
+  "caveat": "DDR 区重叠（M4-b head13/26 在 0x12000000 起，与显示 raw 区重叠）⇒ 只判耗时/带宽，不判数据",
+  "forbidden_ops": "禁 rst -system；DAP/APB 错误即停手不重试",
+  "pre_identity": {
+    "lines": 0,
+    "s5disp_lines": 0,
+    "m4b_lines": 0,
+    "sample": []
+  },
+  "m4b": {},
+  "uf_during": {
+    "values": [
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976,
+      1543660976
+    ],
+    "first": 1543660976,
+    "last": 1543660976,
+    "delta": 0,
+    "span_ms": 1383,
+    "gpio_frame": 0,
+    "vdma_cr": 65539,
+    "vdma_sr": 69632
+  },
+  "disp": {
+    "fps_dis": 60,
+    "uf_frame": null,
+    "uf_total": null,
+    "vdma_cr": 65539,
+    "vdma_sr": 69632
+  },
+  "result_line_raw": null,
+  "uart_lines": 47,
+  "criteria": [
+    {
+      "id": "J-0",
+      "desc": "镜像归属观测：先 con core1 仅见 S5DISP（无 M4B/S4D）",
+      "pass": false,
+      "detail": {
+        "lines": 0,
+        "s5disp_lines": 0,
+        "m4b_lines": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "J-1",
+      "desc": "两核 dow 后 pc == ELF entry（dump 一致性，不区分镜像）",
+      "pass": true,
+      "detail": {
+        "pc0": "0x100000",
+        "m4b_entry": "0x100000",
+        "pc1": "0x100000",
+        "disp_entry": "0x100000"
+      }
+    },
+    {
+      "id": "J-2",
+      "desc": "M4-b RESULT 可解析",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "id": "J-3",
+      "desc": "M4-b pass==1",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "id": "J-4",
+      "desc": "M4-b elapsed_ms 记录（对比基线 47287，差值如实记录）",
+      "pass": false,
+      "detail": {
+        "elapsed_ms": null,
+        "baseline_ms": 47287,
+        "delta_ms": null
+      }
+    },
+    {
+      "id": "J-5",
+      "desc": "显示侧 fps_dis≥55",
+      "pass": true,
+      "detail": {
+        "fps_dis_values": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "J-6",
+      "desc": "并发期累计欠载增量=0（0x43C50008）",
+      "pass": true,
+      "detail": {
+        "values": [
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976
+        ],
+        "first": 1543660976,
+        "last": 1543660976,
+        "delta": 0,
+        "span_ms": 1383,
+        "gpio_frame": 0,
+        "vdma_cr": 65539,
+        "vdma_sr": 69632
+      }
+    },
+    {
+      "id": "J-7",
+      "desc": "全程无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "P3Q_CONCURRENT_R05_FAIL",
+  "finished_utc8": "2026-10-30T19:21:49+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  }
+}

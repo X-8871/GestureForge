@@ -1,0 +1,50 @@
+{
+  "authorization_id": "DSH-M3-PAIR-20261030-R04",
+  "supersedes": "R03（未执行；板卡断电导致 DDR 丢失，需先重建候选区）",
+  "granted_by": "DSH 项目总控（lead），依 Wong 2026-10-30 确认『断电过/刚重新上电』",
+  "date_utc8": "2026-10-30T02:15:00+08:00",
+  "scope": "M3 成对取样（断电后恢复版）：确认上电 → 编程 2B 基线位流 → ps7_init → **按登记快照重建候选区 [0x12000000,0x12C08000)** → 双读校验 == baseline → 部署 chainA → 停两核 → capture before → 只读 mrd 事件 → capture after → compare",
+  "window_id": "DSH-M3PAIR-20261030-W02",
+  "event_id": "readonly-mrd-sampling-no-candidate-write",
+  "lifecycle_id": "board-lifecycle-20261030-03",
+  "read_region": "[0x12000000,0x12C08000) 共 12,615,680 B",
+  "reestablishment": {
+    "reason": "Wong 确认板卡断电并重新上电 ⇒ DDR 内容丢失，原 baseline 41907f53… 在当前 DDR 上必然不成立",
+    "method": "用登记快照 report/evidence/S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin（12,615,680 B，sha256 41907f53…）通过既有 jtag_write_file/restore_region 路径写回候选区",
+    "verification": "写回后双读全 0x12000000..0x12C08000，两次 sha256 必须都 == 41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf；不等则停",
+    "note": "这是内容重建（同一字节序列），不是改基准；证据须记录 RESTORED_FROM_SNAPSHOT + 双读 sha"
+  },
+  "allowed_actions": [
+    "启动 hw_server（tcp:3121）",
+    "rst -processor -stop（仅处理器复位，不触 PL）",
+    "编程 2B 基线位流 s2b_inference.bit（555a70c2…）；编程后禁 rst -system",
+    "SLCR 白名单 5 写（0xF8000008=0xDF0D、0xF8000900=0x0A、0xF8000240=0、0xF8000004=0x767B、编程后 0xF8000900=0x0F）",
+    "d2_keep_pl 路径 ps7_init（rst -processor -stop → dow init.elf(237dd959…) → con → after 2000 → rst -processor -stop）",
+    "**写候选区 [0x12000000,0x12C08000) 以快照重建（仅一次，发生在两次 capture 之前）**",
+    "对候选区双读校验（只读 mrd）",
+    "download + run chainA tailfix ELF（87e049b4…）单帧至停机",
+    "显式 stop 两核",
+    "工具 capture --phase before / after（只读）",
+    "两次只读 mrd 事件：0xF8000000、0x12000000",
+    "工具 compare；收窗杀 hw_server"
+  ],
+  "forbidden_actions": [
+    "任何 rst -system（全程禁止）",
+    "除候选区重建与 SLCR 白名单外的任何 mwr / DDR 写入",
+    "在 before 与 after 两次 capture 之间做 reset/init/download/run/mwr（含候选区写入）",
+    "修改位流/ELF/工具/快照/基准",
+    "QSPI/Flash 烧写",
+    "改动 P2d/P3a/P3b 构建目录",
+    "kill/停止/挂起任何 vivado 进程"
+  ],
+  "stop_conditions": [
+    "枚举不到 APU/xc7z020（TAP 仍全 0）⇒ 板卡未正常上电，停",
+    "快照重建后双读 sha != 41907f53… ⇒ 停，不继续 M3",
+    "before 的 read_a.bin sha256 != 41907f53… ⇒ 停",
+    "双读不一致/短读/目标不唯一/XSDB 非零/DAP-APB 错误 ⇒ 停",
+    "after 失败或 compare 退出码 2 ⇒ 停",
+    "P3b 构建未结束（vivado 进程存在）时不得开窗"
+  ],
+  "resource_rule": "等 P3b 构建（video-bd，约 20–25 min）结束、vivado/xsdb 归零后再开窗，避免并发重型任务",
+  "notes": "断电后 DDR 丢失是环境事件，不是 M3 失败；本轮以『重建+双读校验』恢复 baseline 内容后再做保持测试，生命周期记为 board-lifecycle-20261030-03，与原窗口不拼接。"
+}

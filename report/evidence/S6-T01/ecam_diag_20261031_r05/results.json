@@ -1,0 +1,139 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_diag_20261031_r05",
+  "started_utc8": "2026-10-31T13:39:52+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460",
+      "xsa_sha": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2",
+      "elf_sha": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3d_ps7_accept": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d",
+      "bits": {
+        "bit18_I2C0": 1,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      },
+      "i2c0": {
+        "I2C0_CR": "0x0",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff"
+      },
+      "note": "断言 APER bit18/20/21 全为 1；否则判 PS7 配置不满足（UART/I2C0 时钟）"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": "0x53324250",
+        "DISP_VER": "0x62000050",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "CAM_RST": "0x1"
+      }
+    },
+    "S5b_aper_i2c": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ab_check": {
+        "APER": "0x17c000d",
+        "I2C0_CR": "0x0",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff",
+        "RST": "0x1",
+        "aper_bit11": "0x0",
+        "aper_bit18": "0x1",
+        "aper_bit19": "0x1",
+        "aper_bit20": "0x1",
+        "aper_bit21": "0x1"
+      },
+      "note": "bit11=1 ⇒ I2C0 外设时钟已开；若 bit11=0 ⇒ 根因=PS7 init 未启用 I2C0 时钟"
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S6b_require_uart": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "grace_s": 15.0,
+      "bytes": 0,
+      "sample": ""
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 53276,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460",
+    "expect": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460"
+  },
+  "xsa": {
+    "sha": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2",
+    "expect": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2"
+  },
+  "elf": {
+    "sha": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144",
+    "expect": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144"
+  },
+  "por_precondition": "satisfied",
+  "ps7init_mode": "xsa_ps7init_tcl",
+  "ps7_accept": {
+    "APER": 24903693,
+    "I2C0_CR": 0,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "bit18_I2C0": 1,
+    "bit20_UART0": 1,
+    "bit21_UART1": 1
+  },
+  "ab_check": {
+    "APER": 24903693,
+    "I2C0_CR": 0,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "RST": 1,
+    "aper_bit11": 0,
+    "aper_bit18": 1,
+    "aper_bit19": 1,
+    "aper_bit20": 1,
+    "aper_bit21": 1
+  },
+  "stop_reason": "UART 无输出（require-uart）：PS7 UART 时钟/引脚或应用启动异常",
+  "finished_utc8": "2026-10-31T13:40:31+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

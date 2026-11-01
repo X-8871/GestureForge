@@ -335,6 +335,17 @@ def main() -> int:
     # ---------------- M3：候选区写-回读 + 恢复 ----------------
     if stop_reason is None:
         snap = run_dir / "m3_snapshot_orig.bin"
+        # 图案文件（窗口5 后）：mwr 无 -pattern，故由主机生成二进制图案再整区写入
+        pattern = run_dir / "m3_pattern.bin"
+        chunk_words = 16384
+        chunks = (CAND_BYTES // 4 + chunk_words - 1) // chunk_words
+        with pattern.open("wb") as pch:
+            for c in range(chunks):
+                remain = CAND_BYTES // 4 - c * chunk_words
+                n = min(chunk_words, remain)
+                pch.write((0x5A5A0000 | c).to_bytes(4, "little"))
+                if n > 1:
+                    pch.write(b"\xa5" * ((n - 1) * 4))
         code, _ = xsdb_step(run_dir, "M3_snapshot", [str(SCRIPTS / "m3_candidate_rw.tcl"), "snapshot", str(snap)], timeout=1200)
         m3: dict[str, object] = {"snapshot_exit": code, "snapshot_sha256": sha256_file(snap),
                                 "candidate_bytes": CAND_BYTES}
@@ -342,7 +353,7 @@ def main() -> int:
             record("M3_candidate_rw", "FAIL", {**m3, "reason": "快照失败，拒绝继续（不得在无快照下写入）"})
             stop_reason = "M3 快照失败"
         else:
-            code_w, _ = xsdb_step(run_dir, "M3_write", [str(SCRIPTS / "m3_candidate_rw.tcl"), "write", str(snap)], timeout=1200)
+            code_w, _ = xsdb_step(run_dir, "M3_write", [str(SCRIPTS / "m3_candidate_rw.tcl"), "write", str(pattern)], timeout=1200)
             readback = run_dir / "m3_readback_pattern.bin"
             code_r, _ = xsdb_step(run_dir, "M3_readback", [str(SCRIPTS / "m3_candidate_rw.tcl"), "readback", str(readback)], timeout=1200)
             # 恢复（无论写/读是否成功，只要快照存在就必须恢复）
@@ -353,7 +364,7 @@ def main() -> int:
             if verify.is_file() and snap.is_file():
                 a = snap.read_bytes()
                 b = verify.read_bytes()
-                diff_bytes = sum(1 for x, y in zip(a, b)) + abs(len(a) - len(b))
+                diff_bytes = sum(1 for x, y in zip(a, b) if x != y) + abs(len(a) - len(b))
             m3.update({"write_exit": code_w, "readback_exit": code_r,
                        "restore_exit": code_restore, "verify_exit": code_v,
                        "restored_sha256": sha256_file(verify), "diff_bytes": diff_bytes,

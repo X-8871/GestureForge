@@ -1,0 +1,98 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_diag_20261031_r43",
+  "started_utc8": "2026-10-31T21:14:14+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "44bc86ed4657d914baab3144837bd40c47f0ec350822218e78a5060ce1270233",
+      "xsa_sha": "314289913d5ec6067258eca204738e160512411bca6add8e2e7b5f53037611d3",
+      "elf_sha": "8bea74e8347d5404435453b455c2d88f9d225687f63d4fe86dd534f412185ee2"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S2d_ddr_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ddr_pre": {
+        "DDR_RAW": "0xdeadbeef",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0xffffff"
+      }
+    },
+    "S3a_init_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "note": "stage-4 init.elf：CPU/DDR/UART 基础状态"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3e_ddr_check": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "pre": {
+        "DDR_RAW": "0xdeadbeef",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0xffffff"
+      },
+      "post": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0xffffff"
+      },
+      "problems": [
+        "DDR_RAW"
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 59784,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ]
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "44bc86ed4657d914baab3144837bd40c47f0ec350822218e78a5060ce1270233",
+    "expect": "44bc86ed4657d914baab3144837bd40c47f0ec350822218e78a5060ce1270233"
+  },
+  "xsa": {
+    "sha": "314289913d5ec6067258eca204738e160512411bca6add8e2e7b5f53037611d3",
+    "expect": "314289913d5ec6067258eca204738e160512411bca6add8e2e7b5f53037611d3"
+  },
+  "elf": {
+    "sha": "8bea74e8347d5404435453b455c2d88f9d225687f63d4fe86dd534f412185ee2",
+    "expect": "8bea74e8347d5404435453b455c2d88f9d225687f63d4fe86dd534f412185ee2"
+  },
+  "por_precondition": "not_satisfied",
+  "ddr_pre": {
+    "DDR_RAW": 3735928559,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 16777215
+  },
+  "ps7init_mode": "combo(stage4_elf+ps7init_tcl)",
+  "ddr_post": {
+    "DDR_RAW": 0,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 16777215
+  },
+  "stop_reason": "DDR 健全性检查失败：['DDR_RAW']（两次 DDR 初始化冲突？）",
+  "finished_utc8": "2026-10-31T21:14:33+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

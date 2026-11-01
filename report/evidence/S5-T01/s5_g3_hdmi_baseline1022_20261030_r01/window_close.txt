@@ -1,0 +1,28 @@
+# 10-22 基线复亮窗口（决定性对照）
+
+- RunId：`s5_g3_hdmi_baseline1022_20261030_r01`
+- 开窗：2026-10-30T12:24:41+08:00；收窗：2026-10-30T12:25:55+08:00
+- 结论：**BASELINE1022_REPLAY_OK**（只取证；屏幕现象由现场判读）
+- stop_reason：None
+- bit：`D:\codex-worktrees\w5\tmp\5\S5-T01\s5t01_board_overlay_20261022_r01\project\ov5640_single.runs\impl_1\design_1_wrapper.bit` sha256=44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb（1572373 B）
+- ELF：`D:\codex-worktrees\w5\tmp\5\S5-T01\p1_app\s5t01_overlay_cycle.elf` sha256=5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac（314740 B）
+- ps7_init：`D:\codex-worktrees\w5\tmp\5\S5-T01\s5t01_board_overlay_20261022_r01\ps7_init.tcl` sha256=4fc101938cf5aae4ea646e219e9e55c4ebcb837f35f40b3e922f3a1e2e5e6faa（0 处 rst -system，已复核）
+- `fpga -file`：exit=0、FPGA_FILE_DONE=True
+- `ps7_init`：sourced=True、init_done=True、post_config=PS7_POST_DONE
+- `dow -force`+`con`：dow_done=True、con_done=True
+- 保持时长：60 s
+- 收窗：rst -processor -stop 两核=True、3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 只读记录（96 B）
+
+- pre_cand_first96：{"bytes": 96, "sha256": "0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35"}
+- pre_result_block_first96：{"bytes": 96, "sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35"}
+- post_cand_first96：{"bytes": 96, "sha256": "0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35"}
+- post_result_block_first96：{"bytes": 96, "sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35"}
+
+## 判读口径（Codex）
+
+- 亮 ⇒ 该物理链当时可用，问题在新设计的运行时序/波形/模式兼容，不判板坏；
+- 不亮 ⇒ 下一步按 008 第 5 节做 F1/C55/C56/HPD/TMDS 电气测量，仍不单独判板坏。
+
+- 边界：全程禁 rst -system；未烧 QSPI；未改线；屏幕现象需人工目视/拍照。

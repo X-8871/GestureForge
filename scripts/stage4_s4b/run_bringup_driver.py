@@ -1063,7 +1063,7 @@ def stage_s1(args) -> dict:
     except RuntimeError as exc:
         return {"status": "FAIL", "reason": str(exc)}
 
-    verdict, detail = s1_verdict(dumps)
+    verdict, detail = s1_verdict(dumps, expected_len=CAND_BYTES)
     detail["region"] = {"mode": label, "base": hex(CAND_BASE if label == "candidate" else base_addr),
                         "bytes": len(dumps[0][1])}
     detail["dump_sha256"] = {

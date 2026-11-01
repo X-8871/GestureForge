@@ -1,0 +1,168 @@
+# MVP 单链板级串联窗 — `mvp_chain_20261101_r12`
+
+- 开窗：2026-11-01T05:49:30+08:00；收窗：2026-11-01T05:52:53+08:00
+- 结论：**MVP_CHAIN_PARTIAL**；stop_reason=MVP 判据未全绿（详见 S12_judgement）
+- **por_precondition：satisfied**
+- rst -system：**1 次**（init 阶段一次性，PL 编程前；mode=rst-system）
+- 位流：`bebd435e0f3d3bf5604c73aa2c8cc242b3a6390f46640942cb0a5b99db5cee53`；XSA：`fa157c69d3bdded46eee16160e44b23fb45fbe7a8783f5b601741e335bb4e868`
+- core0 显示 ELF：`d1ecc0d8592cec2d414dc73e2c47ee19c7e0c1eaf9ff25eefcc93465058e5743`；core1 推理 ELF：`5806d33de1e888bb8b4fb2f63ef64246087316b4335f8b74fbba0710d0b48270`
+- 权重：`f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39` → 0x10100000
+
+- J1 相机：`CAM: init OK` 且 0x12000000 采样非零：**PASS** {"cam": true, "raw_nonzero": {"head": 0, "mid": 2, "last": 2}, "MVP NOTE raw_blank": false}
+- J2 显示链运行：`S5DISP frame` 行出现（src/nbox 见 J5）：**PASS** {"lines": 3, "sample": ["S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=0", "S5DISP frame=120 lat=6631 age=54110 st=B sr=11000 src=real nbox=0"]}
+- J3 权重：`verify -data` rc=0 且 `MVP WEIGHTS: GFINT8W1 OK`：**PASS** {"attempts": [{"attempt": 1, "dow": true, "verify_rc_ok": true, "wm0": "0x4e494647", "wm1": "0x31573854"}], "line": ["MVP WEIGHTS: GFINT8W1 OK @0x10100000"]}
+- J4 推理：≥1 条 `MVP TIME` 且 raw_nz>0 且 dt_pl≤90000 ms：**FAIL** {"lines": ["MVP TIME t0_pre=63425 t1_pl=110904 t2_decode=110912 t3_pub=110912 dt_pre=86 dt_pl=47479 dt_dec=7 dt_all=47573 raw_nz=0", "MVP TIME t0_pre=111028 t1_pl=158459 t2_decode=158464 t3_pub=158464 dt_pre=101 dt_pl=47430 dt_dec=5 dt_all=47537 raw_nz=0"], "raw_nz": 0, "dt_pl": 47430}
+- J5 结果块：`MVP S5RS … magic=0x53355253`（n_dets 0..15 合法）+ 显示 real 且有框/或 RESULT 合格：**FAIL** {"s5rs_lines": ["MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1", "MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1"], "n_dets": [0, 0], "disp_real_lines": ["S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=0", "S5DISP frame=120 lat=6631 age=54110 st=B sr=11000 src=real nbox=0"], "result": {"pass": 0, "fps_cap": 0, "fps_inf": 0, "fps_dis": 60, "fps_upd": 3, "fps_dis_idle": 0, "idle_period_us": 0, "latency_ms": 23638, "age_ms": 65535, "vdma_err": 0, "frames": 180, "vcnt": 180, "box_crc": 0, "fb_crc": 1780565987, "uf_pix": 3660325782, "uf_frame": 545938, "uf_total": 3660325782, "src": "real", "reason": "frame_check_failed"}}
+- J6 HUD：`APP: gesture_changed` 或 `S5DISP frame … src=real nbox≥1`：**PASS** {"changed": ["APP: gesture_changed from=none to=拳头"], "disp_real": false, "note": "APP: gesture= 每 30 帧才打印（≈23 min/次），本窗不作判据"}
+
+## UART 关键行（原文，各最多 3 条）
+
+- `CAM: init OK`：['CAM: init OK chip=0x5640 1280x720 stride=3840 raw=0x12000000 (24bpp BGR888)']
+- `MVP WEIGHTS`：['MVP WEIGHTS: GFINT8W1 OK @0x10100000']
+- `MVP TIME`：['MVP TIME t0_pre=63425 t1_pl=110904 t2_decode=110912 t3_pub=110912 dt_pre=86 dt_pl=47479 dt_dec=7 dt_all=47573 raw_nz=0', 'MVP TIME t0_pre=111028 t1_pl=158459 t2_decode=158464 t3_pub=158464 dt_pre=101 dt_pl=47430 dt_dec=5 dt_all=47537 raw_nz=0']
+- `MVP S5RS`：['MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1', 'MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1']
+- `MVP NOTE`：[]
+- `MVP APP`：['MVP APP: CAM=1 raw=0x12000000 1280x720 bgr888 bytes=2764800 s5rs=0x20800000']
+- `APP: gesture=`：['APP: gesture=拳头 cls=0 conf=0.00 latency_ms=68', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=118', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=301', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=578']
+- `APP: gesture_changed`：['APP: gesture_changed from=none to=拳头']
+- `S5DISP frame`：['S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=0', 'S5DISP frame=120 lat=6631 age=54110 st=B sr=11000 src=real nbox=0', 'S5DISP frame=180 lat=23638 age=65535 st=B sr=11000 src=real nbox=0']
+- `S5DISP RESULT`：['S5DISP RESULT={"pass":0,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":3,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":23638,"age_ms":65535,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":0,"fb_crc":1780565987,"uf_pix":3660325782,"uf_frame":545938,"uf_total":3660325782,"src":"real","reason":"frame_check_failed"}']
+- `CAM: FAIL`：[]
+
+## 停核快照（只读）
+
+- 0x12000000 head/mid/last 非零计数：{'head': 0, 'mid': 2, 'last': 2}
+- 0x20800000 前 8 字：['0x53355253', '0x1', '0x0', '0x9df1c5f5', '0x8', '0x4c4cb388', '0xc', '0x1']
+- S5RS magic 命中：True
+- camera VDMA CR=0x00010001 SR=0x00014810
+- 2B CSR(0x43C00000)=0x53324250
+
+## 判读规则
+
+- M1 CAM init + raw 非零；M2 weights OK + raw_nz>0；M3 S5RS n_dets≥1/cls∈0..4；M4 APP gesture 中文名；M5 gesture_changed 出现
+- 任一 DAP/halt 异常 ⇒ 停手，不重试
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：rst -system 仅 init 一次；未写候选区；未烧 QSPI
+
+---
+
+## 完整判读（05:56 补记，Lead 确认：探针全对，根因缩小到 tuser 晚 1 拍）
+
+### 1) 探针精确值（运行中 3 次 + 停核 1 次，均一致）
+| 探针 | 地址 | 实测 | 期望 | 判定 |
+|---|---|---|---|---|
+| `TUSER2TLAST` | 0x43DA0000 | **0x500 = 1280** | 1280 | ✔ |
+| `TLAST2TUSER` | 0x43DA0008 | **0x0** | 0 | ✔ |
+| `FRAME_BEATS` | 0x43DB0000 | **0xE1000 = 921,600** | 720×1280 = 921,600 | ✔ |
+| `TLAST_BEAT` | 0x43D70000 | **0x500 = 1280** | 1280 | ✔ |
+| `TUSER_TLAST` | 0x43D70008 | **0x2D0 = 720** | 720 | ✔ |
+| `VSYNC_NEG` | 0x43D80008 | 0x7CD→0x1416（**5142 / 120 s**，≈42.8 fps） | ≈4880/120 s | ✔ 恢复 |
+| `TUSER_SHAPED` | 0x43D80000 | 0x7CD→0x1416（与 VSYNC_NEG 完全一致） | ≈同帧数 | ✔ 恢复 |
+
+- 结论：**帧结构完全正确**——每帧 720 行、每行 1280 px、帧间 0 多余 beat、tuser 每帧单脉冲
+- 对比 build11k：VSYNC_NEG/TUSER_SHAPED 4880→1、探针全 0 ⇒ build11l 已修复 vync/tuser 通路
+
+### 2) `CAM_SR=0x14810` 逐位解码（Vitis `axivdma_v6_17/src/xaxivdma_hw.h`）
+| 位 | 掩码 | 宏定义 | 本窗 |
+|---|---|---|---|
+| bit4 | `0x10` | `XAXIVDMA_SR_ERR_INTERNAL_MASK` —— DATAMOVER INTERNAL ERROR | **置位** |
+| bit11 | `0x800` | `XAXIVDMA_SR_ERR_FSZ_MORE_MASK` —— FSize MORE mismatch | **置位** |
+| bit12 | `0x1000` | `XAXIVDMA_SR_ERR_FSZ_LESS_MASK` | 0 |
+| bit13 | `0x2000` | `XAXIVDMA_SR_ERR_LSZ_LESS_MASK` | 0 |
+| bit14 | `0x4000` | `XAXIVDMA_IXR_ERROR_MASK` —— Error interrupt | 置位 |
+| bit16-23 | `0x10000` | `XAXIVDMA_FRMCNT_MASK` = **1** | 只完成过 1 帧 |
+
+⇒ 是 **FSZ_MORE（帧数据多了）**，不是少了。
+
+### 3) 根因（与探针数据自洽）
+- 帧内 beat 数正好 921,600、每行 1280、每帧 720、帧间 0 beat
+- 内容精确却报"多了" ⇒ **VDMA 的帧窗口比数据错开 ≥1 拍**：**tuser（SOF）比帧首像素晚 ≥1 拍**
+- 于是 VDMA 把"上一帧最后 1 拍 + 本帧 921,600 拍"合为一帧 ⇒ 921,601+ 拍 ⇒ `FSZ_MORE` + datamover internal error ⇒ 帧中止（`FRMCNT` 永远 1）⇒ 不写 DDR
+- 探针不矛盾：探针按脉冲计数，VDMA 按脉冲"采样时刻"判帧界，差 1 拍即错
+
+### 4) 排除项
+- `TL_TUSER == CAM_GPIO`（0x389A，每帧 1 个 tuser）⇒ 无漏脉冲
+- `S2MM_STALL=0` ⇒ 无背压丢拍
+- `VSIZE=0x2D0/HSIZE=STRIDE=0xF00/FRMPTR=0x12000000` 回读正确
+- `IP_TV=0x50091285` 与 `S2MM_BEAT=0x50086FF1` 基本同步 ⇒ 数据确实进 VDMA
+
+### 5) 修复方向（build11m）
+- **tuser 提前 1 拍**（对齐帧首像素；或 AXIS 数据延后 1 级寄存）
+- 验证指标：`CAM_SR` 的 `0x800/0x10` 消失、`FRMCNT` 递增、`CAM: frm=` 递增、`0x12000000` 快照变化、`raw_nz>0`
+
+### 6) 本窗其他
+- `MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1`；`MVP CHECK raw_blank status=0x1 … OK`；`MVP ERR` **0** 条
+- `MVP TIME … raw_nz=0`（`--clear-raw` 基线正确，相机未写帧）
+- `S5DISP frame=60 … src=real nbox=0`（status=1 已让显示走 real 分支）
+
+---
+
+## 根因候选 2：smartconnect WRITE_ONLY ↔ READ_ONLY 告警（06:06 补记，Lead 提供）
+
+### 告警原文（从 build11g 起一直存在）
+
+`
+WARNING: [xilinx.com:ip:smartconnect:1.0-1] s4d_p3r_smc_vis_0: S01_AXI is WRITE_ONLY connects to
+endpoint(s) on M00_AXI which are READ_ONLY.  Subsequent mismatch or runtime errors may occur.
+`
+
+- 出现版本：**build11g 起（b11g/b11h/b11i/b11k/b11l 全部存在）**，即之前所有"FSZ_MORE 持续"的版本都带这条告警
+- 含义：相机 S2MM 的**写事务**经 smartconnect 时，从端被配置成只读（方向不匹配）⇒ **写事务可能被静默丢弃**
+- 与 r12 的观测完全自洽：
+  - 数据流探针全对（921600 beats/帧、1280/行、720 行、帧间 0 beat、tuser==vsync 5142/120s）
+  - 但 CAM_SR 同时置 **bit4  x10（DATAMOVER INTERNAL ERROR）** 与 **bit11  x800（FSZ_MORE）**
+  - 且  x12000000 全 0、FRMCNT 恒 1
+- ⇒ **根因候选 2**：写事务在 interconnect 侧被丢弃，datamover 内部报错并中止帧，表现为"数据流正确但不落 DDR"
+
+### 与根因候选 1 的关系
+
+| 候选 | 假设 | 支持证据 | 反证/待验 |
+|---|---|---|---|
+| 候选 1 | tuser 比帧首像素晚 ≥1 拍 ⇒ FSZ_MORE | 探针内容精确但报"多了"；FRMCNT=1 | 若 b11n（interconnect 修复）后 SR 变干净，则候选 1 不成立或次要 |
+| **候选 2** | smartconnect 写方向不匹配 ⇒ 写事务被丢 ⇒ datamover error + FSZ_MORE | 告警自 b11g 起一直存在；SR bit4+bit11 同亮；DDR 全 0 | b11n（smc_vis → axi_interconnect）直接消除该告警 |
+
+### 修复方案（build11n）
+
+- 把 smc_vis（smartconnect）换成 xi_interconnect（Lead 决定）
+- 验证指标：**CAM_SR 的  x10 与  x800 同时消失**、FRMCNT 递增、CAM: frm= 递增、 x12000000 快照随时间变化、aw_nz>0
+
+### 版本说明
+
+- **build11m 已弃用**（原计划的"tuser 提前 1 拍"改动），直接等 build11n
+
+---
+
+## 根因候选 3（最终）：pc_hp2 AXI4→AXI3 协议转换器被配成 READ_ONLY（06:37 补记，Lead 提供）
+
+### 发现
+
+- 相机 S2MM 的写通道经 **pc_hp2**（AXI4→AXI3 协议转换器，通往 PS S_AXI_HP2）
+- 该转换器的 **READ_WRITE_MODE 被配成 READ_ONLY** —— 属 **build2 时代"只读帧"的遗留配置**
+- ⇒ **相机 S2MM 的写事务在 HP2 入口被直接丢弃**
+
+### 与所有观测的对应关系
+
+| 观测 | 与 pc_hp2 READ_ONLY 的关系 |
+|---|---|
+| `CAM_SR` bit4 `0x10`（DATAMOVER INTERNAL ERROR） | 写事务被拒 ⇒ datamover 内部错误 |
+| `CAM_SR` bit11 `0x800`（FSZ_MORE） | 写失败后帧处理异常，报尺寸不匹配 |
+| `0x12000000` 全 0、`FRMCNT=1` | 写事务从未到达 DDR |
+| `smartconnect: S01_AXI WRITE_ONLY ↔ M00 READ_ONLY` 告警（b11g 起） | 就是同一问题的上层表现 |
+| AXIS 侧探针全对（921600/1280/720/0、`S2MM_STALL=0`） | 数据流侧正常，失败在 **AXI 写侧** |
+| 之前所有版本（b11g–b11l）都 FSZ_MORE | 写方向错误一直存在，与 tuser/互连改动无关 |
+
+### 修复（build11o）
+
+- 只改 1 行：`READ_WRITE_MODE=READ_WRITE`（其余不动）
+- build11n（换 axi_interconnect）与 build11m（tuser 提前 1 拍）**均弃用**
+- 验证指标（r14）：
+  1. 构建日志 **WRITE_ONLY ... READ_ONLY 告警消失**
+  2. **`CAM_SR` 的 `0x10` 与 `0x800` 同时消失**
+  3. `0x12000000` 快照随时间变化、`FRMCNT`/`CAM: frm=` 递增、`raw_nz>0`
+  4. `MVP S5RS n_dets`、`APP: gesture=`
+
+### 若 r14 仍不通
+
+- 只剩"AXI3 写通道 / HP2 端口本身"一层，需查 PS7 配置 `PCW_USE_S_AXI_HP2`（是否使能、位宽/时钟、安全配置）

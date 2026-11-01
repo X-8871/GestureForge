@@ -1,0 +1,350 @@
+{
+  "task_id": "SCCB-pin-test",
+  "run_id": "sccb_pin_20261031_r02",
+  "started_utc8": "2026-10-31T16:01:32+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "3ae13e42f19f9d08ce3cd463b30f3a5a33893c85f47ed1dda111b228ac8a26a9",
+      "xsa_sha": "55194a75689b398c217a018499b0adf48b54f3784aac5145ed3268843b92ea18",
+      "ps7init_sha": "0c07e86f807a27405aca9e8d11ef91a74cb051f641dc49ca44fcdc7888ea00f2"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3a_init_elf": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3b_ps7init_tcl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3c_accept": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d",
+      "ddr_readback": "0xdeadbeef"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "csr2b": "0x53324250",
+      "sccb_stat": "0x3"
+    },
+    "S6_sccb_pin_test": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "pin_bits": {
+        "A": {
+          "raw": "0x3",
+          "scl": 1,
+          "sda": 1
+        },
+        "B": {
+          "raw": "0x2",
+          "scl": 0,
+          "sda": 1
+        },
+        "C": {
+          "raw": "0x1",
+          "scl": 1,
+          "sda": 0
+        },
+        "D": {
+          "raw": "0x3",
+          "scl": 1,
+          "sda": 1
+        },
+        "E": {
+          "raw": "0x3",
+          "scl": 1,
+          "sda": 1
+        },
+        "F": {
+          "raw": "0x3",
+          "scl": 1,
+          "sda": 1
+        },
+        "F2": {
+          "raw": "0x3",
+          "scl": 1,
+          "sda": 1
+        }
+      },
+      "bitbang": {
+        "ack78": 1,
+        "ack30": 1,
+        "ack0a": 1,
+        "ack79": 1,
+        "rx0": 86,
+        "rx1": 64,
+        "chipid": "0x5640"
+      }
+    },
+    "S9_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "P1",
+          "desc": "a 空闲：SCL=1 & SDA=1（内部/外部上拉有效）",
+          "pass": true,
+          "detail": {
+            "raw": "0x3",
+            "scl": 1,
+            "sda": 1
+          }
+        },
+        {
+          "id": "P2",
+          "desc": "b SCL 拉低后 SCL=0（FPGA 能驱动 SCL）",
+          "pass": true,
+          "detail": {
+            "raw": "0x2",
+            "scl": 0,
+            "sda": 1
+          }
+        },
+        {
+          "id": "P3",
+          "desc": "c SDA 拉低后 SDA=0（FPGA 能驱动 SDA）",
+          "pass": true,
+          "detail": {
+            "raw": "0x1",
+            "scl": 1,
+            "sda": 0
+          }
+        },
+        {
+          "id": "P4",
+          "desc": "d 再次释放后回 1,1",
+          "pass": true,
+          "detail": {
+            "raw": "0x3",
+            "scl": 1,
+            "sda": 1
+          }
+        },
+        {
+          "id": "P5",
+          "desc": "e 9 个 SCL 脉冲恢复后 1,1",
+          "pass": true,
+          "detail": {
+            "raw": "0x3",
+            "scl": 1,
+            "sda": 1
+          }
+        },
+        {
+          "id": "P6",
+          "desc": "写地址 0x78 得到 ACK（ack=1）",
+          "pass": true,
+          "detail": {
+            "ack78": 1
+          }
+        },
+        {
+          "id": "P7",
+          "desc": "读地址 0x79 得到 ACK",
+          "pass": true,
+          "detail": {
+            "ack79": 1
+          }
+        },
+        {
+          "id": "P8",
+          "desc": "chipid == 0x5640",
+          "pass": true,
+          "detail": {
+            "rx0": 86,
+            "rx1": 64,
+            "chipid": "0x5640"
+          }
+        },
+        {
+          "id": "P9",
+          "desc": "收尾 PS7 直通恢复后电平 1,1",
+          "pass": true,
+          "detail": {
+            "raw": "0x3",
+            "scl": 1,
+            "sda": 1
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 35392,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "bit": {
+    "sha": "3ae13e42f19f9d08ce3cd463b30f3a5a33893c85f47ed1dda111b228ac8a26a9",
+    "expect": "3ae13e42f19f9d08ce3cd463b30f3a5a33893c85f47ed1dda111b228ac8a26a9"
+  },
+  "xsa": {
+    "sha": "55194a75689b398c217a018499b0adf48b54f3784aac5145ed3268843b92ea18",
+    "expect": "55194a75689b398c217a018499b0adf48b54f3784aac5145ed3268843b92ea18"
+  },
+  "ps7init_tcl": {
+    "sha": "0c07e86f807a27405aca9e8d11ef91a74cb051f641dc49ca44fcdc7888ea00f2"
+  },
+  "por_precondition": "satisfied",
+  "pin_bits": {
+    "A": {
+      "raw": "0x3",
+      "scl": 1,
+      "sda": 1
+    },
+    "B": {
+      "raw": "0x2",
+      "scl": 0,
+      "sda": 1
+    },
+    "C": {
+      "raw": "0x1",
+      "scl": 1,
+      "sda": 0
+    },
+    "D": {
+      "raw": "0x3",
+      "scl": 1,
+      "sda": 1
+    },
+    "E": {
+      "raw": "0x3",
+      "scl": 1,
+      "sda": 1
+    },
+    "F": {
+      "raw": "0x3",
+      "scl": 1,
+      "sda": 1
+    },
+    "F2": {
+      "raw": "0x3",
+      "scl": 1,
+      "sda": 1
+    }
+  },
+  "bitbang": {
+    "ack78": 1,
+    "ack30": 1,
+    "ack0a": 1,
+    "ack79": 1,
+    "rx0": 86,
+    "rx1": 64,
+    "chipid": "0x5640"
+  },
+  "criteria": [
+    {
+      "id": "P1",
+      "desc": "a 空闲：SCL=1 & SDA=1（内部/外部上拉有效）",
+      "pass": true,
+      "detail": {
+        "raw": "0x3",
+        "scl": 1,
+        "sda": 1
+      }
+    },
+    {
+      "id": "P2",
+      "desc": "b SCL 拉低后 SCL=0（FPGA 能驱动 SCL）",
+      "pass": true,
+      "detail": {
+        "raw": "0x2",
+        "scl": 0,
+        "sda": 1
+      }
+    },
+    {
+      "id": "P3",
+      "desc": "c SDA 拉低后 SDA=0（FPGA 能驱动 SDA）",
+      "pass": true,
+      "detail": {
+        "raw": "0x1",
+        "scl": 1,
+        "sda": 0
+      }
+    },
+    {
+      "id": "P4",
+      "desc": "d 再次释放后回 1,1",
+      "pass": true,
+      "detail": {
+        "raw": "0x3",
+        "scl": 1,
+        "sda": 1
+      }
+    },
+    {
+      "id": "P5",
+      "desc": "e 9 个 SCL 脉冲恢复后 1,1",
+      "pass": true,
+      "detail": {
+        "raw": "0x3",
+        "scl": 1,
+        "sda": 1
+      }
+    },
+    {
+      "id": "P6",
+      "desc": "写地址 0x78 得到 ACK（ack=1）",
+      "pass": true,
+      "detail": {
+        "ack78": 1
+      }
+    },
+    {
+      "id": "P7",
+      "desc": "读地址 0x79 得到 ACK",
+      "pass": true,
+      "detail": {
+        "ack79": 1
+      }
+    },
+    {
+      "id": "P8",
+      "desc": "chipid == 0x5640",
+      "pass": true,
+      "detail": {
+        "rx0": 86,
+        "rx1": 64,
+        "chipid": "0x5640"
+      }
+    },
+    {
+      "id": "P9",
+      "desc": "收尾 PS7 直通恢复后电平 1,1",
+      "pass": true,
+      "detail": {
+        "raw": "0x3",
+        "scl": 1,
+        "sda": 1
+      }
+    }
+  ],
+  "criterion_ok": true,
+  "conclusion": "SCCB_PIN_TEST_OK",
+  "finished_utc8": "2026-10-31T16:01:58+08:00",
+  "stop_reason": null,
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

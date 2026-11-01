@@ -1,0 +1,15 @@
+# P3h 长时间挂画面（hold-release）
+
+- RunId：`s5_g3_h_hold_p3h_20261030_r02`
+- 开窗：2026-10-30T13:44:17+08:00；释放：2026-10-30T13:44:39+08:00
+- bit：`D:\tmp\lead\p3h_video_20261030_r01\out\s4d_p3h_r01.bit` sha256=b7abd4d1baf46aba954294d63d84bee75a26bd9b043811a3212bc43126a0b297
+- ELF（长跑）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e
+- **HOLD_RELEASED_AT=13:44:39**
+- **EXPECTED_UNTIL=14:14:33**（长跑上限 1800 s，按 con 时刻折算）
+- **cores=RUNNING**（未停核）、**hw_server=killed**（3121 LISTENING=0）
+- **PL=P3h**（配置保持；杀 hw_server 不影响 PL/PS）
+- 机器侧：`RUN_STATE Running` 已确认（load_elf_ddr exit 0，PPL_LVL_RB=15）
+- 说明：本窗口不收窗；Wong 可随时看屏，无需精确对时。UART 仍可独立采集（monitor 另行记录）。
+- 若长跑 ELF 提前退出（看门狗/异常），以 UART tick 停止为准，如实回报。
+
+- 边界：禁 rst -system；未烧 QSPI；未改线

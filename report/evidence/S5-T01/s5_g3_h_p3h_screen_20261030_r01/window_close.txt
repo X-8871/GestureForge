@@ -1,0 +1,37 @@
+# P3h 点屏窗口（解除 VTC gen_clken 反馈环）
+
+- RunId：`s5_g3_h_p3h_screen_20261030_r01`
+- 开窗：2026-10-30T13:40:27+08:00；收窗：2026-10-30T13:42:55+08:00
+- 结论：**P3H_WINDOW_OK**（屏幕现象由现场判读）
+- stop_reason：None
+- 位流（P3h）：`D:\tmp\lead\p3h_video_20261030_r01\out\s4d_p3h_r01.bit` sha256=b7abd4d1baf46aba954294d63d84bee75a26bd9b043811a3212bc43126a0b297（4045762 B）
+- XSA：`D:\tmp\lead\p3h_video_20261030_r01\out\s4d_p3h_r01.xsa` sha256=65e97c5aca49be2353b1811903a56c278e85433ff579601cb3121e39812cc5bc；P3h XSA ps7_init sha256=2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e（与 P3b 2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e 逐字节相同）
+- 长跑 ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e
+- 编程工具：xsdb `fpga -file`（fpga_exit=0）
+- load_elf_ddr：exit=0
+- **画面保持窗口：13:40:46–13:42:46（120.1 s）**
+- UART 机器侧值：{"fps_dis": [54], "frames": [1953, 3905], "vcnt": [1953, 3905]}
+- UART 行数=92、tick/帧行=69
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 停机后寄存器时间序列（只读 mrd，间隔 1 s）
+
+- 第 1 次：VTC_CTL=5、VTC_GTSTAT=4、VTC_STATUS=78336、VDMA_CR=65539、VDMA_SR=69632、VDMA_PARKPTR=0
+- 第 2 次：VTC_CTL=5、VTC_GTSTAT=4、VTC_STATUS=78336、VDMA_CR=65539、VDMA_SR=69632、VDMA_PARKPTR=65536
+- 第 3 次：VTC_CTL=5、VTC_GTSTAT=4、VTC_STATUS=78336、VDMA_CR=65539、VDMA_SR=69632、VDMA_PARKPTR=0
+
+## 结果块首 8 word
+
+```
+20800000:   53355253
+20800004:   00000001
+20800008:   00000003
+2080000C:   00000000
+20800010:   00000000
+20800014:   00000000
+20800018:   00000000
+2080001C:   00000001
+```
+
+- 屏幕：现场判读（Wong）；停核后画面消失属正常
+- 边界：禁 rst -system；未烧 QSPI；未改线

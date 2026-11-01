@@ -1,0 +1,30 @@
+# 空闲测速窗口（P3b + idleprobe ELF）
+
+- RunId：`s5_g3_a_idle_p3b_20261030_r01`
+- 开窗：2026-10-30T12:17:41+08:00；收窗：2026-10-30T12:18:40+08:00
+- 结论：**IDLE_PROBE_CAPTURED**（只取证，不判 PASS/FAIL）
+- 位流（P3b）：`D:\tmp\lead\p3b_video_20261030_r01\out\s4d_p3b_r01.bit` sha256=1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572
+- ELF（idleprobe）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_idleprobe.elf` sha256=922a97859605ad12211dfdaa8245f3fb0ffac5d58f5337768af5f86caea960db
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 两行原文
+
+```
+S5DISP idle fps_dis=45 period_us=22005 frames=10 vcnt=146 err=0
+```
+```
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":52,"fps_upd":33,"fps_dis_idle":45,"idle_period_us":22005,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":10,"vcnt":146,"box_crc":764713996,"fb_crc":2209141022,"src":"real"}
+```
+
+- fps_dis（渲染阶段）= 52
+- fps_dis_idle（空闲阶段）= 45
+- idle_period_us = 22005
+- frames = 10、vcnt = 146、vdma_err = 0、pass = 1
+
+- 屏幕：无信号（已知硬件问题：厂商参考位流 A/B 已排除我方设计）；不作为判据
+- 边界：ENABLE=0；未烧 QSPI；未改线；PL 编程后未用 rst -system
+
+## 判读方向（lead 侧）
+
+- idle 也 ~52 ⇒ VDMA/HP2 通路本身不够（smc_vid AXI4→AXI3 转换 + 单 outstanding 嫌疑）
+- idle ≈60 ⇒ 渲染期 CPU 写 DDR 与 VDMA 读抢带宽

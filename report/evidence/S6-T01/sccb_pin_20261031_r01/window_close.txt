@@ -1,0 +1,34 @@
+# SCCB 引脚级测试 — `sccb_pin_20261031_r01`
+
+- 开窗：2026-10-31T16:00:43+08:00；收窗：2026-10-31T16:01:06+08:00（UTC+8）
+- 结论：**SCCB_LINE_HELD_LOW**；stop_reason=判据 FAIL
+- por_precondition：satisfied
+- bit：`3ae13e42f19f9d08ce3cd463b30f3a5a33893c85f47ed1dda111b228ac8a26a9`；XSA：`55194a75689b398c217a018499b0adf48b54f3784aac5145ed3268843b92ea18`
+
+- P1 a 空闲：SCL=1 & SDA=1（内部/外部上拉有效）：**FAIL** null
+- P2 b SCL 拉低后 SCL=0（FPGA 能驱动 SCL）：**FAIL** null
+- P3 c SDA 拉低后 SDA=0（FPGA 能驱动 SDA）：**FAIL** null
+- P4 d 再次释放后回 1,1：**FAIL** null
+- P5 e 9 个 SCL 脉冲恢复后 1,1：**FAIL** null
+- P6 写地址 0x78 得到 ACK（ack=1）：**FAIL** {"ack78": null}
+- P7 读地址 0x79 得到 ACK：**FAIL** {"ack79": null}
+- P8 chipid == 0x5640：**FAIL** {"rx0": null, "rx1": null, "chipid": null}
+- P9 收尾 PS7 直通恢复后电平 1,1：**FAIL** null
+
+## 引脚测试（mwr/mrd）
+
+- a 手动/释放：[None]
+- b SCL 拉低：[None]
+- c SDA 拉低：[None]
+- d 释放：[None]
+- e 9 脉冲恢复后：[None]
+- f PS7 直通恢复后：[None]
+
+## Bit-bang SCCB 结果
+
+- TX 0x78 ack=None；RX byte0=None；RX byte1=None
+- chipid=None
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：零 rst；未写候选区；未烧 QSPI

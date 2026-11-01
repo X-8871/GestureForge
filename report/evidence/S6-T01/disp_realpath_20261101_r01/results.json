@@ -1,0 +1,202 @@
+{
+  "task_id": "disp-realpath",
+  "run_id": "disp_realpath_20261101_r01",
+  "started_utc8": "2026-11-01T03:33:19+08:00",
+  "steps": {
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3b_ps7init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3d_aper": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_probe": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S6_dow_con": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "FB_head": [
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff"
+      ],
+      "RAW_head": [
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0"
+      ]
+    },
+    "S8_inject": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pattern_bytes": 768000,
+      "rows": 200,
+      "frame_source": "jtag_injected_test_pattern"
+    },
+    "S10_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 43
+    },
+    "S11_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "R1",
+          "desc": "出现 src=real（非 real_nobox/sim）",
+          "pass": false,
+          "detail": [
+            "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+            "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+            "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+          ]
+        },
+        {
+          "id": "R2",
+          "desc": "0x20000000 FB 内容与注入前不同（显示消费新帧）",
+          "pass": true,
+          "detail": {
+            "before": [
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff"
+            ],
+            "after": [
+              "0x7f8c8d",
+              "0x7f8c8d",
+              "0x7f8c8d",
+              "0x7f8c8d",
+              "0x7f8c8d",
+              "0x7f8c8d",
+              "0x7f8c8d",
+              "0x7f8c8d"
+            ]
+          }
+        },
+        {
+          "id": "R3",
+          "desc": "0x12000000 回读为注入图（JTAG 写入成功）",
+          "pass": true,
+          "detail": {
+            "RAW_head": [
+              "0xff0000",
+              "0xff00",
+              "0xff0000ff",
+              "0xff0000",
+              "0xff00",
+              "0xff0000ff",
+              "0xff0000",
+              "0xff00"
+            ]
+          }
+        }
+      ],
+      "S5DISP_RESULT": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":64743466,\"uf_pix\":1179295890,\"uf_frame\":200144,\"uf_total\":1179295890,\"src\":\"real_nobox\",\"reason\":\"result_not_valid\"}"
+    }
+  },
+  "frame_source": "jtag_injected_test_pattern",
+  "ident": {
+    "bit": "e340066009ed5938",
+    "xsa": "e945d02622df5e4d",
+    "elf": "d1ecc0d8592cec2d"
+  },
+  "criteria": [
+    {
+      "id": "R1",
+      "desc": "出现 src=real（非 real_nobox/sim）",
+      "pass": false,
+      "detail": [
+        "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+        "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+      ]
+    },
+    {
+      "id": "R2",
+      "desc": "0x20000000 FB 内容与注入前不同（显示消费新帧）",
+      "pass": true,
+      "detail": {
+        "before": [
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff"
+        ],
+        "after": [
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d"
+        ]
+      }
+    },
+    {
+      "id": "R3",
+      "desc": "0x12000000 回读为注入图（JTAG 写入成功）",
+      "pass": true,
+      "detail": {
+        "RAW_head": [
+          "0xff0000",
+          "0xff00",
+          "0xff0000ff",
+          "0xff0000",
+          "0xff00",
+          "0xff0000ff",
+          "0xff0000",
+          "0xff00"
+        ]
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "DISP_REALPATH_PARTIAL",
+  "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":64743466,\"uf_pix\":1179295890,\"uf_frame\":200144,\"uf_total\":1179295890,\"src\":\"real_nobox\",\"reason\":\"result_not_valid\"}",
+  "finished_utc8": "2026-11-01T03:34:21+08:00",
+  "teardown": {
+    "stopped_pid": 20724,
+    "port": 3121,
+    "listening_3121": 0,
+    "residual_processes": []
+  },
+  "residual": []
+}

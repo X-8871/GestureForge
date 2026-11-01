@@ -1,0 +1,118 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_h_hold_p3h_20261030_r02",
+  "mode": "p3h_hold_release",
+  "started_utc8": "2026-10-30T13:44:17+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": {
+        "path": "D:\\tmp\\lead\\p3h_video_20261030_r01\\out\\s4d_p3h_r01.bit",
+        "sha256": "b7abd4d1baf46aba954294d63d84bee75a26bd9b043811a3212bc43126a0b297",
+        "expect": "b7abd4d1baf46aba954294d63d84bee75a26bd9b043811a3212bc43126a0b297"
+      },
+      "elf": {
+        "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+        "sha256": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e",
+        "expect": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e"
+      },
+      "xsa": {
+        "path": "D:\\tmp\\lead\\p3h_video_20261030_r01\\out\\s4d_p3h_r01.xsa",
+        "sha256": "65e97c5aca49be2353b1811903a56c278e85433ff579601cb3121e39812cc5bc"
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [
+        "vivado"
+      ],
+      "free_gb": 3.31,
+      "listening_3121": 0
+    },
+    "S2b_pin_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "report": "D:\\tmp\\lead\\p3h_video_20261030_r01\\out\\io_route.rpt",
+      "pins": [
+        "N18",
+        "V20",
+        "T20",
+        "N20"
+      ]
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 48536
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "loadhw_ok": true,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "fpga_exit": 0,
+      "fpga_done": true,
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S6_load_longrun": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_ddr_exit": 0,
+      "run_state": "Running",
+      "elapsed_s": 5.9
+    },
+    "S7_release": {
+      "status": "PASS",
+      "exit_code": 0,
+      "hold_released_at": "13:44:39",
+      "expected_until": "14:14:33",
+      "cores": "RUNNING",
+      "hw_server": "killed",
+      "pl": "P3h",
+      "detail": {
+        "stopped_pid": 48536,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "programming_tool": "xsdb fpga -file",
+  "policy": "长跑 ELF 上限 1800 s；不主动停核/不收窗，杀 hw_server 释放板卡",
+  "forbidden_ops": "禁 rst -system",
+  "hold_released_at": "2026-10-30T13:44:39+08:00",
+  "hold_released_hhmmss": "13:44:39",
+  "expected_until": "2026-10-30T14:14:33+08:00",
+  "expected_until_hhmmss": "14:14:33",
+  "cores": "RUNNING",
+  "hw_server": "killed",
+  "pl": "P3h",
+  "time_cap_s": 1800,
+  "teardown": {
+    "stopped_pid": 48536,
+    "listening_3121": 0,
+    "residual_processes": [
+      "vivado"
+    ],
+    "time_wait_note": "TIME_WAIT 可接受，不清理"
+  },
+  "listening_3121_after_kill": 0,
+  "residual_after_kill": []
+}

@@ -1,0 +1,359 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_diag_20261031_r03",
+  "started_utc8": "2026-10-31T13:01:44+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e",
+      "xsa_sha": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81",
+      "elf_sha": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3c_uart_clocks": {
+      "status": "PASS",
+      "exit_code": 0,
+      "APER_after": "0x17c000d",
+      "uart_clocks": {
+        "APER_after": 24903693,
+        "bit18_I2C0": 1,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": "0x53324250",
+        "DISP_VER": "0x62000050",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "CAM_RST": "0x0"
+      }
+    },
+    "S5b_aper_i2c": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ab_check": {
+        "APER": "0x17c000d",
+        "I2C0_CR": "0x17",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff",
+        "RST": "0x0",
+        "aper_bit11": "0x0",
+        "aper_bit18": "0x1",
+        "aper_bit19": "0x1",
+        "aper_bit20": "0x1",
+        "aper_bit21": "0x1"
+      },
+      "note": "bit11=1 ⇒ I2C0 外设时钟已开；若 bit11=0 ⇒ 根因=PS7 init 未启用 I2C0 时钟"
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_diag_parse": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 0,
+      "rst_lines": [],
+      "reset_seq": null,
+      "i2c_lines": [],
+      "probe_line": null,
+      "chipid_lines": [],
+      "fail_lines": [],
+      "rst_after": null,
+      "ack": null,
+      "rc": null,
+      "isr_addr": null,
+      "chipid": null
+    },
+    "S8_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshot": {
+        "CAM_RST": "0x0",
+        "CAM_GPIO": "0x0",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "DISP_CR": "0x10002",
+        "DISP_SR": "0x10001",
+        "UF_FRAME": "0x25005",
+        "UF_TOTAL": "0xa4dc6096",
+        "CSR2B": "0x53324250"
+      }
+    },
+    "S9_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "D1",
+          "desc": "CAM: rst pin after = 0x1（复位已释放）",
+          "pass": false,
+          "detail": {
+            "rst_after": null,
+            "rst_lines": [],
+            "snapshot_CAM_RST": "0x0"
+          }
+        },
+        {
+          "id": "D2",
+          "desc": "reset seq 出现且含两次 release(1)",
+          "pass": false,
+          "detail": {
+            "line": null
+          }
+        },
+        {
+          "id": "D3",
+          "desc": "i2c clk 诊断行 ≥1",
+          "pass": false,
+          "detail": {
+            "lines": []
+          }
+        },
+        {
+          "id": "D4",
+          "desc": "probe ack=1",
+          "pass": false,
+          "detail": {
+            "probe": null,
+            "ack": null,
+            "rc": null,
+            "isr_addr": null
+          }
+        },
+        {
+          "id": "D5",
+          "desc": "chipid=0x5640",
+          "pass": false,
+          "detail": {
+            "chipid": null,
+            "chipid_lines": []
+          }
+        },
+        {
+          "id": "D6",
+          "desc": "无 CAM: FAIL",
+          "pass": true,
+          "detail": {
+            "fail_lines": []
+          }
+        },
+        {
+          "id": "K1",
+          "desc": "SLCR APER_CLK_CTRL(0xF800012C) bit18（I2C0 外设时钟，P3r ps7_init.c 映射）= 1",
+          "pass": true,
+          "detail": {
+            "APER": "0x17c000d",
+            "bit18_I2C0": 1,
+            "bit11_SDI1": 0,
+            "bit20_UART0": 1,
+            "bit21_UART1": 1
+          }
+        },
+        {
+          "id": "K3",
+          "desc": "UART0/UART1 外设时钟已开（APER bit20/bit21=1；--enable-uart-clocks）",
+          "pass": true,
+          "detail": {
+            "bit20_UART0": 1,
+            "bit21_UART1": 1
+          }
+        },
+        {
+          "id": "K2",
+          "desc": "I2C0 寄存器 CR/SR/DIV/ISR 可读",
+          "pass": true,
+          "detail": {
+            "I2C0_CR": "0x17",
+            "I2C0_SR": "0x0",
+            "I2C0_DIV": "0x0",
+            "I2C0_ISR": "0x2ff"
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 66504,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e",
+    "expect": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e"
+  },
+  "xsa": {
+    "sha": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81",
+    "expect": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81"
+  },
+  "elf": {
+    "sha": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144",
+    "expect": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144"
+  },
+  "por_precondition": "satisfied",
+  "ps7init_mode": "xsa_ps7init_tcl",
+  "uart_clocks": {
+    "APER_after": 24903693,
+    "bit18_I2C0": 1,
+    "bit20_UART0": 1,
+    "bit21_UART1": 1
+  },
+  "ab_check": {
+    "APER": 24903693,
+    "I2C0_CR": 23,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "RST": 0,
+    "aper_bit11": 0,
+    "aper_bit18": 1,
+    "aper_bit19": 1,
+    "aper_bit20": 1,
+    "aper_bit21": 1
+  },
+  "parsed": {
+    "rst_lines": [],
+    "reset_seq_line": null,
+    "i2c_lines": [],
+    "probe_line": null,
+    "chipid_lines": [],
+    "fail_lines": [],
+    "rst_after": null,
+    "ack": null,
+    "rc": null,
+    "isr_addr": null,
+    "chipid": null
+  },
+  "snapshot": {
+    "CAM_RST": 0,
+    "CAM_GPIO": 0,
+    "CAM_CR": 0,
+    "CAM_SR": 0,
+    "DISP_CR": 65538,
+    "DISP_SR": 65537,
+    "UF_FRAME": 151557,
+    "UF_TOTAL": 2765906070,
+    "CSR2B": 1395802704
+  },
+  "criteria": [
+    {
+      "id": "D1",
+      "desc": "CAM: rst pin after = 0x1（复位已释放）",
+      "pass": false,
+      "detail": {
+        "rst_after": null,
+        "rst_lines": [],
+        "snapshot_CAM_RST": "0x0"
+      }
+    },
+    {
+      "id": "D2",
+      "desc": "reset seq 出现且含两次 release(1)",
+      "pass": false,
+      "detail": {
+        "line": null
+      }
+    },
+    {
+      "id": "D3",
+      "desc": "i2c clk 诊断行 ≥1",
+      "pass": false,
+      "detail": {
+        "lines": []
+      }
+    },
+    {
+      "id": "D4",
+      "desc": "probe ack=1",
+      "pass": false,
+      "detail": {
+        "probe": null,
+        "ack": null,
+        "rc": null,
+        "isr_addr": null
+      }
+    },
+    {
+      "id": "D5",
+      "desc": "chipid=0x5640",
+      "pass": false,
+      "detail": {
+        "chipid": null,
+        "chipid_lines": []
+      }
+    },
+    {
+      "id": "D6",
+      "desc": "无 CAM: FAIL",
+      "pass": true,
+      "detail": {
+        "fail_lines": []
+      }
+    },
+    {
+      "id": "K1",
+      "desc": "SLCR APER_CLK_CTRL(0xF800012C) bit18（I2C0 外设时钟，P3r ps7_init.c 映射）= 1",
+      "pass": true,
+      "detail": {
+        "APER": "0x17c000d",
+        "bit18_I2C0": 1,
+        "bit11_SDI1": 0,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    {
+      "id": "K3",
+      "desc": "UART0/UART1 外设时钟已开（APER bit20/bit21=1；--enable-uart-clocks）",
+      "pass": true,
+      "detail": {
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      }
+    },
+    {
+      "id": "K2",
+      "desc": "I2C0 寄存器 CR/SR/DIV/ISR 可读",
+      "pass": true,
+      "detail": {
+        "I2C0_CR": "0x17",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff"
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "ECAM_DIAG_FAIL",
+  "finished_utc8": "2026-10-31T13:02:49+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

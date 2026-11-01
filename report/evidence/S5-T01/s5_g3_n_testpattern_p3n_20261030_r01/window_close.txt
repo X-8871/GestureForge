@@ -1,0 +1,24 @@
+# P3n + 新测试图长跑 hold 窗口
+
+- RunId：`s5_g3_n_testpattern_p3n_20261030_r01`
+- 开窗：2026-10-30T15:31:28+08:00；释放：15:32:16
+- **HOLD_RELEASED_AT=15:32:16**
+- **EXPECTED_UNTIL=16:01:36**（长跑上限 1800 s，按 con 折算）
+- **PL=P3n sha256=80b88f1750698e15a1961a2b1ee3081fc9d2c8f5744035e9f119ac82fc9cfcb0**
+- **ELF=新长跑 sha256=34093912f22961f5191fae17687167f9b9d712e3f88ec1033d4f0f666ad7ed50**（283808 B）
+- 编程 fpga_exit=0；load_elf_ddr exit=0；cores=RUNNING；hw_server=killed
+- UART 行数=27（采 30.0 s）
+
+## UART 关键行
+
+```
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+TEST PATTERN DRAWN: bars8+border+cross
+VDMA: read period = 5558031 ticks (16674 us) -> fps_dis=60 (display refresh)
+TEST PATTERN HOLD: 2000 ms (VDMA running, CPU idle)
+TEST PATTERN HOLD done, vdma_err=0
+```
+
+- 判读：稳定显示 8 竖彩条+白框+中央十字、不再闪 ⇒ 花屏根因=A/B 帧存内容不同（软件），P3n 可作干净基线；
+  仍闪 ⇒ 需 P3p（fsync）。
+- 边界：禁 rst -system；未烧 QSPI；未改线

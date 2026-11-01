@@ -1,0 +1,286 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_p3b_smoke_20261030_r01",
+  "phase": "P3b 上屏冒烟（P3b 位流 + 显示 ELF，HDMI 720p60）",
+  "started_utc8": "2026-10-30T02:33:17+08:00",
+  "driver_sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+  "init_elf_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+  "collect_seconds": 90,
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": [
+        {
+          "tag": "p3b_bitstream",
+          "path": "D:\\tmp\\lead\\p3b_video_20261030_r01\\out\\s4d_p3b_r01.bit",
+          "exists": true,
+          "bytes": 4045762,
+          "sha256": "1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572",
+          "expect_prefix": "1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572",
+          "required": true,
+          "match": true
+        },
+        {
+          "tag": "display_elf",
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+          "exists": true,
+          "bytes": 296352,
+          "sha256": "acca2cf7e22c496e0e0c14d68830029b23ac3daccfaec1143ef6b766e4c8ce9d",
+          "expect_prefix": "acca2cf7e22c496e0e0c14d68830029b23ac3daccfaec1143ef6b766e4c8ce9d",
+          "required": true,
+          "match": true
+        },
+        {
+          "tag": "driver_v327",
+          "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "exists": true,
+          "bytes": 74346,
+          "sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "expect_prefix": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "required": true,
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "exists": true,
+          "bytes": 170592,
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect_prefix": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "required": true,
+          "match": true
+        },
+        {
+          "tag": "base_driver",
+          "path": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_window_b_driver.py",
+          "exists": true,
+          "bytes": 28493,
+          "sha256": "9979fba6afbfc62a4f1437377325a4e6dbe5ab278b9e955eb3e04ddaeb1aec91",
+          "expect_prefix": null,
+          "required": true,
+          "match": true
+        }
+      ],
+      "bit_frozen": true,
+      "note": "位流未给 --expect-bit-sha 时 SHA 仅记录、不判冻结；显示 ELF 重建后须用 --expect-elf-sha 传新值（默认值来自计划基线）",
+      "utc8": "2026-10-30T02:33:17+08:00"
+    },
+    "S2_P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "real_index_lock_present": false,
+      "memory": {
+        "ok": true,
+        "free_gb": 6.25,
+        "threshold_gb": 1.0
+      },
+      "exit_code": 0,
+      "utc8": "2026-10-30T02:33:19+08:00"
+    },
+    "S3_hw_server": {
+      "ok": true,
+      "pid": 47728,
+      "exit_code": 0,
+      "utc8": "2026-10-30T02:33:21+08:00"
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "a9_seen": true,
+      "utc8": "2026-10-30T02:33:22+08:00"
+    },
+    "S4_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xa",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xa",
+        "readback_raw": "10",
+        "tcl_verdict": "OK",
+        "readback": "0xa",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      },
+      "program_pl_exit": 0,
+      "lvl_0xF": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xf",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xf",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      },
+      "bit_sha256": "1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572",
+      "rst_system_used": false,
+      "utc8": "2026-10-30T02:34:00+08:00"
+    },
+    "S5_load_display": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_elf_exit": 0,
+      "elf": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+      "elf_sha256": "acca2cf7e22c496e0e0c14d68830029b23ac3daccfaec1143ef6b766e4c8ce9d",
+      "ps7_init": "init.elf -> con 2500ms -> rst -processor -stop -> dow display ELF -> LVL 0xF 断言 -> con",
+      "utc8": "2026-10-30T02:34:06+08:00"
+    },
+    "S6_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "result_seen": true,
+      "lines_total": 27,
+      "elapsed_s": 2.61,
+      "seconds_budget": 90,
+      "tail_partial_bytes": 0,
+      "tail_partial_dropped": true,
+      "tail_partial_text": "",
+      "log": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_p3b_smoke_20261030_r01\\S5DISP_uart.log",
+      "first_lines": [
+        "=== S5 P3B display app (P3b-sw, offline build) ===",
+        "canvas 1280x720, FB A=20000000 B=20384000, 3686400 B/frame, 2 frame stores",
+        "timer: GT 333 Hz (S5_GT_HZ, 显式常量规避 xtimer 宏括号坑)",
+        "source: REAL with SIM fallback (result block @20800000 magic=53355253, raw @12000000 921600 B BGR888)",
+        "VTC: version=602000C"
+      ],
+      "last_lines": [
+        "S5DISP frame=60 lat=17 age=33 st=3 sr=11001",
+        "S5DISP frame=120 lat=17 age=30 st=3 sr=11001",
+        "S5DISP frame=180 lat=19 age=31 st=3 sr=11001",
+        "S5DISP done frames=180 vcnt=1 vdma_err=0",
+        "S5DISP RESULT={\"pass\":0,\"fps_cap\":30,\"fps_inf\":0,\"fps_dis\":59,\"latency_ms\":19,\"age_ms\":31,\"vdma_err\":0,\"frames\":180,\"vcnt\":1,\"src\":\"sim\",\"reason\":\"result_magic_mismatch\"}"
+      ],
+      "utc8": "2026-10-30T02:34:09+08:00"
+    },
+    "S7_judgement": {
+      "criteria": [
+        {
+          "id": "J-1",
+          "desc": "S5DISP RESULT 行存在且 JSON 可解析（含全部键）",
+          "pass": true,
+          "detail": {
+            "missing": []
+          }
+        },
+        {
+          "id": "J-2",
+          "desc": "pass==1",
+          "pass": false,
+          "detail": {
+            "pass": 0
+          }
+        },
+        {
+          "id": "J-3",
+          "desc": "vdma_err==0",
+          "pass": true,
+          "detail": {
+            "vdma_err": 0
+          }
+        },
+        {
+          "id": "J-4",
+          "desc": "fps_dis>=55（且 <= 90）",
+          "pass": true,
+          "detail": {
+            "fps_dis": 59
+          }
+        },
+        {
+          "id": "J-5",
+          "desc": "age_ms<=47317",
+          "pass": true,
+          "detail": {
+            "age_ms": 31
+          }
+        },
+        {
+          "id": "J-6",
+          "desc": "0<=latency_ms<=1000",
+          "pass": true,
+          "detail": {
+            "latency_ms": 19
+          }
+        },
+        {
+          "id": "J-7",
+          "desc": "结果行无 error/timeout 语义",
+          "pass": true,
+          "detail": {
+            "bad_tokens": []
+          }
+        }
+      ],
+      "verdict": "FAIL",
+      "result_line": "S5DISP RESULT={\"pass\":0,\"fps_cap\":30,\"fps_inf\":0,\"fps_dis\":59,\"latency_ms\":19,\"age_ms\":31,\"vdma_err\":0,\"frames\":180,\"vcnt\":1,\"src\":\"sim\",\"reason\":\"result_magic_mismatch\"}",
+      "parsed": {
+        "pass": 0,
+        "fps_cap": 30,
+        "fps_inf": 0,
+        "fps_dis": 59,
+        "latency_ms": 19,
+        "age_ms": 31,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 1,
+        "src": "sim",
+        "reason": "result_magic_mismatch"
+      },
+      "reason": "criterion_failed",
+      "exit_code": 1,
+      "criteria_written": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_p3b_smoke_20261030_r01\\W3_judgement.json",
+      "utc8": "2026-10-30T02:34:09+08:00"
+    },
+    "S8_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 47728,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "utc8": "2026-10-30T02:34:12+08:00"
+    }
+  },
+  "stop_reason": "判据 FAIL：criterion_failed",
+  "criteria_version": "J-1..J-8（写死，见脚本 docstring）",
+  "boundary": "ENABLE=0；不烧 QSPI；不改线；不 push；不主张 G3/G4/G5",
+  "finished_utc8": "2026-10-30T02:34:12+08:00",
+  "elapsed_min": 0.92,
+  "verdict": "FAIL",
+  "failed_steps": [
+    "S7_judgement"
+  ],
+  "conclusion": "P3B_SMOKE_FAIL"
+}

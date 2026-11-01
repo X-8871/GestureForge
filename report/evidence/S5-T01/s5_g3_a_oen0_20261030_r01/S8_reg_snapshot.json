@@ -1,0 +1,13 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "xsdb_exit": 0,
+  "error_text": "Memory read error at 0x43C30000. Blocked address 0x43C30000. PL AXI slave ports access is not allowed. This address has not been added to the memory map",
+  "values_hex": {},
+  "raw_log": "$ cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; puts \"REG VTC_CTL=0x43c30000 VAL=[mrd -value 0x43c30000]\"; puts \"REG VTC_GTSTAT=0x43c30064 VAL=[mrd -value 0x43c30064]\"; puts \"REG VTC_STATUS=0x43c30004 VAL=[mrd -value 0x43c30004]\"; puts \"REG VDMA_MM2S_VDMACR=0x43c40000 VAL=[mrd -value 0x43c40000]\"; puts \"REG VDMA_MM2S_VDMASR=0x43c40004 VAL=[mrd -value 0x43c40004]\"; puts \"REG VDMA_PARKPTR=0x43c40028 VAL=[mrd -value 0x43c40028]\"; puts \"RBLK_BEGIN\"; mrd 0x20800000 8; puts \"RBLK_END\"; disconnect; exit\nexit=0 elapsed=0.785\nMemory read error at 0x43C30000. Blocked address 0x43C30000. PL AXI slave ports access is not allowed. This address has not been added to the memory map\n    invoked from within\n\"::tcf::eval -progress {apply {{msg} {puts $msg}}} {tcf_send_command tcfchan#0 Memory get siiii {Bea{o{msg o{} A}}} {JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0 1136852992 4 4 3}}\"\n    (procedure \"::tcf::send_command\" line 4)\n    invoked from within\n\"::tcf::send_command $chan Memory get \"siiii\" \"Bea{o{msg o{} A}}\" [list $ctx $start_addr $size $nbytes $mode]\"\n    (procedure \"mrd\" line 87)\n    invoked from within\n\"mrd -value 0x43c30000\"\n    invoked from within\n\"puts \"REG VTC_CTL 0x43c30000 VAL [mrd -value 0x43c30000]\"\"\n\n",
+  "result_block_raw": "",
+  "vtc_ctl": null,
+  "vtc_gtstat": null,
+  "vdma_sr": null,
+  "vdma_err_bits": null
+}

@@ -34,6 +34,7 @@ GCC = Path(r"D:\Xilinx\2026.1\Vitis\gnu\aarch32\nt\gcc-arm-none-eabi\bin\arm-non
 SIZE = Path(r"D:\Xilinx\2026.1\Vitis\gnu\aarch32\nt\gcc-arm-none-eabi\bin\arm-none-eabi-size.exe")
 NM = Path(r"D:\Xilinx\2026.1\Vitis\gnu\aarch32\nt\gcc-arm-none-eabi\bin\arm-none-eabi-nm.exe")
 STRONG_SYMBOL = "s2a_t62_decode_nms"
+S4D_SW_PREPROC_SRC = W / "vitis" / "stage4" / "ps" / "s4d_sw_preproc.c"
 
 
 def sha(path: Path) -> str | None:
@@ -97,6 +98,11 @@ def main() -> int:
             "-ffunction-sections", "-fdata-sections", "-U__clang__"]
         obj = BUILD / f"s4d_ps_app_{tag}.o"
         ref_obj = BUILD / "s2a_ps_decode_nms_reference.o"
+        pre_obj = BUILD / "s4d_sw_preproc.o"
+        code_p, _ = run([str(GCC), *common, "-o", str(pre_obj), "-c", str(S4D_SW_PREPROC_SRC)], BUILD, log)
+        if code_p != 0:
+            print(f"[FAIL] 预处理源编译失败 variant={variant} exit={code_p}；日志 {log}")
+            return 1
         suffix = f"_{args.out_tag}" if args.out_tag else ""
         elf = BUILD / f"s4d_ps_app_{tag}{suffix}.elf"
         mapf = BUILD / f"s4d_ps_app_{tag}{suffix}.map"
@@ -106,7 +112,7 @@ def main() -> int:
             print(f"[FAIL] 编译失败 variant={variant} app={code_c} ref={code_r}；日志 {log}")
             return 1
         code_l, _ = run([str(GCC), *common, f"-Wl,-Map={mapf.as_posix()},--cref,--gc-sections",
-                         str(obj), str(ref_obj), "-o", str(elf), f"-L{libdir.as_posix()}",
+                         str(obj), str(ref_obj), str(pre_obj), "-o", str(elf), f"-L{libdir.as_posix()}",
                          "-Wl,-T", f"-Wl,{lscript.as_posix()}",
                          "-Wl,--start-group", "-lxilstandalone", "-lxiltimer", "-lxil",
                          "-lgcc", "-lc", "-lm", "-Wl,--end-group"], BUILD, log)

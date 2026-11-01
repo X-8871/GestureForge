@@ -1,0 +1,41 @@
+# R-07 相机上板验证（ECAM） — `ecam_camera_20261031_r01`
+
+- 开窗：2026-10-31T10:25:12+08:00；收窗：2026-10-31T10:26:39+08:00
+- 结论：**ECAM_CAMERA_FAIL**；stop_reason=判据 FAIL
+- **por_precondition：satisfied**
+- 位流 P3r：`648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e`；ELF：`9ffc68e6a4b0a7e1a18f23a0830735e816bee1ded60ea4e1370493bce49fbd90`
+
+- R7-1 CAM: init OK chip=0x5640 640x480 stride=1920 raw=0x12000000：**FAIL** {"line": null}
+- R7-2 CAM: sr= 行出现且帧计数递增（≥10 帧）：**FAIL** {"sr_lines": 0, "frames_sample": [], "frames_span": null}
+- R7-3 S5DISP RESULT：src=real、fps_dis=60、vdma_err=0：**FAIL** {"src": "real_nobox", "fps_dis": 60, "vdma_err": 0}
+- R7-4 欠载增量 0（两次 UF_TOTAL 差）：**FAIL** {"uf_mid": 1176194704, "uf_end": 3409035274, "uf_delta": 2232840570}
+- R7-5 raw 抽样非全 0 且两次采样有变化（真实画面在写）：**FAIL** {"nonzero": true, "changed": false, "mid_head": "00 24 06 c8 30 01 28 c4 c4 0d 80 95 b0 02 08 c2 80 00 0c 10 80 1", "end_head": "00 24 06 c8 30 01 28 c4 c4 0d 80 95 b0 02 08 c2 80 00 0c 10 80 1"}
+- R7-6 无 CAM: FAIL code（返回码分诊见 window_close）：**FAIL** {"fail_lines": ["CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"], "fail_code": null, "meaning": null}
+
+## 停核后寄存器快照（只读）
+
+- camera VDMA CR=0x00000000 SR=0x00000000 PARKPTR=0x00000000
+- 相机 GPIO(0x43C70000)=0x00000000 复位(0x41200000)=0x00000000
+- display VDMA CR=0x00010002 SR=0x00011001
+- UF frame=0x00096A00 total=0xCB31C00A
+- raw 首 64 B：`00 24 06 c8 30 01 28 c4 c4 0d 80 95 b0 02 08 c2 80 00 0c 10 80 12 00 08 01 08 b8 80 10 89 48 80 82 40 a1 2a 89 0a 4c 1c f0 43 d2 08 13 09 10 b0 08 00 44 1a 02 2`
+- raw 末 256 B：`60 82 a6 0c 10 a0 06 40 b1 02 d0 80 a0 0b d8 60 10 04 0f 0c 08 a2 0e 17 32 c6 78 00 21 85 e4 21 50 b0 08 06 02 40 00 04 05 0f 40 04 a5 0b 10 30 41 e1 08 0a 0a 0`
+
+- **visual_check：pending（需 Wong 目视/拍照）**（需 Wong 目视/拍照）
+- DAP/halt：未命中
+- 收窗残留：[]
+
+## 返回码分诊（若 UART 出现 CAM: FAIL code=…）
+
+- `-10`：CHIPID 不符：查 SDA=F16/SCL=F19 上拉、I2C 分频、相机模组供电；必要时检查 J11 连接
+- `-11`：SCCB 写失败（SIO_C/SIO_D 电平/上拉/时序）
+- `-12`：SCCB 读失败
+- `-13`：SCCB 回读不符（寄存器写后回读不一致）
+- `-14`：S2MM 配置回读不符：核对 camera VDMA 基址（0x43C60000，以 XSA 为准）
+- `-15`：HALTED 未清：PS-PL AXI 未就绪 / PL 未配置 / 0xF 未生效
+
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI
+
+## 目视核对（Wong 看屏，lead 2026-10-31 10:26 旁证）
+- 预期：因 rc=-11 未进入相机视频流，屏幕应为**测试图（bars8+border+cross）**而非实时画面；
+- 记录：visual_check = **pending_wong_confirm**（若 Wong 报告黑屏/花屏/卡住，请补记于此）

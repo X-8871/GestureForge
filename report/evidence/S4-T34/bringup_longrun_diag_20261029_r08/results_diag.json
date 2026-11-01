@@ -1,0 +1,207 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "bringup_longrun_diag_20261029_r08",
+  "phase": "长跑诊断 v2（保全优先 + 三 CSR 只读）",
+  "driver_sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+  "elf_sha256": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+  "fixture_sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+  "started_utc8": "2026-10-29T00:33:43+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+          "expect": "555a70c2",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "elf",
+          "sha256": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+          "expect": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+          "match": true
+        },
+        {
+          "tag": "m3",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver",
+          "sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "expect": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "match": true
+        },
+        {
+          "tag": "fixture",
+          "sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "expect": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "match": true
+        },
+        {
+          "tag": "weights",
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+          "expect": "f6feb6d4",
+          "match": true
+        }
+      ],
+      "exit_code": 0,
+      "xsa": {
+        "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T14\\csr_fixed_visibility0_20261016_r08\\s2b_inference.xsa",
+        "sha256": "d3f1f14711322df567def1836ff2bbdef0f4c7d986e8e379c9f203dd206ca938",
+        "exists": true
+      },
+      "status": "PASS"
+    },
+    "P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "exit_code": 0
+    },
+    "P2_enum_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "used_attempt": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "utc8": "2026-10-29T00:34:00+08:00",
+          "xsdb_exit": 0,
+          "targets_raw": "1  APU\n     2  ARM Cortex-A9 MPCore #0 (Running)\n     3  ARM Cortex-A9 MPCore #1 (Running)\n  4  xc7z020",
+          "a9_present": true
+        }
+      ]
+    },
+    "W0_restore_candidate": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0
+    },
+    "W1_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xa",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xa",
+        "readback_raw": "10",
+        "tcl_verdict": "OK",
+        "readback": "0xa",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      },
+      "program_pl_exit": 0,
+      "lvl_0xF": {
+        "status": "PASS",
+        "exit_code": 0,
+        "actions": [
+          "SLCR_UNLOCK=0xDF0D",
+          "LVL_SHFTR_EN=0xf",
+          "FPGA_RST_CTRL=0x0",
+          "SLCR_LOCK=0x767B"
+        ],
+        "xsdb_error_text": null,
+        "write_value": "0xf",
+        "readback_raw": "15",
+        "tcl_verdict": "OK",
+        "readback": "0xf",
+        "fpga_rst_ctrl_raw": "0",
+        "fpga_rst_ctrl_verdict": "OK",
+        "fpga_rst_ctrl_readback": "0x0",
+        "xsdb_exit": 0,
+        "ug585_ref": "v1.2 §2.4.8（配置期 0xA / 完成 0xF）、§2.5 note、§6 PL Reconfiguration 步骤 2/10、Appendix B.28（SLCR_UNLOCK 0xF8000008=0xDF0D；SLCR_LOCK 0xF8000004=0x767B；LVL_SHFTR_EN 0xF8000900 bits[3:0]；FPGA_RST_CTRL 0xF8000240 见 §2.6/页 1454）",
+        "note": "双读回：LVL_SHFTR_EN 必须等于写入值、FPGA_RST_CTRL 必须为 0；任一不符即 FAIL，不继续"
+      }
+    },
+    "PRE_pl_csr": {
+      "status": "PL_CSR_NOT_RESPONDING",
+      "program_readback": {
+        "exit": 0,
+        "error_text": null,
+        "raw": "; if {[catch {get_property PROGRAM.FILE [current_hw_device]} e]} { puts \"PROG_FILE_ERR=$e\" } else { puts \"PROG_FILE=$e\" }; if {[catch {get_property PROGRAM.OK [current_hw_device]} e2]} { puts \"PROG_OK_ERR=$e2\" } else { puts \"PROG_OK=$e2\" }; puts"
+      },
+      "csr_id": {
+        "exit": 0,
+        "error_text": "while executing",
+        "loadhw_done": true,
+        "raw": "; mrd 0x43C00000 1; puts",
+        "value": 1136656384,
+        "hex": "0x43c00000",
+        "expect": "0x53324250"
+      },
+      "reason": "CSR ID 读不到或不为 0x53324250；诊断用，不作验收判据"
+    },
+    "W4_final_restore": {
+      "reset_stop_exit": 0,
+      "ps7_init_exit": 0,
+      "dump_exit": 0,
+      "initial_diff": 0,
+      "status": "PASS",
+      "exit_code": 0,
+      "rewritten": false,
+      "restore_diff": 0,
+      "record_clear": {
+        "status": "PASS",
+        "exit_code": 0,
+        "write_exit": 0,
+        "write_err": null,
+        "readback": [
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000",
+          "0x00000000"
+        ],
+        "all_zero": true
+      }
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "killed_pids": [
+          "39480"
+        ],
+        "listening_3121": 0,
+        "residual_processes": []
+      }
+    }
+  },
+  "stop_reason": "PL_CSR_NOT_RESPONDING：PL/CSR 未响应，按分叉停窗口、不进长跑",
+  "judgement": "定位成功 = STALL 且记录区 magic 有效（或 DFSR/DFAR/三 CSR 有值）；未复现 ⇒ DIAG_NOT_REPRODUCED；记录不可读 ⇒ NOT_CAPTURED（本身是判别证据）",
+  "boundary": "2B 平台位流 + SW 预处理；ENABLE=0；不烧 QSPI；不改线；不 push；不主张 G3/G4/G5；M3/M2 未闭合",
+  "finished_utc8": "2026-10-29T00:36:28+08:00",
+  "elapsed_min": 2.7,
+  "conclusion": "DIAG_INCOMPLETE"
+}

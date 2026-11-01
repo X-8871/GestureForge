@@ -1,0 +1,88 @@
+{
+  "task_id": "S4-T34",
+  "run_id": "s4d_chainlite_b_p2b_20261029_r01",
+  "phase": "chain-lite-B（SW 预处理链路）",
+  "driver_sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+  "chainb_elf_sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+  "fixture_sha256": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+  "offline_tensor_crc32": "0x5b183b50",
+  "started_utc8": "2026-10-29T22:12:54+08:00",
+  "steps": {
+    "IDENT": {
+      "checks": [
+        {
+          "tag": "bit",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\pl_v2_p2b_bitstream_20261029_r01\\s4d_p2b.bit",
+          "sha256": "47472d2db6e2a7cb5ff3ed2d0196c6dd5b3eb39f7b5ee7b30ed34254494a41e8",
+          "expect": "47472d2d",
+          "match": true
+        },
+        {
+          "tag": "init_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959",
+          "match": true
+        },
+        {
+          "tag": "chainb_elf",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\ps_decode_link_20261028_r01\\chainB\\s4d_ps_app_sw0_chainB.elf",
+          "sha256": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+          "expect": "fe5bf69d216544e57a98bf11a5fd552863269169db0d9b9b3c7bf12256afcba0",
+          "match": true
+        },
+        {
+          "tag": "m3_snapshot",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T32\\window_a_20261027_r01\\m3_snapshot_orig.bin",
+          "sha256": "41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf",
+          "expect": "41907f53",
+          "match": true
+        },
+        {
+          "tag": "driver_v326",
+          "file": "D:\\codex-worktrees\\w4\\scripts\\stage4_s4b\\run_bringup_driver.py",
+          "sha256": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "expect": "6c41ff4c4c4043d8f53ff963806f8e3e5211086ca8de204b0773985898d4e461",
+          "match": true
+        },
+        {
+          "tag": "fixture_raw",
+          "file": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-T34\\s4d_chainlite_b_p2b_20261029_r01\\fixture\\fixture_fist_000_640x480_bgr888.raw",
+          "sha256": null,
+          "expect": "ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4",
+          "match": false
+        },
+        {
+          "tag": "weights",
+          "file": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+          "exists": true,
+          "bytes": 5903100,
+          "sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39"
+        }
+      ],
+      "status": "FAIL",
+      "exit_code": 1
+    },
+    "P4_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "listening_3121": 0,
+        "residual_processes": []
+      }
+    }
+  },
+  "stop_reason": "身份核对失败（不碰板卡）",
+  "judgement": {
+    "W3a": "板上 tensor_crc32 == 0x5b183b50（离线同一 C 预处理同一 RAW）",
+    "W3b": "框 JSON vs 离线参考 abs<=1e-9；参考未就绪则记 W3B_BLOCKED（不记 PASS）",
+    "W2": "CHAINB RESULT.pass==1"
+  },
+  "boundary": "FIXTURE_GENERATED 非实拍；SW 预处理（非 PL）；2B 平台位流适用性；ENABLE=0；不烧 QSPI；不改线；不 push；不主张 G3/G4/G5",
+  "finished_utc8": "2026-10-29T22:12:55+08:00",
+  "elapsed_min": 0.0,
+  "failed_steps": [
+    "IDENT"
+  ],
+  "conclusion": "CHAINLITE_B_STOPPED_ON_FAILURE"
+}

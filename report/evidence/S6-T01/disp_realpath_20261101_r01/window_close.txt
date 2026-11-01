@@ -1,0 +1,14 @@
+# 显示侧真实帧消费验证（合成帧） — `disp_realpath_20261101_r01`
+
+- 开窗：2026-11-01T03:33:19+08:00；收窗：2026-11-01T03:34:21+08:00
+- 结论：**DISP_REALPATH_PARTIAL**（error=None）
+- **frame_source=`jtag_injected_test_pattern`**（合成图，非相机数据；1280×200 彩带：上红下蓝）
+- 位流：`e340066009ed59383c9588ae06e574006f2f464d253e8056a521b80d6d148fff`；显示 ELF：`d1ecc0d8592cec2d414dc73e2c47ee19c7e0c1eaf9ff25eefcc93465058e5743`
+
+- R1 出现 src=real（非 real_nobox/sim）：**FAIL** ["S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0", "S5DISP frame=180 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"]
+- R2 0x20000000 FB 内容与注入前不同（显示消费新帧）：**PASS** {"before": ["0xffffff", "0xffffff", "0xffffff", "0xffffff", "0xffffff", "0xffffff", "0xffffff", "0xffffff"], "after": ["0x7f8c8d", "0x7f8c8d", "0x7f8c8d", "0x7f8c8d", "0x7f8c8d", "0x7f8c8d", "0x7f8c8d", "0x7f8c8d"]}
+- R3 0x12000000 回读为注入图（JTAG 写入成功）：**PASS** {"RAW_head": ["0xff0000", "0xff00", "0xff0000ff", "0xff0000", "0xff00", "0xff0000ff", "0xff0000", "0xff00"]}
+- `S5DISP RESULT`：S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":29,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":0,"fb_crc":64743466,"uf_pix":1179295890,"uf_frame":200144,"uf_total":1179295890,"src":"real_nobox","reason":"result_not_valid"}
+
+- 收窗残留：[]
+- 边界：只写 0x12000000（合成图）；未改 PL/PS 配置；未烧 QSPI

@@ -1,0 +1,72 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "g4_q_concurrent_display_2b_20261030_r04",
+  "mode": "g4_q_concurrent_r04_continue",
+  "started_utc8": "2026-10-30T19:19:42+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "xsa_sha": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "m4b_sha": "553fbf7ea7de8bc75edaf99c0b4d5cb79ef39e556e768b91abd459d1cf240e84",
+      "disp_sha": "6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f",
+      "m4b_entry": 1048576,
+      "disp_entry": 1048576,
+      "board_state_note": "沿用 r03 结束状态：PL=P3q、ps7_init 已执行、M4-b 预置+投毒已在 DDR、两核已 stop"
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "listening_3121": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 52528
+      }
+    },
+    "S3_enum_loadhw": {
+      "status": "PASS",
+      "exit_code": 0,
+      "dap_clean": true,
+      "has_a9": true,
+      "loadhw_ok": true
+    },
+    "S4_dual_dow_pc": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "pc0": null,
+      "expect_core0_entry": "0x100000",
+      "pc1": null,
+      "expect_core1_entry": "0x100000",
+      "map_ok": false,
+      "error_text": null
+    },
+    "S8_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 52528,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "policy": "续跑窗：不重编 PL、不做任何 rst；dow 后用 rrd pc 校验镜像-核映射；先 con core1（显示先跑 5 s）再 con core0（M4-b）",
+  "baseline_no_display_ms": 47287,
+  "caveat": "DDR 区重叠（M4-b head13/26 在 0x12000000 起，与显示 raw 区重叠）⇒ 只判耗时/带宽，不判数据",
+  "forbidden_ops": "禁 rst -system；DAP/APB 错误即停手不重试",
+  "stop_reason": "镜像-核映射校验失败（未 con，停手）",
+  "finished_utc8": "2026-10-30T19:19:54+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  }
+}

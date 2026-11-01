@@ -1,0 +1,170 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_g_p3g_screen_20261030_r03",
+  "mode": "p3g_screen",
+  "started_utc8": "2026-10-30T13:02:10+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.bit",
+          "sha256": "221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d",
+          "expect": "221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d"
+        },
+        "xsa": {
+          "path": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.xsa",
+          "sha256": "2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb"
+        },
+        "bounded": {
+          "path": null,
+          "sha256": null,
+          "expect": null
+        },
+        "longrun": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+          "sha256": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e",
+          "expect": "2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e"
+        },
+        "init_elf_compat_check": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes": [],
+      "non_vivado_heavy": [],
+      "free_gb": 5.53,
+      "listening_3121": 0,
+      "note": "lead 要求内存>=3 GB；允许并行构建的 vivado，不启第二个 Vivado"
+    },
+    "S2b_pin_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "report": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\io_route.rpt",
+      "expected_pins": [
+        "N18",
+        "V20",
+        "T20",
+        "N20"
+      ],
+      "hits": {
+        "N18": [
+          "| N18        | TMDS_clk_p          | High Range | IO_L13P_T2_MRCC_34      | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ],
+        "V20": [
+          "| V20        | TMDS_data_p[0]      | High Range | IO_L16P_T2_34           | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ],
+        "T20": [
+          "| T20        | TMDS_data_p[1]      | High Range | IO_L15P_T2_DQS_34       | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ],
+        "N20": [
+          "| N20        | TMDS_data_p[2]      | High Range | IO_L14P_T2_SRCC_34      | OUTPUT      | TMDS_33           |      34 |            |      |                     |            FP_3.3_50 |         | FIXED      |           |          |      | NONE             |              |                   |              |"
+        ]
+      },
+      "note": "lead：report_io 中 N18/V20/T20/N20 任一缺失则先不开窗，报告后停"
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 56176
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "loadhw_ok": true,
+      "xsa": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.xsa",
+      "xsa_sha256": "2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb"
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "bit": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.bit",
+      "bit_sha256": "221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d",
+      "fpga_exit": 0,
+      "fpga_error_text": null,
+      "markers": {
+        "fpga_done": true,
+        "ps7_sourced": true,
+        "ps7_init_done": true,
+        "ps7_post": "done"
+      },
+      "ps7_init_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_g_p3g_screen_20261030_r03\\ps7_init_from_xsa.tcl",
+      "ps7_init_sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e",
+      "ps7_init_note": "P3g XSA 内导出 ps7_init.tcl",
+      "lvl_0xA": "PASS",
+      "lvl_0xF": "PASS",
+      "lvl_readback_after_on": "0xf"
+    },
+    "S7_longrun_hold": {
+      "status": "PASS",
+      "exit_code": 0,
+      "longrun_loaded": true,
+      "dow_exit": 0,
+      "dow_error": null,
+      "elapsed_s": 75.2,
+      "lines_total": 0,
+      "tick_lines": 0,
+      "fps_values": {},
+      "last_lines": []
+    },
+    "S8_reg_snapshot": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "xsdb_exit": 0,
+      "error_text": "Memory read error at 0x43C30000. Blocked address 0x43C30000. PL AXI slave ports access is not allowed. This address has not been added to the memory map",
+      "snapshots": [],
+      "result_block_raw": ""
+    },
+    "S9_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "note": "只判窗口执行完整性；亮屏由现场判读",
+      "conclusion": "P3G_WINDOW_INCOMPLETE"
+    },
+    "S10_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 56176,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": [],
+      "other_heavy_note": "vivado 若存在为并行构建，不计入本窗口残留"
+    }
+  },
+  "programming_tool": "xsdb fpga -file",
+  "forbidden_ops": "全程禁 rst -system；不用 w5 jtag_download_port.tcl",
+  "judgement_policy": "只取证 + 记录机器侧；亮屏与否由现场判读",
+  "ps7_init_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_g_p3g_screen_20261030_r03\\ps7_init_from_xsa.tcl",
+  "ps7_init_sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e",
+  "ps7_init_note": "P3g XSA 内导出 ps7_init.tcl",
+  "fpga_exit": 0,
+  "hold_seconds": 75.2,
+  "registers": {
+    "snapshots": [],
+    "result_block_raw": "",
+    "loadhw_xsa": "D:\\tmp\\lead\\p3g_video_20261030_r01\\out\\s4d_p3g_r01.xsa",
+    "loadhw_xsa_sha256": "2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb"
+  },
+  "criterion_ok": false,
+  "conclusion": "P3G_WINDOW_INCOMPLETE",
+  "finished_utc8": "2026-10-30T13:03:49+08:00",
+  "stop_reason": null
+}

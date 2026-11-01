@@ -1,0 +1,723 @@
+{
+  "task_id": "E-cam-mvp",
+  "run_id": "mvp_ack_20261101_r01",
+  "started_utc8": "2026-11-01T03:47:33+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "e340066009ed5938",
+      "xsa_sha": "e945d02622df5e4d",
+      "disp_sha": "d1ecc0d8592cec2d",
+      "infer_sha": "5806d33de1e888bb",
+      "weights_sha": "f6feb6d489318ee9"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S2d_ddr_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ddr_pre": {
+        "DDR_RAW": "0xff0000",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x2ecc71"
+      }
+    },
+    "S3a_init": {
+      "status": "PASS",
+      "exit_code": 0,
+      "rst_system": true,
+      "rst_processor": true,
+      "init_elf": "init.elf"
+    },
+    "S3b_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3d_aper": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d",
+      "bits": {
+        "bit18": 1,
+        "bit20": 1,
+        "bit21": 1
+      }
+    },
+    "S3e_ddr_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre": {
+        "DDR_RAW": "0xff0000",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x2ecc71"
+      },
+      "post": {
+        "DDR_RAW": "0xff0000",
+        "DDR_APP": "0xea000031",
+        "DDR_FB": "0x2ecc71"
+      }
+    },
+    "S3f_ddr_window": {
+      "status": "PASS",
+      "exit_code": 0,
+      "readback": "0xdeadbeef"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit": "s4d_p3r_r01.bit"
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "probe": {
+        "CSR2B": "0x53324250",
+        "CAM_VER": "0x62000050",
+        "CAM_CR": "0x10002",
+        "CAM_SR": "0x14811"
+      }
+    },
+    "S6a_dow_core0": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elf": "s5_display_app_p3r_camera.elf",
+      "state": null
+    },
+    "S7_weights": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bytes": 5903100,
+      "addr": "0x10100000",
+      "attempts": [
+        {
+          "attempt": 1,
+          "dow": true,
+          "verify_rc_ok": true,
+          "wm0": "0x4e494647",
+          "wm1": "0x31573854"
+        }
+      ],
+      "expect": "GFINT8W1 → 0x4E494647/0x31573854 + verify -data rc=0"
+    },
+    "S8_core1_start": {
+      "status": "PASS",
+      "exit_code": 0,
+      "rst_processor": true,
+      "con": true,
+      "state": null
+    },
+    "S9_core0_start": {
+      "status": "PASS",
+      "exit_code": 0,
+      "states": []
+    },
+    "S10_snap1": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 22.7,
+      "raw_head": [
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000"
+      ],
+      "raw_nonzero": 16,
+      "s5rs_head": [
+        "0x53355253",
+        "0x1",
+        "0x1",
+        "0x1000",
+        "0x0",
+        "0x1100",
+        "0x0",
+        "0x1"
+      ],
+      "s5rs_magic_ok": true,
+      "CAM_CR": "0x10001",
+      "CAM_SR": "0x14810",
+      "measurements": {
+        "TLAST_BEAT": "0x500",
+        "TUSER_TLAST": "0x2d0",
+        "TUSER_SHAPED": "0x1320",
+        "VSYNC_NEG": "0x1321"
+      },
+      "measurements_k": {
+        "TUSER2TLAST": null,
+        "TLAST2TUSER": null,
+        "FRAME_BEATS": null
+      }
+    },
+    "S10_snap2": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 52.93,
+      "raw_head": [
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000"
+      ],
+      "raw_nonzero": 16,
+      "s5rs_head": [
+        "0x53355253",
+        "0x0",
+        "0x0",
+        "0xcf1b4d10",
+        "0xd",
+        "0x7dfb49fe",
+        "0x11",
+        "0x1"
+      ],
+      "s5rs_magic_ok": true,
+      "CAM_CR": "0x10001",
+      "CAM_SR": "0x14810",
+      "measurements": {
+        "TLAST_BEAT": "0x500",
+        "TUSER_TLAST": "0x2d0",
+        "TUSER_SHAPED": "0x16ac",
+        "VSYNC_NEG": "0x16ad"
+      },
+      "measurements_k": {
+        "TUSER2TLAST": null,
+        "TLAST2TUSER": null,
+        "FRAME_BEATS": null
+      }
+    },
+    "S10_uart_collect": {
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 90.0,
+      "lines": 241
+    },
+    "S11_stop_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshot": {
+        "raw": {
+          "head": [
+            "0xff0000",
+            "0xff00",
+            "0xff0000ff",
+            "0xff0000",
+            "0xff00",
+            "0xff0000ff",
+            "0xff0000",
+            "0xff00",
+            "0xff0000ff",
+            "0xff0000",
+            "0xff00",
+            "0xff0000ff",
+            "0xff0000",
+            "0xff00",
+            "0xff0000ff",
+            "0xff0000"
+          ],
+          "mid": [
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x1",
+            "0x0",
+            "0x0",
+            "0x8",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0"
+          ],
+          "last": [
+            "0x0",
+            "0x100000",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x2",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0",
+            "0x0"
+          ]
+        },
+        "raw_nonzero": {
+          "head": 16,
+          "mid": 2,
+          "last": 2
+        },
+        "s5rs_head": [
+          "0x53355253",
+          "0x1",
+          "0x0",
+          "0x80715c00",
+          "0x11",
+          "0x2f9bafdd",
+          "0x15",
+          "0x1"
+        ],
+        "s5rs_magic_ok": true,
+        "CAM_CR": 65537,
+        "CAM_SR": 83984,
+        "CSR2B": 1395802704,
+        "measurements": {
+          "TLAST_BEAT": "0x500",
+          "TUSER_TLAST": "0x2d0",
+          "TUSER_SHAPED": "0x1be5",
+          "VSYNC_NEG": "0x1be5"
+        },
+        "measurements_k": {
+          "TUSER2TLAST": null,
+          "TLAST2TUSER": null,
+          "FRAME_BEATS": null
+        },
+        "stop_ok": true
+      }
+    },
+    "S12_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "J1",
+          "desc": "相机：`CAM: init OK` 且 0x12000000 采样非零",
+          "pass": true,
+          "detail": {
+            "cam": true,
+            "raw_nonzero": {
+              "head": 16,
+              "mid": 2,
+              "last": 2
+            },
+            "MVP NOTE raw_blank": false
+          }
+        },
+        {
+          "id": "J2",
+          "desc": "显示链运行：`S5DISP frame` 行出现（src/nbox 见 J5）",
+          "pass": true,
+          "detail": {
+            "lines": 3,
+            "sample": [
+              "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+              "S5DISP frame=120 lat=11132 age=58588 st=B sr=11000 src=real nbox=0"
+            ]
+          }
+        },
+        {
+          "id": "J3",
+          "desc": "权重：`verify -data` rc=0 且 `MVP WEIGHTS: GFINT8W1 OK`",
+          "pass": true,
+          "detail": {
+            "attempts": [
+              {
+                "attempt": 1,
+                "dow": true,
+                "verify_rc_ok": true,
+                "wm0": "0x4e494647",
+                "wm1": "0x31573854"
+              }
+            ],
+            "line": [
+              "MVP WEIGHTS: GFINT8W1 OK @0x10100000"
+            ]
+          }
+        },
+        {
+          "id": "J4",
+          "desc": "推理：≥1 条 `MVP TIME` 且 raw_nz>0 且 dt_pl≤90000 ms",
+          "pass": true,
+          "detail": {
+            "lines": [
+              "MVP TIME t0_pre=177927 t1_pl=225384 t2_decode=225391 t3_pub=225391 dt_pre=87 dt_pl=47456 dt_dec=7 dt_all=47550 raw_nz=1024",
+              "MVP TIME t0_pre=225508 t1_pl=272979 t2_decode=272985 t3_pub=272985 dt_pre=106 dt_pl=47471 dt_dec=5 dt_all=47583 raw_nz=1024"
+            ],
+            "raw_nz": 1024,
+            "dt_pl": 47471
+          }
+        },
+        {
+          "id": "J5",
+          "desc": "结果块：`MVP S5RS … magic=0x53355253`（n_dets 0..15 合法）+ 显示 real 且有框/或 RESULT 合格",
+          "pass": true,
+          "detail": {
+            "s5rs_lines": [
+              "MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1",
+              "MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1"
+            ],
+            "n_dets": [
+              0,
+              0
+            ],
+            "disp_real_lines": [
+              "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+              "S5DISP frame=120 lat=11132 age=58588 st=B sr=11000 src=real nbox=0"
+            ],
+            "result": {
+              "pass": 1,
+              "fps_cap": 0,
+              "fps_inf": 0,
+              "fps_dis": 60,
+              "fps_upd": 3,
+              "fps_dis_idle": 0,
+              "idle_period_us": 0,
+              "latency_ms": 28415,
+              "age_ms": 65535,
+              "vdma_err": 0,
+              "frames": 180,
+              "vcnt": 180,
+              "box_crc": 0,
+              "fb_crc": 2559109684,
+              "uf_pix": 215784534,
+              "uf_frame": 728994,
+              "uf_total": 215784534,
+              "src": "real"
+            }
+          }
+        },
+        {
+          "id": "J6",
+          "desc": "HUD：`APP: gesture_changed` 或 `S5DISP frame … src=real nbox≥1`",
+          "pass": true,
+          "detail": {
+            "changed": [
+              "APP: gesture_changed from=none to=数字一",
+              "APP: gesture_changed from=数字一 to=拳头"
+            ],
+            "disp_real": true,
+            "note": "APP: gesture= 每 30 帧才打印（≈23 min/次），本窗不作判据"
+          }
+        }
+      ]
+    },
+    "S13_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 24352,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ]
+      },
+      "residual": [],
+      "rst_system_calls": 1
+    }
+  },
+  "policy": "相机→YOLO→S5RS→HUD；rst -system 仅一次(PL 编程前)；单次 ps7_init；core1 con 后 core0 con；DAP/halt 异常停手",
+  "por_precondition": "satisfied",
+  "init_reset_mode": "rst-system",
+  "ident": {
+    "bit": {
+      "current": "e340066009ed5938",
+      "expect": "e340066009ed5938"
+    },
+    "xsa": {
+      "current": "e945d02622df5e4d",
+      "expect": "e945d02622df5e4d"
+    },
+    "disp": {
+      "current": "d1ecc0d8592cec2d",
+      "expect": "d1ecc0d8592cec2d"
+    },
+    "infer": {
+      "current": "5806d33de1e888bb",
+      "expect": "5806d33de1e888bb"
+    },
+    "weights": {
+      "current": "f6feb6d489318ee9",
+      "expect": "f6feb6d489318ee9"
+    }
+  },
+  "ddr_pre": {
+    "DDR_RAW": 16711680,
+    "DDR_APP": 3925868593,
+    "DDR_FB": 3066993
+  },
+  "parsed": {
+    "CAM: init OK": [
+      "CAM: init OK chip=0x5640 1280x720 stride=3840 raw=0x12000000 (24bpp BGR888)"
+    ],
+    "MVP WEIGHTS": [
+      "MVP WEIGHTS: GFINT8W1 OK @0x10100000"
+    ],
+    "MVP TIME": [
+      "MVP TIME t0_pre=177927 t1_pl=225384 t2_decode=225391 t3_pub=225391 dt_pre=87 dt_pl=47456 dt_dec=7 dt_all=47550 raw_nz=1024",
+      "MVP TIME t0_pre=225508 t1_pl=272979 t2_decode=272985 t3_pub=272985 dt_pre=106 dt_pl=47471 dt_dec=5 dt_all=47583 raw_nz=1024"
+    ],
+    "MVP S5RS": [
+      "MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1",
+      "MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1"
+    ],
+    "MVP NOTE": [],
+    "MVP APP": [
+      "MVP APP: CAM=1 raw=0x12000000 1280x720 bgr888 bytes=2764800 s5rs=0x20800000"
+    ],
+    "APP: gesture=": [
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=39",
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=91",
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=270",
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=553"
+    ],
+    "APP: gesture_changed": [
+      "APP: gesture_changed from=none to=数字一",
+      "APP: gesture_changed from=数字一 to=拳头"
+    ],
+    "S5DISP frame": [
+      "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+      "S5DISP frame=120 lat=11132 age=58588 st=B sr=11000 src=real nbox=0",
+      "S5DISP frame=180 lat=28415 age=65535 st=B sr=11000 src=real nbox=0"
+    ],
+    "S5DISP RESULT": [
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":3,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":28415,\"age_ms\":65535,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":2559109684,\"uf_pix\":215784534,\"uf_frame\":728994,\"uf_total\":215784534,\"src\":\"real\"}"
+    ],
+    "CAM: FAIL": []
+  },
+  "stop_snapshot": {
+    "raw": {
+      "head": [
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000",
+        "0xff00",
+        "0xff0000ff",
+        "0xff0000"
+      ],
+      "mid": [
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x1",
+        "0x0",
+        "0x0",
+        "0x8",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0"
+      ],
+      "last": [
+        "0x0",
+        "0x100000",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x2",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0",
+        "0x0"
+      ]
+    },
+    "raw_nonzero": {
+      "head": 16,
+      "mid": 2,
+      "last": 2
+    },
+    "s5rs_head": [
+      "0x53355253",
+      "0x1",
+      "0x0",
+      "0x80715c00",
+      "0x11",
+      "0x2f9bafdd",
+      "0x15",
+      "0x1"
+    ],
+    "s5rs_magic_ok": true,
+    "CAM_CR": 65537,
+    "CAM_SR": 83984,
+    "CSR2B": 1395802704,
+    "measurements": {
+      "TLAST_BEAT": "0x500",
+      "TUSER_TLAST": "0x2d0",
+      "TUSER_SHAPED": "0x1be5",
+      "VSYNC_NEG": "0x1be5"
+    },
+    "measurements_k": {
+      "TUSER2TLAST": null,
+      "TLAST2TUSER": null,
+      "FRAME_BEATS": null
+    },
+    "stop_ok": true
+  },
+  "criteria": [
+    {
+      "id": "J1",
+      "desc": "相机：`CAM: init OK` 且 0x12000000 采样非零",
+      "pass": true,
+      "detail": {
+        "cam": true,
+        "raw_nonzero": {
+          "head": 16,
+          "mid": 2,
+          "last": 2
+        },
+        "MVP NOTE raw_blank": false
+      }
+    },
+    {
+      "id": "J2",
+      "desc": "显示链运行：`S5DISP frame` 行出现（src/nbox 见 J5）",
+      "pass": true,
+      "detail": {
+        "lines": 3,
+        "sample": [
+          "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+          "S5DISP frame=120 lat=11132 age=58588 st=B sr=11000 src=real nbox=0"
+        ]
+      }
+    },
+    {
+      "id": "J3",
+      "desc": "权重：`verify -data` rc=0 且 `MVP WEIGHTS: GFINT8W1 OK`",
+      "pass": true,
+      "detail": {
+        "attempts": [
+          {
+            "attempt": 1,
+            "dow": true,
+            "verify_rc_ok": true,
+            "wm0": "0x4e494647",
+            "wm1": "0x31573854"
+          }
+        ],
+        "line": [
+          "MVP WEIGHTS: GFINT8W1 OK @0x10100000"
+        ]
+      }
+    },
+    {
+      "id": "J4",
+      "desc": "推理：≥1 条 `MVP TIME` 且 raw_nz>0 且 dt_pl≤90000 ms",
+      "pass": true,
+      "detail": {
+        "lines": [
+          "MVP TIME t0_pre=177927 t1_pl=225384 t2_decode=225391 t3_pub=225391 dt_pre=87 dt_pl=47456 dt_dec=7 dt_all=47550 raw_nz=1024",
+          "MVP TIME t0_pre=225508 t1_pl=272979 t2_decode=272985 t3_pub=272985 dt_pre=106 dt_pl=47471 dt_dec=5 dt_all=47583 raw_nz=1024"
+        ],
+        "raw_nz": 1024,
+        "dt_pl": 47471
+      }
+    },
+    {
+      "id": "J5",
+      "desc": "结果块：`MVP S5RS … magic=0x53355253`（n_dets 0..15 合法）+ 显示 real 且有框/或 RESULT 合格",
+      "pass": true,
+      "detail": {
+        "s5rs_lines": [
+          "MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1",
+          "MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1"
+        ],
+        "n_dets": [
+          0,
+          0
+        ],
+        "disp_real_lines": [
+          "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+          "S5DISP frame=120 lat=11132 age=58588 st=B sr=11000 src=real nbox=0"
+        ],
+        "result": {
+          "pass": 1,
+          "fps_cap": 0,
+          "fps_inf": 0,
+          "fps_dis": 60,
+          "fps_upd": 3,
+          "fps_dis_idle": 0,
+          "idle_period_us": 0,
+          "latency_ms": 28415,
+          "age_ms": 65535,
+          "vdma_err": 0,
+          "frames": 180,
+          "vcnt": 180,
+          "box_crc": 0,
+          "fb_crc": 2559109684,
+          "uf_pix": 215784534,
+          "uf_frame": 728994,
+          "uf_total": 215784534,
+          "src": "real"
+        }
+      }
+    },
+    {
+      "id": "J6",
+      "desc": "HUD：`APP: gesture_changed` 或 `S5DISP frame … src=real nbox≥1`",
+      "pass": true,
+      "detail": {
+        "changed": [
+          "APP: gesture_changed from=none to=数字一",
+          "APP: gesture_changed from=数字一 to=拳头"
+        ],
+        "disp_real": true,
+        "note": "APP: gesture= 每 30 帧才打印（≈23 min/次），本窗不作判据"
+      }
+    }
+  ],
+  "criterion_ok": true,
+  "conclusion": "MVP_CHAIN_OK",
+  "finished_utc8": "2026-11-01T03:52:45+08:00",
+  "stop_reason": "MVP 判据全绿",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true,
+  "rst_system_calls": 1
+}

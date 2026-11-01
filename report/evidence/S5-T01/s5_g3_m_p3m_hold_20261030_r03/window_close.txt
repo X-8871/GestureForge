@@ -1,0 +1,38 @@
+# P3m 长跑 hold-release 窗口
+
+- RunId：`s5_g3_m_p3m_hold_20261030_r03`
+- 开窗：2026-10-30T14:51:50+08:00；释放：2026-10-30T14:52:12+08:00
+- **HOLD_RELEASED_AT=14:52:12**
+- **EXPECTED_UNTIL=15:22:04**（长跑上限 1800 s，按 con 折算）
+- **cores=RUNNING**、**hw_server=killed**（3121 LISTENING=0、残留=[]）
+- **PL=P3m sha256=b7220b6dfed20264d16719f297a4c5c1440d9ae4cc9c25749339780479de017c**
+- **ELF sha256=2481b2d17b96ce65b1a6d2cc1284f824e98ca0ecc97fb9f1b57869cb846530e4**（`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf`，281956 B）
+- 执行：loadhw(P3m XSA) → 停两核 → 0xA → `xsdb fpga -file` → 0xF → `load_elf_ddr`（init.elf 跑 ps7_init → dow 长跑 ELF → 0xF → con）
+- 保持：不停核、不收窗；PS 继续跑、画面持续；Wong 可随时看。
+
+## 释放后 UART 关键行（前 62 s）
+
+```
+hw: VDMA AXI-Lite @43C00000, VTC=absent(P3m: axis_to_video owns timing), UF GPIO @43C10000
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+VDMA: read period = 6409939 ticks (19229 us) -> fps_dis=52 (display refresh)
+S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=120 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=240 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=300 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=360 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=420 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=480 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=540 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=600 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=660 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=720 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=780 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=840 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=900 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+S5DISP frame=960 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+```
+
+- 边界：禁 rst -system；未烧 QSPI；未改线

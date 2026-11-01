@@ -1,0 +1,30 @@
+# MVP 单链板级串联窗 — `mvp_chain_20261101_r07`
+
+- 开窗：2026-11-01T02:43:34+08:00；收窗：2026-11-01T02:44:00+08:00
+- 结论：**N/A**；stop_reason=halt/loadhw 失败
+- **por_precondition：satisfied**
+- rst -system：**0 次**（init 阶段一次性，PL 编程前；mode=rst-system）
+- 位流：`e340066009ed59383c9588ae06e574006f2f464d253e8056a521b80d6d148fff`；XSA：`e945d02622df5e4d7d3b17a3606caad25f111aba788ec03cbc495b7c4542e0f9`
+- core0 显示 ELF：`377937afe2533736470da86c5a14c123967289d134f2b2a998f458814546978a`；core1 推理 ELF：`1acf5d8151e9c6fdb2f96a2335da6496af8c5248357bacd1c1e19eb40f345de5`
+- 权重：`f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39` → 0x10100000
+
+
+## UART 关键行（原文，各最多 3 条）
+
+
+## 停核快照（只读）
+
+- 0x12000000 head/mid/last 非零计数：None
+- 0x20800000 前 8 字：None
+- S5RS magic 命中：None
+- camera VDMA CR=0x00000000 SR=0x00000000
+- 2B CSR(0x43C00000)=0x00000000
+
+## 判读规则
+
+- M1 CAM init + raw 非零；M2 weights OK + raw_nz>0；M3 S5RS n_dets≥1/cls∈0..4；M4 APP gesture 中文名；M5 gesture_changed 出现
+- 任一 DAP/halt 异常 ⇒ 停手，不重试
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：rst -system 仅 init 一次；未写候选区；未烧 QSPI

@@ -1,0 +1,130 @@
+{
+  "task_id": "MVP-VSIZE727",
+  "run_id": "mvp_vsize727_probe_20261101_r02",
+  "started_utc8": "2026-11-01T02:37:35+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "sha": {
+        "bit": "e340066009ed5938",
+        "xsa": "e945d02622df5e4d",
+        "elf": "69fb99acc4385e20"
+      }
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3d_aper": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "csr2b": "0x53324250",
+      "cam_ver": "0x62000050"
+    },
+    "S6_dow_con": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "regs": {
+        "CAM_CR": "0x10001",
+        "CAM_SR": "0x14810",
+        "VSIZE": "0x2d0"
+      }
+    },
+    "S8_set_vsize727": {
+      "status": "PASS",
+      "exit_code": 0,
+      "wrote": "0x2d7",
+      "readback": "0x2d7"
+    },
+    "S11_result": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "verdict": "VSIZE727_STILL_FSZ_MORE",
+      "pre": {
+        "CAM_CR": "0x10001",
+        "CAM_SR": "0x14810",
+        "VSIZE": "0x2d0"
+      },
+      "post": {
+        "CAM_CR": "0x10001",
+        "CAM_SR": "0x14810",
+        "VSIZE": "0x2d7",
+        "TLAST_BEAT": "0x500",
+        "TUSER_TLAST": "0x2d7",
+        "TUSER_SHAPED": "0x3c1",
+        "VSYNC_NEG": "0x3c2"
+      },
+      "raw": {
+        "head": [
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0"
+        ],
+        "mid": [
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0"
+        ],
+        "last": [
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x0",
+          "0x8",
+          "0x0",
+          "0x0"
+        ]
+      },
+      "raw_nonzero": {
+        "head": 0,
+        "mid": 0,
+        "last": 1
+      },
+      "fsz_more_after": true,
+      "data_after": true
+    }
+  },
+  "hypothesis": "传感器 727 行/帧 vs VDMA VSIZE=720 ⇒ FSZ_MORE",
+  "ident": {
+    "bit": "e340066009ed5938",
+    "xsa": "e945d02622df5e4d",
+    "elf": "69fb99acc4385e20"
+  },
+  "verdict": "VSIZE727_STILL_FSZ_MORE",
+  "criterion_ok": false,
+  "finished_utc8": "2026-11-01T02:38:38+08:00",
+  "teardown": {
+    "stopped_pid": 62252,
+    "port": 3121,
+    "listening_3121": 0,
+    "residual_processes": [
+      "vivado"
+    ]
+  },
+  "residual": []
+}

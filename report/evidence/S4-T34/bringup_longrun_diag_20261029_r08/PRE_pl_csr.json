@@ -1,0 +1,18 @@
+{
+  "status": "PL_CSR_NOT_RESPONDING",
+  "program_readback": {
+    "exit": 0,
+    "error_text": null,
+    "raw": "; if {[catch {get_property PROGRAM.FILE [current_hw_device]} e]} { puts \"PROG_FILE_ERR=$e\" } else { puts \"PROG_FILE=$e\" }; if {[catch {get_property PROGRAM.OK [current_hw_device]} e2]} { puts \"PROG_OK_ERR=$e2\" } else { puts \"PROG_OK=$e2\" }; puts"
+  },
+  "csr_id": {
+    "exit": 0,
+    "error_text": "while executing",
+    "loadhw_done": true,
+    "raw": "; mrd 0x43C00000 1; puts",
+    "value": 1136656384,
+    "hex": "0x43c00000",
+    "expect": "0x53324250"
+  },
+  "reason": "CSR ID 读不到或不为 0x53324250；诊断用，不作验收判据"
+}

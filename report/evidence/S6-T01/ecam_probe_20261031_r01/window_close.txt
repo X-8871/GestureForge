@@ -1,0 +1,36 @@
+# E-cam 诊断窗（复位修复验证） — `ecam_probe_20261031_r01`
+
+- 开窗：2026-10-31T14:01:44+08:00；收窗：2026-10-31T14:02:19+08:00
+- 结论：**None**；stop_reason=诊断 ELF 未进入 Running
+- **por_precondition：satisfied**
+- 位流 P3r build3：`e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460`；ELF：`3ec8fd91f937fb2929b2ed78d47975e8d13b1c2344854d2b50e52052f0a352ec`
+
+
+## 判读关键（UART 原文）
+
+- `rst pin before/after` 行：None
+- `reset seq` 行：None
+- `i2c clk` 行（0 条）：None
+- `probe` 行：None
+- `chipid` 行：None
+
+## 停核快照（只读）
+
+- **0x41200000 (cmos_rstn) = 0x00000000**（期望 1）
+- 0x43C70000 (CAM_GPIO) = 0x00000000
+- camera VDMA CR=0x00000000 SR=0x00000000
+- **SLCR APER_CLK_CTRL(0xF800012C)=0x017C000D bit11=0**
+- I2C0 CR=0x00000017 SR=0x00000000 DIV=0x00000000 ISR=0x000002FF
+- ps7init 模式：combo(stage4_elf+ps7init_tcl)
+- display VDMA CR=0x00000000 SR=0x00000000
+- UF frame=0x00000000 total=0x00000000
+
+## 判读规则
+
+- `rst pin after=0x1` + `probe ack=1` ⇒ **复位修复成功**（可进修复版相机窗）
+- `ack=0` 且 `isr_addr` 含 0x10(NACK) ⇒ 器件无响应（接线/供电/上拉/地址）
+- `rc=-2` 且 `isr_addr=0` ⇒ I2C 起步异常
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI

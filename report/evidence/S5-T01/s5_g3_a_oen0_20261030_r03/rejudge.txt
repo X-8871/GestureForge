@@ -1,0 +1,16 @@
+## 离线重判（mrd -value 十进制口径修正；同一份 raw_log，无新硬件运行）
+
+| 寄存器 | 十进制 | 十六进制 |
+|---|---|---|
+| VTC_CTL | 5 | 0x5 |
+| VTC_GTSTAT | 4 | 0x4 |
+| VTC_STATUS | 78336 | 0x13200 |
+| VDMA_MM2S_VDMACR | 65538 | 0x10002 |
+| VDMA_MM2S_VDMASR | 69633 | 0x11001 |
+| VDMA_PARKPTR | 0 | 0x0 |
+
+- VTC 生成：CTL=0x00000005（bit0 SW=1、bit2 GE=1）、GTSTAT=4 ⇒ **OK**
+- VDMA：DMACR=0x00010002（Circular=1、RS=0），SR=0x00011001（Halted=1、DMAErr(bit3/4/5)=0x0、Err_Irq(bit12)=1）
+- 结果块首 8 word：0x53355253 0x00000001 0x00000003 0x00000000 0x00000000 0x00000000 0x00000000 0x00000001 ⇒ magic=0x53355253、word2(nbox)=3 ⇒ **OK**
+- 注意：SR bit12 Err_Irq 已置起但 DMA 传输错误位为 0；SR 原始值含 bit16（超出 PG020 位域），需 hw 侧确认读口径/停机时序。
+

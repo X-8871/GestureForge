@@ -1,0 +1,39 @@
+# R-07 相机上板验证（ECAM） — `ecam_camera_20261031_r02`
+
+- 开窗：2026-10-31T16:59:33+08:00；收窗：2026-10-31T17:01:09+08:00
+- 结论：**ECAM_CAMERA_FAIL**；stop_reason=判据 FAIL
+- **por_precondition：satisfied**
+- 位流 P3r：`7acea72617024db9cf2540e22fb422f1f6f8fe302cc8afa1a99c4f3372922a2d`；ELF：`1bae3d0f15e102b0ae7a0f4392430ee11a6885c1cfbb564cfb4d2fbd8b231100`
+
+- R7-1 CAM: init OK chip=0x5640 640x480 stride=1920 raw=0x12000000：**PASS** {"line": "CAM: init OK chip=0x5640 640x480 stride=1920 raw=0x12000000 (24bpp BGR888)"}
+- R7-2 CAM: sr= 行出现且帧计数递增（≥10 帧）：**FAIL** {"sr_lines": 3, "frames_sample": [0, 0, 0], "frames_span": 0}
+- R7-3 S5DISP RESULT：src=real、fps_dis=60、vdma_err=0：**FAIL** {"src": "real_nobox", "fps_dis": 60, "vdma_err": 0}
+- R7-4 欠载增量 0（两次 UF_TOTAL 差）：**FAIL** {"uf_mid": 1339632265, "uf_end": 3557210369, "uf_delta": 2217578104}
+- R7-5 raw 抽样非全 0 且两次采样有变化（真实画面在写）：**FAIL** {"nonzero": true, "changed": false, "mid_head": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0", "end_head": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0"}
+- R7-6 无 CAM: FAIL code（返回码分诊见 window_close）：**PASS** {"fail_lines": [], "fail_code": null, "meaning": null}
+- R7-7 CAM_GPIO 帧计数递增（两次采样不同）：**FAIL** {"mid_CAM_GPIO": "0x0", "end_CAM_GPIO": "0x0"}
+- R7-8 0x41200000 cmos_rstn = 1（复位已释放）：**PASS** {"CAM_RST": "0x1"}
+
+## 停核后寄存器快照（只读）
+
+- camera VDMA CR=0x00000000 SR=0x00000000 PARKPTR=0x00000000
+- 相机 GPIO(0x43C70000)=0x00000000 复位(0x41200000)=0x00000001
+- display VDMA CR=0x00010002 SR=0x00011001
+- UF frame=0x00085660 total=0xD406B901
+- raw 首 64 B：`00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 0`
+- raw 末 256 B：`20 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0`
+
+- **visual_check：pending（需 Wong 目视/拍照）**（需 Wong 目视/拍照）
+- DAP/halt：未命中
+- 收窗残留：[]
+
+## 返回码分诊（若 UART 出现 CAM: FAIL code=…）
+
+- `-10`：CHIPID 不符：查 SDA=F16/SCL=F19 上拉、I2C 分频、相机模组供电；必要时检查 J11 连接
+- `-11`：SCCB 写失败（SIO_C/SIO_D 电平/上拉/时序）
+- `-12`：SCCB 读失败
+- `-13`：SCCB 回读不符（寄存器写后回读不一致）
+- `-14`：S2MM 配置回读不符：核对 camera VDMA 基址（0x43C60000，以 XSA 为准）
+- `-15`：HALTED 未清：PS-PL AXI 未就绪 / PL 未配置 / 0xF 未生效
+
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI

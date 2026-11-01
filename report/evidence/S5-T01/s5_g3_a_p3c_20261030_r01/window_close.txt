@@ -1,0 +1,30 @@
+# P3c-G3A 机器侧判据窗口（屏幕判据挂起）
+
+- RunId：`s5_g3_a_p3c_20261030_r01`
+- 开窗：2026-10-30T12:08:32+08:00；收窗：2026-10-30T12:09:37+08:00
+- 结论：**P3C_G3A_FAIL**
+- stop_reason：机器侧判据 FAIL
+- 位流（P3c，带宽修复、oen=1）: `D:\tmp\lead\p3c_video_20261030_r01\out\s4d_p3c_r01.bit` sha256=f55a93706e2bbdb64f32d60947c4139ab0f2acba32861e14ac76ed0efcd31485
+- ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d
+- S5DISP RESULT：`S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":45,"fps_upd":34,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":2292208387,"fb_crc":3691911028,"src":"real"}`
+- fps_dis=45（判据 >=55）、fps_upd=34、pass=1、vdma_err=0、frames=180、vcnt=180、src=real
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+- 屏幕：**不作为判据** —— 显示器无信号，已由厂商参考位流 A/B（`s5_g3_vendorref_20261030_r01`）判定为板卡 HDMI 通路/线缆/显示器输入问题，非我方设计
+- 边界：ENABLE=0；未烧 QSPI；未改线；PL 编程后未用 rst -system
+
+## 停机后寄存器（只读）
+
+- `VTC_CTL` = 0x5（十进制 5）
+- `VTC_GTSTAT` = 0x4（十进制 4）
+- `VDMA_MM2S_VDMACR` = 0x10002（十进制 65538）
+- `VDMA_MM2S_VDMASR` = 0x11001（十进制 69633）
+- `VDMA_PARKPTR` = 0x0（十进制 0）
+
+## 与 P3b/P3d 对照（同 ELF e392aa96、同应用、同判据）
+
+- P3b（oen=1，MM aclk 50MHz）：read period 19,363 us → **fps_dis=52**
+- P3d（oen=0，其余同 P3b）：read period 19,363 us → **fps_dis=52**
+- P3c（MM aclk=FCLK_CLK1 100MHz，oen=1）：read period **22,231 us → fps_dis=45**（回归 −13.5%）
+- BD 证据（p3c_video_20261030_r01/out/bd_p3c_generated.tcl）：dma_0/m_axi_mm2s_aclk、smc_vid/aclk、ps7_0/S_AXI_HP2_ACLK 均接 ps7_0/FCLK_CLK1（CONFIG.PCW_CLK1_FREQ=100000000）；dma_0/m_axis_mm2s_aclk 接 pixel_clk（clk_out1 = 13.474 ns = 74.21875 MHz）
+- 结论：把 VDMA MM 侧时钟从 50→100 MHz **没有修复带宽问题，反而更慢** ⇒ 瓶颈不在 MM 时钟频率，需查 smc_vid（AXI3 转换/突发/outstanding）、HP2 仲裁或 VDMA 流侧。
+

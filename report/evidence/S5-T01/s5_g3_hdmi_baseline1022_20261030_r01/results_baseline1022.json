@@ -1,0 +1,126 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_hdmi_baseline1022_20261030_r01",
+  "mode": "hdmi_baseline_20261022_replay",
+  "started_utc8": "2026-10-30T12:24:41+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\s5t01_board_overlay_20261022_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+          "sha256": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb",
+          "expect": "44e609ccc62647c1748cbeecc64b2fdaa0c53b07db6b7bd1c8a230ca65fc4afb"
+        },
+        "elf": {
+          "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\p1_app\\s5t01_overlay_cycle.elf",
+          "sha256": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac",
+          "expect": "5d5c253dfb2962f978a46f0579790c9ef0f8663edc87450f4a643f1f96ac71ac"
+        },
+        "ps7_init": {
+          "path": "D:\\codex-worktrees\\w5\\tmp\\5\\S5-T01\\s5t01_board_overlay_20261022_r01\\ps7_init.tcl",
+          "sha256": "4fc101938cf5aae4ea646e219e9e55c4ebcb837f35f40b3e922f3a1e2e5e6faa",
+          "expect": "4fc101938cf5aae4ea646e219e9e55c4ebcb837f35f40b3e922f3a1e2e5e6faa"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes_all": [
+        "vivado"
+      ],
+      "non_vivado_heavy": [],
+      "free_gb": 3.16,
+      "listening_3121": 0,
+      "note": "lead 已说明 P3f 构建并行不冲突（xsdb 编程轻量）；不启第二个 Vivado"
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 59464
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_replay": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "elapsed_s": 63.1,
+      "markers": {
+        "fpga_file_done": true,
+        "ps7_sourced": true,
+        "ps7_init_done": true,
+        "ps7_post": "PS7_POST_DONE",
+        "dow_done": true,
+        "con_done": true,
+        "hold_done": true,
+        "rst_after_hold": true,
+        "fpga_exit": 0
+      },
+      "readback": {
+        "pre_cand_first96": {
+          "bytes": 96,
+          "sha256": "0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35"
+        },
+        "pre_result_block_first96": {
+          "bytes": 96,
+          "sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35"
+        },
+        "post_cand_first96": {
+          "bytes": 96,
+          "sha256": "0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35"
+        },
+        "post_result_block_first96": {
+          "bytes": 96,
+          "sha256": "0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35"
+        }
+      },
+      "raw_log": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_hdmi_baseline1022_20261030_r01\\S4_replay.log"
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 59464,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      },
+      "hw_server_xsdb_residual": []
+    }
+  },
+  "stop_reason": null,
+  "judgement_policy": "只取证，不判 PASS/FAIL（Codex/lead 判读）",
+  "forbidden_ops": "全程禁 rst -system；不使用 w5 jtag_download_port.tcl（其第 31 行含 rst -system）",
+  "hold_seconds": 60,
+  "markers": {
+    "fpga_file_done": true,
+    "ps7_sourced": true,
+    "ps7_init_done": true,
+    "ps7_post": "PS7_POST_DONE",
+    "dow_done": true,
+    "con_done": true,
+    "hold_done": true,
+    "rst_after_hold": true,
+    "fpga_exit": 0
+  },
+  "readback": {
+    "pre_cand_first96": "{\"bytes\": 96, \"sha256\": \"0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35\"}",
+    "pre_result_block_first96": "{\"bytes\": 96, \"sha256\": \"0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35\"}",
+    "post_cand_first96": "{\"bytes\": 96, \"sha256\": \"0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35\"}",
+    "post_result_block_first96": "{\"bytes\": 96, \"sha256\": \"0ede25129b11ad25df9c3e05a67d3b0d38c5e48bf7cdf484a7fc0575234dba35\"}"
+  },
+  "criterion_ok": true,
+  "finished_utc8": "2026-10-30T12:25:55+08:00",
+  "conclusion": "BASELINE1022_REPLAY_OK"
+}

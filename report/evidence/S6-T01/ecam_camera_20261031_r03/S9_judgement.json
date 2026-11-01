@@ -1,0 +1,86 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "R7-1",
+      "desc": "CAM: init OK chip=0x5640 640x480 stride=1920 raw=0x12000000",
+      "pass": true,
+      "detail": {
+        "line": "CAM: init OK chip=0x5640 640x480 stride=1920 raw=0x12000000 (24bpp BGR888)"
+      }
+    },
+    {
+      "id": "R7-2",
+      "desc": "CAM: sr= 行出现且帧计数递增（≥10 帧）",
+      "pass": false,
+      "detail": {
+        "sr_lines": 3,
+        "frames_sample": [
+          0,
+          0,
+          0
+        ],
+        "frames_span": 0
+      }
+    },
+    {
+      "id": "R7-3",
+      "desc": "S5DISP RESULT：src=real、fps_dis=60、vdma_err=0",
+      "pass": false,
+      "detail": {
+        "src": "real_nobox",
+        "fps_dis": 60,
+        "vdma_err": 0
+      }
+    },
+    {
+      "id": "R7-4",
+      "desc": "欠载增量 0（两次 UF_TOTAL 差）",
+      "pass": false,
+      "detail": {
+        "uf_mid": 1410773831,
+        "uf_end": 3609191754,
+        "uf_delta": 2198417923
+      }
+    },
+    {
+      "id": "R7-5",
+      "desc": "raw 抽样非全 0 且两次采样有变化（真实画面在写）",
+      "pass": false,
+      "detail": {
+        "nonzero": true,
+        "changed": false,
+        "mid_head": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0",
+        "end_head": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0"
+      }
+    },
+    {
+      "id": "R7-6",
+      "desc": "无 CAM: FAIL code（返回码分诊见 window_close）",
+      "pass": true,
+      "detail": {
+        "fail_lines": [],
+        "fail_code": null,
+        "meaning": null
+      }
+    },
+    {
+      "id": "R7-7",
+      "desc": "CAM_GPIO 帧计数递增（两次采样不同）",
+      "pass": true,
+      "detail": {
+        "mid_CAM_GPIO": "0x6cf",
+        "end_CAM_GPIO": "0x11e5"
+      }
+    },
+    {
+      "id": "R7-8",
+      "desc": "0x41200000 cmos_rstn = 1（复位已释放）",
+      "pass": true,
+      "detail": {
+        "CAM_RST": "0x1"
+      }
+    }
+  ]
+}

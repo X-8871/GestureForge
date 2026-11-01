@@ -1,0 +1,29 @@
+# P3m 第二步：真实画面窗口
+
+- RunId：`s5_g3_m_p3m_display_20261030_r02`
+- 开窗：2026-10-30T14:48:21+08:00；收窗：2026-10-30T14:50:20+08:00
+- 结论：**P3M_DISPLAY_WINDOW_OK**（屏幕现象由现场判读）
+- stop_reason：None
+- 位流（P3m）：`D:\tmp\lead\p3m_axis_to_video_20261030_r01\out\s4d_p3m_r01.bit` sha256=b7220b6dfed20264d16719f297a4c5c1440d9ae4cc9c25749339780479de017c
+- ELF（P3m 适配）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=b0341d9f571242bc8204cb0c30c0a2279587bdc58b0ce77a20ba5f08a790a4cd（278752 B）
+- ps7_init：P3m XSA 内置 sha256=2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e（与 P3b 逐字节相同）
+- 编程：xsdb `fpga -file`（fpga_exit=0）、load_elf_ddr exit=0
+- UART 采集：90.1 s、17 行
+- **S5DISP RESULT：`S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":52,"fps_upd":31,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":764713996,"fb_crc":1559122610,"uf_pix":305777886,"src":"real"}`**
+- **`UF GPIO @43c10000` 行：`UF GPIO @43C10000 = 305777886 (underflow pixels)`**
+- 解析：{"fps_dis": [52], "src": ["real", "real", "real"], "frames": [180], "vcnt": ["180(sw)"], "vdma_err": [0]}
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 停机后寄存器（VDMA/GPIO，各 3 次、间隔 1 s）
+
+- 第 1 次：VDMA_CR=65538（0x10002）、VDMA_SR=69633（0x11001）、UF_GPIO=893693820
+- 第 2 次：VDMA_CR=65538（0x10002）、VDMA_SR=69633（0x11001）、UF_GPIO=949493511
+- 第 3 次：VDMA_CR=65538（0x10002）、VDMA_SR=69633（0x11001）、UF_GPIO=1005361284
+
+## 判读方向（lead）
+
+- 屏上出现测试图案 + 右侧信息栏 ⇒ 显示链路彻底打通；
+- 有画面但有黑块/撕裂 ⇒ 带宽欠载（看 uf_pix 大小）；
+- 仍全黑但锁上 ⇒ 数据未到（VDMA/ELF 地址问题，看 uf_pix、vdma_err）。
+
+- 边界：禁 rst -system；未烧 QSPI；未改线

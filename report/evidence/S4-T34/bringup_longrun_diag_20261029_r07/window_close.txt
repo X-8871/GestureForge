@@ -1,0 +1,17 @@
+# 长跑诊断 v2（保全优先 + 三 CSR 只读）
+
+- RunId：`bringup_longrun_diag_20261029_r07`；开窗 2026-10-29T00:33:23+08:00；收窗 2026-10-29T00:33:29+08:00；用时 0.1 min
+- ELF：`b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665`
+- 结论：**DIAG_INCOMPLETE**
+- W2：None（collect=None，心跳 None，last=None）
+- 记录区：magic=None valid=None step=None iter=None done=None CSR=0x00000000 val=0x00000000 DFSR=0x00000000 DFAR=0x00000000 commit=0x00000000
+- 三 CSR：None {}
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`1`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 2B 平台位流 + SW 预处理；`ENABLE=0`；未写 QSPI；未改线；未 push；未用 `-force`；CSR 三读仅作诊断，不作验收判据。
+- 不主张 G3/G4/G5；M3/M2 未闭合。

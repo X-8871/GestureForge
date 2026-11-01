@@ -1,0 +1,306 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_diag_20261031_r01",
+  "started_utc8": "2026-10-31T12:54:32+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e",
+      "xsa_sha": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81",
+      "elf_sha": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": "0x53324250",
+        "DISP_VER": "0x62000050",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "CAM_RST": "0x0"
+      }
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_diag_parse": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 33,
+      "rst_lines": [
+        "CAM: rst pin before=0x0 (reg 0x41200000)",
+        "CAM: rst pin after=0x1 (低有效: 1=释放)"
+      ],
+      "reset_seq": "CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms",
+      "i2c_lines": [
+        "CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0",
+        "CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+        "CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+        "CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0",
+        "CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0",
+        "CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0"
+      ],
+      "probe_line": "CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2",
+      "chipid_lines": [
+        "CAM: chipid reg0x300A=0x00 reg0x300B=0x00"
+      ],
+      "fail_lines": [
+        "CAM: FAIL sub=-2 stage=addr/ack reg=0x300A val=0x300A isr=0x0",
+        "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"
+      ],
+      "rst_after": 1,
+      "ack": 0,
+      "rc": -2,
+      "isr_addr": "0x0",
+      "chipid": "0x0"
+    },
+    "S8_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshot": {
+        "CAM_RST": "0x1",
+        "CAM_GPIO": "0x0",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "DISP_CR": "0x10002",
+        "DISP_SR": "0x11001",
+        "UF_FRAME": "0xbffd7",
+        "UF_TOTAL": "0xc56154d9",
+        "CSR2B": "0x53324250"
+      }
+    },
+    "S9_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "criteria": [
+        {
+          "id": "D1",
+          "desc": "CAM: rst pin after = 0x1（复位已释放）",
+          "pass": true,
+          "detail": {
+            "rst_after": 1,
+            "rst_lines": [
+              "CAM: rst pin before=0x0 (reg 0x41200000)",
+              "CAM: rst pin after=0x1 (低有效: 1=释放)"
+            ],
+            "snapshot_CAM_RST": "0x1"
+          }
+        },
+        {
+          "id": "D2",
+          "desc": "reset seq 出现且含两次 release(1)",
+          "pass": true,
+          "detail": {
+            "line": "CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms"
+          }
+        },
+        {
+          "id": "D3",
+          "desc": "i2c clk 诊断行 ≥1",
+          "pass": true,
+          "detail": {
+            "lines": [
+              "CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0",
+              "CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+              "CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+              "CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0",
+              "CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0",
+              "CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0"
+            ]
+          }
+        },
+        {
+          "id": "D4",
+          "desc": "probe ack=1",
+          "pass": false,
+          "detail": {
+            "probe": "CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2",
+            "ack": 0,
+            "rc": -2,
+            "isr_addr": "0x0"
+          }
+        },
+        {
+          "id": "D5",
+          "desc": "chipid=0x5640",
+          "pass": false,
+          "detail": {
+            "chipid": "0x0",
+            "chipid_lines": [
+              "CAM: chipid reg0x300A=0x00 reg0x300B=0x00"
+            ]
+          }
+        },
+        {
+          "id": "D6",
+          "desc": "无 CAM: FAIL",
+          "pass": false,
+          "detail": {
+            "fail_lines": [
+              "CAM: FAIL sub=-2 stage=addr/ack reg=0x300A val=0x300A isr=0x0",
+              "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"
+            ]
+          }
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 48856,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e",
+    "expect": "648f31567e0a20916020b3dd33b649cd4de9ac1b5cd2534b6552d8427dcb9f4e"
+  },
+  "xsa": {
+    "sha": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81",
+    "expect": "1284f637438af3485ba7508b2443bb44b78f5d4a99d440d28c94bf3beabf3f81"
+  },
+  "elf": {
+    "sha": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144",
+    "expect": "f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144"
+  },
+  "por_precondition": "satisfied",
+  "parsed": {
+    "rst_lines": [
+      "CAM: rst pin before=0x0 (reg 0x41200000)",
+      "CAM: rst pin after=0x1 (低有效: 1=释放)"
+    ],
+    "reset_seq_line": "CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms",
+    "i2c_lines": [
+      "CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0",
+      "CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+      "CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+      "CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0",
+      "CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0",
+      "CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0"
+    ],
+    "probe_line": "CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2",
+    "chipid_lines": [
+      "CAM: chipid reg0x300A=0x00 reg0x300B=0x00"
+    ],
+    "fail_lines": [
+      "CAM: FAIL sub=-2 stage=addr/ack reg=0x300A val=0x300A isr=0x0",
+      "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"
+    ],
+    "rst_after": 1,
+    "ack": 0,
+    "rc": -2,
+    "isr_addr": 0,
+    "chipid": 0
+  },
+  "snapshot": {
+    "CAM_RST": 1,
+    "CAM_GPIO": 0,
+    "CAM_CR": 0,
+    "CAM_SR": 0,
+    "DISP_CR": 65538,
+    "DISP_SR": 69633,
+    "UF_FRAME": 786391,
+    "UF_TOTAL": 3311490265,
+    "CSR2B": 1395802704
+  },
+  "criteria": [
+    {
+      "id": "D1",
+      "desc": "CAM: rst pin after = 0x1（复位已释放）",
+      "pass": true,
+      "detail": {
+        "rst_after": 1,
+        "rst_lines": [
+          "CAM: rst pin before=0x0 (reg 0x41200000)",
+          "CAM: rst pin after=0x1 (低有效: 1=释放)"
+        ],
+        "snapshot_CAM_RST": "0x1"
+      }
+    },
+    {
+      "id": "D2",
+      "desc": "reset seq 出现且含两次 release(1)",
+      "pass": true,
+      "detail": {
+        "line": "CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms"
+      }
+    },
+    {
+      "id": "D3",
+      "desc": "i2c clk 诊断行 ≥1",
+      "pass": true,
+      "detail": {
+        "lines": [
+          "CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0",
+          "CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0"
+        ]
+      }
+    },
+    {
+      "id": "D4",
+      "desc": "probe ack=1",
+      "pass": false,
+      "detail": {
+        "probe": "CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2",
+        "ack": 0,
+        "rc": -2,
+        "isr_addr": "0x0"
+      }
+    },
+    {
+      "id": "D5",
+      "desc": "chipid=0x5640",
+      "pass": false,
+      "detail": {
+        "chipid": "0x0",
+        "chipid_lines": [
+          "CAM: chipid reg0x300A=0x00 reg0x300B=0x00"
+        ]
+      }
+    },
+    {
+      "id": "D6",
+      "desc": "无 CAM: FAIL",
+      "pass": false,
+      "detail": {
+        "fail_lines": [
+          "CAM: FAIL sub=-2 stage=addr/ack reg=0x300A val=0x300A isr=0x0",
+          "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"
+        ]
+      }
+    }
+  ],
+  "criterion_ok": false,
+  "conclusion": "ECAM_DIAG_FAIL",
+  "finished_utc8": "2026-10-31T12:55:57+08:00",
+  "stop_reason": "判据 FAIL",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

@@ -1,0 +1,244 @@
+{
+  "task_id": "E-cam-diag",
+  "run_id": "ecam_diag_20261031_r11",
+  "started_utc8": "2026-10-31T13:55:19+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460",
+      "xsa_sha": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2",
+      "elf_sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S2d_ddr_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ddr_pre": {
+        "DDR_RAW": null,
+        "DDR_APP": null,
+        "DDR_FB": null
+      }
+    },
+    "S3a_init_elf": {
+      "status": "PASS",
+      "exit_code": 0,
+      "note": "stage-4 init.elf：CPU/DDR/UART 基础状态"
+    },
+    "S3_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3e_ddr_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre": {
+        "DDR_RAW": null,
+        "DDR_APP": null,
+        "DDR_FB": null
+      },
+      "post": {
+        "DDR_RAW": "0x0",
+        "DDR_APP": "0xffffffff",
+        "DDR_FB": "0xffffffff"
+      },
+      "problems": []
+    },
+    "S3d_ps7_accept": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d",
+      "bits": {
+        "bit18_I2C0": 1,
+        "bit20_UART0": 1,
+        "bit21_UART1": 1
+      },
+      "i2c0": {
+        "I2C0_CR": "0x0",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff"
+      },
+      "expect_aper": "0x17c000d",
+      "note": "断言 APER == expect_aper 且 bit18/20/21 全为 1"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe_pre": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pre_probe": {
+        "CSR2B": "0x53324250",
+        "DISP_VER": "0x62000050",
+        "CAM_CR": "0x0",
+        "CAM_SR": "0x0",
+        "CAM_RST": "0x1"
+      }
+    },
+    "S5b_aper_i2c": {
+      "status": "PASS",
+      "exit_code": 0,
+      "ab_check": {
+        "APER": "0x17c000d",
+        "I2C0_CR": "0x0",
+        "I2C0_SR": "0x0",
+        "I2C0_DIV": "0x0",
+        "I2C0_ISR": "0x2ff",
+        "RST": "0x1",
+        "aper_bit11": "0x0",
+        "aper_bit18": "0x1",
+        "aper_bit19": "0x1",
+        "aper_bit20": "0x1",
+        "aper_bit21": "0x1"
+      },
+      "note": "bit11=1 ⇒ I2C0 外设时钟已开；若 bit11=0 ⇒ 根因=PS7 init 未启用 I2C0 时钟"
+    },
+    "S6a_rst_processor": {
+      "status": "PASS",
+      "exit_code": 0,
+      "rst_calls": 1,
+      "aper_post": "0x17c000d",
+      "aper_kept": true,
+      "slcr_id": "0x0",
+      "cores_stopped": true,
+      "note": "唯一一次 rst -processor -stop；核验 APER 未被清、SLCR 可读、两核 Stopped"
+    },
+    "S6a2_cpsr_mask": {
+      "status": "PASS",
+      "exit_code": 0,
+      "cpsr_after": "000001D3",
+      "expect": "000001D3"
+    },
+    "S6_load_app": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S6b_require_uart": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "grace_s": 15.0,
+      "bytes": 0,
+      "sample": ""
+    },
+    "S6c_uart_scan": {
+      "status": "PASS",
+      "exit_code": 0,
+      "scan": {
+        "U0_CR": 0,
+        "U0_MR": 0,
+        "U0_SR": 0,
+        "U1_CR": 276,
+        "U1_MR": 32,
+        "U1_SR": 10,
+        "PC": "00001d14",
+        "CPSR": "600000db",
+        "VBAR": null,
+        "VEC_00": 1049488,
+        "VEC_08": 3925868563,
+        "VEC_10": 3925868570,
+        "VEC_18": 3925868544
+      },
+      "note": "静默回退：UART0/1 状态 + PC/CPSR"
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 21040,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": []
+      },
+      "residual": []
+    }
+  },
+  "policy": "零 rst；单次 ps7_init；DAP/halt 异常立即停手；不写候选区",
+  "bit": {
+    "sha": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460",
+    "expect": "e86efef68a55389ca515e2b15d2e57b203055dfd017f5a85e4156d282628a460"
+  },
+  "xsa": {
+    "sha": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2",
+    "expect": "d2d2447c38aad621656780239112d995ff9eab113c11e65d6058e610a1a7a1b2"
+  },
+  "elf": {
+    "sha": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577",
+    "expect": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+  },
+  "por_precondition": "satisfied",
+  "ddr_pre": {
+    "DDR_RAW": null,
+    "DDR_APP": null,
+    "DDR_FB": null
+  },
+  "ps7init_mode": "combo(stage4_elf+ps7init_tcl)",
+  "ddr_post": {
+    "DDR_RAW": 0,
+    "DDR_APP": 4294967295,
+    "DDR_FB": 4294967295
+  },
+  "ps7_accept": {
+    "APER": 24903693,
+    "I2C0_CR": 0,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "bit18_I2C0": 1,
+    "bit20_UART0": 1,
+    "bit21_UART1": 1
+  },
+  "ab_check": {
+    "APER": 24903693,
+    "I2C0_CR": 0,
+    "I2C0_SR": 0,
+    "I2C0_DIV": 0,
+    "I2C0_ISR": 767,
+    "RST": 1,
+    "aper_bit11": 0,
+    "aper_bit18": 1,
+    "aper_bit19": 1,
+    "aper_bit20": 1,
+    "aper_bit21": 1
+  },
+  "rst_processor": {
+    "calls": 1,
+    "aper_post": 24903693,
+    "aper_kept": true,
+    "slcr_id": 0,
+    "cores_stopped": true,
+    "st0": "Stopped: (Vector Catch)",
+    "st1": "Stopped: (Suspended)",
+    "position": "after ps7+pl, before dow app"
+  },
+  "cpsr_mask": {
+    "cpsr_after": "000001D3",
+    "ok": true
+  },
+  "uart_scan": {
+    "U0_CR": 0,
+    "U0_MR": 0,
+    "U0_SR": 0,
+    "U1_CR": 276,
+    "U1_MR": 32,
+    "U1_SR": 10,
+    "PC": "00001d14",
+    "CPSR": "600000db",
+    "VBAR": null,
+    "VEC_00": 1049488,
+    "VEC_08": 3925868563,
+    "VEC_10": 3925868570,
+    "VEC_18": 3925868544
+  },
+  "stop_reason": "UART 无输出（require-uart）：详见 S6c_uart_scan（UART0/1 状态 + PC/CPSR）",
+  "finished_utc8": "2026-10-31T13:56:10+08:00",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true
+}

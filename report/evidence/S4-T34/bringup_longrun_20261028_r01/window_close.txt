@@ -1,0 +1,23 @@
+# 4-D PS 长跑（口径 A）执行记录
+
+- RunId：`bringup_longrun_20261028_r01`
+- 开窗：2026-10-28T21:24:01+08:00；收窗：2026-10-28T22:02:29+08:00
+- 用时：38.5 min
+- 结论：**LONGRUN_STOPPED_ON_FAILURE**
+- stop_reason：长跑未达判据（failures=None）；保 UART 原文
+- 长跑 ELF `f9951d78d3fbbb50d280e0740d2fc3e989fcd85a4ecf9af67427b6ec58177031`；fixture `ce37aa772aec9d45084edc37f3a1e0fe1b258385ec57b1fd994d98614792dad4`（FIXTURE_GENERATED 非实拍）
+- 判据：见 `README.md`（LR-1..LR-9，窗口前写死）
+
+## 各步
+- IDENT：`PASS` exit=`0`
+- P0_gate：`None` exit=`0`
+- P1_hw_server：`None` exit=`0`
+- W0_restore_candidate：`PASS` exit=`0`
+- W1_pspl_four_actions：`PASS` exit=`0`
+- W2_longrun：`FAIL` exit=`1`
+- W3_longrun_checks：`FAIL` exit=`1`
+- W4_final_restore：`PASS` exit=`0`
+- P4_teardown：`PASS` exit=`0`
+
+## 边界
+- 覆盖 2B 平台位流 + SW 预处理；不主张 G3/G4/G5；M3/M2 未闭合；`ENABLE=0`；未写 QSPI；未改线；未 push。

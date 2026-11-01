@@ -1,0 +1,14 @@
+# 6-E / E1 只读枚举
+
+- RunId：`s6e_e1_recover_20261031_r22`
+- 开窗：2026-10-31T19:25:10+08:00；收窗：2026-10-31T19:25:18+08:00
+- 结论：**S6E_E1_ENUM_OK**
+- xsdb 入口：`cmd /c D:\Xilinx\2026.1\Vitis\bin\xsdb.bat -eval "connect -url tcp:127.0.0.1:3121; targets; disconnect"`（绝不裸调 xsdb.exe）
+- 目标：A9#0=True、A9#1=True、APU=True、xc7z020=True、DAP 干净=True
+- hw_server 端口：本窗用 **3121**（3121 被占用：；未杀用户进程）
+- 端口监听：运行中=1；收窗后=0
+- hw_server 归属：pid=64168（本 RunId 启动，见 S4_owner.json）
+- 收窗残留：hw_server/xsdb=[]
+- por_precondition_before：satisfied；por_cleared=False
+
+- 边界：只读；禁 rst -system；未写内存/未改 PL/未烧 QSPI

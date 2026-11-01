@@ -1,0 +1,30 @@
+# P3g 点屏窗口（引脚修复候选）
+
+- RunId：`s5_g3_g_p3g_screen_20261030_r03`
+- 开窗：2026-10-30T13:02:10+08:00；收窗：2026-10-30T13:03:49+08:00
+- 结论：**P3G_WINDOW_INCOMPLETE**（屏幕现象由现场判读）
+- stop_reason：None
+- 位流（P3g）：`D:\tmp\lead\p3g_video_20261030_r01\out\s4d_p3g_r01.bit` sha256=221e99235ef87286daee7fdfd0fffdb3a2a55506735660c8f5e81faa39719b2d
+- XSA：`D:\tmp\lead\p3g_video_20261030_r01\out\s4d_p3g_r01.xsa` sha256=2e4605b84a385eecdb2996e1d3516053aac92d5f5b250d4eb0695bbced2e72bb
+- ps7_init：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_g3_g_p3g_screen_20261030_r03\ps7_init_from_xsa.tcl` sha256=2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e
+- ps7_init 来源说明：P3g XSA 内导出 ps7_init.tcl
+- 有界 ELF：`None` sha256=None
+- 长跑 ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=2b08ae9868a6e1dfbff056803fa0d7ee76f54a09edfd9febe6738b2f266d915e
+- 编程工具：**xsdb `fpga -file`**（fpga_exit=0）
+- 有界阶段：`None`
+- 机器侧：pass=None、vdma_err=None、fps_dis=None、fps_upd=None、frames=None、vcnt=None
+- 长跑阶段：保持 75.2 s（屏幕应持续有画面，窗口内 VSYNC 正常；停核后画面消失属正常）
+- 长跑机器侧（tick 采样）：{}
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+## 停机后寄存器时间序列（只读 mrd，间隔 1 s）
+
+
+## 结果块首 8 word
+
+```
+
+```
+
+- 屏幕：**现场判读（Wong）**；本窗口不判 PASS/FAIL
+- 边界：禁 rst -system；未烧 QSPI；未改线

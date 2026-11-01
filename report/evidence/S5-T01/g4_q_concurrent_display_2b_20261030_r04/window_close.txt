@@ -1,0 +1,22 @@
+# P3q 并发窗 r04（续跑窗，零复位）
+
+- RunId：`g4_q_concurrent_display_2b_20261030_r04`
+- 开窗：2026-10-30T19:19:42+08:00；收窗：2026-10-30T19:19:54+08:00
+- 结论：**None**
+- stop_reason：镜像-核映射校验失败（未 con，停手）
+- 位流（P3q，沿用 r03 已编程状态、本窗未重编）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- core0 ELF（M4-b）：`D:\tmp\lead\tailfix_20261029_r01\build\s4d_ps_app_sw0_m4b.elf` sha256=553fbf7ea7de8bc75edaf99c0b4d5cb79ef39e556e768b91abd459d1cf240e84 entry=0x00100000
+- core1 ELF（显示长跑）：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app_longrun.elf` sha256=6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f entry=0x00100000
+- 策略：续跑窗：不重编 PL、不做任何 rst；dow 后用 rrd pc 校验镜像-核映射；先 con core1（显示先跑 5 s）再 con core0（M4-b）
+- **DAP/APB 错误：未命中**
+
+## 结果（只判耗时/带宽；DDR 区重叠，不判数据正确性）
+
+- **M4-b `pass`=None、`elapsed_ms`=None（无显示基线 47287，差值 N/A ms）**
+- M4-b：`error`=None、`diff13`=None、`diff26`=None（不作功能判据）
+- 显示侧：`fps_dis`=None、`uf_frame`=None、`uf_total`=None
+- 并发期累计欠载增量（0x43C50008）：delta=None、rate=None px/s
+- VDMA_CR=None、VDMA_SR=None
+- 收窗：3121 LISTENING=0、hw_server/xsdb 残留=[]
+
+- 边界：本窗无任何 rst、未重编 PL；禁 rst -system；未烧 QSPI；未改线

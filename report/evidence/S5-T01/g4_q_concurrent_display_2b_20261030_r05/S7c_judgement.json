@@ -1,0 +1,110 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "J-0",
+      "desc": "镜像归属观测：先 con core1 仅见 S5DISP（无 M4B/S4D）",
+      "pass": false,
+      "detail": {
+        "lines": 0,
+        "s5disp_lines": 0,
+        "m4b_lines": 0,
+        "sample": []
+      }
+    },
+    {
+      "id": "J-1",
+      "desc": "两核 dow 后 pc == ELF entry（dump 一致性，不区分镜像）",
+      "pass": true,
+      "detail": {
+        "pc0": "0x100000",
+        "m4b_entry": "0x100000",
+        "pc1": "0x100000",
+        "disp_entry": "0x100000"
+      }
+    },
+    {
+      "id": "J-2",
+      "desc": "M4-b RESULT 可解析",
+      "pass": false,
+      "detail": {}
+    },
+    {
+      "id": "J-3",
+      "desc": "M4-b pass==1",
+      "pass": false,
+      "detail": null
+    },
+    {
+      "id": "J-4",
+      "desc": "M4-b elapsed_ms 记录（对比基线 47287，差值如实记录）",
+      "pass": false,
+      "detail": {
+        "elapsed_ms": null,
+        "baseline_ms": 47287,
+        "delta_ms": null
+      }
+    },
+    {
+      "id": "J-5",
+      "desc": "显示侧 fps_dis≥55",
+      "pass": true,
+      "detail": {
+        "fps_dis_values": [
+          60
+        ]
+      }
+    },
+    {
+      "id": "J-6",
+      "desc": "并发期累计欠载增量=0（0x43C50008）",
+      "pass": true,
+      "detail": {
+        "values": [
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976,
+          1543660976
+        ],
+        "first": 1543660976,
+        "last": 1543660976,
+        "delta": 0,
+        "span_ms": 1383,
+        "gpio_frame": 0,
+        "vdma_cr": 65539,
+        "vdma_sr": 69632
+      }
+    },
+    {
+      "id": "J-7",
+      "desc": "全程无 DAP/APB 错误",
+      "pass": true,
+      "detail": {
+        "hit": false,
+        "detail": ""
+      }
+    }
+  ]
+}

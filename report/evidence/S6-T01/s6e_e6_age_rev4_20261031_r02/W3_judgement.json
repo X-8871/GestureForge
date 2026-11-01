@@ -1,0 +1,317 @@
+{
+  "criteria": [
+    {
+      "id": "E3-1",
+      "desc": "S5CONS ≥3 行 + S5PROD ≥10 条",
+      "pass": true,
+      "detail": {
+        "cons": 12,
+        "prod": 739
+      }
+    },
+    {
+      "id": "E3-2",
+      "desc": "age_pub ≤200 ms",
+      "pass": true,
+      "detail": {
+        "ages": [
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9,
+          9
+        ]
+      }
+    },
+    {
+      "id": "E3-3",
+      "desc": "seqlock 全偶数",
+      "pass": true,
+      "detail": {
+        "seqlocks": [
+          120,
+          240,
+          360,
+          480,
+          600,
+          720,
+          840,
+          960,
+          1080,
+          1200,
+          1320,
+          1440
+        ]
+      }
+    },
+    {
+      "id": "E3-4",
+      "desc": "seq 严格递增",
+      "pass": true,
+      "detail": {
+        "seqs": [
+          60,
+          120,
+          180,
+          240,
+          300,
+          360,
+          420,
+          480,
+          540,
+          600,
+          660,
+          720
+        ]
+      }
+    },
+    {
+      "id": "E3-5",
+      "desc": "sid 恒定",
+      "pass": true,
+      "detail": {
+        "sids": [
+          "16237"
+        ]
+      }
+    },
+    {
+      "id": "E3-6",
+      "desc": "state ∈ {OK,NO_HAND}",
+      "pass": true,
+      "detail": {
+        "states": [
+          "OK"
+        ]
+      }
+    },
+    {
+      "id": "E3-11",
+      "desc": "消费者取锁成功（S5CONS s1==s2）",
+      "pass": false,
+      "detail": {
+        "s1s2_pairs": [],
+        "s1s2_present": false,
+        "note": "S5CONS 未打印 s1/s2 字段（v4 UART 缺该字段，需 video-sw 补或另输出）",
+        "retry_lines": [],
+        "seqlock_series": [
+          600,
+          720,
+          840,
+          960,
+          1080,
+          1200,
+          1320,
+          1440
+        ]
+      }
+    },
+    {
+      "id": "E3-7",
+      "desc": "sidecar magic2=0x53355831 且 version=1，且仅出现在声明偏移",
+      "pass": true,
+      "detail": {
+        "magic2": "0x53355831",
+        "version": 1,
+        "offset": "0x100",
+        "magic2_positions": [
+          256
+        ]
+      }
+    },
+    {
+      "id": "E3-8",
+      "desc": "sidecar result_time 与 UART/块头一致（±2000 ticks）",
+      "pass": true,
+      "detail": {
+        "uart_rtime_ticks": 140458667,
+        "delta_ticks": 140581196780,
+        "delta_ms": 421743.591,
+        "rt64": 140721655447,
+        "route": "hdr_inf..+2frames",
+        "delta_vs_inf_ticks": 5834658,
+        "delta_vs_inf_ms": 17.504
+      }
+    },
+    {
+      "id": "E3-9",
+      "desc": "flush 覆盖 [0x20800000, 0x20800120)=288 B（身份 A 预期 288 B）",
+      "pass": true,
+      "detail": {
+        "flush_bytes": 288,
+        "offset": "0x100"
+      }
+    },
+    {
+      "id": "E3-10",
+      "desc": "块头 n_dets ≤14（fail-closed 生效；REJECT 行照实记录）",
+      "pass": true,
+      "detail": {
+        "n_dets": 2,
+        "reject_count": 0,
+        "reject_lines": []
+      }
+    },
+    {
+      "id": "E3-12",
+      "desc": "sidecar 字段自洽（sid==UART sid、seq==块头 frame_id、seqlock==2*seq）",
+      "pass": true,
+      "detail": {
+        "sid": 16237,
+        "seq": 748,
+        "result_time_ticks": 140721655447,
+        "seqlock": 1496
+      }
+    }
+  ],
+  "verdict": "S6E_E3_FAIL",
+  "parsed": {
+    "cons_count": 12,
+    "prod_count": 739,
+    "last_cons": [
+      {
+        "sid": "16237",
+        "seq": "600",
+        "n": "1",
+        "status": "0x1",
+        "age_pub": "9",
+        "state": "OK",
+        "seqlock": "1200"
+      },
+      {
+        "sid": "16237",
+        "seq": "660",
+        "n": "1",
+        "status": "0x1",
+        "age_pub": "9",
+        "state": "OK",
+        "seqlock": "1320"
+      },
+      {
+        "sid": "16237",
+        "seq": "720",
+        "n": "1",
+        "status": "0x1",
+        "age_pub": "9",
+        "state": "OK",
+        "seqlock": "1440"
+      }
+    ],
+    "ages": [
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9
+    ],
+    "seqlocks": [
+      120,
+      240,
+      360,
+      480,
+      600,
+      720,
+      840,
+      960,
+      1080,
+      1200,
+      1320,
+      1440
+    ],
+    "seqs": [
+      60,
+      120,
+      180,
+      240,
+      300,
+      360,
+      420,
+      480,
+      540,
+      600,
+      660,
+      720
+    ],
+    "sids": [
+      "16237"
+    ],
+    "states": [
+      "OK"
+    ],
+    "s1s2_pairs": [],
+    "retry_lines": [],
+    "sidecar": {
+      "offset": "0x100",
+      "flush_bytes": 288,
+      "magic2": 1396004913,
+      "version": 1,
+      "words_hex": [
+        "0x53355831",
+        "0x00000001",
+        "0x00003F6D",
+        "0x000002EC",
+        "0xC3AA0E97",
+        "0x00000020",
+        "0x000005D8",
+        "0x00000000"
+      ],
+      "header": {
+        "magic": "0x53355253",
+        "frame_id": 748,
+        "n_dets": 2,
+        "cap_ticks": 140713487455,
+        "inf_ticks": 140715820789,
+        "status": 1,
+        "inf_minus_cap_ticks": 2333334
+      },
+      "n_dets": 2,
+      "n_dets_le_14": true,
+      "uart_last": {
+        "rtime_ms": 421376,
+        "cap_ms": 421351
+      },
+      "fields": {
+        "sid": 16237,
+        "seq": 748,
+        "result_time_ticks": 140721655447,
+        "seqlock": 1496
+      },
+      "result_time_match": true,
+      "result_time_detail": {
+        "uart_rtime_ticks": 140458667,
+        "delta_ticks": 140581196780,
+        "delta_ms": 421743.591,
+        "rt64": 140721655447,
+        "route": "hdr_inf..+2frames",
+        "delta_vs_inf_ticks": 5834658,
+        "delta_vs_inf_ms": 17.504
+      },
+      "magic2_positions": [
+        256
+      ],
+      "reject_lines": [],
+      "reject_count": 0,
+      "dump_bytes": 288,
+      "dump_rc": 0
+    }
+  },
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "utc8": "2026-10-31T01:49:50+08:00"
+}

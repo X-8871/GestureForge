@@ -1,0 +1,13 @@
+# P3m PL-only hold 窗口（axis_to_video 时序验证）
+
+- RunId：`s5_g3_m_p3m_hold_20261030_r01`
+- 开窗：2026-10-30T14:43:37+08:00；释放：14:43:50
+- **P3M_PROGRAMMED_AT=14:43:48**
+- **fpga_exit=0**（`xsdb fpga -file`，FPGA_FILE_DONE=True）
+- **hw_server=killed**（3121 LISTENING=0、残留=[]）
+- **PL=P3m sha256=b7220b6dfed20264d16719f297a4c5c1440d9ae4cc9c25749339780479de017c**（`D:\tmp\lead\p3m_axis_to_video_20261030_r01\out\s4d_p3m_r01.bit`，4045762 B）
+- PS：`rst -processor -stop` 两核已停（本步不需要 PS）；未跑 ps7_init、未装 ELF、未碰 DDR
+- 说明：P3m 删除 VTC/vid_out，用 P3k 已验证时序 + 自写 axis_to_video；无论 AXIS 有无数据都应有 HS/VS/DE。
+- 保持：不收窗，PL 配置保持，显示器应锁上（黑屏=时序通；无信号=RTL 时序/输出仍有问题）。
+
+- 边界：禁 rst -system；未烧 QSPI；未改线

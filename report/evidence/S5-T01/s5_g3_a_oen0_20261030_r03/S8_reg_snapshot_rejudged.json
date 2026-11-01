@@ -1,0 +1,54 @@
+{
+  "note": "离线重判：仅修正 mrd -value 十进制解析口径（原 S8/S9 保留）；同一份原始日志，无新硬件运行",
+  "source_raw_log_sha256": "084efa5430a1ee73d011f04fddb6b3621da3080107c7e916eed945f1a669de94",
+  "values_decimal": {
+    "VTC_CTL": 5,
+    "VTC_GTSTAT": 4,
+    "VTC_STATUS": 78336,
+    "VDMA_MM2S_VDMACR": 65538,
+    "VDMA_MM2S_VDMASR": 69633,
+    "VDMA_PARKPTR": 0
+  },
+  "values_hex": {
+    "VTC_CTL": "0x5",
+    "VTC_GTSTAT": "0x4",
+    "VTC_STATUS": "0x13200",
+    "VDMA_MM2S_VDMACR": "0x10002",
+    "VDMA_MM2S_VDMASR": "0x11001",
+    "VDMA_PARKPTR": "0x0"
+  },
+  "vtc_generating": {
+    "ctl": "0x5",
+    "ctl_bit0_sw": true,
+    "ctl_bit2_ge": true,
+    "gtstat": 4,
+    "ok": true
+  },
+  "vdma": {
+    "dmacr": "0x10002",
+    "dmacr_bit1_circular": true,
+    "sr": "0x11001",
+    "sr_halted_bit0": true,
+    "sr_dma_err_bits_3_4_5": 0,
+    "sr_err_irq_latched_bit12": true,
+    "no_dma_transfer_err": true
+  },
+  "result_block_words": [
+    "0x53355253",
+    "0x00000001",
+    "0x00000003",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000000",
+    "0x00000001"
+  ],
+  "result_block_magic_ok": true,
+  "judgement": {
+    "app_pass1": true,
+    "vtc_generating": true,
+    "vdma_no_transfer_err": true,
+    "result_block_magic_nbox": true,
+    "caveat": "VDMA SR bit12(Err_Irq) 已置起，但 DMAIntErr/SlvErr/DecErr(bit3/4/5)=0，且应用自测 vdma_err=0；sr 原始值 bit16 超出 PG020 文档位域，需 hw 侧确认是否为 stop 时序/读口径引起"
+  }
+}

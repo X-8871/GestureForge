@@ -1,0 +1,93 @@
+{
+  "status": "FAIL",
+  "exit_code": 1,
+  "criteria": [
+    {
+      "id": "J1",
+      "desc": "相机：`CAM: init OK` 且 0x12000000 采样非零",
+      "pass": true,
+      "detail": {
+        "cam": true,
+        "raw_nonzero": {
+          "head": 1,
+          "mid": 0,
+          "last": 0
+        },
+        "MVP NOTE raw_blank": false
+      }
+    },
+    {
+      "id": "J2",
+      "desc": "显示链运行：`S5DISP frame` 行出现（src/nbox 见 J5）",
+      "pass": true,
+      "detail": {
+        "lines": 3,
+        "sample": [
+          "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+          "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+        ]
+      }
+    },
+    {
+      "id": "J3",
+      "desc": "权重：`verify -data` rc=0 且 `MVP WEIGHTS: GFINT8W1 OK`",
+      "pass": true,
+      "detail": {
+        "attempts": [
+          {
+            "attempt": 1,
+            "dow": true,
+            "verify_rc_ok": true,
+            "wm0": "0x4e494647",
+            "wm1": "0x31573854"
+          }
+        ],
+        "line": [
+          "MVP WEIGHTS: GFINT8W1 OK @0x10100000"
+        ]
+      }
+    },
+    {
+      "id": "J4",
+      "desc": "推理：≥1 条 `MVP TIME` 且 raw_nz>0 且 dt_pl≤90000 ms",
+      "pass": true,
+      "detail": {
+        "lines": [
+          "MVP TIME t0_pre=54762 t1_pl=102256 t2_decode=102263 t3_pub=102263 dt_pre=86 dt_pl=47494 dt_dec=6 dt_all=47587 raw_nz=40"
+        ],
+        "raw_nz": 40,
+        "dt_pl": 47494
+      }
+    },
+    {
+      "id": "J5",
+      "desc": "结果块：`MVP S5RS … magic=0x53355253`（n_dets 0..15 合法）+ 显示 real 且有框/或 RESULT 合格",
+      "pass": false,
+      "detail": {
+        "s5rs_lines": [
+          "MVP S5RS frame=0 n_dets=0 magic=0x53355253"
+        ],
+        "n_dets": [
+          0
+        ],
+        "disp_real_lines": [
+          "S5DISP frame=60 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0",
+          "S5DISP frame=120 lat=0 age=0 st=1 sr=11000 src=real_nobox nbox=0"
+        ],
+        "result": null
+      }
+    },
+    {
+      "id": "J6",
+      "desc": "HUD：`APP: gesture_changed` 或 `S5DISP frame … src=real nbox≥1`",
+      "pass": true,
+      "detail": {
+        "changed": [
+          "APP: gesture_changed from=none to=拳头"
+        ],
+        "disp_real": false,
+        "note": "APP: gesture= 每 30 帧才打印（≈23 min/次），本窗不作判据"
+      }
+    }
+  ]
+}

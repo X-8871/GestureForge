@@ -24,4 +24,6 @@ S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":52,"fps_upd":34,"laten
 - app_box_crc = 2292208387 (0x88a05303)；expect = 764713996 (0x2d949c0c)；crc_match = False
 - seed 96 B dump：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_g3_b_box_20261030_r04\seed_block_0x20800000.bin` sha256=07d4df1f77728eaeddfa97c590f54849c81a1255b6dead47b8add5982215306f
 - 判读：映射坐标/解析与种子不一致 ⇒ 解析或映射问题（用 96 B seed dump 对照 12/16 B 步进、字节序）
+- r05 已备好未执行，原因：Wong 要求停止（种子 `g3b_box_seed_src640.json` 已备于 `D:\tmp\lead\p3b_smoke_20261030_r01\`，仅候选框 12 word 换成 640×480 源坐标；待明日"续 G3"指令后再跑）
+- 注：上面 `boxes_hex = E1` 是本版 runner 的解析截断伪影（按空格切分 `hex=` 首 token）；应用实际 hex 以上方原文 `hex=E1 B4 10E 1C2 465 2A3 9B 2D 0 0 500 2D0` 为准，该问题已在 `run_g3_disp2.py` 修正（未再跑板）
 

@@ -1,0 +1,14 @@
+# P3k 纯 PL 独立彩条窗口（hold，无限期挂）
+
+- RunId：`s5_g3_k_tmds_standalone_20261030_r02`
+- 开窗：2026-10-30T14:05:13+08:00；释放：14:05:27
+- **P3K_PROGRAMMED_AT=14:05:25**
+- **fpga_exit=0**（`xsdb fpga -file`，FPGA_FILE_DONE=True）
+- **cores=STOPPED**（P3k 不需要 PS）
+- **hw_server=killed**（3121 LISTENING=0、残留=[]）
+- **PL=P3k sha256=549b3896fd703f286273b7fd14a7b9ad11c57a25f54177aaa441290484abc916**（`D:\tmp\lead\p3k_tmds_standalone_20261030_r01\out\p3k_tmds_r01.bit`，4045762 B）
+- 说明：纯 PL 设计（无 BD/PS7/ELF），彩条由 PL 自产，像素时钟来自板上 U18 50 MHz；
+  编程后杀 hw_server 不影响 PL 配置，彩条持续输出；可无限期挂，现场随时看。
+- 注：P3k DRC 有 1 条 ZPS7-1（故意不含 PS7），不影响编程。
+
+- 边界：禁 rst -system；不跑 ps7_init、不装 ELF、不碰 DDR；未烧 QSPI；未改线

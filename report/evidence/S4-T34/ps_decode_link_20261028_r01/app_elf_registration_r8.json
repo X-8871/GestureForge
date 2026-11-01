@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "task_id": "S4-T34",
+  "run_id": "ps_decode_link_20261028_r01",
+  "artifact": "长跑仪表化 v2（异常链在 longrun 实际入口 + 8 字记录区 + 全零收尾）",
+  "supersedes": "app_elf_registration_r7.json（r7 的异常注册位于不可达的 chainb 分支，属缺陷）",
+  "defect_fixed": {
+    "defect": "Xil_ExceptionRegisterHandler 曾位于 s4d_chainb_selfcheck()（不可达于 longrun 路径）",
+    "effect": "longrun 运行期间数据中止不会被捕获 ⇒ r05 的 DFSR=0/DFAR=0 只能说明“处理器没跑”",
+    "fix": "注册移入 s4d_longrun_selfcheck() 入口，且在首次预处理/CSR 访问之前；并加 Xil_ExceptionInit()、noinline/used 属性使符号保留可核"
+  },
+  "source": {
+    "app": {
+      "path": "vitis/stage4/ps/s4d_ps_app.c",
+      "sha256_worktree_disk": "61bd848a497e0955df7d09d27d4cb4c234818521f9c9b1eeab3efc54ebd6b26a"
+    }
+  },
+  "record_area": {
+    "addr": "0x11B00000",
+    "bytes": 32,
+    "layout": {
+      "0": "MAGIC 0x53344C01",
+      "1": "step_id|iter<<8（即将进入）",
+      "2": "done_step_id|iter<<8（最后成功）",
+      "3": "即将访问的 CSR 地址（0=非 CSR）",
+      "4": "写入值/0xFFFFFFFF 读哨兵",
+      "5": "DFSR",
+      "6": "DFAR",
+      "7": "COMMIT 0xC0DEC0DE 有效 / 0xAB0AB70B 已捕获中止"
+    },
+    "write_policy": "每次 CSR 访问前写入并 Xil_DCacheFlushRange + DSB；正常结束清零；异常时保留",
+    "not_written": [
+      "候选区 [0x12000000,0x12C08000)",
+      "冻结对象",
+      "DDR 测试区 0x11AE0000-0x11B00000"
+    ]
+  },
+  "outputs": {
+    "sw0_longrunK": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunK/s4d_ps_app_sw0_longrunK.elf",
+      "elf_sha256": "b7a654aac7698c1e1d34332146ba7b284985c48ef507f96ee8b8c6211b4d3665",
+      "elf_size": 278332,
+      "map_sha256": "27a0f3306df4211c227283a224b73de2e64eac1cd35263313331d5628e12ee13"
+    },
+    "pl_longrunK": {
+      "elf": "report/evidence/S4-T34/ps_decode_link_20261028_r01/longrunK/s4d_ps_app_pl_longrunK.elf",
+      "elf_sha256": "496b64e11f00357190e96311f02993ea5b608803f441cfa76323e0d3b3470b25",
+      "map_sha256": "c1590e238e98f0b4805257fdb16bf3b6df540c72e7353d52aa4c63eb3f0f9fe3"
+    }
+  },
+  "build": {
+    "command": "python -B scripts/stage4_s4b/build_s4d_ps_app_v2.py --define S4D_LONGRUN_SELFCHECK=1 --out-tag longrunK",
+    "exit_code": 0
+  },
+  "reachability_evidence": {
+    "dir": "report/evidence/S4-T34/longrun_instr_v2_20261028_r01/",
+    "nm": {
+      "handler": "t 0x0010418c",
+      "longrun": "s4d_longrun_selfcheck.isra.0",
+      "vector_table": "T 0x00100000"
+    },
+    "objdump": {
+      "call_sites": "Xil_ExceptionInit / Xil_ExceptionRegisterHandler 均在 s4d_longrun_selfcheck.isra.0"
+    },
+    "verdict": "PASS",
+    "checks": 9,
+    "negative_control": {
+      "verdict": "FAIL",
+      "expect": "FAIL",
+      "discriminative": true
+    },
+    "files": {
+      "nm.txt": "b96a00632f5d4cb7cbc9d9e3f4eab9efb2ccff332011fedc6f4d2ac3d3eb6d99",
+      "objdump_longrun.txt": "3c2149cab924960db3463eca2ac6b60bf9935414f43c2b4811597928bb478f65",
+      "objdump_abort_handler.txt": "78c5ac1e5ea308356ceab5d8968ad6e9b8e07d3d970de52c52ec822ec3d6ba67",
+      "evidence.json": "9c0f01e35c76355f382aefc02e27e05407f9869fde529db942f1fd21d30f2ab7"
+    }
+  },
+  "diagnostic_extension": {
+    "executor": {
+      "path": "tmp/4/S4-T34/run_diag_longrun_v2.py",
+      "sha256": "c5d9f73ab9946060eebc9d7ebeddcde48ab1b1bff517becd3b9e4c8a719b14be"
+    },
+    "order": [
+      "rst -processor -stop（只停核，不清 PL、不 ps7_init）",
+      "两核 state/PC/CPSR",
+      "普通 mrd 读记录区 8 字",
+      "loadhw 登记 0x43C00000..0x43C0FFFF 后只读 0x010/0x064/0x00C",
+      "之后才允许候选区恢复与记录区清零"
+    ],
+    "csr_reads": {
+      "error_code": "0x43C00010",
+      "last_reject": "0x43C00064",
+      "status": "0x43C0000C"
+    },
+    "forbidden": [
+      "-force",
+      "未登记地址直接 mrd 后改用 -force",
+      "把 CSR 读当作验收判据"
+    ],
+    "fallback": "loadhw/mrd 不可用 ⇒ 记 CSR_DIAG_UNAVAILABLE；记录区不可读 ⇒ NOT_CAPTURED",
+    "loadhw_xsa": {
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\s2b_inference.xsa",
+      "sha256": null
+    }
+  },
+  "driver": {
+    "path": "scripts/stage4_s4b/run_bringup_driver.py",
+    "sha256_worktree_disk": "03b4280d26be537d39410e215dbb2198d2766ec9c282d5464446d1ec0fe55e35",
+    "version": "v3.2.7（B 段：dump 三重判定 + s1_verdict 长度前置 + D2 双分支）",
+    "offline_selftest": "57/57 PASS exit 0"
+  },
+  "checker": {
+    "path": "scripts/stage4_s4b/verify_instrumentation_v3.py",
+    "sha256": "c9b6b9f31d0b181a02fbcd615b3166e7efc742759321a78d294971401648b6d6"
+  },
+  "app_diff": {
+    "dir": "report/evidence/S4-T34/app_diff_20261028_r01",
+    "app_diff_json": "1dba5b7cc339298a1ce4d5afa6a1c293b5558f50e25707a7f81fb8644aa34240",
+    "app_diff_source_json": "0a32b59126704d405637019bc5e7700d28500a1555107d9299c187408a6b99b4"
+  },
+  "verification": {
+    "script": "scripts/stage4_s4b/verify_instrumentation_v3.py",
+    "verdict": "PASS",
+    "negative_control": "FAIL"
+  },
+  "judgement": "判据不变（与 r6/r7 相同）；本变体只修异常链与记录格式",
+  "boundary": "离线构建；未上板；ENABLE=0；不写 QSPI；不改线；未 push；不主张 G3/G4/G5；M3/M2 未闭合"
+}

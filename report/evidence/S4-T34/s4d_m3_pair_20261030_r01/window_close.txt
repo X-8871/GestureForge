@@ -1,0 +1,55 @@
+# M3 成对取样窗口 W02 收窗记录（r04，断电恢复版）
+
+- window_id: `DSH-M3PAIR-20261030-W02`
+- event_id: `readonly-mrd-sampling-no-candidate-write`
+- lifecycle_id: `board-lifecycle-20261030-03`（Wong 确认断电并重新上电后的独立生命周期，不与旧窗口拼接）
+- authorization: `D:\tmp\lead\m3_pair_20261030_r01\authorization_r04.json`（DSH-M3-PAIR-20261030-R04；r01–r03 作废保留）
+- 开窗：2026-10-30 02:13:22（P3b 构建 vivado 归零后）；收窗：2026-10-30 02:21
+- 结论：**M3 成对取样未完成 —— 工具在 XSDB 2026.1 上阻塞（capture exit=2），板面部署与候选区重建已完成并通过校验**
+
+## 部署与候选区重建（全部在 before capture 之前）
+
+| 步骤 | 内容 | 结果 |
+|---|---|---|
+| D0_ident | bit/init/chainA ELF/snapshot 四份 sha 核对 | PASS |
+| D0_preflight | 无 vivado/xsdb（仅 hw_server）、3121 LISTENING | PASS |
+| D0_enum_targets | 枚举出 APU / A9 #0 / #1 / xc7z020 | PASS |
+| D1_prestop_both | `rst -processor -stop` 两核（无 rst -system） | PASS |
+| D2_lvl_0xA | SLCR 白名单四动作（0xA） | PASS |
+| D3_program_pl_2b | 编程 2B 基线位流 `555a70c2…`（Vivado batch，PROGRAM_OK） | PASS |
+| D4_lvl_0xF | SLCR 恢复 0xF 并读回 | PASS |
+| D5_load_chainA | `d2_keep_pl` 路径：rst -processor → dow init.elf(ps7_init) → rst -processor → dow chainA → 0xF 断言 → con | PASS |
+| D6_frame | chainA 单帧 | **应用返回 done=2 status=0x0C05 error=0x1（elapsed_ms=0）**，见下节 |
+| D7_stop_both | 帧后显式 stop 两核 | PASS |
+| D8_core_states | 首版解析器用 `targets`(无 puts) 取不到文本 → 误 FAIL；改用 `[state]` 复核：**两核均 `Stopped: (Vector Catch)`** | 复核 PASS |
+| D9_restore_snapshot | `RESTORED_FROM_SNAPSHOT`：用 `S4-T32/window_a_20261027_r01/m3_snapshot_orig.bin`（12,615,680 B，sha `41907f53…`）写回 [0x12000000,0x12C08000) | PASS |
+| D10/D11 | 候选区全量双读（各 12,615,680 B） | PASS |
+| D12_restore_verify | 两次 sha256 均 == baseline `41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf` | **PASS** |
+
+- read1 sha256 = `41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf`
+- read2 sha256 = `41907f539cff35f357b433c121d4b7cc01f6b362cc6722dcfa0d6411f20a0abf`
+- 断电导致 DDR 丢失属环境事件；本轮按 r04 以登记快照重建同一字节序列，不是改基准。
+
+## chainA 单帧未跑满的原因（部署上下文偏差，非 M3 判据）
+
+`CHAIN RESULT={"pass":0,"reason":"not_done_safe","done":2,"status":3077,"error":1,"elapsed_ms":0,"spin":999}`；
+CSR 读到 `id=0x53324250 ver=0x00000100`（2B 平台位流正确）；STEP=6 立即 done=2。
+推断：断电后 DDR arena（0x10000000 输入张量 / 0x10100000 权重）已为空，而 r04 禁止候选区外的任何 DDR 写入 ⇒ 本轮未预载输入/权重，2B 引擎在启动时即报 error=1 并停机。应用已按预期自检、打印 RESULT 并停止；两核随后被显式停止。
+
+## capture 失败：工具与 XSDB 2026.1 不兼容（阻断项）
+
+- `m3_pair.py capture --phase before` → **exit 2**，报错：`XSDB 缺少成功标记: ..._TARGET_STATE_OK, _READ_A_BEGIN, _READ_A_OK, _READ_B_BEGIN, _READ_B_OK, _END`
+- 实际 XSDB 报错（`before/xsdb.stderr.log`）：`ERROR: key "state" not known in dictionary`
+- 根因（实测）：XSDB 2026.1 的 `targets -target-properties -filter {...}` 返回字典**没有 `state` 键**；实测键为：
+  `target_ctx target_id level name parent_ctx parent state_reason is_current bscan jtag_device_id jtag_device_ctx jtag_device_name jtag_cable_id jtag_cable_ctx jtag_device_index jtag_cable_manufacturer jtag_cable_product jtag_cable_serial jtag_cable_name suspended`
+  （另有 `[state]` 命令可返回权威状态，实测两核 `Stopped: (Vector Catch)`）
+- 因此工具在核状态校验处即中止，未产生任何 read_a/read_b，也未产生 capture manifest；`before/` 目录仅含 `capture_readonly.tcl`、`xsdb.stdout.log`、`xsdb.stderr.log`（失败目录保留，不能作为成功输入）。
+- 未执行：event mrd、capture after、compare（均在 capture before 之后）。
+- 建议修复（需 Codex 侧改工具并重新独立复审）：改用 `targets -set ...` 后 `[state]`，或使用现有 `state_reason` + `suspended` 键；不得按本次失败现场编造 manifest。
+
+## 收窗状态
+
+- hw_server 已杀；`hw_server/xsdb` 进程 0；`tcp:3121` 无 LISTENING（仅 TIME_WAIT）。
+- 板卡仍上电，PL 为 2B 基线位流；候选区内容 == baseline（双读校验）。
+- 本窗口**未执行** `rst -system`；两次 capture 之间未发生任何写（实际连第一次 capture 都未成功）。
+- 备注：收窗时本机有 1 个 `vivado` 进程（P3b 构建，非本窗口启动，未干预）。

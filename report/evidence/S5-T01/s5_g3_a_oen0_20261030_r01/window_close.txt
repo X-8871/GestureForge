@@ -1,0 +1,49 @@
+# P3d 诊断窗口（hdmi_oen=0）记录
+
+- RunId：`s5_g3_a_oen0_20261030_r01`
+- 开窗：2026-10-30T10:12:52+08:00；收窗：2026-10-30T10:13:53+08:00
+- 结论：**P3D_DIAG_CHECK**
+- stop_reason：诊断项未满足
+- 位流（P3d，oen 常量 0）：`D:\tmp\lead\p3d_video_20261030_r01\out\s4d_p3d_r01.bit` sha256=f6488e4a65b7057b8da8079816b983f9ca334157c8d43627801398e9b67c0187
+- ELF：`D:\tmp\lead\p3b_display_sw_20261030_r01\build\s5_display_app.elf` sha256=e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d
+- 收窗：3121 LISTENING=0、残留=[]
+- 边界：禁 rst -system；除 SLCR 白名单外无 mwr；不做 J-4 判据；屏幕现象需人工目视
+
+## 停机后寄存器快照（只读 mrd）
+
+
+## 结果块首 8 word
+
+```
+
+```
+
+## S5DISP 关键行
+
+```
+VTC: version=602000C
+```
+```
+VTC: init OK (720p60 generator enabled: SW|GE)
+```
+```
+VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)
+```
+```
+VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)
+```
+```
+VDMA: read period = 6454543 ticks (19363 us) -> fps_dis=52 (display refresh)
+```
+```
+S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3
+```
+```
+S5DISP boxes n=3 crc=-2002758909 hex=E1 B4 10E 1C2 465 2A3 9B 2D 0 0 500 2D0
+```
+```
+S5DISP done frames=180 vcnt=180(sw) vdma_err=0
+```
+```
+S5DISP RESULT={"pass":1,"fps_cap":0,"fps_inf":0,"fps_dis":52,"fps_upd":34,"latency_ms":0,"age_ms":0,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":2292208387,"fb_crc":1712421811,"src":"real"}
+```

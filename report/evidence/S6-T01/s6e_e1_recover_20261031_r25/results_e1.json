@@ -1,0 +1,71 @@
+{
+  "task_id": "S6-T01",
+  "run_id": "s6e_e1_recover_20261031_r25",
+  "mode": "e1_enum_readonly",
+  "started_utc8": "2026-10-31T20:44:48+08:00",
+  "policy": "只读枚举；xsdb 一律经 .bat 入口（绝不裸调 xsdb.exe）；禁 rst -system/禁写/禁改 PL",
+  "steps": {
+    "S1_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_bat_exists": true,
+      "xsdb_bat": "D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat",
+      "ports_listening_before": {
+        "3121": 0,
+        "3122": 0
+      },
+      "heavy_before": [
+        "vivado"
+      ]
+    },
+    "S2_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pid": 37500,
+      "listen_3121": 1,
+      "note": "hw_server 由本窗口 msb 启动（owner=board-runner 本 RunId）"
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0,
+      "cmd": "cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; puts E_BEGIN; puts [targets]; puts E_END; disconnect",
+      "subprocess_rc": 0,
+      "elapsed_s": 1.83,
+      "targets_lines": [
+        "1  APU",
+        "2  ARM Cortex-A9 MPCore #0 (Running)",
+        "3  ARM Cortex-A9 MPCore #1 (Running)",
+        "4  xc7z020"
+      ],
+      "a9_0": true,
+      "a9_1": true,
+      "apu": true,
+      "xc7z020": true,
+      "dap_clean": true
+    },
+    "S4_owner": {
+      "status": "PASS",
+      "exit_code": 0,
+      "hw_server_pid": 37500,
+      "owner_proc_json": "{\"ProcessId\":37500,\"Name\":\"hw_server.exe\",\"CreationDate\":\"\\/Date(1793450690772)\\/\",\"CommandLine\":\"D:\\\\Xilinx\\\\2026.1\\\\Vivado\\\\bin\\\\unwrapped\\\\win64.o\\\\hw_server.exe -p 3121\"}",
+      "listen_3121_during": 1
+    },
+    "S5_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 37500,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ]
+      },
+      "residual": []
+    }
+  },
+  "por_precondition_before": "satisfied",
+  "conclusion": "S6E_E1_ENUM_OK",
+  "criterion_ok": true,
+  "finished_utc8": "2026-10-31T20:44:57+08:00"
+}

@@ -1,0 +1,47 @@
+# MVP 单链板级串联窗 — `mvp_chain_20261101_r14`
+
+- 开窗：2026-11-01T07:25:04+08:00；收窗：2026-11-01T07:28:27+08:00
+- 结论：**MVP_CHAIN_PARTIAL**；stop_reason=MVP 判据未全绿（详见 S12_judgement）
+- **por_precondition：satisfied**
+- rst -system：**1 次**（init 阶段一次性，PL 编程前；mode=rst-system）
+- 位流：`7c46a8a9c8304432342d9a5d7a6383648715da6a8c6d17df8b923a12ab8b9b1e`；XSA：`aa3fb4c8bbd036f326f8220a4b173ef67eabf2a97e9632d75189b958d0e31075`
+- core0 显示 ELF：`d1ecc0d8592cec2d414dc73e2c47ee19c7e0c1eaf9ff25eefcc93465058e5743`；core1 推理 ELF：`5806d33de1e888bb8b4fb2f63ef64246087316b4335f8b74fbba0710d0b48270`
+- 权重：`f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39` → 0x10100000
+
+- J1 相机：`CAM: init OK` 且 0x12000000 采样非零：**PASS** {"cam": true, "raw_nonzero": {"head": 0, "mid": 2, "last": 2}, "MVP NOTE raw_blank": false}
+- J2 显示链运行：`S5DISP frame` 行出现（src/nbox 见 J5）：**PASS** {"lines": 3, "sample": ["S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=0", "S5DISP frame=120 lat=6880 age=54371 st=B sr=11000 src=real nbox=0"]}
+- J3 权重：`verify -data` rc=0 且 `MVP WEIGHTS: GFINT8W1 OK`：**PASS** {"attempts": [{"attempt": 1, "dow": true, "verify_rc_ok": true, "wm0": "0x4e494647", "wm1": "0x31573854"}], "line": ["MVP WEIGHTS: GFINT8W1 OK @0x10100000"]}
+- J4 推理：≥1 条 `MVP TIME` 且 raw_nz>0 且 dt_pl≤90000 ms：**FAIL** {"lines": ["MVP TIME t0_pre=62996 t1_pl=110487 t2_decode=110494 t3_pub=110494 dt_pre=86 dt_pl=47491 dt_dec=7 dt_all=47584 raw_nz=0", "MVP TIME t0_pre=110603 t1_pl=158046 t2_decode=158052 t3_pub=158052 dt_pre=94 dt_pl=47442 dt_dec=5 dt_all=47542 raw_nz=0"], "raw_nz": 0, "dt_pl": 47442}
+- J5 结果块：`MVP S5RS … magic=0x53355253`（n_dets 0..15 合法）+ 显示 real 且有框/或 RESULT 合格：**FAIL** {"s5rs_lines": ["MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1", "MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1"], "n_dets": [0, 0], "disp_real_lines": ["S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=0", "S5DISP frame=120 lat=6880 age=54371 st=B sr=11000 src=real nbox=0"], "result": {"pass": 0, "fps_cap": 0, "fps_inf": 0, "fps_dis": 60, "fps_upd": 3, "fps_dis_idle": 0, "idle_period_us": 0, "latency_ms": 23888, "age_ms": 65535, "vdma_err": 0, "frames": 180, "vcnt": 180, "box_crc": 0, "fb_crc": 3933355641, "uf_pix": 3647514712, "uf_frame": 712490, "uf_total": 3647514712, "src": "real", "reason": "frame_check_failed"}}
+- J6 HUD：`APP: gesture_changed` 或 `S5DISP frame … src=real nbox≥1`：**PASS** {"changed": ["APP: gesture_changed from=none to=拳头"], "disp_real": false, "note": "APP: gesture= 每 30 帧才打印（≈23 min/次），本窗不作判据"}
+
+## UART 关键行（原文，各最多 3 条）
+
+- `CAM: init OK`：['CAM: init OK chip=0x5640 1280x720 stride=3840 raw=0x12000000 (24bpp BGR888)']
+- `MVP WEIGHTS`：['MVP WEIGHTS: GFINT8W1 OK @0x10100000']
+- `MVP TIME`：['MVP TIME t0_pre=62996 t1_pl=110487 t2_decode=110494 t3_pub=110494 dt_pre=86 dt_pl=47491 dt_dec=7 dt_all=47584 raw_nz=0', 'MVP TIME t0_pre=110603 t1_pl=158046 t2_decode=158052 t3_pub=158052 dt_pre=94 dt_pl=47442 dt_dec=5 dt_all=47542 raw_nz=0']
+- `MVP S5RS`：['MVP S5RS frame=0 n_dets=0 magic=0x53355253 status=0x1', 'MVP S5RS frame=1 n_dets=0 magic=0x53355253 status=0x1']
+- `MVP NOTE`：[]
+- `MVP APP`：['MVP APP: CAM=1 raw=0x12000000 1280x720 bgr888 bytes=2764800 s5rs=0x20800000']
+- `APP: gesture=`：['APP: gesture=拳头 cls=0 conf=0.00 latency_ms=7', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=78', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=262', 'APP: gesture=拳头 cls=0 conf=0.00 latency_ms=544']
+- `APP: gesture_changed`：['APP: gesture_changed from=none to=拳头']
+- `S5DISP frame`：['S5DISP frame=60 lat=0 age=0 st=3 sr=11000 src=real nbox=0', 'S5DISP frame=120 lat=6880 age=54371 st=B sr=11000 src=real nbox=0', 'S5DISP frame=180 lat=23888 age=65535 st=B sr=11000 src=real nbox=0']
+- `S5DISP RESULT`：['S5DISP RESULT={"pass":0,"fps_cap":0,"fps_inf":0,"fps_dis":60,"fps_upd":3,"fps_dis_idle":0,"idle_period_us":0,"latency_ms":23888,"age_ms":65535,"vdma_err":0,"frames":180,"vcnt":180,"box_crc":0,"fb_crc":3933355641,"uf_pix":3647514712,"uf_frame":712490,"uf_total":3647514712,"src":"real","reason":"frame_check_failed"}']
+- `CAM: FAIL`：[]
+
+## 停核快照（只读）
+
+- 0x12000000 head/mid/last 非零计数：{'head': 0, 'mid': 2, 'last': 2}
+- 0x20800000 前 8 字：['0x53355253', '0x1', '0x0', '0x9580eebb', '0x8', '0x441c044c', '0xc', '0x1']
+- S5RS magic 命中：True
+- camera VDMA CR=0x00010001 SR=0x00014810
+- 2B CSR(0x43C00000)=0x53324250
+
+## 判读规则
+
+- M1 CAM init + raw 非零；M2 weights OK + raw_nz>0；M3 S5RS n_dets≥1/cls∈0..4；M4 APP gesture 中文名；M5 gesture_changed 出现
+- 任一 DAP/halt 异常 ⇒ 停手，不重试
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：rst -system 仅 init 一次；未写候选区；未烧 QSPI

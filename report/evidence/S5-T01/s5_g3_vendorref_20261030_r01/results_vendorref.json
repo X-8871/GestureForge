@@ -1,0 +1,109 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_vendorref_20261030_r01",
+  "mode": "vendorref_hdmi_plonly_xsdb_fpga",
+  "started_utc8": "2026-10-30T12:04:22+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.runs\\impl_1\\top.bit",
+          "sha256": "7dfad3627137bb75f9e6ec597d29f8d9325c04c846f2dcb8f0cb51959fa81bf1",
+          "expect": "7dfad3627137bb75f9e6ec597d29f8d9325c04c846f2dcb8f0cb51959fa81bf1",
+          "size": 4045663,
+          "note": "厂商 2019 年构建位流；只读引用"
+        }
+      }
+    },
+    "S2_preflight": {
+      "status": "PASS",
+      "exit_code": 0,
+      "heavy_processes_all": [
+        "vivado"
+      ],
+      "heavy_excluding_vivado": [],
+      "vivado_allowed_parallel": true,
+      "free_gb": 2.33,
+      "com4_ok": true,
+      "com4_error": "",
+      "listening_3121": 0,
+      "note": "lead 授权：P3e 构建并行期间允许本诊断窗口；仅禁止再起第二个 Vivado（故用 xsdb fpga -file）"
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 33756
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_prestop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S5_program_pl": {
+      "status": "PASS",
+      "exit_code": 0,
+      "programming_tool": "xsdb fpga -file",
+      "bit": "D:\\FPGA\\AX7Z020\\AX7Z020\\course_s1\\course_s1\\02_hdmi_out_test\\hdmi_out_test.runs\\impl_1\\top.bit",
+      "bit_sha256": "7dfad3627137bb75f9e6ec597d29f8d9325c04c846f2dcb8f0cb51959fa81bf1",
+      "fpga_exit": 0,
+      "fpga_error_text": null,
+      "fpga_file_done": true,
+      "fpga_log": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_g3_vendorref_20261030_r01\\S5_fpga_file.log",
+      "lvl_0xA": "PASS",
+      "lvl_shifter_readback_after_program": "[mrd -value 0xF8000900]\"; disconnect; exit",
+      "lvl_0xF": "PASS",
+      "lvl_shifter_readback_after_on": "0xf"
+    },
+    "S7_readback_96B": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "cand_first96": {
+          "addr": "0x12000000",
+          "exit": 0,
+          "bytes": 96,
+          "sha256": "0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35"
+        },
+        "result_block_first96": {
+          "addr": "0x20800000",
+          "exit": 0,
+          "bytes": 96,
+          "sha256": "07d4df1f77728eaeddfa97c590f54849c81a1255b6dead47b8add5982215306f"
+        }
+      }
+    },
+    "S9_teardown": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "detail": {
+        "stopped_pid": 33756,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": null,
+  "programming_tool": "xsdb fpga -file（lead 2026-10-30 授权；非 program_hw_devices）",
+  "authorization_note": "PL-only 烧厂商参考位流；不装 ELF、不写 DDR；禁 rst -system；允许与 P3e 构建并行（不启第二个 Vivado）",
+  "hold_seconds": 60.0,
+  "readback": {
+    "cand_first96": "{\"addr\": \"0x12000000\", \"exit\": 0, \"bytes\": 96, \"sha256\": \"0848f0f1e5414cd46ae723ff5cdd058fb5f958e5d07361cef85918ce80562c35\"}",
+    "result_block_first96": "{\"addr\": \"0x20800000\", \"exit\": 0, \"bytes\": 96, \"sha256\": \"07d4df1f77728eaeddfa97c590f54849c81a1255b6dead47b8add5982215306f\"}"
+  },
+  "criterion_ok": true,
+  "conclusion": "VENDOR_REF_PL_PROGRAMMED",
+  "finished_utc8": "2026-10-30T12:05:44+08:00"
+}

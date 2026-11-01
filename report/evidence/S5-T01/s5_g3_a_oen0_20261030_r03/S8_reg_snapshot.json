@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "exit_code": 0,
+  "xsdb_exit": 0,
+  "error_text": null,
+  "loadhw_xsa": "D:\\tmp\\lead\\p3b_video_20261030_r01\\out\\s4d_p3b_r01.xsa",
+  "loadhw_xsa_sha256": "2171583fbac75c00519d7633ff351b2f81feabbe1bc9b96953fdac1fff33719d",
+  "loadhw_note": "P3d 无独立 XSA；用 P3b XSA 仅登记地址映射（P3d 只改 hdmi_oen 常量）",
+  "values_hex": {
+    "VTC_CTL": "5",
+    "VTC_GTSTAT": "4",
+    "VTC_STATUS": "78336",
+    "VDMA_MM2S_VDMACR": "65538",
+    "VDMA_MM2S_VDMASR": "69633",
+    "VDMA_PARKPTR": "0"
+  },
+  "raw_log": "$ cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; if {[catch {loadhw -hw D:/tmp/lead/p3b_video_20261030_r01/out/s4d_p3b_r01.xsa -mem-ranges {0x00000000 0x7FFFFFFF}} e]} { puts \"LOADHW_SKIP: $e\" } else { puts LOADHW_OK }; puts \"REG VTC_CTL=0x43c30000 VAL=[mrd -value 0x43c30000]\"; puts \"REG VTC_GTSTAT=0x43c30064 VAL=[mrd -value 0x43c30064]\"; puts \"REG VTC_STATUS=0x43c30004 VAL=[mrd -value 0x43c30004]\"; puts \"REG VDMA_MM2S_VDMACR=0x43c40000 VAL=[mrd -value 0x43c40000]\"; puts \"REG VDMA_MM2S_VDMASR=0x43c40004 VAL=[mrd -value 0x43c40004]\"; puts \"REG VDMA_PARKPTR=0x43c40028 VAL=[mrd -value 0x43c40028]\"; puts \"RBLK_BEGIN\"; puts [mrd 0x20800000 8]; puts \"RBLK_END\"; disconnect; exit\nexit=0 elapsed=2.190\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds\nLOADHW_OK\nREG VTC_CTL 0x43c30000 VAL 5\nREG VTC_GTSTAT 0x43c30064 VAL 4\nREG VTC_STATUS 0x43c30004 VAL 78336\nREG VDMA_MM2S_VDMACR 0x43c40000 VAL 65538\nREG VDMA_MM2S_VDMASR 0x43c40004 VAL 69633\nREG VDMA_PARKPTR 0x43c40028 VAL 0\nRBLK_BEGIN\n20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001\n\nRBLK_END\n\n",
+  "result_block_raw": "20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001",
+  "vtc_ctl": 5,
+  "vtc_gtstat": 4,
+  "vdma_sr": 431667,
+  "vdma_err_bits": 48,
+  "vdma_err_irq_latched_bit12": true
+}

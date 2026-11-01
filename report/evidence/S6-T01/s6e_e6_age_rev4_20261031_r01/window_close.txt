@@ -1,0 +1,25 @@
+# 阶段6 E3 窗口（安全流程，零 rst）
+
+- RunId：`s6e_e6_age_rev4_20261031_r01`
+- 开窗：2026-10-31T01:46:25+08:00；收窗：2026-10-31T01:47:49+08:00
+- 结论：**S6E_E3_FAIL**
+- stop_reason：判据 FAIL
+- 位流（P3q）：sha256=4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4
+- ELF：sha256=b563453b70624cb95ea23e1da7655582237b153345efcd36a30dab8c1fadee17（expect b563453b70624cb95ea23e1da7655582237b153345efcd36a30dab8c1fadee17）
+
+- E3-1 S5CONS ≥3 行 + S5PROD ≥10 条：**PASS** {"cons": 29, "prod": 1755}
+- E3-2 age_pub ≤200 ms：**PASS** {"ages": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9]}
+- E3-3 seqlock 全偶数：**PASS** {"seqlocks": [120, 240, 360, 480, 600, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680, 1800, 1920, 2040, 2160, 2280, 2400, 2520, 2640, 2760, 2880, 3000, 3120, 3240, 3360, 3480]}
+- E3-4 seq 严格递增：**PASS** {"seqs": [60, 120, 180, 240, 300, 360, 420, 480, 540, 600, 660, 720, 780, 840, 900, 960, 1020, 1080, 1140, 1200, 1260, 1320, 1380, 1440, 1500, 1560, 1620, 1680, 1740]}
+- E3-5 sid 恒定：**PASS** {"sids": ["16721"]}
+- E3-6 state ∈ {OK,NO_HAND}：**PASS** {"states": ["OK"]}
+- E3-11 消费者取锁成功（S5CONS s1==s2；记录 retry/TIMEOUT）：**FAIL** {"s1s2_pairs": [], "retry_lines": [], "seqlock_series": [2640, 2760, 2880, 3000, 3120, 3240, 3360, 3480]}
+- E3-7 sidecar magic2=0x53355831 且 version=1，且仅出现在声明偏移：**PASS** {"magic2": "0x53355831", "version": 1, "offset": "0x100", "magic2_positions": [256]}
+- E3-8 sidecar result_time 与 UART/块头一致（±2000 ticks）：**FAIL** null
+- E3-9 flush 覆盖 [0x20800000, 0x20800120)=288 B（身份 A 预期 288 B）：**PASS** {"flush_bytes": 288, "offset": "0x100"}
+- E3-10 块头 n_dets ≤14（fail-closed 生效；REJECT 行照实记录）：**PASS** {"n_dets": 2, "reject_count": 0, "reject_lines": []}
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 流程：hw_server→loadhw→stop→ps7_init→0xA→fpga→0xF→PL 只读探测→load_elf→采集→stop（零 rst）
+- 边界：禁 rst -system；未写候选区；未烧 QSPI

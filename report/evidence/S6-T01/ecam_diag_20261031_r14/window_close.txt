@@ -1,0 +1,50 @@
+# E-cam 诊断窗（复位修复验证） — `ecam_diag_20261031_r14`
+
+- 开窗：2026-10-31T14:34:42+08:00；收窗：2026-10-31T14:35:46+08:00
+- 结论：**ECAM_DIAG_FAIL**；stop_reason=判据 FAIL
+- **por_precondition：satisfied**
+- 位流 P3r build3：`da89789ba9f57db6d44d1212717fb812987d1f115274f05ccdc396d98eb645bc`；ELF：`f224f5e53f6f94da2ed3528dc0081fef31339faf0c6f1b2e0dbffd670239b144`
+
+- D1 CAM: rst pin after = 0x1（复位已释放）：**PASS** {"rst_after": 1, "rst_lines": ["CAM: rst pin before=0x1 (reg 0x41200000)", "CAM: rst pin after=0x1 (低有效: 1=释放)"], "snapshot_CAM_RST": "0x1"}
+- D2 reset seq 出现且含两次 release(1)：**PASS** {"line": "CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms"}
+- D3 i2c clk 诊断行 ≥1：**PASS** {"lines": ["CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0", "CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0", "CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0", "CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0", "CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0", "CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0"]}
+- D4 probe ack=1：**FAIL** {"probe": "CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2", "ack": 0, "rc": -2, "isr_addr": "0x0"}
+- D5 chipid=0x5640：**FAIL** {"chipid": "0x0", "chipid_lines": ["CAM: chipid reg0x300A=0x00 reg0x300B=0x00"]}
+- D6 无 CAM: FAIL：**FAIL** {"fail_lines": ["CAM: FAIL sub=-2 stage=addr/ack reg=0x300A val=0x300A isr=0x0", "CAM: FAILED rc=-11（I2C/覆盖表/回读/S2MM 配置阶段失败）→ 继续显示测试图"]}
+- K1 SLCR APER_CLK_CTRL(0xF800012C) bit18（I2C0 外设时钟，P3r ps7_init.c 映射）= 1：**PASS** {"APER": "0x17c000d", "bit18_I2C0": 1, "bit11_SDI1": 0, "bit20_UART0": 1, "bit21_UART1": 1}
+- K3 UART0/UART1 外设时钟已开（APER bit20/bit21=1；--enable-uart-clocks）：**PASS** {"bit20_UART0": 1, "bit21_UART1": 1}
+- K2 I2C0 寄存器 CR/SR/DIV/ISR 可读：**PASS** {"I2C0_CR": "0x0", "I2C0_SR": "0x0", "I2C0_DIV": "0x0", "I2C0_ISR": "0x2ff"}
+
+## 判读关键（UART 原文）
+
+- `rst pin before/after` 行：['CAM: rst pin before=0x1 (reg 0x41200000)', 'CAM: rst pin after=0x1 (低有效: 1=释放)']
+- `reset seq` 行：CAM: reset seq: assert(0) 500 ms -> release(1) 500 ms -> release(1) 500 ms
+- `i2c clk` 行（6 条）：['CAM: i2c clk_assumed=111111115 div=63 cr=0x3F07 sr=0x0 rc=0', 'CAM: i2c clk_assumed=100000000 div=63 cr=0x3F07 sr=0x0 rc=0', 'CAM: i2c clk_assumed=50000000 div=63 cr=0x3F07 sr=0x0 rc=0', 'CAM: i2c clk_assumed=166666667 div=63 cr=0x3F07 sr=0x0 rc=0', 'CAM: i2c clk_assumed=133333333 div=63 cr=0x3F07 sr=0x0 rc=0', 'CAM: i2c clk_assumed=40000000 div=63 cr=0x3F07 sr=0x0 rc=0']
+- `probe` 行：CAM: probe addr7=0x3C w8=0x78 r8=0x79 ack=0 isr_addr=0x0 isr_data=0x0 rc=-2
+- `chipid` 行：['CAM: chipid reg0x300A=0x00 reg0x300B=0x00']
+
+## 停核快照（只读）
+
+- **0x41200000 (cmos_rstn) = 0x00000001**（期望 1）
+- 0x43C70000 (CAM_GPIO) = 0x00000000
+- camera VDMA CR=0x00000000 SR=0x00000000
+- **SLCR APER_CLK_CTRL(0xF800012C)=0x017C000D bit11=0**
+- I2C0 CR=0x00000000 SR=0x00000000 DIV=0x00000000 ISR=0x000002FF
+- ps7init 模式：combo(stage4_elf+ps7init_tcl)
+- display VDMA CR=0x00010002 SR=0x00011001
+- UF frame=0x0008147A total=0x5B3CC9C0
+
+## 判读规则
+
+- `rst pin after=0x1` + `probe ack=1` ⇒ **复位修复成功**（可进修复版相机窗）
+- `ack=0` 且 `isr_addr` 含 0x10(NACK) ⇒ 器件无响应（接线/供电/上拉/地址）
+- `rc=-2` 且 `isr_addr=0` ⇒ I2C 起步异常
+
+- DAP/halt：未命中
+- 收窗残留：[]
+- 边界：禁 rst -system / rst -processor；未写候选区；未烧 QSPI
+
+## 备注（lead 2026-10-31 14:5x 软修根因）
+- r14 实测 ISR(0x10)=0x1 实为 COMP（正常完成位），但当时 CR 分频位被每次事务整体重写清 0 ⇒ SCL 误跑约 5 MHz（远超 SCCB 400 kHz）⇒ 从设备无法 ACK，属假完成
+- 结论在 r15（video-sw 修正版 ELF：CR 读-改-写 + div=0x5807 + ISR 掩码 + 逐字节 dump + SCCB 扫描）前修正
+

@@ -1,0 +1,16 @@
+# P3q 并发窗 r08（零复位续跑）
+
+- RunId：`g4_q_concurrent_display_2b_20261030_r08`
+- 开窗：2026-10-30T19:26:51+08:00
+- 结论：**P3Q_CONCURRENT_R08_FAIL**
+- core0 ELF：M4-b sha=553fbf7ea7de8bc75edaf99c0b4d5cb79ef39e556e768b91abd459d1cf240e84
+- core1 ELF：显示长跑 sha=6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f
+- 归属证据：con core1 后 5 s 内 S5DISP=1 行、M4B=0 行 ⇒ core1=显示；其后 core0 启动出现 M4B 行 0 条
+- **M4-b elapsed_ms=None（基线 47287，差值 N/A ms）、pass=None**
+- 显示 fps_dis=None；并发期欠载 delta=None
+- 停核后寄存器：{"VDMA_CR": 65539, "VDMA_SR": 69632, "GPIO_FRAME": 0, "GPIO_TOTAL": 1543957543}
+- DAP 错误：未命中
+
+- DDR 区重叠，只判耗时/带宽，不判数据正确性；本窗零复位、未重编 PL。
+
+- 附：r03 已证明显示并发健康（fps_dis=60、VDMA_CR=65539、VDMA_SR=69632、欠载采样 delta=0、dap_hit=False）

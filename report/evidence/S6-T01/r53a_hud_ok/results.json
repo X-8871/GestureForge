@@ -1,0 +1,257 @@
+{
+  "task_id": "E-cam-hud",
+  "run_id": "r53a_hud_ok",
+  "started_utc8": "2026-11-01T00:19:40+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "bit_sha": "4ae379a9aa2dd4ca",
+      "xsa_sha": "46dfdf7e7a719a36",
+      "disp_sha": "6a4a252da120f771"
+    },
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3a_init_elf": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3b_ps7_init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3d_aper": {
+      "status": "PASS",
+      "exit_code": 0,
+      "aper": "0x17c000d"
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_pl_probe": {
+      "status": "PASS",
+      "exit_code": 0,
+      "probe": {
+        "CSR2B": "0x53324250",
+        "CAM_VER": "0x62000050"
+      }
+    },
+    "S6_dow_con": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elf": "s5_display_app_p3r_camera.elf",
+      "state": null
+    },
+    "S7_uart_collect": {
+      "status": "PASS",
+      "exit_code": 0,
+      "seconds": 30.0,
+      "lines": 31
+    },
+    "S8_stop_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "snapshot": {
+        "s5rs_head": [
+          "0xfffffffe",
+          "0xff9fffff",
+          "0xffffffff",
+          "0xfffffffb",
+          "0xffffffff",
+          "0xffffffff",
+          "0xffffffff",
+          "0xffffffff"
+        ],
+        "fb_head": [
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d",
+          "0x7f8c8d"
+        ],
+        "raw_head": [
+          "0x486bdbf",
+          "0x80329bf4",
+          "0x1580ddfe",
+          "0x6223bfb0"
+        ],
+        "CAM_CR": 65537,
+        "CAM_SR": 65536,
+        "CSR2B": 1395802704
+      }
+    },
+    "S9_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "H1",
+          "desc": "HUD 逻辑：`APP: gesture=<中文>` 或 `APP: gesture_changed` 出现",
+          "pass": true,
+          "detail": [
+            "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+            "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+            "APP: gesture_changed from=none to=拳头"
+          ]
+        },
+        {
+          "id": "H2",
+          "desc": "显示链：`S5DISP RESULT` 行出现",
+          "pass": true,
+          "detail": [
+            "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":3869943615,\"uf_pix\":1122143360,\"uf_frame\":568333,\"uf_total\":1122143360,\"src\":\"real_nobox\",\"reason\":\"result_magic_mismatch\"}"
+          ]
+        },
+        {
+          "id": "H3",
+          "desc": "`CAM:` 行已记录（相机失败属正常，仅记录）",
+          "pass": true,
+          "detail": {
+            "seen": true,
+            "lines": 4
+          }
+        },
+        {
+          "id": "H4",
+          "desc": "屏幕目视 HUD 显示“手势：xxx”",
+          "pass": false,
+          "detail": "visual_check: pending（需 Wong/lead 目视或拍照，存本目录）"
+        }
+      ]
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 64484,
+        "port": 3121,
+        "listening_3121": 0,
+        "residual_processes": [
+          "vivado"
+        ]
+      },
+      "residual": []
+    }
+  },
+  "por_precondition": "satisfied",
+  "policy": "HUD 单验：只 core0 显示 ELF；禁 rst -system；单次 ps7_init",
+  "stop_snapshot": {
+    "s5rs_head": [
+      "0xfffffffe",
+      "0xff9fffff",
+      "0xffffffff",
+      "0xfffffffb",
+      "0xffffffff",
+      "0xffffffff",
+      "0xffffffff",
+      "0xffffffff"
+    ],
+    "fb_head": [
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d",
+      "0x7f8c8d"
+    ],
+    "raw_head": [
+      "0x486bdbf",
+      "0x80329bf4",
+      "0x1580ddfe",
+      "0x6223bfb0"
+    ],
+    "CAM_CR": 65537,
+    "CAM_SR": 65536,
+    "CSR2B": 1395802704
+  },
+  "parsed": {
+    "CAM:": [
+      "CAM: init OK chip=0x5640 640x480 stride=3840 raw=0x12000000 (24bpp BGR888)",
+      "CAM: sr=0x10000 frames=1",
+      "CAM: sr=0x10000 frames=1",
+      "CAM: sr=0x10000 frames=1"
+    ],
+    "APP: gesture=": [
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+      "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0"
+    ],
+    "APP: gesture_changed": [
+      "APP: gesture_changed from=none to=拳头"
+    ],
+    "S5DISP RESULT": [
+      "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":3869943615,\"uf_pix\":1122143360,\"uf_frame\":568333,\"uf_total\":1122143360,\"src\":\"real_nobox\",\"reason\":\"result_magic_mismatch\"}"
+    ],
+    "MVP": []
+  },
+  "criteria": [
+    {
+      "id": "H1",
+      "desc": "HUD 逻辑：`APP: gesture=<中文>` 或 `APP: gesture_changed` 出现",
+      "pass": true,
+      "detail": [
+        "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+        "APP: gesture=拳头 cls=0 conf=0.00 latency_ms=0",
+        "APP: gesture_changed from=none to=拳头"
+      ]
+    },
+    {
+      "id": "H2",
+      "desc": "显示链：`S5DISP RESULT` 行出现",
+      "pass": true,
+      "detail": [
+        "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":0,\"fb_crc\":3869943615,\"uf_pix\":1122143360,\"uf_frame\":568333,\"uf_total\":1122143360,\"src\":\"real_nobox\",\"reason\":\"result_magic_mismatch\"}"
+      ]
+    },
+    {
+      "id": "H3",
+      "desc": "`CAM:` 行已记录（相机失败属正常，仅记录）",
+      "pass": true,
+      "detail": {
+        "seen": true,
+        "lines": 4
+      }
+    },
+    {
+      "id": "H4",
+      "desc": "屏幕目视 HUD 显示“手势：xxx”",
+      "pass": false,
+      "detail": "visual_check: pending（需 Wong/lead 目视或拍照，存本目录）"
+    }
+  ],
+  "criterion_ok": true,
+  "conclusion": "HUD_OK_视觉待确认",
+  "finished_utc8": "2026-11-01T00:20:43+08:00",
+  "stop_reason": "HUD 判据通过（视觉待确认）",
+  "dap": {
+    "hit": false,
+    "detail": ""
+  },
+  "teardown_ok": true,
+  "visual_check": "pending（HUD 是否显示「手势：xxx」需 Wong/lead 目视或拍照）"
+}

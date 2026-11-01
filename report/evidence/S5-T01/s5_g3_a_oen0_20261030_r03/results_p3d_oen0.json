@@ -1,0 +1,182 @@
+{
+  "task_id": "S5-T01",
+  "run_id": "s5_g3_a_oen0_20261030_r03",
+  "mode": "p3d_oen0",
+  "started_utc8": "2026-10-30T10:17:44+08:00",
+  "steps": {
+    "S1_IDENT": {
+      "status": "PASS",
+      "exit_code": 0,
+      "checks": {
+        "bit": {
+          "path": "D:\\tmp\\lead\\p3d_video_20261030_r01\\out\\s4d_p3d_r01.bit",
+          "sha256": "f6488e4a65b7057b8da8079816b983f9ca334157c8d43627801398e9b67c0187",
+          "expect": "f6488e4a65b7057b8da8079816b983f9ca334157c8d43627801398e9b67c0187"
+        },
+        "elf": {
+          "path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+          "sha256": "e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d",
+          "expect": "e392aa9676b783955c8a70d32040919e457d125959a1c1fa156f2f34ceb6810d"
+        },
+        "init_elf": {
+          "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S4-B\\s4b_ps_tensor_20261023_r13\\verified_payload\\init.elf",
+          "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+          "expect": "237dd959"
+        }
+      }
+    },
+    "S2_P0_gate": {
+      "ok": true,
+      "heavy_processes": [],
+      "listening_3121": 0,
+      "index_lock": false,
+      "com4_present": true,
+      "com4_error": "",
+      "uart_preopened": true,
+      "exit_code": 0
+    },
+    "S3_hw_server": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "ok": true,
+        "pid": 54812
+      }
+    },
+    "S3_enum": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_prestop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S4_pspl_four_actions": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lvl_0xA": "PASS",
+      "program_pl_exit": 0,
+      "lvl_0xF": "PASS",
+      "bit": "D:\\tmp\\lead\\p3d_video_20261030_r01\\out\\s4d_p3d_r01.bit",
+      "bit_prefix": "f6488e4a"
+    },
+    "S5_load_display": {
+      "status": "PASS",
+      "exit_code": 0,
+      "load_exit": 0,
+      "elapsed_s": 5.8,
+      "elf": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf"
+    },
+    "S6_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "elapsed_s": 3.6,
+      "lines_total": 30,
+      "result_seen": true,
+      "result_line": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":2292208387,\"fb_crc\":82497397,\"src\":\"real\"}",
+      "parsed": {
+        "pass": 1,
+        "fps_cap": 0,
+        "fps_inf": 0,
+        "fps_dis": 52,
+        "fps_upd": 34,
+        "latency_ms": 0,
+        "age_ms": 0,
+        "vdma_err": 0,
+        "frames": 180,
+        "vcnt": 180,
+        "box_crc": 2292208387,
+        "fb_crc": 82497397,
+        "src": "real"
+      }
+    },
+    "S7_stop_both": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null
+    },
+    "S8_reg_snapshot": {
+      "status": "PASS",
+      "exit_code": 0,
+      "xsdb_exit": 0,
+      "error_text": null,
+      "loadhw_xsa": "D:\\tmp\\lead\\p3b_video_20261030_r01\\out\\s4d_p3b_r01.xsa",
+      "loadhw_xsa_sha256": "2171583fbac75c00519d7633ff351b2f81feabbe1bc9b96953fdac1fff33719d",
+      "loadhw_note": "P3d 无独立 XSA；用 P3b XSA 仅登记地址映射（P3d 只改 hdmi_oen 常量）",
+      "values_hex": {
+        "VTC_CTL": "5",
+        "VTC_GTSTAT": "4",
+        "VTC_STATUS": "78336",
+        "VDMA_MM2S_VDMACR": "65538",
+        "VDMA_MM2S_VDMASR": "69633",
+        "VDMA_PARKPTR": "0"
+      },
+      "raw_log": "$ cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; if {[catch {loadhw -hw D:/tmp/lead/p3b_video_20261030_r01/out/s4d_p3b_r01.xsa -mem-ranges {0x00000000 0x7FFFFFFF}} e]} { puts \"LOADHW_SKIP: $e\" } else { puts LOADHW_OK }; puts \"REG VTC_CTL=0x43c30000 VAL=[mrd -value 0x43c30000]\"; puts \"REG VTC_GTSTAT=0x43c30064 VAL=[mrd -value 0x43c30064]\"; puts \"REG VTC_STATUS=0x43c30004 VAL=[mrd -value 0x43c30004]\"; puts \"REG VDMA_MM2S_VDMACR=0x43c40000 VAL=[mrd -value 0x43c40000]\"; puts \"REG VDMA_MM2S_VDMASR=0x43c40004 VAL=[mrd -value 0x43c40004]\"; puts \"REG VDMA_PARKPTR=0x43c40028 VAL=[mrd -value 0x43c40028]\"; puts \"RBLK_BEGIN\"; puts [mrd 0x20800000 8]; puts \"RBLK_END\"; disconnect; exit\nexit=0 elapsed=2.190\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds\nLOADHW_OK\nREG VTC_CTL 0x43c30000 VAL 5\nREG VTC_GTSTAT 0x43c30064 VAL 4\nREG VTC_STATUS 0x43c30004 VAL 78336\nREG VDMA_MM2S_VDMACR 0x43c40000 VAL 65538\nREG VDMA_MM2S_VDMASR 0x43c40004 VAL 69633\nREG VDMA_PARKPTR 0x43c40028 VAL 0\nRBLK_BEGIN\n20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001\n\nRBLK_END\n\n",
+      "result_block_raw": "20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001",
+      "vtc_ctl": 5,
+      "vtc_gtstat": 4,
+      "vdma_sr": 431667,
+      "vdma_err_bits": 48,
+      "vdma_err_irq_latched_bit12": true
+    },
+    "S9_judgement": {
+      "status": "FAIL",
+      "exit_code": 1,
+      "pass_ok": true,
+      "vtc_generating": true,
+      "vdma_no_err": false,
+      "vtc_ctl": 5,
+      "vtc_gtstat": 4,
+      "vdma_sr": 431667,
+      "vdma_err_bits": 48,
+      "note": "本轮不做 J-4（fps_dis 已知 52，等 P3c）；屏幕现象需人工目视"
+    },
+    "S9_teardown": {
+      "status": "PASS",
+      "exit_code": 0,
+      "detail": {
+        "stopped_pid": 54812,
+        "listening_3121": 0,
+        "residual_processes": [],
+        "time_wait_note": "TIME_WAIT 可接受，不清理"
+      }
+    }
+  },
+  "stop_reason": "诊断项未满足",
+  "authorization_note": "lead 2026-10-30 诊断窗口；禁 rst -system；写操作仅 2B 四动作 SLCR 白名单",
+  "uart_key_lines": [
+    "VTC: version=602000C",
+    "VTC: init OK (720p60 generator enabled: SW|GE)",
+    "VDMA: init OK, version=62000050 (major 6 minor 32 rev 0)",
+    "VDMA: buffers A=20000000 B=20384000 (num_fstores=2), FRMSTORE readback=0 (expect 2)",
+    "VDMA: read period = 6454552 ticks (19363 us) -> fps_dis=52 (display refresh)",
+    "S5DISP frame=180 lat=0 age=0 st=3 sr=11000 src=real nbox=3",
+    "S5DISP boxes n=3 crc=-2002758909 hex=E1 B4 10E 1C2 465 2A3 9B 2D 0 0 500 2D0",
+    "S5DISP done frames=180 vcnt=180(sw) vdma_err=0",
+    "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":52,\"fps_upd\":34,\"latency_ms\":0,\"age_ms\":0,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":2292208387,\"fb_crc\":82497397,\"src\":\"real\"}"
+  ],
+  "registers": {
+    "values_hex": {
+      "VTC_CTL": "5",
+      "VTC_GTSTAT": "4",
+      "VTC_STATUS": "78336",
+      "VDMA_MM2S_VDMACR": "65538",
+      "VDMA_MM2S_VDMASR": "69633",
+      "VDMA_PARKPTR": "0"
+    },
+    "raw_log": "$ cmd /c D:\\Xilinx\\2026.1\\Vitis\\bin\\xsdb.bat -eval connect -url tcp:127.0.0.1:3121; targets -set -filter {name =~ \"*Cortex-A9*#0*\"}; if {[catch {loadhw -hw D:/tmp/lead/p3b_video_20261030_r01/out/s4d_p3b_r01.xsa -mem-ranges {0x00000000 0x7FFFFFFF}} e]} { puts \"LOADHW_SKIP: $e\" } else { puts LOADHW_OK }; puts \"REG VTC_CTL=0x43c30000 VAL=[mrd -value 0x43c30000]\"; puts \"REG VTC_GTSTAT=0x43c30064 VAL=[mrd -value 0x43c30064]\"; puts \"REG VTC_STATUS=0x43c30004 VAL=[mrd -value 0x43c30004]\"; puts \"REG VDMA_MM2S_VDMACR=0x43c40000 VAL=[mrd -value 0x43c40000]\"; puts \"REG VDMA_MM2S_VDMASR=0x43c40004 VAL=[mrd -value 0x43c40004]\"; puts \"REG VDMA_PARKPTR=0x43c40028 VAL=[mrd -value 0x43c40028]\"; puts \"RBLK_BEGIN\"; puts [mrd 0x20800000 8]; puts \"RBLK_END\"; disconnect; exit\nexit=0 elapsed=2.190\nINFO: [Hsi 55-2053] elapsed time for repository (D:/Xilinx/2026.1/Vitis/data/embeddedsw) loading 0 seconds\nLOADHW_OK\nREG VTC_CTL 0x43c30000 VAL 5\nREG VTC_GTSTAT 0x43c30064 VAL 4\nREG VTC_STATUS 0x43c30004 VAL 78336\nREG VDMA_MM2S_VDMACR 0x43c40000 VAL 65538\nREG VDMA_MM2S_VDMASR 0x43c40004 VAL 69633\nREG VDMA_PARKPTR 0x43c40028 VAL 0\nRBLK_BEGIN\n20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001\n\nRBLK_END\n\n",
+    "result_block_raw": "20800000:   53355253\n20800004:   00000001\n20800008:   00000003\n2080000C:   00000000\n20800010:   00000000\n20800014:   00000000\n20800018:   00000000\n2080001C:   00000001",
+    "vtc_ctl": 5,
+    "vtc_gtstat": 4,
+    "vdma_sr": 431667,
+    "vdma_err_bits": 48,
+    "vdma_err_irq_latched_bit12": true
+  },
+  "criterion_ok": false,
+  "conclusion": "P3D_DIAG_CHECK",
+  "finished_utc8": "2026-10-30T10:18:43+08:00",
+  "teardown_ok": true
+}

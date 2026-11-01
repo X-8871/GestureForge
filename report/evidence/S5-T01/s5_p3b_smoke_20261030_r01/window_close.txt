@@ -1,0 +1,38 @@
+# P3b 上屏冒烟窗口记录
+
+- RunId：`s5_p3b_smoke_20261030_r01`
+- 开窗：2026-10-30T02:33:17+08:00；收窗：2026-10-30T02:34:12+08:00；用时：0.92 min
+- 结论：**P3B_SMOKE_FAIL**（verdict=FAIL）
+- stop_reason：判据 FAIL：criterion_failed
+- 判据版本：J-1..J-8（写死，见脚本 docstring）；UART 窗口 90 s
+- P3b 位流 SHA-256：1670b0b38e4fef7ffe8021a99e4c9a1c0a92724e84f13d3fe5a8ca77a7b6f572
+- 显示 ELF SHA-256：acca2cf7e22c496e0e0c14d68830029b23ac3daccfaec1143ef6b766e4c8ce9d
+
+## 判据结果
+- J-1 S5DISP RESULT 行存在且 JSON 可解析（含全部键）：`PASS` {'missing': []}
+- J-2 pass==1：`FAIL` {'pass': 0}
+- J-3 vdma_err==0：`PASS` {'vdma_err': 0}
+- J-4 fps_dis>=55（且 <= 90）：`PASS` {'fps_dis': 59}
+- J-5 age_ms<=47317：`PASS` {'age_ms': 31}
+- J-6 0<=latency_ms<=1000：`PASS` {'latency_ms': 19}
+- J-7 结果行无 error/timeout 语义：`PASS` {'bad_tokens': []}
+
+## 各步
+- S1_IDENT：`PASS` exit=`0`
+- S2_P0_gate：`None` exit=`0`
+- S3_hw_server：`None` exit=`0`
+- S3_enum：`PASS` exit=`0`
+- S4_pspl_four_actions：`PASS` exit=`0`
+- S5_load_display：`PASS` exit=`0`
+- S6_uart：`PASS` exit=`0`
+- S7_judgement：`None` exit=`1`
+- S8_teardown：`PASS` exit=`0`
+
+## 回传材料
+- UART 原始日志：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_p3b_smoke_20261030_r01\S5DISP_uart.log`
+- 判据：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_p3b_smoke_20261030_r01\W3_judgement.json`；结果：`D:\codex-worktrees\w4\report\evidence\S5-T01\s5_p3b_smoke_20261030_r01\results_p3b_smoke.json`
+- 屏幕照片（人工佐证，不参与机器判据）：见 `P3B_SMOKE_PLAN.md` §回传材料
+
+## 边界
+- `ENABLE=0`；未烧 QSPI；未改线；未 push；未用 `-force`；PL 编程后**未用 `rst -system`**。
+- 本窗口结论只覆盖 P3b 位流 + 显示 ELF 的冒烟；**不主张 G3/G4/G5**。

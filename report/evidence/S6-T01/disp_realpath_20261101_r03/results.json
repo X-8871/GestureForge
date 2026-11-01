@@ -1,0 +1,210 @@
+{
+  "task_id": "disp-realpath-s5rs",
+  "run_id": "disp_realpath_20261101_r03",
+  "started_utc8": "2026-11-01T03:36:27+08:00",
+  "steps": {
+    "S2_loadhw_stop": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3b_ps7init": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S3d_aper": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S4_program_pl": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S5_probe": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S6_dow_con": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "S7_baseline": {
+      "status": "PASS",
+      "exit_code": 0,
+      "FB_head": [
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff",
+        "0xffffff"
+      ],
+      "S5RS_head": [
+        "0x53355253",
+        "0x376",
+        "0x0",
+        "0xe2716e42",
+        "0x10",
+        "0xe276bad9",
+        "0x10",
+        "0x0"
+      ]
+    },
+    "S8_inject_s5rs": {
+      "status": "PASS",
+      "exit_code": 0,
+      "S5RS_readback_magic": "0x53355253",
+      "result_source": "jtag_injected_s5rs"
+    },
+    "S9_inject_pattern": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pattern_bytes": 768000
+    },
+    "S10_uart": {
+      "status": "PASS",
+      "exit_code": 0,
+      "lines": 31
+    },
+    "S11_judgement": {
+      "status": "PASS",
+      "exit_code": 0,
+      "criteria": [
+        {
+          "id": "V1",
+          "desc": "src=real（非 real_nobox）",
+          "pass": true,
+          "detail": [
+            "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+            "S5DISP frame=120 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+            "S5DISP frame=180 lat=65535 age=65535 st=B sr=11000 src=real nbox=1"
+          ]
+        },
+        {
+          "id": "V2",
+          "desc": "FB 变化",
+          "pass": true,
+          "detail": {
+            "before": [
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff",
+              "0xffffff"
+            ],
+            "after": [
+              "0x2ecc71",
+              "0x2ecc71",
+              "0x2ecc71",
+              "0x2ecc71",
+              "0x2ecc71",
+              "0x2ecc71"
+            ]
+          }
+        },
+        {
+          "id": "V3",
+          "desc": "S5DISP boxes n>=1",
+          "pass": true,
+          "detail": [
+            "S5DISP boxes n=1 crc=-1780019455 hex=12C E1 168 168"
+          ]
+        },
+        {
+          "id": "V4",
+          "desc": "APP: gesture=数字一 / gesture_changed",
+          "pass": true,
+          "detail": [
+            "APP: gesture_changed from=none to=数字一"
+          ]
+        }
+      ],
+      "S5DISP_RESULT": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":65535,\"age_ms\":65535,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":2514947841,\"fb_crc\":1247535302,\"uf_pix\":1206067587,\"uf_frame\":847712,\"uf_total\":1206067587,\"src\":\"real\"}"
+    }
+  },
+  "frame_source": "jtag_injected_test_pattern",
+  "result_source": "jtag_injected_s5rs",
+  "s5rs_words": {
+    "0x0": "0x53355253",
+    "0x4": "0x1",
+    "0x8": "0x1",
+    "0xc": "0x1000",
+    "0x10": "0x0",
+    "0x14": "0x1100",
+    "0x18": "0x0",
+    "0x1c": "0x1",
+    "0x20": "0x9600c8",
+    "0x24": "0xf000f0",
+    "0x28": "0xeb02",
+    "0x2c": "0x0"
+  },
+  "ident": {
+    "bit": "e340066009ed5938",
+    "xsa": "e945d02622df5e4d",
+    "elf": "d1ecc0d8592cec2d"
+  },
+  "criteria": [
+    {
+      "id": "V1",
+      "desc": "src=real（非 real_nobox）",
+      "pass": true,
+      "detail": [
+        "S5DISP frame=60 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+        "S5DISP frame=120 lat=65535 age=65535 st=B sr=11000 src=real nbox=1",
+        "S5DISP frame=180 lat=65535 age=65535 st=B sr=11000 src=real nbox=1"
+      ]
+    },
+    {
+      "id": "V2",
+      "desc": "FB 变化",
+      "pass": true,
+      "detail": {
+        "before": [
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff",
+          "0xffffff"
+        ],
+        "after": [
+          "0x2ecc71",
+          "0x2ecc71",
+          "0x2ecc71",
+          "0x2ecc71",
+          "0x2ecc71",
+          "0x2ecc71"
+        ]
+      }
+    },
+    {
+      "id": "V3",
+      "desc": "S5DISP boxes n>=1",
+      "pass": true,
+      "detail": [
+        "S5DISP boxes n=1 crc=-1780019455 hex=12C E1 168 168"
+      ]
+    },
+    {
+      "id": "V4",
+      "desc": "APP: gesture=数字一 / gesture_changed",
+      "pass": true,
+      "detail": [
+        "APP: gesture_changed from=none to=数字一"
+      ]
+    }
+  ],
+  "criterion_ok": true,
+  "conclusion": "DISP_S5RS_PATH_OK",
+  "S5DISP_RESULT": "S5DISP RESULT={\"pass\":1,\"fps_cap\":0,\"fps_inf\":0,\"fps_dis\":60,\"fps_upd\":29,\"fps_dis_idle\":0,\"idle_period_us\":0,\"latency_ms\":65535,\"age_ms\":65535,\"vdma_err\":0,\"frames\":180,\"vcnt\":180,\"box_crc\":2514947841,\"fb_crc\":1247535302,\"uf_pix\":1206067587,\"uf_frame\":847712,\"uf_total\":1206067587,\"src\":\"real\"}",
+  "finished_utc8": "2026-11-01T03:37:31+08:00",
+  "teardown": {
+    "stopped_pid": 15688,
+    "port": 3121,
+    "listening_3121": 0,
+    "residual_processes": []
+  },
+  "residual": []
+}

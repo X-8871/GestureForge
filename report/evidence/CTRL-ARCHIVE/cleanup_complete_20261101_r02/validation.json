@@ -1,0 +1,97 @@
+{
+  "schema": "gestureforge.cleanup_validation.v1",
+  "hash_basis": "worktree_disk",
+  "source_baseline_main": "b553968666967eac986cdff60b69759cd5afb2dd",
+  "business_operations": "NOT_RUN_NO_DEVELOPMENT_BUILD_TRAINING_OR_HARDWARE",
+  "archive_primary_check": {
+    "command": "python -B -X utf8 verification/verify_archive_20261101.py --repo .",
+    "exit_code": 0,
+    "files": 317,
+    "status": "ARCHIVE_FILES_OK"
+  },
+  "archive_supplement_check": {
+    "command": "python -B -X utf8 verification/check_manifest_hash_basis.py --repo . --paths archive/project-paused-20261101-supplement/manifest.json --mode strict --json",
+    "exit_code": 0,
+    "entries_checked": 125,
+    "mismatched": 0
+  },
+  "private_archive_full_content_check": {
+    "receipt": "D:\\GestureForge_Archive\\2026-11-01\\cleanup_complete_r02\\verification.json",
+    "status": "ALL_ARCHIVED_CONTENT_VERIFIED",
+    "scopes": 26,
+    "unique_objects": 215383,
+    "unique_uncompressed_bytes": 103610861032
+  },
+  "restore_utility": {
+    "path": "scripts/restore_cleanup_archive.py",
+    "sha256": "47fdab76773dabc1fd4f246204a527e89438f7026e764c6b1b9694cd6a1f53ef",
+    "hash_basis": "commit_blob",
+    "independent_review": "PASS",
+    "ast_parse": "PASS",
+    "cli_help_exit_code": 0,
+    "actual_recovery_scope_ids": ["stage7", "w6"],
+    "actual_recovery_proof_sha256": "fa853fc8d14cd38c24eba866e14265b5a3eabb07642b3c4f280cd95da1f43b39",
+    "actual_recovery_proof": "control/final_review/actual_recovery_tests_final.json",
+    "comparisons": ["status", "cached_diff", "uncached_diff", "ls_files_stage"],
+    "result": "ALL_BYTE_IDENTICAL"
+  },
+  "protected_inputs": {
+    "receipt": "control/final_closeout_20261102_r01/protected_audit.json",
+    "receipt_sha256": "8bae24c940aebf6ca2009f52c38eebd97637bc8ab95ddbee146ea1613ff7ed83",
+    "original_main_business_files_unchanged": 16,
+    "unique_images_and_labels_original_and_backup_pass": 1228,
+    "all_backup_entries_pass": 1230,
+    "self_contained_golden_input_manifest_and_weights_checks_pass": 328,
+    "existing_input_source_binding_issues": 104
+  },
+  "historical_gap_recheck": {
+    "receipt": "control/final_closeout_20261102_r01/final_gap_hash_join_20261102_r01.json",
+    "sha256": "fe48097ab439e5da77cac6ce0f6d0daa9d76f73ef4f0c8795fd1f9d9c7ec144d",
+    "hash_basis": "worktree_disk",
+    "full_expected_sha256_targets": 13,
+    "scope_manifests_checked": 26,
+    "captured_file_entries_checked": 645593,
+    "exact_matches": 0,
+    "additional_scope_receipt": "control/final_closeout_20261102_r01/final_gap_hash_join_20261102_r02.json",
+    "additional_scope_receipt_sha256": "4573bb23353e405466f69c19ad7f5f05a6ebea9fb9b96f2e246204647885e0a7",
+    "additional_d_review_file_entries": 59983,
+    "additional_c_cache_file_entries": 48299,
+    "additional_exact_matches": 0
+  },
+  "final_supplemental_cleanup": {
+    "d_review": {
+      "status": "REMOVED_AFTER_REVIEW",
+      "exit_code": 0,
+      "files_removed": 59983,
+      "bytes_removed": 7367383318,
+      "receipt": "control/remaining_review_20261102_r01/remove_receipt_r02.json",
+      "sha256": "5744b8503a01bb9bca79befd1f62a249b30a5f4c5433bf4f3d8178614f7fd197",
+      "hash_basis": "worktree_disk",
+      "independent_gate": "control/remaining_review_20261102_r01/review_pass_r02.json",
+      "resource_check": "control/remaining_review_20261102_r01/execution_resource_check_parent_r02.json"
+    },
+    "c_verification_cache": {
+      "status": "REMOVED_AFTER_REVIEW",
+      "exit_code": 0,
+      "roots_removed": 23,
+      "files_removed": 48299,
+      "bytes_removed": 2275241965,
+      "receipt": "control/verification_cache_final_20261102_r02/remove_receipt.json",
+      "sha256": "d82952f72007420fe355f622f43b44cb206b175d9f1758e6180368d5f4553268",
+      "hash_basis": "worktree_disk",
+      "independent_gate": "control/verification_cache_final_20261102_r02/review_pass.json",
+      "resource_check": "control/verification_cache_final_20261102_r02/execution_resource_check_delete_r02.json"
+    },
+    "space_receipt": "report/evidence/CTRL-ARCHIVE/cleanup_complete_20261101_r02/summary.json",
+    "d_observed_net_free_increase_bytes": 91074539520,
+    "d_free_at_sample_bytes": 265928843264,
+    "old_zip_lossless_deduplication": "PASS; recovery inputs held deny-write/delete while reconstructing original full SHA and removing duplicate"
+  },
+  "limitations": [
+    "文件身份核验及恢复测试不代表业务、完整重建或板级验收通过。",
+    "26项捕获范围以complete_tree、skip_children与排除清单为准，不声称捕获全部磁盘内容。",
+    "公共全量图片须重新下载；11个ELF及两份C/H精确冻结身份仍缺。",
+    "原始失败与索引stat缓存修正证据保留，初次退出码不被改写为成功。",
+    "私有档案、工具链、真实图片与本机会话配置不属于本次GitHub上传内容。"
+  ]
+}

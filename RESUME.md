@@ -1,18 +1,18 @@
 # GestureForge 恢复入口
 
-更新：2026-11-01（UTC+8）。Wong 已决定退出本次竞赛并暂停项目；本入口用于以后恢复开发，不启动当前技术工作。
+更新：2026-11-02（UTC+8）。Wong 已决定退出本次竞赛并暂停项目；本入口用于以后恢复开发，不启动当前技术工作。
 
 ## 本轮已封存并上传的内容
 
 上传现状（2026-11-01 13:52，UTC+8）：**18个分支、19个标签已上传，远端SHA与本地一致**。从 GitHub 独立网络克隆后，317项归档文件与九树31632项快照文件的提交内容身份全部通过核验，被测main为 `653d94f1830528d13c35bd5729d818e379fb5b8b`。成功回执见 `report/evidence/CTRL-ARCHIVE/github_archive_20261101_r02/receipt.json`；此前网络失败的r01回执保留历史，不再代表当前上传状态。此核验不包括编译、训练集恢复或板级运行。
 
 - `main` 与各阶段原分支、原标签：保留已有提交历史，冻结标签不改动。
-- `codex/archive/20261101/main|stage7|96a3|dbdf|w4|w5|w6|w2b|w2c`：各本地工作树的未提交工程文件与筛选后的文档/小型证据快照。原工作区、索引和原作者归属保留；快照不冒充代码审查或阶段验收通过。
+- `codex/archive/20261101/main|stage7|96a3|dbdf|w4|w5|w6|w2b|w2c`：各本地工作树的未提交工程文件与筛选后的文档/小型证据快照。原作者归属保留，原索引和工作区内容另在私有档案；八棵辅助工作树已移除。快照不冒充代码审查或阶段验收通过。
 - `archive/project-paused-20261101/`：从本地 ignored/外部目录保全的模型、相机/显示/推理源码和部署件、路径/哈希清单，以及各树上传/留存本地项目清单。
 
 2026-11-01后续核对发现首包遗漏部分冻结部署件，新增 `archive/project-paused-20261101-supplement/`，125项文件独立清单，包含14件精确模型/部署产物与来源/初始化/源码记录。阶段5/6仍缺11个冻结ELF，阶段5仍缺两个主C/H源码的精确哈希；当前同名版本不能替代。细节见补包 `gap_audit.json`，不能宣称所有历史冻结包均可完整恢复。
 
-Wong随后明确批准六类公共train/val/test原图清理：已删除158089张、217878893516字节，失败0；614张唯一校准/冻结测试图及标签在原位保留，另有本地副本，原件与副本均完成末尾哈希复核。`report/evidence/CTRL-ARCHIVE/public_images_20261101_r01/receipt.json`保存执行事实。正式工作树与主目录原始证据尚未移除。各树历史清单中的omitted描述上传时点，不能作为当前文件存在性或删除授权；以后按具体清理回执和归档映射核对。
+Wong随后明确批准六类公共train/val/test原图清理：已删除158089张、217878893516字节，失败0；614张唯一校准/冻结测试图及标签在原位保留，另有本地副本。`report/evidence/CTRL-ARCHIVE/public_images_20261101_r01/receipt.json`保存执行事实。后续已完成辅助工作树及生成物整理；各树历史清单中的omitted描述上传时点，不能作为当前文件存在性或删除授权，当前以具体清理回执和归档映射为准。
 
 首批清理已另将 `D:\FPGA_Competition\tmp\review` 全树110300文件归档核验后移除副本。正式私有恢复档案为 `D:\GestureForge_Archive\2026-11-01\preserved_local`（约13.56 GiB）：`review_directory_complete.zip`和逐文件清单、`dataset_recovery`的图片/标签备份与清理日志、`local_archive_index.json`。旧清单的C盘前缀已转存，按索引的 `relocation_rule` 映射；原清单字节保留，C盘临时副本已移除。此档案不在GitHub内，也不属于可删缓存；同盘档案不是异机备份。首批汇总见 `report/evidence/CTRL-ARCHIVE/cleanup_20261101_r01/summary.json`。
 
@@ -35,4 +35,35 @@ Wong随后明确批准六类公共train/val/test原图清理：已删除158089�
 
 ## 清理与安全恢复
 
-只在独立目录恢复和试验，不覆盖当前原件。GitHub 分支上传不能代替未提交、ignored 和大型证据的完整备份。完整空间清理计划另行审核；不得因为能克隆本仓库就直接删除整台机器上的全部项目目录。
+按 Wong「继续进行全部清理」，26项范围已完成捕获、全量内容核验和清理；另62个缓存文件、20个原所有者测试目录分别ZIP核验后移除。当前只有 `D:\FPGA_Competition` 主工作树；阶段分支、冻结标签、封存快照均保留。主树原16项业务修改及有意保留的未跟踪源码不混入整理提交。
+
+完整私有恢复包为 `D:\GestureForge_Archive\2026-11-01\cleanup_complete_r02`。其 `archive.json`、`plan.json`、`scopes/<id>/manifest.json`、`objects/`、`git_bundles/`、`control/` 与同级 `git\GestureForge_after_cleanup_20261101.bundle` 是一组依赖，不能只复制其中的压缩对象目录。215,383项唯一内容对象已全部核验；26项捕获文件共645,593个。Git blob按对象身份去重，其他内容按原字节SHA-256存储，完整原始日志和删除回执留在私有包。
+
+先在新目录克隆GitHub仓库；离线时使用基础bundle加本轮增量bundle。不要覆盖仍保留原业务差异的主目录。离线恢复示例：
+
+```powershell
+git clone D:\GestureForge_Archive\2026-11-01\git\GestureForge_after_cleanup_20261101.bundle D:\GestureForge_RestoreRepo
+git -C D:\GestureForge_RestoreRepo fetch D:\GestureForge_Archive\2026-11-01\git\GestureForge_cleanup_delta_20261102.bundle main
+git -C D:\GestureForge_RestoreRepo merge --ff-only FETCH_HEAD
+```
+
+增量包依赖基础包，不单独替代它；包身份和最终提交见私有档案根的 `FINAL_COMPLETE_RECEIPT.json`。假设独立仓库为 `D:\GestureForge_RestoreRepo`，在其目录执行以下示例（目标目录必须不存在）：
+
+```powershell
+python -B -X utf8 scripts/restore_cleanup_archive.py --archive D:\GestureForge_Archive\2026-11-01\cleanup_complete_r02 --scope w6 --repo D:\GestureForge_RestoreRepo --verify
+python -B -X utf8 scripts/restore_cleanup_archive.py --archive D:\GestureForge_Archive\2026-11-01\cleanup_complete_r02 --scope w6 --repo D:\GestureForge_RestoreRepo --restore --target D:\GestureForge_Restore_w6 --with-git
+```
+
+`--with-git`恢复捕获的HEAD、暂存对象和原索引；阶段7和阶段6已经从独立bundle恢复，并逐字节核对Git状态、暂存差异、未暂存差异及索引条目。`--restore`不带该参数仅恢复清单文件。恢复后先核对程序输出和manifest的 `complete_tree`、`skip_children`；部分范围依赖先检出HEAD，排除项和可重装依赖不属于捕获内容。`RESTORE_COMPLETE`只表示该清单范围恢复成功，不表示整机、所有阶段或板级验收通过。
+
+默认不重建嵌套Git元数据；dbdf中的厂商参考partial clone原本缺少promisor对象，现有字节和工作文件保全，不声称补齐缺失历史。训练运行目录的Darknet `CCM` gitlink原本未初始化，保留对象身份；模块源码需另行获取。带越界gitdir指针的诊断fixture会被安全拒绝，不手工关闭校验。工具固定校验原档案边界；如迁到其他盘，须在隔离工具副本审查路径映射后使用。
+
+`control/owner_cache_r02/payload.zip`与`control/owner_scratch_r03/payload.zip`各有逐文件manifest及核验/清理回执，用于恢复少量所有者受限缓存，常规继续开发无需恢复这些测试缓存。首批 `preserved_local`、完整私有包及Git bundle不上传GitHub，建议另存一份异盘备份。
+
+补充审查材料来自精确路径 `D:\tmp\review`，位于 `control/remaining_review_20261102_r01/`：使用 `payload_r02.zip` 和 `package_manifest_r02.json`，其中完整保存59,983个文件、12,276个源子目录、7,367,383,318字节，解压后从 `review/` 目录读取。旧统计因64项权限拒读遗漏子树，纠正记录为 `correction.json`，没有更改原件权限。早期ZIP的空目录前缀错误已修正；旧ZIP的原始字节由修正版前缀和 `legacy_central_tail_r01.bin` 无损保留，去重校验和独立门禁另存。若需精确再生旧失败ZIP，使用同目录 `legacy_review_zip_dedup_20261102_r01.py restore --target <不存在的绝对路径文件>`，不覆盖已有目标。
+
+本轮23个C盘恢复测试副本另存 `control/verification_cache_final_20261102_r02/`，源48,299文件、2,275,241,965字节，约26MiB ZIP加已有归档引用及基础Git包即可恢复其必要内容；五个可重建测试clone没有重复归档Git对象。失败的r01小ZIP及错误日志仍保留，不能把它当完整包。常规继续项目使用阶段源码和前述scope恢复，不需把这些测试缓存全数还原。
+
+614张图及标签、109组自包含输入/CPU黄金继续原位保留。109组中104条历史 `input.source` 图片绑定错误地使用张量长度/哈希；张量和黄金自身校验通过，该旧元数据问题未修写，不能据此字段验证或重建原图。全量训练/评估仍需重新取得公共图片，历史11个ELF与两份C/H精确身份遗缺仍开放。
+
+六处旧Relay/Harness会话配置、共享安装包、厂商原件、工具链及Vault保留。只在独立目录恢复和试验；清理回执与最终卷空间统计见 `report/evidence/CTRL-ARCHIVE/cleanup_complete_20261101_r02/summary.json`。本轮没有重新训练、编译、仿真或操作硬件。

@@ -1,5 +1,14 @@
 # 阶段4 状态（写权：DSH 项目总控（Wong 2026-10-27 指令接管）；离线推理链已冻结，板级项未闭合）
 
+## 2026-11-01 管理权更新（优先于下方旧归属记录）
+
+Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控接管，取消 DSH 最高管理权。项目最高总控、主目录与本树写权、任务分派、串行提交和硬件窗口协调均归 Codex；Wong 保留最终决策与明确审批权。DSH 仅可执行 Codex 后续明确委派的任务，不再持有全局否决权、独占调度权或必须经其 OFFER 的前置权。
+
+权威规则：`D:\FPGA_Competition\AGENTS.md`；接管决策及全树基线：`D:\FPGA_Competition\report\evidence\CTRL-DSH-HANDOFF\decisions\codex_project_takeover_20261101_r01.md`。本次依据用户直接指令，非伪造 DSH OFFER/CLAIM。下方旧写权、租约及 DSH 提交权仅作历史，不再授权；历史技术证据与未提交改动归属保留。接管不等于新板级窗口授权、阶段验收通过或允许覆盖既有工作；单写者、资源核验、证据保全和独立审查继续有效。
+
+本树当前管理/写入负责人：Codex 项目总控；技术状态和冻结版本按原证据逐项核对。
+
+
 **写权：DSH 项目总控（Wong 2026-10-27 直接指令接管；原 Workbuddy 阶段4总控停写）。覆盖 `docs/stage4/`、`scripts/stage4_s4ctrl/`、`scripts/stage4_s4b/`、`verification/`、`report/evidence/S4-CTRL/`、`report/evidence/S4-B/`、`.codex/STATE.md`；不覆盖 main、dbdf、w2b、w5、w6 与厂商原件。**
 
 - **裁决指针（S4-T30 依据）**：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage4_raw_address_d1_optionA_20261027_r01.md`——Wong 2026-10-27 原话「A」：D1 允许缩减禁区、选选项 A（`raw_frame=[0x12000000,0x12C00000)` 12 MiB + `raw_meta=[0x12C00000,0x12C08000)` 32 KiB、109/109、余量 +1,523,712 B）；D2 不接受降覆盖；D3 META 不强制连续；D4 linker 冻结不作前置 ⇒ E 排除。

@@ -1,0 +1,2669 @@
+{
+  "schema": "gestureforge.frozen_deployment_gap_audit.v1",
+  "generated_utc8": "2026-11-01T14:17:42+08:00",
+  "audit_scope": "只读哈希核验；不运行构建、训练、仿真或硬件操作；hash=当前磁盘文件SHA-256，未声称完整重建。",
+  "github_repository": "https://github.com/X-8871/GestureForge",
+  "external_inventory": "D:\\FPGA_Competition\\archive\\project-paused-20261101\\external_source_inventory.json",
+  "external_inventory_hash_basis": "worktree_disk",
+  "source_refs": {
+    "S2A": {
+      "stage": "2A model input",
+      "source_branch": "main / codex/archive/20261101/main",
+      "source_commit": "e556b3dd0903aad6aa2dae2e7711817c4db6a8ca",
+      "freeze_record": "D:\\codex-worktrees\\w6\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json"
+    },
+    "S2B": {
+      "stage": "2B R04 freeze",
+      "source_branch": "codex/stage2b-dma-g0",
+      "archive_branch": "codex/archive/20261101/w2b",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "r04_build_source_commits": [
+        "6f5c6dc871d92fe32e5d37a58ff693442b793903",
+        "03faa2d47a6e49d7475e387cf6b33edda4962c68"
+      ]
+    },
+    "S3": {
+      "stage": "Stage 3 frozen baseline / v10 and v12",
+      "source_branch": "codex/stage3-video",
+      "archive_branch": "codex/archive/20261101/dbdf",
+      "freeze_tag": "stage3-close-20261026-r2",
+      "freeze_commit": "e28739235b6e15778f13fa0019ba4321a628736f"
+    },
+    "S5": {
+      "stage": "Stage 5 P3q G5",
+      "source_branch": "stage4-infer-prep",
+      "archive_branch": "codex/archive/20261101/w4",
+      "freeze_tag": "stage5-freeze-20261030",
+      "freeze_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954"
+    },
+    "S6": {
+      "stage": "Stage 6 P3q producer v2 software freeze",
+      "source_branch": "stage4-infer-prep",
+      "archive_branch": "codex/archive/20261101/w4",
+      "freeze_tag": "stage6-freeze-20261030",
+      "freeze_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "S2A_T01_formal_cfg",
+      "stage": "S2A",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+      "expected_sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+      "expected_bytes": 3522,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 3522,
+        "sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376"
+      },
+      "purpose": "G0冻结 tiny416 formal_r2 配置，GF8/推理模型溯源输入",
+      "binding_source_record": "D:\\codex-worktrees\\w6\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "source_ref": "S2A",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2A_T01_formal_6000_weights",
+      "stage": "S2A",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r2\\checkpoints\\gesture_yolov4_tiny_416_d8_formal_6000.weights",
+      "expected_sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a",
+      "expected_bytes": 23558276,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 23558276,
+        "sha256": "3984affa0a7fdd83ff851646139ea4e734c3df93569bfbaab214774cd92f7d8a"
+      },
+      "purpose": "formal_r2 Darknet 权重；恢复 GF8 转换来源的关键输入",
+      "binding_source_record": "D:\\codex-worktrees\\w6\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "source_ref": "S2A",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2B_R04_bit",
+      "stage": "S2B",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.bit",
+      "expected_sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7",
+      "expected_bytes": 4045776,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 4045776,
+        "sha256": "555a70c20ba1a345d3fc2e3dd45ad2d1653dbffbe12db06b2a7f4a2661047ef7"
+      },
+      "purpose": "R04冻结PL位流",
+      "binding_source_record": "w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/input_record.json",
+      "source_ref": "S2B",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2B_R04_xsa",
+      "stage": "S2B",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference.xsa",
+      "expected_sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6",
+      "expected_bytes": 848620,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 848620,
+        "sha256": "ea52da1b143f15331a42ea8bdd27578f5d814368f77d7b779f7fa650f5cb0eb6"
+      },
+      "purpose": "与R04位流配对的XSA/PS平台",
+      "binding_source_record": "w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/input_record.json",
+      "source_ref": "S2B",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2B_R04_base_infer_elf",
+      "stage": "S2B",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\infer.elf",
+      "expected_sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8",
+      "expected_bytes": 389216,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 389216,
+        "sha256": "a51499895e9387a74db87a3267843b9fbf7fdfa8b6646fcbc5db01485e090bf8"
+      },
+      "purpose": "T15平台资格包内原始2B推理ELF",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "source_ref": "S2B",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2B_R04_init_elf",
+      "stage": "S2B",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init.elf",
+      "expected_sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1",
+      "expected_bytes": 170592,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 170592,
+        "sha256": "237dd959f903589c657b743ea1fce175628aaa24020384058fc66339c779e7b1"
+      },
+      "purpose": "T15 R04 init ELF；配套PS/DDR初始化入口",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "source_ref": "S2B",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2B_rebuilt_infer_elf",
+      "stage": "S2B",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\artifacts\\rebuilt_infer.elf",
+      "expected_sha256": "f7a8bc96418590a497577bb45a7cbc0cc75dec416f6af1bf9b33ffd0308fa5a9",
+      "expected_bytes": 389364,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 389364,
+        "sha256": "f7a8bc96418590a497577bb45a7cbc0cc75dec416f6af1bf9b33ffd0308fa5a9"
+      },
+      "purpose": "最终恢复构建推理ELF（冻结候选精确副本）",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\final_freeze_inventory.json",
+      "source_ref": "S2B",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S2B_recovery_bundle",
+      "stage": "S2B",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\recovery_inputs_20261019_r02\\recovery_bundle.zip",
+      "expected_sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436",
+      "expected_bytes": 697551,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 697551,
+        "sha256": "50b5eb62968795413e03f4474dd98800c8e2c1f0ead04003ae53b47b83ea9436"
+      },
+      "purpose": "恢复包：头文件/库/工作区输入；不能靠干净源码clone替代",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\.codex\\STATE.md",
+      "source_ref": "S2B",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S3_frozen_baseline_bit",
+      "stage": "S3",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\project\\ov5640_single.runs\\impl_1\\design_1_wrapper.bit",
+      "expected_sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710",
+      "expected_bytes": 1668969,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 1668969,
+        "sha256": "7cb330685260ced38636d3e90a92160979b0f88770d380269e9864722ce48710"
+      },
+      "purpose": "无补偿SOF冻结部署位流；v10/v12输入兼容性由artifact verification记录绑定",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "source_ref": "S3",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S3_frozen_baseline_xsa",
+      "stage": "S3",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\design_1_wrapper.xsa",
+      "expected_sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3",
+      "expected_bytes": 633089,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 633089,
+        "sha256": "1f5b138e693065c6257e29075018f7654d4c3a6b67dcab051f0ea8ac106cb0e3"
+      },
+      "purpose": "与Stage3位流配对的平台XSA",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "source_ref": "S3",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S3_v10_read_elf",
+      "stage": "S3",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\an5642_j11cmos2_v10_read.elf",
+      "expected_sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073",
+      "expected_bytes": 306272,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 306272,
+        "sha256": "1457cda4867649dce8b54b2ebe9c7bafc0a2a1d4d1deba112adc6f6492306073"
+      },
+      "purpose": "已确认阶段3实时彩色/只读回读用v10应用",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "source_ref": "S3",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S3_v12_bars_freeze_elf",
+      "stage": "S3",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\an5642_j11cmos2_v12_bars_freeze.elf",
+      "expected_sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5",
+      "expected_bytes": 310368,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 310368,
+        "sha256": "527a74fca6ea0774c34625015720a5163fc58557d44c64e29428700fd09845c5"
+      },
+      "purpose": "Stage3彩条/目视复测专用ELF；默认写CMOS 0x503D=0x80，仅作为有授权诊断输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T14\\v12_bars_freeze_tool_20261022_r01\\manifest.json",
+      "source_ref": "S3",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S5_S6_P3q_bit",
+      "stage": "S5/S6",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\s4d_p3q_r01.bit",
+      "expected_sha256": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "expected_bytes": 4045762,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 4045762,
+        "sha256": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4"
+      },
+      "purpose": "Stage5 P3q G5及Stage6 producer v2冻结件共用PL位流",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json",
+      "source_ref": "S5",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S5_S6_P3q_xsa",
+      "stage": "S5/S6",
+      "status": "FOUND_EXACT",
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\s4d_p3q_r01.xsa",
+      "expected_sha256": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "expected_bytes": 344843,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 344843,
+        "sha256": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d"
+      },
+      "purpose": "Stage5/6 P3q平台XSA；包含PS7配置/初始化基础",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json",
+      "source_ref": "S5",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S5_G5_bounded_elf",
+      "stage": "S5",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app.elf",
+      "expected_sha256": "b79d322dfaac87f45d72f5e21c7bfe2fdbc3a34f6cd71da206f5c7f4b2ee3497",
+      "expected_bytes": 281624,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 285572,
+        "sha256": "e4ba0cb47181edb5c5c20ad1826bcdb67225782c19ed4d8ec2309d0107b33f63"
+      },
+      "purpose": "Stage5 G5冻结P3q应用；文件当前同名路径与expected SHA不一致，不可替代",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "source_ref": "S5",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S5_G5_longrun_elf",
+      "stage": "S5",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_longrun.elf",
+      "expected_sha256": "6aab247348f8f029c63de0c5a2ca64929af27a4a575c35a6581e91b1a555fd7f",
+      "expected_bytes": 284812,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 288772,
+        "sha256": "cbf5ebe395f21b358356bd4ce9325071e252fcb9d4529a64a06f8ddd17c74577"
+      },
+      "purpose": "Stage5 G5冻结P3q应用；文件当前同名路径与expected SHA不一致，不可替代",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "source_ref": "S5",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S5_G5_idleprobe_elf",
+      "stage": "S5",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_idleprobe.elf",
+      "expected_sha256": "c36b2885a0a78b2ccc9588cb20c9a586bbf933273a20fd1680ee42826f57c3bd",
+      "expected_bytes": 285600,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 289532,
+        "sha256": "2c880e4e539f2e322f45c9f6c3a24f1f798c6c851d0177f496c28f13bfbcb1d8"
+      },
+      "purpose": "Stage5 G5冻结P3q应用；文件当前同名路径与expected SHA不一致，不可替代",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "source_ref": "S5",
+      "github_external_inventory_exact_sha_match": false
+    },
+    {
+      "id": "S6_G5_v2_bounded",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer.elf",
+      "expected_sha256": "0fae384afe58846f55b850fcf025d97f5706be28dc5eb8fc1f290d42b581cd4a",
+      "expected_bytes": 301152,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 304040,
+        "sha256": "ca6c24301537cd9db0ac514a6df5762db2f26f72c14ad0793c774dc88f99076e",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer.elf",
+        "sha256": "ca6c24301537cd9db0ac514a6df5762db2f26f72c14ad0793c774dc88f99076e",
+        "bytes": 304040
+      }
+    },
+    {
+      "id": "S6_G5_v2_longrun",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_longrun.elf",
+      "expected_sha256": "97c33f58b974e4ff805debc4a7683617e77852f81ab9b3f0d90cead775975e79",
+      "expected_bytes": 301500,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 304472,
+        "sha256": "6260250a4a9707657c354016f951122743fa502a8f4b8356ef772aea3f7047a5",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_longrun.elf",
+        "sha256": "6260250a4a9707657c354016f951122743fa502a8f4b8356ef772aea3f7047a5",
+        "bytes": 304472
+      }
+    },
+    {
+      "id": "S6_G5_v2_idleprobe",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_idleprobe.elf",
+      "expected_sha256": "7357c3e52228fcd0eb732b770f200561a2d0dec05c74e03b69c90a1f732563fe",
+      "expected_bytes": 300812,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 303688,
+        "sha256": "2c14cb0e1d5060d5d6e78b1ed38853da34a4aafc82fb23b4908a31f048b336f0",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_idleprobe.elf",
+        "sha256": "2c14cb0e1d5060d5d6e78b1ed38853da34a4aafc82fb23b4908a31f048b336f0",
+        "bytes": 303688
+      }
+    },
+    {
+      "id": "S6_G5_v2_fault_cycle",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_fault.elf",
+      "expected_sha256": "1bd8fe2dde1a102a4ba5daf5ffd5d492a3b8dfc96350406e12504d5dedb3f52a",
+      "expected_bytes": 301664,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 304508,
+        "sha256": "7e3ce32c11417f4a3cbd3f2b849cd79f9ef97ba46cbbffa9c62f60dc6a3e0834",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_fault.elf",
+        "sha256": "7e3ce32c11417f4a3cbd3f2b849cd79f9ef97ba46cbbffa9c62f60dc6a3e0834",
+        "bytes": 304508
+      }
+    },
+    {
+      "id": "S6_G5_v2_fault_overrun",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_fault_overrun.elf",
+      "expected_sha256": "bd4963893f8cbcb35511696dbce000e33631db20c32fc40de633f4ff7a0126e9",
+      "expected_bytes": 300912,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 303788,
+        "sha256": "89ae6adc577c42b7e196034e5ddacc0733d3d1b3eebae4ba84a9cc3893b11306",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_fault_overrun.elf",
+        "sha256": "89ae6adc577c42b7e196034e5ddacc0733d3d1b3eebae4ba84a9cc3893b11306",
+        "bytes": 303788
+      }
+    },
+    {
+      "id": "S6_G5_v2_fault_stale",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_fault_stale.elf",
+      "expected_sha256": "8453a752626926740e3c1eff5694b881f92c8d05c06cc5e322c8fc597bf15e53",
+      "expected_bytes": 300960,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 303848,
+        "sha256": "2e39bd26071c51ad6dca33b10193a1d346600b59aef2402ef464fc2d232edc61",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_fault_stale.elf",
+        "sha256": "2e39bd26071c51ad6dca33b10193a1d346600b59aef2402ef464fc2d232edc61",
+        "bytes": 303848
+      }
+    },
+    {
+      "id": "S6_G5_v2_fault_invalid",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_fault_invalid.elf",
+      "expected_sha256": "3d1d78c45139931d9cfeac67a248c07f2149d25135d01af8201694ec4a0cd3da",
+      "expected_bytes": 301048,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 303892,
+        "sha256": "5e92ae693f054df20f0c29163adda6d62c56f358a111135d5f5523beec1cc6ab",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_fault_invalid.elf",
+        "sha256": "5e92ae693f054df20f0c29163adda6d62c56f358a111135d5f5523beec1cc6ab",
+        "bytes": 303892
+      }
+    },
+    {
+      "id": "S6_G5_v2_fault_no_hand",
+      "stage": "S6",
+      "status": "PATH_EXISTS_HASH_MISMATCH",
+      "original_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\s5_display_app_p3q_producer_fault_no_hand.elf",
+      "expected_sha256": "47acb4bc9da3c3f3c9e95af487897ee99532f7ecbd85c1267e67f0bddfc47109",
+      "expected_bytes": 301576,
+      "observed_at_original_path": {
+        "exists": true,
+        "bytes": 304552,
+        "sha256": "a3cdb877566678dcb02e044bde3365eb20714f7943f5317cd29703013d28dd89",
+        "same_as_expected": false,
+        "note": "当前同名文件的实测SHA；若与expected不同，仅作为漂移身份，不可代替冻结二进制"
+      },
+      "purpose": "Stage6 G5 producer v2冻结ELF；expected SHA在当前来源路径与上传副本均缺失",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "source_ref": "S6",
+      "github_external_inventory_exact_sha_match": false,
+      "github_external_inventory_alternate": {
+        "path": "deployment/display_build/s5_display_app_p3q_producer_fault_no_hand.elf",
+        "sha256": "a3cdb877566678dcb02e044bde3365eb20714f7943f5317cd29703013d28dd89",
+        "bytes": 304552
+      }
+    }
+  ],
+  "stage5_p3q_source_inputs": [
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\bd_p3q.tcl",
+      "sha256": "ebf378f8276b471412c6b398a28c99391a1f57b3b784a1999d253b7738e7945b",
+      "bytes": 17337,
+      "purpose": "构建脚本（BD、RTL 引入、约束、launch_runs、产物导出）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "76ca0cb4c967507eddc5fdfc14ce6e3cae9ee1c9",
+          "paths": [
+            "report/evidence/S5-T01/g5_freeze_p3q_20261030_r01/bd_p3q.tcl"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\p3q.xdc",
+      "sha256": "acbc450145d66c92701d9bc4d955fcc882976ea09f723b636f090dc015ceb5c4",
+      "bytes": 2369,
+      "purpose": "引脚/时钟/时序约束",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "499eb2c29fa20e2223670a843cb4bd7727baf6ba",
+          "paths": [
+            "report/evidence/S5-T01/g5_freeze_p3q_20261030_r01/p3q.xdc"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\p3q_cdc.xdc",
+      "sha256": "35857c8c5369413c128e99c3fd82d04083fab0702e44a2474c9a7d14c5b32d49",
+      "bytes": 2448,
+      "purpose": "CDC set_max_delay -datapath_only 约束",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "eddb7ec3555cdf46af0a74739b73851f47f6bbdf",
+          "paths": [
+            "report/evidence/S5-T01/g5_freeze_p3q_20261030_r01/p3q_cdc.xdc"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\rtl\\top_p3q.v",
+      "sha256": "925e615b676784e28d08519fb10ff31931e92e752859e416d002600934f0965b",
+      "bytes": 9404,
+      "purpose": "顶层 RTL",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\rtl\\axis_to_video.v",
+      "sha256": "52d09b89edc0d01952cb6891c289123210ce23be22177cc8542aea7ad97e1867",
+      "bytes": 4892,
+      "purpose": "720p60 时序/axis 生成 RTL",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "56e25b7d365f2014dd11b5f544235e128739e780",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/camera/rtl/axis_to_video.v"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\rtl\\rgb2dvi_wrap.vhd",
+      "sha256": "14fc788c8d1f47dabc4a34aee8363748fbe8e13cac881e54be53b7aeb37438f8",
+      "bytes": 2843,
+      "purpose": "rgb2dvi 固定 generic 薄封装",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "d1c2dcdef16666ee2a07ba1900b5b43c458df146",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/camera/rtl/rgb2dvi_wrap.vhd"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\ClockGen.vhd",
+      "sha256": "5df9265e586b55396a75070197b141eb00a36f6dfd0ed69c8b544257405a83ef",
+      "bytes": 8316,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\DVI_Constants.vhd",
+      "sha256": "d8dbbbc3c8696d4527ee0d3c4757f1a40d0acebc845899483bc61c2bb8270cde",
+      "bytes": 3151,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\OutputSERDES.vhd",
+      "sha256": "6205d58405919d4f899a525256e2cafa725408f6644642755cd0de63e69b286e",
+      "bytes": 8366,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\rgb2dvi.vhd",
+      "sha256": "9ef5ceb9dbee2c77a524cf076baa2563f9d1d1e015c1da3c5e0c081506de3f23",
+      "bytes": 7834,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\SyncAsync.vhd",
+      "sha256": "5561ac8099ed13f3114e97387aab5f7f30ad28a8be2fc540004cbee3f19eb3a7",
+      "bytes": 3727,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\SyncAsyncReset.vhd",
+      "sha256": "3ce7ade3267959da59b4d448cc6641018e4f0ac3de9f8f998d0b9ff84a3794bc",
+      "bytes": 3734,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\TMDS_Encoder.vhd",
+      "sha256": "b047a257c1172412d1b354a98e3cc77d013d0f3c1af6ff646233abf8b669c196",
+      "bytes": 7863,
+      "purpose": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": false,
+      "git_matches": [],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_coord_tables.svh",
+      "sha256": "42ebbd8f879df9f539f78d29adcd04c43c7bf605d84db71f67ce0712329d9883",
+      "bytes": 30288,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "40db30aad2a21b92d58e554beec6e747dd38c893",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_coord_tables.svh"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_csr.sv",
+      "sha256": "38afc806db1624dc6d6ff96860a4318604b05fed35552c17fded5b43577256a8",
+      "bytes": 11850,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "b7bfdc3e91a5c3ba2cf30f53ac40e4f78e8c0dca",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_preproc_csr.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_engine_v2.sv",
+      "sha256": "a4391b10c748569321715278c37f65a2710c35f9b1e9f1c4f11986ad4c5d2565",
+      "bytes": 24650,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "3b015c47ca8eaa3d1c118e4f8bcd127612b6e712",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_preproc_engine_v2.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_axi4_rd_shim.sv",
+      "sha256": "8bcf1c1d124a96a7a7cc3c47e802d2fc5cfba851655e11aae9d1ae8686fc0d59",
+      "bytes": 7207,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "4423290ccfa65abb59be853541d4863e10afe15b",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_axi4_rd_shim.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_out_axis.sv",
+      "sha256": "a27828e842e31198e2f300ff3f6e683d7f49c0bdc36566181d1a1fad0d14d1b4",
+      "bytes": 3778,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "15c1c134adc6e2eb14bb4fa6ab9e4b882eb9a62a",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_preproc_out_axis.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_v2_wrap.sv",
+      "sha256": "b074ff6380c715247365d5eb9206b9b69d5f28b2f6f298affa3582ced0dfb00c",
+      "bytes": 9845,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "d89e1683bc4a8d44dfef92a58169a8bc1d49a732",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_preproc_v2_wrap.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_axis8_to_axis64.sv",
+      "sha256": "0078dbf69bbe1a8416497434a5eac2bb3e83b90bf9c5118401251e5079e98d04",
+      "bytes": 4541,
+      "purpose": "preproc v2 RTL（p2c_20261029_r02）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "d0512be48097850864fb902c6c208af9d7929d82",
+          "paths": [
+            "archive/project-paused-20261101/external/sources/preproc_dependency/rtl/s4d_axis8_to_axis64.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": true,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "bytes": 374316,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "7ad6eaf6ef8b0d453f90d29e546da4e635e2e97d",
+          "paths": [
+            "report/evidence/S2B-T07/physical_contract_20261009_r01/snapshots/s2a_network_descriptor_pkg.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_maxpool_geometry.sv",
+      "sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "bytes": 15991,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "d772ebdd3c527e0ea3d64b04fcb18348f8e096d7",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_maxpool_geometry.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\int8_maxpool_window.sv",
+      "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "bytes": 1692,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "426c440fc0a8278a6d631c60ee4a6005eb29be9e",
+          "paths": [
+            "src/int8_maxpool_window.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_route_query.sv",
+      "sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+      "bytes": 15195,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "f8e5ec2dd9543af7ac4d3408c582ffe6d7d85721",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_route_query.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\int8_upsample_query.sv",
+      "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "bytes": 4633,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "de8794c2b7795a630a15b485c823bc958a49d181",
+          "paths": [
+            "report/evidence/S2B-T08/request_budget_20261009_r01/source_snapshot/int8_upsample_query.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_conv_tile_engine.sv",
+      "sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "bytes": 215271,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "e70d192d45ddaf95293e2fc50d5d0acde874a7ba",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_conv_tile_engine.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_maxpool_engine.sv",
+      "sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "bytes": 21761,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "d8d3842b15fcc8d956df8222712df1fbbfa94ee7",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_maxpool_engine.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_route_engine.sv",
+      "sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "bytes": 17533,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "437b07be0233561ac5d5fe533676f97ae48ebec2",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_route_engine.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "bytes": 10535,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "5b076435d1a53d9908b37ea1fe8384863d4a782f",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_upsample_engine.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_network_backend.sv",
+      "sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+      "bytes": 34325,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "4e8b21dae4cb7f11d906382b6a0e9a7956961a89",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_network_backend.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "bytes": 2414,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "81129b56b47773c8c2ffdea5068c41c862e4d6ef",
+          "paths": [
+            "report/evidence/S2B-T07/physical_contract_20261009_r01/snapshots/s2a_memory_master.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "bytes": 3696,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "d4614ba4cc1ea2397b911f83a42605e825c7e4cf",
+          "paths": [
+            "report/evidence/S2B-T07/physical_contract_20261009_r01/snapshots/s2a_runtime_shell.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "bytes": 5427,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "3d24117c4165f3c7f529b9ff29c78a3f06a81d21",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_stage2b_core.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "bytes": 11284,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "5fd608b0ffc473287fa2a9208d1cb8bdc9c84f22",
+          "paths": [
+            "report/evidence/S2B-T07/physical_contract_20261009_r01/snapshots/s2a_control_csr.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "bytes": 3530,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "5ccb259e926acfea8ff0c8edfc807695a1db9ae1",
+          "paths": [
+            "report/evidence/S2B-T10/hp0_adapter_20261010_r08/guard/source_snapshot/s2b_request_guard.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "bytes": 15073,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "0e76dc5cbcd41a11c9ca5cf3bf909c13163c8dc7",
+          "paths": [
+            "report/evidence/S2B-T11/control_r08_20261011/adapter/source_snapshot/s2b_hp0_word_adapter.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_control_csr.sv",
+      "sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+      "bytes": 21722,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "f614c93dfec338f1dcea3ccc09b3a76746e6fcf6",
+          "paths": [
+            "report/evidence/S2B-T11/control_r18_independent_20261016_r08/preflight/source_snapshot/s2b_control_csr.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    },
+    {
+      "original_path": "D:\\FPGA_Competition\\w2b\\src\\s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "bytes": 13808,
+      "purpose": "2B 推理核 RTL（w2b，只读引用）",
+      "local_exact_match": true,
+      "reachable_git_exact_blob": true,
+      "git_matches": [
+        {
+          "blob_oid": "5123ce8c191630606df9ad3822c48fab8395b489",
+          "paths": [
+            "report/evidence/S2B-T13/platform_csr_fixed_20261016_r03/source_snapshot/src/s2b_inference_top.sv"
+          ]
+        }
+      ],
+      "github_external_inventory_exact_sha_match": false,
+      "source_ref": "S5",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json"
+    }
+  ],
+  "binding_records": [
+    {
+      "id": "S2B_R04_input_record",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "bytes": 13177,
+      "exists": true,
+      "purpose": "R04 bit/XSA、构建Tcl哈希与源SHA绑定；记录 current_source_commit=6f5c6dc…",
+      "source_ref": "S2B"
+    },
+    {
+      "id": "S2B_R04_T15_delivery_manifest",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "bytes": 18009,
+      "exists": true,
+      "purpose": "T15 R04 平台/ELF/init 文件清单；source_commit=03faa2d…",
+      "source_ref": "S2B"
+    },
+    {
+      "id": "S2B_T18_final_freeze_inventory",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\final_freeze_inventory.json",
+      "sha256": "7ec952fe9d56b917414ff960374b2b99983de4fdbd87651a153ca2806edd25f6",
+      "bytes": 30234,
+      "exists": true,
+      "purpose": "2B最后冻结候选/恢复依赖/受限状态；source_commit=16ce2cdf…",
+      "source_ref": "S2B"
+    },
+    {
+      "id": "S2B_T18_delivery_manifest",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_20261022_r02\\delivery_manifest.json",
+      "sha256": "1efc124b7c6281e453ba8a9d518d33223068ab1818d958ed9938144868e1aa66",
+      "bytes": 20761,
+      "exists": true,
+      "purpose": "最终候选证据包装记录；非重建证明",
+      "source_ref": "S2B"
+    },
+    {
+      "id": "S2B_T18_freeze_receipt",
+      "original_path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T18\\stage2b_freeze_receipt_20261022_r01\\freeze_receipt.json",
+      "sha256": "2687e87a9664d6415d17738a6f6ff10b8fe3e372696399eb710fa2d06d2778e1",
+      "bytes": 6506,
+      "exists": true,
+      "purpose": "最终独立G4/G5阶段冻结回执",
+      "source_ref": "S2B"
+    },
+    {
+      "id": "S2A_model_manifest",
+      "original_path": "D:\\codex-worktrees\\w6\\report\\evidence\\S2A-T01\\tiny416_model_manifest.json",
+      "sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+      "bytes": 22153976,
+      "exists": true,
+      "purpose": "formal_r2 cfg/weights/GF8输入权威路径与SHA；status=G0_FROZEN",
+      "source_ref": "S2A"
+    },
+    {
+      "id": "S3_artifacts_verified",
+      "original_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "bytes": 9630,
+      "exists": true,
+      "purpose": "v9/v10/v12 ELF与冻结bit/XSA输入兼容及哈希复核记录",
+      "source_ref": "S3"
+    },
+    {
+      "id": "S3_closeout_manifest",
+      "original_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\stage3_closeout_20261026_r01\\manifest.json",
+      "sha256": "c17aea79d0778e46237e63e5c4d2e82d25a94aa74d04d95ddd1de00a54b3e70f",
+      "bytes": 5501,
+      "exists": true,
+      "purpose": "Stage3收尾冻结记录；身份以stage3-close-20261026-r2 tag为准",
+      "source_ref": "S3"
+    },
+    {
+      "id": "S3_erratum_manifest",
+      "original_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\stage3_closeout_erratum_20261026_r01\\manifest.json",
+      "sha256": "84baa6d4744dbb46eee69e973331c6298e14286ba4a5f462295410d34f4f32aa",
+      "bytes": 8881,
+      "exists": true,
+      "purpose": "v12彩条会话与最终复审勘误绑定",
+      "source_ref": "S3"
+    },
+    {
+      "id": "S5_P3q_build_manifest",
+      "original_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json",
+      "sha256": "9064518ec1a67a955679ce136345b6368298feb60d69a884068f99a28f4cc6cd",
+      "bytes": 17154,
+      "exists": true,
+      "purpose": "P3q 38输入、bit/XSA输出完整hash绑定；本机逐项hash对照另列source_inputs",
+      "source_ref": "S5"
+    },
+    {
+      "id": "S5_P3q_rebuild_instructions",
+      "original_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_REPRO_P3Q.md",
+      "sha256": "521a43942913969e6cf5a73614ff198e04ee8c215850ff079445b09dab818dd7",
+      "bytes": 6775,
+      "exists": true,
+      "purpose": "P3q重建步骤、工具版本与限制",
+      "source_ref": "S5"
+    },
+    {
+      "id": "S5_software_freeze_checklist",
+      "original_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "bytes": 13696,
+      "exists": true,
+      "purpose": "Stage5三份期望ELF SHA/尺寸与最小重建步骤",
+      "source_ref": "S5"
+    },
+    {
+      "id": "S6_producer_v2_freeze_record",
+      "original_path": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "sha256": "e964397b754f29e561c463e94720d3d7e75d508865eb0cfe20df0491cb87a95f",
+      "bytes": 6349,
+      "exists": true,
+      "purpose": "Stage6八份期望producer v2 ELF SHA/尺寸及源哈希",
+      "source_ref": "S6"
+    },
+    {
+      "id": "S5_formal_freeze_acceptance_record",
+      "original_path": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\阶段5_HDMI显示链G5冻结记录_20261030.md",
+      "sha256": "6a2e751489e21416f90adc0473ade227a7e08da3d67cedb23a90ed70f47f9be6",
+      "bytes": 9175,
+      "exists": true,
+      "purpose": "Stage5 G5冻结标签与P3q/软件身份声明",
+      "source_ref": "S5"
+    },
+    {
+      "id": "S6_formal_freeze_acceptance_record",
+      "original_path": "D:\\FPGA_Competition\\docs\\obsidian-project\\04-提交材料\\阶段验收\\阶段6_交互控制_G4G5验收与冻结记录_20261030.md",
+      "sha256": "dbd1722db1d6a8682c609d8b6d48ff6c6b209e05492bc288b40874f9e95e4f08",
+      "bytes": 6501,
+      "exists": true,
+      "purpose": "Stage6 G4/G5冻结记录及明示局限",
+      "source_ref": "S6"
+    },
+    {
+      "id": "external_upload_inventory",
+      "original_path": "D:\\FPGA_Competition\\archive\\project-paused-20261101\\external_source_inventory.json",
+      "sha256": "92ca520d210c7ad94c94d596c529639ceb7f4659ab14e61c1f9504b6a7c1fe57",
+      "bytes": 102684,
+      "exists": true,
+      "purpose": "本轮GitHub选定外部文件SHA目录；未命中表示该SHA不在该外部包，不代表Git branch snapshot缺失",
+      "source_ref": "ARCHIVE"
+    },
+    {
+      "id": "S3_v12_tool_manifest",
+      "original_path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T14\\v12_bars_freeze_tool_20261022_r01\\manifest.json",
+      "sha256": "f852ece2d2af362686baf01357fa592202990d9ab9e8bdb0c09540cae56d54f4",
+      "bytes": 2715,
+      "exists": true,
+      "purpose": "v12彩条诊断ELF的精确身份来源，包含完整SHA",
+      "source_ref": "S3"
+    }
+  ],
+  "required_local_retention": [
+    {
+      "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_calibration_r2\\calibration.list",
+      "sha256": "d637a2feb671429741c8b6703caaa9cdf995abf49dfa4b72e41f62dfbea1a35c",
+      "bytes": 41408,
+      "sample_count": 512,
+      "purpose": "冻结512校准图片路径列表；原始图像已另包保留，不上传训练数据",
+      "status": "KEEP_LOCAL"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\archive\\S2A-T68\\repair109_20261003_194620\\fixtures",
+      "purpose": "109样本冻结回归图像/张量文件；不在本次GitHub上传包内，主report/S2A-T68完整目录不删",
+      "status": "KEEP_LOCAL"
+    }
+  ],
+  "missing_summary": {
+    "S5_exact_freeze_elf_count": 3,
+    "S6_exact_freeze_elf_count": 8,
+    "expected_elf_sha_exact_found_in_audited_files": 0,
+    "expected_elf_sha_exact_found_in_github_external_inventory": 0,
+    "reachable_git_elf_blobs_checked_across_main_and_stage_worktrees": 83,
+    "same_size_candidates_for_11_expected_missing_elf_sha": 0,
+    "git_search_method": "git rev-list --objects --all -- *.elf; object details and exact candidates read with git cat-file --batch-check / --batch. No unreachable object scan.",
+    "interpretation": "Stage5/6同名替代ELF当前SHA与冻结记录不同；不得冒充冻结版。stage5/6二进制冻结身份不能由本清单证明可恢复；需保留源码及漂移件作独立身份，并把11项缺失写为遗留。"
+  },
+  "limits": [
+    "external_inventory是选定外部文件清单；某源SHA未命中该清单时，还须看Git可达快照分支。",
+    "Stage5 P3q源码38项本机磁盘均逐项比对manifest；逐项的Git可达blob和上传外部SHA命中结果在stage5_p3q_source_inputs。",
+    "哈希一致仅证明文件内容身份，不证明从干净环境重建成功。",
+    "训练校准512张原始图、109样本冻结集及原始失败证据不是可删缓存。"
+  ],
+  "supersedes": "frozen_deploy_gap_audit_20261101_r02.json",
+  "correction_note": "r03按git ref动态解析并cat-file验证冻结提交；修正r02中S3手工录入的无效SHA。新增的supporting_inputs均重新计算磁盘SHA或commit blob SHA，并绑定到重新计算哈希的来源记录。11个Stage5/6冻结ELF SHA缺失结论保持开放。",
+  "source_ref_validation": {
+    "S2B": {
+      "ref": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9^{commit}",
+      "resolved_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "cat_file_type": "commit",
+      "expected_snapshot_commit_matches": true,
+      "observed_worktree_branch": "codex/stage2b-dma-g0",
+      "observed_worktree_head": "d904c30016260caa4a362a4678f10b6011bdada2",
+      "repo": "D:\\FPGA_Competition\\w2b",
+      "note": "冻结提交SHA按对象ID动态复核；工作树当前HEAD不同，冻结输入绑定使用已验证的freeze commit，不将HEAD冒充冻结版本。"
+    },
+    "S3": {
+      "ref": "stage3-close-20261026-r2",
+      "resolved_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "cat_file_type": "commit",
+      "expected_snapshot_commit_matches": true,
+      "repo": "D:\\codex-worktrees\\dbdf"
+    },
+    "S5": {
+      "ref": "stage5-freeze-20261030",
+      "resolved_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "cat_file_type": "commit",
+      "expected_snapshot_commit_matches": true,
+      "repo": "D:\\codex-worktrees\\w4"
+    },
+    "S6": {
+      "ref": "stage6-freeze-20261030",
+      "resolved_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4",
+      "cat_file_type": "commit",
+      "expected_snapshot_commit_matches": true,
+      "repo": "D:\\codex-worktrees\\w4"
+    }
+  },
+  "invalidated_prior_values": [
+    {
+      "field": "source_refs.S3.freeze_commit",
+      "r02_value": "e28739235b6e15778f13bf8c33607c7d54f69ac0e",
+      "reason": "与freeze tag实际解析结果不一致；r03由git rev-parse --verify <tag>^{commit}动态取值，随后git cat-file -t验证commit。"
+    }
+  ],
+  "supporting_inputs": [
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_init.tcl",
+      "exists": true,
+      "purpose": "R04 PS7 初始化脚本",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "binding_source_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 26573,
+      "sha256": "430030c232057ae1e8a91f7e63cd30c06aaa27b78ac9eda52c5bc4deca81510c"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_init.c",
+      "exists": true,
+      "purpose": "R04 PS7 初始化 C 实现",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "binding_source_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 335954,
+      "sha256": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_init.h",
+      "exists": true,
+      "purpose": "R04 PS7 初始化头文件",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "binding_source_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3792,
+      "sha256": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_init_gpl.c",
+      "exists": true,
+      "purpose": "R04 PS7 初始化 GPL C 实现",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "binding_source_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 336571,
+      "sha256": "4195f3471fff5f9134321e41c8ed701394c738edc56dce1adba65eb32fda9f89"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\ps7_init_gpl.h",
+      "exists": true,
+      "purpose": "R04 PS7 初始化 GPL 头文件",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "binding_source_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 4410,
+      "sha256": "10d682e5bd16bfc11504f8862b88fee6a2654b39871eb74b4b594d8d91cf2f83"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\artifacts\\s2b_inference_bd.tcl",
+      "exists": true,
+      "purpose": "R04 Block Design Tcl",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "binding_source_record_sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 18600,
+      "sha256": "4e8c319f994378b72a853f670dd97f94c55c696a64c1191f93eb4af5a4d0ae0b"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\ps7_init.tcl",
+      "exists": true,
+      "purpose": "T15 平台资格包 PS7 初始化 Tcl",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "binding_source_record_sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 26573,
+      "sha256": "430030c232057ae1e8a91f7e63cd30c06aaa27b78ac9eda52c5bc4deca81510c"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\ps7_init.c",
+      "exists": true,
+      "purpose": "T15 平台资格包 PS7 初始化 C",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "binding_source_record_sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 335954,
+      "sha256": "f1af6d520c5ad41b32aede48111efde7609c7cc10d88ef3ee38c3446daa76dba"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\ps7_init.h",
+      "exists": true,
+      "purpose": "T15 平台资格包 PS7 初始化头文件",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "binding_source_record_sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3792,
+      "sha256": "ba3bb1dc249c806dd11666a5058a838c14d3f655a189d21d1df415bcc7929fcc"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\s2b_ps_init.c",
+      "exists": true,
+      "purpose": "T15 应用 PS 初始化调用源",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "binding_source_record_sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1567,
+      "sha256": "813c09cda9e5843cb09690b7f166edec0325fcf9dec403a598928c6e3d828796"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\lscript.ld",
+      "exists": true,
+      "purpose": "T15 ELF 链接脚本",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "binding_source_record_sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 6344,
+      "sha256": "8f3efdbc02d190d8c4f193a6762bbacb4301f326ba6e334fd21cbc00b6379805"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\init_lscript.ld",
+      "exists": true,
+      "purpose": "T15 init ELF 链接脚本",
+      "binding_source_record": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "binding_source_record_sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "source_ref": "S2B",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 6218,
+      "sha256": "508b0c05a5dc0258613e3985c179d24f1ed1f3be571d7c6ad564939113766f4a"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\ps7_init.tcl",
+      "exists": true,
+      "purpose": "阶段3冻结平台的PS7初始化Tcl",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 36068,
+      "sha256": "4fc101938cf5aae4ea646e219e9e55c4ebcb837f35f40b3e922f3a1e2e5e6faa"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\create_project.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 4973,
+      "sha256": "e67a7862527fdf42d77656d894427a2bbf23957b6e94e6471f1372564c8dae74"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\axi_dynclk_v1_0\\xgui\\axi_dynclk_v1_0.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1929,
+      "sha256": "a74b7a76f9d288ef3325656081c3d27dbce43999e8db498f875ab2abf48696b3"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\i2c_extender\\xgui\\i2c_extender_v1_0.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 205,
+      "sha256": "e0725b60cdc4cd625ee059e557ee3f5569fcd085edf601849e69e4d438080d96"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\i2c_extender\\xgui\\i2c_extender_v1_1.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 205,
+      "sha256": "e0725b60cdc4cd625ee059e557ee3f5569fcd085edf601849e69e4d438080d96"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\ov5640_ip\\xgui\\alinx_ov5640_v5_3.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1617,
+      "sha256": "6767bbf273a5c914a51cda4c9965c7e9e8695a1e270751b2fea8283350f40e77"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\ov5640_ip\\xgui\\alinx_ov5640_v5_4.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1617,
+      "sha256": "6767bbf273a5c914a51cda4c9965c7e9e8695a1e270751b2fea8283350f40e77"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\rgb2dvi_v1_3\\src\\rgb2dvi.xdc",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 296,
+      "sha256": "5263196a2c78a5c1818991c9372d8be2e1e905c7dc7c66e2098ed1c4b16208e4"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\rgb2dvi_v1_3\\src\\rgb2dvi_clocks.xdc",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 115,
+      "sha256": "e6ceadc3fcfcf59fe1f5eaf13f8f94d862e9513ad6cd2e850a035c312c8d2002"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\rgb2dvi_v1_3\\src\\rgb2dvi_ooc.xdc",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 137,
+      "sha256": "f568c86aadff12555ded6d5913c970304c28534d8c07844b1a28f8c775cd0038"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\rgb2dvi_v1_3\\xgui\\rgb2dvi_v1_1.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 2990,
+      "sha256": "ef2af323b6752addcf17239fae91ded5375573098e3e6945b2bb526daca33142"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\rgb2dvi_v1_3\\xgui\\rgb2dvi_v1_2.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3055,
+      "sha256": "a2d21c71fd3908455a5d9bafd53b784fa650bf7290cb777b449bdeb8e04df566"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\my_ip\\rgb2dvi_v1_3\\xgui\\rgb2dvi_v1_3.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3055,
+      "sha256": "a2d21c71fd3908455a5d9bafd53b784fa650bf7290cb777b449bdeb8e04df566"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\pl_config.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 15629,
+      "sha256": "b7be18e09327c4110e631de8026bcf191d7f69303d86bdba420e972b0201864e"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\ps_config.tcl",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 26354,
+      "sha256": "1c5d71cbda919256d857d4bfaffa822062a8a77a42129400c53f4974b4ddc9bc"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\src\\constraints\\an5642.xdc",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3297,
+      "sha256": "2dae928c9458a71ebc9ae741e71f7a274c18afc237676852c53d5e61bbeff5b2"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\src\\constraints\\hdmi_out.xdc",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 822,
+      "sha256": "71edc7805065612a21df7d450b5ae04fab1e14fccc68a9bb6f5b90812cf37f0c"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_sof_fix_20261020_r01\\vendor_src\\src\\constraints\\system.xdc",
+      "exists": true,
+      "purpose": "阶段3Vivado项目/PS/PL配置或约束输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 158,
+      "sha256": "08ecf39e700bdff5937e65f6d91c9cabf6cb4daf98106a8650de978fc08a8d09"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\display_demo.c",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 33015,
+      "sha256": "e5fafa2e537288e0979ed6ed51762e9d5d68a66ce9b7c4d3b1f03912629aa377"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\display_demo.h",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 2296,
+      "sha256": "0a215a3018d1220617ffce051a33b05c3357678957784d9a2e58c11bf28aa85a"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\vdma.c",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3974,
+      "sha256": "f5757b4e57119e434cfbdeb9840d1e9d6469a3705ecc74a08297d0dd9f4546c0"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\vdma.h",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 357,
+      "sha256": "27b43e3886903306fea7ab4f65f06036110ad2b4a21942709b27c5533d654640"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\ov5640.c",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 9673,
+      "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\ov5640.h",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 375,
+      "sha256": "9f971011b74db5451eab61acca7733890e18cc8ac159d0bbf27b1bf0a8ba875f"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\lscript.ld",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 6324,
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\Makefile",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1386,
+      "sha256": "1e1a8d3acfddc9f1bfea20b302dd175e39fcadbeec3976311783b02cc4f50c61"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\Makefile.app",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1729,
+      "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v10\\elf_build\\app\\Xilinx.spec",
+      "exists": true,
+      "purpose": "v10 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 36,
+      "sha256": "f100af82b444989adf5aad4ad612b9ae3b4ddac007f5d9653f1abf254235b085"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\display_demo.c",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 37703,
+      "sha256": "36e10a9314931e6236d9e8e43fd1067ae5a2921616cb21e390b65f06c850b782"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\display_demo.h",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 2296,
+      "sha256": "0a215a3018d1220617ffce051a33b05c3357678957784d9a2e58c11bf28aa85a"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\vdma.c",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 3974,
+      "sha256": "f5757b4e57119e434cfbdeb9840d1e9d6469a3705ecc74a08297d0dd9f4546c0"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\vdma.h",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 357,
+      "sha256": "27b43e3886903306fea7ab4f65f06036110ad2b4a21942709b27c5533d654640"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\ov5640.c",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 9673,
+      "sha256": "394af4ac3aad35fcc55d6798e357c994ca97f202dac8567462d846baed14f8ec"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\ov5640.h",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 375,
+      "sha256": "9f971011b74db5451eab61acca7733890e18cc8ac159d0bbf27b1bf0a8ba875f"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\lscript.ld",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 6324,
+      "sha256": "7b5f5ccfdbdb47e8d931f3bbe9e15414cab763904473f29a1786a8069563ac8a"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\Makefile",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1386,
+      "sha256": "1e1a8d3acfddc9f1bfea20b302dd175e39fcadbeec3976311783b02cc4f50c61"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\Makefile.app",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 1729,
+      "sha256": "5f393251c1ec2ccc7ae5e21a2ed2ba8f51913c91d455047eca5580192a178503"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\tmp\\s3r06\\t04_j11cmos2_elf_v12\\elf_build\\app\\Xilinx.spec",
+      "exists": true,
+      "purpose": "v12 ELF构建的应用/驱动/链接输入",
+      "binding_source_record": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "binding_source_record_sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "source_ref": "S3",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 36,
+      "sha256": "f100af82b444989adf5aad4ad612b9ae3b4ddac007f5d9653f1abf254235b085"
+    },
+    {
+      "stage": "S5/S6",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\ps7_init.tcl",
+      "exists": true,
+      "purpose": "P3q XSA导出的PS7初始化Tcl（manifest只枚举build inputs与bit/XSA，单独留存此生成文件）",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json",
+      "binding_source_record_sha256": "9064518ec1a67a955679ce136345b6368298feb60d69a884068f99a28f4cc6cd",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "expected_sha256": null,
+      "hash_basis": "worktree_disk",
+      "bytes": 25691,
+      "sha256": "2a31d82aeeabf075f493ab25a3973ed164f82dd647bf1110bc48d005adfcaa4e"
+    },
+    {
+      "stage": "S5",
+      "name": "s5_display_app.c",
+      "expected_sha256_from_freeze_checklist": "c28a7543a4c86460e7ddd82e1fe1ee5f5ca3f2ebdcca17cf4c3eff2239b09d2a",
+      "expected_bytes_from_freeze_checklist": 63909,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 118767,
+      "local_build_input_sha256": "8cce8722985349393ef7446c9b84e4b442a576ee29f592c2d2bda1d08dff8f19",
+      "local_build_input_matches_expected": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.c",
+      "tag_snapshot_bytes": 54908,
+      "tag_snapshot_sha256": "48368f16f2449a9cd86baaed4e2977f8d651893ace2be75d1c353cec67b598d3",
+      "tag_snapshot_blob_oid": "fdfbb44d31d929cd3000ff3992569ba74e7f5c9d",
+      "tag_snapshot_matches_expected": false
+    },
+    {
+      "stage": "S5",
+      "name": "s5_display_app.h",
+      "expected_sha256_from_freeze_checklist": "f77aa2a905f1a5d6667e1e7c72cd4e39a7519f4d864189648c0ebe0c7e42dcee",
+      "expected_bytes_from_freeze_checklist": 15456,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 17383,
+      "local_build_input_sha256": "48d40b80c18f092870aa27d3f7eef7d450794242cc9f979879bd33b390689f43",
+      "local_build_input_matches_expected": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.h",
+      "tag_snapshot_bytes": 12631,
+      "tag_snapshot_sha256": "dc5f30eb2faa8ad3a31d4fc46728856a3f8e4070a82e1934cb1c36984833677b",
+      "tag_snapshot_blob_oid": "c2ef879382de45251c285c823b6c404f04fb737e",
+      "tag_snapshot_matches_expected": false
+    },
+    {
+      "stage": "S5",
+      "name": "s5_real_source.c",
+      "expected_sha256_from_freeze_checklist": "d7696ecaf5fe174c1c3a376ac7159865cfd06e4025b226ed721ac672a35dffa5",
+      "expected_bytes_from_freeze_checklist": 8983,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_real_source.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 9858,
+      "local_build_input_sha256": "b19c5aec19b20b1974b61f7c77fdb3b608b65127844bb32e052ebe500010bfed",
+      "local_build_input_matches_expected": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.c",
+      "tag_snapshot_bytes": 8983,
+      "tag_snapshot_sha256": "d7696ecaf5fe174c1c3a376ac7159865cfd06e4025b226ed721ac672a35dffa5",
+      "tag_snapshot_blob_oid": "b3e4ac8fa63c8034beddc5982b61f9cbe3035435",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "s5_real_source.h",
+      "expected_sha256_from_freeze_checklist": "c6d50b3361074d642941173f89fd23eb66867e508d203eb9465af65577416948",
+      "expected_bytes_from_freeze_checklist": 4379,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_real_source.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 4703,
+      "local_build_input_sha256": "7c0d57a5236e63210db2df87a30ac5acb4e4f7549e35c78afdf886e95a8b4c02",
+      "local_build_input_matches_expected": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_real_source.h",
+      "tag_snapshot_bytes": 4379,
+      "tag_snapshot_sha256": "c6d50b3361074d642941173f89fd23eb66867e508d203eb9465af65577416948",
+      "tag_snapshot_blob_oid": "338ca6407334f202ef2b82cd71948404f372117c",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "s5_result_abi.h",
+      "expected_sha256_from_freeze_checklist": "0462f91173616b2ab1e6bc57cfdf1695229c4996a2d1fb87611537329fceab8c",
+      "expected_bytes_from_freeze_checklist": 3829,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_result_abi.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 4873,
+      "local_build_input_sha256": "7eb25a81328439e1344dfae260743240fbabbc2b47a79c996dba0fce67ade353",
+      "local_build_input_matches_expected": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_result_abi.h",
+      "tag_snapshot_bytes": 3829,
+      "tag_snapshot_sha256": "0462f91173616b2ab1e6bc57cfdf1695229c4996a2d1fb87611537329fceab8c",
+      "tag_snapshot_blob_oid": "10c1230d075f5dd966afc7bdbf0249a84a5d3918",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "s5_timebase.c",
+      "expected_sha256_from_freeze_checklist": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96",
+      "expected_bytes_from_freeze_checklist": 1500,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_timebase.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 1500,
+      "local_build_input_sha256": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_timebase.c",
+      "tag_snapshot_bytes": 1500,
+      "tag_snapshot_sha256": "47a3dc27ed2c0dc9c60a326eda979a80d2a9020c69ecd5c8361e66fbdae0de96",
+      "tag_snapshot_blob_oid": "13e27fd908cff9f0c1a9056dc80435ae8cb08e43",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "s5_timebase.h",
+      "expected_sha256_from_freeze_checklist": "3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a",
+      "expected_bytes_from_freeze_checklist": 2420,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_timebase.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 2420,
+      "local_build_input_sha256": "3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_timebase.h",
+      "tag_snapshot_bytes": 2420,
+      "tag_snapshot_sha256": "3a2e9c8e3da8b4f6c2ea72755d5b428d241788d5da18d15e4b688072d469d64a",
+      "tag_snapshot_blob_oid": "d5118880bdd43fd2449c6e96e2f4ba0767683e88",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "s5_font8x16.h",
+      "expected_sha256_from_freeze_checklist": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3",
+      "expected_bytes_from_freeze_checklist": 12040,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_font8x16.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 12040,
+      "local_build_input_sha256": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_font8x16.h",
+      "tag_snapshot_bytes": 12040,
+      "tag_snapshot_sha256": "2f26b78b1098b974c60ee2a1d173107c5b44ef8f8f19dbdc4b599ef93a2d50d3",
+      "tag_snapshot_blob_oid": "24363479307f8ffeb7ee57e683d48b0bd5d7f765",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "vdma_ctrl.c",
+      "expected_sha256_from_freeze_checklist": "bb32bcbebe220a38ad19000a660929834f563a0fe6b82b7968160833da17eff8",
+      "expected_bytes_from_freeze_checklist": 10172,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vdma_ctrl.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 10172,
+      "local_build_input_sha256": "bb32bcbebe220a38ad19000a660929834f563a0fe6b82b7968160833da17eff8",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.c",
+      "tag_snapshot_bytes": 9586,
+      "tag_snapshot_sha256": "78b8d689522f148096b5f940c6227cba93139315c74bc50276ea8c861d2b796d",
+      "tag_snapshot_blob_oid": "8f7df1d0b8023d0b6697b2de67d4cda38db23108",
+      "tag_snapshot_matches_expected": false
+    },
+    {
+      "stage": "S5",
+      "name": "vdma_ctrl.h",
+      "expected_sha256_from_freeze_checklist": "5634859380f47c7c9d1072907eafbccc8253add014319a36cd1d7af40af83db1",
+      "expected_bytes_from_freeze_checklist": 11564,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vdma_ctrl.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 11564,
+      "local_build_input_sha256": "5634859380f47c7c9d1072907eafbccc8253add014319a36cd1d7af40af83db1",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vdma_ctrl.h",
+      "tag_snapshot_bytes": 10451,
+      "tag_snapshot_sha256": "543cbb9d070af895e441e78d05a36afcb960daf184d5e99a79be40cdec95dfd3",
+      "tag_snapshot_blob_oid": "0cfdc4e82837fbf29459f7bbc39fea264898a09b",
+      "tag_snapshot_matches_expected": false
+    },
+    {
+      "stage": "S5",
+      "name": "vtc_ctrl.c",
+      "expected_sha256_from_freeze_checklist": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6",
+      "expected_bytes_from_freeze_checklist": 12300,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vtc_ctrl.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 12300,
+      "local_build_input_sha256": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.c",
+      "tag_snapshot_bytes": 12300,
+      "tag_snapshot_sha256": "8ba7d212b4f5d5ec2781bc84b9041cbe218dd935596644acd72de5bf532b6fa6",
+      "tag_snapshot_blob_oid": "ff0a1e2783ad7395b5652947c0c445c133f6cf54",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "vtc_ctrl.h",
+      "expected_sha256_from_freeze_checklist": "68d1555cd3a78aff5d206a90229c1184cdd096b3c00f09b441ecb42c24162458",
+      "expected_bytes_from_freeze_checklist": 7541,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\vtc_ctrl.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "local_build_input_bytes": 7541,
+      "local_build_input_sha256": "68d1555cd3a78aff5d206a90229c1184cdd096b3c00f09b441ecb42c24162458",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/vtc_ctrl.h",
+      "tag_snapshot_bytes": 7541,
+      "tag_snapshot_sha256": "68d1555cd3a78aff5d206a90229c1184cdd096b3c00f09b441ecb42c24162458",
+      "tag_snapshot_blob_oid": "af9052a356c59af1837d7467d65840424666798e",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "host_render_test.c",
+      "expected_sha256_from_freeze_checklist": "edec1529dfc3b6911bc8550e9991ff41f586c5718b86d3615d148cc0452f1077",
+      "expected_bytes_from_freeze_checklist": 6684,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\tools\\host_render_test.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_render_test.c",
+      "local_build_input_bytes": 6684,
+      "local_build_input_sha256": "edec1529dfc3b6911bc8550e9991ff41f586c5718b86d3615d148cc0452f1077",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_bytes": 6131,
+      "tag_snapshot_sha256": "c4937918548ce9dc2fad1026a78083927be183d0329d9c30695912500ebeb3d3",
+      "tag_snapshot_blob_oid": "33b9544c6005e083509276b9724874ec3d51062a",
+      "tag_snapshot_matches_expected": false
+    },
+    {
+      "stage": "S5",
+      "name": "real_source_selftest.c",
+      "expected_sha256_from_freeze_checklist": "b5963eb1a1fef781e9432f122c4fc517a43efb60363786d73d283994423a0063",
+      "expected_bytes_from_freeze_checklist": 17256,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\tools\\real_source_selftest.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/real_source_selftest.c",
+      "local_build_input_bytes": 31205,
+      "local_build_input_sha256": "c7089d2ba4c0935575f79ee27f783988b869a6eb491cda840bfb5f0eb5a61704",
+      "local_build_input_matches_expected": false,
+      "tag_snapshot_bytes": 17256,
+      "tag_snapshot_sha256": "b5963eb1a1fef781e9432f122c4fc517a43efb60363786d73d283994423a0063",
+      "tag_snapshot_blob_oid": "94c85bc0b4648c6c4796f6efcbf2945556e8c137",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "name": "vtc_vdma_selftest.c",
+      "expected_sha256_from_freeze_checklist": "a6e4fa341ea1e8d1d3c6a622609d72889fb04183100e470f78ad68e3b86d4294",
+      "expected_bytes_from_freeze_checklist": 9354,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\tools\\vtc_vdma_selftest.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/vtc_vdma_selftest.c",
+      "local_build_input_bytes": 9354,
+      "local_build_input_sha256": "a6e4fa341ea1e8d1d3c6a622609d72889fb04183100e470f78ad68e3b86d4294",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_bytes": 8550,
+      "tag_snapshot_sha256": "b8b546bfa08a910dd04b61075ebfecb05adc9e7feda8db0df0e247c0f7b8f808",
+      "tag_snapshot_blob_oid": "c1ee3212f1e28821d61d193f35f221b5e1e9c201",
+      "tag_snapshot_matches_expected": false
+    },
+    {
+      "stage": "S5",
+      "name": "host_xil_shim/xil_io.h",
+      "expected_sha256_from_freeze_checklist": "1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263",
+      "expected_bytes_from_freeze_checklist": 798,
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\tools\\host_xil_shim\\xil_io.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_xil_shim/xil_io.h",
+      "local_build_input_bytes": 798,
+      "local_build_input_sha256": "1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263",
+      "local_build_input_matches_expected": true,
+      "tag_snapshot_bytes": 798,
+      "tag_snapshot_sha256": "1844e41d2b61f00af0a278d7d7147bdaca605318e24bf7e65155cc40f566e263",
+      "tag_snapshot_blob_oid": "9cef8dd05b60116160e8cbcfcab2ccca3b8a59e4",
+      "tag_snapshot_matches_expected": true
+    },
+    {
+      "stage": "S5",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_p3b_sw_20261030_r01\\tools\\real_source_selftest.c",
+      "exists": true,
+      "bytes": 17256,
+      "sha256": "b5963eb1a1fef781e9432f122c4fc517a43efb60363786d73d283994423a0063",
+      "purpose": "S5 host offline real-source regression source",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "git_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/real_source_selftest.c",
+      "git_blob_oid": "94c85bc0b4648c6c4796f6efcbf2945556e8c137",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "stage": "S5",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_p3b_sw_20261030_r01\\tools\\host_render_test.c",
+      "exists": true,
+      "bytes": 6131,
+      "sha256": "c4937918548ce9dc2fad1026a78083927be183d0329d9c30695912500ebeb3d3",
+      "purpose": "S5 host renderer regression source",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "git_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/host_render_test.c",
+      "git_blob_oid": "33b9544c6005e083509276b9724874ec3d51062a",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "stage": "S5",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_p3b_sw_20261030_r01\\tools\\vtc_vdma_selftest.c",
+      "exists": true,
+      "bytes": 8550,
+      "sha256": "b8b546bfa08a910dd04b61075ebfecb05adc9e7feda8db0df0e247c0f7b8f808",
+      "purpose": "S5 VTC/VDMA register selftest source",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "binding_source_record_sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "source_ref": "S5",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954",
+      "git_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/vtc_vdma_selftest.c",
+      "git_blob_oid": "c1ee3212f1e28821d61d193f35f221b5e1e9c201",
+      "hash_basis": "commit_blob"
+    },
+    {
+      "stage": "S6",
+      "name": "s5_display_app.c",
+      "freeze_recorded_sha256_prefix": "b2ec56e0",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "binding_source_record_sha256": "e964397b754f29e561c463e94720d3d7e75d508865eb0cfe20df0491cb87a95f",
+      "source_ref": "S6",
+      "source_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "note": "冻结说明仅写SHA前缀，未提供完整SHA；本条机器采集完整身份，不将其误作预期哈希。",
+      "local_build_input_bytes": 118767,
+      "local_build_input_sha256": "8cce8722985349393ef7446c9b84e4b442a576ee29f592c2d2bda1d08dff8f19",
+      "local_hash_matches_recorded_prefix": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.c",
+      "tag_snapshot_bytes": 54908,
+      "tag_snapshot_sha256": "48368f16f2449a9cd86baaed4e2977f8d651893ace2be75d1c353cec67b598d3",
+      "tag_snapshot_blob_oid": "fdfbb44d31d929cd3000ff3992569ba74e7f5c9d",
+      "tag_hash_matches_recorded_prefix": false
+    },
+    {
+      "stage": "S6",
+      "name": "s5_display_app.h",
+      "freeze_recorded_sha256_prefix": "86a32db4",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "binding_source_record_sha256": "e964397b754f29e561c463e94720d3d7e75d508865eb0cfe20df0491cb87a95f",
+      "source_ref": "S6",
+      "source_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_display_app.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "note": "冻结说明仅写SHA前缀，未提供完整SHA；本条机器采集完整身份，不将其误作预期哈希。",
+      "local_build_input_bytes": 17383,
+      "local_build_input_sha256": "48d40b80c18f092870aa27d3f7eef7d450794242cc9f979879bd33b390689f43",
+      "local_hash_matches_recorded_prefix": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/src/s5_display_app.h",
+      "tag_snapshot_bytes": 12631,
+      "tag_snapshot_sha256": "dc5f30eb2faa8ad3a31d4fc46728856a3f8e4070a82e1934cb1c36984833677b",
+      "tag_snapshot_blob_oid": "c2ef879382de45251c285c823b6c404f04fb737e",
+      "tag_hash_matches_recorded_prefix": false
+    },
+    {
+      "stage": "S6",
+      "name": "s5_publish_abi.h",
+      "freeze_recorded_sha256_prefix": "4ae38014",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "binding_source_record_sha256": "e964397b754f29e561c463e94720d3d7e75d508865eb0cfe20df0491cb87a95f",
+      "source_ref": "S6",
+      "source_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_publish_abi.h",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "note": "冻结说明仅写SHA前缀，未提供完整SHA；本条机器采集完整身份，不将其误作预期哈希。",
+      "local_build_input_bytes": 7429,
+      "local_build_input_sha256": "f89fb1be10c0564c049b8014bb9aaf789f6713e1f56dbb53f8040020f76b5dd3",
+      "local_hash_matches_recorded_prefix": false,
+      "tag_snapshot_exists": false
+    },
+    {
+      "stage": "S6",
+      "name": "real_source_selftest.c",
+      "freeze_recorded_sha256_prefix": "a64fa0e3",
+      "binding_source_record": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "binding_source_record_sha256": "e964397b754f29e561c463e94720d3d7e75d508865eb0cfe20df0491cb87a95f",
+      "source_ref": "S6",
+      "source_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4",
+      "local_build_input_path": "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\tools\\real_source_selftest.c",
+      "local_build_input_exists": true,
+      "hash_basis": "worktree_disk",
+      "note": "冻结说明仅写SHA前缀，未提供完整SHA；本条机器采集完整身份，不将其误作预期哈希。",
+      "local_build_input_bytes": 31205,
+      "local_build_input_sha256": "c7089d2ba4c0935575f79ee27f783988b869a6eb491cda840bfb5f0eb5a61704",
+      "local_hash_matches_recorded_prefix": false,
+      "tag_snapshot_path": "report/evidence/S5-T01/s5_p3b_sw_20261030_r01/tools/real_source_selftest.c",
+      "tag_snapshot_bytes": 17256,
+      "tag_snapshot_sha256": "b5963eb1a1fef781e9432f122c4fc517a43efb60363786d73d283994423a0063",
+      "tag_snapshot_blob_oid": "94c85bc0b4648c6c4796f6efcbf2945556e8c137",
+      "tag_hash_matches_recorded_prefix": false
+    }
+  ],
+  "supporting_source_record_hashes": [
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T19\\visibility1_csr_fixed_20261016_r04\\input_record.json",
+      "bytes": 13177,
+      "sha256": "01ef860527cfe7cc0979f2267ea1152bd48180a8c2f0a4b4d61d8bc2e70b4164",
+      "purpose": "R04 bit/XSA/build identity binding",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9"
+    },
+    {
+      "stage": "S2B",
+      "path": "D:\\FPGA_Competition\\w2b\\report\\evidence\\S2B-T15\\qualification_r04_xsa_rebuild_20261016_r04_artifacts\\delivery_manifest.json",
+      "bytes": 18009,
+      "sha256": "a38b3a97c7eea419d6bd96a8be653359ccee4dd48f2d9c6b888fb6c8dd9ab9f4",
+      "purpose": "T15 platform/ELF/init file binding",
+      "source_commit": "16ce2cdf8c00c6214435629d75a5e4b63acb66a9"
+    },
+    {
+      "stage": "S3",
+      "path": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\t17_color_retest_prep_20261023_r01\\t17_artifacts_verified.json",
+      "bytes": 9630,
+      "sha256": "f832dc8fbe142c6208b09cd558f6e3a1b226c10b97585ef7c054d5276ecb341f",
+      "purpose": "frozen bit/XSA/v9-v12 identity binding",
+      "source_commit": "e28739235b6e15778f13fa0019ba4321a628736f"
+    },
+    {
+      "stage": "S5",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\s5_sw_freeze_20261030_r01\\S5_SW_FREEZE_CHECKLIST.md",
+      "bytes": 13696,
+      "sha256": "5148fca0099f2c50697eea0973974a0f503e4313ba33ad8e5a778161e89b6b1f",
+      "purpose": "Stage5 software frozen ELF/source SHA table",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954"
+    },
+    {
+      "stage": "S5",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S5-T01\\g5_freeze_p3q_20261030_r01\\BUILD_MANIFEST_P3Q.json",
+      "bytes": 17154,
+      "sha256": "9064518ec1a67a955679ce136345b6368298feb60d69a884068f99a28f4cc6cd",
+      "purpose": "P3q source/build/bit/XSA SHA manifest",
+      "source_commit": "6b43e05baa5e67a1674f72d3acdb77e0db660954"
+    },
+    {
+      "stage": "S6",
+      "path": "D:\\codex-worktrees\\w4\\report\\evidence\\S6-T01\\s6_sw_freeze_20261030_r01\\S5_PRODUCER_V2_FREEZE.md",
+      "bytes": 6349,
+      "sha256": "e964397b754f29e561c463e94720d3d7e75d508865eb0cfe20df0491cb87a95f",
+      "purpose": "Stage6 producer v2 frozen ELF hashes and abbreviated source SHA prefixes",
+      "source_commit": "ec43da899fd4a7329af43d9a5fbc0a9c32c9d9c4"
+    }
+  ],
+  "missing_detail_update": {
+    "expected_frozen_s5_s6_elfs_still_missing": 11,
+    "stage5_main_c_h_expected_sha_gaps": 2,
+    "stage6_source_record_hash_limitation": "仅四个8位SHA前缀，不足以验证冻结源版本；r03补采tag blob/local磁盘完整SHA并报告匹配与否，不宣称二进制可重建。",
+    "statement": "补入PS7初始化、Stage3 Tcl/XDC/应用源以及Stage5/6源身份。任何当前漂移文件均按独立内容身份记录，不能替代冻结哈希。"
+  },
+  "hash_basis": "worktree_disk",
+  "published_note": "本审计的expected/observed哈希按原始磁盘记录；本JSON自身的Git身份由同目录manifest.json按commit_blob绑定。找到件补包不代表缺失件已修复。",
+  "publication_corrections": [
+    {
+      "artifact": "S3_v12_bars_freeze_elf",
+      "previous_binding": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T17\\stage3_closeout_erratum_20261026_r01\\manifest.json",
+      "correct_binding": "D:\\codex-worktrees\\dbdf\\report\\evidence\\S3-T14\\v12_bars_freeze_tool_20261022_r01\\manifest.json",
+      "reason": "旧erratum清单不直接列v12完整SHA；改绑实际v12工具身份清单。"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "gestureforge_delivery_manifest_v1",
+  "task_id": "S3-T17",
+  "run_id": "stage3_closeout_20261026_r01",
+  "created_utc8": "2026-10-26",
+  "stage": 3,
+  "verdict": "STAGE3_CLOSEOUT_PASS_WITH_RECORDED_LIMITATIONS",
+  "verdict_zh": "阶段3 收尾通过（带记录性局限）",
+  "authorization": "Wong 2026-10-26「都可以」（接受两项残留为记录性局限；授权含下载窗口）与「交给你来做」（委托完成真彩判据与收尾）",
+  "freeze_baseline": {
+    "local_annotated_tag": "stage3-close-20261026",
+    "note": "tag 创建于本记录所在提交；提交 SHA 以 `git rev-parse stage3-close-20261026` 为准；不 push",
+    "branch": "codex/stage3-video",
+    "worktree": "D:\\codex-worktrees\\dbdf"
+  },
+  "frozen_artifacts": {
+    "bitstream": {"sha256_prefix": "7cb330685260ced3", "bytes": 1668969, "role": "无补偿 SOF 基线（部署）"},
+    "xsa": {"sha256_prefix": "1f5b138e693065c6", "bytes": 633089},
+    "elf": {"sha256_prefix": "1457cda4867649dc", "bytes": 306272, "role": "an5642_j11cmos2_v10_read.elf（只读回读、实时彩色）"},
+    "xdc": {"sha256_prefix": "2dae928c", "role": "an5642_j11_cmos2.xdc"},
+    "patch": {"sha256_prefix": "fd854a62", "role": "alinx_ov5640_sof_hrefgap.patch（GAP_THRESH=16384）"}
+  },
+  "requirement_matrix": [
+    {"requirement": "摄像头→已确认输入→FPGA→HDMI→显示器（不支持则记录差距并由用户确认替代接口）", "status": "PASS_RECORDED_VARIANT", "evidence": "通道差异：AN5642/OV5640→J11 扩展口→PL 采集/DDR→HDMI；替代由 Wong 方向确认"},
+    {"requirement": "分辨率", "status": "PASS", "evidence": "t17_g3_reconfirm_20261026_r02/register_probe.txt（VSIZE 0x02D0/HSIZE 0x0F00）"},
+    {"requirement": "像素格式", "status": "PASS", "evidence": "RGB565 0x4300=0x60；内存序 B,G,R；每行 3840 B"},
+    {"requirement": "帧/行边界", "status": "PASS", "evidence": "alinx_ov5640_sof_hrefgap.patch fd854a62…；t05_sof_fix_20261020_r01"},
+    {"requirement": "帧率", "status": "RECORDED_LIMITATION", "evidence": "未仪器测量帧率/PCLK；不得编造数值（t05_timing17_nominal_pclk_reaudit_20261026_r02/）"},
+    {"requirement": "≥30 分钟无输入/显示死锁", "status": "PASS", "evidence": "t05_stage3_window_20261024_r01/（31 min 15 s、7 轮、5/5、无停/复位/死锁）"},
+    {"requirement": "像素计数与配置对应", "status": "PASS", "evidence": "帧 2,764,800 B=720×3840；ADDR/STRIDE/HSIZE/VSIZE 运行期回读一致；S2MM/MM2S 同址 0x00110C00"},
+    {"requirement": "测试图案/运动场景检查花屏、撕裂、停帧", "status": "PASS", "evidence": "彩条 8 段满量程且顺序正确（bars_g3.png，白 B5=31、绿 G6=63，与 10-23 同型）；实景目视「画面可以接受，正常颜色」；导出撕裂系读取方法所致并已更正"},
+    {"requirement": "证据：接口来源、配置、帧/像素计数、连续日志和视频", "status": "PASS_WITH_LIMITATION", "evidence": "各 RunId 齐备；连续 UART 35 min；未录制连续视频（以日志+帧转储+人工目视替代）"}
+  ],
+  "g3_reconfirmation": {
+    "window_run_ids": ["t17_g3_reconfirm_20261026_r02"],
+    "download_exit": "T05_DOWNLOAD_EXIT=0",
+    "identity_indirect": "UART ADDR=0x00110C00 / S3_DIAG9_PAD 一致 / CHIPID TRY0-2=0x5640",
+    "runtime": {"ADDR_S2MM": "0x00110C00", "ADDR_MM2S": "0x00110C00", "STRIDE": "0x0F00", "HSIZE": "0x0F00", "VSIZE": "0x02D0", "SR_S2MM": "0x00015810", "MM2S_SR": "0x00011000"},
+    "true_colour": "既定彩条用例（写前回读/写后校验 readback=0x80）⇒ 真彩在位、无缺位；随后恢复部署应用（503D=0x00、指纹 t=5..25 全互异、nz=16384）",
+    "human_visual": "2026-10-24 01:41 Wong「画面可以接受，正常颜色」（位流/ELF/端口/接线未变更，判定仍适用）"
+  },
+  "recorded_limitations": [
+    {"item": "VDMA 首帧 bit11 根因", "state": "PARTIAL_OPEN", "accepted_by": "Wong 2026-10-26", "note": "第 3 次独立复现 0x00015810；无 AXI-Stream 握手观测/无 ILA；功能无影响", "clear_condition": "启动阶段采集 reset/配置/CR.RS/VSIZE 与首帧 TVALID/TUSER/TLAST/TREADY 对齐"},
+    {"item": "task-11 完整 SEC 等价", "state": "BLOCKED_NOT_RUN", "accepted_by": "Wong 2026-10-26", "note": "本机无适用引擎/license；源/primitive/INIT-GSR 绑定缺项；静态阈值译码与局部转移已 PASS"},
+    {"item": "TIMING-17 / I-O delay（C2/I1-I3）", "state": "RECORDED_LIMITATION", "accepted_by": "Wong 2026-10-24", "note": "未宣称验证；隔离实验证明 TIMING-36/30 可消除但正式源未改"},
+    {"item": "帧率/PCLK 未仪器测量；未录制连续视频；无 ILA", "state": "RECORDED_LIMITATION", "note": "BASIC 许可禁 debug core，不免除功能/时序/耐久标准"}
+  ],
+  "g2": {"status": "PASS", "baseline": "78f2bde", "note": "完整 G2 证据审查独立 PASS；早期 stdluma/gray 补丁仅人工审阅（若重启须复审）"},
+  "recovery_entry": "bash scripts/stage3_t05/run_t05_board_capture.sh tmp/s3r06/t04_sof_fix_20261020_r01 tmp/s3r06/t04_j11cmos2_elf_v10/elf_build/app/an5642_j11cmos2_v10_read.elf <tag> 70；随后按 g3_reconfirmation.runtime 核对",
+  "not_executed": ["QSPI 烧录", "改线", "电气测量", "连续视频录制", "帧率/PCLK 仪器测量", "v14 候选部署（仍未成包/未独立审查）"],
+  "does_not_claim": ["阶段4/5/6 任何结论", "task-11 完整等价通过", "VDMA 根因已定位"]
+}

@@ -2,9 +2,11 @@
 
 ## 当前目标：暂停封存与 GitHub 保存（2026-11-01）
 
-Wong 已决定退出本次竞赛，暂停项目；当前只整理和上传恢复所需成果至 `https://github.com/X-8871/GestureForge`，不继续开发、训练、综合或板级操作。恢复入口 `RESUME.md`；清理方案已提出但训练集、工作树及原始证据尚未删除。本地原分支/标签保留；未提交工程快照另放 `codex/archive/20261101/*`，不伪装成已验收成果。上传状态以远端核验回执为准，不以本段预先宣称已上传成功。
+Wong 已决定退出本次竞赛，暂停项目；当前整理、上传恢复成果并按明确范围清理磁盘，不继续开发、训练、综合或板级操作。仓库 `https://github.com/X-8871/GestureForge`，恢复入口 `RESUME.md`。原分支/标签保留，未提交工程快照放 `codex/archive/20261101/*`，不伪装成已验收成果。实际上传状态以远端核验回执为准。
 
-本轮归档提交 `17a7056`，当前上传状态 `UPLOADED_AND_FRESH_CLONE_VERIFIED`（2026-11-01 13:52 UTC+8）：18分支/19标签远端SHA一致；从GitHub独立网络克隆被测main `653d94f`，317项归档文件和九树31632项快照内容身份校验通过。独立审查PASS，原有16项main业务差异保留。成功回执 `report/evidence/CTRL-ARCHIVE/github_archive_20261101_r02/receipt.json`；r01网络受阻回执保留历史。离线bundle亦已独立恢复核验。未编译、未上板，不提高阶段验收结论；原训练集、工作树、大型证据尚未清理，omitted不等于可删除。
+首包归档提交 `17a7056`，上传状态 `UPLOADED_AND_FRESH_CLONE_VERIFIED`（2026-11-01 13:52 UTC+8）：18分支/19标签远端SHA一致；从GitHub独立网络克隆被测main `653d94f`，317项归档文件和九树31632项快照身份校验通过。成功回执 `report/evidence/CTRL-ARCHIVE/github_archive_20261101_r02/receipt.json`；r01网络受阻回执保留历史。离线bundle亦已独立恢复核验，原16项main业务差异保留。
+
+后续审计补包 `archive/project-paused-20261101-supplement/`：125项，14件精确模型/部署产物+源码/初始化/来源记录，独立审查PASS；11个阶段5/6冻结ELF与阶段5两个主C/H的精确身份仍缺，不能用漂移件替代。Wong已明确批准公共六类train/val/test原图清理：2026-11-01 14:11 UTC+8完成158089张/217878893516字节，失败0，614张唯一校准/冻结测试图、标签及副本末尾哈希复核通过。回执 `report/evidence/CTRL-ARCHIVE/public_images_20261101_r01/receipt.json`。八棵辅助工作树、主report/evidence、109组黄金和模型仍保留；tmp/review只在完整私有归档验证后移除D盘副本。未编译、未上板，不提高阶段验收结论。
 
 ## 当前管理权（2026-11-01，优先于下方历史记录）
 

@@ -10,16 +10,18 @@
 - `codex/archive/20261101/main|stage7|96a3|dbdf|w4|w5|w6|w2b|w2c`：各本地工作树的未提交工程文件与筛选后的文档/小型证据快照。原工作区、索引和原作者归属保留；快照不冒充代码审查或阶段验收通过。
 - `archive/project-paused-20261101/`：从本地 ignored/外部目录保全的模型、相机/显示/推理源码和部署件、路径/哈希清单，以及各树上传/留存本地项目清单。
 
-本轮不删除训练集、不移除工作树、不清理原始证据。`inventory` 与各树清单中的 omitted 表示**未纳入本地归档或本轮上传范围，原件仍留在原机**，不表示这些文件均可删除。以后删除原机内容前，必须单独验证完整恢复依赖并按审核方案执行。
+2026-11-01后续核对发现首包遗漏部分冻结部署件，新增 `archive/project-paused-20261101-supplement/`，125项文件独立清单，包含14件精确模型/部署产物与来源/初始化/源码记录。阶段5/6仍缺11个冻结ELF，阶段5仍缺两个主C/H源码的精确哈希；当前同名版本不能替代。细节见补包 `gap_audit.json`，不能宣称所有历史冻结包均可完整恢复。
+
+Wong随后明确批准六类公共train/val/test原图清理：已删除158089张、217878893516字节，失败0；614张唯一校准/冻结测试图及标签在原位保留，另有本地副本，原件与副本均完成末尾哈希复核。`report/evidence/CTRL-ARCHIVE/public_images_20261101_r01/receipt.json`保存执行事实。正式工作树与主目录原始证据尚未移除。各树历史清单中的omitted描述上传时点，不能作为当前文件存在性或删除授权；以后按具体清理回执和归档映射核对。
 
 ## 恢复步骤
 
 1. 在全新目录克隆 `https://github.com/X-8871/GestureForge`，读取根 `AGENTS.md` 和本文件；也可按独立离线包回执从 `.bundle` 恢复被封存的提交。项目保持暂停，新的技术任务由 Wong 决定。
-2. 先停留在 `main`，运行 `python -B -X utf8 verification/verify_archive_20261101.py --repo .`，核对归档内容与 manifest；再读取 `archive/project-paused-20261101/worktrees.json` 里的原 HEAD、快照提交与归属。此验证仅确认文件身份，不代表编译或板级成功。
+2. 先停留在 `main`，运行 `python -B -X utf8 verification/verify_archive_20261101.py --repo .` 核对317项首包；再运行 `python -B -X utf8 verification/check_manifest_hash_basis.py --repo . --paths archive/project-paused-20261101-supplement/manifest.json --mode strict --json` 核对125项补包；然后读取 `archive/project-paused-20261101/worktrees.json` 里的原 HEAD、快照提交与归属。这些验证仅确认文件身份，不代表完整构建或板级成功。
 3. 按清单选择原阶段分支或对应封存快照，在独立目录恢复。例如阶段4快照使用 `git worktree add --detach ../GestureForge-w4 origin/codex/archive/20261101/w4`。归档总包和上述校验器位于 `main`，在切换前完成核验；部署件按同一版本组合恢复。
 4. 外部源码包的 `original` 字段记录原路径；例如相机 Tcl 仍引用 `D:/tmp/lead/p2c_20261029_r02/src`、w2b 源码及 OV5640 IP。恢复时按清单重建原路径，或在隔离副本明确改为新路径；不能直接认为移动后的旧 Vivado XPR 可重开重建。
 5. 安装/定位原工具链（Vivado/Vitis 2026.1、相关 BSP、Python、编译器和适用许可证），先做轻量离线检查，再按任务需要重建。工具链与许可证不随本仓库打包。
-6. 本地归档包未包含校准图像、完整训练数据与部分大型证据。继续训练或严格全量回归时，需要本机保留材料或重新取得数据，按数据来源、许可、划分和哈希核对；原数据清理之前先保留正式512张校准集及冻结验证集合。
+6. GitHub首包/补包不含完整训练数据与部分大型证据；本地已保全512张校准图及109项测试依赖（真实图片105张，另4项合成；唯一图片合计614张）。109组完整输入/CPU黄金保留在 `D:\FPGA_Competition\archive\S2A-T68\repair109_20261003_194620\fixtures`。公共全量原图已按批准清理，执行原train/valid/test清单前须重新取得数据，并核对来源、许可、划分和哈希；不将仅剩图片的子集当作原完整评估集合。
 7. 上板必须重新确认当前 PCB/模组、端口、部署身份和独立窗口授权；封存提交不授权复位、编程或运行。
 
 ## 暂停时的技术事实

@@ -1,0 +1,359 @@
+{
+  "task": "S5-T01 / 阶段5 G5 冻结（P3q 集成体）",
+  "generated_utc8": "2026-10-30T19:35:37+08:00",
+  "run_id": "g5_freeze_p3q_20261030_r01",
+  "build": {
+    "tool": "Vivado v2026.1 (64-bit), SW Build 6511674 (2026-06-16), IP Build 6504888",
+    "command": "vivado.exe -mode batch -notrace -log <dir>/s5_p3q_build_20261030_r01_vivado.log -journal <dir>/s4d_p3q_r01.jou -source <dir>/bd_p3q.tcl -tclargs build",
+    "cwd_when_run": "D:/FPGA_Competition（脚本内全部绝对路径，可从任意目录运行）",
+    "project": "s4d_p3q_r01",
+    "bd": "s4d_p3q",
+    "top": "top_p3q",
+    "part": "xc7z020clg400-2",
+    "synth": "launch_runs synth_1 -jobs 2; wait_on_run synth_1",
+    "impl": "set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]; launch_runs impl_1 -to_step write_bitstream -jobs 2; wait_on_run impl_1",
+    "xdc": [
+      "p3q.xdc",
+      "p3q_cdc.xdc"
+    ],
+    "session1_failed": "2026-10-30 18:25:46（PID 63644）：validate_bd_design 报 [BD 41-758] gpio_uf/s_axi_aclk 未接时钟；根因 = BD 内 gpio_uf 的 s_axi_aclk/s_axi_aresetn 未连；修复 = 在 bd_p3q.tcl 中把这两脚接入 FCLK_CLK0/rst_all，2026-10-30 18:31:10 重跑成功（本文产物均来自第二次会话 PID 47260）。",
+    "session2_ok": "2026-10-30 18:31:10（PID 47260）→ 18:45:20 完成，约 14 分钟",
+    "wall_clock_note": "首轮 validate 失败 ~5 min + 修复+重跑 ~14 min；单次干净重建预计 15–20 min（-jobs 2）"
+  },
+  "inputs": [
+    {
+      "role": "构建脚本（BD、RTL 引入、约束、launch_runs、产物导出）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\bd_p3q.tcl",
+      "sha256": "ebf378f8276b471412c6b398a28c99391a1f57b3b784a1999d253b7738e7945b",
+      "bytes": 17337,
+      "mtime_utc8": "2026-10-30T18:31:10+08:00"
+    },
+    {
+      "role": "引脚/时钟/时序约束",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\p3q.xdc",
+      "sha256": "acbc450145d66c92701d9bc4d955fcc882976ea09f723b636f090dc015ceb5c4",
+      "bytes": 2369,
+      "mtime_utc8": "2026-10-30T18:25:06+08:00"
+    },
+    {
+      "role": "CDC set_max_delay -datapath_only 约束",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\p3q_cdc.xdc",
+      "sha256": "35857c8c5369413c128e99c3fd82d04083fab0702e44a2474c9a7d14c5b32d49",
+      "bytes": 2448,
+      "mtime_utc8": "2026-10-30T18:25:06+08:00"
+    },
+    {
+      "role": "顶层 RTL",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\rtl\\top_p3q.v",
+      "sha256": "925e615b676784e28d08519fb10ff31931e92e752859e416d002600934f0965b",
+      "bytes": 9404,
+      "mtime_utc8": "2026-10-30T18:25:06+08:00"
+    },
+    {
+      "role": "720p60 时序/axis 生成 RTL",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\rtl\\axis_to_video.v",
+      "sha256": "52d09b89edc0d01952cb6891c289123210ce23be22177cc8542aea7ad97e1867",
+      "bytes": 4892,
+      "mtime_utc8": "2026-10-30T15:15:19+08:00"
+    },
+    {
+      "role": "rgb2dvi 固定 generic 薄封装",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\rtl\\rgb2dvi_wrap.vhd",
+      "sha256": "14fc788c8d1f47dabc4a34aee8363748fbe8e13cac881e54be53b7aeb37438f8",
+      "bytes": 2843,
+      "mtime_utc8": "2026-10-30T01:22:05+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\ClockGen.vhd",
+      "sha256": "5df9265e586b55396a75070197b141eb00a36f6dfd0ed69c8b544257405a83ef",
+      "bytes": 8316,
+      "mtime_utc8": "2017-01-14T22:28:30+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\DVI_Constants.vhd",
+      "sha256": "d8dbbbc3c8696d4527ee0d3c4757f1a40d0acebc845899483bc61c2bb8270cde",
+      "bytes": 3151,
+      "mtime_utc8": "2017-01-14T22:28:30+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\OutputSERDES.vhd",
+      "sha256": "6205d58405919d4f899a525256e2cafa725408f6644642755cd0de63e69b286e",
+      "bytes": 8366,
+      "mtime_utc8": "2017-01-14T22:28:30+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\rgb2dvi.vhd",
+      "sha256": "9ef5ceb9dbee2c77a524cf076baa2563f9d1d1e015c1da3c5e0c081506de3f23",
+      "bytes": 7834,
+      "mtime_utc8": "2018-09-19T11:02:12+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\SyncAsync.vhd",
+      "sha256": "5561ac8099ed13f3114e97387aab5f7f30ad28a8be2fc540004cbee3f19eb3a7",
+      "bytes": 3727,
+      "mtime_utc8": "2017-01-14T22:28:30+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\SyncAsyncReset.vhd",
+      "sha256": "3ce7ade3267959da59b4d448cc6641018e4f0ac3de9f8f998d0b9ff84a3794bc",
+      "bytes": 3734,
+      "mtime_utc8": "2017-01-14T22:28:30+08:00"
+    },
+    {
+      "role": "厂商 rgb2dvi VHDL（逐字节复制）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\src\\rgb2dvi\\TMDS_Encoder.vhd",
+      "sha256": "b047a257c1172412d1b354a98e3cc77d013d0f3c1af6ff646233abf8b669c196",
+      "bytes": 7863,
+      "mtime_utc8": "2018-09-19T09:57:42+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_coord_tables.svh",
+      "sha256": "42ebbd8f879df9f539f78d29adcd04c43c7bf605d84db71f67ce0712329d9883",
+      "bytes": 30288,
+      "mtime_utc8": "2026-10-29T00:36:00+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_csr.sv",
+      "sha256": "38afc806db1624dc6d6ff96860a4318604b05fed35552c17fded5b43577256a8",
+      "bytes": 11850,
+      "mtime_utc8": "2026-10-29T00:08:05+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_engine_v2.sv",
+      "sha256": "a4391b10c748569321715278c37f65a2710c35f9b1e9f1c4f11986ad4c5d2565",
+      "bytes": 24650,
+      "mtime_utc8": "2026-10-29T16:10:03+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_axi4_rd_shim.sv",
+      "sha256": "8bcf1c1d124a96a7a7cc3c47e802d2fc5cfba851655e11aae9d1ae8686fc0d59",
+      "bytes": 7207,
+      "mtime_utc8": "2026-10-29T00:20:52+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_out_axis.sv",
+      "sha256": "a27828e842e31198e2f300ff3f6e683d7f49c0bdc36566181d1a1fad0d14d1b4",
+      "bytes": 3778,
+      "mtime_utc8": "2026-10-29T00:09:08+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_preproc_v2_wrap.sv",
+      "sha256": "b074ff6380c715247365d5eb9206b9b69d5f28b2f6f298affa3582ced0dfb00c",
+      "bytes": 9845,
+      "mtime_utc8": "2026-10-29T16:10:28+08:00"
+    },
+    {
+      "role": "preproc v2 RTL（p2c_20261029_r02）",
+      "path": "D:\\tmp\\lead\\p2c_20261029_r02\\src\\rtl\\s4d_axis8_to_axis64.sv",
+      "sha256": "0078dbf69bbe1a8416497434a5eac2bb3e83b90bf9c5118401251e5079e98d04",
+      "bytes": 4541,
+      "mtime_utc8": "2026-10-29T15:42:16+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2a_network_descriptor_pkg.sv",
+      "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+      "bytes": 374316,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_maxpool_geometry.sv",
+      "sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "bytes": 15991,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\int8_maxpool_window.sv",
+      "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+      "bytes": 1692,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_route_query.sv",
+      "sha256": "8e0b7408e0884d7ae1852b87d51de550b7ce9c883ebaa48b9f4f6d143d14db68",
+      "bytes": 15195,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\int8_upsample_query.sv",
+      "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+      "bytes": 4633,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_conv_tile_engine.sv",
+      "sha256": "dee1d5e925d7c4fdd29bb9115103d34603ce050b5d43fa00d6147eacd6256aaf",
+      "bytes": 215271,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_maxpool_engine.sv",
+      "sha256": "37888648b327c32e249bd87ba4690b13cfc2cbfad03bf713f6566ff64dc86a4e",
+      "bytes": 21761,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_route_engine.sv",
+      "sha256": "56414835c73248b7cc023beca3a16421d5faed7f09ac65512c4059831a368a1d",
+      "bytes": 17533,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_upsample_engine.sv",
+      "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+      "bytes": 10535,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_network_backend.sv",
+      "sha256": "a5b30303658bcb2d163829d1645bdac58a4802ef89c29f61edc6b66adf969e2d",
+      "bytes": 34325,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2a_memory_master.sv",
+      "sha256": "721d7e09356986d23a6c1f723fe49322057b05aa02ac27e1b5887789b8bacf07",
+      "bytes": 2414,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2a_runtime_shell.sv",
+      "sha256": "c784de2c94456eb4bdbd9ff763454b9784ebcb8d8821d6505d68707cfc37e52e",
+      "bytes": 3696,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_stage2b_core.sv",
+      "sha256": "1b18de210a26498b52e53a6b9c54040169d540f99cae1310665b677397dd0e99",
+      "bytes": 5427,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2a_control_csr.sv",
+      "sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+      "bytes": 11284,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_request_guard.sv",
+      "sha256": "b09d8bddd60775efe49857b2ea837031db75c0fb802ace6075a3364da9d24531",
+      "bytes": 3530,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_hp0_word_adapter.sv",
+      "sha256": "344f5553da157434039ec531ccef83cd74dba9c67533a0b88642438e5b5a8f62",
+      "bytes": 15073,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_control_csr.sv",
+      "sha256": "4beaad995d31835799a20138ed027125fbb4920795d64e471c6174ced12169d1",
+      "bytes": 21722,
+      "mtime_utc8": "2026-10-16T12:13:58+08:00"
+    },
+    {
+      "role": "2B 推理核 RTL（w2b，只读引用）",
+      "path": "D:\\FPGA_Competition\\w2b\\src\\s2b_inference_top.sv",
+      "sha256": "dffd20728b6a3b88c9c4a0c63987e10460a54728f5e348ccf1f8182e78c859c1",
+      "bytes": 13808,
+      "mtime_utc8": "2026-10-15T21:17:38+08:00"
+    }
+  ],
+  "outputs": [
+    {
+      "role": "P3q 位流",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\s4d_p3q_r01.bit",
+      "sha256": "4d6ea2efd71bc6f9113f3a009278f097443d8a03b244aaedac70ec23f0b9b6e4",
+      "bytes": 4045762,
+      "mtime_utc8": "2026-10-30T18:44:34+08:00"
+    },
+    {
+      "role": "P3q XSA（含 ps7_init）",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\s4d_p3q_r01.xsa",
+      "sha256": "dfefc883b0fe267cf8bffc3f76b15067b9ab7ed99779670d661f8261907fe96d",
+      "bytes": 344843,
+      "mtime_utc8": "2026-10-30T18:45:20+08:00"
+    }
+  ],
+  "reports": [
+    {
+      "role": "实现后时序报告",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\timing_route.rpt",
+      "sha256": "6f840cfddb083935d00c5778736d8d012562944fb3cfb43a25b03d69f02f21cb",
+      "bytes": 736502,
+      "mtime_utc8": "2026-10-30T18:45:09+08:00"
+    },
+    {
+      "role": "实现后资源报告",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\util_route.rpt",
+      "sha256": "e1437bfd7a4553f242304ffdfbf851ab8441daeb1ae2cf43db94b8d8fd36cbd7",
+      "bytes": 12615,
+      "mtime_utc8": "2026-10-30T18:45:10+08:00"
+    },
+    {
+      "role": "DRC 报告",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\drc_route.rpt",
+      "sha256": "ae27896520395a8de57eb931ec1035f4d7df121ef71c0b2a64bba83435ed7f72",
+      "bytes": 284426,
+      "mtime_utc8": "2026-10-30T18:45:14+08:00"
+    },
+    {
+      "role": "IO 报告",
+      "path": "D:\\tmp\\lead\\p3q_video_20261030_r01\\out\\io_route.rpt",
+      "sha256": "b53ad90b6d90f5f2793189fca3f827e44466e1edff3fc2768dda21bc36f18789",
+      "bytes": 125459,
+      "mtime_utc8": "2026-10-30T18:45:14+08:00"
+    }
+  ],
+  "w2b_missing": [],
+  "determinism_observations": [
+    "[BD 41-1306] WARNING x6：m_axis_mm2s_* 与 gpio_io_i 等由用户直连 net 覆盖接口连接 —— 属预期（本设计就是逐位连接流），但提示 writ_bd_tcl 重建 BD 时需以 bd_p3q.tcl 为准，不要用 write_bd_tcl 回写。",
+    "[IP_Flow 19-4994] WARNING x2：重新生成 OOC 约束文件（vdma/pc_hp2 的 _ooc.xdc 被覆盖）—— 正常 IP 生成行为。",
+    "OOC 综合：12 个 IP OOC 子 run 一次性并行拉起（-jobs 2 控制并发度），未见重试/卡死；本机 16 GB 内存下无 swap 压力记录。",
+    "phys_opt 估算 WNS=-0.557 为中间估计，最终布线 WNS=+0.371（正常收敛；冻结以 P3Q_SUMMARY 为准）。",
+    "out/ps7_init.* 的 mtime 为 19:30:35，是 2026-10-30 晚上板测时 `loadhw -hw *.xsa` 触发重新导出，**不是构建时间**；XSA 内 ps7_init 与 18:45 构建时一致（以 XSA sha 为准）。",
+    "本设计未使用任何外部 IP 仓库/自定义 IP 打包；rgb2dvi 为厂商源逐字节复制，无 IP 生成步骤 ⇒ 无 IP 版本漂移风险。",
+    "无并行 OOC 导致的 IP 生成差异：两次会话的 IP 子 run 均复用同一脚本与同一源树；产物 sha 见 outputs。"
+  ],
+  "rebuild_from_zero": [
+    "1) 环境：Vivado 2026.1；器件 xc7z020clg400-2；磁盘 ≥10 GB 空闲；内存 ≥4 GB 可用。",
+    "2) 准备源树（三处，均需就位）：",
+    "   a. p2c 冻结源：D:/tmp/lead/p2c_20261029_r02/src/rtl/（7 个 preproc 文件，见 inputs.role=preproc v2 RTL）",
+    "   b. w2b 2B 核：D:/FPGA_Competition/w2b/src/（18 个 .sv，见 inputs.role=2B 推理核 RTL）",
+    "   c. P3q 自身：D:/tmp/lead/p3q_video_20261030_r01/（bd_p3q.tcl、p3q.xdc、p3q_cdc.xdc、rtl/ 3 个、src/rgb2dvi/ 7 个 vhd）",
+    "3) 若从空目录重建：复制整个 p3q_video_20261030_r01 到新目录（或改脚本里 base/out 两个变量指向新 out），然后执行上面的 vivado 命令行（tclargs 必须带 build；不带则只做 validate）。",
+    "4) 校验点（日志尾部）：P3Q_FCLK1_ACT=100.000000 MHz；P3Q_SRC_BASE_BD=0x12000000；==== P3Q BD VALIDATED ====；",
+    "   P3Q_SUMMARY WNS=0.371 WHS=0.036；P3Q_DRC: Checks found: 444（0 error）；P3Q_BIT_OK；P3Q_XSA_OK；==== P3Q DONE ====。",
+    "5) 产物：<out>/s4d_p3q_r01.bit（4,045,762 B）与 <out>/s4d_p3q_r01.xsa（344,843 B），sha 见 outputs。",
+    "6) 手工步骤：无。全部由 bd_p3q.tcl 完成（含 RTL/约束引入、BD 构建、综合、实现、bit/XSA 导出、报告生成）。"
+  ]
+}

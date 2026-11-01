@@ -9,14 +9,23 @@ Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控
 本树当前管理/写入负责人：Codex 项目总控；技术状态和冻结版本按原证据逐项核对。
 
 
+## R-08 正式让出（2026-10-31 00:46 UTC+8）
+
+- 本行替代下方未提交的 C1 OFFER 草稿；既有阶段6文件停止写入并正式 OFFER 给 DSH。DSH 显式 CLAIM 前不等于已接管，板卡没有随本次交接授权。
+- 原“19项”按目录级状态为4个已跟踪文件、14个历史证据目录及C1新目录。当前C1目录已有32个文件暂存，STATE同时有暂存与未暂存差异；均归此前Codex阶段6工作，原内容与暂存状态保留，不冒充已提交。两条深层路径的默认Git假删除须用 `core.longpaths=true` 核对，禁止按删除提交。
+- 19项归位为“声明归属并保留”：STATE历史增量、`.gitattributes`、S6-A Markdown/JSON规格由DSH接手核对；S6-A r14–r16、U6-02 r01–r07、S6-B r10–r13共14个旧目录为历史失败/过期证据，保留且不混入新任务提交；C1包待确认已暂存内容与独立审查绑定后单独提交。R-08本身未宣称DSH已CLAIM或DONE。
+- 本轮遗留任务的新实现与证据仅预留独立目录 `legacy_codex_20261031/`，由当前Codex单写；它不属于本次让出的既有阶段6文件，不修改阶段5/6冻结物。后续本树Git提交串行，主目录写权仍归DSH。
+
+任务=`R-08：既有w6阶段6工作正式让出及19项归属声明` | 负责人=`Codex项目总控（让出方）` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`b0f4a688aa618f891b673c9b779f6b68f6e7472c` | 允许修改范围=`DSH CLAIM后接管既有阶段6文件与历史证据；排除Codex本轮独立目录legacy_codex_20261031；不含任何板卡权限；提交串行` | 未提交改动归属=`4个tracked路径+14个历史目录+C1新目录均为既有Codex阶段6工作；C1已有32个暂存文件、STATE部分暂存；全部保留，DSH核验接收后按范围分别处理；不自动纳入遗留任务提交` | 让出声明=`OFFERED；Codex已停止写既有阶段6实现、规格和冻结证据；仅保留独立遗留目录写权；没有持有或启动硬件会话` | 心跳(UTC+8)=`2026-10-31T00:46:43+08:00` | 证据入口=`本STATE R-08归属声明；C1既有delivery_manifest.json及review_receipt.json；新legacy_codex_20261031/r08交接快照` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short；先核对HEAD、index.lock、进程和本交接行，再显式CLAIM` | 状态/下一接手方=`OFFERED / DSH项目总控；未收到CLAIM，不称DONE`
+
 ## C1官方XSDB入口离线收口（2026-10-31 00:14 UTC+8；优先于下方历史状态）
 
 - Wong确认的DSH-014入口方案已离线验证，RunId `report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/`。Tcl 8.6.13；探针、wrapper与根cmd退出码均为0；执行0.594秒，Job进程树清理后ActiveProcesses=0。探针仅打印版本并退出，无connect、JTAG、寄存器/内存访问或板卡操作。
 - 当前基线 `b0f4a688aa618f891b673c9b779f6b68f6e7472c` 上，34个清单文件磁盘哈希全匹配；inputs/evidence与strict hash检查均exit 0，strict检查39项零不符，5个commit_blob固定输入绑定一致。源文件独立审查PASS，12/12独立定向测试通过；C1证据包独立复核PASS。证据包装只证明C1离线入口与进程收尾。
 - 明确未做：JTAG拓扑、T6-A03实测、真实推理与S6-E业务验收均`NOT_RUN`；阶段6 G3/G4/G5未通过。阶段4真实回放若仍缺cv2与绑定冻结图像的独立raw-head黄金，保持`BLOCKED`并记录所需输入，不伪造结果。
-- C1关闭后按DSH-20261030-017提交本树正式交接。原有4个tracked差异（`.codex/STATE.md`、`.gitattributes`、两份S6-A规格文件）及14个历史S6-A/S6-B证据目录保留原状，本次C1提交不包含它们；交接后由DSH确认归属。未进行硬件/Vivado操作。
+- C1关闭后按DSH-20261030-017提交本树正式交接。本次只提交C1证据包及本STATE顶部的C1交接块；剩余4个tracked路径的非C1差异（`.codex/STATE.md`历史增量、`.gitattributes`、两份S6-A规格文件）及14个历史S6-A/S6-B证据目录原样保留，交接后由DSH确认归属。未进行硬件/Vivado操作。
 
-任务=`阶段6 C1收口后将w6正式交接给DSH` | 负责人=`Codex阶段6总控（让出方）` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`b0f4a688aa618f891b673c9b779f6b68f6e7472c` | 允许修改范围=`C1离线证据包与本STATE交接记录；后续阶段6工作由DSH按任务卡接管；板级操作仍需单独硬件OFFER/授权` | 未提交改动归属=`保留4个tracked差异（本STATE历史增量、.gitattributes、S6-A Markdown/JSON规格）及14个旧证据目录（S6-A r14-r16/U6-02 r01-r07、S6-B r10-r13）；均不纳入C1提交` | 让出声明=`C1源与证据审查PASS、封包检查通过；只运行官方XSDB无connect离线探针；未操作硬件/Vivado；G3/G4/G5未通过` | 心跳(UTC+8)=`2026-10-31 00:14` | 证据入口=`report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/delivery_manifest.json；review_receipt.json；check_inputs.json；check_evidence.json；check_strict.json` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 rev-parse HEAD; git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`OFFERED / DSH项目总控显式CLAIM后接手；CLAIM前写权仍属Codex`
+任务=`阶段6 C1收口后将w6正式交接给DSH` | 负责人=`Codex阶段6总控（让出方）` | 工作树/分支=`D:\codex-worktrees\w6 / stage6-interact-prep` | 起始提交=`b0f4a688aa618f891b673c9b779f6b68f6e7472c` | 允许修改范围=`C1离线证据包与本STATE交接记录；后续阶段6工作由DSH按任务卡接管；板级操作仍需单独硬件OFFER/授权` | 未提交改动归属=`提交后仍留4个tracked路径的非C1差异（本STATE历史增量、.gitattributes、S6-A Markdown/JSON规格）及14个旧证据目录（S6-A r14-r16/U6-02 r01-r07、S6-B r10-r13）；均保留原状，由DSH接手核验` | 让出声明=`C1源与证据审查PASS、封包检查通过；只运行官方XSDB无connect离线探针；未操作硬件/Vivado；G3/G4/G5未通过` | 心跳(UTC+8)=`2026-10-31 00:14` | 证据入口=`report/evidence/S6-E/s6e_xsdb_offline_entry_20261030_r01/delivery_manifest.json；review_receipt.json；check_inputs.json；check_evidence.json；check_strict.json` | 恢复命令=`git -c core.longpaths=true -C D:/codex-worktrees/w6 rev-parse HEAD; git -c core.longpaths=true -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`OFFERED / DSH项目总控显式CLAIM后接手；CLAIM前写权仍属Codex`
 
 ## 6-E 板卡只读窗口（2026-10-30 21:00，UTC+8；优先于下方历史状态）
 
@@ -142,6 +151,17 @@ Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控
 
 任务=`阶段6离线缺口修复与验收准备` | 负责人=`Codex 阶段6总控` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`3be42b897003e00680bd554d915939de7dfde08e` | 允许修改范围=`阶段6离线源码、测试、新证据及 STATE` | 未提交改动归属=`原有 STATE、两份 S6-A 规格及旧证据继续保留；本轮变更见离线推进段` | 让出声明=`Codex 持有写权；未操作硬件，未向其他方 OFFER` | 心跳(UTC+8)=`2026-10-27 14:22` | 证据入口=`report/evidence/S6-A/s6a_u6_02_bound_20261027_r05/`；`report/evidence/S6-B/s6b_ack_suppress_20261027_r01/`；`report/evidence/S6-D/s6d_replay_no_hand_20261027_r03/` | 恢复命令=`git -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`IN_PROGRESS / Codex；离线审查完成，真实集成与阶段验收未闭合`
 
+## 收尾快照（2026-10-26 18:03 UTC+8；优先于旧交接行）
+
+- **阶段6未冻结。** 当前 HEAD `3be42b897003e00680bd554d915939de7dfde08e`。离线内容冻结 F6d/G6b 仍有效；S6-B r03 的 26 用例/4 探针及增量复审 PASS 只覆盖离线软件。整体 G0/G5 未通过。
+- **S6-A 状态**：U6-02 已有 Wong 明确批准，最新回执为 `report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json`，语义要求同一获取区间恰好提交一次，目标丢失重获或切换后须重新满足稳定窗口。r07 目录目前仅有回执；尚未重建/复核与该回执绑定的完整自检包，S6-A G0 仍 `DELIVERED_PENDING_REVIEW`。S6-A G0 r17 的既有 17 项通过不自动覆盖 r07。
+- **未闭合阻碍**：T6-A03 数值 `NOT_RUN`（缺阶段4实测帧周期 P）；6-D 等阶段4/5契约冻结及回放/显示结果，仍 `BLOCKED`；6-E 实物验收/G3 未执行；阶段 G4/G5 未通过。阶段7未开工作树。200 ms stale 门限已获批准但不等于实测。
+- Wong 报告现场断电重启后 JTAG/A9 恢复；本轮未重新连接验证，也未获得新的阶段6板测窗口授权。旧状态中“未枚举 JTAG”是早先快照，本次只追加用户报告，不将它升级为板级事实。
+- 盘点前本树有 17 个状态项：STATE、S6-A 两份规格文件及 r14-r16、U6-02 r01-r07、S6-B r10-r13 等未跟踪 RunId；均保留，未清理或改写。按 Wong 指令，本轮停止开发、测试和硬件活动，只更新此状态文档。Codex 仍持本树写权，后续 DSH 交接尚未正式 OFFER/CLAIM。
+
+## 历史交接行（11字段，2026-10-26 18:03 UTC+8）
+任务=`阶段6收尾：暂停活动，补全 S6-A/B/E、6-D、T6-A03 与阶段验收状态，准备后续 DSH 交接` | 负责人=`Codex 项目总控` | 工作树/分支=`D:\codex-worktrees\w6` / `stage6-interact-prep` | 起始提交=`3be42b897003e00680bd554d915939de7dfde08e` | 允许修改范围=`本轮仅 .codex/STATE.md；不改行为规格、代码、旧 RunId 或硬件` | 未提交改动归属=`原有 STATE/两份 S6-A 规格与14个未跟踪证据包均保留；本轮仅增补 STATE` | 让出声明=`按 Wong 指令停止阶段活动；无本轮硬件操作；用户报告 JTAG/A9 恢复但未验证；阶段6整体 G0/G5 未通过` | 心跳(UTC+8)=`2026-10-26 18:03` | 证据入口=`report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json`；`report/evidence/S6-A/s6a_g0_20261024_r17/`；`report/evidence/S6-B/s6b_core_20261025_r03/`；`report/evidence/S6-E/s6e_boardfree_20261024_r01/` | 恢复命令=`git -C D:/codex-worktrees/w6 rev-parse HEAD; git -C D:/codex-worktrees/w6 status --short` | 状态/下一接手方=`IN_PROGRESS（活动暂停；S6-A G0 待复核，6-D/T6-A03/6-E/G3/G4/G5 未闭合）/ 等 Wong 正式交接给 DSH；交接前写权属 Codex`
+
 ## 目标
 阶段6 交互控制：五类动作判定、多框选择/同分排序、目标保持与重获、抖动/稳定窗口、冷却与再触发、
 持续保持只触发一次；产出 G0 行为表 + S6-B/S6-C 实现与确定性证据 + 6-E 验收用例集。硬件（摄像头/板测）不在本轮。
@@ -212,7 +232,7 @@ Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控
 - E4 修复首轮复核发现重复参数/批准 ID 可被字典/集合掩盖；r03 已修正。独立复核 PASS：定向 unittest 9 项 exit 0、验收基线 `ALL_PASS`、14/14 注入捕获 exit 0、重复 ID 探针 exit 0。
 - 新增证据 `report/evidence/S6-E/s6e_gate_fix_20261024_r03/`；源码与测试哈希见 `report/evidence/S6-E/s6e_gate_fix_20261024_r03/validation_summary.json`。`.gitattributes` 对 r01/r02/r03 限定为逐字节保存，避免全局 autocrlf 破坏原始哈希。
 - r02 完整工具套件为 **exit 1 / UNEXPECTED**：其正常 claim 和快照自证针对旧 r13 运行包；C11 确认旧 r13 清单仍绑定旧版 `verification/tool_self_tests.py`，因此 C6 真实失败。旧 r13 与 r01/r02 失败证据均保留，不重写、不引用为通过。
-- **S6-A G0 交付状态**：`DELIVERED_PENDING_G0_CONFIRMATION`；r14/r15/r16 失败与过期包均保留。r17 已构建：17 项自检 `ALL_PASS`，inputs/evidence 检查均 PASS，source commit=`bc9b2b7`；独立增量包审查 PASS，整体 G0/G5 仍未通过。
+- **S6-A G0 交付状态**：`DELIVERED_PENDING_REVIEW`；r14/r15/r16 失败与过期包均保留。r17 已构建：17 项自检 `ALL_PASS`，inputs/evidence 检查均 PASS，source commit=`bc9b2b7`；独立增量包审查 PASS。Wong 于 2026-10-25 批准 U6-02 当前语义；精确回执 `report/evidence/S6-A/s6a_u6_02_decision_20261025_r05/decision_receipt.json` 明确每个获取区间恰好产生一次 `ACTION_SUBMITTED`。r04 Reviewer 对 r01「最多一次」表述判 CHANGES_REQUIRED；r01/r04 旧记录均保留。r05 当前自检 17/17 `ALL_PASS`，摘要见 `report/evidence/S6-A/s6a_u6_02_decision_20261025_r05/verification_summary.json`，修正轮增量复审待完成；更新后状态复核 RunId 为 `report/evidence/S6-A/s6a_u6_02_decision_20261025_r06/`。r01/r02 C11 失败、r03/r04 先前自检通过的 RunId 均未覆盖。整体 G0/G5 仍未通过，T6-A03 仍 NOT_RUN。
 - **S6-B 重建**：r10-r13 全部保留；r11 是缺输入失败包，r12 虽清单检查 PASS 但摘要仍记录修复前 evidence exit 2，r13 只有部分初始产物且无 manifest。代码修复 `ef2f74d` 与 closing 独立封存修复 `c539828` 均经 Reviewer PASS；探针基线计数修复 `72c10e5` 经独立复审 PASS、定向测试 4/4。r01 保留为前版证据：closing 退出码未有独立 sidecar/清单绑定。r02 保留并标记 `CHANGES_REQUIRED`：probe 摘要把基线写成 23 例，矩阵及运行报告为 26 例，尽管结构/哈希检查通过。新包 `s6b_core_20261025_r03` 基于 `72c10e5470c6e1d4deecee3fec538605e16499d4` 与用例矩阵 SHA-256 `3a23f62c7b23acd1f35dd1eec6c974782fe38b5713dde3fb86763791d21e2552`：26/26 用例、4 项探针、inputs、最终 evidence 与独立 closing evidence 均 PASS/exit 0；fixpoint 第 3 轮收敛，首轮 evidence 预检 exit 2 保留。r03 增量包审查 PASS；离线检查不代表 G0/G4/G5 通过。
 - **工具自测路径隔离修复**：`verification/tool_self_tests.py`、`verification/hash_convention_check.py`、`verification/test_s6_gate_regression.py` 已独立审查 PASS 并提交 `bc9b2b7`。最终路径回归 10/10 PASS；最新源码的完整工具套件在隔离克隆仅运行一次，16/16 `ALL_AS_EXPECTED`、无跳过，JSON SHA-256 `caf5af32c0002543d55d17efae7445d92ec8934828b646b058d2f35170cafecb`。旧 RunId、STATE 和共享输出指纹前后未变。复制前路径复验缩小了本机非对抗并发 TOCTOU 窗口，但不能消除最终检查与系统调用之间的竞态。
 - `T6-A03` 交互延迟数值 `NOT_RUN`（缺阶段4 实测帧周期 P，不得填造）；G3 板测未做，Wong 报告板卡已接上但主机当前只识别 COM4、未枚举 JTAG（阶段3 W1 依用户选择等待 JTAG）；6-D 集成待阶段4/5 接口冻结（`BLOCKED`）；6-E 实物验收未执行；阶段7 暂不开工作树。
@@ -222,6 +242,10 @@ Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控
 增量复审已完成；6-D/6-E 仍依赖阶段4/5 契约冻结及相应回放/显示结果包。板级工作须等 Windows 枚举 JTAG、取得适用窗口授权并重做受连接判据。
 
 ## 证据入口
+ - U6-02 批准回执绑定包（构建及独立复核进行中）：`report/evidence/S6-A/s6a_u6_02_bound_20261027_r02/`
+ - U6-02 回执绑定修复轮（构建及独立复核进行中）：`report/evidence/S6-A/s6a_u6_02_bound_20261027_r03/`
+ - U6-02 回执绑定修复轮（构建及独立复核进行中）：`report/evidence/S6-A/s6a_u6_02_bound_20261027_r04/`
+ - U6-02 回执绑定修复轮（构建及独立复核进行中）：`report/evidence/S6-A/s6a_u6_02_bound_20261027_r05/`
 （C11 口径：凡带扩展名的反引号 token 按**项目根**解析；此处只用全路径，避免被当作本证据目录内文件。）
 - S6-A（本轮）：`report/evidence/S6-A/s6a_g0_20261024_r13/`、`report/evidence/S6-A/s6a_g0_20261024_r13/S6A_run_summary.md`、
   `report/evidence/S6-A/s6a_g0_20261024_r13/delivery_manifest.json`、`report/evidence/S6-A/s6a_g0_20261024_r13/claim_verification.json`、
@@ -247,7 +271,7 @@ Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控
 证据入口：`report/evidence/S6-E/s6e_gate_fix_20261024_r03/`、`report/evidence/S6-B/s6b_core_20261025_r02/`、`report/evidence/S6-B/s6b_core_20261025_r03/`、`report/evidence/S6-A/s6a_g0_20261024_r17/` | 恢复命令：`python -B -m unittest test_s6b_build_evidence -v`（verification/）；后续复审 F6d → task-23/task-28/E4 增量 |
 状态/下一接手方：S6-B builder/探针修复 REVIEWED_PASS / `72c10e5`；r02 证据 CHANGES_REQUIRED 并保留，r03 包审查 PASS；S6-A r17 增量包审查 PASS；F6d → task-23/task-28/E4 整体增量复审未完成；6-D、实物验收及阶段 G5 仍 BLOCKED/NOT_RUN。
 
-## 当前交接行（2026-10-25 05:39）
+## 历史交接行（2026-10-25 05:39；保留历史快照）
 任务：R6-02 延迟门禁修复及 R6-04 清单补全（R6-03/R6-05 独立审查 PASS） | 负责人：Codex 项目总控 | 工作树/分支：`D:\codex-worktrees\w6` / `stage6-interact-prep`
 起始提交：`c80fe7e714c83f1c73e08fcb8c23072e9225c4d7` | 允许修改范围：`verification/s6e_latency_template_check.py`、`verification/test_s6_gate_regression.py`、`report/evidence/S6-E/s6e_latency_gate_fix_20261025_r01/`、`.codex/STATE.md`
 未提交改动归属：本轮源码、RunId 与 STATE 已提交于 `6324b93`；原有 S6-A r14-r16、S6-B r10-r13 与7个旧失败包保留、不入提交 | 让出声明：Developer 已停写；R6-03 代码与 R6-05 包装审查 PASS；未运行硬件/Vivado | 心跳(UTC+8)：2026-10-25 05:39

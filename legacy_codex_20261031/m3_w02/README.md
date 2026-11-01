@@ -4,7 +4,7 @@
 
 ## 模板与执行目录
 
-`templates/` 的四份 Tcl 和 `port.txt` 是旧 r02 准备模板的逐字节副本，审查依据及哈希见 `r03/review_new/R03_m3_tcl_templates_review_20261031.md`。旧 RunId 与旧准备说明保留不动；**不得直接执行模板或复用旧租约**。未来使用 `report/evidence/R03-M3/m3_pair_<日期>_r03` 或更高编号的全新 RunId，保留相同子目录结构复制模板；实际端口仅允许3121/3122，需在租约启动前按 DSH 分配与监听归属核定。
+`templates/` 源自旧 r02 准备模板；2026-11-01 实测后，restore/event 已补每个新 XSDB 客户端的固定 XSA `loadhw`，否则新连接会拒绝未声明的 PL 地址。setup/close/port 保留原副本。原审查及后续实际 r05 审查均保留在 `r03/review_new/`，不得再将新 restore/event 称为旧模板的逐字节副本。旧 RunId 与旧准备说明保留不动；**不得直接执行模板或复用旧租约**。未来使用 `report/evidence/R03-M3/m3_pair_<日期>_r03` 或更高编号的全新 RunId，保留相同子目录结构复制模板；实际端口仅允许3121/3122，需在租约启动前按 DSH 分配与监听归属核定。
 
 `setup` 固定2B bit/XSA、核状态和CSR检查，只 dow 已登记应用，不 con。`restore` 仅在 before 之前从固定原快照恢复 `[0x12000000,0x12C08000)`，12,615,680 B。before/after 各全区双读；中间事件仅为 `readonly-mrd-sampling-no-candidate-write`。本测量不证明真实推理活动期间 DDR 保持性，也不夹带 C2 板测。
 
@@ -26,6 +26,8 @@
 6. 保存 holder 的收尾 stdout/退出码与 `server_close.json`，运行 `D:\codex-worktrees\w6\legacy_codex_20261031\capture_host.py --run <新RunId绝对路径> --phase post`，确认本轮进程/端口清理及13项固定输入前后一致。归还后的其他方活动另行区分，不结束无关进程。
 
 协议门禁拒绝 before 输出（包括失败半包）出现后的 restore；before 必须有当前身份 setup/restore 成功凭据，event 必须在成功 before 后且 after 未开始，after 必须有 before/event 成功凭据。close 可在任意阶段用于止损。失败不能覆盖原输出重跑；需要新 RunId 和适用新授权。
+
+Windows 端口核验现用 `Get-CimInstance` 查询 `MSFT_NetTCPConnection` 的 State=2/LocalPort，空集合表示无监听；避免 `Get-NetTCPConnection -LocalPort -ErrorAction Stop` 把无匹配对象误作查询失败。真实 CIM 错误仍拒绝执行。2026-11-01 r05 实采已完成四份全区读回与固定基准一致，正常受控收尾；具体范围与原始结果以该 RunId 和独立实际证据审查为准，不推广为推理负载期间保持性。
 
 ## 验证与交付边界
 

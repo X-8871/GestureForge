@@ -453,8 +453,9 @@ class OwnerGuardTests(unittest.TestCase):
         with patch.object(owner_guard.subprocess, "run", return_value=completed) as invoke:
             self.assertEqual(owner_guard.query_listener_pids(3121), [])
         command = invoke.call_args.args[0][-1]
-        self.assertIn("Get-NetTCPConnection", command)
-        self.assertIn("-State Listen -LocalPort 3121", command)
+        self.assertIn("Get-CimInstance", command)
+        self.assertIn("MSFT_NetTCPConnection", command)
+        self.assertIn("State=2 AND LocalPort=3121", command)
 
     def test_step_uses_bound_port_and_mock_runner(self):
         setup_dir = self.fx.run_dir / "setup"

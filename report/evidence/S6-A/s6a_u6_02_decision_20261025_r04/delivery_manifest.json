@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_decision_20261025_r04",
+  "source_commit": "3be42b897003e00680bd554d915939de7dfde08e",
+  "evidence_dir": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r04",
+  "interfaces": [
+    {
+      "name": "S6-A G0 行为包（U6-02 决策状态更新；语义不变）",
+      "version": "S6A-G0-v1.8",
+      "frozen": false,
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "a2c1de57a10372da2e7b7f1c84df9611d916a6a7bc6e1c9d4fb00ab6fbcc8b58"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r04/selfcheck_result.json",
+      "sha256": "537a5c10160341ae2b8435d0aa3f7c791457201620e97c9196215ead8c47d351",
+      "role": "result",
+      "keep_reason": "U6-02 更新后全量 S6-A 规格自检结果（17/17 ALL_PASS）"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r04/verification_summary.json",
+      "sha256": "5ddeaefa6dc7392402012908d986df62ddd5d01ed01b98230d074fadc434dab2",
+      "role": "result",
+      "keep_reason": "本轮验证命令、结果、失败尝试保留与验收边界摘要"
+    },
+    {
+      "path": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
+      "sha256": "d4d0cb2fd5d452d7431b3cd2530b35fb53e70f6b005c8b5b6c904426275f06cf",
+      "role": "source",
+      "keep_reason": "U6-02 人读规格与获批决定的当前一致版本"
+    },
+    {
+      "path": "docs/stage6/s6a_stage6_g0_behavior_v1.json",
+      "sha256": "a2c1de57a10372da2e7b7f1c84df9611d916a6a7bc6e1c9d4fb00ab6fbcc8b58",
+      "role": "source",
+      "keep_reason": "U6-02 机器可读决策状态及回执引用"
+    },
+    {
+      "path": ".codex/STATE.md",
+      "sha256": "dda19025200815b9840546cadb0c364d4f3ae253b436870d00c6ec21f000e0ad",
+      "role": "source",
+      "keep_reason": "状态、未决依赖、r01-r04 证据指针与未通过边界"
+    },
+    {
+      "path": "verification/s6_g0_selfcheck.py",
+      "sha256": "e71116b442db06061ed9b94ccca9450c87b16d6bcf88d535864fb14c93b232f4",
+      "role": "source",
+      "keep_reason": "生成 17 项检查结果的只读自检工具"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261024_r17/hand_computed_cases.json",
+      "sha256": "81c05210bbc26d4aca61678a5acf1bc97d5c7d7b2aa6100fc318c792a964924d",
+      "role": "input",
+      "keep_reason": "复用已审查的 32 个独立手算样例，不修改原文件"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_g0_20261024_r17/upstream_bindings.json",
+      "sha256": "73159e05d9d35a30293fd6601ed9da57bffe39cb85c5c469aa91260738c210be",
+      "role": "input",
+      "keep_reason": "复用已审查的 11 个上游绑定，不修改原文件"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r01/decision_receipt.json",
+      "sha256": "d595128677df0d221dc08692c6a37308567d9d34da256637ceb5e32beb57eacb",
+      "role": "input",
+      "keep_reason": "Wong 对 U6-02 当前语义的明确决定回执"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r01/selfcheck_result.json",
+      "sha256": "c22188ebbee832db697b176142a0f5da254c920ca95b506fd4319dcece517fe0",
+      "role": "input",
+      "keep_reason": "首轮 C11 因未提供 --evidence-dir 而失败的原始结果，保留不覆盖"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r02/selfcheck_result.json",
+      "sha256": "08d96087b9fd525198bc09e42f21a3965c175bdb0aaf57959f7845a6f8a908ca",
+      "role": "input",
+      "keep_reason": "次轮 C11 因 STATE 状态枚举未对齐而失败的原始结果，保留不覆盖"
+    },
+    {
+      "path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r03/selfcheck_result.json",
+      "sha256": "488243040f96001e20319d70d39abd031ae696b1761e1900349bfd0d25a9a3e9",
+      "role": "input",
+      "keep_reason": "STATE 增加 r03 证据引用前的自检通过结果，供历史追溯"
+    }
+  ],
+  "checks": [
+    {
+      "name": "S6-A 自检（C1-C17；规格、32 样例复算、上游绑定与 STATE 证据存在性）",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\codex-worktrees\\w6\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261024_r17\\hand_computed_cases.json --upstream D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261024_r17\\upstream_bindings.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_u6_02_decision_20261025_r04 --out D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_u6_02_decision_20261025_r04\\selfcheck_result.json --state D:\\codex-worktrees\\w6\\.codex\\STATE.md",
+      "exit_code": 0,
+      "reason": "17/17 检查 ALL_PASS；U6-02 已批准；T6-A03 仍 NOT_RUN。"
+    },
+    {
+      "name": "check_stage_delivery.py --mode evidence",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\check_stage_delivery.py --mode evidence --manifest D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_u6_02_decision_20261025_r04\\delivery_manifest.json --project-root D:\\codex-worktrees\\w6",
+      "exit_code": 0,
+      "reason": "CHECKS_OK；当前 RunId 与全部外部哈希绑定一致。"
+    }
+  ],
+  "tool_versions": {
+    "python": "3.12.14"
+  },
+  "limitations": [
+    "本轮从 3be42b897003e00680bd554d915939de7dfde08e 的工作树差异生成结果；全部阈值、行为定义和人工样例输入维持既有版本。",
+    "S6-A G0 包的独立增量复审仍待完成；本次自检不代表 G0/G4/G5 或任何实物验收通过。",
+    "T6-A03 实测值仍 NOT_RUN；阶段4/5 接口未冻结，6-D 与 6-E 集成仍受阻；未进行硬件操作。"
+  ]
+}

@@ -806,8 +806,10 @@ def query_listener_pids(port: int) -> list[int]:
         raise GuardError("找不到Windows PowerShell，无法核验CIM监听所有者")
     command = (
         "$ErrorActionPreference='Stop'; "
-        "Get-Command Get-NetTCPConnection -ErrorAction Stop | Out-Null; "
-        f"$pids=@(Get-NetTCPConnection -State Listen -LocalPort {port} "
+        "Get-Command Get-CimInstance -ErrorAction Stop | Out-Null; "
+        "$pids=@(Get-CimInstance -Namespace root/StandardCimv2 "
+        "-ClassName MSFT_NetTCPConnection "
+        f'-Filter "State=2 AND LocalPort={port}" '
         "-ErrorAction Stop | Select-Object -ExpandProperty OwningProcess); "
         "if ($pids.Count -eq 0) { '[]' } "
         "else { ConvertTo-Json -InputObject $pids -Compress }"

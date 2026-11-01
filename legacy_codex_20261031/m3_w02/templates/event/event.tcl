@@ -15,6 +15,9 @@ set code [catch {
     close $port_handle
     if {$m3_port ne "3121" && $m3_port ne "3122"} {error "UNAPPROVED_PORT"}
     connect -url "tcp:127.0.0.1:$m3_port"
+    # 每个新XSDB客户端独立加载固定地址映射，不执行任何初始化。
+    select_unique {name =~ "*Cortex-A9*#0"}
+    loadhw -hw {D:/FPGA_Competition/w2b/report/evidence/S2B-T19/visibility1_csr_fixed_20261016_r04/artifacts/s2b_inference.xsa} -mem-ranges {0x00000000 0x7FFFFFFF}
     foreach core {0 1} {
         select_unique [format {name =~ "*Cortex-A9*#%d"} $core]
         set value [string trim [state]]

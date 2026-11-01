@@ -7,8 +7,8 @@
   "run_id": "s6a_g0_20261024_r13",
   "human_doc": "docs/stage6/S6A_stage6_g0_behavior_spec_v1.md",
   "status": "G0_PACKET_APPROVED_20261023",
-  "status_label": "阶段6 G0 包与行为表 v1.8（r13 批准版）：24 项参数按草案值获 Wong 批准（2026-10-23）；T6-A03 数值仍 NOT_RUN（待阶段4 实测帧周期 P）",
-  "status_note": "批准记录：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md`（用户原文「按你建议」「阶段7暂时不开」，2026-10-23）。批准的是**草案值**：参数值未修改，仅 approval_status 与 approval_ref 变化。边界：本批准不等于 G4/G5 通过；G3 板测未做、集成（6-D）待阶段4/5 接口冻结。",
+  "status_label": "阶段6 G0 包与行为表 v1.8（r13 批准版）：24 项参数按草案值获 Wong 批准（2026-10-23）；U6-02 当前语义获 Wong 批准（2026-10-25）；T6-A03 数值仍 NOT_RUN（待阶段4 实测帧周期 P）",
+  "status_note": "参数批准记录：`report/evidence/CTRL-DSH-HANDOFF/decisions/stage6_approval_receipt_20261023_r01.md`（2026-10-23）；保持期触发语义决定记录：`report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json`（Wong 原文「批准当前语义（推荐）」，2026-10-25）。U6-02 仅确认既有行为，不改变行为定义。边界：本批准不等于 G0/G4/G5 通过；T6-A03 数值仍 NOT_RUN，G3 板测未做，集成（6-D）待阶段4/5 接口冻结。",
   "baseline": {
     "worktree": "D:\\codex-worktrees\\w6",
     "branch": "stage6-interact-prep",
@@ -1370,8 +1370,10 @@
     {
       "id": "U6-02",
       "item": "保持期触发语义",
-      "status": "DECLARED_BY_STAGE6_PENDING_CONFIRMATION",
-      "owner": "Wong"
+      "status": "APPROVED_20261025",
+      "owner": "Wong",
+      "decision": "确认并批准 §10 当前定义：每个获取区间恰好产生一次 ACTION_SUBMITTED。下一次提交须满足：(a) 目标丢失确认后重获并再次满足 §9 稳定窗口，或 (b) 切换到另一合法目标并再次满足 §9 稳定窗口；且提交时全局冷却门已结束，即 t_now − t_last_submit ≥ T6-K01。持续保持或冷却结束本身不构成新获取。",
+      "approval_ref": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r07/decision_receipt.json"
     },
     {
       "id": "U6-03",
@@ -1471,11 +1473,11 @@
   ],
   "not_claimed": [
     "本文件不构成阶段6 G0 通过、不构成任何阈值冻结或验收结论",
-    "本轮未实现状态机、未执行任何测试、未上板、未接摄像头、未操作 HDMI",
+    "本次 U6-02 决策登记未实现状态机、未上板、未接摄像头、未操作 HDMI",
     "全部阈值与指标已于 2026-10-23 批准；统计只能报告为观测值的口径不变",
     "交互通过不代替阶段7 最终性能与可靠性验收",
-    "本轮未完成独立审查（运行环境限制：阶段总控无法创建子代理）",
-    "本文件为 r08 修订版（v1.7），只按第 7 轮复评的阻断与非阻断项收尾；复评未完成前不构成 G0 通过，也不代表独立审查通过。"
+    "r17 交付包的增量独立审查已 PASS；本次 U6-02 决策状态更新仍需对本轮差异做独立复审",
+    "本文件沿用 v1.8/r09 行为定义；r17 包装审查通过不等于阶段6 G0 或 G5 通过，T6-A03 仍 NOT_RUN，6-D 仍受阶段4/5 接口冻结阻塞。"
   ],
   "evidence_boundaries": [
     "回放/注入输入得到的结论适用范围仅限回放/注入输入，不得冒充真实摄像头验收",

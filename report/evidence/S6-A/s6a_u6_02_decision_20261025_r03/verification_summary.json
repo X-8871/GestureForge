@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "stage": "6",
+  "task_id": "S6-A",
+  "run_id": "s6a_u6_02_decision_20261025_r03",
+  "purpose": "记录 Wong 批准 U6-02 当前语义后的机器一致性核验；不改变行为语义。",
+  "status": "SELF_CHECK_ALL_PASS",
+  "baseline_commit": "3be42b897003e00680bd554d915939de7dfde08e",
+  "selfcheck": {
+    "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -B D:\\codex-worktrees\\w6\\verification\\s6_g0_selfcheck.py --json D:\\codex-worktrees\\w6\\docs\\stage6\\s6a_stage6_g0_behavior_v1.json --doc D:\\codex-worktrees\\w6\\docs\\stage6\\S6A_stage6_g0_behavior_spec_v1.md --cases D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261024_r17\\hand_computed_cases.json --upstream D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_g0_20261024_r17\\upstream_bindings.json --project-root D:\\codex-worktrees\\w6 --evidence-dir D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_u6_02_decision_20261025_r03 --out D:\\codex-worktrees\\w6\\report\\evidence\\S6-A\\s6a_u6_02_decision_20261025_r03\\selfcheck_result.json --state D:\\codex-worktrees\\w6\\.codex\\STATE.md",
+    "exit_code": 0,
+    "status": "ALL_PASS",
+    "checks_passed": 17,
+    "checks_failed": 0,
+    "evidence_path": "report/evidence/S6-A/s6a_u6_02_decision_20261025_r03/selfcheck_result.json",
+    "c11_scope": "本次自检核对了证据目录存在性与 STATE 声明；交付清单由单独的 check_stage_delivery evidence 模式复核。"
+  },
+  "preserved_failed_attempts": [
+    {
+      "run_id": "s6a_u6_02_decision_20261025_r01",
+      "status": "FAILED",
+      "reason": "首次命令未提供 --evidence-dir，C11 按 fail-closed 规则拒绝跳过。"
+    },
+    {
+      "run_id": "s6a_u6_02_decision_20261025_r02",
+      "status": "FAILED",
+      "reason": "C11 检出 STATE 交付状态值不在自检允许枚举中；STATE 已修正为 DELIVERED_PENDING_REVIEW，未修改失败产物。"
+    }
+  ],
+  "not_claimed": [
+    "本次 ALL_PASS 只证明规格一致性、算术与证据存在性自检结果，不代表独立审查、G0、G4、G5、G3 或实物验收通过。",
+    "U6-02 仅确认一次获取只触发一次；T6-A03 数值仍 NOT_RUN，6-D/6-E 依赖阶段4/5 后续交付。",
+    "本轮未实现状态机、未操作 JTAG/COM4/摄像头/HDMI 或板卡。"
+  ]
+}

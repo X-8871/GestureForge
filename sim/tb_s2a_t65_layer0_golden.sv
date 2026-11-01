@@ -49,6 +49,9 @@ module tb_s2a_t65_layer0_golden;
     logic [7:0] input_bytes [0:INPUT_BYTE_COUNT-1];
     logic [7:0] weight_bytes [0:LAYER0_WEIGHT_BYTE_COUNT-1];
     logic [7:0] expected_first_byte [0:0];
+    string input_fixture_path;
+    string weight_fixture_path;
+    string golden_fixture_path;
     logic [26:0] expected_valid_tap;
     logic [31:0] expected_input_address [0:26];
     logic [31:0] expected_weight_address [0:26];
@@ -341,9 +344,19 @@ module tb_s2a_t65_layer0_golden;
         end
         expected_first_byte[0] = 8'hxx;
 
-        file_id = $fopen("fixture/sample0_input_chw_int8.bin", "rb");
+        if (!$value$plusargs("T65_INPUT_PATH=%s", input_fixture_path)) begin
+            $fatal(1, "缺少 T65_INPUT_PATH 仿真参数");
+        end
+        if (!$value$plusargs("T65_WEIGHT_PATH=%s", weight_fixture_path)) begin
+            $fatal(1, "缺少 T65_WEIGHT_PATH 仿真参数");
+        end
+        if (!$value$plusargs("T65_GOLDEN_PATH=%s", golden_fixture_path)) begin
+            $fatal(1, "缺少 T65_GOLDEN_PATH 仿真参数");
+        end
+
+        file_id = $fopen(input_fixture_path, "rb");
         if (file_id == 0) begin
-            $fatal(1, "缺少 T01 sample0 输入夹具 fixture/sample0_input_chw_int8.bin");
+            $fatal(1, "无法打开 T01 sample0 输入夹具：%s", input_fixture_path);
         end
         file_byte_count = $fread(input_bytes, file_id);
         $fclose(file_id);
@@ -351,9 +364,9 @@ module tb_s2a_t65_layer0_golden;
             $fatal(1, "sample0 输入夹具长度错误：expected=%0d actual=%0d", INPUT_BYTE_COUNT, file_byte_count);
         end
 
-        file_id = $fopen("fixture/sample0_layer0_gf8_weights.bin", "rb");
+        file_id = $fopen(weight_fixture_path, "rb");
         if (file_id == 0) begin
-            $fatal(1, "缺少 G0 layer0 GF8 权重夹具 fixture/sample0_layer0_gf8_weights.bin");
+            $fatal(1, "无法打开 G0 layer0 GF8 权重夹具：%s", weight_fixture_path);
         end
         file_byte_count = $fread(weight_bytes, file_id);
         $fclose(file_id);
@@ -362,9 +375,9 @@ module tb_s2a_t65_layer0_golden;
                    LAYER0_WEIGHT_BYTE_COUNT, file_byte_count);
         end
 
-        file_id = $fopen("fixture/sample0_layer0_output_point0.bin", "rb");
+        file_id = $fopen(golden_fixture_path, "rb");
         if (file_id == 0) begin
-            $fatal(1, "缺少 T25 sample0 layer0 黄金夹具 fixture/sample0_layer0_output_point0.bin");
+            $fatal(1, "无法打开 T25 sample0 layer0 黄金夹具：%s", golden_fixture_path);
         end
         file_byte_count = $fread(expected_first_byte, file_id);
         $fclose(file_id);

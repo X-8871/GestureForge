@@ -1,0 +1,58 @@
+{
+  "schema_version": "codex_independent_review_summary_v1",
+  "date_utc8": "2026-10-24",
+  "purpose": "接管后对DSH四份未完成复审重新独立核查的精简证据；完整消息保留在当前Codex会话中。",
+  "reviewer_runtime": {"model": "gpt-6.1-sol", "reasoning_effort": "medium", "configured_via": "collaboration.spawn_agent explicit arguments"},
+  "hardware_execution": "NOT_RUN",
+  "reviews": [
+    {
+      "stage": 3,
+      "reviewer": "/root/r3_closeout_r01",
+      "source_commit": "2487eb8f65ba7f9a8e8e11e90ab14a8afb2344d6",
+      "verdict": "CHANGES_REQUIRED",
+      "blocking_findings": [
+        {"id": "R3-01", "file": "scripts/stage3_t17/verify_t17_blob_identity.py", "line": 301, "actual": "不存在认证目录或只剩README的目录仍给BLOB_BYTE_IDENTITY_OK/exit0", "required": "固定tree期望集合双向核对，缺失或空认证非零"},
+        {"id": "R3-02", "file": "report/evidence/S3-T05/t05_stage3_window_20261024_r01/self_recovery_disclosure.md", "line": 27, "actual": "声称已同步window_close但固定文件未修改", "required": "新勘误入口撤回失实同步声明，保留旧证据，禁止补造进程快照"}
+      ],
+      "confirmed_scope": "126换行迁移/42父目录登记一致；67 outputs哈希和大小一致；102受用文本当前完整；非完整G2/G5"
+    },
+    {
+      "stage": 4,
+      "reviewer": "/root/r4_address_r03",
+      "source_commit": "ced5bdef5c6f2d623237908ddb74baa4d6fa2bdb",
+      "verdict": "CHANGES_REQUIRED",
+      "blocking_findings": [
+        {"id": "R4-01", "file": "scripts/stage4_s4ctrl/verify_shared_io_contract.py", "line": 517, "actual": "固定blob stale100ms、磁盘200ms、契约200ms，SHA有效却26/0 exit0", "required": "哈希和JSON语义使用同一binding字节；固定修订缺失禁止fallback"}
+      ],
+      "confirmed_scope": "109/109容量及12MiB边界正确；15契约/11registry/8地址事实绑定一致；旧HEAD门禁窗口已失效，不放行系统G0"
+    },
+    {
+      "stage": 5,
+      "reviewer": "/root/r5_nb_r03",
+      "source_commit": "93493f814a8198971ad96d910388409b5461806d",
+      "verdict": "CHANGES_REQUIRED",
+      "blocking_findings": [
+        {"id": "R5-NB1-01", "file": "scripts/stage5_t03/s5t03_display_pipeline.py", "line": 376, "actual": "repeat_index 1→5→显式1→未声明2全部接受，历史最大值回退", "required": "保留最大值；末条拒绝并FAIL，不改变latest/accepted_keys/显示框"}
+      ],
+      "confirmed_scope": "NB2扫描19清单/10包；NB3十四计数逐字一致；NB4历史时点算术一致；NB5仅绑定层；47 files绑定一致；不认证r05或camera/replay实现"
+    },
+    {
+      "stage": 6,
+      "reviewer": "/root/r6_incremental_r01",
+      "source_commit": "8d232abb581ee0e548c52e23a795ffd92cc131df",
+      "verdict": "CHANGES_REQUIRED",
+      "blocking_findings": [
+        {"id": "R6-01", "file": "verification/tool_self_tests.py", "line": 183, "actual": "正常claim为NOT_ALL_VERIFIED/C6C7C4失败却合成exit0及ALL_AS_EXPECTED", "required": "真实退出码、ALL_CLAIMS_VERIFIED和全部期望声明同时满足"},
+        {"id": "R6-02", "file": "verification/s6e_acceptance_check.py", "line": 133, "actual": "ACT改REPLAY_ONLY、REC允许合成替代仍evaluate=[]", "required": "按用例ID强制真实类别并禁止ACT/UNK/REC合成替代"},
+        {"id": "R6-03", "file": "verification/s6e_acceptance_check.py", "line": 68, "actual": "删除24项approval_status仍evaluate=[]", "required": "正向验证批准状态及索引，缺失/未知/拒绝均失败"}
+      ],
+      "confirmed_scope": "S6A17/S6B26、scanner7+4、E6/L5注入及四包8次包装检查通过；NOT_READY与T6A03无值表述如实；未运行完整工具套件及构建器"
+    }
+  ],
+  "limitations": [
+    "原DSH完整复审报告未能取得，不宣称按无法核验的原报告关闭条件逐项复判。",
+    "以上是修复前固定版本的独立结论；后续修复须另行固定内容复审。",
+    "临时复现位于系统TEMP，不作为永久证据依赖；新修复包保存必要原始反例。",
+    "所有复审只读共享仓库，不将包装检查或离线用例通过提升为实物或阶段验收。"
+  ]
+}

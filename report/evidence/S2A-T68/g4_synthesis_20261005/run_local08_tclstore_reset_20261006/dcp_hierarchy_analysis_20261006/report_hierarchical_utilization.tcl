@@ -1,0 +1,3 @@
+open_checkpoint {D:\FPGA_Competition\report\evidence\S2A-T68\g4_synthesis_20261005\run_local08_tclstore_reset_20261006\s2a_network_backend_post_synth.dcp}
+report_utilization -hierarchical -hierarchical_min_primitive_count 0 -file {D:\FPGA_Competition\report\evidence\S2A-T68\g4_synthesis_20261005\run_local08_tclstore_reset_20261006\dcp_hierarchy_analysis_20261006\utilization_hierarchical.rpt}
+exit 0

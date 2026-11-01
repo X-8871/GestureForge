@@ -1,0 +1,72 @@
+{
+  "schema_version": "gestureforge_s2a_t68_t29_recovery_preflight_v1",
+  "run_id": "repair109_20261003_194620",
+  "evidence_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\repair109_20261003_194620",
+  "created_utc": "2026-10-05T08:11:40Z",
+  "created_local": "2026-10-05T16:11:40+08:00",
+  "fixed_environment": {
+    "python_path": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "python_version": "3.12.14",
+    "pythonpath": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages"
+  },
+  "t29_readonly_preflight": {
+    "status": "PASS_T29_REGENERATION_EXCEPT_RUNTIME_VERSION_FIELDS",
+    "command": [
+      "python.exe",
+      "-B",
+      "-c",
+      "import sys; sys.path.insert(0, \"verification\"); import verify_s2a_t68_d9_outputs as d; _, rows, r = d.verify_frozen_cpu_baseline(); print(len(rows), r[\"status\"], r[\"frozen_canonical_sha256\"], r[\"regenerated_canonical_sha256\"], r[\"runtime_versions\"])"
+    ],
+    "exit_code": 0,
+    "d9_verifier_sha256": "6869eeb6a196d97bcf46e6a008aeedb9a2c9f5eaf6f5f9d7e0c1da579e5e1598",
+    "sample_count": 109,
+    "frozen_canonical_sha256": "10a4116904261ee092940e1e354bed64dbd944023f6d8fdae5cf2079ad9b4c63",
+    "regenerated_canonical_sha256": "1cd26b9e655a9e8faa6d9f614b4569fecda8fb236cf9237e6e72726469de8cdd",
+    "runtime_versions": {
+      "python": {
+        "frozen": "3.12.10",
+        "regenerated": "3.12.14"
+      },
+      "zlib_compile": {
+        "frozen": "1.3.1",
+        "regenerated": "1.3.2"
+      },
+      "zlib_runtime": {
+        "frozen": "1.3.1",
+        "regenerated": "1.3.2"
+      }
+    }
+  },
+  "original_failure_replay": {
+    "mode": "memory_exec_of_git_source_with___main__",
+    "source_commit": "10ef3a499a976c3005adcbed0399bfc2d7279e5c",
+    "source_file": "verification/verify_s2a_t68_d9_outputs.py",
+    "source_bytes": 32602,
+    "source_sha256": "a86ca04a5f763616030cdf774672d9e7e3808942e216f8132ba1c3f50e5b3f0e",
+    "git_blob_oid": "c60b04c9a046a0125cf9f7a63652245c49442402",
+    "evidence_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\repair109_20261003_194620",
+    "run_id": "repair109_20261003_194620",
+    "report_argument_supplied": false,
+    "exit_code": 2,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "de34afc0edbea18e22e5e1fba101ef190fa4f9084e0ea6974b69d88f7ff41a1e",
+    "failure_class": "T29 CPU canonical regeneration mismatch",
+    "note": "旧 verifier 在同固定输入上复放退出 2；首轮 recovery summary 未记录首轮进程退出码，因此这里明确记录复放值，不声称它是首轮直接观测值。"
+  },
+  "original_attempt1_artifacts": {
+    "recovery_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\repair109_20261003_194620\\unattended_continuation_repair109_20261003_194620_recovery.json",
+    "recovery_sha256": "4c187dda223209d2a4308dd7fbe210f34ff5be06bb2cce624229cc477e664cda",
+    "stdout_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\repair109_20261003_194620\\unattended_d9_stdout_repair109_20261003_194620.log",
+    "stdout_bytes": 0,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T68\\repair109_20261003_194620\\unattended_d9_stderr_repair109_20261003_194620.log",
+    "stderr_bytes": 118,
+    "stderr_sha256": "38b3c4ec5b626ac905e23e6fdeb99090616b21afc470b4df04f257de14f87ef5",
+    "sha256_verified_at": "2026-10-05T08:13:03.7131264Z"
+  },
+  "limits": [
+    "只读重建 T29 冻结 CPU D9 输入，未生成正式 report。",
+    "复放旧 D9 verifier 在 T29 重建处失败；没有遍历实际 109 个 PL head。",
+    "未运行仿真器、未调度样本、未改写首轮日志或 recovery 文件。"
+  ]
+}

@@ -1,0 +1,73 @@
+%Warning-TIMESCALEMOD: D:/FPGA_Competition/src\s2a_network_descriptor_pkg.sv:3:9: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    3 | package s2a_network_descriptor_pkg;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+                       D:/FPGA_Competition/report/evidence/S2A-T66/weightcap_boundary_4608_attempt04_20261006\tb_s2a_weightcap_boundary_attempt04.sv:1:8: ... Location of module with timescale
+    1 | module tb_s2a_weightcap_boundary;
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/TIMESCALEMOD?v=5.050
+                       ... Use "/* verilator lint_off TIMESCALEMOD */" and lint_on around source to disable this message.
+%Warning-TIMESCALEMOD: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:2:8: Timescale missing on this module as other modules have it (IEEE 1800-2023 3.14.2.3)
+    2 | module s2a_conv_tile_engine (
+      |        ^~~~~~~~~~~~~~~~~~~~
+                       D:/FPGA_Competition/report/evidence/S2A-T66/weightcap_boundary_4608_attempt04_20261006\tb_s2a_weightcap_boundary_attempt04.sv:1:8: ... Location of module with timescale
+    1 | module tb_s2a_weightcap_boundary;
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-WIDTHEXPAND: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:353:69: Operator NEQ expects 32 bits on the LHS, but LHS's ARRAYSEL generates 16 bits.
+                                                                            : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  353 |                      (S2A_T23_MQ_CHANNEL_COUNT[layer_index_latched] != output_channels_latched) ||
+      |                                                                     ^~
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.050
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:354:69: Operator ADD expects 128 bits on the LHS, but LHS's REPLICATE generates 32 bits.
+                                                                            : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  354 |                      ({16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+      |                                                                     ^
+%Warning-WIDTHEXPAND: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:356:50: Operator GT expects 128 bits on the RHS, but RHS's VARREF 'MAX_FEATURE_PATCH_BYTES' generates 32 bits.
+                                                                            : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  356 |                      (full_tile_patch_bytes_wide > MAX_FEATURE_PATCH_BYTES) ||
+      |                                                  ^
+%Warning-WIDTHEXPAND: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:357:52: Operator GT expects 128 bits on the RHS, but RHS's VARREF 'MAX_WEIGHT_GROUP_BYTES' generates 32 bits.
+                                                                            : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  357 |                      (full_weight_group_bytes_wide > MAX_WEIGHT_GROUP_BYTES)) begin
+      |                                                    ^
+%Warning-WIDTHEXPAND: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:521:68: Operator ADD expects 32 bits on the RHS, but RHS's ARRAYSEL generates 16 bits.
+                                                                            : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  521 |                      {16'd0, S2A_T23_MQ_BASE[layer_index_latched]} +
+      |                                                                    ^
+%Warning-WIDTHTRUNC: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:572:38: Operator ASSIGN expects 64 bits on the Assign RHS, but Assign RHS's NEGATE generates 65 bits.
+                                                                           : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  572 |                 requant_signed_value =
+      |                                      ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.050
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:575:38: Operator ASSIGN expects 64 bits on the Assign RHS, but Assign RHS's SIGNED generates 65 bits.
+                                                                           : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  575 |                 requant_signed_value =
+      |                                      ^
+%Warning-WIDTHTRUNC: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:902:63: Operator ASSIGNDLY expects 8 bits on the Assign RHS, but Assign RHS's SIGNED generates 32 bits.
+                                                                           : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+  902 |                             feature_patch[feature_scan_index] <=
+      |                                                               ^~
+%Warning-WIDTHEXPAND: D:/FPGA_Competition/src\s2a_conv_tile_engine.sv:1068:59: Operator GTE expects 128 bits on the LHS, but LHS's VARREF 'output_byte_offset_wide' generates 64 bits.
+                                                                             : ... note: In instance 'tb_s2a_weightcap_boundary.u_dut'
+ 1068 |                                  (output_byte_offset_wide >= output_elements_wide)) begin
+      |                                                           ^~
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/share/verilator/include/verilated.cpp:78:10: warning: 'STDOUT_FILENO' redefined
+   78 | # define STDOUT_FILENO _fileno(stdout)
+      |          ^~~~~~~~~~~~~
+In file included from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/locale.h:12,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/clocale:47,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/x86_64-w64-mingw32/bits/c++locale.h:41,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/bits/localefwd.h:42,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/c++/16.2.0/string:48,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/share/verilator/include/verilatedos.h:653,
+                 from D:/FPGA_S2A_MSYS2_20261001/env/mingw64/share/verilator/include/verilated.cpp:51:
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/stdio.h:56:9: note: this is the location of the previous definition
+   56 | #define STDOUT_FILENO   1
+      |         ^~~~~~~~~~~~~
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/share/verilator/include/verilated.cpp:79:10: warning: 'STDERR_FILENO' redefined
+   79 | # define STDERR_FILENO _fileno(stderr)
+      |          ^~~~~~~~~~~~~
+D:/FPGA_S2A_MSYS2_20261001/env/mingw64/include/stdio.h:57:9: note: this is the location of the previous definition
+   57 | #define STDERR_FILENO   2
+      |         ^~~~~~~~~~~~~

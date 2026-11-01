@@ -1,0 +1,159 @@
+{
+  "schema": "s2a_tile_selected_memory_v1",
+  "status": "PASS_SELECTED_TILE_MEMORY_ONLY",
+  "mode": "pilot",
+  "cases": 3,
+  "output_bytes": 1536,
+  "scope": "真实 descriptor 验证后白盒选择起始 tile/group，完整 patch/GF8组经过生产memory加载、全部tile输出比较后abort；不证明cache遍历/整层/异常/G4G5",
+  "not_covered": [
+    "blackbox cache traversal",
+    "invalid descriptor",
+    "-128",
+    "overflow",
+    "G4/G5"
+  ],
+  "sources": [
+    {
+      "path": "src/s2a_network_descriptor_pkg.sv",
+      "sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14"
+    },
+    {
+      "path": "src/s2a_conv_tile_engine.sv",
+      "sha256": "be3106daa3dc2adea13894d03bf21cd5ec693ce667cb610ec8d9511364112e66"
+    },
+    {
+      "path": "sim/tb_s2a_conv_tile_memory.sv",
+      "sha256": "cd864962d6decf64863e9beeb08a850284dcc4922ea9c58eedef8e65c27919ba"
+    }
+  ],
+  "runner_sha256": "504f4f89ce6ca12674a8357b61a348d8be7a2cc544c57dc538b779214fe29534",
+  "oracle_sha256": "adbb7e2574c50fd8e702e386a0898d27a0e4a16aebfc782436e386d56c768357",
+  "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+  "gf8_path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d2_tiny416_int8_weight_r2\\gesture_yolov4_tiny_416_int8_weights.gf8",
+  "gf8_sha256": "f6feb6d489318ee9774fc406e9222cd9b881fbe33a40f32362366cf38693cc39",
+  "fixture_sha256": "5d82ffe6ecb1e62ea0fd3b89625a865fb1f0e30dd3946e86fc8fa8a7a664b2e0",
+  "fixture_bytes": 109271,
+  "rows": [
+    {
+      "layer": 0,
+      "case": 0,
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "tile": [
+        0,
+        0,
+        8,
+        8
+      ],
+      "group": [
+        0,
+        8
+      ],
+      "patch_bytes": 867,
+      "weight_bytes": 216,
+      "output_bytes": 512,
+      "sha256": "129ab25422fff2306a429848851af46e7fefc200e561d9f6760472ced7bba321"
+    },
+    {
+      "layer": 26,
+      "case": 0,
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "tile": [
+        0,
+        0,
+        8,
+        8
+      ],
+      "group": [
+        0,
+        8
+      ],
+      "patch_bytes": 51200,
+      "weight_bytes": 36864,
+      "output_bytes": 512,
+      "sha256": "7c68d6a365381c2074b605591f87f19a04a8616de0f0ae8c8afe5314f7328950"
+    },
+    {
+      "layer": 36,
+      "case": 15,
+      "target": [
+        15,
+        13,
+        13
+      ],
+      "tile": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "group": [
+        8,
+        8
+      ],
+      "patch_bytes": 16384,
+      "weight_bytes": 2048,
+      "output_bytes": 512,
+      "sha256": "2b62a56e4e20f782b3324992c43c7f20cdbdabf14db16aa1d0b882746a448cc3"
+    }
+  ],
+  "tools": [
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+      "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+    },
+    {
+      "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+      "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+    },
+    {
+      "path": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "sha256": "372c2eae555b344520bf147be0096e009069aeca4e7f78d6aecea6d53158056a"
+    }
+  ],
+  "verilator_version": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702",
+  "compile": {
+    "command": [
+      "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+      "--binary",
+      "--timing",
+      "-Wno-fatal",
+      "-j",
+      "1",
+      "--threads",
+      "1",
+      "--top-module",
+      "tb_s2a_conv_tile_memory",
+      "--Mdir",
+      "obj_dir",
+      "-MAKEFLAGS",
+      "PYTHON3='\"C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe\"'",
+      "-CFLAGS",
+      "-D_GLIBCXX_USE_CXX11_ABI=0",
+      "source\\s2a_network_descriptor_pkg.sv",
+      "source\\s2a_conv_tile_engine.sv",
+      "source\\tb_s2a_conv_tile_memory.sv"
+    ],
+    "exit_code": 0,
+    "seconds": 34.86
+  },
+  "simulation": {
+    "command": [
+      "D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\memory_pilot01\\obj_dir\\Vtb_s2a_conv_tile_memory.exe",
+      "+CASES=3"
+    ],
+    "exit_code": 0,
+    "seconds": 2.922
+  }
+}

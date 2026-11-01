@@ -1,0 +1,91 @@
+{
+  "schema_version": "gestureforge_s2a_t04_maxpool_geometry_simulation_v1",
+  "result": "PASS",
+  "scope": "单输出窗口 maxpool 几何、逐 tap 坐标、有效掩码、NCHW 逻辑 byte offset 与地址",
+  "bindings": {
+    "manifest_path": "report/evidence/S2A-T01/tiny416_model_manifest.json",
+    "manifest_sha256": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
+    "rtl_sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+    "testbench_sha256": "fdd72465bdd5818802b298043398d0f9266ded6f7f35d03ef7c6ddba173040d7",
+    "runner_sha256": "4252beba877ba2b777243b9b39aefea1af98c07818b1221f90746753ab32c8e6",
+    "vector_sha256": "4699fd9b78da217386df630ef3c997983a66b01eaab938342f73e34e64cd351c",
+    "logical_vector_sha256": "8aa206fbce43e5db8e87651dd9ab8c67407d3ad1a743d5dcb135d11641153654",
+    "golden_output_sha256": "392935fba15ced5a0e88ce46b722b8687edd74a5b62d258569637ba510644c4e"
+  },
+  "random_vectors": {
+    "seed": 20260922,
+    "state_after_convolution": "0x2DC4F9F4",
+    "state_before_maxpool": "0x3AFEA916",
+    "convolution_layers": 21,
+    "mac_random_vectors": 1000,
+    "state_after_maxpool": "0xA9D661B5",
+    "draws_per_model_random_case": "channel selector, output row selector, output column selector, then four INT8 candidate values"
+  },
+  "counts": {
+    "random": 3000,
+    "directed": 48,
+    "fixture_windows": 16
+  },
+  "tap_counts": {
+    "model": 12192,
+    "fixture": 144,
+    "valid": 12292,
+    "padding": 44
+  },
+  "vector_file_bytes": 739790,
+  "error_assertions": {
+    "BAD_ARGUMENT_code_1": 11,
+    "BAD_RANGE_code_2": 2,
+    "maximum_uint32_boundary_success": 1
+  },
+  "model_layers": [
+    {
+      "layer_index": 9,
+      "random": 1000,
+      "directed": 16,
+      "total": 1016,
+      "state_before_random": "0x3AFEA916",
+      "state_after_random": "0xCDB889EA"
+    },
+    {
+      "layer_index": 17,
+      "random": 1000,
+      "directed": 16,
+      "total": 1016,
+      "state_before_random": "0xCDB889EA",
+      "state_after_random": "0xDF0AA8E8"
+    },
+    {
+      "layer_index": 25,
+      "random": 1000,
+      "directed": 16,
+      "total": 1016,
+      "state_before_random": "0xDF0AA8E8",
+      "state_after_random": "0xA9D661B5"
+    }
+  ],
+  "vivado": {
+    "bin": "D:\\Xilinx\\2026.1\\Vivado\\bin",
+    "phases": [
+      {
+        "phase": "xvlog",
+        "exit_code": 0
+      },
+      {
+        "phase": "xelab",
+        "exit_code": 0
+      },
+      {
+        "phase": "xsim",
+        "exit_code": 0
+      }
+    ],
+    "command_template": "python -B -m unittest verification.test_s2a_maxpool_geometry_rtl -v"
+  },
+  "fixture_address_semantics": "base_address=0 仅用于验证相对 NCHW byte offset，不表示模型或硬件地址映射",
+  "limitations": [
+    "不发起内存读写事务，不实现完整 maxpool layer engine。",
+    "仅支持冻结 tiny416 2x2 模型窗口和独立 3x3 padding fixture；拒绝其他 kernel。",
+    "不代表完整网络逐层黄金比对、PS 解码/NMS、Vivado 综合、资源估算或时序通过。"
+  ]
+}

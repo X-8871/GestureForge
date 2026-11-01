@@ -1,0 +1,1 @@
+﻿    $launchText='@echo off'+$crlf+'call '+$quote+$executable+$quote+' '+($quotedArguments -join ' ')+$crlf+'set "stage_exit=%ERRORLEVEL%"'+$crlf+'exit /b %stage_exit%'+$crlf

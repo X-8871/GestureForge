@@ -1,0 +1,299 @@
+{
+  "schema": "GestureForge-S2A-T57-attempt04-diagnostic-v1",
+  "task_id": "S2A-T57",
+  "attempt": "run09/attempt04",
+  "status": "PREPARED_NOT_SIMULATED",
+  "acceptance_status": "NOT_ACCEPTED_SIMULATION_NOT_RUN",
+  "baseline_head": "7b8bad78a456310d2ca797a02e3a5a7f873f9c18",
+  "current_head": "8c47ecf8118960a94ce81ad54ea494b85b7e2daa",
+  "scope": "仅记录 row21 局部探针 attempt03 路径绑定故障及 attempt04 准备证据；不是新的 RTL 仿真。",
+  "incident": {
+    "failed_attempt": "run09/attempt03",
+    "status": "NON_ACCEPTANCE",
+    "failure_reason": "attempt03 testbench 将输入 fixture 读路径和两项 observed 输出写路径硬编码到 attempt02。仿真控制台虽有 PASS 行，但输出落在错误 attempt 根目录，attempt03 wrapper 在该目录找不到 observed 输出，因此 flow 验收失败且 verify-only 未运行。",
+    "simulation_observation": {
+      "console_pass_line": "PASS outputs=6656 raw=6656",
+      "progress_checkpoints": 256,
+      "finish_time_ns": 2971541060,
+      "status_is_not_acceptance": true
+    },
+    "attempt02_side_effect": {
+      "files_opened_for_write_by_run03": [
+        "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\observed_raw.bin",
+        "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\observed_output.bin"
+      ],
+      "write_mode": "wb",
+      "write_fact": "attempt03 TB 误将两个 observed 输出重开并写回 attempt02；不恢复或伪造旧 mtime。",
+      "pre_run_mtime_captured": false,
+      "pre_run_mtime_note": "运行前未保存这两个文件的 mtime 数值，故不推测或回填。",
+      "post_run_metadata_read_only": {
+        "observed_raw.bin": {
+          "bytes": 26624,
+          "post_run_mtime_local": "2026-09-29T15:01:27.383355+08:00",
+          "post_run_mtime_ns": 1790665287383355100
+        },
+        "observed_output.bin": {
+          "bytes": 6656,
+          "post_run_mtime_local": "2026-09-29T15:01:27.384241+08:00",
+          "post_run_mtime_ns": 1790665287384241400
+        }
+      },
+      "mtime_changed_during_run03": true,
+      "snapshot_comparison": {
+        "status": "developer_reported_unverified",
+        "developer_reported_file_count": 109,
+        "developer_reported_total_bytes": 1904317,
+        "developer_reported_per_file_path_size_sha256_difference_count": 0,
+        "developer_reported_inventory_sha256": "f55031627a6ff7732d42c7844dbda8faf8266057a93d8014510c0e56010a94f8",
+        "independently_reproducible": false,
+        "persisted_pre_run_per_file_sha256_manifest_found": false,
+        "qualification": "开发者当时报告相对 run02 启动快照逐项相同，但未持久保存该109项的before逐文件路径/尺寸/SHA清单；该全量结论当前不可由审查者独立复算，不作为已独立验证事实。",
+        "read_only_search": {
+          "scope": "report/evidence/S2A-T57/run09 下的文件名及 JSON 项目清点；未发现本次 attempt02 的109项 pre-run 清单。",
+          "json_files_scanned": 40,
+          "large_path_sha256_inventory_candidates": [
+            {
+              "path": "report\\evidence\\S2A-T57\\run09\\attempt02\\r9_run01_run08_inventory.json",
+              "artifact": {
+                "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\r9_run01_run08_inventory.json",
+                "bytes": 57690,
+                "sha256": "d20b302bfaca0fc3d8a85da16b355d1aaee51bc08c87572f45a19e7dbe547741"
+              },
+              "location": "$.files",
+              "entries": 278,
+              "entry_keys": [
+                "bytes",
+                "relative_path",
+                "sha256"
+              ]
+            }
+          ],
+          "candidate_interpretation": "唯一找到的100项以上路径/SHA清单是更早的 run01-run08 审查库存；其purpose限定 run01-run08，278项中无 attempt02 路径，不是本次 run09/attempt02 的 pre-run 快照。"
+        },
+        "not_asserted": "不声称109项全量差异=0已独立复核。"
+      },
+      "attempt02_oracle_output_binding": {
+        "prepare_summary": {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\prepare_summary.json",
+          "bytes": 22642,
+          "sha256": "796b1843cf2eb51ee6d691e4939890103fb4c9e83def3ecaa15f7dcd95a3bb22"
+        },
+        "fixture_manifest": {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\fixture\\fixture_manifest.json",
+          "bytes": 8557,
+          "sha256": "05f0f19fb8fb541b6b9abe4c9f3901bca1520f009714b7deacd2d8e3e4fcfcc6"
+        },
+        "raw_int32": {
+          "bytes": 26624,
+          "expected_sha256_prepare_summary": "3e1c9ec49ee4169a3891a8bdfdf5d7126b25882feb213858666aadf5ce303f93",
+          "expected_sha256_fixture_manifest": "3e1c9ec49ee4169a3891a8bdfdf5d7126b25882feb213858666aadf5ce303f93",
+          "current_observed_file": {
+            "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\observed_raw.bin",
+            "bytes": 26624,
+            "sha256": "3e1c9ec49ee4169a3891a8bdfdf5d7126b25882feb213858666aadf5ce303f93"
+          },
+          "current_sha256_matches_both_persisted_expected_values": true
+        },
+        "quantized_int8": {
+          "bytes": 6656,
+          "expected_sha256_prepare_summary": "392a11e886b4eb014d3deff75d7b7a1d33bc7312e61b52652d16c7b9fd8361ed",
+          "expected_sha256_fixture_manifest": "392a11e886b4eb014d3deff75d7b7a1d33bc7312e61b52652d16c7b9fd8361ed",
+          "current_observed_file": {
+            "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\observed_output.bin",
+            "bytes": 6656,
+            "sha256": "392a11e886b4eb014d3deff75d7b7a1d33bc7312e61b52652d16c7b9fd8361ed"
+          },
+          "current_sha256_matches_both_persisted_expected_values": true
+        },
+        "interpretation": "这两项当前内容与 attempt02 持久化 oracle 摘要一致；这只验证当前输出文件，不替代缺失的109项 pre-run 清单。"
+      }
+    },
+    "testbench_binding_at_failed_run": {
+      "path": "sim/tb_s2a_conv_layer35_row21_all_channels.sv",
+      "sha256": "fe53d80e030ed1f38125d23abdf8e9a76d9a80015b0805463ed3211f7ea2bf22",
+      "note": "attempt03 仿真时该版本仍含 attempt02 固定路径；本次仅更新 attempt04 源码，旧尝试目录不改。"
+    },
+    "failed_attempt_log_reference": "report/evidence/S2A-T57/run09/attempt03/vivado_batch_console.log",
+    "attempt02_old_testbench_path_audit": {
+      "source_path": "sim/tb_s2a_conv_layer35_row21_all_channels.sv",
+      "source_sha256": "fe53d80e030ed1f38125d23abdf8e9a76d9a80015b0805463ed3211f7ea2bf22",
+      "source_sha256_verification": "git show HEAD:sim/tb_s2a_conv_layer35_row21_all_channels.sv 的只读 SHA-256",
+      "hard_coded_fixture_reads": [
+        {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\fixture\\feature_input.bin",
+          "mode": "rb"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\fixture\\layer35_weights.bin",
+          "mode": "rb"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\fixture\\golden.bin",
+          "mode": "rb"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\fixture\\vectors.txt",
+          "mode": "r"
+        }
+      ],
+      "hard_coded_observed_writes": [
+        {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\observed_raw.bin",
+          "mode": "wb"
+        },
+        {
+          "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt02\\observed_output.bin",
+          "mode": "wb"
+        }
+      ]
+    }
+  },
+  "attempt04_binding_fix": {
+    "expected_run_root": "D:/FPGA_Competition/report/evidence/S2A-T57/run09/attempt04",
+    "xsim_argument": "-testplusarg T57_RUN_ROOT=D:/FPGA_Competition/report/evidence/S2A-T57/run09/attempt04",
+    "binding_chain": [
+      "no-wave Tcl 将唯一 testplusarg 写入 xsim.simulate.xsim.more_options 并核验属性值。",
+      "project Tcl 从实际 simulate.bat 解析唯一 -testplusarg，并与 attempt04 run_directory 正斜杠绝对路径比较。",
+      "Python 和 PowerShell verifier 从保存的 xsim 命令签名再次核验同一 testplusarg。",
+      "SystemVerilog TB 用 $value$plusargs 取根目录，与固定 attempt04 根目录精确比较；缺少参数或不匹配即 $fatal。",
+      "六个 fixture/output 文件路径由已核验的 TB runtime 根目录派生；TB 源码不含 attempt02/attempt03 路径。"
+    ],
+    "specialized_regression": {
+      "command": "python -B -m unittest verification.test_s2a_t57_attempt04_binding",
+      "exit_code": 0,
+      "tests_passed": 2
+    },
+    "python_ast_check": {
+      "command": "python -B -c \"ast.parse(...) for T57 runner and binding regression\"",
+      "exit_code": 0
+    },
+    "powershell_parser_check": {
+      "command": "System.Management.Automation.Language.Parser::ParseFile on T57 wrapper",
+      "exit_code": 0
+    },
+    "testbench_old_attempt_path_scan": {
+      "result": "PASS",
+      "attempt02_or_attempt03_literals_found": false
+    }
+  },
+  "preparation": {
+    "status": "PREPARED_NOT_SIMULATED",
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "D:\\FPGA_Competition\\verification\\test_s2a_conv_layer35_row21_all_channels_rtl.py",
+      "--prepare-only"
+    ],
+    "cwd": "D:\\FPGA_Competition",
+    "python_executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "start_local": "2026-09-29T15:11:57.8876696+08:00",
+    "finish_local": "2026-09-29T15:12:04.3796651+08:00",
+    "elapsed_seconds": 6.492,
+    "exit_code": 0,
+    "simulation_started": false,
+    "readonly_fixture_verification": "PASS",
+    "fixture_manifest_sha256": "f1b23be1b3b061e79f46cb3cd86db3e5f20ff842218abf5235ad823e8bea8537",
+    "raw_int32_compares_prepared": 6656,
+    "int8_compares_prepared": 6656,
+    "golden_bytes": 33280,
+    "source_bindings": {
+      "src/int8_conv_tap_geometry.sv": {
+        "path": "D:\\FPGA_Competition\\src\\int8_conv_tap_geometry.sv",
+        "bytes": 9137,
+        "sha256": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc"
+      },
+      "src/int8_conv_weight_address.sv": {
+        "path": "D:\\FPGA_Competition\\src\\int8_conv_weight_address.sv",
+        "bytes": 5201,
+        "sha256": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592"
+      },
+      "src/int8_mac_accumulator.sv": {
+        "path": "D:\\FPGA_Competition\\src\\int8_mac_accumulator.sv",
+        "bytes": 5326,
+        "sha256": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74"
+      },
+      "src/s2a_conv_engine.sv": {
+        "path": "D:\\FPGA_Competition\\src\\s2a_conv_engine.sv",
+        "bytes": 32287,
+        "sha256": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994"
+      },
+      "src/s2a_conv_layer35_channel_probe.sv": {
+        "path": "D:\\FPGA_Competition\\src\\s2a_conv_layer35_channel_probe.sv",
+        "bytes": 4386,
+        "sha256": "91f1e954c1a50a0047861b40df75d1f0523ae2307f03d0c7328abaf4d5469ef4"
+      },
+      "sim/tb_s2a_conv_layer35_row21_all_channels.sv": {
+        "path": "D:\\FPGA_Competition\\sim\\tb_s2a_conv_layer35_row21_all_channels.sv",
+        "bytes": 38327,
+        "sha256": "360f0d3cd0cd7a50a4385eb32a1234c88c7b0fc150d41f034012baddcf698fed"
+      },
+      "sim/s2a_t57_no_wave.tcl": {
+        "path": "D:\\FPGA_Competition\\sim\\s2a_t57_no_wave.tcl",
+        "bytes": 2042,
+        "sha256": "37918d43df0a8c64fec628b5e1419f68fb9b293b7b415faac1d00281cdfc44cc"
+      },
+      "verification/test_s2a_conv_layer35_row21_all_channels_rtl.py": {
+        "path": "D:\\FPGA_Competition\\verification\\test_s2a_conv_layer35_row21_all_channels_rtl.py",
+        "bytes": 65453,
+        "sha256": "e8c190641367e00ba576b7c7be6f7713a0f2baca05bb5ecf8df2d4b50795e4c7"
+      },
+      "verification/test_s2a_t57_attempt04_binding.py": {
+        "path": "D:\\FPGA_Competition\\verification\\test_s2a_t57_attempt04_binding.py",
+        "bytes": 4308,
+        "sha256": "8d7576a530885b5862e5268b94babdc67add74786e655797eb4a666a7fb5b131"
+      },
+      "report/evidence/S2A-T57/run_project_sim.tcl": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run_project_sim.tcl",
+        "bytes": 33312,
+        "sha256": "2f753adb1b76f9f27364c5815ba4874e3df827e925e4936d6b935793709f6f01"
+      },
+      "verification/run_s2a_t57_project_sim.ps1": {
+        "path": "D:\\FPGA_Competition\\verification\\run_s2a_t57_project_sim.ps1",
+        "bytes": 62654,
+        "sha256": "fec473de1b44e979cc0c9b6f7dbf19c23cd93c9e84e421c2dbb91ad0ea8a68f8"
+      }
+    },
+    "artifacts": {
+      "prepare_summary": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt04\\prepare_summary.json",
+        "bytes": 23418,
+        "sha256": "e2536c150f6839bfbe9bc6e48cac5c21c50d6e7b5eaf4f2e2d0d556a4db92d31"
+      },
+      "prepare_invocation": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt04\\prepare_invocation.json",
+        "bytes": 920,
+        "sha256": "2d6f7ab91997f96b2cc42813be694bf4099680a3a9339f15f524890cd7406ffb"
+      },
+      "prepare_stdout": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt04\\prepare_only_stdout.txt",
+        "bytes": 3695,
+        "sha256": "967f9d5000f004f89b0b9459ef4a691d5fcd6eb8d8cd0490973d313a7ba1dc28"
+      },
+      "fixture_manifest": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt04\\fixture\\fixture_manifest.json",
+        "bytes": 8933,
+        "sha256": "f1b23be1b3b061e79f46cb3cd86db3e5f20ff842218abf5235ad823e8bea8537"
+      },
+      "compile_source_manifest": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt04\\compile_source_manifest.tsv",
+        "bytes": 787,
+        "sha256": "b24af10f14828a1564b748e276e129ba80fb6b662b09cba5ab994edf444cd59f"
+      },
+      "xsim_run_tcl": {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T57\\run09\\attempt04\\xsim_run.tcl",
+        "bytes": 60,
+        "sha256": "52952d4441a000b8122100e3f73f0f317ba1c2460d2cc482d27edfe5870b04b8"
+      },
+      "binding_regression": {
+        "path": "D:\\FPGA_Competition\\verification\\test_s2a_t57_attempt04_binding.py",
+        "bytes": 4308,
+        "sha256": "8d7576a530885b5862e5268b94babdc67add74786e655797eb4a666a7fb5b131"
+      }
+    }
+  },
+  "limitations": [
+    "attempt04 仅完成准备态与静态路径绑定核验，未运行 xvlog、xelab、xsim。",
+    "此记录不把 attempt03 控制台 PASS 认定为通过；T57 仍待新仿真及独立审查。",
+    "不是整层/整网、G3、G4 或 G5 验收。"
+  ]
+}

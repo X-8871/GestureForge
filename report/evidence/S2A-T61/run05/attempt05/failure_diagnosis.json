@@ -1,0 +1,103 @@
+{
+  "schema": "S2A-T61-attempt04-failure-diagnosis-v1",
+  "task_id": "S2A-T61",
+  "run_id": "run05",
+  "attempt": "attempt05",
+  "source_failed_attempt": "attempt04",
+  "source_status": "RUN_FAILED",
+  "source_last_stage": "xvlog",
+  "source_failure": "xvlog 排空后的最终阶段日志复扫 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.log",
+  "source_process": {
+    "pid": 14500,
+    "parent_pid": 17604,
+    "exit_code": -1073741515,
+    "exit_code_hex": "0xC0000135",
+    "executable": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\xvlog.exe",
+    "arguments": [
+      "--incr",
+      "--relax",
+      "-L",
+      "uvm",
+      "-prj",
+      "tb_s2a_conv_layer35_row25_all_channels_vlog.prj",
+      "-log",
+      "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.log"
+    ],
+    "command_line": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\xvlog.exe --incr --relax -L uvm -prj tb_s2a_conv_layer35_row25_all_channels_vlog.prj -log D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.log",
+    "working_directory": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\work",
+    "native_log": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.log",
+    "native_log_exists": false,
+    "stdout": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.stdout.txt",
+    "stdout_bytes": 0,
+    "stderr": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.stderr.txt",
+    "stderr_bytes": 0
+  },
+  "root_cause_assessment": "attempt04 直接启动 unwrapped xvlog.exe 且进程退出码为 0xC0000135；该 Windows 状态对应 DLL 加载失败，但证据未识别具体缺失 DLL。runner 后续因成功路径要求 native log 而将原始进程退出原因遮蔽为缺少 xvlog.log。",
+  "remediation": "attempt05 改用厂商 xvlog.bat/xelab.bat/xsim.bat，经 cmd.exe 包装调用；最终扫描继续要求 stdout/stderr 可读，成功时要求 native log 存在且无错误。仅在工具非零退出且 native log 确实不存在时记录该缺失，同时保留非零退出码、stdout/stderr 路径与错误标记；任何非零退出都失败。",
+  "evidence_files": [
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\run_status.json",
+      "bytes": 1340,
+      "sha256": "c1408bc3ea138857254ba6f885aaaacf78c33a64add15f12ad5ad46baac7b93e"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\process_runs.json",
+      "bytes": 1379,
+      "sha256": "aa854fcf2a4e335ceb47787d3084c70667b75e7392f65afcb28ddd8262d1e95e"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\pre_run_process_snapshot.json",
+      "bytes": 2846,
+      "sha256": "33aa742a1e06c9772f98fd17d39d4ed4104acea63e7768c940b038bf72b0851c"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\post_run_process_snapshot.json",
+      "bytes": 2744,
+      "sha256": "3be3d6ad6430d2a0f75e9ab0bec20e6e3a0b4b51c0d013720255eeeffd45f864"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\run05_runner_attempt04_safe.ps1",
+      "bytes": 21582,
+      "sha256": "5fd8185eefec51cd6c3e2202955b0c688888e2c60d36868e02484e4598dc362b"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\runner_console.txt",
+      "bytes": 185,
+      "sha256": "152e03b69a79278d48390b98e8a12a1718682e5327674ee244d116417a6a59a3"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\logs\\xvlog.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "protected_process_identity_comparison": [
+    {
+      "pid": 8712,
+      "pre_count": 1,
+      "post_count": 1,
+      "identity_equal": true
+    },
+    {
+      "pid": 13156,
+      "pre_count": 1,
+      "post_count": 1,
+      "identity_equal": true
+    },
+    {
+      "pid": 22488,
+      "pre_count": 1,
+      "post_count": 1,
+      "identity_equal": true
+    }
+  ],
+  "attempt04_modified_by_this_task": false,
+  "mcp_used": false,
+  "xvlog_xelab_xsim_executed_by_this_task": false,
+  "generated_at_utc8": "2026-10-01 02:32:17 +08:00"
+}

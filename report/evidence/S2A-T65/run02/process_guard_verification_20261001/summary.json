@@ -1,0 +1,184 @@
+{
+  "schema_version": "gestureforge_s2a_t65_process_guard_verification_v1",
+  "task_id": "S2A-T65-PROCESS-GUARD",
+  "status": "PASS_OFFLINE_GUARD_TESTED_SIMULATION_NOT_RUN",
+  "baseline_head": "a09a0f8a651d702c3d363f76b1a171b6f449dcec",
+  "scope": "T65 runner process identity gate and D-drive temporary-path isolation; no Vivado/XVLOG/XELAB/XSim execution",
+  "runner_contract": {
+    "pre_and_post_snapshots": [
+      "xvlog",
+      "xelab",
+      "xsim"
+    ],
+    "full_identity_fields": [
+      "pid",
+      "parent_pid",
+      "name",
+      "executable_path",
+      "command_line",
+      "creation_date_utc"
+    ],
+    "creation_time_is_utc": true,
+    "fail_closed_on_missing_snapshot_or_creation_time": true,
+    "additional_xilinx_processes_rejected": true,
+    "temp_paths_during_run": [
+      "TEMP",
+      "TMP",
+      "TMPDIR",
+      "HOME",
+      "APPDATA",
+      "LOCALAPPDATA",
+      "XILINX_LOCAL_USER_DATA"
+    ],
+    "run_temp_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\sim02\\temp",
+    "existing_preparation_file_preserved": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\sim02_preparation.json"
+  },
+  "allowlist": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_identity_allowlist.json",
+    "sha256": "bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e",
+    "source_snapshot_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\pre_run_process_snapshot.json",
+    "source_snapshot_sha256": "4e797ee7d12bf2e03c989aef2a3ce16ac610e4132fc58ae09e25799a7c2cb7b1",
+    "identities": [
+      {
+        "pid": 8712,
+        "parent_pid": 10724,
+        "name": "vivado.exe",
+        "executable_path": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe",
+        "command_line": "\"D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe\"   -mode tcl -source D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run06\\mcp_server_instance\\start_mcp.tcl",
+        "creation_date_utc": "2026-09-29T18:07:06.1577890Z"
+      },
+      {
+        "pid": 13156,
+        "parent_pid": 8712,
+        "name": "xsimk.exe",
+        "executable_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run04\\isolated_project\\s2a_t61_run04.sim\\sim_1\\behav\\xsim\\xsim.dir\\tb_s2a_conv_layer35_row25_all_channels_behav\\xsimk.exe",
+        "command_line": "xsim.dir/tb_s2a_conv_layer35_row25_all_channels_behav/xsimk.exe -simmode gui -wdb tb_s2a_conv_layer35_row25_all_channels_behav.wdb -simrunnum 0 -socket 12375",
+        "creation_date_utc": "2026-09-29T19:39:52.1132030Z"
+      },
+      {
+        "pid": 22488,
+        "parent_pid": 8712,
+        "name": "xsimk.exe",
+        "executable_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run06\\isolated_project\\s2a_t60_run06.sim\\sim_1\\behav\\xsim\\xsim.dir\\tb_s2a_conv_layer35_row24_all_channels_behav\\xsimk.exe",
+        "command_line": "xsim.dir/tb_s2a_conv_layer35_row24_all_channels_behav/xsimk.exe -simmode gui -wdb tb_s2a_conv_layer35_row24_all_channels_behav.wdb -simrunnum 0 -socket 8295",
+        "creation_date_utc": "2026-09-29T18:13:11.5972630Z"
+      }
+    ]
+  },
+  "test_results": {
+    "ps51": {
+      "status": "PASS",
+      "version": "5.1.26100.8457",
+      "positive": "exact protected identities",
+      "negative": [
+        "creation time/PID reuse mismatch",
+        "command line mismatch",
+        "unlisted Xilinx process",
+        "missing creation time"
+      ],
+      "live_snapshot": "PASS; 3 frozen identities",
+      "exit_code": 0
+    },
+    "pwsh7": {
+      "status": "PASS",
+      "version": "7.6.5",
+      "positive": "exact protected identities",
+      "negative": [
+        "creation time/PID reuse mismatch",
+        "command line mismatch",
+        "unlisted Xilinx process",
+        "missing creation time"
+      ],
+      "live_snapshot": "PASS; 3 frozen identities",
+      "exit_code": 0
+    },
+    "powershell_static_parse": {
+      "ps51_exit_code": 0,
+      "pwsh7_exit_code": 0,
+      "files": 3
+    },
+    "python_offline_runner_contract": {
+      "exit_code": 0,
+      "root_run02_fixture_manifest_unchanged": true,
+      "sim02_collision_rejected": true,
+      "sim01_preserved": true,
+      "environment_directories_isolated_under_probe_sim02": true,
+      "tool_invocations": 0
+    }
+  },
+  "preservation": {
+    "sim02_preparation_sha256_before_and_after": "b2a6c1c45a5ce105b3ddcf3ef586cc7dbedd5dfebf75ce567b7500dabe5dd12a",
+    "sim01_xsim_log_sha256_before_and_after": "0e3b774ab93aa0c3cc0b93dc4a624e5b62ac7a762a09212e5cc5dd8a77562254",
+    "sim01_or_sim02_preparation_modified": false
+  },
+  "artifacts_sha256": {
+    "runner": {
+      "path": "D:\\FPGA_Competition\\verification\\run_s2a_t65_layer0_golden.ps1",
+      "sha256": "56b815eb4fe42cd79ba118f5dd0efb1fef296d078520f838397b751bf3a12874"
+    },
+    "process_guard": {
+      "path": "D:\\FPGA_Competition\\verification\\t65_xilinx_process_guard.ps1",
+      "sha256": "e9103032f4a61ece7e58fd8570c786cfb4ddc8be6e9029c8e7d595932a13dca9"
+    },
+    "process_guard_test": {
+      "path": "D:\\FPGA_Competition\\verification\\test_t65_xilinx_process_guard.ps1",
+      "sha256": "18730ee1be13ec05cc4c5a408cedfd0b614507717ab8dc83c3dc917ac38f4c97"
+    },
+    "offline_test": {
+      "path": "D:\\FPGA_Competition\\verification\\test_s2a_t65_layer0_golden.py",
+      "sha256": "f01231f535288bea49f993648cd179f279c9fdc0a9862953d3d5fd22147827fb"
+    },
+    "allowlist": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_identity_allowlist.json",
+      "sha256": "bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e"
+    },
+    "fixture_manifest": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\fixture_manifest.json",
+      "sha256": "f009947a3fa7a126cf30d950ac769f73106d42ec3039d31e43f8bbdf8dde22fa"
+    },
+    "sim02_preparation_preserved": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\sim02_preparation.json",
+      "sha256": "b2a6c1c45a5ce105b3ddcf3ef586cc7dbedd5dfebf75ce567b7500dabe5dd12a"
+    },
+    "sim01_xsim_log_preserved": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\sim01\\xsim.log",
+      "sha256": "0e3b774ab93aa0c3cc0b93dc4a624e5b62ac7a762a09212e5cc5dd8a77562254"
+    },
+    "ps51_test": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_guard_verification_20261001\\ps51_retry03_console.txt",
+      "sha256": "2cdae9188b188ab600457d93cfac173488dfe33baacb3da7de10f4d996187905"
+    },
+    "pwsh7_test": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_guard_verification_20261001\\pwsh7_retry03_console.txt",
+      "sha256": "b64b3be1ba09c92587017f9d53a869b8a0fd9abd683f105697d0d10bce4f1e9e"
+    },
+    "ps51_parser": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_guard_verification_20261001\\ps51_parser_retry03.txt",
+      "sha256": "dd40e9cf71e67a296ec582685aee37716b2e0543e935cd8ce9362faec2b624e6"
+    },
+    "pwsh7_parser": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_guard_verification_20261001\\pwsh7_parser_retry03.txt",
+      "sha256": "7760446012a821affc502bdd4a432e74602eb9011b4d1cc11533c933b5117e39"
+    },
+    "offline_run02_test": {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_guard_verification_20261001\\offline_fixture_verifier_final_console.txt",
+      "sha256": "ad895d2dfb29f96a78b53102f6d6d4c117efa946956f6d7039e7cb350a4a1c5e"
+    }
+  },
+  "runtime": {
+    "vivado_invocations": 0,
+    "xvlog_invocations": 0,
+    "xelab_invocations": 0,
+    "xsim_invocations": 0,
+    "protected_processes_stopped_or_modified": false,
+    "actual_sim02_run_performed": false
+  },
+  "commands": [
+    "Get-CimInstance -ClassName Win32_Process (read-only capture and final live snapshot)",
+    "powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File verification\\test_t65_xilinx_process_guard.ps1 ...",
+    "pwsh.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File verification\\test_t65_xilinx_process_guard.ps1 ...",
+    "PowerShell Parser::ParseFile for runner, guard module and guard test under PS5.1 and pwsh7",
+    "python -B verification\\test_s2a_t65_layer0_golden.py --evidence-dir D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\process_guard_verification_20261001\\offline_fixture_probe_retry04",
+    "python -B verification\\test_s2a_t65_layer0_golden.py --evidence-dir D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02"
+  ]
+}

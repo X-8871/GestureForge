@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "stage": "CTRL",
+  "task_id": "CTRL-CLEANUP",
+  "run_id": "cache_cleanup_20261012_r01",
+  "status": "BLOCKED_PROCESS_VISIBILITY",
+  "source_commit": "b77df75f42d5250dc2bbea6741f98249080f8e71",
+  "scope": "仅1470个精确列举的非项目安装包普通文件；不删除目录。",
+  "frozen": {
+    "plan_sha256": "902a989c8f0a7562c2d184f9e555928b63db20f608521e446b551e05cdac2ff0",
+    "script_sha256": "16e43a8a10bd7ff4ccb6d555a9ea688b1859a738726e1404da08c36192ed877c",
+    "guard_sha256": "4a543327206a00657374b2f307a120c73be8bcc7331d27b3baf5f2b09644f1b2"
+  },
+  "preflight": {
+    "first_raw_windows_argument_attempt": {
+      "chunk_id": "9c2d5e",
+      "wall_time_seconds": 0.6899816,
+      "exit_code": 1,
+      "original_token_count": 124,
+      "output": "\\902a989c8f0a7562c2d184f9e555928b63db20f608521e446b551e05cdac2ff0 *D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\CTRL-CLEANUP\\\\cache_cleanup_20261012_r01/cleanup_plan.json\n\\16e43a8a10bd7ff4ccb6d555a9ea688b1859a738726e1404da08c36192ed877c *D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\CTRL-CLEANUP\\\\cache_cleanup_20261012_r01/c_cleanup.sh\n\\4a543327206a00657374b2f307a120c73be8bcc7331d27b3baf5f2b09644f1b2 *D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\CTRL-CLEANUP\\\\cache_cleanup_20261012_r01/preflight_guard.ps1\n"
+    },
+    "first_attempt_cause": "GNU sha256sum 对包含反斜杠的文件名添加前导摘要转义标记，调用方与脚本的摘要格式不一致，核验安全退出；没有删除。",
+    "canonical_verified_attempt": {
+      "exit_code": 0,
+      "output": "{\"Status\":\"WINDOWS_GUARD_OK\",\"Utc\":\"2026-10-12T05:58:56.2268836Z\",\"Files\":1470,\"AncestorDirectories\":130,\"ReparsePoints\":0,\"BlockedOwners\":0}\r\nALL_TARGETS_VERIFIED files=1470 directories_to_delete=0\nVERIFY_ONLY_NO_DELETE\n"
+    }
+  },
+  "diagnostics": [
+    {
+      "command": "python -B verification/check_stage_delivery.py --help",
+      "status": "FAILED_ARGUMENT_PROBE_NO_CHECK_EXECUTED",
+      "diagnostic": "自定义参数解析不支持--help，报告缺少--mode和--manifest；未执行包装验收，后续使用既有正式命令。"
+    }
+  ],
+  "preserved_update_info_sha256": "e152ab204269561d19b7dd86050c23316dbf59c508599d04346e07503ce5eb98",
+  "protected_roots_precheck": {
+    "chunk_id": "4db029",
+    "wall_time_seconds": 0.4305942,
+    "exit_code": 0,
+    "original_token_count": 125,
+    "output": "PRESERVED_ROOT C:\\Users\\22061\\.codex\nPRESERVED_ROOT C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\nPRESERVED_ROOT C:\\Users\\22061\\.codex\\worktrees\\dbdf\\FPGA_Competition\nPRESERVED_ROOT C:\\Users\\22061\\.cache\\codex-runtimes\nPRESERVED_ROOT C:\\Users\\22061\\.cache\\huggingface\nPRESERVED_ROOT C:\\Users\\22061\\AppData\\Local\\ms-playwright\nPRESERVED_ROOT D:\\FPGA_Competition\nFilesystem        1B-blocks         Used   Available Use% Mounted on\nC:             318396952576 307942281216 10454671360  97% /c\n"
+  },
+  "user_diff_sha256_before": "fd147ff54ffdf8ddeebe88712c3cee9e25f51c50b858ef1e7287a7bcdd2ef297",
+  "execute": null,
+  "postcheck": null,
+  "review": {
+    "status": "CHANGES_REQUIRED",
+    "agent_id": "01a12eb0-2ebf-7732-8649-acea47d9fbea",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "high",
+    "result": {
+      "completed": "Hello Wong. 复审结论仍为 CHANGES_REQUIRED，剩余1项阻断问题。\n\n已核对 [cleanup_record.json](/D:/FPGA_Competition/report/evidence/CTRL-CLEANUP/cache_cleanup_20261012_r01/cleanup_record.json)：原始失败exit1、重试exit0，以及1470文件／130祖先目录／零重解析点的输出均已保存；`VERIFY_ONLY_NO_DELETE`、`execute=null` 表明记录尚未进入删除阶段。新增证据未改变此前通过的清单、精确非递归删除及保留边界结论。\n\n阻断位置仍为 [preflight_guard.ps1:27](/D:/FPGA_Competition/report/evidence/CTRL-CLEANUP/cache_cleanup_20261012_r01/preflight_guard.ps1:27)：路径和命令行均不可见的进程会被跳过，末尾仍输出 `BlockedOwners=0`。此前独立快照实际发现156个此类进程；这证明检查存在可见性缺口，**并不证明它们正在使用目标文件**。新成功输出没有提供关闭该缺口的证据。\n\n明确关闭条件：可通过补充只读核验关闭本轮，无须立即修改冻结脚本。记录不可见进程的PID、名称及身份核验依据，结合服务映射等证据明确分类；仍无法排除的安装／更新使用者应阻断执行。保存补验结果与执行前快照，再复审。\n\n3源文件真实SHA仍一致：\n\n```text\ncleanup_plan.json   902a989c8f0a7562c2d184f9e555928b63db20f608521e446b551e05cdac2ff0\nc_cleanup.sh        16e43a8a10bd7ff4ccb6d555a9ea688b1859a738726e1404da08c36192ed877c\npreflight_guard.ps1 4a543327206a00657374b2f307a120c73be8bcc7331d27b3baf5f2b09644f1b2\n```\n\n主基线与原16项差异摘要仍匹配。本轮只读，无修改、删除或提交，未重复4GB哈希；结论不代表工程G4/G5。"
+    },
+    "blocking_issue": "Win32_Process 对156个进程缺失ExecutablePath/CommandLine，原guard把未知当作无匹配；尚不能排除潜在安装/更新使用者。",
+    "closure": "补齐只读进程身份检查/明确可信分类，对仍不可核实的潜在安装/更新进程阻断；独立复审通过后方可删除。"
+  },
+  "space": null,
+  "limitations": [
+    "未删除任何目标；预检SHA/类型/重解析点通过，但独立审查因进程可见性缺口阻断。",
+    "空间统计为操作期间同卷净变化，活动2B可同时写盘/自行清理，不能全部归因于本轮。",
+    "本轮不修改模型、设计或硬件，不构成任何工程阶段G4/G5。",
+    "待用户授予只读管理员身份核验后修复并独立复审；当前审计草稿未提交，不能表述为已完成清理。"
+  ],
+  "visibility_diagnostics": {
+    "native_api_probe": {
+      "status": "INCOMPLETE_VISIBILITY",
+      "exit_code": 0,
+      "fully_visible": 220,
+      "limitation": "OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION)仍被受保护/跨系统身份进程拒绝，输出过长已截断；不是全部进程检查通过。"
+    },
+    "classification_probe": {
+      "chunk_id": "59bb39",
+      "wall_time_seconds": 5.1065471,
+      "exit_code": 0,
+      "original_token_count": 1220,
+      "output": "{\"MissingFields\":156,\"ServicesMissingConfiguredPath\":2,\"Groups\":[{\"Name\":\"System Idle Process\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"System\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"Secure System\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"Registry\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"smss.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"csrss.exe\",\"Count\":2,\"Unmapped\":2,\"Sessions\":[0,1]},{\"Name\":\"wininit.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"services.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"LsaIso.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"lsass.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"svchost.exe\",\"Count\":79,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"fontdrvhost.exe\",\"Count\":2,\"Unmapped\":2,\"Sessions\":[0,1]},{\"Name\":\"WUDFHost.exe\",\"Count\":3,\"Unmapped\":3,\"Sessions\":[0]},{\"Name\":\"winlogon.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"dwm.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"IntelCpHDCPSvc.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"OmenCap.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"SynTPEnhService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"NVDisplay.Container.exe\",\"Count\":2,\"Unmapped\":1,\"Sessions\":[0,1]},{\"Name\":\"Memory Compression\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"SysInfoCap.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"NetworkCap.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"TouchpointAnalyticsClientService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"AppHelperCap.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"DiagsCap.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"WmiPrvSE.exe\",\"Count\":2,\"Unmapped\":2,\"Sessions\":[0]},{\"Name\":\"unsecapp.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"spoolsv.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"clash-verge-service.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"HPCommRecovery.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"ipfsvc.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"HpMallWindowsService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"wallpaperservice32.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"ipf_uf.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"jhi_service.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"WMIRegistrationService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"RtkAudUService64.exe\",\"Count\":2,\"Unmapped\":1,\"Sessions\":[0,1]},{\"Name\":\"MsMpEng.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"SECOMN64.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"IntelAudioService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"rustdesk.exe\",\"Count\":2,\"Unmapped\":1,\"Sessions\":[0,1]},{\"Name\":\"XtuService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"HPPrintScanDoctorService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"MpDefenderCoreService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"SystemOptimizer.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"clash-core-service.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"conhost.exe\",\"Count\":2,\"Unmapped\":2,\"Sessions\":[0]},{\"Name\":\"OmenInstallMonitor.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"NgcIso.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"wlanext.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"codex-windows-sandbox-service.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"IntelGraphicsSoftware.Service.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"MSPCManagerService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"AggregatorHost.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"PresentMonService.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[0]},{\"Name\":\"ctfmon.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"vmcompute.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"ChsIME.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"NisSrv.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"dasHost.exe\",\"Count\":2,\"Unmapped\":2,\"Sessions\":[0]},{\"Name\":\"SecurityHealthService.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"nano.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"FileSyncHelper.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"HuyaSvc.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"OfficeClickToRun.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"SearchIndexer.exe\",\"Count\":1,\"Unmapped\":0,\"Sessions\":[0]},{\"Name\":\"taskhostw.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]},{\"Name\":\"LogonUI.exe\",\"Count\":1,\"Unmapped\":1,\"Sessions\":[1]}],\"Owners\":[{\"Name\":\"smss.exe\",\"Owner\":null,\"Domain\":null,\"Return\":2},{\"Name\":\"lsass.exe\",\"Owner\":null,\"Domain\":null,\"Return\":2},{\"Name\":\"svchost.exe\",\"Owner\":null,\"Domain\":null,\"Return\":2},{\"Name\":\"HuyaSvc.exe\",\"Owner\":null,\"Domain\":null,\"Return\":2},{\"Name\":\"codex-windows-sandbox-service.exe\",\"Owner\":null,\"Domain\":null,\"Return\":2}]}\r\n"
+    },
+    "needed_input": "允许一次Windows管理员UAC，仅提升只读身份核验；不关闭进程、不扩大清理清单。"
+  }
+}
+

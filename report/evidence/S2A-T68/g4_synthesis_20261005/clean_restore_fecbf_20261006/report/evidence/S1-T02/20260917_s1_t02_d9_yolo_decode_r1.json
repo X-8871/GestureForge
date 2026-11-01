@@ -1,0 +1,363 @@
+{
+  "schema": "s1_t02_d9_yolo_decode_evidence_v1",
+  "task_id": "S1-T02-D9",
+  "record_id": "20260917_s1_t02_d9_yolo_decode_r1",
+  "recorded_at": "2026-09-17T13:38:24+08:00",
+  "status": "G2_PASS_CPU_REFERENCE_METADATA_SYNCED",
+  "baseline": {
+    "competition_repository_commit": "bb0496092d9872d796e23ef4d5f60dac24dc3134",
+    "final_checkout_observation": {
+      "head": "4a73619587d5ee872d37fc079f758480ed8a8cb0",
+      "observed_commit_time_local": "2026-09-17T12:36:19+08:00",
+      "subject": "记录阶段一正式训练执行状态",
+      "changed_paths": [".codex/STATE.md"],
+      "created_by_d9_task": false,
+      "d9_scope_files_changed_by_that_commit": false
+    },
+    "darknet_repository": "D:\\FPGA_Data\\darknet",
+    "darknet_head_commit": "59596d7880f6504768df41d6daa586f5cb2b932f",
+    "darknet_source_file": "src/yolo_layer.c",
+    "darknet_source_sha256": "97c6209868a13f8f24c472f88fdc602fb95b0ab48b5fcfe7a9a13f199da066b5"
+  },
+  "scope": {
+    "cpu_only": true,
+    "training_weights_read": false,
+    "dataset_read_or_traversed": false,
+    "darknet_executed": false,
+    "gpu_task_started": false,
+    "existing_gpu_training_touched": false,
+    "commit_created": false,
+    "modified_paths": [
+      "verification/s1_t02_d9_yolo_decode.py",
+      "verification/test_s1_t02_d9_yolo_decode.py",
+      "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1.json",
+      "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1_summary.md"
+    ]
+  },
+  "source_basis": {
+    "darknet": {
+      "file": "D:\\FPGA_Data\\darknet\\src\\yolo_layer.c",
+      "repository_head": "59596d7880f6504768df41d6daa586f5cb2b932f",
+      "sha256": "97c6209868a13f8f24c472f88fdc602fb95b0ab48b5fcfe7a9a13f199da066b5",
+      "verified_symbols": {
+        "get_yolo_box": "line 131: cx=(col+x)/grid_w, cy=(row+y)/grid_h; exp(tw/th)*anchor/net for new_coords=0",
+        "entry_index": "line 369: anchor planes, then entry planes, then row-major cell offset",
+        "forward_yolo_layer": "line 662: sigmoid x/y and objectness/classes when new_coords=0; then scale_x_y affine on x/y",
+        "correct_yolo_boxes": "line 939: letterbox inverse geometry; uses deltaw/2.0 and deltah/2.0, giving half-pixel offsets for odd total padding",
+        "get_yolo_detections": "line 1087: objectness gate and per-class objectness*class probability with strict greater-than threshold"
+      },
+      "verified_semantics": {
+        "new_coords": 0,
+        "entry_plane_flat_index": "((anchor * (4 + 1 + classes) + entry) * grid_h * grid_w + row * grid_w + col)",
+        "score": "sigmoid(objectness_logit) * sigmoid(class_logit)",
+        "darknet_threshold_comparison": ">",
+        "odd_total_letterbox_padding": "correct_yolo_boxes subtracts total padding divided by 2.0; unlike D2 floor offsets, odd padding is half a pixel different"
+      }
+    },
+    "d2_preprocessing": {
+      "file": "docs/obsidian-project/04-提交材料/阶段验收/S1-T02-D2_固定预处理与INT8数值规格.md",
+      "sha256": "df95a8438eaa2d451b54ca3f1927c454eaef022c1f8f31a18874980f69702e57",
+      "verified_rule": "line 9: letterbox integer-truncated resize dimensions and top-left offsets floor((network-resized)/2)"
+    },
+    "d6_metrics": {
+      "file": "verification/s1_t02_d6_detection_metrics.py",
+      "sha256": "e2294aef39e51e0e3f4f11efbb527be81b6b38744f34de2fbfa8f3cc1c01346f",
+      "reused_api": [
+        "Prediction at line 64",
+        "stable_nms at line 470",
+        "score threshold confidence >= threshold at line 473",
+        "MAX_OUTPUTS=15 at line 29",
+        "FIXED_NMS_IOU=0.45 at line 30"
+      ],
+      "output_threshold_comparison": ">="
+    }
+  },
+  "configuration_binding": {
+    "decoder_input_size": [416, 416],
+    "class_count": 5,
+    "scale_x_y": 1.05,
+    "new_coords": "commented out; default 0",
+    "anchors_wh": [[10, 14], [23, 27], [37, 58], [81, 82], [135, 169], [344, 319]],
+    "config_sources": [
+      {
+        "id": "d8_tiny416_formal",
+        "source_type": "formal_project_config",
+        "formal": true,
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d8_tiny416_formal_r1\\configs\\gesture_yolov4_tiny_416_d8_formal.cfg",
+        "sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+        "input_size": [416, 416],
+        "head_masks": [[3, 4, 5], [1, 2, 3]]
+      },
+      {
+        "id": "d4_tiny416_formal",
+        "source_type": "formal_project_config",
+        "formal": true,
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\configs\\gesture_yolov4_tiny_416_d4_formal.cfg",
+        "sha256": "5475dff0daa8ac791ffbfcd10a188aa63d146244e561d62867ac59d627725376",
+        "input_size": [416, 416],
+        "head_masks": [[3, 4, 5], [1, 2, 3]]
+      },
+      {
+        "id": "d4_tiny320_formal",
+        "source_type": "formal_project_config",
+        "formal": true,
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\configs\\gesture_yolov4_tiny_320_d4_formal.cfg",
+        "sha256": "92135520eeed9c77460dde4bab5bd4fd99a171cdba9849cc484bd3c02161fb94",
+        "input_size": [320, 320],
+        "head_masks": [[3, 4, 5], [1, 2, 3]]
+      },
+      {
+        "id": "darknet_upstream_tiny",
+        "source_type": "upstream_reference",
+        "formal": false,
+        "path": "D:\\FPGA_Data\\darknet\\cfg\\yolov4-tiny.cfg",
+        "sha256": "a6415c2e303f7b3647913a7bb3675f0fe7234049d8875ae7d75c01b8e4dcb854",
+        "input_size": [416, 416],
+        "head_masks": [[3, 4, 5], [1, 2, 3]]
+      },
+      {
+        "id": "d4_seeded_custom_nonformal",
+        "source_type": "nonformal_seeded_custom_cfg",
+        "formal": false,
+        "path": "D:\\FPGA_Data\\HaGRIDv2\\darknet_inputs\\runs\\s1_t02_d4_float_baseline_r1\\official_darknet_seeded\\cfg\\yolov4-tiny-custom.cfg",
+        "sha256": "4996aceacba657fb8390ac976ed0cf7cdc96085a18bd4827f05f5f2c7f300b8e",
+        "input_size": [416, 416],
+        "head_masks": [[3, 4, 5], [0, 1, 2]],
+        "excluded_from_formal_comparison": true
+      }
+    ],
+    "formal_comparison": {
+      "d8_d4_tiny416_sha256_equal": true,
+      "all_formal_masks_match": true,
+      "formal_masks": [[3, 4, 5], [1, 2, 3]],
+      "nonformal_custom_excluded": true,
+      "correction": "正式 D8 tiny416、D4 tiny416、D4 tiny320 与 Darknet 上游 cfg 均为 masks 3,4,5 / 1,2,3。旧 0,1,2 比较来自 d4_seeded_custom_nonformal，不是正式 D4 tiny416。"
+    }
+  },
+  "implementation": {
+    "decoder_file": "verification/s1_t02_d9_yolo_decode.py",
+    "decoder_sha256": "0be8e2dc0878116b5239a20a397f4f063de7b33c2ee38e1d0aadf1ced7d365c6",
+    "test_file": "verification/test_s1_t02_d9_yolo_decode.py",
+    "test_sha256": "7c5aebac28f316c16e4fbef80905c73b21036cfeab80115c926f143605277f5a",
+    "summary_file": "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1_summary.md",
+    "summary_sha256": "11af1e9f0d9f885fc43cb2f96152f96d2654b1dd3299950a3617a111ffb5e3ec",
+    "input_layouts": [
+      "Darknet-native flat entry planes",
+      "CPU tensor/nested sequence [3,10,grid_h,grid_w]"
+    ],
+    "output": "D6 Prediction objects containing clipped normalized xyxy boxes and one objectness-times-class score per eligible class",
+    "fixed_postprocessing": {
+      "score_threshold_required": true,
+      "score_threshold_range_inclusive": [0.25, 0.5],
+      "nms_iou": 0.45,
+      "max_outputs": 15,
+      "nms": "D6 stable_nms, class-wise greedy"
+    },
+    "boundary_policy": "Coordinates are independently clipped to [0,1]; boxes with zero/non-positive area after clipping are discarded. This explicit policy satisfies D6 normalized xyxy validation.",
+    "letterbox_inverse": {
+      "fixed_rule": "D2 integer-truncated resize dimensions and top-left offsets (target-resized)//2",
+      "not_bitwise_equal_to_darknet_c_for_odd_padding": true,
+      "reason": "Darknet correct_yolo_boxes uses (target-resized)/2.0; odd total padding differs by 0.5 pixel"
+    }
+  },
+  "synthetic_golden": {
+    "head": "13x13",
+    "grid_cell_row_col": [6, 6],
+    "local_anchor": 0,
+    "mask_anchor_index": 3,
+    "anchor_wh": [81, 82],
+    "raw_logits": {
+      "tx": "ln(3)",
+      "ty": "-ln(3)",
+      "tw": 0,
+      "th": 0,
+      "objectness": 0,
+      "class_0": 0
+    },
+    "hand_calculation": {
+      "sigmoid_xy": [0.75, 0.25],
+      "scaled_xy_after_1_05_and_bias": [0.7625, 0.2375],
+      "network_center_pixels": [216.4, 199.6],
+      "objectness_times_class_score": 0.25,
+      "letterbox_resize_wh": [416, 205],
+      "left_top_padding": [0, 105],
+      "normalized_clipped_xyxy": [0.42283653846153846, 0.26146341463414634, 0.6175480769230769, 0.6614634146341464],
+      "source_order": 1260
+    },
+    "threshold": 0.25,
+    "expected_predictions": 1,
+    "odd_padding_difference_test": {
+      "original_wh": [99, 200],
+      "network_wh": [416, 416],
+      "resized_wh": [205, 416],
+      "horizontal_total_padding": 211,
+      "d2_left_pad_pixels": 105,
+      "darknet_c_left_pad_pixels": 105.5,
+      "test_cell_row_col": [6, 3],
+      "test_anchor_wh": [81, 82],
+      "d2_normalized_right_edge": 0.23170731707317074,
+      "darknet_c_normalized_right_edge": 0.22926829268292684,
+      "difference": "0.5/205 normalized original-image width"
+    }
+  },
+  "verification": {
+    "targeted_package_unittest": {
+      "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest verification.test_s1_t02_d9_yolo_decode",
+      "tests_run": 13,
+      "exit_code": 0
+    },
+    "targeted_discover_unittest": {
+      "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest discover -s verification -p test_s1_t02_d9_yolo_decode.py",
+      "tests_run": 13,
+      "exit_code": 0
+    },
+    "d2_numeric_reference_unittest": {
+      "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest verification.test_s1_t02_d2_numeric_reference",
+      "tests_run": 11,
+      "exit_code": 0
+    },
+    "d2_calibration_unittest": {
+      "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest verification.test_s1_t02_d2_calibration",
+      "tests_run": 5,
+      "exit_code": 0
+    },
+    "d6_metrics_unittest": {
+      "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest verification.test_s1_t02_d6_detection_metrics",
+      "tests_run": 12,
+      "exit_code": 0
+    },
+    "full_unittest_discovery": {
+      "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest discover -s verification",
+      "tests_run": 137,
+      "exit_code": 0,
+      "candidate_number": 3,
+      "accepted_final_candidate_run": true,
+      "wall_time_seconds": 55.504,
+      "snapshot_state": "G2 PASS recorded; metadata-only independent re-review pending"
+    },
+    "full_suite_retry_history": [
+      {
+        "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest discover -s verification",
+        "tests_run": 137,
+        "exit_code": 1,
+        "cause": "一次无关的 S1-T01 测试临时目录清理遇到 WinError 32（immediate_5.log 仍被占用）；未修改该测试或其他文件。"
+      },
+      {
+        "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest verification.test_s1_t01_darknet_workflow.DarknetWorkflowTest.test_run_command_scans_completed_oom_and_corrupt_logs",
+        "tests_run": 1,
+        "exit_code": 0
+      },
+      {
+        "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest discover -s verification",
+        "tests_run": 137,
+        "exit_code": 0,
+        "candidate_state": "before final source-provenance assertion additions"
+      },
+      {
+        "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest discover -s verification",
+        "tests_run": 137,
+        "exit_code": 0,
+        "accepted_final_candidate_run": true
+      },
+      {
+        "command": "$env:PYTHONDONTWRITEBYTECODE='1'; python -B -m unittest discover -s verification",
+        "tests_run": 137,
+        "exit_code": 0,
+        "candidate_number": 3,
+        "accepted_final_candidate_run": true
+      }
+    ],
+    "py_compile": {
+      "command": "python -X pycache_prefix=C:\\Users\\22061\\AppData\\Local\\Temp\\s1_t02_d9_pycompile_r1 -m py_compile verification/s1_t02_d9_yolo_decode.py verification/test_s1_t02_d9_yolo_decode.py",
+      "exit_code": 0
+    },
+    "tracked_git_diff_check": {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    "untracked_git_diff_check": {
+      "command_pattern": "git -c core.autocrlf=false diff --no-index --check -- /dev/null <each-of-the-four-scope-files>",
+      "files_checked": 4,
+      "raw_exit_code_per_file": 1,
+      "raw_exit_interpretation": "Expected because each new file differs from /dev/null; no whitespace diagnostics were emitted.",
+      "all_four_outputs_empty": true
+    },
+    "covered_cases": [
+      "手算 scale_x_y、mask anchor、obj*class 与 letterbox 黄金坐标",
+      "两头 grid/mask 映射与 tensor/flat 布局",
+      "空输入、低分输入、阈值等号边界",
+      "同类重叠抑制、异类重叠保留、每图最多 15 个",
+      "D2 floor padding 与 Darknet C 半像素逆变换差异、边界裁剪及补边区零面积框丢弃",
+      "错误头集合、错误 shape、非法尺寸、非法 mask、NaN/Inf 与 exp 溢出"
+    ]
+  },
+  "review": {
+    "initial_frozen_version_status": "CHANGES_REQUIRED",
+    "initial_pass_withdrawn": true,
+    "initial_reviewed_version_sha256": {
+      "verification/s1_t02_d9_yolo_decode.py": "72e1b671435cf1a3662bb1b4f4bf777a14506ab76dcb470d7810c5001a2af638",
+      "verification/test_s1_t02_d9_yolo_decode.py": "630a853c4cefadf1c70cb6301dafd915f80d1840ea915fe6d8fac449be4ce20e",
+      "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1.json": "8788d582ef0b6b06b4f4ad51aa73e5298e3fbb0ab03f612c3bd3a13560ca32c7",
+      "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1_summary.md": "4883319cd80830fe3fc68a1be83059cffbb8a9b4200d5dd59ea9d70cc694547a"
+    },
+    "candidate_2_reviewed_version_sha256": {
+      "verification/s1_t02_d9_yolo_decode.py": "0be8e2dc0878116b5239a20a397f4f063de7b33c2ee38e1d0aadf1ced7d365c6",
+      "verification/test_s1_t02_d9_yolo_decode.py": "c5fa5fcea3efc237779828e392cffb0a238b5dc2efb2fffabffeb7b5dee193c0",
+      "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1.json": "e72a6b024800757e6803c54e361db415e1c240890b1f7e6c53ab8b44b766d540",
+      "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1_summary.md": "b70bfe2ba374702c1680a8f834220d05366d272d4701552c23b559deac5513f1"
+    },
+    "review_history": [
+      {
+        "candidate_number": 1,
+        "candidate_status": "CHANGES_REQUIRED",
+        "finding": "正式 D4 tiny416 对照路径/来源错误：把非正式 official_darknet_seeded/cfg/yolov4-tiny-custom.cfg 当作正式 D4 配置。初始 PASS 随后撤回。"
+      },
+      {
+        "candidate_number": 2,
+        "candidate_status": "CHANGES_REQUIRED",
+        "finding": "正式配置来源比较已修正；D2 source_basis SHA 少一位 f，且测试未将 JSON 中 D2/D6 文件路径与 SHA 同仓库实际字节绑定。"
+      }
+    ],
+    "changes_required_summary": "候选1因正式 D4 cfg 对照路径错误而 CHANGES_REQUIRED；候选2配置来源更正正确，但 D2 源 SHA 错误且缺少 D2/D6 仓库文件哈希绑定，仍为 CHANGES_REQUIRED。",
+    "current_repair_iteration": 2,
+    "current_candidate_number": 3,
+    "current_candidate_review_status": "PASS",
+    "current_repair_candidate_is_final_pass": true,
+    "repair_scope": "迭代2 修正 D2 实际源文件 SHA，并在仓库内测试实算并绑定 JSON 中 D2/D6 文件与 SHA；本次只同步候选3 G2 PASS、测试审查状态断言及证据元数据，解码算法未改。",
+    "reviewer": {
+      "name": "Herschel",
+      "role": "multi-agent independent Reviewer",
+      "verdict": "PASS",
+      "output_directory": "C:\\Users\\22061\\AppData\\Local\\Temp\\GestureForge_D9_C3_Review_330779624f394a839f2b5d9422b0848a",
+      "reviewed_candidate_sha256": {
+        "verification/s1_t02_d9_yolo_decode.py": "0be8e2dc0878116b5239a20a397f4f063de7b33c2ee38e1d0aadf1ced7d365c6",
+        "verification/test_s1_t02_d9_yolo_decode.py": "65cbdea3ef4ef03723fa0757efe57de6d886948d0cedba73786ae5686c544157",
+        "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1.json": "bb7f2b038be0b5a992f332d4173066a6d4efb1ec8ff4c1e34b5f50aa12325a3e",
+        "report/evidence/S1-T02/20260917_s1_t02_d9_yolo_decode_r1_summary.md": "aad555c2dc4e9ca796daad0979b7f98bf7efdf98412f01946b3e7bea3d546e57"
+      },
+      "scope": "仅覆盖上述候选哈希绑定的 CPU 数值解码与证据范围；不代表训练、精度、板上或阶段通过。"
+    },
+    "post_review_metadata_recheck": {
+      "status": "PENDING",
+      "completed": false,
+      "owner": "总控",
+      "scope": "对本次最终报告/测试状态同步快照作 metadata-only independent re-review；本记录不宣称该复核已完成。"
+    },
+    "final_snapshot_delta": "候选3 G2 PASS 之后，仅更新 test 中的 PASS/候选哈希断言，并同步 JSON/摘要审查状态与相应哈希；decoder 数学代码未改。",
+    "next_required_check": "总控对本最终状态快照执行 metadata-only independent re-review（待进行）。"
+  },
+  "limits": {
+    "does_not_claim": [
+      "训练权重正确或训练成功",
+      "模型精度、precision/recall 或 mAP",
+      "板上 G3/G4 验收",
+      "最终 PS/PL 物理接口冻结"
+    ],
+    "odd_padding_note": "本解码器遵循 D2 左上 floor pad。Darknet C correct_yolo_boxes 用总 pad/2.0；奇数总 padding 下两种逆变换相差 0.5 像素，不宣称逐值相同。"
+  },
+  "git": {
+    "commit_created": false,
+    "submitted": false,
+    "reason": "本任务明确要求 Developer 不提交。执行期间仓库 HEAD 前进至 4a73619587d5ee872d37fc079f758480ed8a8cb0；只读检查确认该并发提交仅改动 .codex/STATE.md，未包含 D9 文件。该提交予以保留。"
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "schema": "s2a_t70_candidate_run_inventory_v1",
+  "run_id": "candidate_9992382_t70_20261008_01",
+  "evidence_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\candidate_9992382_t70_20261008_01",
+  "candidate": {
+    "commit": "999238284157bed77cdb3a37e3e6eea52daeefc4",
+    "tree": "b77b0ae5e1f49d2b7ab1c217f09edaedcbf5ea67",
+    "engine_path": "src/s2a_conv_tile_engine.sv",
+    "engine_sha256": "76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300",
+    "rtl_and_testbench_match_candidate_commit": true
+  },
+  "working_head": "671f9cf494b92ce182b3f1542fefd0cfd4b209f5",
+  "toolchain": {
+    "python": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+    "python_version": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "verilator_version": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702",
+    "hashes": [
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "sha256": "4d8a3ea511a6c6644f588e5466bad01b26e2ec01ad4e9920f5a39ae176bb9c7e"
+      },
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\g++.exe",
+        "sha256": "9567751089410ac96c5a450e2179b920f905c5bebe5773540a6711f97789bbf5"
+      },
+      {
+        "path": "D:\\FPGA_S2A_MSYS2_20261001\\env\\usr\\bin\\make.exe",
+        "sha256": "91b7e155590d59db22e5eb0a3ffeec6350149f70f9ed2c242d133e584eb72fee"
+      },
+      {
+        "path": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "sha256": "4278cf2a296f31737cae77cafeeb3dc71683094cf3b8fd6f3f02c968687e771c"
+      }
+    ]
+  },
+  "outcomes": [
+    {
+      "name": "whitebox arithmetic rtl",
+      "command": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "verification/test_s2a_conv_tile_unit_rtl.py",
+        "--mode",
+        "rtl",
+        "--work-dir",
+        "D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\candidate_9992382_t70_20261008_01\\whitebox_rtl"
+      ],
+      "process_exit_code": 1,
+      "status": "FAILED",
+      "compile_exit_code": 1,
+      "simulation_exit_code": null,
+      "queries": 21336,
+      "lane_checks": 169790,
+      "fixture_bytes": 190760094,
+      "error": "compile 失败，见 D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\candidate_9992382_t70_20261008_01\\whitebox_rtl\\compile.log",
+      "report_sha256": "afa8db2c8e9e3d08bf8fed714687f6f1d302b81934123d7889d4dc1c798e4687"
+    },
+    {
+      "name": "memory full selected-tile rtl",
+      "command": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "verification/test_s2a_conv_tile_memory_rtl.py",
+        "--mode",
+        "full",
+        "--work-dir",
+        "D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\candidate_9992382_t70_20261008_01\\memory_full"
+      ],
+      "process_exit_code": 0,
+      "status": "PASS_SELECTED_TILE_MEMORY_ONLY",
+      "compile_exit_code": 0,
+      "simulation_exit_code": 0,
+      "cases": 336,
+      "output_bytes": 147896,
+      "cycle_count": 56872736,
+      "checkpoint_count": 336,
+      "compile_seconds": 9.188,
+      "simulation_seconds": 72.938,
+      "report_sha256": "7627df9add39a3c2603be78294b13aac8b421fa30e15c0e71be3435e3aa12a6a"
+    },
+    {
+      "name": "boundary candidate suite",
+      "command": [
+        "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\candidate_9992382_t70_20261008_01\\boundary_candidate_wrapper.py",
+        "--work-dir",
+        "D:\\FPGA_Competition\\report\\evidence\\S2A-T70\\candidate_9992382_t70_20261008_01\\boundary_current"
+      ],
+      "runner_mode": "evidence-only wrapper changes only stale candidate SHA guard after git tree/source byte checks",
+      "process_exit_code": 2,
+      "status": "FAILED",
+      "compile_exit_code": 1,
+      "simulations": 0,
+      "error": "编译失败",
+      "not_covered": [
+        "109整网",
+        "每层1000随机+16定向",
+        "3x3缓存完整遍历",
+        "G4/G5"
+      ],
+      "report_sha256": "3cff845bd9b92d980d7aaefcf76209e98e7aa94d0bc20f60864fb7b838c97c79"
+    }
+  ],
+  "limitations": [
+    "whitebox and boundary compile fail because testbenches reference removed dut.weight_group; no RTL simulation passed for these suites",
+    "boundary suite does not cover 3x3 cache traversal or response stalls even if compilation is repaired; T66 current-candidate layer0 is separate evidence",
+    "memory full covers 336 selected full-tile directed cases, not full tensor/backend traversal or all exceptional conditions"
+  ],
+  "process_snapshot": {
+    "checked_at_utc": "2026-10-07T22:03:17.0133911Z",
+    "active_relevant_processes": [],
+    "query": "Get-Process name-filter fallback; CIM command-line inspection was denied"
+  },
+  "artifacts": [
+    {
+      "path": "candidate_binding.json",
+      "bytes": 3468,
+      "sha256": "10d708e95ab7a7a6b4c70cdc527aa66515f0b3c777ccb650a271706d9effed70"
+    },
+    {
+      "path": "whitebox_rtl/summary.json",
+      "bytes": 22996,
+      "sha256": "afa8db2c8e9e3d08bf8fed714687f6f1d302b81934123d7889d4dc1c798e4687"
+    },
+    {
+      "path": "whitebox_rtl/compile.log",
+      "bytes": 1483,
+      "sha256": "9c95c606dd7a91eee5f3d1f58158c59e0506a81732f6841fad745a0383e582c3"
+    },
+    {
+      "path": "whitebox_rtl/queries.bin",
+      "bytes": 190760094,
+      "sha256": "676e4feba5c21feac52547ddaea7288dca0a9278d83922dff017fa1d8356bedf"
+    },
+    {
+      "path": "whitebox_invocation.log",
+      "bytes": 664,
+      "sha256": "3b50c3172bbaeadae41994749ddcb19839589090fabb1590e34802468aa8e077"
+    },
+    {
+      "path": "memory_full/summary.json",
+      "bytes": 142989,
+      "sha256": "7627df9add39a3c2603be78294b13aac8b421fa30e15c0e71be3435e3aa12a6a"
+    },
+    {
+      "path": "memory_full/compile.log",
+      "bytes": 18466,
+      "sha256": "b2da93f58c879e3622a3abde3f56588fb58908afa1df3fc3b586e2934e1d3386"
+    },
+    {
+      "path": "memory_full/simulation.log",
+      "bytes": 38291,
+      "sha256": "c07592d08faafba3a89da458572d334cab92feadc801cfd2e69b5936b0690ae7"
+    },
+    {
+      "path": "memory_invocation.log",
+      "bytes": 32,
+      "sha256": "06859678af89df5deaa107dfb2b70bd9bad50a712e7515e843564786e34323e6"
+    },
+    {
+      "path": "boundary_current/boundary_report.json",
+      "bytes": 7209,
+      "sha256": "3cff845bd9b92d980d7aaefcf76209e98e7aa94d0bc20f60864fb7b838c97c79"
+    },
+    {
+      "path": "boundary_current/compile.log",
+      "bytes": 1423,
+      "sha256": "0aa32805ca416c4ace4aa809b144e8ba6711bbc10e2567311dcd2a4a4d53a203"
+    },
+    {
+      "path": "boundary_invocation.log",
+      "bytes": 8,
+      "sha256": "53e6f628e00e033372a1c4e452422910af1477ae62abffd80289ff855cce2b2a"
+    },
+    {
+      "path": "boundary_candidate_wrapper.py",
+      "bytes": 1161,
+      "sha256": "f2275aca385828aa43b519ce8a382a472c2631f5093e3d9a6444b8fd0aa9d3d1"
+    },
+    {
+      "path": "boundary_candidate_wrapper_binding.json",
+      "bytes": 1831,
+      "sha256": "e3e0000110c198e20cc86ca7c0268482b03925917c8e02c164237cfda3213528"
+    }
+  ]
+}

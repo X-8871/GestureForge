@@ -1,0 +1,10 @@
+S2A_FAULT_CASE code=6 mapped=INTERNAL ack_restart=ready
+S2A_FAULT_CASE code=7 mapped=INTERNAL ack_restart=ready
+S2A_CANCEL_CASE kind=soft_reset retry=ready next=hard_reset_cancelled
+S2A_CANCEL_CASE kind=hard_reset retry=ready next=timeout_cancelled
+S2A_CANCEL_CASE kind=timeout ack_restart=ready
+PASS_S2A_BACKEND_FAULT_CANCEL_RECOVERY reads=2 writes=0
+- D:\FPGA_Competition\sim\tb_s2a_backend_fault_recovery.sv:461: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 7us; walltime 0.002 s; speed 3.701 ms/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 5 MB

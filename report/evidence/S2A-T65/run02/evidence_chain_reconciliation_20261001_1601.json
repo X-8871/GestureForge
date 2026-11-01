@@ -1,0 +1,349 @@
+{
+  "schema_version": "gestureforge_s2a_t65_evidence_chain_reconciliation_v1",
+  "task_id": "S2A-R02",
+  "created_at_shanghai": "2026-10-01T16:06:16.632275+08:00",
+  "scope": "只整理证据链并作纯离线核验；不运行 Vivado/XSim；仅 sample0/layer0 输出 NCHW [0,0,0,0]。",
+  "conclusion": {
+    "r6_result_is_current": false,
+    "r6_old_manifest_sha256": "e83ffc86de3609ae9a47aa8d179b8d30531f10744270a69aa8d146a5a6be5164",
+    "compile_snapshot_manifest_sha256": "f009947a3fa7a126cf30d950ac769f73106d42ec3039d31e43f8bbdf8dde22fa",
+    "current_manifest_sha256": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+    "sim02_runtime_binding_manifest_sha256": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+    "compiled_source_bindings_match_current": true,
+    "runtime_fixture_bindings_match_current": true,
+    "current_offline_revalidation_exit_code": 0,
+    "current_manifest_unchanged_during_revalidation": true,
+    "offline_generated_manifest_sha256": "930b1f1d4bf554f9baaee7e3175475743fb6e7d8fbcce097613923c6a6d0226d",
+    "offline_generated_source_map_equals_current_manifest": true,
+    "simulator_result": "FAIL / NO_SAMPLE0_OUTPUT",
+    "network_or_T01_pass_claim": false,
+    "explanation": "r6 仅绑定旧 HEAD manifest；compile snapshot 在 runner/verifier 源摘要更新前绑定 F009 manifest。当前 manifest FB 与当前 runner/verifier 摘要一致；runtime binding 明确记录 FB 并链接旧 compile snapshot。15 个 SV 编译输入及 3 个夹具的现存摘要均与 snapshot/current manifest 一致。离线重验在唯一隔离目录通过，但离线计算不构成 simulator 输出。"
+  },
+  "manifest_sha_chain": [
+    {
+      "record": "report/evidence/S2A-T65/run02/r6_offline_verifier_result.json",
+      "record_sha256": "8544eb951501b681722c7e1b7cda4f5d37b507e13f15b550fdb4220fcc37bd7c",
+      "record_time_shanghai": "2026-10-01T13:56:40.637042+08:00",
+      "manifest_old_sha256": "e83ffc86de3609ae9a47aa8d179b8d30531f10744270a69aa8d146a5a6be5164",
+      "manifest_current_sha256": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "manifest_role": "较早 HEAD 内容的离线夹具记录；不是 compile 输入",
+      "actual_compile_input": false,
+      "notes": "r6 记录的 before/after 均为 HEAD manifest SHA；不能代表之后的 compile snapshot 或当前 manifest。"
+    },
+    {
+      "record": "report/evidence/S2A-T65/run02/sim02_compile_source_snapshot.json",
+      "record_sha256": "89fa6498e370dabe65d2fe32a40ceb33b374a2fa7050c5257a64ebc3f98f7995",
+      "record_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+      "manifest_old_sha256": "f009947a3fa7a126cf30d950ac769f73106d42ec3039d31e43f8bbdf8dde22fa",
+      "manifest_current_sha256": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "manifest_role": "首轮编译前输入快照及 manifest 元数据引用；manifest JSON 本身不是 xvlog/xelab 输入",
+      "actual_compile_input": false,
+      "compile_inputs": "见 compiled_sv_inputs 与 runtime_fixtures",
+      "notes": "快照时间早于 current manifest 更新时间；runner 与 verifier SHA 记为旧版本，但二者不是 SystemVerilog 编译输入。"
+    },
+    {
+      "record": "report/evidence/S2A-T65/run02/fixture_manifest.json",
+      "record_sha256_current": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "record_time_shanghai": "2026-10-01T15:43:42.448720+08:00",
+      "manifest_previous_sha256_in_compile_snapshot": "f009947a3fa7a126cf30d950ac769f73106d42ec3039d31e43f8bbdf8dde22fa",
+      "manifest_previous_sha256_in_r6": "e83ffc86de3609ae9a47aa8d179b8d30531f10744270a69aa8d146a5a6be5164",
+      "role": "当前 fixture/source 绑定元数据",
+      "actual_compile_input": false,
+      "source_map_matches_current_files": true,
+      "notes": "source_sha256 指向当前文件；mtime 晚于首轮 compile snapshot。"
+    },
+    {
+      "record": "report/evidence/S2A-T65/run02/sim02_xsim_runtime_binding.json",
+      "record_sha256": "307da3cdfb0849035c0ec4fe0142e9206e86d9f1c0a63cb2072ac62d92c921fc",
+      "record_time_shanghai": "2026-10-01T15:49:09.996241+08:00",
+      "manifest_sha256": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "compile_snapshot_sha256": "89fa6498e370dabe65d2fe32a40ceb33b374a2fa7050c5257a64ebc3f98f7995",
+      "current_runner_sha256": "e1058ddc7b6aed1d1ced06b06d8b8a1bcdad24bd27df2689a6646dd8af3f3008",
+      "current_verifier_sha256": "6b981e60d78a076c43d44af6f643cb39df6682357dad72e89ca4d12ba969cd4e",
+      "role": "第二次 XSim wrapper 调用前的当前 manifest/source/fixture 与已编译 snapshot 绑定",
+      "actual_compile_input": false,
+      "notes": "此记录显式绑定当前 manifest，并复用旧快照；不是一次新编译。"
+    },
+    {
+      "record": "report/evidence/S2A-T65/run02/offline_recheck_result_20261001_1601.json",
+      "record_sha256": "e01aaacce4804c17ac792048dc51e0ffa03a2646d7c7ab69391b21e6bbed60fd",
+      "record_time_shanghai": "2026-10-01T16:03:08.103415+08:00",
+      "current_manifest_sha256_before": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "current_manifest_sha256_after": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "generated_manifest_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\offline_recheck_20261001_1601\\fixture_manifest.json",
+      "generated_manifest_sha256": "930b1f1d4bf554f9baaee7e3175475743fb6e7d8fbcce097613923c6a6d0226d",
+      "role": "以当前源码/数据执行的纯离线 verifier 结果",
+      "actual_compile_input": false,
+      "process_exit_code": 0,
+      "notes": "新目录路径不同，因此生成 manifest 的文件摘要与 run02 manifest 不同；source_sha256 map 完全相同，夹具摘要相同。"
+    }
+  ],
+  "source_bindings": {
+    "control_sources": [
+      {
+        "path": "verification/run_s2a_t65_layer0_golden.ps1",
+        "old_or_compile_snapshot_sha256": "56b815eb4fe42cd79ba118f5dd0efb1fef296d078520f838397b751bf3a12874",
+        "current_sha256": "e1058ddc7b6aed1d1ced06b06d8b8a1bcdad24bd27df2689a6646dd8af3f3008",
+        "role": "PowerShell runner / XSim command issuer",
+        "actual_compile_input": false
+      },
+      {
+        "path": "verification/test_s2a_t65_layer0_golden.py",
+        "old_or_compile_snapshot_sha256": "f01231f535288bea49f993648cd179f279c9fdc0a9862953d3d5fd22147827fb",
+        "current_sha256": "6b981e60d78a076c43d44af6f643cb39df6682357dad72e89ca4d12ba969cd4e",
+        "role": "offline fixture verifier; not an xvlog/xelab source",
+        "actual_compile_input": false
+      },
+      {
+        "path": "verification/t65_xilinx_process_guard.ps1",
+        "old_or_compile_snapshot_sha256": "e9103032f4a61ece7e58fd8570c786cfb4ddc8be6e9029c8e7d595932a13dca9",
+        "current_sha256": "e9103032f4a61ece7e58fd8570c786cfb4ddc8be6e9029c8e7d595932a13dca9",
+        "role": "read-only protected-process gate",
+        "actual_compile_input": false
+      },
+      {
+        "path": "report/evidence/S2A-T65/run02/process_identity_allowlist.json",
+        "old_or_compile_snapshot_sha256": "bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e",
+        "current_sha256": "bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e",
+        "role": "frozen process identity allowlist",
+        "actual_compile_input": false
+      }
+    ],
+    "compiled_sv_inputs": [
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_network_descriptor_pkg.sv",
+        "snapshot_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+        "current_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+        "manifest_source_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_conv_tap_geometry.sv",
+        "snapshot_sha256": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+        "current_sha256": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+        "manifest_source_sha256": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_conv_weight_address.sv",
+        "snapshot_sha256": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+        "current_sha256": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+        "manifest_source_sha256": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_mac_accumulator.sv",
+        "snapshot_sha256": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+        "current_sha256": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+        "manifest_source_sha256": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_maxpool_geometry.sv",
+        "snapshot_sha256": "0e1d398a479990dc2e614fda734fac14ddf8217c1197b1a52f9be0efe3b1905a",
+        "current_sha256": "0e1d398a479990dc2e614fda734fac14ddf8217c1197b1a52f9be0efe3b1905a",
+        "manifest_source_sha256": "0e1d398a479990dc2e614fda734fac14ddf8217c1197b1a52f9be0efe3b1905a",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_maxpool_window.sv",
+        "snapshot_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+        "current_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+        "manifest_source_sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_route_query.sv",
+        "snapshot_sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+        "current_sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+        "manifest_source_sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\int8_upsample_query.sv",
+        "snapshot_sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c",
+        "current_sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c",
+        "manifest_source_sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_conv_engine.sv",
+        "snapshot_sha256": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+        "current_sha256": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+        "manifest_source_sha256": "8656f43f510a8f7c74aaee44f809da74adeb3b8c5fed32f8f009aabecb05c994",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_maxpool_engine.sv",
+        "snapshot_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+        "current_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+        "manifest_source_sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_route_engine.sv",
+        "snapshot_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+        "current_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+        "manifest_source_sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_upsample_engine.sv",
+        "snapshot_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+        "current_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+        "manifest_source_sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_control_csr.sv",
+        "snapshot_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+        "current_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+        "manifest_source_sha256": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\src\\s2a_network_backend.sv",
+        "snapshot_sha256": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+        "current_sha256": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+        "manifest_source_sha256": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      },
+      {
+        "path": "D:\\FPGA_Competition\\sim\\tb_s2a_t65_layer0_golden.sv",
+        "snapshot_sha256": "fc43fbedc452560c59c0b7f31bc2ae6c371ae36ab87ccf1d591e6da7605cc456",
+        "current_sha256": "fc43fbedc452560c59c0b7f31bc2ae6c371ae36ab87ccf1d591e6da7605cc456",
+        "manifest_source_sha256": "fc43fbedc452560c59c0b7f31bc2ae6c371ae36ab87ccf1d591e6da7605cc456",
+        "snapshot_time_shanghai": "2026-10-01T15:36:54.908870+08:00",
+        "used_by_first_xvlog_xelab": true,
+        "actual_compile_input": true
+      }
+    ],
+    "runtime_fixtures": [
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\fixture\\sample0_input_chw_int8.bin",
+        "snapshot_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+        "current_sha256": "da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e",
+        "bytes": 519168,
+        "compile_input": false,
+        "intended_runtime_binding": true,
+        "consumed_by_xsim_engine": false
+      },
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\fixture\\sample0_layer0_gf8_weights.bin",
+        "snapshot_sha256": "df49b5d3aeaebd6b4107b99d83ffa791d7a7e24bd7b26df0815c246e5717e633",
+        "current_sha256": "df49b5d3aeaebd6b4107b99d83ffa791d7a7e24bd7b26df0815c246e5717e633",
+        "bytes": 864,
+        "compile_input": false,
+        "intended_runtime_binding": true,
+        "consumed_by_xsim_engine": false
+      },
+      {
+        "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\fixture\\sample0_layer0_output_point0.bin",
+        "snapshot_sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "current_sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "bytes": 1,
+        "compile_input": false,
+        "intended_runtime_binding": true,
+        "consumed_by_xsim_engine": false
+      }
+    ],
+    "testbench_note": "bench 已包含在 compiled_sv_inputs 中，属于实际 xvlog/xelab 输入。"
+  },
+  "simulator_attempts": [
+    {
+      "attempt": "sim01",
+      "time_shanghai": "2026-10-01T14:24:13/14:24:17+08:00",
+      "status_file_sha256": "2fb398f0f480e54993d51b6b561d48032a55e3f6e54e45040ecdd25643fb9da2",
+      "xsim_console_sha256": "48d280135818b2d04ae8b176596df62928782acb32bdb4be3c4a90d7c095cb21",
+      "xsim_engine_started": true,
+      "exit_condition": "fixture/sample0_input_chw_int8.bin 打不开；Fatal at 0 ps；XSIM_LOG_FAIL",
+      "sample0_output_emitted": false,
+      "manifest_or_compile_snapshot_binding": "未见 sim02 compile snapshot 形式的绑定记录；作为更早失败历史单独记录。"
+    },
+    {
+      "attempt": "sim02-first-run",
+      "execution_record_sha256": "249d33fb8b2a11ed43ef16d50f50980d0f999024c728a6bd8012e5703c05a6b5",
+      "time_utc": [
+        "2026-10-01T07:37:45.8151777Z",
+        "2026-10-01T07:38:25.7462001Z"
+      ],
+      "manifest_sha256_from_compile_snapshot": "f009947a3fa7a126cf30d950ac769f73106d42ec3039d31e43f8bbdf8dde22fa",
+      "xsim_wrapper_invoked": true,
+      "xsim_engine_started": false,
+      "runner_exit_code": 1,
+      "exit_condition": "XSim CLI 参数解析失败；执行记录确认 engine 未启动。",
+      "sample0_output_emitted": false
+    },
+    {
+      "attempt": "sim02-second-xsim-call",
+      "execution_record_sha256": "2b4c319784f70a01908cef32ac829d227def1f72baf728968c58c47297a4bc7f",
+      "runtime_binding_sha256": "307da3cdfb0849035c0ec4fe0142e9206e86d9f1c0a63cb2072ac62d92c921fc",
+      "time_utc": [
+        "2026-10-01T07:49:09.9982430Z",
+        "2026-10-01T07:49:10.9156121Z"
+      ],
+      "manifest_sha256": "fb0625f7a8b2f0b8849165bd01d50490061238e6c2f762ac93efc9200c090da5",
+      "compile_snapshot_sha256": "89fa6498e370dabe65d2fe32a40ceb33b374a2fa7050c5257a64ebc3f98f7995",
+      "xsim_exit_code": 1,
+      "xsim_log_sha256": null,
+      "exit_condition": "xsim.bat 报 Expected a switch but found D；无 xsim.log；wrapper 参数错误。",
+      "sample0_output_emitted": false
+    }
+  ],
+  "offline_revalidation": {
+    "result_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\offline_recheck_result_20261001_1601.json",
+    "result_sha256": "e01aaacce4804c17ac792048dc51e0ffa03a2646d7c7ab69391b21e6bbed60fd",
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-X",
+      "utf8",
+      "-B",
+      "-u",
+      "D:\\FPGA_Competition\\verification\\test_s2a_t65_layer0_golden.py",
+      "--evidence-dir",
+      "D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\offline_recheck_20261001_1601"
+    ],
+    "working_directory": "D:\\FPGA_Competition",
+    "started_utc": "2026-10-01T08:03:04.2415839Z",
+    "ended_utc": "2026-10-01T08:03:08.0505847Z",
+    "process_exit_code": 0,
+    "console": "PASS: T65 离线夹具核验；仅 sample0 layer0 首个输出点\r\ntap_constants=PASS; zero-fill and 24 selected-byte mutations rejected\r\nsample0_input_sha256=da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e\r\nlayer0_weights_sha256=df49b5d3aeaebd6b4107b99d83ffa791d7a7e24bd7b26df0815c246e5717e633\r\nvalid_taps=12 accumulator=-8713\r\nT25_first_byte=0xff signed=-1\r\nsim02_collision_negative_test=PASS sim01_preservation_test=PASS tool_invocations=0\r\nfixture_manifest=D:\\FPGA_Competition\\report\\evidence\\S2A-T65\\run02\\offline_recheck_20261001_1601\\fixture_manifest.json\r\nSIMULATION_NOT_RUN",
+    "generated_manifest_sha256": "930b1f1d4bf554f9baaee7e3175475743fb6e7d8fbcce097613923c6a6d0226d",
+    "source_map_equal_to_current_manifest": true,
+    "vivado_or_xsim_invoked": false,
+    "simulation_run": false
+  },
+  "limits": [
+    "离线 PASS 仅确认当前 fixture/source 绑定及单个 golden 点的独立计算。",
+    "sim01/两次 sim02 simulator 尝试均失败，没有由 simulator 产生的 sample0 输出值。",
+    "本证据不声称网络或 T01 通过，也不把 golden 预期值当作仿真结果。"
+  ]
+}

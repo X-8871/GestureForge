@@ -1,0 +1,6716 @@
+// Verilated -*- C++ -*-
+// DESCRIPTION: Verilator output: Design implementation internals
+// See Vtb_s2a_backend_fault_recovery.h for the primary calling header
+
+#include "Vtb_s2a_backend_fault_recovery__pch.h"
+
+void Vtb_s2a_backend_fault_recovery___024root___nba_sequent__TOP__0(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___nba_sequent__TOP__0\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    CData/*3:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__is_onehot4__0__value;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__is_onehot4__0__value = 0;
+    CData/*0:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found = 0;
+    IData/*31:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address = 0;
+    CData/*1:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__Vfuncout;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__Vfuncout = 0;
+    CData/*1:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__descriptor_activation;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__descriptor_activation = 0;
+    CData/*2:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code = 0;
+    CData/*2:0*/ __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code;
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code = 0;
+    CData/*0:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending = 0;
+    CData/*2:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0;
+    CData/*5:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0;
+    CData/*3:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 0;
+    CData/*2:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index = 0;
+    CData/*2:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 0;
+    CData/*3:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched = 0;
+    CData/*4:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index = 0;
+    CData/*0:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__busy;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0;
+    CData/*0:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__done;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0;
+    CData/*0:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__error;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id = 0;
+    IData/*31:0*/ __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v0;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v0 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v1;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v1 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v4;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v4 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v5;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v5 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v8;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v8 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v9;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v9 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v14;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v14 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v15;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v15 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v0;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v0 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v8;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v8 = 0;
+    CData/*7:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 = 0;
+    SData/*8:0*/ __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0;
+    __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v10;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v10 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v11;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v11 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v12;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v12 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v13;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v13 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v14;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v14 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v15;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v15 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v18;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v18 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v19;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v19 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v20;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v20 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v21;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v21 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v22;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v22 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v23;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v23 = 0;
+    VlWide<3>/*79:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16;
+    VL_ZERO_W(80, __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16);
+    CData/*2:0*/ __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16;
+    __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16 = 0;
+    IData/*31:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16 = 0;
+    CData/*2:0*/ __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16;
+    __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16 = 0;
+    CData/*7:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 = 0;
+    SData/*15:0*/ __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0;
+    __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 = 0;
+    CData/*7:0*/ __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0;
+    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 = 0;
+    SData/*15:0*/ __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0;
+    __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 = 0;
+    SData/*15:0*/ __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1;
+    __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1 = 0;
+    CData/*0:0*/ __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1 = 0;
+    VlWide<3>/*95:0*/ __Vtemp_1;
+    VlWide<3>/*95:0*/ __Vtemp_2;
+    VlWide<3>/*95:0*/ __Vtemp_3;
+    VlWide<4>/*127:0*/ __Vtemp_4;
+    VlWide<3>/*95:0*/ __Vtemp_22;
+    VlWide<3>/*95:0*/ __Vtemp_23;
+    VlWide<3>/*95:0*/ __Vtemp_24;
+    VlWide<3>/*95:0*/ __Vtemp_26;
+    VlWide<3>/*95:0*/ __Vtemp_27;
+    VlWide<3>/*95:0*/ __Vtemp_31;
+    VlWide<3>/*95:0*/ __Vtemp_32;
+    VlWide<3>/*95:0*/ __Vtemp_33;
+    VlWide<3>/*95:0*/ __Vtemp_34;
+    VlWide<3>/*95:0*/ __Vtemp_36;
+    VlWide<3>/*95:0*/ __Vtemp_38;
+    VlWide<3>/*95:0*/ __Vtemp_39;
+    VlWide<3>/*95:0*/ __Vtemp_40;
+    VlWide<3>/*95:0*/ __Vtemp_41;
+    VlWide<3>/*95:0*/ __Vtemp_42;
+    VlWide<3>/*95:0*/ __Vtemp_43;
+    VlWide<3>/*95:0*/ __Vtemp_44;
+    VlWide<4>/*127:0*/ __Vtemp_45;
+    VlWide<4>/*127:0*/ __Vtemp_46;
+    VlWide<4>/*127:0*/ __Vtemp_47;
+    VlWide<4>/*127:0*/ __Vtemp_48;
+    VlWide<4>/*127:0*/ __Vtemp_49;
+    VlWide<4>/*127:0*/ __Vtemp_50;
+    VlWide<4>/*127:0*/ __Vtemp_51;
+    VlWide<4>/*127:0*/ __Vtemp_52;
+    VlWide<4>/*127:0*/ __Vtemp_53;
+    VlWide<4>/*127:0*/ __Vtemp_54;
+    VlWide<4>/*127:0*/ __Vtemp_55;
+    VlWide<4>/*127:0*/ __Vtemp_56;
+    VlWide<4>/*127:0*/ __Vtemp_57;
+    VlWide<4>/*127:0*/ __Vtemp_58;
+    VlWide<4>/*127:0*/ __Vtemp_59;
+    VlWide<4>/*127:0*/ __Vtemp_60;
+    VlWide<4>/*127:0*/ __Vtemp_61;
+    VlWide<4>/*127:0*/ __Vtemp_62;
+    VlWide<4>/*127:0*/ __Vtemp_63;
+    VlWide<4>/*127:0*/ __Vtemp_64;
+    VlWide<4>/*127:0*/ __Vtemp_65;
+    VlWide<4>/*127:0*/ __Vtemp_66;
+    VlWide<4>/*127:0*/ __Vtemp_67;
+    VlWide<4>/*127:0*/ __Vtemp_68;
+    VlWide<4>/*127:0*/ __Vtemp_69;
+    VlWide<4>/*127:0*/ __Vtemp_70;
+    VlWide<4>/*127:0*/ __Vtemp_71;
+    VlWide<4>/*127:0*/ __Vtemp_72;
+    VlWide<4>/*127:0*/ __Vtemp_73;
+    VlWide<4>/*127:0*/ __Vtemp_74;
+    VlWide<4>/*127:0*/ __Vtemp_75;
+    VlWide<4>/*127:0*/ __Vtemp_76;
+    VlWide<4>/*127:0*/ __Vtemp_77;
+    VlWide<4>/*127:0*/ __Vtemp_78;
+    VlWide<4>/*127:0*/ __Vtemp_79;
+    VlWide<4>/*127:0*/ __Vtemp_80;
+    VlWide<4>/*127:0*/ __Vtemp_81;
+    VlWide<4>/*127:0*/ __Vtemp_82;
+    VlWide<4>/*127:0*/ __Vtemp_83;
+    VlWide<4>/*127:0*/ __Vtemp_84;
+    VlWide<4>/*127:0*/ __Vtemp_85;
+    VlWide<4>/*127:0*/ __Vtemp_87;
+    VlWide<4>/*127:0*/ __Vtemp_88;
+    VlWide<4>/*127:0*/ __Vtemp_89;
+    VlWide<4>/*127:0*/ __Vtemp_90;
+    VlWide<4>/*127:0*/ __Vtemp_91;
+    VlWide<4>/*127:0*/ __Vtemp_92;
+    VlWide<4>/*127:0*/ __Vtemp_93;
+    VlWide<4>/*127:0*/ __Vtemp_94;
+    VlWide<4>/*127:0*/ __Vtemp_95;
+    VlWide<4>/*127:0*/ __Vtemp_96;
+    VlWide<4>/*127:0*/ __Vtemp_97;
+    VlWide<4>/*127:0*/ __Vtemp_98;
+    VlWide<4>/*127:0*/ __Vtemp_99;
+    VlWide<4>/*127:0*/ __Vtemp_100;
+    // Body
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__busy 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__busy;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__done 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__done;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__error 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__error;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v0 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v1 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v4 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v5 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v8 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v9 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13 = 0U;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 = 0U;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v0 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v8 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16 = 0U;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1 = 0U;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16 = 0U;
+    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17 = 0U;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched;
+    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state;
+    if (((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__automatic_read_responses) 
+           & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid)) 
+          & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready)) 
+         & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_write)))) {
+        __Vfunc_tb_s2a_backend_fault_recovery__DOT__is_onehot4__0__value 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_rstrb;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT____VlemCall_1__is_onehot4 
+            = ((0U != (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__is_onehot4__0__value)) 
+               & (0U == ((IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__is_onehot4__0__value) 
+                         & ((IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__is_onehot4__0__value) 
+                            - (IData)(1U)))));
+        __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found = 0U;
+        __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address = 0U;
+        if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_rstrb))) {
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_addr;
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found 
+                = ((0x0007ec00U > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                   | ((0x00100000U <= __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                      & (0x006a12fcU > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address)));
+        }
+        if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_rstrb))) {
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address 
+                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_addr);
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found 
+                = ((0x0007ec00U > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                   | ((0x00100000U <= __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                      & (0x006a12fcU > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address)));
+        }
+        if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_rstrb))) {
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address 
+                = ((IData)(2U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_addr);
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found 
+                = ((0x0007ec00U > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                   | ((0x00100000U <= __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                      & (0x006a12fcU > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address)));
+        }
+        if ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_rstrb))) {
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address 
+                = ((IData)(3U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_addr);
+            __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found 
+                = ((0x0007ec00U > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                   | ((0x00100000U <= __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address) 
+                      & (0x006a12fcU > __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__selected_address)));
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT____VlemCall_2__selected_byte_in_input_or_weight_tensor 
+            = __Vfunc_tb_s2a_backend_fault_recovery__DOT__selected_byte_in_input_or_weight_tensor__1__found;
+        if (VL_UNLIKELY(((1U & (((((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT____VlemCall_1__is_onehot4)) 
+                                   | (0U != (((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                                               ? ((
+                                                   (1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                                                    ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_wstrb)
+                                                    : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_wstrb)) 
+                                                  & (- (IData)(
+                                                               (1U 
+                                                                & (~ 
+                                                                   ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                                                                    >> 1U))))))
+                                               : ((
+                                                   (1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                                                    ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_wstrb)
+                                                    : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_wstrb)) 
+                                                  & (- (IData)(
+                                                               (1U 
+                                                                & ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                                                                   >> 1U)))))) 
+                                             & (- (IData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid)))))) 
+                                  | (0U != (3U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_addr))) 
+                                 | (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT____VlemCall_2__selected_byte_in_input_or_weight_tensor))) 
+                                | (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code))))))) {
+            VL_WRITEF_NX("[%0t] %%Fatal: tb_s2a_backend_fault_recovery.sv:199: Assertion failed in %m: synthetic read response \350\277\235\345\217\215\345\257\271\350\261\241\343\200\201byte-lane \346\210\226\346\210\220\345\212\237\350\277\224\345\233\236\350\257\255\344\271\211\n",3, 'M',vlSymsp->name(),"tb_s2a_backend_fault_recovery", 'T',-9
+                         , '#',64,VL_TIME_UNITED_Q(1000));
+            VL_STOP_MT("D:\\FPGA_Competition\\sim\\tb_s2a_backend_fault_recovery.sv", 199, "", false);
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__simulation_cycle_count 
+        = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__simulation_cycle_count);
+    if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid) 
+         & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready))) {
+        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_write) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__memory_write_side_effects 
+                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__memory_write_side_effects);
+        }
+        if ((1U & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_write)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__memory_read_handshakes 
+                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__memory_read_handshakes);
+        }
+    }
+    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset) {
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 0U;
+        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v0 = 1U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[2U] = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 0U;
+        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v1 = 1U;
+    } else {
+        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort) {
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched = 0U;
+        } else {
+            if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending = 0U;
+            }
+            if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__memory_handshake) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending = 1U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op;
+            }
+            if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+                if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid) {
+                    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_2__normalize_engine_error 
+                        = ((4U & (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code))
+                            ? (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code)
+                            : ((2U & (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code))
+                                ? (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code)
+                                : ((1U & (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code))
+                                    ? (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__102__code)
+                                    : 0U)));
+                    if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_2__normalize_engine_error))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                    } else if (((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)) 
+                                & ((1ULL + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index))) 
+                                   < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index 
+                            = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 1U;
+                    } else if ((0x00000026U <= ((IData)(1U) 
+                                                + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor 
+                            = (0x0000003fU & ((IData)(1U) 
+                                              + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)));
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 1U;
+                    }
+                }
+            } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+                if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid) {
+                    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_2__normalize_engine_error 
+                        = ((4U & (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code))
+                            ? (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code)
+                            : ((2U & (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code))
+                                ? (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code)
+                                : ((1U & (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code))
+                                    ? (IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__103__code)
+                                    : 0U)));
+                    if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_2__normalize_engine_error))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                    } else if (((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)) 
+                                & ((1ULL + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index))) 
+                                   < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index 
+                            = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 1U;
+                    } else if ((0x00000026U <= ((IData)(1U) 
+                                                + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor 
+                            = (0x0000003fU & ((IData)(1U) 
+                                              + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)));
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 1U;
+                    }
+                }
+            } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+                if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl) {
+                    if (((0x26U <= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+                         | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_fault))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                    } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row) {
+                        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_valid) {
+                            if ((0x00000026U <= ((IData)(1U) 
+                                                 + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)))) {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                            } else {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor 
+                                    = (0x0000003fU 
+                                       & ((IData)(1U) 
+                                          + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)));
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0U;
+                            }
+                        } else {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 0U;
+                        }
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state 
+                            = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_start_ready)
+                                ? (7U & (0x00000b1aU 
+                                         >> ((IData)(3U) 
+                                             * (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op))))
+                                : 0U);
+                    }
+                }
+            } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_start) 
+                        & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl))) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state = 1U;
+            }
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state;
+        if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort) 
+              & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) 
+             & (5U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 0U;
+        } else if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+            if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 6U;
+            } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+                if (((5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state)) 
+                     & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_result_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 0U;
+                }
+            } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__backend_rsp_valid) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error;
+                if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched = 0U;
+                }
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 5U;
+            }
+        } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+            if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+                if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_valid) 
+                     & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__backend_req_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 4U;
+                }
+            } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__backend_rsp_valid) {
+                if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 5U;
+                } else {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched 
+                        = (0x000000ffU & VL_SHIFTR_III(8,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__selected_byte_shift));
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 3U;
+                }
+            }
+        } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_valid) 
+                 & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__backend_req_ready))) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 2U;
+            }
+        } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_start_valid) 
+                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__start_ready))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched = 0U;
+            if ((((((((0x0080U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+                      | (0x000dU != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+                     | (0x000dU != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+                    | (2U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride)) 
+                   | (0x00000080U <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel)) 
+                  | (0x0000001aU <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y)) 
+                 | (0x0000001aU <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 1U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 5U;
+            } else if (((0x00005480U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U]) 
+                        | (0x00015200U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 3U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 5U;
+            } else if (((0x01a51e00U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U]) 
+                        | (0x01a57280U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched = 2U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 5U;
+            } else if (((((((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code)) 
+                            | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_channel 
+                               != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel)) 
+                           | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_address 
+                              < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U])) 
+                          | ((0x00000001ffffffffULL 
+                              & ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_address)) 
+                                 - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U])))) 
+                             >= (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U])))) 
+                         | (0ULL != (0x00000001ffffffffULL 
+                                     & (((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_work[2U])) 
+                                         << 0x00000020U) 
+                                        | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_work[1U])))))) 
+                        | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_offset_work 
+                           >= (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched 
+                    = ((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code))
+                        ? 2U : 1U);
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 5U;
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_address;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_work[0U];
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state = 1U;
+            }
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state;
+        if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort) 
+              & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) 
+             & (6U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state)))) {
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 0U;
+            __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v4 = 1U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[1U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[2U] = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 0U;
+            __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v5 = 1U;
+        } else if ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 6U;
+        } else if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+                if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 6U;
+                } else if (((6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state)) 
+                            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_result_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 0U;
+                }
+            } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+                if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__backend_rsp_valid) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error;
+                    if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+                    }
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                }
+            } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_valid) 
+                        & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__backend_req_ready))) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 5U;
+            }
+        } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+                if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                } else {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_max_value;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 4U;
+                }
+            } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__backend_rsp_valid) {
+                if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[1U] = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[2U] = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                } else {
+                    if ((0x47U >= (0x0000007fU & ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index) 
+                                                  << 3U)))) {
+                        VL_ASSIGNSEL_WI(72, 8, (0x0000007fU 
+                                                & ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index) 
+                                                   << 3U)), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched, 
+                                        (0x000000ffU 
+                                         & VL_SHIFTR_III(8,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_byte_shift)));
+                    }
+                    if ((3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 3U;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index 
+                            = (7U & ((IData)(1U) + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index)));
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 1U;
+                    }
+                }
+            }
+        } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_valid) 
+                 & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__backend_req_ready))) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 2U;
+            }
+        } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_start_valid) 
+                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__start_ready))) {
+            __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v8 = 1U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[1U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[2U] = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched = 0U;
+            __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v9 = 1U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 0U;
+            if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_inputs_valid) {
+                if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U] 
+                      != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U] 
+                           * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U]) 
+                          * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+                     | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length 
+                        != (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c) 
+                             * (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)) 
+                            * (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 3U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                } else if (((((9U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index) 
+                              & ((((0x014f3800U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U]) 
+                                   | (0x01645800U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base)) 
+                                  | (0x00152000U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U])) 
+                                 | (0x00054800U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length))) 
+                             | ((0x00000011U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index) 
+                                & ((((0x01816400U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U]) 
+                                     | (0x018bf400U 
+                                        != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base)) 
+                                    | (0x000a9000U 
+                                       != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U])) 
+                                   | (0x0002a400U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length)))) 
+                            | ((0x00000019U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index) 
+                               & ((((0x019a7a00U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U]) 
+                                    | (0x019fc200U 
+                                       != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base)) 
+                                   | (0x00054800U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U])) 
+                                  | (0x00015200U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length))))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched 
+                        = (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U] 
+                             != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U] 
+                                  * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U]) 
+                                 * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+                            | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length 
+                               != (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c) 
+                                    * (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)) 
+                                   * (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))))
+                            ? 3U : 2U);
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                } else if ((1U & (((((((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code)) 
+                                       | (~ ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code)) 
+                                             & ((4U 
+                                                 == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count)) 
+                                                & ((0x0fU 
+                                                    == 
+                                                    (0x0000000fU 
+                                                     & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask))) 
+                                                   & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_height 
+                                                       == (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h))) 
+                                                      & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_width 
+                                                         == (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))))))))) 
+                                      | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel 
+                                         >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c))) 
+                                     | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y 
+                                        >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h))) 
+                                    | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x 
+                                       >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))) 
+                                   | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_offset_work 
+                                      >= (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length)))) 
+                                  | (0ULL != (0x00000001ffffffffULL 
+                                              & (((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[2U])) 
+                                                  << 0x00000020U) 
+                                                 | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[1U])))))))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched 
+                        = (((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code)) 
+                            | (0ULL != (0x00000001ffffffffULL 
+                                        & (((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[2U])) 
+                                            << 0x00000020U) 
+                                           | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[1U]))))))
+                            ? 2U : 1U);
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+                } else {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_index = 4U;
+                    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[0U];
+                    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12 = 1U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[0U];
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 1U;
+                    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[1U];
+                    __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13 = 1U;
+                    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v14 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[2U];
+                    __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v15 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[3U];
+                }
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched = 1U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state = 6U;
+            }
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index;
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v0) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[0U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v1) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[3U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v4) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[0U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v5) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[3U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v8) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[0U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v9) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[3U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[0U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v12;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[1U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v13;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[2U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v14;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched[3U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched__v15;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state;
+    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset) {
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__group_id_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_y_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_x_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_base_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_length_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_multiplier_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_value_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_base_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_length_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_channels_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_height_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_width_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_start_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_end_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_multiplier_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_value_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__seq_lane = 8U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_layer_index_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_base_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_length_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_batch_count_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_base_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_length_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_count_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_left_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_right_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_top_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_bottom_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__groups_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__padding_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_base_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_length_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_offset_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_bytes_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__activation_mode_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_write_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_wdata_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_value_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 0U;
+        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v0 = 1U;
+    } else {
+        if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort) 
+              & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) 
+             & (7U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state)))) {
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_value_latched = 0U;
+        } else if ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 6U;
+        } else if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+                if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+                    if (((7U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state)) 
+                         & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_result_ready))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 0U;
+                    }
+                } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__backend_rsp_valid) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error;
+                    if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+                    }
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+                }
+            } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+                if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_valid) 
+                     & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__backend_req_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 6U;
+                }
+            } else if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_value;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 5U;
+            }
+        } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+                if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__backend_rsp_valid) {
+                    if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+                    } else if ((0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched)) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_value_latched 
+                            = (0x000000ffU & VL_SHIFTR_III(8,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_byte_shift));
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 4U;
+                    } else if ((1U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched)) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_value_latched 
+                            = (0x000000ffU & VL_SHIFTR_III(8,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_byte_shift));
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 4U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 6U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+                    }
+                }
+            } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_valid) 
+                        & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__backend_req_ready))) {
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 3U;
+            }
+        } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            __Vtemp_1[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+            __Vtemp_1[1U] = 0U;
+            __Vtemp_1[2U] = 0U;
+            if ((((((((((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code)) 
+                        | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_channels 
+                           != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched)) 
+                       | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_height 
+                          != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched)) 
+                      | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_width 
+                         != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched)) 
+                     | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched)) 
+                    | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched)) 
+                   | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched)) 
+                  | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched)) 
+                 | VL_GT_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_elements_work, __Vtemp_1))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched 
+                    = ((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code))
+                        ? 2U : ((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code))
+                                 ? 1U : 3U));
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+            } else {
+                __Vtemp_2[0U] = 0U;
+                __Vtemp_2[1U] = 1U;
+                __Vtemp_2[2U] = 0U;
+                if (VL_LT_W(3, __Vtemp_2, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_end_work)) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 2U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+                } else {
+                    __Vtemp_3[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+                    __Vtemp_3[1U] = 0U;
+                    __Vtemp_3[2U] = 0U;
+                    if ((VL_GTE_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_offset_work, __Vtemp_3) 
+                         | ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched 
+                             + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_offset_work[0U]) 
+                            < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 2U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 7U;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_index;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_address;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched 
+                            = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched 
+                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_offset_work[0U]);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 2U;
+                    }
+                }
+            }
+        } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_start_valid) 
+                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__start_ready))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count;
+            if ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched 
+                    = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_GROUP_COUNT
+                    [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__group_id_latched 
+                    = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_GROUP_ID
+                    [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__group_id_latched = 0U;
+            }
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_y_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_x_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_base_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_length_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_start[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_end[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_multiplier_latched 
+                = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_SOURCE_MULTIPLIER_Q31
+                [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                   ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                   : 0U)][0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_base_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_length_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_channels_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_height_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_width_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_start_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_start[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_end_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_end[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_multiplier_latched 
+                = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_SOURCE_MULTIPLIER_Q31
+                [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                   ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                   : 0U)][1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_value_latched = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state = 1U;
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_index_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state 
+            = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state;
+        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__seq_lane = 8U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_write_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_wdata_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_value_latched = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 0U;
+            __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v8 = 1U;
+        } else {
+            if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_advance) {
+                if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x) 
+                     >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width)) {
+                    if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y) 
+                         >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height)) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel 
+                            = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y = 0U;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y 
+                            = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y);
+                    }
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x = 0U;
+                } else {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x 
+                        = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x);
+                }
+            }
+            if ((0x00000010U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                if ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 6U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                } else if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 6U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                        if (((0x13U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)) 
+                             & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_result_ready))) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0U;
+                        }
+                    } else if ((((IData)(8U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base) 
+                                < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched)) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base 
+                            = ((IData)(8U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 6U;
+                    } else if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x 
+                                 + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width) 
+                                < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched)) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x 
+                            = ((IData)(8U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 2U;
+                    } else if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y 
+                                 + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height) 
+                                < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched)) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y 
+                            = ((IData)(8U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y);
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 2U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                    }
+                } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_rsp_valid) {
+                        if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error))) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched 
+                                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index 
+                                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index);
+                            if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x) 
+                                 >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width)) {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y 
+                                    = ((IData)(1U) 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y);
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0U;
+                            } else {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x 
+                                    = ((IData)(1U) 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x);
+                            }
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0fU;
+                        }
+                    }
+                } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid) 
+                            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_req_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x11U;
+                }
+            } else if ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                        if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                            if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index 
+                                 >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x12U;
+                            } else if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index 
+                                        >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count)) {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index 
+                                    = ((IData)(1U) 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index);
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index = 0U;
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y = 0U;
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0U;
+                            } else {
+                                __Vtemp_4[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_byte_offset_wide);
+                                __Vtemp_4[1U] = (IData)(
+                                                        (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_byte_offset_wide 
+                                                         >> 0x00000020U));
+                                __Vtemp_4[2U] = 0U;
+                                __Vtemp_4[3U] = 0U;
+                                if (((0x00000000ffffffffULL 
+                                      < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_wide) 
+                                     | VL_GTE_W(4, __Vtemp_4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_elements_wide))) {
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 2U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                                } else {
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_latched 
+                                        = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_wide);
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_value_latched 
+                                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block
+                                        [(0x000001ffU 
+                                          & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index 
+                                              << 6U) 
+                                             + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index))];
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_address_latched 
+                                        = ((IData)(
+                                                   (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_wide 
+                                                    >> 2U)) 
+                                           << 2U);
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched 
+                                        = (0x0000000fU 
+                                           & ((IData)(1U) 
+                                              << (3U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_wide))));
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_write_latched = 1U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x10U;
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_wdata_latched 
+                                        = VL_SHIFTL_III(32,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block
+                                                        [
+                                                        (0x000001ffU 
+                                                         & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index 
+                                                             << 6U) 
+                                                            + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index))], 
+                                                        (0x00000018U 
+                                                         & ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_wide) 
+                                                            << 3U)));
+                                }
+                            }
+                        } else {
+                            if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index 
+                                 < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 
+                                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requantized_value;
+                                __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 
+                                    = (0x000001ffU 
+                                       & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index 
+                                           << 6U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index));
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0 = 1U;
+                            }
+                            if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index) 
+                                 >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index) 
+                                     >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count)) {
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index = 0U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index = 0U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y = 0U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0fU;
+                                } else {
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index 
+                                        = ((IData)(1U) 
+                                           + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index);
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0U;
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0cU;
+                                }
+                            } else {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index 
+                                    = ((IData)(1U) 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index);
+                            }
+                        }
+                    } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 1U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 7U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__seq_lane = 8U;
+                            if ((0U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[0U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0 = 1U;
+                            }
+                            if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index) 
+                                 >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched)) {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index = 0U;
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0eU;
+                            } else {
+                                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index 
+                                    = ((IData)(1U) 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index);
+                                if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x) 
+                                     >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched)) {
+                                    if ((((IData)(1U) 
+                                          + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y) 
+                                         >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched)) {
+                                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel 
+                                            = ((IData)(1U) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel);
+                                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0U;
+                                    } else {
+                                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y 
+                                            = ((IData)(1U) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y);
+                                    }
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0U;
+                                } else {
+                                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x 
+                                        = ((IData)(1U) 
+                                           + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x);
+                                }
+                            }
+                            if ((1U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[1U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1 = 1U;
+                            }
+                            if ((2U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[2U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2 = 1U;
+                            }
+                            if ((3U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[3U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3 = 1U;
+                            }
+                            if ((4U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[4U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4 = 1U;
+                            }
+                            if ((5U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[5U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5 = 1U;
+                            }
+                            if ((6U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[6U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6 = 1U;
+                            }
+                            if ((7U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7 
+                                    = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[7U]);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7 = 1U;
+                            }
+                        }
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__seq_lane = 8U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0U;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8 
+                            = ((0U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[0U]
+                                : 0U);
+                        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8 = 1U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0dU;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9 
+                            = ((1U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[1U]
+                                : 0U);
+                        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9 = 1U;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v10 
+                            = ((2U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[2U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v11 
+                            = ((3U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[3U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v12 
+                            = ((4U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[4U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v13 
+                            = ((5U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[5U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v14 
+                            = ((6U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[6U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v15 
+                            = ((7U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[7U]
+                                : 0U);
+                    }
+                } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__seq_lane = 8U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0U;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16 
+                            = ((0U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[0U]
+                                : 0U);
+                        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16 = 1U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0dU;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17 
+                            = ((1U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[1U]
+                                : 0U);
+                        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17 = 1U;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v18 
+                            = ((2U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[2U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v19 
+                            = ((3U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[3U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v20 
+                            = ((4U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[4U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v21 
+                            = ((5U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[5U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v22 
+                            = ((6U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[6U]
+                                : 0U);
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v23 
+                            = ((7U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)
+                                ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[7U]
+                                : 0U);
+                    } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_invalid) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 1U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                    } else {
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16[0U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U];
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16[1U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U];
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16[2U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U];
+                        __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16 
+                            = (7U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane);
+                        __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16 = 1U;
+                        __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_bias;
+                        __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16 
+                            = (7U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane);
+                        if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane) 
+                             >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0bU;
+                        } else {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane 
+                                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane);
+                        }
+                    }
+                } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_rsp_valid) {
+                        if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error))) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched 
+                                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else {
+                            if ((0x8fffU >= (0x0000ffffU 
+                                             & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index 
+                                                 * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                                + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index)))) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 
+                                    = (0x000000ffU 
+                                       & VL_SHIFTR_III(8,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched, 
+                                                       ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_byte_lane) 
+                                                        << 3U)));
+                                __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 
+                                    = (0x0000ffffU 
+                                       & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index 
+                                           * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                          + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index));
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0 = 1U;
+                            }
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 7U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index 
+                                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index);
+                        }
+                    }
+                } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid) 
+                            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_req_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 9U;
+                }
+            } else if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                        if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index 
+                             >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x0aU;
+                        } else if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index 
+                                    >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched)) {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index 
+                                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index);
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index = 0U;
+                        } else if ((0x00000000ffffffffULL 
+                                    < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_source_address_wide)) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 2U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_address_latched 
+                                = ((IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_source_address_wide 
+                                            >> 2U)) 
+                                   << 2U);
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched 
+                                = (0x0000000fU & ((IData)(1U) 
+                                                  << 
+                                                  (3U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_source_address_wide))));
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_write_latched = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_wdata_latched = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 8U;
+                        }
+                    } else if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base 
+                                >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched)) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x12U;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count 
+                            = ((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched 
+                                       - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base))
+                                ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched 
+                                        - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base));
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 7U;
+                    }
+                } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_rsp_valid) {
+                        if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error))) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched 
+                                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else {
+                            if ((0xc7ffU >= (0x0000ffffU 
+                                             & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index))) {
+                                __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 
+                                    = (0x000000ffU 
+                                       & VL_SHIFTR_III(8,32,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched, 
+                                                       ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_byte_lane) 
+                                                        << 3U)));
+                                __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 
+                                    = (0x0000ffffU 
+                                       & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index);
+                                __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0 = 1U;
+                            }
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 3U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index 
+                                = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index);
+                        }
+                    }
+                } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid) 
+                            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_req_ready))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 5U;
+                }
+            } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                    if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index 
+                         >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count)) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 6U;
+                    } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_in_bounds) {
+                        if ((0x00000000ffffffffULL 
+                             < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_address_wide)) {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 2U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                        } else {
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_address_latched 
+                                = ((IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_address_wide 
+                                            >> 2U)) 
+                                   << 2U);
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched 
+                                = (0x0000000fU & ((IData)(1U) 
+                                                  << 
+                                                  (3U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_address_wide))));
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_write_latched = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_wdata_latched = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 4U;
+                        }
+                    } else {
+                        if ((0xc7ffU >= (0x0000ffffU 
+                                         & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index))) {
+                            __VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1 
+                                = (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index);
+                            __VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1 = 1U;
+                        }
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index 
+                            = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index);
+                    }
+                } else {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height 
+                        = ((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                   - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y))
+                            ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                    - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y));
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 3U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width 
+                        = ((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                   - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x))
+                            ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                    - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x));
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height 
+                        = (((((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                      - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y))
+                               ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                       - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y)) 
+                             - (IData)(1U)) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched) 
+                           + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched);
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width 
+                        = (((((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                      - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x))
+                               ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                       - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x)) 
+                             - (IData)(1U)) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched) 
+                           + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched);
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count 
+                        = (((((((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                        - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y))
+                                 ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                         - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y)) 
+                               - (IData)(1U)) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched) 
+                             + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched) 
+                            * (((((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                          - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x))
+                                   ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                           - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x)) 
+                                 - (IData)(1U)) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched) 
+                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched)) 
+                           * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched);
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count 
+                        = (((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                    - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y))
+                             ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                                     - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y)) 
+                           * ((8U <= (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                      - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x))
+                               ? 8U : (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                                       - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x)));
+                }
+            } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_ok) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide[0U];
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 2U;
+                } else {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 0x13U;
+                }
+            } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_start_valid) 
+                        & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__start_ready))) {
+                if ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_LAYER_INDEX
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_layer_index_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_WEIGHT_LAYER_INDEX
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_KERNEL_H
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_KERNEL_W
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_STRIDE_H
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_STRIDE_W
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_left_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_PADDING_LEFT
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_right_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_PADDING_RIGHT
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_top_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_PADDING_TOP
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_bottom_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_PADDING_BOTTOM
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__groups_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_GROUP_COUNT
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_offset_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_GF8_WEIGHT_OFFSET
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_bytes_latched 
+                        = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_GF8_WEIGHT_BYTES
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+                } else {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_layer_index_latched = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_left_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_right_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_top_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_bottom_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__groups_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_offset_latched = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_bytes_latched = 0U;
+                }
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_base_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_length_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_batch_count_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[0U];
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_base_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_length_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_count_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_n;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__padding_latched 
+                    = (((- (IData)((1U & (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                                            ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_PADDING_VALUE_INT8
+                                           [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                                            : 0U) >> 7U)))) 
+                        << 8U) | ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                                   ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_PADDING_VALUE_INT8
+                                  [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                                   : 0U));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_base_latched = 0x00100000U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_length_latched = 0x005a12fcU;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_latched = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__activation_mode_latched 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_conv_engine__activation_mode;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched = 0U;
+                __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state = 1U;
+            }
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_height;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_point_count;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_index;
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_block__v0;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index;
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v0) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[3U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[4U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[5U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[6U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[7U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[0U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[0U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[0U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[1U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[1U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[1U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[2U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[2U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[2U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[3U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[3U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[3U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[4U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[4U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[4U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[5U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[5U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[5U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[6U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[6U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[6U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[7U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[7U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[7U][2U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v8) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[3U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[4U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[5U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[6U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[7U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[0U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[0U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[0U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[1U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[1U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[1U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[2U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[2U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[2U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[3U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[3U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[3U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[4U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[4U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[4U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[5U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[5U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[5U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[6U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[6U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[6U][2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[7U][0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[7U][1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[7U][2U] = 0U;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_bias__v16;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16][0U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16[0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16][1U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16[1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16][2U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter__v16[2U];
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x;
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group__v0;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v0;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch[__VdlyDim0__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch__v1] = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count;
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[0U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v0;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[1U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v1;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[2U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v2;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[3U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v3;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[4U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v4;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[5U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v5;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[6U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v6;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[7U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v7;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[0U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v8;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[1U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v9;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[2U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v10;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[3U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v11;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[4U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v12;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[5U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v13;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[6U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v14;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[7U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v15;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[0U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v16;
+    }
+    if (__VdlySet__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[1U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v17;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[2U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v18;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[3U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v19;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[4U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v20;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[5U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v21;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[6U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v22;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[7U] 
+            = __VdlyVal__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator__v23;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error = 6U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error = 6U;
+    if ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched)) 
+          | (2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched))) 
+         | (6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched;
+    } else if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__mapped_response_error = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error = 6U;
+    if ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched)) 
+          | (2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched))) 
+         | (6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched;
+    } else if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__mapped_response_error = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__mapped_response_error = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__selected_byte_shift 
+        = (0x00000018U & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched 
+                          << 3U));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_max_value = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum = 0x80U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value 
+        = (0x000000ffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U]);
+    if (VL_LTS_III(8, 0x80U, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value;
+    }
+    if ((0x80U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code = 1U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value 
+        = (0x000000ffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] 
+                          >> 8U));
+    if ((0x80U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code = 1U;
+    }
+    if (VL_GTS_III(8, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value), (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value 
+        = (0x000000ffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] 
+                          >> 0x00000010U));
+    if ((0x80U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code = 1U;
+    }
+    if (VL_GTS_III(8, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value), (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__candidate_values_latched[0U] 
+           >> 0x00000018U);
+    if (VL_GTS_III(8, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value), (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value;
+    }
+    if ((0x80U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__candidate_value))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code = 1U;
+    }
+    if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_error_code))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__window_max_value 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_window__DOT__current_maximum;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_byte_shift 
+        = (0x00000018U & ((- (IData)((4U > (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index)))) 
+                          & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched
+                             [(3U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index))] 
+                             << 3U)));
+    __Vtemp_22[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_length_latched;
+    __Vtemp_22[1U] = 0U;
+    __Vtemp_22[2U] = 0U;
+    __Vtemp_23[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_base_latched;
+    __Vtemp_23[1U] = 0U;
+    __Vtemp_23[2U] = 0U;
+    VL_ADD_W(3, __Vtemp_24, __Vtemp_22, __Vtemp_23);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_end_work[0U] 
+        = __Vtemp_24[0U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_end_work[1U] 
+        = __Vtemp_24[1U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_end_work[2U] 
+        = (1U & __Vtemp_24[2U]);
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_8[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_height_latched;
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_8[1U] = 0U;
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_8[2U] = 0U;
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_7[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_width_latched;
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_7[1U] = 0U;
+    vlSelfRef.__VdfgRegularize_h6e95ff9d_0_7[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_byte_shift 
+        = (0x00000018U & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched 
+                          << 3U));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_channels = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_height = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_width = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_index = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_channel = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_address = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_value = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_shape_bytes = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_shape_bytes = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_plane_elements = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_object_end = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_start = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_end = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_selected_count = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_multiplier = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_base_address = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_length_bytes = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_magnitude = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_product = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__rounded_magnitude = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_index = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_channel = 0U;
+    if ((1U & ((((((((((~ ((1U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched) 
+                           | (2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched))) 
+                       | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched)) 
+                      | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__group_id_latched 
+                         >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched)) 
+                     | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched)) 
+                    | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched)) 
+                   | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched)) 
+                  | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched 
+                     >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched)) 
+                 | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched 
+                    > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched)) 
+                | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_multiplier_latched)) 
+               | (0x80000000U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_multiplier_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+    }
+    if ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched)) {
+        if ((((((((((0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_channels_latched) 
+                    | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_height_latched)) 
+                   | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_width_latched)) 
+                  | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_height_latched 
+                     != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched)) 
+                 | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_width_latched 
+                    != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched)) 
+                | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_start_latched 
+                   >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_end_latched)) 
+               | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_end_latched 
+                  > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_channels_latched)) 
+              | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_multiplier_latched)) 
+             | (0x80000000U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_multiplier_latched))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+        }
+    }
+    if (((1U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched) 
+         & ((0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched) 
+            | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched 
+               != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+    } else if ((1U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched)) {
+        if (((1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched) 
+             | (0U != VL_MODDIV_III(32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_start 
+                = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__group_id_latched)) 
+                   * VL_DIV_QQQ(64, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched)), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched))));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_end 
+                = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_start 
+                   + VL_DIV_QQQ(64, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched)), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched))));
+            if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched 
+                  != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_start)) 
+                 | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched 
+                    != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__expected_group_end)))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+            }
+        }
+    }
+    if (((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched) 
+         & (((0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_start_latched) 
+             | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_end_latched 
+                != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_channels_latched)) 
+            | (1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__groups_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_selected_count 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_end_latched 
+           - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched);
+    if ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_selected_count 
+            = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_end_latched 
+               - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_start_latched);
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__output_channels_wide 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_selected_count)) 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_selected_count)));
+    if ((0x00000000ffffffffULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__output_channels_wide)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+    }
+    if ((((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_y_latched 
+           >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched) 
+          | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_x_latched 
+             >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched)) 
+         | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched)) 
+            >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__output_channels_wide))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_plane_elements 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_channels_latched)) 
+           * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched)));
+    if ((0x00000000ffffffffULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_plane_elements)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_shape_bytes 
+            = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_plane_elements 
+               * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched)));
+        if ((0x00000000ffffffffULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_shape_bytes)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_object_end 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_base_latched)) 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_length_latched)));
+    if ((((0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_length_latched) 
+          | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_length_latched)) 
+             < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_shape_bytes)) 
+         | (0x0000000100000000ULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_object_end))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+    }
+    if ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_plane_elements 
+            = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_channels_latched)) 
+               * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_height_latched)));
+        if ((0x00000000ffffffffULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_plane_elements)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_shape_bytes 
+                = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_plane_elements 
+                   * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_width_latched)));
+            if ((0x00000000ffffffffULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_shape_bytes)) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+            }
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_object_end 
+            = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_base_latched)) 
+               + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_length_latched)));
+        if ((((0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_length_latched) 
+              | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_length_latched)) 
+                 < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_shape_bytes)) 
+             | (0x0000000100000000ULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source1_object_end))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+        }
+    }
+    if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched 
+         < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_selected_count)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_index = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_channel 
+            = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_start_latched 
+               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_value_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_multiplier 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_multiplier_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_base_address 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_base_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_length_bytes 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_length_latched;
+    } else if ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_count_latched)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_index = 1U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_channel 
+            = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_start_latched 
+               + (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched 
+                  - vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__source0_selected_count));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_value_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_multiplier 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_multiplier_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_base_address 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_base_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_length_bytes 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source1_length_latched;
+    }
+    if ((0x80U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument = 1U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_offset 
+        = (((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_channel)) 
+              * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched))) 
+             + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_y_latched))) 
+            * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched))) 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_x_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_address_wide 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_base_address)) 
+           + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_offset);
+    if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_offset 
+          >= (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_length_bytes))) 
+         | (0x00000000ffffffffULL < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_address_wide))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range = 1U;
+    }
+    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_argument) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code = 1U;
+    } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__bad_range) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_error_code = 2U;
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_magnitude 
+            = (0x000000ffU & (VL_GTS_III(8, 0U, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value))
+                               ? (- (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value))
+                               : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_product 
+            = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_magnitude)) 
+               * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_multiplier)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_channels 
+            = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__output_channels_wide);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_height 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_height_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_width 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source0_width_latched;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_index 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_index;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_channel 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_source_channel;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_source_address 
+            = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_address_wide);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__rounded_magnitude 
+            = ((0x0000000040000000ULL + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_product) 
+               >> 0x0000001fU);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed 
+            = (VL_GTS_III(8, 0U, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__selected_value))
+                ? (- vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__rounded_magnitude)
+                : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__rounded_magnitude);
+        if (VL_LTS_IQQ(64, 0x000000000000007fULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed = 0x000000000000007fULL;
+        } else if (VL_GTS_IQQ(64, 0xffffffffffffff81ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed = 0xffffffffffffff81ULL;
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__query_output_value 
+            = (0x000000ffU & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__u_query__DOT__scaled_signed));
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_byte_lane 
+        = (3U & (0x00030210U >> ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched) 
+                                 << 1U)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error = 6U;
+    if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+        if ((1U & (~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                      >> 1U)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error 
+                = ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                    ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__result_error_latched)
+                    : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_error_latched));
+        }
+    } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error 
+            = ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_error_latched)
+                : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__result_error_latched));
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_source_address_wide 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_base_latched)) 
+           + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_offset_latched)) 
+              + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_reduction_index)) 
+                 + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched)) 
+                    * (QData)((IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_lane_index)))))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_byte_offset_wide 
+        = ((QData)((IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x 
+                            + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_x))) 
+           + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched)) 
+              * ((QData)((IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y 
+                                  + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_point_scan_y))) 
+                 + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched)) 
+                    * (QData)((IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_lane_index)))))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_bias = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_invalid = 0U;
+    if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane 
+          < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count) 
+         & (0x00000026U > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index 
+            = ((((0x25U >= (0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                  ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_BASE
+                 [(0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)]
+                  : 0U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_group_base) 
+               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane);
+        if ((0x00000c5cU > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index)) {
+            if ((0x0c5bU >= (0x00000fffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U] 
+                    = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_ROM
+                    [(0x00000fffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index)][0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                    = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_ROM
+                    [(0x00000fffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index)][1U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U] 
+                    = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_ROM
+                    [(0x00000fffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index)][2U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_bias 
+                    = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_CONV_BIAS_ACCUMULATOR_INT32
+                    [(0x00000fffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index)];
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_bias = 0U;
+            }
+            if (((((((((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_index 
+                        >= (((0x25U >= (0x0000003fU 
+                                        & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                              ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_BASE
+                             [(0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)]
+                              : 0U) + ((0x25U >= (0x0000003fU 
+                                                  & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                                        ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_CHANNEL_COUNT
+                                       [(0x0000003fU 
+                                         & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)]
+                                        : 0U))) | (0U 
+                                                   == 
+                                                   ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U] 
+                                                     << 0x00000010U) 
+                                                    | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                                       >> 0x00000010U)))) 
+                      | (0U == ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                 << 0x00000018U) | 
+                                (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U] 
+                                 >> 8U)))) | (0x3fffffffU 
+                                              < ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U] 
+                                                  << 0x00000010U) 
+                                                 | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                                    >> 0x00000010U)))) 
+                    | (0x3fffffffU < ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                       << 0x00000018U) 
+                                      | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U] 
+                                         >> 8U)))) 
+                   | (0x2fU < (0x000000ffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                              >> 8U)))) 
+                  | (0x2fU < (0x000000ffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U]))) 
+                 | ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__activation_mode_latched)) 
+                    & ((((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[2U] 
+                          << 0x00000010U) | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                             >> 0x00000010U)) 
+                        != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                             << 0x00000018U) | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U] 
+                                                >> 8U))) 
+                       | ((0x000000ffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[1U] 
+                                          >> 8U)) != 
+                          (0x000000ffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_parameter[0U])))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_invalid = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_invalid = 1U;
+        }
+    } else if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_lane 
+                < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mq_prefetch_invalid = 1U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_accumulator = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_multiplier = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_q_shift = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_magnitude = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_product = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounding_add = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounded_magnitude = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_signed_value = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requantized_value = 0U;
+    if (((8U > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index) 
+         & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index 
+            < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[0U] 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter
+            [(7U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index)][0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[1U] 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter
+            [(7U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[2U] 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_mq_parameter
+            [(7U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index)][2U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_accumulator 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator
+            [(7U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_lane_index)];
+        if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_accumulator 
+             >> 0x1fU)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_multiplier 
+                = ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[1U] 
+                    << 0x00000018U) | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[0U] 
+                                       >> 8U));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_magnitude 
+                = ((IData)(1U) + (~ vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_accumulator));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_q_shift 
+                = (0x000000ffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[0U]);
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_multiplier 
+                = ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[2U] 
+                    << 0x00000010U) | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[1U] 
+                                       >> 0x00000010U));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_magnitude 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_accumulator;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_q_shift 
+                = (0x000000ffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_parameter[1U] 
+                                  >> 8U));
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_product 
+            = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_magnitude)) 
+               * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_multiplier)));
+        if ((0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_q_shift)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounding_add 
+                = VL_SHIFTL_QQI(64,64,32, 1ULL, (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_q_shift 
+                                                 - (IData)(1U)));
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounded_magnitude 
+            = VL_SHIFTR_QQI(64,64,32, (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_product 
+                                       + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounding_add), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_q_shift);
+        __Vtemp_26[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounded_magnitude);
+        __Vtemp_26[1U] = (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounded_magnitude 
+                                  >> 0x00000020U));
+        __Vtemp_26[2U] = 0U;
+        VL_NEGATE_W(3, __Vtemp_27, __Vtemp_26);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_signed_value 
+            = ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_accumulator 
+                >> 0x1fU) ? (((QData)((IData)(__Vtemp_27[1U])) 
+                              << 0x00000020U) | (QData)((IData)(__Vtemp_27[0U])))
+                : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_rounded_magnitude);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requantized_value 
+            = (VL_LTS_IQQ(64, 0x000000000000007fULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_signed_value)
+                ? 0x0000007fU : (VL_GTS_IQQ(64, 0xffffffffffffff81ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_signed_value)
+                                  ? 0x00000081U : (0x000000ffU 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__requant_signed_value))));
+    }
+    if ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))) {
+        __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__descriptor_activation 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ACTIVATION
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_LAYER_INDEX
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_UPSAMPLE_STRIDE
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_MAXPOOL_DARKNET_PADDING
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_STRIDE_W
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_STRIDE_H
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_KERNEL_W
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_KERNEL_H
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+    } else {
+        __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__descriptor_activation = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height = 0U;
+    }
+    __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__Vfuncout 
+        = (3U & (0xd0U >> ((IData)(__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__descriptor_activation) 
+                           << 1U)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_conv_engine__activation_mode 
+        = __Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__101__Vfuncout;
+    __Vtemp_31[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channels_latched;
+    __Vtemp_31[1U] = 0U;
+    __Vtemp_31[2U] = 0U;
+    VL_MUL_W(3, __Vtemp_32, __Vtemp_31, vlSelfRef.__VdfgRegularize_h6e95ff9d_0_7);
+    __Vtemp_33[0U] = __Vtemp_32[0U];
+    __Vtemp_33[1U] = __Vtemp_32[1U];
+    __Vtemp_33[2U] = (1U & __Vtemp_32[2U]);
+    VL_MUL_W(3, __Vtemp_34, vlSelfRef.__VdfgRegularize_h6e95ff9d_0_8, __Vtemp_33);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_elements_work[0U] 
+        = __Vtemp_34[0U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_elements_work[1U] 
+        = __Vtemp_34[1U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_elements_work[2U] 
+        = (1U & __Vtemp_34[2U]);
+    __Vtemp_36[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_x_latched;
+    __Vtemp_36[1U] = 0U;
+    __Vtemp_36[2U] = 0U;
+    __Vtemp_38[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_y_latched;
+    __Vtemp_38[1U] = 0U;
+    __Vtemp_38[2U] = 0U;
+    __Vtemp_39[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_channel_latched;
+    __Vtemp_39[1U] = 0U;
+    __Vtemp_39[2U] = 0U;
+    VL_MUL_W(3, __Vtemp_40, vlSelfRef.__VdfgRegularize_h6e95ff9d_0_8, __Vtemp_39);
+    VL_ADD_W(3, __Vtemp_41, __Vtemp_38, __Vtemp_40);
+    __Vtemp_42[0U] = __Vtemp_41[0U];
+    __Vtemp_42[1U] = __Vtemp_41[1U];
+    __Vtemp_42[2U] = (1U & __Vtemp_41[2U]);
+    VL_MUL_W(3, __Vtemp_43, vlSelfRef.__VdfgRegularize_h6e95ff9d_0_7, __Vtemp_42);
+    VL_ADD_W(3, __Vtemp_44, __Vtemp_36, __Vtemp_43);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_offset_work[0U] 
+        = __Vtemp_44[0U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_offset_work[1U] 
+        = __Vtemp_44[1U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_offset_work[2U] 
+        = (1U & __Vtemp_44[2U]);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_address_wide 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_base_latched)) 
+           + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_byte_offset_wide);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_start = 0U;
+    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id = 0U;
+        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 1U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_addr = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_addr = 0x00100000U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_bytes = 0x0007ec00U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_bytes = 0x005a12fcU;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__timeout_cycles = 0U;
+    } else {
+        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched = 0U;
+        } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__memory_handshake) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_data_latched = 0U;
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 0U;
+        if ((((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_valid) 
+                & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset))) 
+               & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_write)) 
+              & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) 
+             & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata 
+                >> 1U))) {
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id = 0U;
+            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 1U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_addr = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_addr = 0x00100000U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_bytes = 0x0007ec00U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_bytes = 0x005a12fcU;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__timeout_cycles = 0U;
+        } else {
+            if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_valid) 
+                  & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset))) 
+                 & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_write))) {
+                if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                    if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata 
+                         & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__config_idle))) {
+                        if (((0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_addr) 
+                             | (0x00100000U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_addr))) {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 1U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 2U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                        } else if (((0x0007ec00U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_bytes) 
+                                    | (0x005a12fcU 
+                                       != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_bytes))) {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 1U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 3U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                        } else if ((0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__timeout_cycles)) {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 1U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 1U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                        } else {
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 1U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 1U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id 
+                                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id;
+                            __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles = 0U;
+                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_start = 1U;
+                        }
+                    }
+                } else if ((0x3cU == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                    if ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata 
+                         & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__done))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                    }
+                    if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata 
+                          >> 1U) & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__error))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 0U;
+                    }
+                } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__config_idle) {
+                    if ((0x0cU == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata;
+                    }
+                }
+            }
+            if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__busy) {
+                if ((((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code)) 
+                      & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__memory_handshake)) 
+                     & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code)))) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 1U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code 
+                        = (((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code)) 
+                            | ((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code)) 
+                               | (6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code))))
+                            ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code)
+                            : 6U);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 1U;
+                } else if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid) {
+                    if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code))) {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 1U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 1U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id;
+                    } else {
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                        __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 1U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 1U;
+                    }
+                } else if ((((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles) 
+                            >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__timeout_cycles)) {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__busy = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__done = 0U;
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__error = 1U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code = 5U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__head_output_valid = 0U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort = 1U;
+                } else {
+                    __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles 
+                        = ((IData)(1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles);
+                }
+            }
+            if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_valid) 
+                  & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset))) 
+                 & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_write))) {
+                if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                    if ((0x3cU != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__config_idle) {
+                            if ((0x0cU != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                if ((0x10U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_addr 
+                                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata;
+                                }
+                                if ((0x10U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                    if ((0x14U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                        if ((0x18U 
+                                             == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_addr 
+                                                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata;
+                                        }
+                                        if ((0x18U 
+                                             != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                            if ((0x1cU 
+                                                 == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_bytes 
+                                                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata;
+                                            }
+                                            if ((0x1cU 
+                                                 != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                                if (
+                                                    (0x28U 
+                                                     == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__timeout_cycles 
+                                                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if ((0x14U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))) {
+                                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_bytes 
+                                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_wdata;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__active_frame_id;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__elapsed_cycles;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__busy 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__busy;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__done 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__done;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__error 
+        = __Vdly__tb_s2a_backend_fault_recovery__DOT__error;
+    __Vtemp_45[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_batch_count_latched;
+    __Vtemp_45[1U] = 0U;
+    __Vtemp_45[2U] = 0U;
+    __Vtemp_45[3U] = 0U;
+    __Vtemp_46[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+    __Vtemp_46[1U] = 0U;
+    __Vtemp_46[2U] = 0U;
+    __Vtemp_46[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_47, __Vtemp_45, __Vtemp_46);
+    __Vtemp_48[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched;
+    __Vtemp_48[1U] = 0U;
+    __Vtemp_48[2U] = 0U;
+    __Vtemp_48[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_49, __Vtemp_47, __Vtemp_48);
+    __Vtemp_50[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched;
+    __Vtemp_50[1U] = 0U;
+    __Vtemp_50[2U] = 0U;
+    __Vtemp_50[3U] = 0U;
+    VL_MUL_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_elements_wide, __Vtemp_49, __Vtemp_50);
+    __Vtemp_51[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_count_latched;
+    __Vtemp_51[1U] = 0U;
+    __Vtemp_51[2U] = 0U;
+    __Vtemp_51[3U] = 0U;
+    __Vtemp_52[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched;
+    __Vtemp_52[1U] = 0U;
+    __Vtemp_52[2U] = 0U;
+    __Vtemp_52[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_53, __Vtemp_51, __Vtemp_52);
+    __Vtemp_54[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched;
+    __Vtemp_54[1U] = 0U;
+    __Vtemp_54[2U] = 0U;
+    __Vtemp_54[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_55, __Vtemp_53, __Vtemp_54);
+    __Vtemp_56[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched;
+    __Vtemp_56[1U] = 0U;
+    __Vtemp_56[2U] = 0U;
+    __Vtemp_56[3U] = 0U;
+    VL_MUL_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_elements_wide, __Vtemp_55, __Vtemp_56);
+    __Vtemp_57[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched;
+    __Vtemp_57[1U] = 0U;
+    __Vtemp_57[2U] = 0U;
+    __Vtemp_57[3U] = 0U;
+    __Vtemp_58[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+    __Vtemp_58[1U] = 0U;
+    __Vtemp_58[2U] = 0U;
+    __Vtemp_58[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_59, __Vtemp_57, __Vtemp_58);
+    __Vtemp_60[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched;
+    __Vtemp_60[1U] = 0U;
+    __Vtemp_60[2U] = 0U;
+    __Vtemp_60[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_61, __Vtemp_59, __Vtemp_60);
+    __Vtemp_62[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched;
+    __Vtemp_62[1U] = 0U;
+    __Vtemp_62[2U] = 0U;
+    __Vtemp_62[3U] = 0U;
+    VL_MUL_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__expected_weight_bytes_wide, __Vtemp_61, __Vtemp_62);
+    __Vtemp_63[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+    __Vtemp_63[1U] = 0U;
+    __Vtemp_63[2U] = 0U;
+    __Vtemp_63[3U] = 0U;
+    __Vtemp_64[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched;
+    __Vtemp_64[1U] = 0U;
+    __Vtemp_64[2U] = 0U;
+    __Vtemp_64[3U] = 0U;
+    VL_MUL_W(4, __Vtemp_65, __Vtemp_63, __Vtemp_64);
+    __Vtemp_66[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched;
+    __Vtemp_66[1U] = 0U;
+    __Vtemp_66[2U] = 0U;
+    __Vtemp_66[3U] = 0U;
+    VL_MUL_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide, __Vtemp_65, __Vtemp_66);
+    __Vtemp_67[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_base_latched;
+    __Vtemp_67[1U] = 0U;
+    __Vtemp_67[2U] = 0U;
+    __Vtemp_67[3U] = 0U;
+    __Vtemp_68[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_length_latched;
+    __Vtemp_68[1U] = 0U;
+    __Vtemp_68[2U] = 0U;
+    __Vtemp_68[3U] = 0U;
+    VL_ADD_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_end_wide, __Vtemp_67, __Vtemp_68);
+    __Vtemp_69[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_base_latched;
+    __Vtemp_69[1U] = 0U;
+    __Vtemp_69[2U] = 0U;
+    __Vtemp_69[3U] = 0U;
+    __Vtemp_70[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_length_latched;
+    __Vtemp_70[1U] = 0U;
+    __Vtemp_70[2U] = 0U;
+    __Vtemp_70[3U] = 0U;
+    VL_ADD_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_end_wide, __Vtemp_69, __Vtemp_70);
+    __Vtemp_71[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_base_latched;
+    __Vtemp_71[1U] = 0U;
+    __Vtemp_71[2U] = 0U;
+    __Vtemp_71[3U] = 0U;
+    __Vtemp_72[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_length_latched;
+    __Vtemp_72[1U] = 0U;
+    __Vtemp_72[2U] = 0U;
+    __Vtemp_72[3U] = 0U;
+    VL_ADD_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_end_wide, __Vtemp_71, __Vtemp_72);
+    __Vtemp_73[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_offset_latched;
+    __Vtemp_73[1U] = 0U;
+    __Vtemp_73[2U] = 0U;
+    __Vtemp_73[3U] = 0U;
+    __Vtemp_74[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_bytes_latched;
+    __Vtemp_74[1U] = 0U;
+    __Vtemp_74[2U] = 0U;
+    __Vtemp_74[3U] = 0U;
+    VL_ADD_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_end_wide, __Vtemp_73, __Vtemp_74);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_numerator 
+        = (((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched)) 
+            + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_top_latched))) 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_bottom_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_numerator 
+        = (((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched)) 
+            + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_left_latched))) 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_right_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_shape_span 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_numerator 
+           - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_shape_span 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_numerator 
+           - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_shape_product 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched)) 
+           * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_shape_product 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched)) 
+           * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_span_plus_stride 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_shape_span 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_span_plus_stride 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_shape_span 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_height_wide[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_height_wide[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_height_wide[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_height_wide[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_width_wide[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_width_wide[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_width_wide[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_width_wide[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_bytes_wide[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_bytes_wide[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_bytes_wide[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_bytes_wide[3U] = 0U;
+    if (((0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched) 
+         & (0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched))) {
+        __Vtemp_75[0U] = (((8U > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched)
+                            ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched
+                            : 8U) - (IData)(1U));
+        __Vtemp_75[1U] = 0U;
+        __Vtemp_75[2U] = 0U;
+        __Vtemp_75[3U] = 0U;
+        __Vtemp_76[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched;
+        __Vtemp_76[1U] = 0U;
+        __Vtemp_76[2U] = 0U;
+        __Vtemp_76[3U] = 0U;
+        VL_MUL_W(4, __Vtemp_77, __Vtemp_75, __Vtemp_76);
+        __Vtemp_78[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched;
+        __Vtemp_78[1U] = 0U;
+        __Vtemp_78[2U] = 0U;
+        __Vtemp_78[3U] = 0U;
+        VL_ADD_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_height_wide, __Vtemp_77, __Vtemp_78);
+        __Vtemp_79[0U] = (((8U > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched)
+                            ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched
+                            : 8U) - (IData)(1U));
+        __Vtemp_79[1U] = 0U;
+        __Vtemp_79[2U] = 0U;
+        __Vtemp_79[3U] = 0U;
+        __Vtemp_80[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched;
+        __Vtemp_80[1U] = 0U;
+        __Vtemp_80[2U] = 0U;
+        __Vtemp_80[3U] = 0U;
+        VL_MUL_W(4, __Vtemp_81, __Vtemp_79, __Vtemp_80);
+        __Vtemp_82[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched;
+        __Vtemp_82[1U] = 0U;
+        __Vtemp_82[2U] = 0U;
+        __Vtemp_82[3U] = 0U;
+        VL_ADD_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_width_wide, __Vtemp_81, __Vtemp_82);
+        VL_MUL_W(4, __Vtemp_83, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_height_wide, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_width_wide);
+        __Vtemp_84[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched;
+        __Vtemp_84[1U] = 0U;
+        __Vtemp_84[2U] = 0U;
+        __Vtemp_84[3U] = 0U;
+        VL_MUL_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_bytes_wide, __Vtemp_83, __Vtemp_84);
+    }
+    __Vtemp_85[0U] = ((8U > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched)
+                       ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched
+                       : 8U);
+    __Vtemp_85[1U] = 0U;
+    __Vtemp_85[2U] = 0U;
+    __Vtemp_85[3U] = 0U;
+    VL_MUL_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_weight_group_bytes_wide, __Vtemp_85, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_ok = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error = 1U;
+    __Vtemp_87[0U] = 0x00001fffU;
+    __Vtemp_87[1U] = 0U;
+    __Vtemp_87[2U] = 0U;
+    __Vtemp_87[3U] = 0U;
+    if ((1U & ((((((((((((((((((((((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl)) 
+                                   | (1U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__activation_mode_latched))) 
+                                  | (1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_batch_count_latched)) 
+                                 | (1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_count_latched)) 
+                                | (0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_batch_latched)) 
+                               | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_channels_latched)) 
+                              | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched)) 
+                             | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched)) 
+                            | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched)) 
+                           | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_latched)) 
+                          | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_latched)) 
+                         | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched)) 
+                        | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched)) 
+                       | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched)) 
+                      | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched)) 
+                     | (1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__groups_latched)) 
+                    | (0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__padding_latched)) 
+                   | (0U == (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide[0U] 
+                               | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide[1U]) 
+                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide[2U]) 
+                             | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide[3U]))) 
+                  | VL_LT_W(4, __Vtemp_87, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_wide)) 
+                 | (0x00000026U <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)) 
+                | ((0x00000026U > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched) 
+                   & (0U != ((0x25U >= (0x0000003fU 
+                                        & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                              ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OP
+                             [(0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)]
+                              : 0U)))) | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched 
+                                          != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_layer_index_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error 
+            = (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched 
+                 != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_layer_index_latched) 
+                | (0x00000026U <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                ? 2U : 1U);
+    } else {
+        __Vtemp_88[0U] = 0xffffffffU;
+        __Vtemp_88[1U] = 0U;
+        __Vtemp_88[2U] = 0U;
+        __Vtemp_88[3U] = 0U;
+        __Vtemp_89[0U] = 0xffffffffU;
+        __Vtemp_89[1U] = 0U;
+        __Vtemp_89[2U] = 0U;
+        __Vtemp_89[3U] = 0U;
+        __Vtemp_90[0U] = 0xffffffffU;
+        __Vtemp_90[1U] = 0U;
+        __Vtemp_90[2U] = 0U;
+        __Vtemp_90[3U] = 0U;
+        if ((((((VL_LT_W(4, __Vtemp_88, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_elements_wide) 
+                 | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_length_latched 
+                    != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_elements_wide[0U])) 
+                | VL_LT_W(4, __Vtemp_89, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_elements_wide)) 
+               | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_length_latched 
+                  != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_elements_wide[0U])) 
+              | VL_LT_W(4, __Vtemp_90, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__expected_weight_bytes_wide)) 
+             | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_bytes_latched 
+                != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__expected_weight_bytes_wide[0U]))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error = 3U;
+        } else {
+            __Vtemp_91[0U] = 0U;
+            __Vtemp_91[1U] = 1U;
+            __Vtemp_91[2U] = 0U;
+            __Vtemp_91[3U] = 0U;
+            __Vtemp_92[0U] = 0U;
+            __Vtemp_92[1U] = 1U;
+            __Vtemp_92[2U] = 0U;
+            __Vtemp_92[3U] = 0U;
+            __Vtemp_93[0U] = 0U;
+            __Vtemp_93[1U] = 1U;
+            __Vtemp_93[2U] = 0U;
+            __Vtemp_93[3U] = 0U;
+            __Vtemp_94[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_length_latched;
+            __Vtemp_94[1U] = 0U;
+            __Vtemp_94[2U] = 0U;
+            __Vtemp_94[3U] = 0U;
+            __Vtemp_95[0U] = 0x00000c5cU;
+            __Vtemp_95[1U] = 0U;
+            __Vtemp_95[2U] = 0U;
+            __Vtemp_95[3U] = 0U;
+            __Vtemp_96[0U] = ((0x25U >= (0x0000003fU 
+                                         & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                               ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_BASE
+                              [(0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)]
+                               : 0U);
+            __Vtemp_96[1U] = 0U;
+            __Vtemp_96[2U] = 0U;
+            __Vtemp_96[3U] = 0U;
+            __Vtemp_97[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched;
+            __Vtemp_97[1U] = 0U;
+            __Vtemp_97[2U] = 0U;
+            __Vtemp_97[3U] = 0U;
+            VL_ADD_W(4, __Vtemp_98, __Vtemp_96, __Vtemp_97);
+            __Vtemp_99[0U] = 0x0000c800U;
+            __Vtemp_99[1U] = 0U;
+            __Vtemp_99[2U] = 0U;
+            __Vtemp_99[3U] = 0U;
+            __Vtemp_100[0U] = 0x00009000U;
+            __Vtemp_100[1U] = 0U;
+            __Vtemp_100[2U] = 0U;
+            __Vtemp_100[3U] = 0U;
+            if (((((((((VL_LT_W(4, __Vtemp_91, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_end_wide) 
+                        | VL_LT_W(4, __Vtemp_92, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_end_wide)) 
+                       | VL_LT_W(4, __Vtemp_93, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_end_wide)) 
+                      | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_package_length_latched)) 
+                     | VL_GT_W(4, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__quantized_weight_end_wide, __Vtemp_94)) 
+                    | (((0x25U >= (0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched))
+                         ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_CHANNEL_COUNT
+                        [(0x0000003fU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__layer_index_latched)]
+                         : 0U) != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_channels_latched)) 
+                   | VL_LT_W(4, __Vtemp_95, __Vtemp_98)) 
+                  | VL_LT_W(4, __Vtemp_99, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_tile_patch_bytes_wide)) 
+                 | VL_LT_W(4, __Vtemp_100, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__full_weight_group_bytes_wide))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error = 2U;
+            } else if (((((((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_numerator 
+                             < (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched))) 
+                            | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_numerator 
+                               < (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched)))) 
+                           | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_shape_product 
+                              <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_shape_span)) 
+                          | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_shape_product 
+                             > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_height_span_plus_stride)) 
+                         | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_shape_product 
+                            <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_shape_span)) 
+                        | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_shape_product 
+                           > vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__output_width_span_plus_stride))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error = 1U;
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_ok = 1U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__validation_error = 0U;
+            }
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__config_idle 
+        = (1U & (~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl) 
+                    | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__busy) 
+                       | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__done) 
+                          | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__error))))));
+}
+
+extern const VlWide<43>/*1375:0*/ Vtb_s2a_backend_fault_recovery__ConstPool__CONST_h3efedef1_0;
+
+void Vtb_s2a_backend_fault_recovery___024root___nba_comb__TOP__0(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___nba_comb__TOP__0\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    CData/*0:0*/ __VdfgRegularize_h6e95ff9d_0_5;
+    __VdfgRegularize_h6e95ff9d_0_5 = 0;
+    VlWide<3>/*64:0*/ __VdfgRegularize_h6e95ff9d_0_6;
+    VL_ZERO_W(65, __VdfgRegularize_h6e95ff9d_0_6);
+    VlWide<3>/*95:0*/ __Vtemp_2;
+    VlWide<3>/*95:0*/ __Vtemp_3;
+    VlWide<3>/*95:0*/ __Vtemp_4;
+    VlWide<3>/*95:0*/ __Vtemp_5;
+    VlWide<3>/*95:0*/ __Vtemp_6;
+    VlWide<3>/*95:0*/ __Vtemp_7;
+    VlWide<3>/*95:0*/ __Vtemp_8;
+    VlWide<3>/*95:0*/ __Vtemp_9;
+    VlWide<3>/*95:0*/ __Vtemp_10;
+    VlWide<4>/*127:0*/ __Vtemp_12;
+    VlWide<4>/*127:0*/ __Vtemp_13;
+    VlWide<4>/*127:0*/ __Vtemp_14;
+    VlWide<3>/*95:0*/ __Vtemp_19;
+    VlWide<3>/*95:0*/ __Vtemp_20;
+    VlWide<3>/*95:0*/ __Vtemp_21;
+    VlWide<3>/*95:0*/ __Vtemp_22;
+    VlWide<3>/*95:0*/ __Vtemp_23;
+    VlWide<3>/*95:0*/ __Vtemp_24;
+    VlWide<4>/*127:0*/ __Vtemp_26;
+    VlWide<4>/*127:0*/ __Vtemp_27;
+    VlWide<4>/*127:0*/ __Vtemp_28;
+    VlWide<3>/*95:0*/ __Vtemp_33;
+    VlWide<3>/*95:0*/ __Vtemp_34;
+    VlWide<3>/*95:0*/ __Vtemp_35;
+    VlWide<3>/*95:0*/ __Vtemp_36;
+    VlWide<3>/*95:0*/ __Vtemp_37;
+    VlWide<3>/*95:0*/ __Vtemp_38;
+    VlWide<4>/*127:0*/ __Vtemp_40;
+    VlWide<4>/*127:0*/ __Vtemp_41;
+    VlWide<4>/*127:0*/ __Vtemp_42;
+    VlWide<3>/*95:0*/ __Vtemp_47;
+    VlWide<3>/*95:0*/ __Vtemp_48;
+    VlWide<3>/*95:0*/ __Vtemp_49;
+    VlWide<3>/*95:0*/ __Vtemp_50;
+    VlWide<3>/*95:0*/ __Vtemp_51;
+    VlWide<3>/*95:0*/ __Vtemp_52;
+    VlWide<4>/*127:0*/ __Vtemp_54;
+    VlWide<4>/*127:0*/ __Vtemp_55;
+    VlWide<4>/*127:0*/ __Vtemp_56;
+    VlWide<3>/*95:0*/ __Vtemp_61;
+    VlWide<3>/*95:0*/ __Vtemp_62;
+    VlWide<3>/*95:0*/ __Vtemp_63;
+    VlWide<3>/*95:0*/ __Vtemp_64;
+    VlWide<3>/*95:0*/ __Vtemp_65;
+    VlWide<3>/*95:0*/ __Vtemp_66;
+    VlWide<4>/*127:0*/ __Vtemp_68;
+    VlWide<4>/*127:0*/ __Vtemp_69;
+    VlWide<4>/*127:0*/ __Vtemp_70;
+    VlWide<3>/*95:0*/ __Vtemp_75;
+    VlWide<3>/*95:0*/ __Vtemp_76;
+    VlWide<3>/*95:0*/ __Vtemp_77;
+    VlWide<3>/*95:0*/ __Vtemp_78;
+    VlWide<3>/*95:0*/ __Vtemp_79;
+    VlWide<3>/*95:0*/ __Vtemp_80;
+    VlWide<4>/*127:0*/ __Vtemp_82;
+    VlWide<4>/*127:0*/ __Vtemp_83;
+    VlWide<4>/*127:0*/ __Vtemp_84;
+    VlWide<3>/*95:0*/ __Vtemp_89;
+    VlWide<3>/*95:0*/ __Vtemp_90;
+    VlWide<3>/*95:0*/ __Vtemp_91;
+    VlWide<3>/*95:0*/ __Vtemp_92;
+    VlWide<3>/*95:0*/ __Vtemp_93;
+    VlWide<3>/*95:0*/ __Vtemp_94;
+    VlWide<4>/*127:0*/ __Vtemp_96;
+    VlWide<4>/*127:0*/ __Vtemp_97;
+    VlWide<4>/*127:0*/ __Vtemp_98;
+    VlWide<3>/*95:0*/ __Vtemp_103;
+    VlWide<3>/*95:0*/ __Vtemp_104;
+    VlWide<3>/*95:0*/ __Vtemp_105;
+    VlWide<3>/*95:0*/ __Vtemp_106;
+    VlWide<3>/*95:0*/ __Vtemp_107;
+    VlWide<3>/*95:0*/ __Vtemp_108;
+    VlWide<4>/*127:0*/ __Vtemp_110;
+    VlWide<4>/*127:0*/ __Vtemp_111;
+    VlWide<4>/*127:0*/ __Vtemp_112;
+    VlWide<3>/*95:0*/ __Vtemp_117;
+    VlWide<3>/*95:0*/ __Vtemp_118;
+    VlWide<3>/*95:0*/ __Vtemp_119;
+    VlWide<3>/*95:0*/ __Vtemp_120;
+    VlWide<3>/*95:0*/ __Vtemp_121;
+    VlWide<3>/*95:0*/ __Vtemp_122;
+    VlWide<4>/*127:0*/ __Vtemp_124;
+    VlWide<4>/*127:0*/ __Vtemp_125;
+    VlWide<4>/*127:0*/ __Vtemp_126;
+    VlWide<3>/*95:0*/ __Vtemp_132;
+    VlWide<3>/*95:0*/ __Vtemp_133;
+    VlWide<3>/*95:0*/ __Vtemp_135;
+    VlWide<3>/*95:0*/ __Vtemp_136;
+    // Body
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__csr_ready 
+        = (1U & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_result_ready 
+        = (((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+            & (2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) 
+           & (0x13U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_result_ready 
+        = (((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+            & (3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) 
+           & (6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_result_ready 
+        = (((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+            & (4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) 
+           & (7U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_result_ready 
+        = (((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+            & (5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) 
+           & (5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_wstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_wstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_wstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_wstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__backend_rsp_valid 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+              & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+                 & (1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched)))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__backend_rsp_valid 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+              & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+                 & (3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched)))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__backend_rsp_valid 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+              & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+                 & (2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched)))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_rstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_rstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_wdata = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_addr = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_wdata = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_read_lane 
+        = (0x0000000fU & ((IData)(1U) << (3U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_rstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_wdata = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_rstrb = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_lane = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_word_address 
+        = (0xfffffffcU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__source_address_latched);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_addr = 0U;
+    if ((4U > (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_lane 
+            = (0x0000000fU & ((IData)(1U) << (3U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched
+                                              [(3U 
+                                                & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index))])));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_addr = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_word_address = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_word_address 
+            = (0xfffffffcU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__tap_address_latched
+               [(3U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__read_tap_index))]);
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_addr = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_word_address = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_write = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_write = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_write = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_write = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_rsp_valid 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+              & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+                 & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_target_latched)))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_valid = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_valid = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_valid = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid = 0U;
+    if ((1U & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+               & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort))))) {
+        if ((1U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            if ((4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_wstrb 
+                    = (0x0000000fU & ((IData)(1U) << 
+                                      (3U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_wdata 
+                    = VL_SHIFTL_III(32,32,32, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__result_value_latched), 
+                                    (0x00000018U & 
+                                     (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched 
+                                      << 3U)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_write = 1U;
+            }
+        }
+        if ((1U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+            if ((3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_wstrb 
+                    = (0x0000000fU & ((IData)(1U) << 
+                                      (3U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_wdata 
+                    = VL_SHIFTL_III(32,32,32, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__copied_value_latched), 
+                                    (0x00000018U & 
+                                     (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched 
+                                      << 3U)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_write = 1U;
+            }
+        }
+        if ((2U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            if ((5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_wstrb 
+                    = (0x0000000fU & ((IData)(1U) << 
+                                      (3U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_wdata 
+                    = VL_SHIFTL_III(32,32,32, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__result_value_latched), 
+                                    (0x00000018U & 
+                                     (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched 
+                                      << 3U)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_write = 1U;
+            }
+        }
+        if ((1U & (~ ((4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)) 
+                      || (8U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)))))) {
+            if ((0x10U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_wstrb 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched;
+            }
+        }
+        if ((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_rstrb 
+                = (0x0000000fU & ((IData)(1U) << (3U 
+                                                  & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched)));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_addr 
+                = (0xfffffffcU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__source_address_latched);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_valid = 1U;
+        } else if ((3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_addr 
+                = (0xfffffffcU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_latched);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_valid = 1U;
+        }
+        if (((4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)) 
+             || (8U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_rstrb 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_strobe_latched;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_write = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid = 1U;
+        } else if ((0x10U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_write = 1U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid = 1U;
+        }
+        if ((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_rstrb 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_read_lane;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_addr 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__selected_word_address;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_valid = 1U;
+        } else if ((5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_addr 
+                = (0xfffffffcU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__output_address_latched);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_valid = 1U;
+        }
+        if ((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_rstrb 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_lane;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_addr 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__selected_input_word_address;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_valid = 1U;
+        } else if ((4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_addr 
+                = (0xfffffffcU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_latched);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_valid = 1U;
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__start_ready 
+        = ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+              & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__start_ready 
+        = ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+              & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__start_ready 
+        = ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+              & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__start_ready 
+        = ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+           & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)) 
+              & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_rdata = 0U;
+    if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_valid) 
+         & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_write)))) {
+        if ((0U == (3U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_rdata 
+                = ((0x00000080U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                    ? 0U : ((0x00000040U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                             ? 0U : ((0x00000020U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                      ? ((0x00000010U 
+                                          & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                          ? ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                              ? ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 0U
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 0x00004f38U)))
+                                              : ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 0x01ad5e80U))
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 0x000013ceU))))
+                                          : ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                              ? ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 0x01a46100U))
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__timeout_cycles)))
+                                              : ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 0x01adadb8U))
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 0x01000000U)))))
+                                      : ((0x00000010U 
+                                          & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                          ? ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                              ? ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_bytes))
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__weight_addr)))
+                                              : ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_bytes))
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__input_addr))))
+                                          : ((8U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                              ? ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__frame_id))
+                                                  : 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__error_code))))
+                                              : ((4U 
+                                                  & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                  ? 
+                                                 ((2U 
+                                                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                   ? 0U
+                                                   : 
+                                                  ((1U 
+                                                    & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__csr_addr))
+                                                    ? 0U
+                                                    : 
+                                                   ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl) 
+                                                      << 3U) 
+                                                     | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__error) 
+                                                        << 2U)) 
+                                                    | (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__done) 
+                                                        << 1U) 
+                                                       | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__busy)))))
+                                                  : 0U))))));
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata = 0U;
+    if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+        if ((1U & (~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                      >> 1U)))) {
+            if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid 
+                    = ((5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__state)) 
+                       & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_result_ready));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_wdata;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_wdata 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_addr;
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid 
+                    = ((7U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__state)) 
+                       & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_result_ready));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_wdata;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_wdata 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_addr;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_wdata 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr = 0U;
+        }
+    } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+        if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid 
+                = ((6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__state)) 
+                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_result_ready));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_wdata;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_wdata 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_addr;
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid 
+                = ((0x13U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)) 
+                   & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_result_ready));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_wdata_latched;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_wdata 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__request_address_latched;
+        }
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_wdata 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_wdata;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__mem_addr 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_req_addr;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_plane_bytes 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_height)) 
+           * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_y = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_x = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_in_bounds = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_advance = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_offset = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_address_wide = 0ULL;
+    if (((0ULL != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_plane_bytes) 
+         & (0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_y 
+            = ((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y)) 
+                 * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched))) 
+                + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_y))) 
+               - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_top_latched)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_x 
+            = ((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x)) 
+                 * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched))) 
+                + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_x))) 
+               - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_left_latched)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_in_bounds 
+            = (((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_y) 
+                 & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_y, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched)))) 
+                & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_x)) 
+               & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_x, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched))));
+        if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_in_bounds) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_offset 
+                = (((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_channel)) 
+                      * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched))) 
+                     + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_y) 
+                    * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched))) 
+                   + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_input_x);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_address_wide 
+                = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_base_latched)) 
+                   + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_source_offset);
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_area 
+        = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_height_latched 
+           * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__kernel_width_latched);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_y = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_x = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_y = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_x = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index_wide = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[0U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[1U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[2U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[3U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[4U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[4U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[4U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[4U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[5U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[5U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[5U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[5U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[6U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[6U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[6U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[6U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[7U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[7U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[7U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[7U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__comb_lane = 8U;
+    if (((0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_area) 
+         & (0U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_y 
+            = VL_DIV_III(32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__comb_lane = 8U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_x 
+            = VL_MODDIV_III(32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_index, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_width);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_y 
+            = (((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_y)) 
+                  * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched))) 
+                 + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_y)) 
+                    * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched)))) 
+                + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y))) 
+               - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_top_latched)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_x 
+            = (((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__tile_start_x)) 
+                  * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched))) 
+                 + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_x)) 
+                    * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched)))) 
+                + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x))) 
+               - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__pad_left_latched)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds 
+            = (((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_y) 
+                 & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_y, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_height_latched)))) 
+                & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_x)) 
+               & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_x, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__input_width_latched))));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index_wide 
+            = (((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_input_channel)) 
+                  * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_plane_bytes) 
+                 + ((((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_y)) 
+                      * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_y_latched))) 
+                     + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_y))) 
+                    * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_width)))) 
+                + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_point_x)) 
+                   * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__stride_x_latched)))) 
+               + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_kernel_x)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index 
+            = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index_wide);
+        if ((0U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[0U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[0U] 
+                = ((0x8fffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[0U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[0U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[0U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[0U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[0U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[0U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[0U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[0U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[0U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[0U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[0U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[0U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[0U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[0U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[0U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[0U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[0U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[0U] = 0ULL;
+        }
+        if ((1U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[1U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[1U] 
+                = ((0x8fffU >= (0x0000ffffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                                    + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[1U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[1U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[1U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[1U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[1U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[1U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[1U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[1U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[1U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[1U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[1U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[1U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[1U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[1U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[1U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[1U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[1U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[1U] = 0ULL;
+        }
+        if ((2U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[2U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[2U] 
+                = ((0x8fffU >= (0x0000ffffU & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                                                << 1U) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                                     << 1U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[2U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[2U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[2U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[2U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[2U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[2U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[2U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[2U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[2U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[2U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[2U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[2U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[2U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[2U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[2U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[2U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[2U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[2U] = 0ULL;
+        }
+        if ((3U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[3U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[3U] 
+                = ((0x8fffU >= (0x0000ffffU & (((IData)(3U) 
+                                                * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & (((IData)(3U) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                    + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[3U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[3U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[3U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[3U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[3U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[3U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[3U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[3U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[3U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[3U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[3U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[3U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[3U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[3U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[3U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[3U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[3U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[3U] = 0ULL;
+        }
+        if ((4U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[4U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[4U] 
+                = ((0x8fffU >= (0x0000ffffU & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                                                << 2U) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched 
+                                     << 2U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[4U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[4U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[4U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[4U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[4U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[4U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[4U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[4U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[4U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[4U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[4U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[4U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[4U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[4U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[4U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[4U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[4U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[4U] = 0ULL;
+        }
+        if ((5U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[5U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[5U] 
+                = ((0x8fffU >= (0x0000ffffU & (((IData)(5U) 
+                                                * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & (((IData)(5U) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                    + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[5U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[5U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[5U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[5U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[5U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[5U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[5U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[5U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[5U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[5U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[5U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[5U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[5U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[5U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[5U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[5U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[5U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[5U] = 0ULL;
+        }
+        if ((6U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[6U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[6U] 
+                = ((0x8fffU >= (0x0000ffffU & (((IData)(6U) 
+                                                * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & (((IData)(6U) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                    + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[6U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[6U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[6U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[6U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[6U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[6U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[6U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[6U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[6U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[6U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[6U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[6U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[6U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[6U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[6U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[6U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[6U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[6U] = 0ULL;
+        }
+        if ((7U < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__group_lane_count)) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[7U] 
+                = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds)
+                    ? ((0xc7ffU >= (0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index))
+                        ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_patch
+                       [(0x0000ffffU & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_index)]
+                        : 0U) : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[7U] 
+                = ((0x8fffU >= (0x0000ffffU & (((IData)(7U) 
+                                                * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                               + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index)))
+                    ? vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__weight_group
+                   [(0x0000ffffU & (((IData)(7U) * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__reduction_count_latched) 
+                                    + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_reduction_index))]
+                    : 0U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[7U] 
+                = (0x0000ffffU & VL_MULS_III(16, ((0x0000ff00U 
+                                                   & ((- (IData)(
+                                                                 (1U 
+                                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[7U] 
+                                                                     >> 7U)))) 
+                                                      << 8U)) 
+                                                  | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[7U]), 
+                                             ((0x0000ff00U 
+                                               & ((- (IData)(
+                                                             (1U 
+                                                              & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[7U] 
+                                                                 >> 7U)))) 
+                                                  << 8U)) 
+                                              | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[7U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[7U] 
+                = (0x00000001ffffffffULL & ((((QData)((IData)(
+                                                              (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[7U] 
+                                                               >> 0x1fU))) 
+                                              << 0x00000020U) 
+                                             | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__lane_accumulator[7U]))) 
+                                            + (((QData)((IData)(
+                                                                (0x0001ffffU 
+                                                                 & (- (IData)(
+                                                                              (1U 
+                                                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[7U] 
+                                                                                >> 0x0fU))))))) 
+                                                << 0x00000010U) 
+                                               | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[7U])))));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_tap_in_bounds) 
+                 & ((0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[7U]) 
+                    | (0x80U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[7U])))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_bad_argument = 1U;
+            }
+            if (((1U & (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[7U] 
+                                >> 0x20U))) != (1U 
+                                                & (IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[7U] 
+                                                           >> 0x1fU))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_overflow = 1U;
+            }
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_feature_byte[7U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_weight_byte[7U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_product[7U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__compute_sum[7U] = 0ULL;
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error = 6U;
+    if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error = 0U;
+    } else if ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched)) 
+                 | (2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched))) 
+                | (6U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_error_latched;
+    }
+    if ((((3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)) 
+          & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_index 
+             < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__patch_byte_count)) 
+         & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_in_bounds)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_advance = 1U;
+    } else if ((((5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__state)) 
+                 & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_rsp_valid)) 
+                & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__mapped_response_error)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__feature_scan_advance = 1U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid 
+        = (((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+             ? ((~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                    >> 1U)) & ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                                ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_valid)
+                                : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_valid)))
+             : (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                 >> 1U) & ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                            ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_valid)
+                            : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_valid)))) 
+           & ((~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__response_pending) 
+                  | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset) 
+                     | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort)))) 
+              & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl)));
+    if ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OP
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_COUNT
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_ADDRESS
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_LENGTH_BYTES
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_n 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_N
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_C
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_H
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_W
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_ALIAS_LAYER_INDEX
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor];
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_n = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_plane_elements 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)) 
+           * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_batch_elements 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c)) 
+           * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_plane_elements);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_n)) 
+           * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_batch_elements);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x = 0U;
+    if ((((0ULL != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_plane_elements) 
+          & (0ULL != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_batch_elements)) 
+         & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel 
+            = (IData)(VL_MODDIV_QQQ(64, VL_DIV_QQQ(64, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index)), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_plane_elements), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c))));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y 
+            = (IData)(VL_MODDIV_QQQ(64, VL_DIV_QQQ(64, (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index)), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h))));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x 
+            = VL_MODDIV_III(32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index, (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w));
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_start[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_end[0U] = 0U;
+    if ((0U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) {
+        if (((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+             & (~ (IData)(vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_KIND
+                          [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                             ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                             : 0U)][0U])))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U] = 0U;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U] = 0x0007ec00U;
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U] 
+                = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_ADDRESS
+                [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                   ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                   : 0U)][0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U] 
+                = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_LENGTH_BYTES
+                [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                   ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                   : 0U)][0U];
+        }
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[0U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_N
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_C
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_H
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_W
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_start[0U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_CHANNEL_START
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][0U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_end[0U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_CHANNEL_END
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][0U];
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_start[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_end[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mq_index 
+        = (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+             ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_BASE
+            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+             : 0U) + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row 
+        = (4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_valid = 0U;
+    if (((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row) 
+           & (~ ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+                 && vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_MEMORY_WRITE_REQUIRED
+                 [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]))) 
+          & ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+             && vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_ALLOCATION_KIND
+             [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor])) 
+         & (0x26U > (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_output_plane_elements 
+            = ((QData)((IData)(((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                                 ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_H
+                                [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                                 : 0U))) * (QData)((IData)(
+                                                           ((0x25U 
+                                                             >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                                                             ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_W
+                                                            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                                                             : 0U))));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_output_element_count 
+            = (((QData)((IData)(((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                                  ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_N
+                                 [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                                  : 0U))) * (QData)((IData)(
+                                                            ((0x25U 
+                                                              >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                                                              ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_C
+                                                             [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                                                              : 0U)))) 
+               * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_output_plane_elements);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_valid 
+            = ((((((((((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                        ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_TENSOR_INDEX
+                       [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                        : 0U) == ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                                   ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_TENSOR_INDEX
+                                  [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                                   : 0U)) & (((0x25U 
+                                               >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                                               ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_ADDRESS
+                                              [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                                               : 0U) 
+                                             == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base)) 
+                    & (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                         ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_LENGTH_BYTES
+                        [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                         : 0U) == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length)) 
+                   & (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                        ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_N
+                       [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                        : 0U) == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_n))) 
+                  & (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                       ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_C
+                      [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                       : 0U) == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c))) 
+                 & (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                      ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_H
+                     [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                      : 0U) == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h))) 
+                & (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index))
+                     ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_W
+                    [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_layer_index]
+                     : 0U) == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))) 
+               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_output_element_count 
+                  == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count));
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_output_plane_elements = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_output_element_count = 0ULL;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 1U;
+    if ((((((((((((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                   ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_LAYER_INDEX
+                  [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                   : 0U) != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+                | (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) 
+               | (2U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) 
+              | (1U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_n))) 
+             | (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c))) 
+            | (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h))) 
+           | (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))) 
+          | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_length)) 
+         | (0ULL == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+    }
+    if ((1U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_ADDRESS
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_LENGTH_BYTES
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_N
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_C
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_H
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_W
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_start[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_CHANNEL_START
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_route_end[1U] 
+            = vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ROUTE_CHANNEL_END
+            [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+               : 0U)][1U];
+    }
+    if ((0U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) {
+        if ((((((1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[0U]) 
+                | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U])) 
+               | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+              | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+             | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[0U]))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+        if (((~ (IData)(vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_KIND
+                        [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                           ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                           : 0U)][0U])) & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+    }
+    if ((1U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) {
+        if ((((((1U != vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_n[1U]) 
+                | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[1U])) 
+               | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[1U])) 
+              | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[1U])) 
+             | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_length[1U]))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+        if ((1U & (~ (IData)(vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_INPUT_KIND
+                             [((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                                ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)
+                                : 0U)][1U])))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+    }
+    if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row) {
+        if ((1U & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_valid)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+    } else if ((1U & ((~ ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+                          && vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_MEMORY_WRITE_REQUIRED
+                          [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor])) 
+                      | ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+                         && vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_OUTPUT_ALLOCATION_KIND
+                         [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor])))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+    }
+    if ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op))) {
+        vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__96__descriptor_activation 
+            = ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_ACTIVATION
+               [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                : 0U);
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_0__map_conv_activation 
+            = (3U & (0xd0U >> ((IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__map_conv_activation__96__descriptor_activation) 
+                               << 1U)));
+        if (((((((1U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count)) 
+                 | (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                      ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_CHANNEL_COUNT
+                     [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                      : 0U) != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c))) 
+                | (0x00000c5cU <= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mq_index)) 
+               | (0x00000c5cU < (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                                   ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_BASE
+                                  [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                                   : 0U) + ((0x25U 
+                                             >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                                             ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_T23_MQ_CHANNEL_COUNT
+                                            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                                             : 0U)))) 
+              | (3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_0__map_conv_activation))) 
+             | (((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                  ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_WEIGHT_LAYER_INDEX
+                 [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                  : 0U) != ((0x25U >= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))
+                             ? vlSymsp->TOP__s2a_network_descriptor_pkg.S2A_LAYER_INDEX
+                            [vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor]
+                             : 0U)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+    } else if (((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)) 
+                | (3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)))) {
+        if ((1U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+    } else if ((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op))) {
+        if (((1U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count)) 
+             & (2U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_input_count)))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+        }
+    } else if ((1U & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row)))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_fault 
+        = (1U & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_start_valid 
+        = ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+             & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl)) 
+            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid)) 
+           & (0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_start_valid 
+        = ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+             & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl)) 
+            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid)) 
+           & (1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_start_valid 
+        = ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+             & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl)) 
+            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid)) 
+           & (2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_start_valid 
+        = ((((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+             & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl)) 
+            & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_valid)) 
+           & (3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_start_ready 
+        = ((1U & (~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op) 
+                     >> 2U))) && ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op))
+                                   ? ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op))
+                                       ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__start_ready)
+                                       : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__start_ready))
+                                   : ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op))
+                                       ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__start_ready)
+                                       : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__start_ready))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_rstrb 
+        = (((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+             ? (((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                  ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_rstrb)
+                  : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_rstrb)) 
+                & (- (IData)((1U & (~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                                       >> 1U)))))) : 
+            (((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+               ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_rstrb)
+               : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_rstrb)) 
+             & (- (IData)((1U & ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                                 >> 1U)))))) & (- (IData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_write 
+        = (((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+             ? ((~ ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                    >> 1U)) & ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                                ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__upsample_req_write)
+                                : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__route_req_write)))
+             : (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state) 
+                 >> 1U) & ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))
+                            ? (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__maxpool_req_write)
+                            : (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__conv_req_write)))) 
+           & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid));
+    __VdfgRegularize_h6e95ff9d_0_6[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_base;
+    __VdfgRegularize_h6e95ff9d_0_6[1U] = 0U;
+    __VdfgRegularize_h6e95ff9d_0_6[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code = 0U;
+    if ((((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__hard_reset)) 
+          & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__backend_abort))) 
+         & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__buffer_owner_pl))) {
+        if ((4U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+            if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code = 6U;
+            } else {
+                vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_1__normalize_engine_error 
+                    = ((4U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code))
+                        ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code)
+                        : ((2U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code))
+                            ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code)
+                            : ((1U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code))
+                                ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__97__code)
+                                : 0U)));
+                if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid) 
+                     & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_1__normalize_engine_error)))) {
+                    vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code 
+                        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                    vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__Vfuncout 
+                        = ((4U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code))
+                            ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code)
+                            : ((2U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code))
+                                ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code)
+                                : ((1U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code))
+                                    ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__code)
+                                    : 0U)));
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code 
+                        = vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__98__Vfuncout;
+                } else if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid) 
+                             & ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)) 
+                                | ((1ULL + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index))) 
+                                   >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count))) 
+                            & (0x00000026U <= ((IData)(1U) 
+                                               + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))))) {
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code = 0U;
+                }
+            }
+        } else if ((2U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+            vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_1__normalize_engine_error 
+                = ((4U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code))
+                    ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code)
+                    : ((2U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code))
+                        ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code)
+                        : ((1U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code))
+                            ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__99__code)
+                            : 0U)));
+            if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid) 
+                 & (0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____VlemCall_1__normalize_engine_error)))) {
+                vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_error;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__Vfuncout 
+                    = ((4U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code))
+                        ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code)
+                        : ((2U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code))
+                            ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code)
+                            : ((1U & (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code))
+                                ? (IData)(vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__code)
+                                : 0U)));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code 
+                    = vlSelfRef.__Vfunc_tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__normalize_engine_error__100__Vfuncout;
+            } else if ((((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_result_valid) 
+                         & ((0U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__current_op)) 
+                            | ((1ULL + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_index))) 
+                               >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_element_count))) 
+                        & (0x00000026U <= ((IData)(1U) 
+                                           + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code = 0U;
+            }
+        } else if ((1U & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state))) {
+            if ((1U & ((((0x26U <= (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor)) 
+                         | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__descriptor_fault)) 
+                        | ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row)) 
+                           & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__selected_start_ready)))) 
+                       | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row) 
+                          & (~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__alias_valid)))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code = 6U;
+            } else if (((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__is_alias_row) 
+                        & (0x00000026U <= ((IData)(1U) 
+                                           + (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__layer_cursor))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_result_valid = 1U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__operator_error_code = 0U;
+            }
+        }
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_inputs_valid 
+        = ((9U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index)
+            ? ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height) 
+               & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width) 
+                  & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y) 
+                     & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x) 
+                        & ((1U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter) 
+                           & ((0x0080U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+                              & ((0x0068U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U]) 
+                                 & ((0x0068U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]) 
+                                    & ((0x0080U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c)) 
+                                       & ((0x0034U 
+                                           == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)) 
+                                          & (0x0034U 
+                                             == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))))))))))))
+            : ((0x00000011U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index)
+                ? ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height) 
+                   & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width) 
+                      & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y) 
+                         & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x) 
+                            & ((1U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter) 
+                               & ((0x0100U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+                                  & ((0x0034U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U]) 
+                                     & ((0x0034U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]) 
+                                        & ((0x0100U 
+                                            == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c)) 
+                                           & ((0x001aU 
+                                               == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)) 
+                                              & (0x001aU 
+                                                 == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))))))))))))
+                : ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height) 
+                   & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width) 
+                      & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y) 
+                         & ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x) 
+                            & ((1U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter) 
+                               & ((0x00000019U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__layer_index) 
+                                  & ((0x0200U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+                                     & ((0x001aU == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U]) 
+                                        & ((0x001aU 
+                                            == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]) 
+                                           & ((0x0200U 
+                                               == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_c)) 
+                                              & ((0x000dU 
+                                                  == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)) 
+                                                 & (0x000dU 
+                                                    == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w)))))))))))))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_offset_work 
+        = ((0x000000000000001aULL * ((0x000000000000001aULL 
+                                      * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel))) 
+                                     + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y)))) 
+           + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_offset_work 
+        = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x)) 
+           + (((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y)) 
+               + ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel)) 
+                  * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_h)))) 
+              * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__output_w))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_height_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_width_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__channel_row_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__row_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__byte_offset_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_output_height = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_output_width = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_channel = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_y = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_x = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_address = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_unused_value = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code = 0U;
+    if (((((((0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+             | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+            | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+           | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride)) 
+          | (0x000dU < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+         | (0x000dU < vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code = 1U;
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_height_work 
+            = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+               * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_width_work 
+            = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+               * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride)));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_output_height 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_height_work;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_output_width 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_width_work;
+        if ((((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel 
+               >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+              | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y)) 
+                 >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_height_work)) 
+             | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x)) 
+                >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__output_width_work))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code = 1U;
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_channel 
+                = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_y 
+                = VL_DIV_III(32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_x 
+                = VL_DIV_III(32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_upsample_engine__stride);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                = ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_y 
+                    * vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]) 
+                   + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_x);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__channel_row_work 
+                = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel)) 
+                   * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__row_work 
+                = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__channel_row_work 
+                   + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_y)));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__byte_offset_work 
+                = ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__row_work 
+                    * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))) 
+                   + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_x)));
+            __Vtemp_2[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+            __Vtemp_2[1U] = 0U;
+            __Vtemp_2[2U] = 0U;
+            __Vtemp_3[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__byte_offset_work);
+            __Vtemp_3[1U] = (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__byte_offset_work 
+                                     >> 0x00000020U));
+            __Vtemp_3[2U] = 0U;
+            VL_ADD_W(3, __Vtemp_4, __Vtemp_2, __Vtemp_3);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[0U] 
+                = __Vtemp_4[0U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[1U] 
+                = __Vtemp_4[1U];
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[2U] 
+                = (1U & __Vtemp_4[2U]);
+            if ((0ULL != (0x00000001ffffffffULL & (
+                                                   ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[2U])) 
+                                                    << 0x00000020U) 
+                                                   | (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[1U])))))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code = 2U;
+            } else {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_address 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__address_work[0U];
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_unused_value 
+                    = ((0x0547U >= (0x000007ffU & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                                                   << 3U)))
+                        ? (0x000000ffU & (((0U == (0x0000001fU 
+                                                   & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                                                      << 3U)))
+                                            ? 0U : 
+                                           (Vtb_s2a_backend_fault_recovery__ConstPool__CONST_h3efedef1_0
+                                            [(((IData)(7U) 
+                                               + (0x000007ffU 
+                                                  & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                                                     << 3U))) 
+                                              >> 5U)] 
+                                            << ((IData)(0x00000020U) 
+                                                - (0x0000001fU 
+                                                   & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                                                      << 3U))))) 
+                                          | (Vtb_s2a_backend_fault_recovery__ConstPool__CONST_h3efedef1_0
+                                             [(0x0000003fU 
+                                               & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                                                  >> 2U))] 
+                                             >> (0x0000001fU 
+                                                 & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__u_query__DOT__plane_index_work 
+                                                    << 3U)))))
+                        : 0U);
+            }
+        }
+    }
+    if ((0U != (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_error_code))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_output_height = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_output_width = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_channel = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_y = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_x = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_source_address = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__query_unused_value = 0U;
+    }
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__extent_y 
+        = (0x00000001ffffffffULL & ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+                                    + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__extent_x 
+        = (0x00000001ffffffffULL & ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])) 
+                                    + (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_height_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_width_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_y_step = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_x_step = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_height = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_width = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__origin_y = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__origin_x = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[0U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[1U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[2U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[3U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[4U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[4U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[5U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[5U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[6U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[6U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[7U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[7U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[8U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[8U] = 0U;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U] = 0ULL;
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_index = 9U;
+    if ((1U & ((((((~ (((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height) 
+                        & (2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width)) 
+                       | ((3U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height) 
+                          & (3U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width)))) 
+                   | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y)) 
+                  | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x)) 
+                 | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U])) 
+                | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])) 
+               | (0U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U])))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code = 1U;
+    } else if (((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__extent_y 
+                 < (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height))) 
+                | (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__extent_x 
+                   < (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width))))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code = 1U;
+    } else {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_height_work 
+            = (0x00000001ffffffffULL & (1ULL + VL_DIV_QQQ(33, 
+                                                          (0x00000001ffffffffULL 
+                                                           & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__extent_y 
+                                                              - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height)))), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y)))));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_width_work 
+            = (0x00000001ffffffffULL & (1ULL + VL_DIV_QQQ(33, 
+                                                          (0x00000001ffffffffULL 
+                                                           & (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__extent_x 
+                                                              - (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width)))), (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x)))));
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_height 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_height_work;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_width 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_width_work;
+        if ((((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel 
+               >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_c[0U]) 
+              | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y)) 
+                 >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_height_work)) 
+             | ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x)) 
+                >= vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_width_work))) {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code = 1U;
+        } else {
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count 
+                = ((2U == vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_height)
+                    ? 4U : 9U);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__origin_y 
+                = (- VL_EXTENDS_QQ(64,63, (QData)((IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter 
+                                                           >> 1U)))));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__origin_x 
+                = (- VL_EXTENDS_QQ(64,63, (QData)((IData)(
+                                                          (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__darknet_padding_parameter 
+                                                           >> 1U)))));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_y_step 
+                = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_y)) 
+                   * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_y)));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_x_step 
+                = ((QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_x)) 
+                   * (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__stride_x)));
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__origin_y 
+                   + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_y_step);
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__origin_x 
+                   + vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__output_x_step);
+            if ((0U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(0U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[0U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_5[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_5[1U] = 0U;
+                    __Vtemp_5[2U] = 0U;
+                    __Vtemp_6[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_6[1U] = 0U;
+                    __Vtemp_6[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_5, __Vtemp_6);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (1U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_7[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U]);
+                    __Vtemp_7[1U] = 0U;
+                    __Vtemp_7[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_7);
+                    __Vtemp_8[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_8[1U] = 0U;
+                    __Vtemp_8[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_9, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_8);
+                    __Vtemp_10[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U]);
+                    __Vtemp_10[1U] = 0U;
+                    __Vtemp_10[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_9, __Vtemp_10);
+                    __Vtemp_12[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_12[1U] = 0U;
+                    __Vtemp_12[2U] = 0U;
+                    __Vtemp_12[3U] = 0U;
+                    __Vtemp_13[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_13[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_13[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_13[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_14, __Vtemp_12, __Vtemp_13);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_14[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_14[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_14[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_14[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[0U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((1U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(1U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(1U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[1U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_19[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_19[1U] = 0U;
+                    __Vtemp_19[2U] = 0U;
+                    __Vtemp_20[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_20[1U] = 0U;
+                    __Vtemp_20[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_19, __Vtemp_20);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (2U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_21[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U]);
+                    __Vtemp_21[1U] = 0U;
+                    __Vtemp_21[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_21);
+                    __Vtemp_22[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_22[1U] = 0U;
+                    __Vtemp_22[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_23, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_22);
+                    __Vtemp_24[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U]);
+                    __Vtemp_24[1U] = 0U;
+                    __Vtemp_24[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_23, __Vtemp_24);
+                    __Vtemp_26[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_26[1U] = 0U;
+                    __Vtemp_26[2U] = 0U;
+                    __Vtemp_26[3U] = 0U;
+                    __Vtemp_27[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_27[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_27[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_27[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_28, __Vtemp_26, __Vtemp_27);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_28[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_28[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_28[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_28[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[1U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((2U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(2U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(2U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[2U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_33[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_33[1U] = 0U;
+                    __Vtemp_33[2U] = 0U;
+                    __Vtemp_34[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_34[1U] = 0U;
+                    __Vtemp_34[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_33, __Vtemp_34);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (4U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_35[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U]);
+                    __Vtemp_35[1U] = 0U;
+                    __Vtemp_35[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_35);
+                    __Vtemp_36[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_36[1U] = 0U;
+                    __Vtemp_36[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_37, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_36);
+                    __Vtemp_38[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U]);
+                    __Vtemp_38[1U] = 0U;
+                    __Vtemp_38[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_37, __Vtemp_38);
+                    __Vtemp_40[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_40[1U] = 0U;
+                    __Vtemp_40[2U] = 0U;
+                    __Vtemp_40[3U] = 0U;
+                    __Vtemp_41[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_41[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_41[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_41[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_42, __Vtemp_40, __Vtemp_41);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_42[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_42[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_42[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_42[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[2U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((3U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(3U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(3U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[3U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_47[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_47[1U] = 0U;
+                    __Vtemp_47[2U] = 0U;
+                    __Vtemp_48[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_48[1U] = 0U;
+                    __Vtemp_48[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_47, __Vtemp_48);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (8U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_49[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U]);
+                    __Vtemp_49[1U] = 0U;
+                    __Vtemp_49[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_49);
+                    __Vtemp_50[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_50[1U] = 0U;
+                    __Vtemp_50[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_51, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_50);
+                    __Vtemp_52[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U]);
+                    __Vtemp_52[1U] = 0U;
+                    __Vtemp_52[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_51, __Vtemp_52);
+                    __Vtemp_54[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_54[1U] = 0U;
+                    __Vtemp_54[2U] = 0U;
+                    __Vtemp_54[3U] = 0U;
+                    __Vtemp_55[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_55[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_55[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_55[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_56, __Vtemp_54, __Vtemp_55);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_56[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_56[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_56[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_56[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[3U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((4U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(4U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(4U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[4U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_61[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_61[1U] = 0U;
+                    __Vtemp_61[2U] = 0U;
+                    __Vtemp_62[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_62[1U] = 0U;
+                    __Vtemp_62[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_61, __Vtemp_62);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (0x00000010U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_63[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U]);
+                    __Vtemp_63[1U] = 0U;
+                    __Vtemp_63[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_63);
+                    __Vtemp_64[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_64[1U] = 0U;
+                    __Vtemp_64[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_65, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_64);
+                    __Vtemp_66[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U]);
+                    __Vtemp_66[1U] = 0U;
+                    __Vtemp_66[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_65, __Vtemp_66);
+                    __Vtemp_68[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_68[1U] = 0U;
+                    __Vtemp_68[2U] = 0U;
+                    __Vtemp_68[3U] = 0U;
+                    __Vtemp_69[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_69[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_69[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_69[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_70, __Vtemp_68, __Vtemp_69);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_70[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_70[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_70[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_70[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[4U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((5U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(5U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(5U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[5U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_75[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_75[1U] = 0U;
+                    __Vtemp_75[2U] = 0U;
+                    __Vtemp_76[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_76[1U] = 0U;
+                    __Vtemp_76[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_75, __Vtemp_76);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (0x00000020U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_77[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U]);
+                    __Vtemp_77[1U] = 0U;
+                    __Vtemp_77[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_77);
+                    __Vtemp_78[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_78[1U] = 0U;
+                    __Vtemp_78[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_79, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_78);
+                    __Vtemp_80[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U]);
+                    __Vtemp_80[1U] = 0U;
+                    __Vtemp_80[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_79, __Vtemp_80);
+                    __Vtemp_82[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_82[1U] = 0U;
+                    __Vtemp_82[2U] = 0U;
+                    __Vtemp_82[3U] = 0U;
+                    __Vtemp_83[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_83[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_83[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_83[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_84, __Vtemp_82, __Vtemp_83);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_84[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_84[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_84[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_84[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[5U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((6U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(6U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(6U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[6U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_89[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_89[1U] = 0U;
+                    __Vtemp_89[2U] = 0U;
+                    __Vtemp_90[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_90[1U] = 0U;
+                    __Vtemp_90[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_89, __Vtemp_90);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (0x00000040U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_91[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U]);
+                    __Vtemp_91[1U] = 0U;
+                    __Vtemp_91[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_91);
+                    __Vtemp_92[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_92[1U] = 0U;
+                    __Vtemp_92[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_93, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_92);
+                    __Vtemp_94[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U]);
+                    __Vtemp_94[1U] = 0U;
+                    __Vtemp_94[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_93, __Vtemp_94);
+                    __Vtemp_96[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_96[1U] = 0U;
+                    __Vtemp_96[2U] = 0U;
+                    __Vtemp_96[3U] = 0U;
+                    __Vtemp_97[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_97[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_97[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_97[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_98, __Vtemp_96, __Vtemp_97);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_98[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_98[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_98[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_98[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[6U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((7U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(7U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(7U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[7U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_103[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_103[1U] = 0U;
+                    __Vtemp_103[2U] = 0U;
+                    __Vtemp_104[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_104[1U] = 0U;
+                    __Vtemp_104[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_103, __Vtemp_104);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (0x00000080U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_105[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U]);
+                    __Vtemp_105[1U] = 0U;
+                    __Vtemp_105[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_105);
+                    __Vtemp_106[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_106[1U] = 0U;
+                    __Vtemp_106[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_107, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_106);
+                    __Vtemp_108[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U]);
+                    __Vtemp_108[1U] = 0U;
+                    __Vtemp_108[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_107, __Vtemp_108);
+                    __Vtemp_110[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_110[1U] = 0U;
+                    __Vtemp_110[2U] = 0U;
+                    __Vtemp_110[3U] = 0U;
+                    __Vtemp_111[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_111[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_111[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_111[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_112, __Vtemp_110, __Vtemp_111);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_112[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_112[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_112[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_112[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[7U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            if ((8U < (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count))) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work 
+                    = VL_DIV_III(32, (IData)(8U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work 
+                    = VL_MODDIV_III(32, (IData)(8U), vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT____Vcellinp__u_maxpool_engine__kernel_width);
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[8U] 
+                    = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_y_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_y_work));
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U] 
+                    = (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__source_x_work 
+                       + VL_EXTENDS_QI(64,32, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__kernel_x_work));
+                if ((((VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U]) 
+                       & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U])))) 
+                      & VL_LTES_IQQ(64, 0ULL, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U])) 
+                     & VL_LTS_IQQ(64, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U], (QData)((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U]))))) {
+                    __Vtemp_117[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__decoded_channel;
+                    __Vtemp_117[1U] = 0U;
+                    __Vtemp_117[2U] = 0U;
+                    __Vtemp_118[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_h[0U];
+                    __Vtemp_118[1U] = 0U;
+                    __Vtemp_118[2U] = 0U;
+                    VL_MUL_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_117, __Vtemp_118);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask 
+                        = (0x00000100U | (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask));
+                    __Vtemp_119[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U]);
+                    __Vtemp_119[1U] = 0U;
+                    __Vtemp_119[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__channel_row_work, __Vtemp_119);
+                    __Vtemp_120[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_w[0U];
+                    __Vtemp_120[1U] = 0U;
+                    __Vtemp_120[2U] = 0U;
+                    VL_MUL_W(3, __Vtemp_121, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__row_work, __Vtemp_120);
+                    __Vtemp_122[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U]);
+                    __Vtemp_122[1U] = 0U;
+                    __Vtemp_122[2U] = 0U;
+                    VL_ADD_W(3, vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work, __Vtemp_121, __Vtemp_122);
+                    __Vtemp_124[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__source_base[0U];
+                    __Vtemp_124[1U] = 0U;
+                    __Vtemp_124[2U] = 0U;
+                    __Vtemp_124[3U] = 0U;
+                    __Vtemp_125[0U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[0U];
+                    __Vtemp_125[1U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[1U];
+                    __Vtemp_125[2U] = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__logical_offset_work[2U];
+                    __Vtemp_125[3U] = 0U;
+                    VL_ADD_W(4, __Vtemp_126, __Vtemp_124, __Vtemp_125);
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U] 
+                        = __Vtemp_126[0U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                        = __Vtemp_126[1U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U] 
+                        = __Vtemp_126[2U];
+                    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U] 
+                        = (1U & __Vtemp_126[3U]);
+                    if ((0U != ((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[1U] 
+                                 | vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[2U]) 
+                                | (1U & vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[3U])))) {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error = 1U;
+                    } else {
+                        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[8U] 
+                            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__address_work[0U];
+                    }
+                }
+            }
+            vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_index = 9U;
+            if (vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_range_error) {
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code = 2U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_height = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_width = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[0U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[0U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_index = 9U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[1U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[1U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[2U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[2U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[3U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[3U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[4U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[4U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[5U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[5U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[6U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[6U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[7U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[7U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[8U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[8U] = 0U;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U] = 0ULL;
+                vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U] = 0ULL;
+            }
+        }
+    }
+    if ((1U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_error_code))) {
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_height = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_output_width = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_count = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_valid_mask = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[0U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[0U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[0U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__u_geometry__DOT__tap_index = 9U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[1U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[1U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[1U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[2U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[2U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[2U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[3U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[3U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[3U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[3U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[4U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[4U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[4U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[4U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[5U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[5U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[5U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[5U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[6U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[6U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[6U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[6U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[7U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[7U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[7U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[7U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_address[8U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_channel[8U] = 0U;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_y[8U] = 0ULL;
+        vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__query_tap_source_x[8U] = 0ULL;
+    }
+    __VdfgRegularize_h6e95ff9d_0_5 = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__automatic_read_responses) 
+                                      & ((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_write)) 
+                                         & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid)));
+    __Vtemp_132[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_offset_work);
+    __Vtemp_132[1U] = (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_offset_work 
+                               >> 0x00000020U));
+    __Vtemp_132[2U] = 0U;
+    VL_ADD_W(3, __Vtemp_133, __Vtemp_132, __VdfgRegularize_h6e95ff9d_0_6);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_work[0U] 
+        = __Vtemp_133[0U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_work[1U] 
+        = __Vtemp_133[1U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__output_address_work[2U] 
+        = (1U & __Vtemp_133[2U]);
+    __Vtemp_135[0U] = (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_offset_work);
+    __Vtemp_135[1U] = (IData)((vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_offset_work 
+                               >> 0x00000020U));
+    __Vtemp_135[2U] = 0U;
+    VL_ADD_W(3, __Vtemp_136, __Vtemp_135, __VdfgRegularize_h6e95ff9d_0_6);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[0U] 
+        = __Vtemp_136[0U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[1U] 
+        = __Vtemp_136[1U];
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__output_address_work[2U] 
+        = (1U & __Vtemp_136[2U]);
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_csr__DOT__backend_memory_error_code 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__manual_mem_error_code) 
+           & (- (IData)((1U & (~ (IData)(__VdfgRegularize_h6e95ff9d_0_5))))));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__manual_mem_ready) 
+           | (IData)(__VdfgRegularize_h6e95ff9d_0_5));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__memory_handshake 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready) 
+           & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_maxpool_engine__DOT__backend_req_ready 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid) 
+           & ((3U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+              & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_upsample_engine__DOT__backend_req_ready 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid) 
+           & ((5U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+              & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_route_engine__DOT__backend_req_ready 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid) 
+           & ((4U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+              & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready)));
+    vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__u_conv_engine__DOT__backend_req_ready 
+        = ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_valid) 
+           & ((2U == (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__state)) 
+              & (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__u_backend__DOT__mem_ready)));
+}
+
+void Vtb_s2a_backend_fault_recovery___024root___timing_ready(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___timing_ready\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    if ((4ULL & vlSelfRef.__VactTriggered[0U])) {
+        vlSelfRef.__VtrigSched_h3193e339__0.ready("@(negedge tb_s2a_backend_fault_recovery.clk)");
+    }
+    if ((1ULL & vlSelfRef.__VactTriggered[0U])) {
+        vlSelfRef.__VtrigSched_h3193e288__0.ready("@(posedge tb_s2a_backend_fault_recovery.clk)");
+    }
+}
+
+void Vtb_s2a_backend_fault_recovery___024root___timing_resume(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___timing_resume\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Body
+    vlSelfRef.__VtrigSched_h3193e339__0.moveToResumeQueue(
+                                                          "@(negedge tb_s2a_backend_fault_recovery.clk)");
+    vlSelfRef.__VtrigSched_h3193e288__0.moveToResumeQueue(
+                                                          "@(posedge tb_s2a_backend_fault_recovery.clk)");
+    vlSelfRef.__VtrigSched_h3193e339__0.resume("@(negedge tb_s2a_backend_fault_recovery.clk)");
+    vlSelfRef.__VtrigSched_h3193e288__0.resume("@(posedge tb_s2a_backend_fault_recovery.clk)");
+    if ((2ULL & vlSelfRef.__VactTriggered[0U])) {
+        vlSelfRef.__VdlySched.resume();
+    }
+}
+
+void Vtb_s2a_backend_fault_recovery___024root___trigger_orInto__act_vec_vec(VlUnpacked<QData/*63:0*/, 1> &out, const VlUnpacked<QData/*63:0*/, 1> &in) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___trigger_orInto__act_vec_vec\n"); );
+    // Locals
+    IData/*31:0*/ n;
+    // Body
+    n = 0U;
+    do {
+        out[n] = (out[n] | in[n]);
+        n = ((IData)(1U) + n);
+    } while ((0U >= n));
+}
+
+#ifdef VL_DEBUG
+VL_ATTR_COLD void Vtb_s2a_backend_fault_recovery___024root___dump_triggers__act(const VlUnpacked<QData/*63:0*/, 1> &triggers, const std::string &tag);
+#endif  // VL_DEBUG
+bool Vtb_s2a_backend_fault_recovery___024root___trigger_anySet__act(const VlUnpacked<QData/*63:0*/, 1> &in);
+void Vtb_s2a_backend_fault_recovery___024root___act_comb__TOP__0(Vtb_s2a_backend_fault_recovery___024root* vlSelf);
+
+bool Vtb_s2a_backend_fault_recovery___024root___eval_phase__act(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___eval_phase__act\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    CData/*0:0*/ __VactExecute;
+    // Body
+    {
+        // Inlined CFunc: _eval_triggers_vec__act
+        vlSelfRef.__VactTriggered[0U] = (QData)((IData)(
+                                                        ((((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk)) 
+                                                           & (IData)(vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0)) 
+                                                          << 2U) 
+                                                         | ((vlSelfRef.__VdlySched.awaitingCurrentTime() 
+                                                             << 1U) 
+                                                            | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk) 
+                                                               & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0)))))));
+        vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0 
+            = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk;
+    }
+    Vtb_s2a_backend_fault_recovery___024root___timing_ready(vlSelf);
+    Vtb_s2a_backend_fault_recovery___024root___trigger_orInto__act_vec_vec(vlSelfRef.__VactTriggered, vlSelfRef.__VactTriggeredAcc);
+#ifdef VL_DEBUG
+    if (VL_UNLIKELY(vlSymsp->_vm_contextp__->debug())) {
+        Vtb_s2a_backend_fault_recovery___024root___dump_triggers__act(vlSelfRef.__VactTriggered, "act"s);
+    }
+#endif
+    Vtb_s2a_backend_fault_recovery___024root___trigger_orInto__act_vec_vec(vlSelfRef.__VnbaTriggered, vlSelfRef.__VactTriggered);
+    __VactExecute = Vtb_s2a_backend_fault_recovery___024root___trigger_anySet__act(vlSelfRef.__VactTriggered);
+    if (__VactExecute) {
+        vlSelfRef.__VactTriggeredAcc.fill(0ULL);
+        Vtb_s2a_backend_fault_recovery___024root___timing_resume(vlSelf);
+        {
+            // Inlined CFunc: _eval_act
+            if ((7ULL & vlSelfRef.__VactTriggered[0U])) {
+                Vtb_s2a_backend_fault_recovery___024root___act_comb__TOP__0(vlSelf);
+                vlSelfRef.__Vm_traceActivity[4U] = 1U;
+            }
+        }
+    }
+    return (__VactExecute);
+}
+
+bool Vtb_s2a_backend_fault_recovery___024root___eval_phase__inact(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___eval_phase__inact\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    CData/*0:0*/ __VinactExecute;
+    // Body
+    __VinactExecute = vlSelfRef.__VdlySched.awaitingZeroDelay();
+    if (__VinactExecute) {
+        VL_FATAL_MT("D:\\FPGA_Competition\\sim\\tb_s2a_backend_fault_recovery.sv", 2, "", "ZERODLY: Design Verilated with '--no-sched-zero-delay', but #0 delay executed at runtime");
+    }
+    return (__VinactExecute);
+}
+
+void Vtb_s2a_backend_fault_recovery___024root___trigger_clear__act(VlUnpacked<QData/*63:0*/, 1> &out) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___trigger_clear__act\n"); );
+    // Locals
+    IData/*31:0*/ n;
+    // Body
+    n = 0U;
+    do {
+        out[n] = 0ULL;
+        n = ((IData)(1U) + n);
+    } while ((1U > n));
+}
+
+bool Vtb_s2a_backend_fault_recovery___024root___eval_phase__nba(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___eval_phase__nba\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    CData/*0:0*/ __VnbaExecute;
+    // Body
+    __VnbaExecute = Vtb_s2a_backend_fault_recovery___024root___trigger_anySet__act(vlSelfRef.__VnbaTriggered);
+    if (__VnbaExecute) {
+        {
+            // Inlined CFunc: _eval_nba
+            if ((1ULL & vlSelfRef.__VnbaTriggered[0U])) {
+                Vtb_s2a_backend_fault_recovery___024root___nba_sequent__TOP__0(vlSelf);
+                vlSelfRef.__Vm_traceActivity[5U] = 1U;
+            }
+            if ((7ULL & vlSelfRef.__VnbaTriggered[0U])) {
+                Vtb_s2a_backend_fault_recovery___024root___nba_comb__TOP__0(vlSelf);
+                vlSelfRef.__Vm_traceActivity[6U] = 1U;
+            }
+        }
+        Vtb_s2a_backend_fault_recovery___024root___trigger_clear__act(vlSelfRef.__VnbaTriggered);
+    }
+    return (__VnbaExecute);
+}
+
+void Vtb_s2a_backend_fault_recovery___024root___eval(Vtb_s2a_backend_fault_recovery___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root___eval\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    IData/*31:0*/ __VnbaIterCount;
+    // Body
+    __VnbaIterCount = 0U;
+    do {
+        if (VL_UNLIKELY(((0x00002710U < __VnbaIterCount)))) {
+#ifdef VL_DEBUG
+            Vtb_s2a_backend_fault_recovery___024root___dump_triggers__act(vlSelfRef.__VnbaTriggered, "nba"s);
+#endif
+            VL_FATAL_MT("D:\\FPGA_Competition\\sim\\tb_s2a_backend_fault_recovery.sv", 2, "", "DIDNOTCONVERGE: NBA region did not converge after '--converge-limit' of 10000 tries");
+        }
+        __VnbaIterCount = ((IData)(1U) + __VnbaIterCount);
+        vlSelfRef.__VinactIterCount = 0U;
+        do {
+            if (VL_UNLIKELY(((0x00002710U < vlSelfRef.__VinactIterCount)))) {
+                VL_FATAL_MT("D:\\FPGA_Competition\\sim\\tb_s2a_backend_fault_recovery.sv", 2, "", "DIDNOTCONVERGE: Inactive region did not converge after '--converge-limit' of 10000 tries");
+            }
+            vlSelfRef.__VinactIterCount = ((IData)(1U) 
+                                           + vlSelfRef.__VinactIterCount);
+            vlSelfRef.__VactIterCount = 0U;
+            do {
+                if (VL_UNLIKELY(((0x00002710U < vlSelfRef.__VactIterCount)))) {
+#ifdef VL_DEBUG
+                    Vtb_s2a_backend_fault_recovery___024root___dump_triggers__act(vlSelfRef.__VactTriggered, "act"s);
+#endif
+                    VL_FATAL_MT("D:\\FPGA_Competition\\sim\\tb_s2a_backend_fault_recovery.sv", 2, "", "DIDNOTCONVERGE: Active region did not converge after '--converge-limit' of 10000 tries");
+                }
+                vlSelfRef.__VactIterCount = ((IData)(1U) 
+                                             + vlSelfRef.__VactIterCount);
+                vlSelfRef.__VactPhaseResult = Vtb_s2a_backend_fault_recovery___024root___eval_phase__act(vlSelf);
+            } while (vlSelfRef.__VactPhaseResult);
+            vlSelfRef.__VinactPhaseResult = Vtb_s2a_backend_fault_recovery___024root___eval_phase__inact(vlSelf);
+        } while (vlSelfRef.__VinactPhaseResult);
+        vlSelfRef.__VnbaPhaseResult = Vtb_s2a_backend_fault_recovery___024root___eval_phase__nba(vlSelf);
+    } while (vlSelfRef.__VnbaPhaseResult);
+}
+
+void Vtb_s2a_backend_fault_recovery___024root____VbeforeTrig_h3193e339__0(Vtb_s2a_backend_fault_recovery___024root* vlSelf, const char* __VeventDescription) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root____VbeforeTrig_h3193e339__0\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    VlUnpacked<QData/*63:0*/, 1> __VTmp;
+    // Body
+    __VTmp[0U] = (QData)((IData)(((((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk)) 
+                                    & (IData)(vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0)) 
+                                   << 2U) | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk) 
+                                             & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0))))));
+    vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk;
+    if ((1ULL & __VTmp[0U])) {
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+    }
+    if ((4ULL & __VTmp[0U])) {
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+    }
+    vlSelfRef.__VactTriggeredAcc[0U] = (vlSelfRef.__VactTriggeredAcc[0U] 
+                                        | __VTmp[0U]);
+}
+
+void Vtb_s2a_backend_fault_recovery___024root____VbeforeTrig_h3193e288__0(Vtb_s2a_backend_fault_recovery___024root* vlSelf, const char* __VeventDescription) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vtb_s2a_backend_fault_recovery___024root____VbeforeTrig_h3193e288__0\n"); );
+    Vtb_s2a_backend_fault_recovery__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    VlUnpacked<QData/*63:0*/, 1> __VTmp;
+    // Body
+    __VTmp[0U] = (QData)((IData)(((((~ (IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk)) 
+                                    & (IData)(vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0)) 
+                                   << 2U) | ((IData)(vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk) 
+                                             & (~ (IData)(vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0))))));
+    vlSelfRef.__Vtrigprevexpr___TOP__tb_s2a_backend_fault_recovery__DOT__clk__0 
+        = vlSelfRef.tb_s2a_backend_fault_recovery__DOT__clk;
+    if ((1ULL & __VTmp[0U])) {
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e288__0.ready(__VeventDescription);
+    }
+    if ((4ULL & __VTmp[0U])) {
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+        vlSelfRef.__VtrigSched_h3193e339__0.ready(__VeventDescription);
+    }
+    vlSelfRef.__VactTriggeredAcc[0U] = (vlSelfRef.__VactTriggeredAcc[0U] 
+                                        | __VTmp[0U]);
+}

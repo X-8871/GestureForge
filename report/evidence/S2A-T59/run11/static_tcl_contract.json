@@ -1,0 +1,40 @@
+{
+  "schema": "GestureForge-S2A-T59-run11-tcl-contract-v1",
+  "status": "PASS_STATIC_ONLY",
+  "project_tcl": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run11\\isolated_project\\create_project.tcl",
+    "bytes": 950,
+    "sha256": "51b5f43de0b388789aad25b3e9f02ab9356c35adc8ba6aa3d46bea16beeb824c"
+  },
+  "project_command_count": 12,
+  "project_commands": [
+    "create_project s2a_t59_row23_attempt11 {D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run11\\isolated_project} -part xc7z020clg400-1",
+    "set_property target_language Verilog [current_project]",
+    "set_property simulator_language Mixed [current_project]",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\int8_conv_tap_geometry.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\int8_conv_weight_address.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\int8_mac_accumulator.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\s2a_conv_engine.sv}",
+    "add_files -fileset sources_1 -norecurse {D:\\FPGA_Competition\\src\\s2a_conv_layer35_channel_probe.sv}",
+    "add_files -fileset sim_1 -norecurse {D:\\FPGA_Competition\\sim\\tb_s2a_conv_layer35_attempt11.sv}",
+    "set_property top tb_s2a_conv_layer35_row23_all_channels [get_filesets sim_1]",
+    "update_compile_order -fileset sources_1",
+    "update_compile_order -fileset sim_1"
+  ],
+  "simulation_tcl": {
+    "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run11\\isolated_project\\run_project_sim.tcl",
+    "bytes": 176,
+    "sha256": "6440a42b65595a2c081f7bdc7c33aca39e8a0668cb0305ff95eab9320469c7e1"
+  },
+  "simulation_command_count": 5,
+  "simulation_commands": [
+    "source {D:\\FPGA_Competition\\report\\evidence\\S2A-T59\\run11\\isolated_project\\create_project.tcl}",
+    "launch_simulation -simset sim_1 -mode behavioral",
+    "run all",
+    "close_sim",
+    "close_project"
+  ],
+  "separators": "literal LF; exactly one Tcl command per line",
+  "target_xpr_opened": false,
+  "project_is_independent": true
+}

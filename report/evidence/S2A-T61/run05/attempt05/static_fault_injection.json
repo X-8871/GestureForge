@@ -1,0 +1,99 @@
+{
+  "schema": "S2A-T61-attempt-static-fault-injection-v2",
+  "task_id": "S2A-T61",
+  "run_id": "run05",
+  "attempt": "attempt05",
+  "status": "STATIC_VALIDATION_FAIL",
+  "runner_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\run05_runner_attempt05_safe.ps1",
+  "runner_sha256": "d9908732d55a0c80923375d9d0c66a65c9fecca91b0964aa55c596d8c764ff26",
+  "powershell_edition": "Core",
+  "powershell_version": "7.6.5",
+  "test_count": 11,
+  "tests": [
+    {
+      "case": "powershell_current_parser",
+      "expected": "PASS",
+      "actual": "PARSE_PASS",
+      "assertion": "PASS",
+      "details": ""
+    },
+    {
+      "case": "normal_three_regular_readable_logs",
+      "expected": "PASS",
+      "actual": "PASS_SCAN",
+      "assertion": "PASS",
+      "details": "{\"state\":\"PASS_SCAN\",\"stage_exit_code\":0,\"native_log\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\normal_three_logs\\\\xvlog.log\",\"native_log_missing\":false,\"scanned_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\normal_three_logs\\\\xvlog.log\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\normal_three_logs\\\\xvlog.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\normal_three_logs\\\\xvlog.stderr.txt\"],\"faults\":[]}"
+    },
+    {
+      "case": "successful_tool_requires_native_log",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "missing_native_success 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\missing_native_on_success\\xvlog.log"
+    },
+    {
+      "case": "nonzero_exit_missing_native_preserves_exit_and_stream_paths",
+      "expected": "PASS",
+      "actual": "FAILURE_PRESERVED",
+      "assertion": "PASS",
+      "details": "xvlog 工具进程退出码非 0：-1073741515；native_log=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\missing_native_on_process_failure\\xvlog.log；stdout=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\missing_native_on_process_failure\\xvlog.stdout.txt；stderr=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\missing_native_on_process_failure\\xvlog.stderr.txt；最终日志扫描={\"state\":\"FAIL_SCAN_NONZERO_EXIT\",\"stage_exit_code\":-1073741515,\"native_log\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\missing_native_on_process_failure\\\\xvlog.log\",\"native_log_missing\":true,\"scanned_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\missing_native_on_process_failure\\\\xvlog.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\missing_native_on_process_failure\\\\xvlog.stderr.txt\"],\"faults\":[]}"
+    },
+    {
+      "case": "nonzero_exit_rejects_directory_native_path",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "directory_native 所需日志不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\directory_at_native_path\\xvlog.log"
+    },
+    {
+      "case": "nonzero_exit_still_requires_stdout_and_stderr",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "missing_stdout 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\missing_stdout_on_failure\\xvlog.stdout.txt"
+    },
+    {
+      "case": "unreadable_native_log_rejected",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "locked_native 所需日志不可读：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\unreadable_exclusive_lock\\xvlog.log :: Exception calling \"ReadAllText\" with \"2\" argument(s): \"The process cannot access the file 'D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\unreadable_exclusive_lock\\xvlog.log' because it is being used by another process.\""
+    },
+    {
+      "case": "post_drain_tail_error_rejected",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "post_drain 最终日志复扫发现错误：{\"path\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\drain_tail_error\\\\xvlog.stdout.txt\",\"match\":\"ERROR:\"}"
+    },
+    {
+      "case": "nonzero_exit_scans_and_reports_error_marker",
+      "expected": "PASS",
+      "actual": "FAILURE_AND_LOG_MARKER_PRESERVED",
+      "assertion": "PASS",
+      "details": "xvlog 工具进程退出码非 0：-1073741515；native_log=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\nonzero_with_error_marker\\xvlog.log；stdout=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\nonzero_with_error_marker\\xvlog.stdout.txt；stderr=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures\\nonzero_with_error_marker\\xvlog.stderr.txt；最终日志扫描={\"state\":\"FAIL_SCAN_NONZERO_EXIT\",\"stage_exit_code\":-1073741515,\"native_log\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\nonzero_with_error_marker\\\\xvlog.log\",\"native_log_missing\":true,\"scanned_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\nonzero_with_error_marker\\\\xvlog.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\nonzero_with_error_marker\\\\xvlog.stderr.txt\"],\"faults\":[{\"path\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\nonzero_with_error_marker\\\\xvlog.stdout.txt\",\"match\":\"ERROR:\"}]}"
+    },
+    {
+      "case": "cmd_batch_argument_and_exit_code_transport",
+      "expected": "PASS",
+      "actual": "PASS",
+      "assertion": "PASS",
+      "details": "{\"exit_code\":7,\"host_arguments\":\"/d /s /c \\\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures\\\\dummy_stage_launcher.cmd\\\"\",\"observed_args\":\"\\\"alpha\\\" \\\"argument with spaces\\\" \\\"D:\\\\FPGA_Competition\\\\offline path\\\\sample.bin\\\"\\r\\n\",\"stdout\":\"\",\"stderr\":\"\"}"
+    },
+    {
+      "case": "windows_powershell_51_parser",
+      "expected": "PASS",
+      "actual": "PARSE_FAIL",
+      "assertion": "FAIL",
+      "details": "{\"executable\":\"C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\",\"exit_code\":31,\"output\":\"Array index expression is missing or not valid.\\r\\nUnexpected token '\\\\r\\\\n\\\"%&|<>^!%]'){throw \\\"鍛戒护鍖呰鍣ㄥ弬鏁板惈涓嶅畨鍏ㄥ瓧绗︼細$value\\\"}\\r\\n    }\\r\\n    $quotedArguments=@()\\r\\n    foreach($argument in $arguments){$quotedArguments+=($quote+[string]$argument+$quote)}\\r\\n    $crlf=[Environment]::NewLine\\r\\n    $launchText='@echo off'+$crlf+'call '+$quote+$executable+$quote+' '+($quotedArguments -join ' ')+$crlf+'set \\\"stage_exit=%ERRORLEVEL%\\\"'+$crlf+'exit /b %stage_exit%'+$crlf\\r\\n    [IO.File]::WriteAllText($launchScript,$launchText,[Text.Encoding]::ASCII)\\r\\n    return '/d /s /c '+$quote+$launchScript+$quote\\r\\n}\\r\\nfunction Invoke-Stage([string]$name,[string]$executable,[string[]]$arguments,[string]$nativeLog,[bool]$watchSimulation=$false){\\r\\n    $stdout=Join-Path $logsRoot ($name+'.stdout.txt')\\r\\n    $stderr=Join-Path $logsRoot ($name+'.stderr.txt')\\r\\n    foreach($p in @($stdout,$stderr,$nativeLog)){if(Test-Path -LiteralPath $p){throw \\\"鎷掔粷瑕嗙洊宸叉湁鏃ュ織锛?p\\\"}}\\r\\n    $launchScript=Join-Path $tempRoot ($name+'_launcher.cmd')\\r\\n    if(Test-Path -LiteralPath $launchScript){throw \\\"鎷掔粷瑕嗙洊宸叉湁鍛戒护鍖呰鍣細$launchScript\\\"}\\r\\n    $cmdArguments=New-StageLauncher -launchScript $launchScript -executable $executable -arguments $arguments\\r\\n\\r\\n    $trackedBefore=@($script:trackedChildren.Keys)\\r\\n    $start=[DateTimeOffset]::Now.ToOffset([TimeSpan]::FromHours(8))\\r\\n    $record=[ordered]@{stage=$name;executable=$executable;arguments=@($arguments);command_line=($executable+' '+($arguments -join ' '));host_executable=$commandProcessor;host_arguments=$cmdArguments;launch_script=$launchScript;pid=$null;parent_pid=$PID;started_at_utc8=$start.ToString('yyyy-MM-dd HH:mm:ss zzz');ended_at_utc8=$null;elapsed_seconds=$null;exit_code=$null;stdout=$stdout;stderr=$stderr;native_log=$nativeLog;final_log_scan=$null;stop_reason=$null;child_processes=@()}\\r\\n    $script:processRuns.Add([pscustomobject]$record)\\r\\n    $current=$script:processRuns[$script:processRuns.Count-1]\\r\\n    $script:lastStage=$name\\r\\n    $startInfo=New-Object System.Diagnostics.ProcessStartInfo\\r\\n    $startInfo.FileName=$commandProcessor\\r\\n    $startInfo.Arguments=$cmdArguments\\r\\n    $startInfo.WorkingDirectory=$workRoot\\r\\n    $startInfo.UseShellExecute=$false\\r\\n    $startInfo.CreateNoWindow=$true\\r\\n    $startInfo.RedirectStandardOutput=$true\\r\\n    $startInfo.RedirectStandardError=$true\\r\\n    $proc=New-Object System.Diagnostics.Process\\r\\n    $proc.StartInfo=$startInfo\\r\\n    $outStream=$null\\r\\n    $errStream=$null\\r\\n    $stdoutTask=$null\\r\\n    $stderrTask=$null\\r\\n    $lastProgressAt=[DateTimeOffset]::Now\\r\\n    $logPaths=@($nativeLog,$stdout,$stderr)\\r\\n    $lastLogStamp=Get-LogStamp $logPaths\\r\\n    try{\\r\\n        $outStream=[IO.File]::Open($stdout,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::ReadWrite)\\r\\n        $errStream=[IO.File]::Open($stderr,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::ReadWrite)\\r\\n        if(-not $proc.Start()){throw \\\"$name' in expression or statement.\\r\\nUnexpected token '}' in expression or statement.\\r\\nUnexpected token '}' in expression or statement.\\r\\nUnexpected token '}' in expression or statement.\\r\\nUnexpected token '}' in expression or statement.\\r\\nUnexpected token 'tb_s2a_conv_layer35_row25_all_channels_vlog.prj'\\r\\n        $xvlogLog=Join-Path $logsRoot 'xvlog.log'\\r\\n        $xelabLog=Join-Path $logsRoot 'xelab.log'\\r\\n        $xsimLog=Join-Path $logsRoot 'xsim.log'\\r\\n        [void](Invoke-Stage 'xvlog' $toolMap.xvlog @('--incr','--relax','-L','uvm','-prj',$run05Prj,'-log',$xvlogLog) $xvlogLog)\\r\\n        $snapshot='tb_s2a_conv_layer35_row25_all_channels_behav'\\r\\n        [void](Invoke-Stage 'xelab' $toolMap.xelab @('--incr','--debug','off','--relax','--mt','2','-L','xil_defaultlib','-L','uvm','-L','unisims_ver','-L','unimacro_ver','-L','secureip','--snapshot',$snapshot,'xil_defaultlib.tb_s2a_conv_layer35_row25_all_channels','xil_defaultlib.glbl','-log',$xelabLog) $xelabLog)\\r\\n        $beforeXsimResources=Get-ResourceSnapshot\\r\\n$beforeXsimProcesses=Get-FpgaProcesses\\r\\n$preById=@{}\\r\\nforeach($p in $preProcesses){$preById[[string]$p.pid]=$p}\\r\\n$protectedChecks=@()\\r\\n$protectedIdentityFailures=@()\\r\\nforeach($id in @($plan.protected_existing_process_ids)){\\r\\n    $baseline=$preById[[string]$id]\\r\\n    $now=@($beforeXsimProcesses | Where-Object {$_.pid -eq [int]$id})\\r\\n    if($null -ne $baseline){\\r\\n        if($now.Count -eq 0){$protectedChecks += [pscustomobject]@{pid=[int]$id;state='naturally_absent_before_xsim';identity_match=$null;valid=$true}}\\r\\n        elseif($now.Count -eq 1){\\r\\n            $match=($baseline.name -ceq $now[0].name -and $baseline.executable_path -ceq $now[0].executable_path -and $baseline.command_line -ceq $now[0].command_line -and $baseline.parent_pid -eq $now[0].parent_pid)\\r\\n            $protectedChecks += [pscustomobject]@{pid=[int]$id;state=$(if($match){'same_process_still_present'}else{'pid_identity_changed'});identity_match=$match;valid=$match}\\r\\n            if(-not $match){$protectedIdentityFailures += [int]$id}\\r\\n        }else{$protectedChecks += [pscustomobject]@{pid=[int]$id;state='duplicate_pid_records';identity_match=$false;valid=$false};$protectedIdentityFailures += [int]$id}\\r\\n    }elseif($now.Count -eq 0){$protectedChecks += [pscustomobject]@{pid=[int]$id;state='absent_at_both_snapshots';identity_match=$null;valid=$true}}\\r\\n    else{$protectedChecks += [pscustomobject]@{pid=[int]$id;state='pid_appeared_after_start';identity_match=$false;valid=$false};$protectedIdentityFailures += [int]$id}\\r\\n}\\r\\n$ramOk=($beforeXsimResources.free_physical_mib -ge 2048)\\r\\n$dSpaceOk=($beforeXsimResources.d_free_bytes -ge 2GB)\\r\\n$beforeXsimObject=[ordered]@{task_id='S2A-T61';run_id='run05';attempt='attempt05';captured_at_utc8=$beforeXsimResources.captured_at_utc8;resource=$beforeXsimResources;ram_at_least_2_gib=$ramOk;d_free_at_least_2_gib=$dSpaceOk;protected_process_checks=$protectedChecks;protected_identities_valid=($protectedIdentityFailures.Count -eq 0);passed=($ramOk -and $dSpaceOk -and $protectedIdentityFailures.Count -eq 0);fpga_processes=$beforeXsimProcesses}\\r\\nWrite-JsonFile $beforeXsimPath $beforeXsimObject\\r\\nif(-not $ramOk){throw \\\"xsim 鍚姩鍓嶅彲鐢?RAM 浣庝簬 2048 MiB锛?($beforeXsimResources.free_physical_mib) MiB\\\"}\\r\\nif(-not $dSpaceOk){throw \\\"xsim 鍚姩鍓?D 鐩樺彲鐢ㄧ┖闂翠綆浜?2 GiB锛?($beforeXsimResources.d_free_bytes) bytes\\\"}\\r\\nif($protectedIdentityFailures.Count -ne 0){throw \\\"xsim 鍚姩鍓嶄繚鎶?PID 韬唤鏀瑰彉锛?($protectedIdentityFailures -join '' in expression or statement.\\r\\nMissing argument in parameter list.\\r\\nUnexpected token 'XSIM' in expression or statement.\\r\\nThe string is missing the terminator: '.\\r\\nMissing closing '}' in statement block or type definition.\"}"
+    }
+  ],
+  "test_fixture_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures",
+  "toolchain_invocations": [],
+  "mcp_used": false,
+  "protected_process_control_used": false,
+  "runner_invoked": false,
+  "simulation_status": "NO_SIMULATION",
+  "started_at_utc8": "2026-10-01 02:26:01 +08:00",
+  "ended_at_utc8": "2026-10-01 02:26:01 +08:00"
+}

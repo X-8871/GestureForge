@@ -1,0 +1,23 @@
+
+****** xsim v2026.1 (64-bit)
+  **** SW Build 6511674 on Tue Jun 16 11:02:23 MDT 2026
+  **** IP Build 6504888 on Tue Jun 09 09:05:25 MDT 2026
+  **** SharedData Build 6501428 on Mon Jun 08 17:34:18 MDT 2026
+  **** Start of session at: Thu Oct  1 21:08:39 2026
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+    ** Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+
+source xsim.dir/s2a_t66_layer0_tile_snapshot/xsim_script.tcl
+# xsim {s2a_t66_layer0_tile_snapshot} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+T66_FIXTURES input=519168 weight=864 expected=1384448 shape=[1,32,208,208] layout=NCHW
+T66_MEMORY byte-strobes=one-hot aligned=32-bit outstanding=1 stall-pattern=[0,1,2,7,3]
+T66_PLAN estimated_cycles<=26003000 watchdog_cycles=75000000 lanes=8 waveforms=disabled
+T66_POINT_BIAS_RESET_PASS tile=(0,0) oc_group=0 points=0->1 lanes=8
+Fatal: T66 输出 mismatch：index=0 NCHW-channel-plane-byte=0 address=01000000 actual=fd expected=ff
+Time: 100275 ns  Iteration: 0  Process: /tb_s2a_t66_layer0_tile/Always260_5  Scope: tb_s2a_t66_layer0_tile  File: D:/FPGA_Competition/sim/tb_s2a_t66_layer0_tile.sv Line: 394
+$finish called at time : 100275 ns
+run: Time (s): cpu = 00:00:00 ; elapsed = 00:00:06 . Memory (MB): peak = 228.129 ; gain = 0.000
+exit
+INFO: [Common 17-206] Exiting xsim at Thu Oct  1 21:08:47 2026...

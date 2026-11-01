@@ -1,0 +1,121 @@
+{
+  "schema": "S2A-T61-attempt-static-fault-injection-v3",
+  "task_id": "S2A-T61",
+  "run_id": "run05",
+  "attempt": "attempt05",
+  "status": "STATIC_VALIDATION_PASS",
+  "runner_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\run05_runner_attempt05_safe.ps1",
+  "runner_sha256": "8fcfacbf640f457afc317aa0cecf62b6436270d2b41ecbdaa8b623f0f34c69bf",
+  "powershell_edition": "Core",
+  "powershell_version": "7.6.5",
+  "test_count": 14,
+  "tests": [
+    {
+      "case": "powershell_current_parser",
+      "expected": "PASS",
+      "actual": "PARSE_PASS",
+      "assertion": "PASS",
+      "details": ""
+    },
+    {
+      "case": "normal_three_regular_readable_logs",
+      "expected": "PASS",
+      "actual": "PASS_SCAN",
+      "assertion": "PASS",
+      "details": "{\"state\":\"PASS_SCAN\",\"stage_exit_code\":0,\"native_log\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\normal_three_logs\\\\xvlog.log\",\"native_log_missing\":false,\"scanned_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\normal_three_logs\\\\xvlog.log\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\normal_three_logs\\\\xvlog.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\normal_three_logs\\\\xvlog.stderr.txt\"],\"faults\":[]}"
+    },
+    {
+      "case": "successful_tool_requires_native_log",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "missing_native_success 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\missing_native_on_success\\xvlog.log"
+    },
+    {
+      "case": "nonzero_exit_missing_native_preserves_exit_and_stream_paths",
+      "expected": "PASS",
+      "actual": "FAILURE_PRESERVED",
+      "assertion": "PASS",
+      "details": "xvlog 工具进程退出码非 0：-1073741515；native_log=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\missing_native_on_process_failure\\xvlog.log；stdout=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\missing_native_on_process_failure\\xvlog.stdout.txt；stderr=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\missing_native_on_process_failure\\xvlog.stderr.txt；最终日志扫描={\"state\":\"FAIL_SCAN_NONZERO_EXIT\",\"stage_exit_code\":-1073741515,\"native_log\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\missing_native_on_process_failure\\\\xvlog.log\",\"native_log_missing\":true,\"scanned_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\missing_native_on_process_failure\\\\xvlog.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\missing_native_on_process_failure\\\\xvlog.stderr.txt\"],\"faults\":[]}"
+    },
+    {
+      "case": "nonzero_exit_rejects_directory_native_path",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "directory_native 所需日志不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\directory_at_native_path\\xvlog.log"
+    },
+    {
+      "case": "nonzero_exit_still_requires_stdout_and_stderr",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "missing_stdout 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\missing_stdout_on_failure\\xvlog.stdout.txt"
+    },
+    {
+      "case": "unreadable_native_log_rejected",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "locked_native 所需日志不可读：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\unreadable_exclusive_lock\\xvlog.log :: Exception calling \"ReadAllText\" with \"2\" argument(s): \"The process cannot access the file 'D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\unreadable_exclusive_lock\\xvlog.log' because it is being used by another process.\""
+    },
+    {
+      "case": "post_drain_tail_error_rejected",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "post_drain 最终日志复扫发现错误：{\"path\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\drain_tail_error\\\\xvlog.stdout.txt\",\"match\":\"ERROR:\"}"
+    },
+    {
+      "case": "nonzero_exit_scans_and_reports_error_marker",
+      "expected": "PASS",
+      "actual": "FAILURE_AND_LOG_MARKER_PRESERVED",
+      "assertion": "PASS",
+      "details": "xvlog 工具进程退出码非 0：-1073741515；native_log=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\nonzero_with_error_marker\\xvlog.log；stdout=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\nonzero_with_error_marker\\xvlog.stdout.txt；stderr=D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7\\nonzero_with_error_marker\\xvlog.stderr.txt；最终日志扫描={\"state\":\"FAIL_SCAN_NONZERO_EXIT\",\"stage_exit_code\":-1073741515,\"native_log\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\nonzero_with_error_marker\\\\xvlog.log\",\"native_log_missing\":true,\"scanned_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\nonzero_with_error_marker\\\\xvlog.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\nonzero_with_error_marker\\\\xvlog.stderr.txt\"],\"faults\":[{\"path\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\nonzero_with_error_marker\\\\xvlog.stdout.txt\",\"match\":\"ERROR:\"}]}"
+    },
+    {
+      "case": "global_single_pass_and_frozen_finish_distributed_across_logs",
+      "expected": "PASS",
+      "actual": "GLOBAL_PASS",
+      "assertion": "PASS",
+      "details": "{\"state\":\"PASS_GLOBAL_EVIDENCE\",\"log_paths\":[\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\global_single_distributed_markers\\\\xsim.log\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\global_single_distributed_markers\\\\xsim.stdout.txt\",\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\global_single_distributed_markers\\\\xsim.stderr.txt\"],\"pass_marker_count\":1,\"pass_marker_path\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\global_single_distributed_markers\\\\xsim.stdout.txt\",\"pass_line\":\"PASS T61 outputs=6656 raw=6656 feature_reads=14942208 weight_reads=14942208 output_writes=6656 padding=8060928 taps=23003136 feature_lanes=15 weight_lanes=15 output_lanes=15 error_mask=70 fault_responses=3 abort_cancel=2 reset_cancel=1 recovery=1 request_stalls=77716775 feature_transfers=14942208 feature_stall_cycles=38849736 feature_slot0=2988442 feature_slot1=2988442 feature_slot2=2988442 feature_slot3=2988441 feature_slot4=2988441 weight_transfers=14942208 weight_stall_cycles=38849736 weight_slot0=2988442 weight_slot1=2988442 weight_slot2=2988442 weight_slot3=2988441 weight_slot4=2988441 output_transfers=6656 output_stall_cycles=17303 output_slot0=1332 output_slot1=1331 output_slot2=1331 output_slot3=1331 output_slot4=1331\",\"finish_marker_count\":1,\"finish_marker_path\":\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\global_single_distributed_markers\\\\xsim.stderr.txt\",\"finish_time_ns\":2134685240,\"expected_finish_time_ns\":2134685240}"
+    },
+    {
+      "case": "global_duplicate_pass_across_logs_rejected",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "XSIM 三份日志全局 PASS 标记数量不是 1：2"
+    },
+    {
+      "case": "global_finish_time_mismatch_rejected",
+      "expected": "PASS",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "details": "XSIM finish_time_ns 与冻结值不匹配：actual=2134685239 expected=2134685240"
+    },
+    {
+      "case": "cmd_batch_argument_and_exit_code_transport",
+      "expected": "PASS",
+      "actual": "PASS",
+      "assertion": "PASS",
+      "details": "{\"exit_code\":7,\"host_arguments\":\"/d /s /c \\\"D:\\\\FPGA_Competition\\\\report\\\\evidence\\\\S2A-T61\\\\run05\\\\attempt05\\\\offline_validation\\\\fault_fixtures_r3_ps7\\\\dummy_stage_launcher.cmd\\\"\",\"observed_args\":\"\\\"alpha\\\" \\\"argument with spaces\\\" \\\"D:\\\\FPGA_Competition\\\\offline path\\\\sample.bin\\\"\\r\\n\",\"stdout\":\"\",\"stderr\":\"\"}"
+    },
+    {
+      "case": "windows_powershell_51_parser",
+      "expected": "PASS",
+      "actual": "PARSE_PASS",
+      "assertion": "PASS",
+      "details": "{\"executable\":\"C:\\\\WINDOWS\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\",\"exit_code\":0,\"output\":\"PARSE_PASS\"}"
+    }
+  ],
+  "execution_run_id": "PS7",
+  "test_fixture_root": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt05\\offline_validation\\fault_fixtures_r3_ps7",
+  "toolchain_invocations": [],
+  "mcp_used": false,
+  "protected_process_control_used": false,
+  "runner_invoked": false,
+  "simulation_status": "NO_SIMULATION",
+  "started_at_utc8": "2026-10-01 02:48:29 +08:00",
+  "ended_at_utc8": "2026-10-01 02:48:29 +08:00"
+}

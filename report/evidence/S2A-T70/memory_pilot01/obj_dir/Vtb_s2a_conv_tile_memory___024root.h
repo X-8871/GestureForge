@@ -1,0 +1,202 @@
+// Verilated -*- C++ -*-
+// DESCRIPTION: Verilator output: Design internal header
+// See Vtb_s2a_conv_tile_memory.h for the primary calling header
+
+#ifndef VERILATED_VTB_S2A_CONV_TILE_MEMORY___024ROOT_H_
+#define VERILATED_VTB_S2A_CONV_TILE_MEMORY___024ROOT_H_  // guard
+
+#include "verilated.h"
+#include "verilated_timing.h"
+class Vtb_s2a_conv_tile_memory_s2a_network_descriptor_pkg;
+
+
+class Vtb_s2a_conv_tile_memory__Syms;
+
+class alignas(VL_CACHE_LINE_BYTES) Vtb_s2a_conv_tile_memory___024root final {
+  public:
+    // CELLS
+    Vtb_s2a_conv_tile_memory_s2a_network_descriptor_pkg* __PVT__s2a_network_descriptor_pkg;
+
+    // DESIGN SPECIFIC STATE
+    // Anonymous structures to workaround compiler member-count bugs
+    struct {
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__clk;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__hard_reset;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__abort;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__start_valid;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__start_ready;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__cancel;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__req_valid;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__req_ready;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__req_write;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__rsp_valid;
+        CData/*3:0*/ tb_s2a_conv_tile_memory__DOT__req_rstrb;
+        CData/*3:0*/ tb_s2a_conv_tile_memory__DOT__req_wstrb;
+        CData/*3:0*/ tb_s2a_conv_tile_memory__DOT__held_rstrb;
+        CData/*3:0*/ tb_s2a_conv_tile_memory__DOT__held_wstrb;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__held_write;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__pending_response;
+        CData/*4:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__state;
+        CData/*1:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__activation_mode_latched;
+        CData/*3:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__request_strobe_latched;
+        CData/*2:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__result_error_latched;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__validation_ok;
+        CData/*2:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__validation_error;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__mq_group_invalid;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__feature_scan_in_bounds;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_bad_argument;
+        CData/*0:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_overflow;
+        CData/*1:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__request_byte_lane;
+        CData/*0:0*/ __VstlFirstIteration;
+        CData/*0:0*/ __VstlPhaseResult;
+        CData/*0:0*/ __Vtrigprevexpr___TOP__tb_s2a_conv_tile_memory__DOT__clk__0;
+        CData/*0:0*/ __VactPhaseResult;
+        CData/*0:0*/ __VinactPhaseResult;
+        CData/*0:0*/ __VnbaPhaseResult;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT____VlemExpr_1;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__rsp_data;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__layer_id;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__ordinal;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__ty;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__tx;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__group_base;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__th;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__tw;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__ph;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__pw;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__ci;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__k;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__lanes;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__outputs;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__i;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__b;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__idx;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__oc;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__y;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__x;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__ic;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__py;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__px;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__address;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__selected_lane;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__cls;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__wait_remaining;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__seen_count;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__total_outputs;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__case_count;
+    };
+    struct {
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__required_cases;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__cycles;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__expected_reads;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__actual_features;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__actual_weights;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__held_addr;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__held_wdata;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__layer_index_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_layer_index_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__input_base_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__input_length_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__input_batch_count_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__input_channels_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__input_height_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__input_width_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_base_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_length_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_batch_count_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_channels_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_height_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_width_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__kernel_height_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__kernel_width_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__stride_y_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__stride_x_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__pad_left_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__pad_right_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__pad_top_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__pad_bottom_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__groups_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__padding_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_package_base_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_package_length_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__quantized_weight_offset_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__quantized_weight_bytes_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_batch_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__reduction_count_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_group_base;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__tile_start_y;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__tile_start_x;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__tile_height;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__tile_width;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__patch_height;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__patch_width;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__patch_byte_count;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__tile_point_count;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__group_lane_count;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__feature_scan_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_lane_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_reduction_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_point_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_reduction_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_lane_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_point_index;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__request_address_latched;
+        IData/*31:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__request_wdata_latched;
+        VlWide<4>/*127:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_elements_wide;
+        VlWide<4>/*127:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__reduction_count_wide;
+        IData/*31:0*/ __VactIterCount;
+        IData/*31:0*/ __VinactIterCount;
+        IData/*31:0*/ __Vi;
+        QData/*63:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__feature_source_address_wide;
+        QData/*63:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_source_address_wide;
+        QData/*63:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_byte_offset_wide;
+    };
+    struct {
+        QData/*63:0*/ tb_s2a_conv_tile_memory__DOT__dut__DOT__output_address_wide;
+        VlUnpacked<IData/*31:0*/, 3> tb_s2a_conv_tile_memory__DOT__counts;
+        VlUnpacked<IData/*31:0*/, 3> tb_s2a_conv_tile_memory__DOT__stalls;
+        VlUnpacked<CData/*7:0*/, 51200> tb_s2a_conv_tile_memory__DOT__patch;
+        VlUnpacked<CData/*7:0*/, 36864> tb_s2a_conv_tile_memory__DOT__weights;
+        VlUnpacked<CData/*7:0*/, 512> tb_s2a_conv_tile_memory__DOT__golden;
+        VlUnpacked<CData/*0:0*/, 512> tb_s2a_conv_tile_memory__DOT__seen;
+        VlUnpacked<IData/*31:0*/, 13> tb_s2a_conv_tile_memory__DOT__hdr;
+        VlUnpacked<CData/*7:0*/, 51200> tb_s2a_conv_tile_memory__DOT__dut__DOT__feature_patch;
+        VlUnpacked<CData/*7:0*/, 36864> tb_s2a_conv_tile_memory__DOT__dut__DOT__weight_group;
+        VlUnpacked<CData/*7:0*/, 512> tb_s2a_conv_tile_memory__DOT__dut__DOT__output_block;
+        VlUnpacked<IData/*31:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__lane_accumulator;
+        VlUnpacked<CData/*7:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_feature_byte;
+        VlUnpacked<CData/*7:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_weight_byte;
+        VlUnpacked<SData/*15:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_product;
+        VlUnpacked<QData/*32:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__compute_sum;
+        VlUnpacked<IData/*31:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__mq_index_for_lane;
+        VlUnpacked<IData/*31:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_multiplier;
+        VlUnpacked<IData/*31:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_q_shift;
+        VlUnpacked<IData/*31:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_magnitude;
+        VlUnpacked<QData/*63:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_product;
+        VlUnpacked<QData/*63:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_rounding_add;
+        VlUnpacked<QData/*63:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_rounded_magnitude;
+        VlUnpacked<QData/*63:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requant_signed_value;
+        VlUnpacked<CData/*7:0*/, 8> tb_s2a_conv_tile_memory__DOT__dut__DOT__requantized_value;
+        VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
+        VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
+        VlUnpacked<QData/*63:0*/, 1> __VactTriggeredAcc;
+        VlUnpacked<QData/*63:0*/, 1> __VnbaTriggered;
+    };
+    VlDelayScheduler __VdlySched;
+    VlTriggerScheduler __VtrigSched_hb8586161__0;
+
+    // INTERNAL VARIABLES
+    Vtb_s2a_conv_tile_memory__Syms* vlSymsp;
+    const char* vlNamep;
+
+    // CONSTRUCTORS
+    Vtb_s2a_conv_tile_memory___024root(Vtb_s2a_conv_tile_memory__Syms* symsp, const char* namep);
+    ~Vtb_s2a_conv_tile_memory___024root();
+    VL_UNCOPYABLE(Vtb_s2a_conv_tile_memory___024root);
+
+    // INTERNAL METHODS
+    void __Vconfigure(bool first);
+};
+
+
+#endif  // guard

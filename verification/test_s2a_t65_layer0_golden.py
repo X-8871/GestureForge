@@ -31,6 +31,9 @@ D2_NUMERIC_PATH = ROOT / "verification" / "s1_t02_d2_numeric_reference.py"
 MODEL_DELIVERY_PATH = ROOT / "verification" / "s2a_model_delivery.py"
 BENCH_PATH = ROOT / "sim" / "tb_s2a_t65_layer0_golden.sv"
 RUNNER_PATH = ROOT / "verification" / "run_s2a_t65_layer0_golden.ps1"
+PROCESS_GUARD_PATH = ROOT / "verification" / "t65_xilinx_process_guard.ps1"
+PROCESS_GUARD_TEST_PATH = ROOT / "verification" / "test_t65_xilinx_process_guard.ps1"
+PROCESS_ALLOWLIST_PATH = ROOT / "report" / "evidence" / "S2A-T65" / "run02" / "process_identity_allowlist.json"
 COMPILED_SV_FILES = (
     "src/s2a_network_descriptor_pkg.sv",
     "src/int8_conv_tap_geometry.sv",
@@ -67,10 +70,13 @@ PINNED_SHA256 = {
     "src/s2a_control_csr.sv": "97fc62dd1967ea9486db1c6e48134283d62005805a0ca5ef44d6ea70ab2fc9d2",
     "src/s2a_network_backend.sv": "38f0563baccf091024ca93b5a488a869a69f6e61b837695564dade653f465e26",
     "src/s2a_network_descriptor_pkg.sv": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
-    "sim/tb_s2a_t65_layer0_golden.sv": "3d7c9769356977124dff920c72547a3f4e6d35a0d828cb30f0def8a03f184772",
+    "sim/tb_s2a_t65_layer0_golden.sv": "fc43fbedc452560c59c0b7f31bc2ae6c371ae36ab87ccf1d591e6da7605cc456",
+    "verification/t65_xilinx_process_guard.ps1": "e9103032f4a61ece7e58fd8570c786cfb4ddc8be6e9029c8e7d595932a13dca9",
+    "verification/test_t65_xilinx_process_guard.ps1": "18730ee1be13ec05cc4c5a408cedfd0b614507717ab8dc83c3dc917ac38f4c97",
+    "report/evidence/S2A-T65/run02/process_identity_allowlist.json": "bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e",
     "verification/s1_t02_d2_numeric_reference.py": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
     "verification/s2a_model_delivery.py": "4831fff0e8ebb189ac9767ae423ad8d5268fc5bee5e333cc2a132112ccfdaab8",
-    "verification/run_s2a_t65_layer0_golden.ps1": "caadd90c2a23be2d1133b0e9d3d8c82f9452b06c1a25a5bc9ebfb6b9efe137b2",
+    "verification/run_s2a_t65_layer0_golden.ps1": "e1058ddc7b6aed1d1ced06b06d8b8a1bcdad24bd27df2689a6646dd8af3f3008",
 }
 EXPECTED_OFFICIAL_MANIFEST_SHA256 = "fd60e7a67161f242276a1b97b09ad07c0d7f41d30067266bb99620abe6d7ed74"
 EXPECTED_IMAGE_SHA256 = "6dbd72693bc6ad2af6121ffe95e2ee5e9c14597a4c4d16a6db8cdf07d8e43b0e"
@@ -113,6 +119,28 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def snapshot_directory(path: Path) -> dict[str, Any]:
+    """只读计算目录内普通文件的路径、长度和摘要集合。"""
+    if not path.is_dir():
+        return {"exists": False, "file_count": 0, "total_bytes": 0, "tree_sha256": None}
+    entries: list[dict[str, Any]] = []
+    for item in sorted(path.rglob("*")):
+        require(not item.is_symlink(), f"目录快照拒绝经过 reparse/symlink：{item}")
+        if item.is_file():
+            entries.append({
+                "relative_path": item.relative_to(path).as_posix(),
+                "bytes": item.stat().st_size,
+                "sha256": sha256_file(item),
+            })
+    encoded = json.dumps(entries, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return {
+        "exists": True,
+        "file_count": len(entries),
+        "total_bytes": sum(item["bytes"] for item in entries),
+        "tree_sha256": sha256_bytes(encoded),
+    }
+
+
 def read_json(path: Path, description: str) -> dict[str, Any]:
     """读取 UTF-8 JSON 对象并拒绝非对象根节点。"""
     require(path.is_file(), f"{description} 精确路径不存在或不是文件：{path}")
@@ -152,7 +180,7 @@ def check_runner_collision_negative(
     evidence_dir: Path,
     runner_source: str,
 ) -> dict[str, Any]:
-    """用隔离 runner 副本验证既有 sim01 撞名在工具检查前拒绝。"""
+    """用隔离 runner 副本核对 sim02 撞名拒绝和 sim01 保留。"""
     evidence_root = (ROOT / "report" / "evidence" / "S2A-T65").resolve()
     output_dir = evidence_dir.resolve()
     require(output_dir != evidence_root and evidence_root in output_dir.parents,
@@ -167,90 +195,127 @@ def check_runner_collision_negative(
         / "powershell.exe"
     )
     require(powershell_path.is_file(), f"Windows PowerShell 5.1 精确路径缺失：{powershell_path}")
+    actual_sim01_path = ROOT / "report" / "evidence" / "S2A-T65" / "run02" / "sim01"
+    actual_sim01_before = snapshot_directory(actual_sim01_path)
 
-    with tempfile.TemporaryDirectory(prefix="t65_collision_", dir=str(temp_root)) as temp_name:
-        probe_root = Path(temp_name)
-        probe_run = probe_root / "run"
-        sim_path = probe_run / "sim01"
-        fake_vivado_bin = probe_root / "empty_vivado_bin"
-        process_temp = probe_root / "temp"
-        missing_verifier = probe_root / "missing_verifier.py"
-        probe_run.mkdir()
-        sim_path.mkdir()
-        fake_vivado_bin.mkdir()
-        process_temp.mkdir()
+    def run_probe(case_name: str, existing_sim02: bool) -> dict[str, Any]:
+        with tempfile.TemporaryDirectory(prefix=f"t65_{case_name}_", dir=str(temp_root)) as temp_name:
+            probe_root = Path(temp_name)
+            probe_run = probe_root / "run"
+            sim01_path = probe_run / "sim01"
+            sim02_path = probe_run / "sim02"
+            fake_vivado_bin = probe_root / "empty_vivado_bin"
+            process_temp = probe_root / "temp"
+            offline_stub = probe_root / "offline_stub.py"
+            probe_run.mkdir()
+            sim01_path.mkdir()
+            fake_vivado_bin.mkdir()
+            process_temp.mkdir()
 
-        root_log = probe_run / "xvlog.log"
-        root_log_sentinel = b"T65-R5-ROOT-XVLOG-COLLISION\n"
-        root_log.write_bytes(root_log_sentinel)
-        sim_sentinel = sim_path / "collision_sentinel.txt"
-        sim_sentinel_bytes = b"T65-R5-SIM01-COLLISION\n"
-        sim_sentinel.write_bytes(sim_sentinel_bytes)
+            root_log = probe_run / "xvlog.log"
+            root_log_sentinel = b"T65-R5-ROOT-XVLOG-COLLISION\n"
+            root_log.write_bytes(root_log_sentinel)
+            sim01_sentinel = sim01_path / "collision_sentinel.txt"
+            sim01_sentinel_bytes = b"T65-R5-SIM01-PRESERVE\n"
+            sim01_sentinel.write_bytes(sim01_sentinel_bytes)
+            sim02_sentinel = None
+            sim02_sentinel_bytes = b"T65-R5-SIM02-COLLISION\n"
+            if existing_sim02:
+                sim02_path.mkdir()
+                sim02_sentinel = sim02_path / "collision_sentinel.txt"
+                sim02_sentinel.write_bytes(sim02_sentinel_bytes)
 
-        clone_source = runner_source.lstrip("\ufeff")
-        old_run_line = f"$runPath = '{DEFAULT_EVIDENCE_DIR}'"
-        require(clone_source.count(old_run_line) == 1, "runner 副本 runPath 锚点不唯一")
-        clone_source = clone_source.replace(
-            old_run_line,
-            f"$runPath = '{probe_run}'",
-            1,
-        )
-        clone_source, vivado_replacements = re.subn(
-            r"(?m)^\$vivadoBinPath = '[^']+'$",
-            lambda _match: f"$vivadoBinPath = '{fake_vivado_bin}'",
-            clone_source,
-            count=1,
-        )
-        clone_source, verifier_replacements = re.subn(
-            r"(?m)^\$pythonTestPath = '[^']+'$",
-            lambda _match: f"$pythonTestPath = '{missing_verifier}'",
-            clone_source,
-            count=1,
-        )
-        require(vivado_replacements == 1 and verifier_replacements == 1,
-                "无法唯一隔离 runner 副本的 Vivado/Python 路径")
-        clone_path = probe_root / "collision_runner.ps1"
-        clone_path.write_text(clone_source, encoding="utf-8-sig")
-
-        env = os.environ.copy()
-        env["TEMP"] = str(process_temp)
-        env["TMP"] = str(process_temp)
-        env["TMPDIR"] = str(process_temp)
-        env["PYTHONDONTWRITEBYTECODE"] = "1"
-        try:
-            completed = subprocess.run(
-                [str(powershell_path), "-NoLogo", "-NoProfile", "-File", str(clone_path), "-RunSimulation"],
-                cwd=str(probe_root),
-                env=env,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                timeout=30,
-                check=False,
+            offline_stub.write_text("import sys\nraise SystemExit(0)\n", encoding="utf-8")
+            clone_source = runner_source.lstrip("\ufeff")
+            old_run_line = f"$runPath = '{DEFAULT_EVIDENCE_DIR}'"
+            require(clone_source.count(old_run_line) == 1, "runner 副本 runPath 锚点不唯一")
+            clone_source = clone_source.replace(old_run_line, f"$runPath = '{probe_run}'", 1)
+            clone_source, vivado_replacements = re.subn(
+                r"(?m)^\$vivadoBinPath = '[^']+'$",
+                lambda _match: f"$vivadoBinPath = '{fake_vivado_bin}'",
+                clone_source,
+                count=1,
             )
-        except subprocess.TimeoutExpired as exc:
-            raise FixtureError("sim01 撞名负向测试超时，已中止隔离 runner") from exc
+            clone_source, verifier_replacements = re.subn(
+                r"(?m)^\$pythonTestPath = '[^']+'$",
+                lambda _match: f"$pythonTestPath = '{offline_stub}'",
+                clone_source,
+                count=1,
+            )
+            require(vivado_replacements == 1 and verifier_replacements == 1,
+                    "无法唯一隔离 runner 副本的 Vivado/Python 路径")
+            clone_path = probe_root / "collision_runner.ps1"
+            clone_path.write_text(clone_source, encoding="utf-8-sig")
 
-        output = completed.stdout.decode("utf-8", errors="replace")
-        require(completed.returncode != 0 and "T65_SIM_PATH_COLLISION" in output,
-                f"既有 sim01 未在工具调用前触发撞名拒绝：exit={completed.returncode} output_tail={output[-2000:]!r}")
-        require(root_log.read_bytes() == root_log_sentinel,
-                "既有 run 根目录 xvlog.log 哨兵被改写")
-        require(sim_sentinel.read_bytes() == sim_sentinel_bytes,
-                "既有 sim01 撞名哨兵被改写")
-        expected_sim_files = {sim_sentinel.name}
-        require({path.name for path in sim_path.iterdir()} == expected_sim_files,
-                "撞名拒绝前出现仿真工具日志或其他写入")
-        require(not any(fake_vivado_bin.iterdir()),
-                "撞名测试的空 Vivado 目录意外收到工具文件")
+            env = os.environ.copy()
+            env["TEMP"] = str(process_temp)
+            env["TMP"] = str(process_temp)
+            env["TMPDIR"] = str(process_temp)
+            env["PYTHONDONTWRITEBYTECODE"] = "1"
+            try:
+                completed = subprocess.run(
+                    [str(powershell_path), "-NoLogo", "-NoProfile", "-File", str(clone_path), "-RunSimulation"],
+                    cwd=str(probe_root),
+                    env=env,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    timeout=30,
+                    check=False,
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise FixtureError(f"{case_name} 隔离 runner 负向测试超时，已中止") from exc
 
+            output = completed.stdout.decode("utf-8", errors="replace")
+            require(completed.returncode != 0, f"{case_name} runner 副本意外成功")
+            require(root_log.read_bytes() == root_log_sentinel,
+                    f"{case_name} 既有 run 根目录 xvlog.log 哨兵被改写")
+            require(sim01_sentinel.read_bytes() == sim01_sentinel_bytes,
+                    f"{case_name} 既有 sim01 哨兵被改写")
+            require(not any(fake_vivado_bin.iterdir()),
+                    f"{case_name} 空 Vivado 目录意外收到工具文件")
+            if existing_sim02:
+                require("T65_SIM_PATH_COLLISION" in output,
+                        f"既有 sim02 未在工具检查前触发撞名拒绝：{output[-2000:]!r}")
+                require(sim02_sentinel is not None and sim02_sentinel.read_bytes() == sim02_sentinel_bytes,
+                        "既有 sim02 撞名哨兵被改写")
+                require({path.name for path in sim02_path.iterdir()} == {sim02_sentinel.name},
+                        "sim02 撞名拒绝前出现工具日志或其他写入")
+                outcome = "sim02 collision rejected before offline/tool launch"
+            else:
+                require("T65_SIM_PATH_COLLISION" not in output,
+                        f"仅存在 sim01 时错误触发仿真路径撞名：{output[-2000:]!r}")
+                require(sim02_path.is_dir(), "RunSimulation 未创建独立 sim02 工作目录")
+                require({path.name for path in sim02_path.iterdir()} == {"temp"},
+                        "sim02 临时目录外出现了仿真输出或非预期文件")
+                sim_temp = sim02_path / "temp"
+                require(sim_temp.is_dir() and
+                        {path.name for path in sim_temp.iterdir()} == {
+                            "xilinx_local_user_data", "home", "appdata", "localappdata"
+                        }, "sim02 的临时/用户目录隔离布局不完整")
+                require(not any(path.is_file() for path in sim02_path.rglob("*")),
+                        "工具启动前意外生成了文件")
+                outcome = "existing sim01 preserved; new sim02 contains only D-drive isolated environment directories"
+
+        return {
+            "status": "PASS",
+            "case": outcome,
+            "runner_exit_code": completed.returncode,
+            "simulator_tool_invocations": 0,
+            "run_root_xvlog_log_preserved": True,
+            "sim01_sentinel_preserved": True,
+        }
+
+    sim02_report = run_probe("sim02_collision", existing_sim02=True)
+    sim01_report = run_probe("sim01_preservation", existing_sim02=False)
+    actual_sim01_after = snapshot_directory(actual_sim01_path)
+    require(actual_sim01_after == actual_sim01_before,
+            "路径负向测试期间实际 run02/sim01 证据发生变化")
     return {
         "status": "PASS",
-        "collision_case": "preexisting sim01 and run-root xvlog.log sentinel",
-        "failure_marker": "T65_SIM_PATH_COLLISION",
-        "runner_exit_code": completed.returncode,
-        "simulator_tool_invocations": 0,
-        "run_root_xvlog_log_preserved": True,
-        "sim01_sentinel_preserved": True,
+        "sim02_collision_case": sim02_report,
+        "sim01_preservation_case": sim01_report,
+        "actual_sim01_snapshot": actual_sim01_before,
+        "actual_sim01_preserved_during_test": True,
     }
 
 
@@ -374,6 +439,8 @@ def check_bench_and_runner(
     require(RUNNER_PATH.is_file(), f"T65 PowerShell runner 缺失：{RUNNER_PATH}")
     bench = BENCH_PATH.read_text(encoding="utf-8")
     runner = RUNNER_PATH.read_text(encoding="utf-8")
+    guard = PROCESS_GUARD_PATH.read_text(encoding="utf-8")
+    guard_test = PROCESS_GUARD_TEST_PATH.read_text(encoding="utf-8")
     check_compiled_source_bindings()
     for token in (
         "s2a_network_backend u_backend",
@@ -391,19 +458,31 @@ def check_bench_and_runner(
         "input_bytes[expected_input_address[init_index] - INPUT_BASE_ADDRESS]",
         "weight_bytes[expected_weight_address[init_index] - layer0_weight_start_address]",
         "sample0 layer0 首个输出字节",
+        'T65_INPUT_PATH=%s',
+        'T65_WEIGHT_PATH=%s',
+        'T65_GOLDEN_PATH=%s',
+        '$fopen(input_fixture_path, "rb")',
+        '$fopen(weight_fixture_path, "rb")',
+        '$fopen(golden_fixture_path, "rb")',
     ):
         require(token in bench, f"bench 缺少必要的真实数据/独立常量检查：{token}")
+    require("fixture/sample0_input_chw_int8.bin" not in bench and
+            "fixture/sample0_layer0_gf8_weights.bin" not in bench and
+            "fixture/sample0_layer0_output_point0.bin" not in bench,
+            "bench 仍依赖仿真工作目录下的相对 fixture 路径")
     require("assign mem_rdata = 32'd0" not in bench, "bench 仍把 memory read data 固定为零")
     require("!==" in bench and "$fatal" in bench, "bench 必须对不匹配字节立即 fatal")
     require("[switch]$RunSimulation" in runner and "[switch]$PrepareOnly" in runner and
             "if (-not $RunSimulation)" in runner,
             "runner 必须默认只准备夹具，仿真需显式开关")
+    require("$simPath = Join-Path $runPath 'sim02'" in runner and "'sim01'" not in runner,
+            "仿真输出必须使用全新的 sim02，不能复用 sim01")
     collision_guard = "if ($RunSimulation -and (Test-Path -LiteralPath $simPath))"
     require(collision_guard in runner and "T65_SIM_PATH_COLLISION" in runner,
-            "runner 缺少仿真前 sim01 撞名拒绝")
+            "runner 缺少仿真前 sim02 撞名拒绝")
     require(runner.index(collision_guard) < runner.index("& $pythonCommand.Source") <
             runner.index("$toolPaths = @("),
-            "sim01 撞名拒绝必须早于 Python 准备和 Vivado 工具路径检查")
+            "sim02 撞名拒绝必须早于 Python 准备和 Vivado 工具路径检查")
     for log_name in (
         "xvlog_console.txt",
         "xelab_console.txt",
@@ -414,11 +493,74 @@ def check_bench_and_runner(
         "status.txt",
     ):
         require(f"Join-Path $simPath '{log_name}'" in runner,
-                f"仿真日志必须全部位于 sim01：{log_name}")
+                f"仿真日志必须全部位于 sim02：{log_name}")
     require("$xvlogLog = Join-Path $runPath 'xvlog.log'" not in runner and
             "Push-Location -LiteralPath $simPath" in runner and
             "$simDirectory.FullName -cne $simPath" in runner,
-            "xvlog 工作目录或新建 sim01 完整路径校验不符合要求")
+            "xvlog 工作目录或新建 sim02 完整路径校验不符合要求")
+    require('$inputPlusArg = "+T65_INPUT_PATH=$forwardInputFixturePath"' in runner and
+            '$weightPlusArg = "+T65_WEIGHT_PATH=$forwardWeightFixturePath"' in runner and
+            '$goldenPlusArg = "+T65_GOLDEN_PATH=$forwardGoldenFixturePath"' in runner,
+            "runner 未把 3 个冻结夹具的绝对 D 盘路径映射为 XSim plusarg")
+    for token in (
+        "$fixtureBinding.sample.input_fixture_path",
+        "$fixtureBinding.weights.slice_path",
+        "$fixtureBinding.golden.fixture_path",
+        "$actualFixtureSha256 -cne $fixture.BoundSha256",
+        "$preparationEvidencePath = Join-Path $runPath 'sim02_preparation_process_guarded.json'",
+        "$env:TEMP = $tempPath",
+        "$env:TMP = $tempPath",
+        "$env:TMPDIR = $tempPath",
+        "$env:HOME = $homePath",
+        "$env:APPDATA = $appDataPath",
+        "$env:LOCALAPPDATA = $localAppDataPath",
+        "$env:XILINX_LOCAL_USER_DATA = $xilinxLocalUserDataPath",
+        "$tempPath = Join-Path $simPath 'temp'",
+        "T65_TEMP_PATH_INVALID",
+    ):
+        require(token in runner, f"runner fixture/path/D 盘绑定缺少契约：{token}")
+    for plusarg in ("$inputPlusArg", "$weightPlusArg", "$goldenPlusArg"):
+        require(runner.count(f"-testplusarg {plusarg}") == 1,
+                f"xsim 调用未唯一传递 plusarg：{plusarg}")
+    require("-log $xsimLog $snapshotName *> $xsimConsole" in runner,
+            "xsim 选项顺序必须符合命令行格式，snapshot 放在选项之后")
+    require(runner.count("$ErrorActionPreference = 'Continue'") == 3 and
+            runner.count("$xvlogExit = $LASTEXITCODE") == 1 and
+            runner.count("$xelabExit = $LASTEXITCODE") == 1 and
+            runner.count("$xsimExit = $LASTEXITCODE") == 1 and
+            runner.count("$ErrorActionPreference = $previousErrorActionPreference") == 3,
+            "runner 必须在捕获 native stderr 时保存真实工具退出码并恢复错误策略")
+    allowlist = read_json(PROCESS_ALLOWLIST_PATH, "T65 Xilinx process allowlist")
+    require(allowlist.get("schema_version") == "gestureforge_s2a_t65_process_allowlist_v1" and
+            allowlist.get("status") == "FROZEN_READ_ONLY_IDENTITIES" and
+            [row.get("pid") for row in allowlist.get("identities", [])] == [8712, 13156, 22488] and
+            all(row.get("creation_date_utc") for row in allowlist.get("identities", [])),
+            "runner 的冻结进程 allowlist 缺少精确身份或创建时间")
+    require("$processGuardModuleExpectedSha256 = 'e9103032f4a61ece7e58fd8570c786cfb4ddc8be6e9029c8e7d595932a13dca9'" in runner and
+            "$processAllowlistExpectedSha256 = 'bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e'" in runner,
+            "runner 未固定 process guard 模块及 allowlist 摘要")
+    require("Get-T65XilinxProcessSnapshot" in guard and
+            "creation_date_utc" in guard and
+            "CreationDate.ToUniversalTime()" in guard and
+            "T65_PROCESS_IDENTITY_MISMATCH" in guard and
+            "T65_ACTIVE_XILINX_PROCESS" in guard and
+            "ExpectedSha256" in guard,
+            "process guard 未校验 UTC 创建时间、精确身份、意外进程及 allowlist 摘要")
+    require("negative creation time mismatch" in guard_test and
+            "negative new process" in guard_test and
+            "negative missing creation time" in guard_test and
+            "live read-only protected process snapshot" in guard_test,
+            "离线 PowerShell 契约测试未覆盖创建时间复用、额外进程、缺失时间及真实只读快照")
+    for tool in ("xvlog", "xelab", "xsim"):
+        before = f"-Phase 'immediately before {tool}'"
+        after = f"-Phase 'immediately after {tool}'"
+        require(before in runner and after in runner,
+                f"runner 缺少 {tool} 启动前/返回后身份快照")
+        command = f"& (Join-Path $vivadoBinPath '{tool}.bat')"
+        require(runner.index(before) < runner.index(command) < runner.index(after),
+                f"runner 的 {tool} 身份快照没有包围对应工具调用")
+    require("$protectedNames = @(" not in runner and "$activeTools = @(" not in runner,
+            "runner 仍使用拒绝全部受保护进程的旧式阻断逻辑")
     collision_report = check_runner_collision_negative(evidence_dir, runner)
 
     expected_input_bytes = {
@@ -448,6 +590,9 @@ def check_bench_and_runner(
             "sim/tb_s2a_t65_layer0_golden.sv": sha256_file(BENCH_PATH),
             "verification/run_s2a_t65_layer0_golden.ps1": sha256_file(RUNNER_PATH),
             "verification/test_s2a_t65_layer0_golden.py": sha256_file(Path(__file__)),
+            "verification/t65_xilinx_process_guard.ps1": sha256_file(PROCESS_GUARD_PATH),
+            "verification/test_t65_xilinx_process_guard.ps1": sha256_file(PROCESS_GUARD_TEST_PATH),
+            "report/evidence/S2A-T65/run02/process_identity_allowlist.json": sha256_file(PROCESS_ALLOWLIST_PATH),
         },
         collision_report,
     )
@@ -751,7 +896,7 @@ def materialize_fixture(evidence_dir: Path) -> dict[str, Any]:
             "requantized_signed_int8": requantized_signed,
             "matches_t25_first_output": True,
         },
-        "sim_log_collision_negative_test": collision_report,
+        "sim_path_negative_test": collision_report,
         "source_sha256": source_hashes,
         "runtime_claims": {
             "vivado_or_xsim_invoked": False,
@@ -777,8 +922,8 @@ def main() -> int:
     print(f"layer0_weights_sha256={evidence['weights']['slice_sha256']}")
     print(f"valid_taps={evidence['independent_point0_recalculation']['valid_reduction_taps']} accumulator={evidence['independent_point0_recalculation']['accumulator_int32']}")
     print(f"T25_first_byte={evidence['golden']['first_output_byte_hex']} signed={evidence['golden']['first_output_byte_signed']}")
-    collision = evidence["sim_log_collision_negative_test"]
-    print(f"collision_negative_test={collision['status']} fail_marker={collision['failure_marker']} tool_invocations={collision['simulator_tool_invocations']} root_xvlog_preserved={collision['run_root_xvlog_log_preserved']}")
+    collision = evidence["sim_path_negative_test"]
+    print(f"sim02_collision_negative_test={collision['sim02_collision_case']['status']} sim01_preservation_test={collision['sim01_preservation_case']['status']} tool_invocations=0")
     print(f"fixture_manifest={args.evidence_dir.resolve() / 'fixture_manifest.json'}")
     print("SIMULATION_NOT_RUN")
     return 0

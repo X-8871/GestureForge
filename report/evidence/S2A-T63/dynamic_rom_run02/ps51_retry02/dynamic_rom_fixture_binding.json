@@ -19,7 +19,7 @@
   },
   "runner": {
     "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/run_s2a_t63_descriptor_rom_dynamic.ps1",
-    "sha256": "dcd5ac70b1d7a2541a420871e52a67f66d769d685ec818b6dbed2cf91b5eb575"
+    "sha256": "aab5c5437b761bad2030ef6136c53fd2e288bb4fddd9109e89908aca1630f135"
   },
   "independent_verifier": {
     "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/prepare_s2a_t63_dynamic_rom.py",
@@ -27,7 +27,7 @@
   },
   "offline_tests": {
     "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/test_s2a_t63_dynamic_rom.py",
-    "sha256": "a4bb272581a0a104ce0043d65505d5dedaa76715b6d942551d0e6ac88be36d49"
+    "sha256": "7d68a2c2991b68624871ca7d2bae6f09781d600b96db2606149065900e6b2aeb"
   },
   "fixtures": {
     "expected_layers.mem": {
@@ -66,5 +66,67 @@
     "xvlog_run": false,
     "xelab_run": false,
     "xsim_run": false
+  },
+  "process_guard_test": {
+    "path": "report/evidence/S2A-T63/dynamic_rom_run02/ps51_retry02/test_s2a_t63_process_guard.ps1",
+    "sha256": "a09574da6d34bcb722a05287dbbc7c1c6535e4920bba9113f252bce84d5bdc07"
+  },
+  "process_guard_baseline": {
+    "captured_at_utc8": "2026-10-01 14:42:25.253 +08:00",
+    "source": "Win32_Process.CreationDate -> DateTime.ToUniversalTime().ToString(o, InvariantCulture)",
+    "identities": [
+      {
+        "process_id": 8712,
+        "parent_process_id": 10724,
+        "name": "vivado.exe",
+        "executable_path": "D:\\Xilinx\\2026.1\\Vivado\\bin\\unwrapped\\win64.o\\vivado.exe",
+        "command_line": "\"D:/Xilinx/2026.1/Vivado/bin/unwrapped/win64.o/vivado.exe\"   -mode tcl -source D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run06\\mcp_server_instance\\start_mcp.tcl",
+        "creation_date_utc": "2026-09-29T18:07:06.1577890Z"
+      },
+      {
+        "process_id": 22488,
+        "parent_process_id": 8712,
+        "name": "xsimk.exe",
+        "executable_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T60\\run06\\isolated_project\\s2a_t60_run06.sim\\sim_1\\behav\\xsim\\xsim.dir\\tb_s2a_conv_layer35_row24_all_channels_behav\\xsimk.exe",
+        "command_line": "xsim.dir/tb_s2a_conv_layer35_row24_all_channels_behav/xsimk.exe -simmode gui -wdb tb_s2a_conv_layer35_row24_all_channels_behav.wdb -simrunnum 0 -socket 8295",
+        "creation_date_utc": "2026-09-29T18:13:11.5972630Z"
+      },
+      {
+        "process_id": 13156,
+        "parent_process_id": 8712,
+        "name": "xsimk.exe",
+        "executable_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run04\\isolated_project\\s2a_t61_run04.sim\\sim_1\\behav\\xsim\\xsim.dir\\tb_s2a_conv_layer35_row25_all_channels_behav\\xsimk.exe",
+        "command_line": "xsim.dir/tb_s2a_conv_layer35_row25_all_channels_behav/xsimk.exe -simmode gui -wdb tb_s2a_conv_layer35_row25_all_channels_behav.wdb -simrunnum 0 -socket 12375",
+        "creation_date_utc": "2026-09-29T19:39:52.1132030Z"
+      }
+    ]
+  },
+  "native_log_contract": {
+    "schema_version": "s2a_t63_stage_log_binding_v1",
+    "native_log_precreated": false,
+    "record_fields": [
+      "exit_code",
+      "console_log.path",
+      "console_log.sha256",
+      "native_log.path",
+      "native_log.sha256"
+    ],
+    "simulation_stages": {
+      "xvlog": {
+        "console_log": "xvlog.console.log",
+        "native_log": "xvlog.log",
+        "stage_result": "stage_xvlog_result.json"
+      },
+      "xelab": {
+        "console_log": "xelab.console.log",
+        "native_log": "xelab.log",
+        "stage_result": "stage_xelab_result.json"
+      },
+      "xsim": {
+        "console_log": "xsim.console.log",
+        "native_log": "xsim.log",
+        "stage_result": "stage_xsim_result.json"
+      }
+    }
   }
 }

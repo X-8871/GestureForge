@@ -1,0 +1,105 @@
+{
+  "schema": "S2A-T61-attempt-static-fault-injection-v1",
+  "task_id": "S2A-T61",
+  "run_id": "run05",
+  "attempt": "attempt04",
+  "status": "STATIC_VALIDATION_PASS",
+  "runner_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\run05_runner_attempt04_safe.ps1",
+  "runner_sha256": "5fd8185eefec51cd6c3e2202955b0c688888e2c60d36868e02484e4598dc362b",
+  "verification_time_utc8_start": "2026-10-01 02:00:29.092 +08:00",
+  "verification_time_utc8_end": "2026-10-01 02:00:29.171 +08:00",
+  "elapsed_seconds": 0.079,
+  "powershell_edition": "Core",
+  "powershell_version": "7.6.5",
+  "test_commands": [
+    "PowerShell Parser::ParseFile('D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\run05_runner_attempt04_safe.ps1')",
+    "PowerShell Invoke-Expression of only the runner's Find-LogFault and Assert-NoLogFault function definitions; temporary three-log fixtures in D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp",
+    "Static Assert-NoLogFault cases: normal, required path missing, directory path, exclusive FileShare.None unreadable file, and ERROR appended after an initial clean scan to model post-drain tail",
+    "Windows PowerShell 5.1 -NoLogo -NoProfile -NonInteractive -EncodedCommand <Parser.ParseFile check>; process exit code 0"
+  ],
+  "suite_exit_code": 0,
+  "test_results": [
+    {
+      "case": "normal_three_regular_readable_logs",
+      "expected": "ACCEPT",
+      "actual": "ACCEPTED",
+      "assertion": "PASS",
+      "test_exit_code": 0,
+      "started_at_utc8": "2026-10-01 02:00:29.098 +08:00",
+      "ended_at_utc8": "2026-10-01 02:00:29.122 +08:00",
+      "elapsed_ms": 21
+    },
+    {
+      "case": "missing_required_log",
+      "expected": "REJECT",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "validator_exception": "missing_required_log 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp\\a04_fail_closed_3d0f7be2f5fe4ab0af1dfe5c4957f693\\missing.log",
+      "test_exit_code": 0,
+      "started_at_utc8": "2026-10-01 02:00:29.126 +08:00",
+      "ended_at_utc8": "2026-10-01 02:00:29.136 +08:00",
+      "elapsed_ms": 8
+    },
+    {
+      "case": "directory_instead_of_log",
+      "expected": "REJECT",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "validator_exception": "directory_instead_of_log 所需日志缺失或不是普通文件：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp\\a04_fail_closed_3d0f7be2f5fe4ab0af1dfe5c4957f693\\directory.log",
+      "test_exit_code": 0,
+      "started_at_utc8": "2026-10-01 02:00:29.137 +08:00",
+      "ended_at_utc8": "2026-10-01 02:00:29.139 +08:00",
+      "elapsed_ms": 1
+    },
+    {
+      "case": "unreadable_exclusive_share_lock",
+      "expected": "REJECT",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "validator_exception": "unreadable_exclusive_share_lock 所需日志不可读：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp\\a04_fail_closed_3d0f7be2f5fe4ab0af1dfe5c4957f693\\unreadable.log :: Exception calling \"ReadAllText\" with \"2\" argument(s): \"The process cannot access the file 'D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp\\a04_fail_closed_3d0f7be2f5fe4ab0af1dfe5c4957f693\\unreadable.log' because it is being used by another process.\"",
+      "test_exit_code": 0,
+      "started_at_utc8": "2026-10-01 02:00:29.147 +08:00",
+      "ended_at_utc8": "2026-10-01 02:00:29.152 +08:00",
+      "elapsed_ms": 4
+    },
+    {
+      "case": "drain_tail_ERROR_injection",
+      "expected": "REJECT",
+      "actual": "REJECTED",
+      "assertion": "PASS",
+      "validator_exception": "drain_tail_ERROR_injection 最终日志复扫发现错误：D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp\\a04_fail_closed_3d0f7be2f5fe4ab0af1dfe5c4957f693\\stdout.log :: ERROR:",
+      "test_exit_code": 0,
+      "started_at_utc8": "2026-10-01 02:00:29.155 +08:00",
+      "ended_at_utc8": "2026-10-01 02:00:29.162 +08:00",
+      "elapsed_ms": 6
+    },
+    {
+      "case": "windows_powershell_51_parser",
+      "expected": "PARSE_PASS",
+      "actual": "PARSE_PASS",
+      "assertion": "PASS",
+      "test_exit_code": 0,
+      "started_at_utc8": "2026-10-01 02:01:22.376 +08:00",
+      "ended_at_utc8": "2026-10-01 02:01:22.665 +08:00",
+      "elapsed_ms": 288
+    }
+  ],
+  "simulation_status": "NO_SIMULATION",
+  "toolchain_invocations": [],
+  "mcp_used": false,
+  "process_control_used": false,
+  "runner_invoked": false,
+  "fixture_directory_created_under_D": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt04\\temp\\a04_fail_closed_3d0f7be2f5fe4ab0af1dfe5c4957f693",
+  "fixture_cleanup": "PASS; all temporary fixtures removed",
+  "target_windows_powershell_parser": {
+    "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    "version": "5.1.26100.8457",
+    "command": "[Management.Automation.Language.Parser]::ParseFile(runnerPath,[ref]$tokens,[ref]$parseErrors); reject nonempty parseErrors",
+    "process_exit_code": 0,
+    "started_at_utc8": "2026-10-01 02:01:22.376 +08:00",
+    "ended_at_utc8": "2026-10-01 02:01:22.665 +08:00",
+    "elapsed_ms": 288,
+    "result": "PASS"
+  },
+  "updated_at_utc8": "2026-10-01 02:05:39.464 +08:00"
+}

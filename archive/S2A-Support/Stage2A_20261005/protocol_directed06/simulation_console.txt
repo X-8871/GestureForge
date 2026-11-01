@@ -1,0 +1,20 @@
+S2A_FAULT_CASE code=6 mapped=INTERNAL ack_restart=ready
+S2A_FAULT_CASE code=7 mapped=INTERNAL ack_restart=ready
+S2A_PENDING_OUTPUT_WRITE case=soft_reset layer=0 cycles_from_start=4923 reads=986 addr=01000000 wstrb=0001
+S2A_OUTPUT_WRITE_CANCEL kind=soft_reset layer=0 writes_before=0 writes_after=0
+S2A_CANCEL_CASE kind=soft_reset request=pending_output_write cancelled=1 writes_before=0 writes_after=0
+S2A_PENDING_OUTPUT_WRITE case=hard_reset layer=0 cycles_from_start=4923 reads=1970 addr=01000000 wstrb=0001
+S2A_RETRY_CASE after=soft_reset request=pending_output_write next=hard_reset start_accepted=1
+S2A_OUTPUT_WRITE_CANCEL kind=hard_reset layer=0 writes_before=0 writes_after=0
+S2A_CANCEL_CASE kind=hard_reset request=pending_output_write cancelled=1 writes_before=0 writes_after=0
+S2A_PENDING_OUTPUT_WRITE case=csr_timeout layer=0 cycles_from_start=4923 reads=2954 addr=01000000 wstrb=0001
+S2A_RETRY_CASE after=hard_reset request=pending_output_write next=csr_timeout start_accepted=1
+S2A_OUTPUT_WRITE_CANCEL kind=csr_timeout layer=0 writes_before=0 writes_after=0
+S2A_CANCEL_CASE kind=csr_timeout request=pending_output_write cancelled=1 writes_before=0 writes_after=0
+S2A_RETRY_CASE after=csr_timeout_ack request=pending_read next=soft_reset start_accepted=1
+S2A_CANCEL_CASE kind=soft_reset request=pending_read cancelled=1 ack_restart=ready
+PASS_S2A_BACKEND_FAULT_CANCEL_RECOVERY reads=2954 writes=0
+- D:\FPGA_Competition\sim\tb_s2a_backend_fault_recovery.sv:653: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.050 2026-07-01
+- Verilator: $finish at 1ms; walltime 0.532 s; speed 2.070 ms/s
+- Verilator: cpu 0.000 s on 1 threads; allocated 5 MB

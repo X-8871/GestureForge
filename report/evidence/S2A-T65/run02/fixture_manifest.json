@@ -241,20 +241,38 @@
   },
   "schema_version": "gestureforge_s2a_t65_layer0_golden_fixture_v1",
   "scope": "sample0 layer0 CONV output NCHW index [0,0,0,0] only",
-  "sim_log_collision_negative_test": {
-    "collision_case": "preexisting sim01 and run-root xvlog.log sentinel",
-    "failure_marker": "T65_SIM_PATH_COLLISION",
-    "run_root_xvlog_log_preserved": true,
-    "runner_exit_code": 1,
-    "sim01_sentinel_preserved": true,
-    "simulator_tool_invocations": 0,
+  "sim_path_negative_test": {
+    "actual_sim01_preserved_during_test": true,
+    "actual_sim01_snapshot": {
+      "exists": true,
+      "file_count": 42,
+      "total_bytes": 3062960,
+      "tree_sha256": "8458e137c18963ad0e26a6704538c183959bd5c460483af3cd4417c344d0f0d0"
+    },
+    "sim01_preservation_case": {
+      "case": "existing sim01 preserved; new sim02 contains only D-drive isolated environment directories",
+      "run_root_xvlog_log_preserved": true,
+      "runner_exit_code": 1,
+      "sim01_sentinel_preserved": true,
+      "simulator_tool_invocations": 0,
+      "status": "PASS"
+    },
+    "sim02_collision_case": {
+      "case": "sim02 collision rejected before offline/tool launch",
+      "run_root_xvlog_log_preserved": true,
+      "runner_exit_code": 1,
+      "sim01_sentinel_preserved": true,
+      "simulator_tool_invocations": 0,
+      "status": "PASS"
+    },
     "status": "PASS"
   },
   "source_sha256": {
     "report/evidence/S2A-T01/fixed_test_samples.json": "ccf741c1e996c72b985ce1dcbd399c5184347c922d286a8c0250ef5f6a755eed",
     "report/evidence/S2A-T01/tiny416_model_manifest.json": "9dd2477bc6f12b556ded8bed71e5acd9efb22f6e314564973a3bbbda8279453a",
     "report/evidence/S2A-T23/conv_requant_parameter_table.json": "396dc66aa3ccc41050cc8183bff16b86143a6f5553cf38fed16b0ba8b4eb4ae1",
-    "sim/tb_s2a_t65_layer0_golden.sv": "3d7c9769356977124dff920c72547a3f4e6d35a0d828cb30f0def8a03f184772",
+    "report/evidence/S2A-T65/run02/process_identity_allowlist.json": "bc743da5ac3d3b2a2e493f3b1b23bf8cc0dfce3913e179062022806797aa090e",
+    "sim/tb_s2a_t65_layer0_golden.sv": "fc43fbedc452560c59c0b7f31bc2ae6c371ae36ab87ccf1d591e6da7605cc456",
     "src/int8_conv_tap_geometry.sv": "109b58473fa2f5d6de5c362e0c780ae2e98bce260c1d92714fde58ae706e4bbc",
     "src/int8_conv_weight_address.sv": "0914df477c9e160d227c74f9eaf926e502069e563145e1e1f3e03673654d4592",
     "src/int8_mac_accumulator.sv": "b3f6a425e2db58b86c63524b9caf0019ddf7a103c5b66f8bfcc3cf86966d0a74",
@@ -269,10 +287,12 @@
     "src/s2a_network_descriptor_pkg.sv": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
     "src/s2a_route_engine.sv": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
     "src/s2a_upsample_engine.sv": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
-    "verification/run_s2a_t65_layer0_golden.ps1": "caadd90c2a23be2d1133b0e9d3d8c82f9452b06c1a25a5bc9ebfb6b9efe137b2",
+    "verification/run_s2a_t65_layer0_golden.ps1": "e1058ddc7b6aed1d1ced06b06d8b8a1bcdad24bd27df2689a6646dd8af3f3008",
     "verification/s1_t02_d2_numeric_reference.py": "ea48281fa1c1ba14006f6131ff377c7e4523da8c7e4977b0949d454a7c9ded90",
     "verification/s2a_model_delivery.py": "4831fff0e8ebb189ac9767ae423ad8d5268fc5bee5e333cc2a132112ccfdaab8",
-    "verification/test_s2a_t65_layer0_golden.py": "0a7bb463be6dea909f91c8c49c9cb4c5fd3e4f8b80d31c69b13590ee5b68b26f"
+    "verification/t65_xilinx_process_guard.ps1": "e9103032f4a61ece7e58fd8570c786cfb4ddc8be6e9029c8e7d595932a13dca9",
+    "verification/test_s2a_t65_layer0_golden.py": "6b981e60d78a076c43d44af6f643cb39df6682357dad72e89ca4d12ba969cd4e",
+    "verification/test_t65_xilinx_process_guard.ps1": "18730ee1be13ec05cc4c5a408cedfd0b614507717ab8dc83c3dc917ac38f4c97"
   },
   "status": "OFFLINE_FIXTURE_VERIFIED_SIMULATION_NOT_RUN",
   "task_id": "S2A-T65-PREP",

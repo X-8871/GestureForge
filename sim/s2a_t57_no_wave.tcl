@@ -9,7 +9,14 @@ set_property xsim.elaborate.debug_level off $t57_simset
 set_property xsim.simulate.log_all_signals 0 $t57_simset
 set_property xsim.simulate.runtime {} $t57_simset
 set_property xsim.simulate.wdb {} $t57_simset
-set_property xsim.simulate.xsim.more_options {} $t57_simset
+if {![info exists ::t57_run_root] || ![file isdirectory $::t57_run_root]} {
+    error "T57 attempt08 run root is unavailable"
+}
+set t57_backslash [format %c 92]
+set t57_run_root_posix [string map [list $t57_backslash /] [file normalize $::t57_run_root]]
+set t57_testplusarg "T57_RUN_ROOT=$t57_run_root_posix"
+set t57_xsim_options "-testplusarg $t57_testplusarg"
+set_property -name {xsim.simulate.xsim.more_options} -value $t57_xsim_options -objects $t57_simset
 set t57_backslash [format %c 92]
 set t57_custom_tcl_path [file normalize $::t57_xsim_tcl]
 set t57_custom_tcl_path [string map [list $t57_backslash /] $t57_custom_tcl_path]
@@ -23,7 +30,10 @@ if {[get_property xsim.simulate.log_all_signals $t57_simset]} {
 if {[get_property xsim.simulate.runtime $t57_simset] ne ""} {
     error "T57 runtime property must be empty; run length is controlled by custom Tcl"
 }
-if {[file normalize [get_property xsim.simulate.custom_tcl $t57_simset]] ne [file normalize $::t57_xsim_tcl]} {
-    error "T57 custom Tcl property does not point to run09/attempt02"
+if {[get_property xsim.simulate.xsim.more_options $t57_simset] ne $t57_xsim_options} {
+    error "T57 testplusarg is not bound to the attempt08 run root"
 }
-puts "T57_SIMULATION_OPTIONS_CONFIGURED simset=sim_s2a_t57_row21 debug=off runtime_property=empty custom_tcl=run09/attempt02"
+if {[file normalize [get_property xsim.simulate.custom_tcl $t57_simset]] ne [file normalize $::t57_xsim_tcl]} {
+    error "T57 custom Tcl property does not point to run09/attempt08"
+}
+puts "T57_SIMULATION_OPTIONS_CONFIGURED simset=sim_s2a_t57_row21 debug=off runtime_property=empty testplusarg=$t57_testplusarg custom_tcl=run09/attempt08"

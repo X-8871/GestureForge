@@ -1,0 +1,85 @@
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:157 char:56
++ ... icks = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07:06.157789Z'
++                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unexpected token '2026-09-29T18:07:06.157789Z'
+    $oneTickLater = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07:06.1577891Z'
+    $differentInstant = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07:07.157789Z'
+    if ($parsedTicks -ne $equalIsoTicks) {
+        throw 'T66_TIMESTAMP_REGRESSION_FAIL:' in expression or statement.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:157 char:64
++ ...   $equalIsoTicks = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07 ...
++                                                                  ~
+You must provide a value expression following the '-' operator.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:157 char:64
++ ... icks = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07:06.157789Z'
++                                                      ~~~~~~~~~~~~~~~~~~~~
+Unexpected token '29T18:07:06.157789Z'
+    $oneTickLater = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07:06.1577891Z'
+    $differentInstant = ConvertTo-UtcInstantTicks -Value '2026-09-29T18:07:07.157789Z'
+    if ($parsedTicks -ne $equalIsoTicks) {
+        throw 'T66_TIMESTAMP_REGRESSION_FAIL:' in expression or statement.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:164 char:67
++ ...       throw 'T66_TIMESTAMP_REGRESSION_FAIL: +1 tick 鐢ㄤ緥娌℃湁淇濇寔绮剧‘宸紓銆?
++                                                                     ~~~~~
+Unexpected token '宸紓銆?' in expression or statement.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:171 char:19
++         status = 'PASS'
++                   ~~~~~
+Unexpected token 'PASS'
+        normalization = 'UTC_DateTimeOffset_100ns_ticks'
+        parsed_json_type = $parsedDateTime.GetType().FullName
+        equivalent_iso_utc_matched = $true
+        plus_one_tick_rejected = $true
+        different_instant_rejected = $true
+        test_timestamp_utc = '2026-09-29T18:07:06.157789Z'
+        plus_one_tick_utc = '2026-09-29T18:07:06.1577891Z'
+        different_instant_utc = '2026-09-29T18:07:07.157789Z'
+    }
+}
+function Get-PreviousAttemptFailureEvidence {
+    if ([System.IO.Path]::GetFileName($evidencePath) -cne 'compile_attempt03') {
+        return $null
+    }
+    $previousPath = Join-Path ([System.IO.Directory]::GetParent($evidencePath).FullName) 'compile_attempt02'
+    $null = Assert-ExactDirectory -Path $previousPath
+    $expectedHashes = [ordered]@{
+        runner_log = '03a6445b00dcd38e8350d1328cdc282ed39fc40aaec4d85e6722f71cf790b736'
+        offline_resume_preflight = 'fac7ed9962012310439ea3d7be50f7dae3c418936398a7a044b1c554ee161841'
+        status = 'c7dfcffdf90e38f167ea849f9ef5696f2cbcf' in expression or statement.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:373 char:54
++     $tileEvidencePrefix = $tileEvidenceRoot.TrimEnd('\') + '\'
++                                                      ~~~~~~~~~
+Unexpected token '\') + '\'
+    if (($evidencePath -cne $tileEvidenceRoot) -and
+        -not $evidencePath.StartsWith($tileEvidencePrefix, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "T66_EVIDENCE_SCOPE_INVALID: 璇佹嵁鐩綍蹇呴』浣嶄簬 tile01 鍐咃細$evidencePath"
+    }
+    $null = Assert-ExactDirectory -Path $rootPath
+    $null = Assert-ExactDirectory -Path (Join-Path $rootPath 'report')
+    $null = Assert-ExactDirectory -Path (Join-Path $rootPath 'report\evidence')
+    $null = Assert-ExactDirectory -Path (Join-Path $rootPath 'report\evidence\S2A-T66')
+    $null = Assert-ExactDirectory -Path $evidencePath
+    if (Test-Path -LiteralPath $fixturePath) {
+        $null = Assert-ExactDirectory -Path $fixturePath
+    }
+    if ($CompileOnly -and ((Test-Path -LiteralPath $simPath) -or
+                           (Test-Path -LiteralPath $executionPath))) {
+        throw "T66_COMPILE_PATH_COLLISION: 闅旂缂栬瘧璺緞宸插瓨鍦細$simPath 鎴?$executionPath"
+    }
+    if ($RunSimulation) {
+        $null = Assert-ExactDirectory -Path $simPath
+        $null = Assert-ExactFile -Path $executionPath
+        if ($ApprovedPrelaunchSnapshotSha256 -notmatch '^[0-9a-fA-F]' in expression or statement.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:407 char:20
++             throw 'T66_APPROVED_SNAPSHOT_MISMATCH: 鐖剁骇鏍稿鎽樿涓庣紪璇戝悗蹇収 ...
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Unexpected token 'T66_APPROVED_SNAPSHOT_MISMATCH:' in expression or statement.
+At D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1:421 char:45
++     if ($gitExit -ne 0 -or $head -notmatch '^[0-9a-f]{40}$') {
++                                             ~~~~~~~~~
+Unexpected token '^[0-9a-f]' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+ 
+command=powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File D:\FPGA_Competition\verification\run_s2a_t66_layer0_tile.ps1 -CompileOnly -EvidenceDirectory D:\FPGA_Competition\report\evidence\S2A-T66\tile01\compile_attempt03
+exit_code=1

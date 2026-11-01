@@ -20,14 +20,15 @@ if {![regexp {^[0-9a-fA-F]{64}$} $source_xpr_sha] ||
 set source_xpr {D:\FPGA_Competition\vivado\AX7Z020_Gesture\AX7Z020_Gesture.xpr}
 set source_project_name AX7Z020_Gesture
 set ::source_project_sha_expected $source_xpr_sha
-set run_directory {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02}
-set scratch_directory {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02\isolated_project}
+set run_directory {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09}
+set ::t57_run_root $run_directory
+set scratch_directory {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09\isolated_project}
 set scratch_project_name s2a_t57_row21_isolated
 set scratch_project_xpr [file join $scratch_directory s2a_t57_row21_isolated.xpr]
 set scratch_sim_directory [file join $scratch_directory s2a_t57_row21_isolated.sim sim_s2a_t57_row21 behav xsim]
 set no_wave_tcl {D:\FPGA_Competition\sim\s2a_t57_no_wave.tcl}
-set xsim_tcl {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02\xsim_run.tcl}
-set ::t57_compile_source_manifest {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02\compile_source_manifest.tsv}
+set xsim_tcl {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09\xsim_run.tcl}
+set ::t57_compile_source_manifest {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09\compile_source_manifest.tsv}
 set ::t57_compile_source_manifest_sha256 [string tolower $source_manifest_sha256]
 set ::t57_xsim_tcl $xsim_tcl
 set status_path [file join $run_directory stage_status.json]
@@ -167,8 +168,8 @@ proc t57_sha256_file {path} {
 proc t57_verify_compile_sources {sources manifest_path} {
     global ::t57_compile_source_manifest_sha256
     if {[string equal -nocase [file normalize $manifest_path] \
-            [file normalize {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02\compile_source_manifest.tsv}]] == 0} {
-        error "compile-source manifest path is not the fixed run09 file"
+            [file normalize {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09\compile_source_manifest.tsv}]] == 0} {
+        error "compile-source manifest path is not the fixed run09/attempt09 file"
     }
     if {![file isfile $manifest_path] || [file type $manifest_path] ne "file" ||
         [t57_sha256_file $manifest_path] ne $::t57_compile_source_manifest_sha256} {
@@ -275,7 +276,11 @@ proc t57_record_snapshot_path {snapshot_stage executable path} {
     global ::t57_elaborate_before_compile_batch_path ::t57_simulate_before_compile_batch_path
     global ::t57_elaborate_after_compile_batch_path ::t57_simulate_after_compile_batch_path
     global ::t57_elaborate_after_elaborate_batch_path ::t57_simulate_after_elaborate_batch_path
-    set kind [expr {$executable eq "xelab" ? "elaborate" : "simulate"}]
+    switch -- $executable {
+        elaborate {set kind elaborate}
+        simulate {set kind simulate}
+        default {error "未知的 T57 snapshot executable：$executable"}
+    }
     set variable_name "::t57_${kind}_${snapshot_stage}_batch_path"
     set $variable_name [file normalize $path]
 }
@@ -328,16 +333,21 @@ proc t57_capture_and_verify_scripts {snapshot_stage scratch_sim_directory run_di
     set expected_key "Behavioral:${simset}:Functional:${top}"
     set key_values [t57_option_values $simulate_command -key]
     set tclbatch_values [t57_option_values $simulate_command -tclbatch]
+    set testplusarg_values [t57_option_values $simulate_command -testplusarg]
+    set backslash [format %c 92]
+    set expected_run_root [string map [list $backslash /] [file normalize $run_directory]]
+    set expected_testplusarg "T57_RUN_ROOT=$expected_run_root"
     if {[regexp -all -nocase -- {(^|[ \t])-wdb([ \t=]|$)} $simulate_command] != 0} {
         error "实际 xsim 命令启用了 WDB：$simulate_command"
     }
     if {[string first "${top}_behav " $simulate_command] != 0 ||
         [llength $key_values] != 1 || [lindex $key_values 0] ne $expected_key ||
-        [llength $tclbatch_values] != 1} {
-        error "实际 xsim 命令未唯一绑定目标 snapshot/key/-tclbatch：$simulate_command"
+        [llength $tclbatch_values] != 1 ||
+        [llength $testplusarg_values] != 1 ||
+        [lindex $testplusarg_values 0] ne $expected_testplusarg} {
+        error "实际 xsim 命令未唯一绑定目标 snapshot/key/-tclbatch/attempt09 testplusarg：$simulate_command"
     }
     set tclbatch_value [lindex $tclbatch_values 0]
-    set backslash [format %c 92]
     set expected_tclbatch [string map [list $backslash /] [file normalize $custom_tcl]]
     if {[string first $backslash $tclbatch_value] >= 0 ||
         ![string equal -nocase $tclbatch_value $expected_tclbatch] ||
@@ -376,7 +386,7 @@ proc t57_check_owned_scratch {scratch_directory owner_marker owner_token} {
         [file normalize [lindex $marker_content 1]] ne [file normalize $scratch_directory]} {
         error "隔离工程所有权标记不匹配"
     }
-    if {[file normalize $scratch_directory] ne [file normalize {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt02\isolated_project}]} {
+    if {[file normalize $scratch_directory] ne [file normalize {D:\FPGA_Competition\report\evidence\S2A-T57\run09\attempt09\isolated_project}]} {
         error "隔离工程路径与固定安全路径不匹配"
     }
     if {![file isdirectory $scratch_directory]} {
@@ -580,7 +590,7 @@ proc t57_main {mode source_xpr_sha owner_marker owner_token source_manifest_path
             error "xsim: $xsim_message"
         }
         set simulate_text [t57_read_file [file join $run_directory simulate.log]]
-        set custom_sentinel_count [regexp -all -- {T57_CUSTOM_TCL_SENTINEL=run09} $simulate_text]
+        set custom_sentinel_count [regexp -all -line -- {^T57_CUSTOM_TCL_SENTINEL=run09_attempt09[ \t\r]*$} $simulate_text]
         set pass_count [regexp -all -line -- {^PASS T57 outputs=} $simulate_text]
         set progress_count [regexp -all -line -- {^PROGRESS T57 outputs=[0-9]+/6656[ \t]*$} $simulate_text]
         if {$custom_sentinel_count != 1 || $pass_count != 1 || $progress_count != 256} {
@@ -596,7 +606,7 @@ proc t57_main {mode source_xpr_sha owner_marker owner_token source_manifest_path
         set int8_output [file join $run_directory observed_output.bin]
         if {![file isfile $raw_output] || [file size $raw_output] != 26624 ||
             ![file isfile $int8_output] || [file size $int8_output] != 6656} {
-            error "run09 observed 输出文件缺失或长度错误"
+            error "run09/attempt09 observed 输出文件缺失或长度错误"
         }
         set wdb_files [t57_find_wdb $scratch_sim_directory]
         set wdb_value false

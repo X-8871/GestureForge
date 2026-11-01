@@ -1,0 +1,133 @@
+T68 夹具就绪：sample=0 id=test_fist_000 layers=38 stored=36 aliases=2 input_sha256=da26d3850d23d6f8cb466416799358e77fbeceaa8ee27696ebf7ab365248ab9e golden_sha256=090b1422f8e8d4d22124568af9778ba7bd5e7168407c0125e1e729d4a5a46f80
+{
+  "status": "PASS_OFFLINE_FIXTURE_AND_HARNESS_BINDING_ONLY",
+  "sample_index": 0,
+  "sample_id": "test_fist_000",
+  "layers": 38,
+  "stored_tensors": 36,
+  "alias_rows": 2,
+  "input_bytes": 519168,
+  "unique_golden_bytes": 11382150,
+  "fixture_manifest_sha256": "bc3cd53c7bb34fb14030a40484b3fe1d07ddc6662f4e233125f4ea2e8ed485d0",
+  "harness_bindings": {
+    "source_count": 11,
+    "sources": [
+      {
+        "path": "src/s2a_network_descriptor_pkg.sv",
+        "bytes": 370591,
+        "sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14"
+      },
+      {
+        "path": "src/int8_maxpool_geometry.sv",
+        "bytes": 7334,
+        "sha256": "0e1d398a479990dc2e614fda734fac14ddf8217c1197b1a52f9be0efe3b1905a"
+      },
+      {
+        "path": "src/int8_maxpool_window.sv",
+        "bytes": 1692,
+        "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653"
+      },
+      {
+        "path": "src/int8_route_query.sv",
+        "bytes": 11196,
+        "sha256": "2f13e90858f6e665cf05444aac8e4db396b09f798acedd51e37bfd2c56f1dd64"
+      },
+      {
+        "path": "src/int8_upsample_query.sv",
+        "bytes": 3767,
+        "sha256": "9212f70c31fab6c6e5a30551c5d1fd7b6eeeafa4c1f2cbd20fe157015faa370c"
+      },
+      {
+        "path": "src/s2a_conv_tile_engine.sv",
+        "bytes": 49049,
+        "sha256": "be3106daa3dc2adea13894d03bf21cd5ec693ce667cb610ec8d9511364112e66"
+      },
+      {
+        "path": "src/s2a_maxpool_engine.sv",
+        "bytes": 17395,
+        "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7"
+      },
+      {
+        "path": "src/s2a_route_engine.sv",
+        "bytes": 17616,
+        "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44"
+      },
+      {
+        "path": "src/s2a_upsample_engine.sv",
+        "bytes": 10536,
+        "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b"
+      },
+      {
+        "path": "src/s2a_network_backend.sv",
+        "bytes": 32459,
+        "sha256": "3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154"
+      },
+      {
+        "path": "sim/tb_s2a_network_backend_golden.sv",
+        "bytes": 34994,
+        "sha256": "2dbfc7f169c31735eb4c41f37f663309cc3c448b2dcdd984514a4dde8665ac59"
+      }
+    ],
+    "runner_sha256": "9da435c5abd8cedcf9a59a8d92433e72c149dcaa008c472e68c2c4530bab7e4d",
+    "testbench_sha256": "2dbfc7f169c31735eb4c41f37f663309cc3c448b2dcdd984514a4dde8665ac59",
+    "verifier_sha256": "f0a16da09be31a631c8b3f8276e83971b9cad3302e4746804270ce3a65b127a8",
+    "backend_port_set_matches": true,
+    "conv_tile_byte_per_request": true,
+    "cross_boundary_negative_check": {
+      "layer_index": 29,
+      "aligned_address": "0x01a474cc",
+      "selected_lanes": [
+        0,
+        2
+      ],
+      "owners": [
+        31,
+        -1
+      ],
+      "expected_error": "BAD_RANGE"
+    },
+    "progress_interval_cycles": 30000000,
+    "progress_watchdog_semantics": {
+      "functional_signature_fields": [
+        "layer",
+        "output",
+        "tile_y",
+        "tile_x",
+        "group",
+        "point",
+        "reduction",
+        "feature_scan",
+        "weight_reduction",
+        "output_lane",
+        "output_point",
+        "pool_tap",
+        "bytes",
+        "reads",
+        "writes"
+      ],
+      "cycle_only_change_is_progress": false,
+      "layer_change_is_progress": true,
+      "tile_cursor_change_is_progress": true,
+      "tap_cursor_change_is_progress": true,
+      "transaction_change_is_progress": true,
+      "completed_bytes_change_is_progress": true,
+      "bad_marker_blocks_pass": true,
+      "watchdog_timeout_blocks_pass": true
+    },
+    "watchdog_no_progress_seconds": 1800,
+    "32_bit_cycle_limit_retained": true,
+    "toolchain_binding": {
+      "approved_root": "D:\\FPGA_S2A_MSYS2_20261001\\env",
+      "verilator": "mingw64\\bin\\verilator_bin.exe",
+      "make": "usr\\bin\\make.exe",
+      "compiler": "mingw64\\bin\\g++.exe",
+      "path_resolution_checked": true
+    },
+    "verilator_native_capture_contract": true,
+    "python_syntax": true,
+    "simulator_started": false
+  },
+  "simulator_started": false
+}
+T68 sample=0 simulation exit_code=0 runner_exit_code=0 duration_seconds=6602.252 watchdog=PROCESS_EXITED
+T68 runner 完成；run_directory=D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_124125\runs\sample_000\repair109_20261003_124125 compile_exit_code=0 simulation_started=True

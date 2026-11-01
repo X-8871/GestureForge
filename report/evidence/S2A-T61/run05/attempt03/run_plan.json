@@ -1,0 +1,28 @@
+{
+  "task_id": "S2A-T61",
+  "run_id": "run05",
+  "attempt": "attempt03",
+  "previous_attempt": "attempt02",
+  "previous_attempt_failure": "attempt02 xvlog compiled all sources with no logged error; runner incorrectly treated Process.ExitCode=null as nonzero; xelab/xsim not run",
+  "correction": "attempt03 runner uses System.Diagnostics.Process.Start with live redirected stdout/stderr file streaming, WaitForExit, Refresh and explicit ExitCode/null validation; a small PowerShell 5.1 probe passed codes 0 and 7; before xsim it rechecks RAM, D free space and protected PID identities",
+  "command": "MCP vivado-mcp run_tcl -> Tcl exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File run05_runner_attempt03.ps1",
+  "working_directory": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt03\\work",
+  "estimated_elapsed_minutes": 12,
+  "stop_conditions": [
+    "error/FATAL/$fatal/output mismatch",
+    "free physical RAM below 2048 MiB",
+    "simulation log has no changes for 15 minutes",
+    "before xsim requires at least 2048 MiB free RAM and 2 GiB D free space; protected PID identities must match the initial snapshot or be absent"
+  ],
+  "protected_existing_process_ids": [
+    8712,
+    13156,
+    22488
+  ],
+  "inherited_plan_path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\run_plan.json",
+  "temp_roots": {
+    "TEMP": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt03\\temp",
+    "TMP": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt03\\temp",
+    "TMPDIR": "D:\\FPGA_Competition\\report\\evidence\\S2A-T61\\run05\\attempt03\\temp"
+  }
+}

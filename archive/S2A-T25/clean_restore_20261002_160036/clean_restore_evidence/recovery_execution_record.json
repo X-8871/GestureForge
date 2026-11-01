@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "purpose": "真实干净副本T25恢复与CPU D9复验",
+  "source_commit": "d530281d7399166c877a9b9105c3230cf175eeb0",
+  "clean_root": "D:\\FPGA_Competition\\tmp\\s2a_clean_restore_20261002_160036",
+  "python_executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "runtime": {
+    "python": "3.12.10",
+    "numpy": "2.4.6",
+    "opencv": "4.13.0"
+  },
+  "start_time_local": "2026-10-02T16:04:44.967646+08:00",
+  "restore": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-u",
+      "D:\\FPGA_Competition\\tmp\\s2a_clean_restore_20261002_160036\\verification\\restore_s2a_t25_shards.py",
+      "--repo-root",
+      "D:\\FPGA_Competition\\tmp\\s2a_clean_restore_20261002_160036",
+      "--max-sample-seconds",
+      "600",
+      "--max-total-seconds",
+      "7200"
+    ],
+    "status": "PASS_109_RESTORED_SHARDS",
+    "max_total_seconds": 7200,
+    "max_sample_seconds": 600,
+    "exit_code": 0,
+    "elapsed_seconds": 2283.61
+  },
+  "cpu_d9": {
+    "command": [
+      "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-B",
+      "-u",
+      "-c",
+      "import hashlib,json; from verification.verify_s2a_t68_d9_outputs import verify_frozen_cpu_baseline; from verification import s2a_decode_nms_reference as t29; report,rows=verify_frozen_cpu_baseline(); assert len(rows)==109; print(json.dumps({\"status\":\"PASS_109_FROZEN_CPU_CANONICAL_REPLAY\",\"samples\":len(rows),\"canonical_sha256\":hashlib.sha256(t29._canonical_evidence_bytes(report)).hexdigest()}))"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 12.359,
+    "status": "PASS_109_FROZEN_CPU_CANONICAL_REPLAY",
+    "samples": 109,
+    "canonical_sha256": "10a4116904261ee092940e1e354bed64dbd944023f6d8fdae5cf2079ad9b4c63"
+  },
+  "runtime_109_inspected": false,
+  "stage2a_frozen": false,
+  "status": "PASS_CLEAN_COPY_T25_RESTORE_AND_CPU_D9",
+  "elapsed_seconds": 2296.36,
+  "end_time_local": "2026-10-02T16:43:01.323672+08:00",
+  "logs": [
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\clean_restore_20261002_160036\\cpu_d9_stdout.txt",
+      "bytes": 156,
+      "sha256": "d0109bab516bd57aefbac5ba752eb75e65abd444dd5feb167b0f6b8070c9b196"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\clean_restore_20261002_160036\\restore_stdout.txt",
+      "bytes": 139,
+      "sha256": "6313738696f44df7e45778b2e4436086ad011cfd0e485aeb65961cf68c5340c0"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\clean_restore_20261002_160036\\worker_stdout.txt",
+      "bytes": 38,
+      "sha256": "ca45fd97339a9dd15c85ac7151dee6d71216ae3be150013b95d132372960f3e8"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\clean_restore_20261002_160036\\cpu_d9_stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\clean_restore_20261002_160036\\restore_stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:\\FPGA_Competition\\report\\evidence\\S2A-T25\\clean_restore_20261002_160036\\worker_stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

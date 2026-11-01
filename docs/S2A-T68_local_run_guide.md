@@ -156,23 +156,23 @@ Write-Host "源码快照映射通过：$snapshotReport"
 
 ## Stage 2A 验收准备与终态门
 
-截至 2026-10-02，本节是验收准备步骤，实际 109 样本结果、runtime 源码映射、干净副本恢复/重验及最终 G4/G5 独立审查均为 `PENDING`。前面的启动确认、T25 CPU `COMPLETE`、静态实施资格审查 `PASS` 均不改变这些状态。当前程序自行运行；本节命令在对应前提满足后执行，准备阶段不轮询当前批次、不读取当前运行日志。
+截至 2026-10-05，本节记录终态验收门及本次实际状态。109 样本 PL、实际 head 对照 CPU D9、运行快照到冻结源码映射、T25 干净副本恢复与 CPU D9 重验均已完成；逐样本报告、失败恢复记录和逐文件归档清单见 [G4/G5 候选验收记录](../report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md)。最新版 Vault 阶段计划另要求综合无错误/非预期锁存器、资源可容纳性和时钟风险报告；此综合证据及独立 G4/G5 Reviewer 签收尚未完成。全量 109 样本 PL 干净副本重跑没有执行，是否属于本阶段硬性门由 Reviewer 按当前正式标准判断。
 
-1. **整网结果门**：待无人值守脚本终止且协调结果符合前面的 PASS 检查，逐样本核对 `runs/sample_000/<RunId>` 至 `runs/sample_108/<RunId>` 的仿真记录、`result_summary.txt` 和 head 导出。必须是同一个 RunId 的精确 0..108 样本集合，各样本完整 38 层、`status=PASS_LAYERWISE_EXACT_GOLDEN`、`feature_write_bytes=11382150 mismatches=0`、`head13_bytes=5070 head26_bytes=20280`。仅一个 sample0 通过不能签收整网。
-2. **实际 head/D9 门**：保留并核验 `d9_109_sample_report.json`，要求 `PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`、109 样本。验证器会核对 T01/T25/T29 冻结绑定、实际 head 字节、类别/顺序/框数等离散字段一致、score 与坐标绝对误差不超过 `1e-6`，并从 T25 重建 CPU D9 作 canonical 比较。缺任何样本、头部长度/哈希或冻结绑定不符、NaN/Inf、误差超限，立即停止验收并保留原报告。
-3. **版本门**：按上面的“D9 通过后核验源码快照映射”原命令生成独占的新报告。要求 `PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE`、109 样本；固定闭包为 `report/evidence/S2A-T68/static_source_closure_20261002.json`，SHA-256 为 `93df3e1947e618f72324444268640382416dd6d631b4ae260e0c49f07fc51b8f`，对应源码基线 `a1298dbc4b41eb9ac54caca77e18fd00bee30538` / tree `dbac6be3f860e1ade64eaf55add4e1915ea74545`。记录最终归档提交与此源码基线的关系；后来只改文档的提交不自动成为本批次编译源码版本。映射失败不得改写快照或把另批样本拼入。
-4. **已有结果合并门**：逐项保留 T02/T08/T10–T21 的原始定名 JSON 及其引用文件，准确入口见 `report/stage2a_acceptance_preparation_20261002.json` 的证据目录；审计确认不存在 T69 目录，不能用 T69 标签当作归档位置。核对 T02 MAC、T08 YOLO、T13 upsample、T14 maxpool、T15 route 的随机/定向样本数与原记录口径；T17/T20 是历史串行 engine/pilot 的证据，不能宣称新的 8×8 tile / 8-lane 实现已经通过同等套件。协议按 T10–T12/T18–T21 与 T68 `protocol_directed05/06` 的适用性合并，保留固定 stall、错误、取消、timeout、ACK/restart、真实 backend code6/7→INTERNAL、待决写取消/无迟到副作用等原始证据和被审版本。单元、协议、全网分别列状态；静态 PASS、stub 控制路径和真实 backend 测试不得混作相同覆盖。最终按历史被测实现与本批次 tile/backend 的差异判断适用性并补必要回归；证据缺失、版本变化影响结论或适用回归尚未完成时，保持该项 `PENDING`，不能用全网通过推定它通过。
-5. **恢复门及独立签收**：完成下节干净副本的真实恢复与约定复验，保存准确命令、退出码、耗时、工具版本、产物哈希及恢复位置。Developer 停止改动后，总控固定最终源码/证据哈希，再由独立 Reviewer 检查真实结果、覆盖、版本和恢复材料；阻断问题关闭后才形成 G4/G5 阶段验收记录。审查前状态仍为 `PENDING`。
+1. **整网结果门：已完成。** `repair109_20261003_194620` 逐样本审计确认索引 0–108 恰为 109 个样本，覆盖 cfg 层 0–37，均为 `PASS_LAYERWISE_EXACT_GOLDEN`、`feature_write_bytes=11382150 mismatches=0`、`head13_bytes=5070 head26_bytes=20280`。Coordinator 的 `PASS_108_RUNNERS` 仅是索引 1–108；sample000 是同 RunId 独立运行并通过。验收以逐样本审计合并两者，不把 coordinator 摘要误称为 `PASS_109`。
+2. **实际 head/D9 门：已完成。** `d9_109_sample_report.json` 为 `PASS_109_ACTUAL_PL_HEADS_VS_FROZEN_CPU_D9`、109 样本；冻结绑定、head 字节、离散检测字段和数值误差均通过，最大 score/xyxy 绝对误差为 0。原报告和 SHA 见 G4/G5 候选验收记录。
+3. **版本门：已完成。** `source_snapshot_git_binding_repair109_20261003_194620.json` 为 `PASS_109_SOURCE_SNAPSHOT_TO_GIT_TREE`、109 样本；源码闭包固定为 commit `fecbf1f8f37fcee8b25e6e2517b9621850912a4e` / tree `094e1492396a6788cc33b3b5866dd304387c02da`，闭包 JSON 为 `static_source_closure_20261003_worker_crlf.json`。后续只修改记录的提交不替代本批次编译源码版本。
+4. **单元与协议证据：待独立审查其适用范围。** T02/T08/T10–T21 的原始结果仍按各自被测版本和口径引用；T17/T20 是历史串行 engine/pilot，不能宣称为新 8×8 tile / 8-lane 的等价套件。当前 tile 以 T70 算术、内存、边界及 T68 protocol_directed05/06 的原始证据分别支持；独立 Reviewer 应检查覆盖边界，不能把静态 PASS、stub 控制路径和真实 backend 测试混为一谈。
+5. **综合与恢复门：综合待执行，CPU 恢复已完成。** 按最新版阶段计划，先完成冻结 RTL 的无错误/非预期锁存器综合检查、资源可容纳性统计和时钟风险报告；随后核验 T25 干净副本 109×38 shards 实际恢复及 109 样本 CPU D9 canonical replay 的命令、退出码、耗时、版本与 SHA。T68 归档逐文件校验通过。以上证据固定后由独立 Reviewer 检查覆盖、版本、历史适用性和归档可恢复材料；审核前最终状态为 `PENDING`。
 
-准备报告 `report/stage2a_acceptance_preparation_20261002.json` 仅记录主控本轮实际静态核查的范围和结果；它不证明当前运行结果、旧单元记录可替代新 backend 整网结果，或实际 clean-copy 恢复。该报告须与真实 runtime、恢复及最终独立审查记录分开读取。此前 ZIP 归档在执行前被策略拒绝，未生成归档；本轮不生成 ZIP 或备份，也不换工具绕过该拒绝。下节复制与重算是后续恢复步骤，不是本轮已完成事实。
+准备报告 `report/stage2a_acceptance_preparation_20261002.json` 只记录当时静态核查范围；它不替代本次 runtime、干净副本恢复、归档和最终独立审查证据。该旧报告的综合 N/A 项来自旧版仓库快照；Vault 当前阶段计划已更新并要求综合/资源/时钟风险证据。仓库计划快照已精确对齐此 Vault 源；请以 2026-10-05 候选验收记录和新增综合证据为当前证据索引。
 
-Stage 2A 的 G3 板上验证为 `N/A`：T01 明确本阶段只做 PL RTL 仿真，不授权板测、烧录、摄像头或 HDMI。综合、资源与时序亦为 `N/A`，不能写资源/时序通过；这些属于后续阶段边界。G4/G5 则适用且必须完成，不因 G3 为 N/A 而免除。
+Stage 2A 的 G3 板上验证为 `N/A`：T01 明确本阶段不授权板测、烧录、摄像头或 HDMI。当前阶段计划将综合/资源/时钟风险报告列为 2A 证据要求，须按冻结源码和准确器件基线生成；综合结果不能被写成板上时序通过。G4/G5 适用且必须完成，不因 G3 为 N/A 而免除。
 
-## 干净副本重建与 T25 恢复（实际执行仍 PENDING）
+## 干净副本重建与 T25 恢复（CPU 恢复已完成；完整 PL 重跑未执行）
 
-Git 只保存已跟踪材料。T25 的 `tensors/` 有 109 个未跟踪 shard，共 `390700998` B；`t25_shard_recovery_manifest_20261002.json` 已纳入 Git，但它只是文件名、长度和哈希清单，**不是另一份 shard 备份**。T68 runtime evidence 也不能因存在 Git 仓库而视为已备份。`git clone` 只生成源码和已跟踪清单，不能直接承担完整交付物恢复。
+Git 只保存已跟踪材料。T25 的 `tensors/` 有 109 个未跟踪 shard，共 `390700998` B；`t25_shard_recovery_manifest_20261002.json` 已纳入 Git，它只是文件名、长度和哈希清单，**本身不是 shard 备份**。实际 shard 已另复制到 `D:\FPGA_Competition\archive\S2A-T25\clean_restore_20261002_160036`，并由 archive manifest 逐文件验证。T68 runtime evidence 同样由 `D:\FPGA_Competition\archive\S2A-T68\repair109_20261003_194620` 独立目录保存并核验；这些归档仍与源同在 D 盘，不是异盘备份。`git clone` 只生成源码和已跟踪清单，不能单独承担完整交付物恢复。
 
-以下流程在独立、尚不存在的目录执行，不能在当前运行工作树执行恢复或切换提交。预计 T25 重算上限为工具默认全程 7,200 s、每样本 600 s，实际耗时未实测；它会占用 CPU/磁盘，应在当前批跑完成后安排，或先明确资源余量。日志为副本根目录的 `clean_copy_restore_transcript.txt`，检查点为冻结 T25 index；这是整套 CPU shard 恢复，没有中间 shard 续跑机制。超时、缺失数据、哈希/运行时不符、目录已存在或工具返回非零时停止，保留控制台记录，不能删掉已有目标来绕过检查。
+T25 恢复已在独立干净 Git 副本真实执行并通过：109×38 shard 恢复 exit 0、耗时 2,283.61 秒；CPU D9 canonical replay 109 样本、exit 0、耗时 12.359 秒；总耗时 2,296.36 秒。环境为 Python 3.12.10、NumPy 2.4.6、OpenCV 4.13.0。记录位于 `report/evidence/S2A-T25/clean_restore_20261002_160036/recovery_execution_record.json` 和 `final_evidence_integrity.json`。以下命令保留为复现步骤，不表示需要再次运行当前已通过的 CPU 恢复。
 
 前提：保留 T01 绑定的原始图片/标签、cfg、Darknet weights、GF8 包和校准/数据清单；恢复器沿用它们冻结的精确路径与哈希。PL runner 固定 Python 3.12.14；T25 恢复则严格要求 index.runtime 冻结的 Python 3.12.10、NumPy 2.4.6、OpenCV 4.13.0，不能用 PL runner 的 Python 代替。先提供并核验该冻结 T25 环境的精确完整可执行文件路径；本文不猜测安装位置。外部模型/数据和工具链没有被 Git clone 复制。当前环境和路径被核验之后再执行，缺失时先恢复授权备份，不能擅自换路径或重建一份不同数据。
 
@@ -237,31 +237,26 @@ try {
 }
 ```
 
-恢复命令真实成功的门是退出码 0 及 `S2A-T25 shards restored: 109/109 samples, 38 layers/sample`；恢复器逐个检查压缩及解压长度/SHA-256，所有分片验证后才原子发布 `tensors/`。之后 CPU D9 门是第二条 Python 命令退出码 0、109 个唯一样本且重建报告与冻结 T29 canonical bytes 一致。现有合成恢复测试的 PASS 不替代这两条实际结果；本次准备不运行它们。
+恢复命令成功门为退出码 0 及 `S2A-T25 shards restored: 109/109 samples, 38 layers/sample`；恢复器逐个检查压缩和解压长度/SHA-256，所有分片验证后才原子发布 `tensors/`。CPU D9 门为第二条 Python 命令退出码 0、109 个唯一样本且重建报告与冻结 T29 canonical bytes 一致。本次实际运行均已通过；合成恢复测试不能替代这些真实结果。
 
 也可以从已核验的 shard 备份按 recovery manifest 的精确相对路径还原 109 文件，并逐项重新计算长度和 SHA-256，再执行副本 CPU D9 门。不存在备份时采用上面的重算流程；旧生成器全量新建要求目录不存在，而 Git 副本已含 index，不能直接调用全量新建替代恢复；旧 `--resume` 也不能补回缺失 shard。
 
-如需在干净副本重建 PL 全流程：CPU 恢复通过后，从独立 Windows PowerShell 使用本说明原“全新无人值守启动”命令，将 `$repoRoot` 指向已验证的 `$cleanRoot`，先核对副本 backend/闭包/工具版本，使用新 RunId，不复制旧进度做续跑。执行 109 + D9 后，在同一个副本用原映射命令（同样指定此副本 `$repoRoot`）核验，再交给独立审查。耗时及存储空间按完整批跑预算准备；此完整副本重跑仍 `PENDING`，不在当前准备阶段并行启动。
+如需在干净副本重建 PL 全流程：CPU 恢复通过后，从独立 Windows PowerShell 使用本说明原“全新无人值守启动”命令，将 `$repoRoot` 指向已验证的 `$cleanRoot`，先核对副本 backend/闭包/工具版本，使用新 RunId，不复制旧进度做续跑。执行 109 + D9 后，在同一个副本用原映射命令（同样指定此副本 `$repoRoot`）核验，再交给独立审查。全量 PL 干净副本重跑尚未执行；由当前独立 G4/G5 Reviewer 按正式验收标准判定是否必需。如需执行，应单独评估时间、空间和运行窗口，不得把已有 RunId 续跑记录复制到新副本。
 
 旧 runtime 的 compile/run records 记录绝对源码、夹具与工具路径。将旧证据复制到另一个位置不等于验证器可直接重验；保留原运行路径及归档路径映射，恢复时先核对路径绑定。需要迁移位置时先由总控明确可验证的恢复方案，不能改写记录中的路径或重用旧 RunId 来伪造相同执行。
 
 ## 冻结前必须保留的材料
 
-以同一个 RunId 建立逐文件清单、字节数与 SHA-256，记录原精确路径、归档路径、可恢复位置和版本；校验真实复制/归档结果以后才允许按另行授权清理。不得全量暂存运行目录、构建缓存或模型数据。
+以同一个 RunId 建立逐文件清单、字节数与 SHA-256，记录原精确路径、归档路径、可恢复位置和版本；校验真实复制/归档结果以后才允许按另行授权清理。本轮在 manifest 校验通过后仅清理可重建的 109 个 PL build 缓存与 4 个 T68/T70 build/obj_dir 缓存；不得全量暂存运行目录、构建缓存或模型数据。
 
 - T01 正式规格、`tiny416_model_manifest.json`、`fixed_test_samples.json`、源模型/量化包及原图标签绑定；T25 index、109 shards、`t25_shard_recovery_manifest_20261002.json`；T29 `cpu_decode_nms_reference.json` 和冻结参考源码。
 - 当前成功 RunId 的协调报告、`batch_dispatch/batch_summary.json`、D9 和源码映射报告；109 样本的 compile-source snapshot、compile/simulation execution records、逐层 `result_summary.txt`、真实 head13/head26 输出、输入夹具 manifest 与它引用的必要文件、工具清单和命令/退出码/进展及错误日志。D9 与映射验证器引用的文件均必须可恢复，不能只保存总报告。
 - 固定静态源码闭包、绑定的 Git commits/trees、源码和 testbench、runner/协调器/验证器版本、Verilator/MSYS2/PowerShell/Python 及依赖版本；从干净副本重建的准确步骤与真实恢复证据。
-- T02/T08/T10–T21 原始定名 JSON、引用的单元/协议结果与被审版本（入口见本轮准备 JSON）；T17/T20 历史串行 engine/pilot 与新 tile 的适用性及差异回归结果，T68 `protocol_directed05/06` 真实 backend 结果及 `backend_fault_recovery.vcd` 等适用原始证据；随机种子、样本数、误差口径和独立审查结论。G3/综合 N/A 理由及实际 G4/G5 签收记录。
+- T02/T08/T10–T21 原始定名 JSON、引用的单元/协议结果与被审版本（入口见本轮准备 JSON）；T17/T20 历史串行 engine/pilot 与新 tile 的适用性及差异回归结果，T68 `protocol_directed05/06` 真实 backend 结果及 `backend_fault_recovery.vcd` 等适用原始证据；随机种子、样本数、误差口径和独立审查结论。G3 板上验证为 N/A；G4 须保留综合错误/锁存器、器件资源与时钟风险报告及最终签收记录。
 - 失败批次保持独立诊断归档，不纳入成功批次计数。构建缓存是否可清理须在列清所有验证器依赖并完成恢复核验后决定，不能在正在运行的目录中删除。
 
-## 2026-10-03 修复后的当前批次
+## 2026-10-03 至 2026-10-05 batch109 终态
 
-当前运行目录为 `D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_124125`。一次启动核验确认 sample0 runner PID40596、coordinator PID11912及实际 Verilator/make 编译进程存在，启动 stderr 为空；该记录只说明当时启动成功，不代表此后进程仍活跃或样本通过。先完成 sample0，再自动最多8个worker运行108样本和D9。启动记录为该目录的 `repair_launch_record.json`；最终报告为 `unattended_continuation_repair109_20261003_124125.json`。不主动监控。
+失败批次 `repair109_20261003_124125` 的 sample000 与 8 个 worker 仿真曾实际完成，但 worker 因 CRLF 摘要校验缺陷被拒；保留为失败诊断，不计入成功批次。修复后 RunId `repair109_20261003_194620` 从 sample000 全新运行。逐样本审计已核实索引 0–108 全部通过，D9 和快照映射各覆盖 109 个样本；初始 STOP_BATCH_FAILED 与两次 recovery 记录也保留，不能因进程或旧启动日志判断当前仍在跑。完整结论和 SHA 见 `report/evidence/S2A-T68/stage2a_g4_g5_acceptance_20261005.md`。
 
-`manual_20261002_140325` 原成功sample0和两次失败协调记录全部保留；新批次完整从sample0开始，不把旧sample0计入新批次。恢复参数 `-ResumeFailedCoordinatorSha256` 仅处理尚无dispatch的特定空日志故障；旧目录现在已有失败dispatch，不能再使用该恢复入口。不要对当前新批次重复启动。
-## 2026-10-03 后续worker摘要修复与重跑
-
-`repair109_20261003_124125` 的sample0通过；其余8个样本均完成RTL仿真、runner exit0并生成head及结果摘要，但调度器worker终态校验仍有一处未使用CRLF规范化helper的正则，导致这8项及批次汇总被判失败。目录和失败汇总均保留，不纳入完成计数。修复提交 `fecbf1f` 已经独立审查；真实 sample001 摘要回归、38源闭包和10项映射回归均通过。
-
-当前重跑RunId为 `repair109_20261003_194620`，目录 `D:\FPGA_Competition\report\evidence\S2A-T68\repair109_20261003_194620`。一次启动核验确认sample0 runner、coordinator和Verilator编译进程存在，两个启动stderr为空；sample0通过后自动8-worker跑108样本及D9。提交后的这次启动从sample0完整开始，不把上一失败RunId内的仿真产物计入本次批次。用户要求不主动监控。
+本批次 PL 与 D9 已结束，禁止重复启动。已校验归档后删除的仅是可重建编译缓存；T68/T25/T70 的输入、结果和关键日志保留在原证据路径及 `D:\FPGA_Competition\archive\`。归档与原始材料同属 D 盘物理卷，并非异盘备份。Stage 2A 当前等待独立 G4/G5 签收；109 样本 PL 干净副本重跑尚未执行，审查按正式门判断其必要性。

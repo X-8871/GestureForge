@@ -1,5 +1,14 @@
 # 阶段5 状态（HDMI 结果显示与结果关联）——**离线范围冻结**
 
+## 2026-11-01 管理权更新（优先于下方旧归属记录）
+
+Wong 直接指令：所有 GestureForge 阶段及工作树由 Codex 项目总控接管，取消 DSH 最高管理权。项目最高总控、主目录与本树写权、任务分派、串行提交和硬件窗口协调均归 Codex；Wong 保留最终决策与明确审批权。DSH 仅可执行 Codex 后续明确委派的任务，不再持有全局否决权、独占调度权或必须经其 OFFER 的前置权。
+
+权威规则：`D:\FPGA_Competition\AGENTS.md`；接管决策及全树基线：`D:\FPGA_Competition\report\evidence\CTRL-DSH-HANDOFF\decisions\codex_project_takeover_20261101_r01.md`。本次依据用户直接指令，非伪造 DSH OFFER/CLAIM。下方旧写权、租约及 DSH 提交权仅作历史，不再授权；历史技术证据与未提交改动归属保留。接管不等于新板级窗口授权、阶段验收通过或允许覆盖既有工作；单写者、资源核验、证据保全和独立审查继续有效。
+
+本树当前管理/写入负责人：Codex 项目总控；技术状态和冻结版本按原证据逐项核对。
+
+
 ## 收尾快照：**再冻结 r07（2026-10-27 23:1x UTC+8；复审 CHANGES_REQUIRED 修正后；本节优先）**
 
 - **口径不变**：`OFFLINE_SCOPE_FROZEN` 离线字节冻结；不主张 G0/G1/G3/G4/G5、板级 B1–B10 或任何实时/实物/板级结论；未连接/未加载位流/未烧录/未占用 JTAG（`ENABLE=0`）。

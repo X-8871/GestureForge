@@ -14,6 +14,8 @@
 
 Wong随后明确批准六类公共train/val/test原图清理：已删除158089张、217878893516字节，失败0；614张唯一校准/冻结测试图及标签在原位保留，另有本地副本，原件与副本均完成末尾哈希复核。`report/evidence/CTRL-ARCHIVE/public_images_20261101_r01/receipt.json`保存执行事实。正式工作树与主目录原始证据尚未移除。各树历史清单中的omitted描述上传时点，不能作为当前文件存在性或删除授权；以后按具体清理回执和归档映射核对。
 
+首批清理已另将 `D:\FPGA_Competition\tmp\review` 全树110300文件归档核验后移除副本。正式私有恢复档案为 `D:\GestureForge_Archive\2026-11-01\preserved_local`（约13.56 GiB）：`review_directory_complete.zip`和逐文件清单、`dataset_recovery`的图片/标签备份与清理日志、`local_archive_index.json`。旧清单的C盘前缀已转存，按索引的 `relocation_rule` 映射；原清单字节保留，C盘临时副本已移除。此档案不在GitHub内，也不属于可删缓存；同盘档案不是异机备份。首批汇总见 `report/evidence/CTRL-ARCHIVE/cleanup_20261101_r01/summary.json`。
+
 ## 恢复步骤
 
 1. 在全新目录克隆 `https://github.com/X-8871/GestureForge`，读取根 `AGENTS.md` 和本文件；也可按独立离线包回执从 `.bundle` 恢复被封存的提交。项目保持暂停，新的技术任务由 Wong 决定。

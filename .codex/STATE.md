@@ -8,6 +8,8 @@ Wong 已决定退出本次竞赛，暂停项目；当前整理、上传恢复成
 
 后续审计补包 `archive/project-paused-20261101-supplement/`：125项，14件精确模型/部署产物+源码/初始化/来源记录，独立审查PASS；11个阶段5/6冻结ELF与阶段5两个主C/H的精确身份仍缺，不能用漂移件替代。Wong已明确批准公共六类train/val/test原图清理：2026-11-01 14:11 UTC+8完成158089张/217878893516字节，失败0，614张唯一校准/冻结测试图、标签及副本末尾哈希复核通过。回执 `report/evidence/CTRL-ARCHIVE/public_images_20261101_r01/receipt.json`。八棵辅助工作树、主report/evidence、109组黄金和模型仍保留；tmp/review只在完整私有归档验证后移除D盘副本。未编译、未上板，不提高阶段验收结论。
 
+首批清理收尾（2026-11-01 14:56 UTC+8）：tmp/review完整110300文件已归档、校验后移除D盘副本（29个共享Git对象仅mtime变化，SHA一致，按检查点复核后继续执行）；正式私有档案 `D:\GestureForge_Archive\2026-11-01\preserved_local`，1240项/14564126238字节，含ZIP和614图/标签备份及日志，C临时副本已验证后移除。档案索引 `local_archive_index.json` 提供原C路径映射。汇总 `report/evidence/CTRL-ARCHIVE/cleanup_20261101_r01/summary.json`；共享硬链接逻辑大小不当作净释放，卷空间差值单列。保留八棵工作树及未核验独有材料，未宣称全项目清理结束。
+
 ## 当前管理权（2026-11-01，优先于下方历史记录）
 
 - Wong 直接指令「现在修改文档，所有项目由你接手，取消DSH最高管理权」：**Codex 为 GestureForge 唯一项目最高总控**，接管 main、全部阶段及候选工作树的管理/写入分派、串行提交和资源/板卡窗口协调；Wong 保留最终决策与明确审批权。DSH 转为仅可执行 Codex 新委派任务的协作者。

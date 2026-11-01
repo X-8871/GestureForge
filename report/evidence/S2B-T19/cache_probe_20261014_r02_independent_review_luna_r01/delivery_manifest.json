@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cache_probe_20261014_r02_independent_review_luna_r01",
+  "source_commit": "7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9",
+  "evidence_dir": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本包仅对 visibility0 缓存可见性前置探测的既有证据作独立 G2 审查，不定义或冻结新的 PS/PL 接口。",
+  "tool_versions": {
+    "Python": "3.12.14",
+    "checker": "verification/check_stage_delivery.py@7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9"
+  },
+  "files": [
+    {
+      "path": "verification/check_stage_delivery.py",
+      "sha256": "cf640f8202a673319d45a573584e854aefd71dd08226091b96fdbdfd76983dbf",
+      "role": "source",
+      "keep_reason": "绑定本轮使用的官方只读 evidence checker 源码。"
+    },
+    {
+      "path": "verification/s2b_board_transport.py",
+      "sha256": "355721403848a4e28afffa06c1dc442b6d52c94859a6ee167d58db10fcdd26c8",
+      "role": "source",
+      "keep_reason": "绑定 OP_WEIGHTS、OP_RUN 与 OP_CACHE_PROBE 的协议常量定义。"
+    },
+    {
+      "path": "vitis/run_s2b_visibility_probe.py",
+      "sha256": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "role": "source",
+      "keep_reason": "绑定目标探测入口源码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/delivery_manifest.json",
+      "sha256": "643282197da47e1e311df6a3e4336ea8d505d3c47b0c79403a94247ed337a132",
+      "role": "input",
+      "keep_reason": "被冻结的原始 visibility0 证据包清单。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/visibility_probe_result.json",
+      "sha256": "ceb01222df6781772fbb37509afeefd3d9d9b1d9691348ba548d72a23af18383",
+      "role": "input",
+      "keep_reason": "原始探测结果及 UART、postconfiguration、cache probe 观测。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/jtag_result.json",
+      "sha256": "ae87312922ddfa0e7245cebe8c34666daad4421282dbaeaadf51644ef941bf8f",
+      "role": "input",
+      "keep_reason": "复核受控 system reset、READY_RESULT2、完整配置 EOS 与稳定 CSR 的原始 JTAG/API 结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/entry_calls.jsonl",
+      "sha256": "1eb38dbcd9aa2f2bb04c0739cd03a4b0108cb71b5ef20c4ce404904574f1e365",
+      "role": "input",
+      "keep_reason": "复核 cache 观察后 CPU0 实际停止及停止状态复读。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/official_reset_basis_20261011_r01/cold_reset_basis_candidate.json",
+      "sha256": "2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3",
+      "role": "input",
+      "keep_reason": "绑定规定的 required_actual_sequence 与物理 POR/冷启动范围限制。"
+    },
+    {
+      "path": "report/evidence/S2B-T13/artifact_recheck_20261011_r01/s2b_inference_no_bit.xsa",
+      "sha256": "6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7",
+      "role": "input",
+      "keep_reason": "直接绑定运行 banner 指示的编译 XSA。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054357Z_ccbeeb35a2053320/s2b_inference_implemented.xsa",
+      "sha256": "6f2cddd2f8d81d9b8d7ae8987aa446d354cb4b44cd208dfdb336eb24b796c1be",
+      "role": "input",
+      "keep_reason": "直接绑定配置到 XSDB 会话的 implemented XSA。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/implemented_export_20261013_r01/s2b_inference_implemented.bit",
+      "sha256": "91af1dd86755f5273171361912e1a3602bf574f14cbb637585f8766779eaf4eb",
+      "role": "input",
+      "keep_reason": "直接绑定实际 fpga.full.compatibility_default 配置的完整 implemented bitstream。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/vitis_execution.json",
+      "sha256": "cf587f7bc2e0cc1939c597bbddd2b821618f4c9cad8b87f72516ebd8428b9b71",
+      "role": "input",
+      "keep_reason": "Vitis/SDK/watchdog 进程退出及错误状态回执。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/hw_server_identity.json",
+      "sha256": "270e14acc576d7d19241afb27f0195dc88f79d37782f44987bb78607c997b089",
+      "role": "input",
+      "keep_reason": "被运行拥有的 hw_server 进程身份。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/server_close.json",
+      "sha256": "4600fdcbe2197dd5bebfc3957f54382fe1028fd908a70a1ad8f96e6ef65e2d84",
+      "role": "input",
+      "keep_reason": "同一 owned hw_server 的关服、进程消失与端口释放回执。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/uart_tx_headers.bin",
+      "sha256": "0af31818723a964d4f722d13ccf9616d63955e141d653b702a36d9bab3954410",
+      "role": "input",
+      "keep_reason": "原始 UART 发送头字节，核对仅发 cache probe 操作。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/uart_rx_raw.bin",
+      "sha256": "428192d869d24fdb79f59d95b00a92f47bf740c4d2b58d47d01cb02814df5f19",
+      "role": "input",
+      "keep_reason": "原始 UART 接收字节。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/watchdog_runner.ps1",
+      "sha256": "0aa0e95a7014db2357aa5fd2b0bcf4db2a4dc1fe126ae79d2e097441eecff3b4",
+      "role": "input",
+      "keep_reason": "核对 SDK 归属、超时和清理流程的实际 watchdog 脚本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/close_owned_server.ps1",
+      "sha256": "5bc9841fb6fdea6aa65b8cb28c7f46607d1ccb4462e8885a7c6ae3dbaad81773",
+      "role": "input",
+      "keep_reason": "核对关服前身份与监听归属检查的实际脚本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/review_receipt.json",
+      "sha256": "061663da4278e1224ab99741b090c1e78ee62955a20cdbdd2f0532b5959ac259",
+      "role": "result",
+      "keep_reason": "本轮独立 G2 审查结论与范围限制。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_target_command.json",
+      "sha256": "5c21eb56c9b7a49d432fe6d183c6f7e71695c228f2e1e2fc4f1c7fc8a87d0386",
+      "role": "result",
+      "keep_reason": "记录独立执行目标包 checker 的精确 argv、工作目录、退出码和输出哈希。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_target_stdout.log",
+      "sha256": "46b315ebaeff53832bebc4325a1688f92a787c8c4ad603e45fdcf3607f72bf7c",
+      "role": "log",
+      "keep_reason": "目标包官方 evidence checker 的原始 stdout 字节。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_target_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "目标包官方 evidence checker 的原始 stderr 字节。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_target_exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "result",
+      "keep_reason": "目标包官方 evidence checker 的原生退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_package_command.json",
+      "sha256": "957138cac87cbff94a2126ca3229ec9d67afd24b2818530aa1faefb1a5af2ac0",
+      "role": "result",
+      "keep_reason": "记录本独立审查包 checker 的精确 argv、工作目录、退出码和输出哈希。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_package_stdout.log",
+      "sha256": "72bf96f222acdd5a92488365e8d7b53062a44e9a087e007aa32fb6a5eff7be58",
+      "role": "log",
+      "keep_reason": "本独立审查包官方 evidence checker 的原始 stdout 字节。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_package_stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "log",
+      "keep_reason": "本独立审查包官方 evidence checker 的原始 stderr 字节。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/evidence_checker_package_exit_code.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "result",
+      "keep_reason": "本独立审查包官方 evidence checker 的原生退出码。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "visibility0 cache probe independent G2 review",
+      "status": "PASS",
+      "command": "Independent review of frozen hashes, raw runtime results, UART scope, server closure, and limitations",
+      "exit_code": 0,
+      "reason": "All requested precondition evidence is supported; acceptance-pending and hardware identity limitations remain explicit."
+    },
+    {
+      "name": "frozen visibility0 evidence package official checker",
+      "status": "PASS",
+      "command": "verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/cache_probe_20261014_r02/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "Independent raw checker output reports CHECKS_OK with empty errors and warnings."
+    },
+    {
+      "name": "independent review evidence package official checker",
+      "status": "PASS",
+      "command": "verification/check_stage_delivery.py --mode evidence --manifest report/evidence/S2B-T19/cache_probe_20261014_r02_independent_review_luna_r01/delivery_manifest.json",
+      "exit_code": 0,
+      "reason": "The official checker validates this package's complete file enumeration and all bound SHA-256 values; raw checker outputs are included."
+    },
+    {
+      "name": "required actual reset-init-config-cache-stop sequence review",
+      "status": "PASS",
+      "command": "Independent sequence assessment against cold_reset_basis_candidate.json.required_actual_sequence and hash-bound JTAG/entry logs",
+      "exit_code": 0,
+      "reason": "All eight observed sequence items are present; the conclusion is limited to a controlled system-reset lifecycle and does not claim physical POR."
+    },
+    {
+      "name": "compile XSA versus implemented XSA and bitstream identity",
+      "status": "PASS",
+      "command": "Independent SHA-256 recomputation of three platform artifacts and comparison with runtime banner, compatibility bindings, and full-bit JTAG call",
+      "exit_code": 0,
+      "reason": "The compile XSA, implemented XSA, and implemented bitstream have distinct bound paths/hashes; the full-bit call uses the bound implemented bitstream."
+    }
+  ],
+  "limitations": [
+    "This review is limited to visibility0 cache-probe precondition evidence; it does not establish visibility1, full-model execution, or 2B stage acceptance.",
+    "cold_lifecycle_proven=false; G3, G4, and G5 remain incomplete.",
+    "Physical XA7Z020 marking versus vendor-confirmed XC7Z020-2 remains unresolved; JTAG does not prove speed grade."
+  ]
+}

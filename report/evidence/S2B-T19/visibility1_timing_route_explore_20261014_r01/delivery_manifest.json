@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "visibility1_timing_route_explore_20261014_r01",
+  "source_commit": "aa6fd7248ef9271bbcc79fefe097c78fec8fb36a",
+  "evidence_dir": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01",
+  "interfaces": [
+    {
+      "name": "PS/PL物理接口候选",
+      "version": "s2b-physical-candidate/0.1.1",
+      "frozen": false,
+      "path": "docs/obsidian-project/02-方案设计/s2b_physical_interface_candidate.md",
+      "sha256": "bd7070276702a6f8faa1ee9e592fed7c0a2c46c8eda4e9faac34a07a01971bad"
+    }
+  ],
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/sources/s2b_maxpool_geometry.sv",
+      "sha256": "7b79a44e806c541decce6402890ae4eb9b14ceb01b01d8515cc6118e8e5754c0",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/sources/s2b_maxpool_engine.sv",
+      "sha256": "5f62e5aa5790b7ac9dad342d4ca4a6a4878611efa165884b47e376ff2f4e5b48",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/sources/test_s2b_maxpool_address_guard_rtl.py",
+      "sha256": "54fa551164bbcbefb112fa365b096f1e1f1d9fa7d04bcd0ac68271c3baee13e5",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/sources/test_s2b_geometry_specialization_rtl.py",
+      "sha256": "fbdaa720a5cd3b84e81e8b31e7e3d10a815d89064707359f8015a937d68a19f9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/sources/check_s2b_inference_platform.py",
+      "sha256": "5483bf21ab2510fdce4313b73b1753b52e76de0564cdeb5c7509ad9fd1dfff2a",
+      "role": "source"
+    },
+    {
+      "path": "tmp/2B/S2B-T19/visibility1_build_20261014_r01/project/s2b_inference_candidate.xpr",
+      "sha256": "b26137233bc6449fa8fff7d1427e014facabc1218a65ff6562b1c47ac60adb4c",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/run_summary.json",
+      "sha256": "e2922911fbb086c599fbe6b74954376caa6ee155f0787014d6f0d85e83d57f6c",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/timing_summary.rpt",
+      "sha256": "491bf8b57e869ceb03b262d740d9e95b256d363f61e0ac8feb90a6c7412c8742",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/timing_summary_min.rpt",
+      "sha256": "1811871d9cd4de067726f34ceb737f666afc775047d27704706a854e403b3e46",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/route_status.rpt",
+      "sha256": "e33531ee11ad9da3ecc6122a3e4e6e5f2cd8396a5112aced719fc4f42e5be433",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/check_timing.rpt",
+      "sha256": "aeee07e75511cb4f731ffc70d7adbe7b9a1ed8af524cec2fb09b7eaacc129519",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/methodology.rpt",
+      "sha256": "c75c2cc8a747d26f3587ba14dc2fd069b01a25cad2058c8d1fb3accd7d23bc95",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/vivado_run.log",
+      "sha256": "1199549f21702e5b3ae97f8e7a8270cadaabad875fc582e6d36f169724ad8760",
+      "role": "log"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Explore重新路由命令",
+      "status": "PASS",
+      "command": "Vivado TCL: route_design -directive Explore -timing_summary",
+      "exit_code": 0,
+      "reason": "Vivado完成路由并生成全路由状态；路由完成不代表setup时序通过。"
+    },
+    {
+      "name": "50MHz setup时序门槛",
+      "status": "FAIL",
+      "command": "rg -q '^Timing constraints are met\\.$' report/evidence/S2B-T19/visibility1_timing_route_explore_20261014_r01/timing_summary.rpt",
+      "exit_code": 1,
+      "reason": "报告明确为Timing constraints are not met；WNS=-0.147ns、TNS=-4.619ns、60个setup端点失败。"
+    },
+    {
+      "name": "hold时序",
+      "status": "PASS",
+      "command": "Vivado TCL: report_timing_summary -delay_type min -check_timing_verbose",
+      "exit_code": 0,
+      "reason": "WHS=+0.057ns、THS=0、0个hold失败端点。"
+    },
+    {
+      "name": "pulse-width时序",
+      "status": "PASS",
+      "command": "Vivado TCL: report_timing_summary -delay_type min -check_timing_verbose",
+      "exit_code": 0,
+      "reason": "WPWS=+8.870ns、TPWS=0、0个pulse-width失败端点。"
+    },
+    {
+      "name": "check_timing与methodology",
+      "status": "PASS",
+      "command": "Vivado TCL: check_timing -verbose; report_methodology",
+      "exit_code": 0,
+      "reason": "12类check_timing均为0；methodology发现0项。"
+    },
+    {
+      "name": "位流生成",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "setup时序失败，未生成或下载位流。"
+    },
+    {
+      "name": "板卡部署与模型验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本轮setup时序未通过；未操作板卡、UART、JTAG或QSPI。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "Vivado_SPEED_FILE": "-2",
+    "ROSS": "2026.9.1"
+  },
+  "limitations": [
+    "本次仅对既有phys_opt_design后的DCP继续Explore路由，不是新的综合或从零实现运行。",
+    "板上器件照片标记XA7Z020，工程依厂商文字确认按XC7Z020-2执行；实物身份冲突仍未关闭。",
+    "该候选setup时序失败，未生成位流、未下载板卡、未执行模型或2B实物验收。",
+    "Vivado进程峰值按工具报告值记录；系统总内存峰值未测。"
+  ]
+}

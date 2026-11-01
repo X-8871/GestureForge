@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "geometry_xsim_cast_20261014_r01",
+  "source_commit": "aa6fd7248ef9271bbcc79fefe097c78fec8fb36a",
+  "evidence_dir": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "该离线单元仿真仅验证MaxPool几何映射，不消费PS/PL、DDR、CSR或板级接口。",
+  "files": [
+    {
+      "path": "src/s2b_maxpool_geometry.sv",
+      "sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/sources/s2b_maxpool_geometry.sv",
+      "sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/sources/tb_s2b_fixed_pool_geometry.sv",
+      "sha256": "3ee56f8f443388d8e44e1f39120d7be63345b724e677065752f43f81daf49d2a",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/inputs/fixed_pool_geometry_vectors.dat",
+      "sha256": "28b6a8572f688a7fa45bf92d08311e09acd29f4b0cafa359f50da6c509c8dfee",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/logs/xvlog.log",
+      "sha256": "d87b03f66e4b70a81ffb3374984986e69a79b92d7d0393ca89300945a544c0c8",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/logs/xelab.log",
+      "sha256": "fdbf5e32bce6fc278381a8b21fc394105a444e5ef9a92fddf94302a6ae248379",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/logs/xsim.log",
+      "sha256": "d6878938b5e0ea4468017c44212a0ab4f8bca42c106693a60eecc48b7dcc8061",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/logs/xsim.jou",
+      "sha256": "6aa29f0a70a4f697e7fcbd878ee9422b79685e1a64cba9371478e723c5e0b9f6",
+      "role": "log"
+    },
+    {
+      "path": "report/evidence/S2B-T19/geometry_xsim_cast_20261014_r01/run_summary.json",
+      "sha256": "599b2daa81a2da3ae46ca6a0a4e4532dee03fb6e1fc8bed896579815bac51cdd",
+      "role": "result"
+    }
+  ],
+  "checks": [
+    {
+      "name": "SystemVerilog解析",
+      "status": "PASS",
+      "command": "exec xvlog -sv -work xil_defaultlib {src/s2b_maxpool_geometry.sv} {tb_s2b_fixed_pool_geometry.sv}",
+      "exit_code": 0,
+      "reason": "Vivado 2026.1成功解析被测几何模块及固定shape testbench。"
+    },
+    {
+      "name": "固定shape elaboration",
+      "status": "PASS",
+      "command": "exec xelab xil_defaultlib.tb_s2b_fixed_pool_geometry -s s2b_fixed_pool_geom_cast_r01",
+      "exit_code": 0,
+      "reason": "L9/L17/L25三种固定shape实例成功elaborate。"
+    },
+    {
+      "name": "固定shape穷举仿真",
+      "status": "PASS",
+      "command": "exec xsim s2b_fixed_pool_geom_cast_r01 -R -testplusarg {VECTOR_PATH=inputs/fixed_pool_geometry_vectors.dat} -stats",
+      "exit_code": 0,
+      "reason": "PASS FIXED_POOL_GEOMETRY vectors=605714；包括605696个合法坐标及18个边界/非法样例。"
+    },
+    {
+      "name": "默认通用geometry elaboration",
+      "status": "PASS",
+      "command": "exec xelab xil_defaultlib.s2b_maxpool_geometry -s s2b_maxpool_generic_default_cast_r01",
+      "exit_code": 0,
+      "reason": "默认参数0的通用实例成功elaborate。"
+    },
+    {
+      "name": "地址守卫完整Verilator runner启动",
+      "status": "FAIL",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe verification/test_s2b_maxpool_address_guard_rtl.py --run-id s2b_maxpool_cast_20261014_luna_r01 --toolchain D:\\FPGA_S2A_MSYS2_20261001\\env",
+      "exit_code": 1,
+      "reason": "runner已启动但因当前Python环境缺少psutil而在导入时退出，完整地址守卫与引擎状态机回归未运行。"
+    },
+    {
+      "name": "完整MaxPool引擎集成仿真",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "本Run仅为关闭geometry泛型elaboration缺陷及验证固定shape几何输出；引擎集成仍待验证。"
+    },
+    {
+      "name": "综合实现与50MHz时序",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "独立代码审查和完整适用回归完成前，不启动新的重型实现；最近routeExplore结果为WNS -0.147 ns且setup失败。"
+    }
+  ],
+  "tool_versions": {
+    "Vivado": "2026.1",
+    "XSim": "2026.1",
+    "ROSS": "2026.9.1"
+  },
+  "limitations": [
+    "该证据只覆盖MaxPool几何映射单元，不表示完整引擎功能或2B任务验收通过。",
+    "没有综合、布局布线、时序或板上结果；既有S2B-T19实现报告仍为setup时序失败。",
+    "板上芯片标记与厂商速度等级文字确认的差异尚未通过实物/批次证据消解。"
+  ]
+}

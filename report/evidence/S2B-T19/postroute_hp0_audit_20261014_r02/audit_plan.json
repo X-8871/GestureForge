@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "run_id": "postroute_hp0_audit_20261014_r02",
+  "status": "STOPPED_BY_LEAF_PIN_BUDGET",
+  "started_at": "2026-10-14T09:07:00+08:00",
+  "revises_run": "postroute_hp0_audit_20261014_r01",
+  "reason_for_new_run": "r01安全停止于无过滤PS7 pin总数3305超过1024上限；r02仅通过REF_PIN_NAME过滤查询HP0目标pin，限制匹配对象数量，不遍历或输出全部PS7 pins。",
+  "input": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_launch_prepare_20261012_r02\\project_s15_r01\\s2b_inference_candidate.runs\\impl_1\\s2b_inference_wrapper_postroute_physopt.dcp",
+    "sha256_before": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+    "bytes": 13704328
+  },
+  "environment": {
+    "available_memory_mib_before": 4404,
+    "heavy_vivado_vitis_simulation_or_xsdb_processes": 0,
+    "vivado_session_before": "none",
+    "vivado_mcp_server_processes": 3
+  },
+  "tool": "Vivado 2026.1 Tcl via ROSS",
+  "primary_queries": [
+    "从唯一PS7对象使用get_pins -of_objects与REF_PIN_NAME匹配*HP0*，最多512个实际HP0 pin；不枚举全体3305 pins。",
+    "记录每个目标pin实际名称、REF_PIN_NAME与方向；对ARCACHE/AWCACHE逐bit查询完整net segments和leaf pins。",
+    "对AW/W/B以及AR/R的VALID/READY/ID/RESP/LAST相关HP0 pins查询net segments及端点；必要时仅对边界对象查询有界fanin/fanout。",
+    "保存相关实际逻辑层级/资源身份；不由源码/BD代替DCP连通性证据。"
+  ],
+  "limits": {
+    "hard_timeout_seconds": 300,
+    "max_ps7_cells": 1,
+    "max_filtered_hp0_pins": 512,
+    "max_segments_per_signal": 128,
+    "max_leaf_pins_per_signal": 256,
+    "max_cone_endpoints_per_signal": 256
+  },
+  "prohibited_operations": [
+    "不运行综合、实现、优化、写位流或重新保存checkpoint",
+    "不修改DCP或源工程，不接触板卡/JTAG/Flash",
+    "不关闭或控制任何非本次新建的Vivado会话"
+  ],
+  "stop_conditions": [
+    "输入路径、文件大小或SHA不匹配",
+    "PS7缺失或不唯一，或HP0过滤结果超过512",
+    "segment/leaf/cone数量超过上限",
+    "出现未解释多驱动、桥接、cache属性改写或响应来源",
+    "命令累计超过300秒、OOM或可用资源显著异常",
+    "Vivado启动、DCP打开或查询失败"
+  ],
+  "observed_result": {
+    "vivado_session_id": "vivado-20261014-090810-8dff903f",
+    "vivado_process_id": 15344,
+    "vivado_version": "2026.1 build 6511674",
+    "open_checkpoint_elapsed_seconds": 36.847,
+    "open_checkpoint_peak_memory_mib": 1753.902,
+    "filtered_hp0_pin_count": 317,
+    "inventory_sha256": "9c3bdb25a8b2c39667b98674e60120e0e10e4e3f1dcc58f87704cbc1b8b70104",
+    "partial_net_segments_sha256": "ce2820b2883d437262065ef2594568af569754cdc7e64487fb65280ec5be451b",
+    "pin_inventory_bytes": 24161,
+    "partial_net_segments_bytes": 306455,
+    "query_exit_code": 1,
+    "stop_signal": "SAXIHP0ACLK shared segment s2b_inference_i/ps7/inst/FCLK_CLK0 yielded 4604 leaf pins; limit=256",
+    "vivado_log_sha256": "e065355ba22a4ca2370f983e0e9dac5271520b8592bd2ce7f05d7f8c3f557c08",
+    "session_closed": true,
+    "checkpoint_modified": false,
+    "hardware_execution": "NOT_RUN"
+  },
+  "expected_artifacts": [
+    "audit_plan.json",
+    "execution_receipt.json",
+    "raw query transcript and tool log bindings",
+    "summarized observations bound to the exact DCP SHA",
+    "delivery_manifest.json"
+  ],
+  "hardware_execution": "NOT_RUN"
+}

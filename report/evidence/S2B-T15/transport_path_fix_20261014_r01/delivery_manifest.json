@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T15",
+  "run_id": "transport_path_fix_20261014_r01",
+  "source_commit": "4a9181bddd1d92b2d42b096f1c0b2639940708b4",
+  "evidence_dir": "report/evidence/S2B-T15/transport_path_fix_20261014_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本 Run 仅验证主机端精确路径助手的仓库内访问与大小写拒绝行为，不修改或测试 FPGA、PS/PL、UART、DDR 或模型接口。",
+  "files": [
+    {
+      "path": "verification/s2b_board_transport.py",
+      "sha256": "7dda231e2888c0ed9d95952dcba4d41c9eaf7423e008e4d179b3f7d2c5f0b334",
+      "role": "source",
+      "keep_reason": "绑定本次路径精确核验回归所审查的源码与用例。"
+    },
+    {
+      "path": "verification/test_s2b_board_transport.py",
+      "sha256": "74218d7af1df2a89c2b8f507ae9e90d3e96c870705021c8ae320389b63bbb6b9",
+      "role": "source",
+      "keep_reason": "绑定本次路径精确核验回归所审查的源码与用例。"
+    },
+    {
+      "path": "report/evidence/S2B-T15/transport_path_fix_20261014_r01/path_regression.log",
+      "sha256": "64e886c63ac300b25047973d47fdfdd3c4b4b3316fe5d3a408fcbb9008516635",
+      "role": "log",
+      "keep_reason": "保留目标单测的原始标准输出与错误输出。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "仓库内精确路径及大小写回归",
+      "status": "PASS",
+      "command": "python -B -m unittest -v verification.test_s2b_board_transport.FramingTests.test_exact_path_preserves_case_checks_below_repository_root",
+      "exit_code": 0,
+      "reason": "用例验证仓库内实际路径可核验，且错误大小写目录名被拒绝。"
+    }
+  ],
+  "limitations": [
+    "该定向回归不代表完整 UART transport 测试套件通过，也不代表任何板上或 FPGA 验收通过。",
+    "本轮完整套件的其余 24 项通过；109 样本 C 解码项因当前解释器缺少 cv2 而报错，未作为本 Run 的通过证据。"
+  ],
+  "tool_versions": {
+    "python": "3.12.14",
+    "python_executable": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe"
+  }
+}

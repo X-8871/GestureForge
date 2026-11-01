@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "cache_probe_20261013_r03",
+  "source_commit": "c8742858fbb23331763358775daa44dafb95db94",
+  "evidence_dir": "report/evidence/S2B-T19/cache_probe_20261013_r03",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "记录已批准visibility0入口的实际观察，沿用原运行兼容收据；不改变业务或物理接口。",
+  "tool_versions": {
+    "vitis": "2026.1",
+    "python_packager": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/bound_build_details.json.raw",
+      "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+      "role": "result",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/bound_compat_review.json.raw",
+      "sha256": "b5c6ecacc58a4a5490db5374149bf86b1a362f58f12b3577fe47a414872e6d63",
+      "role": "result",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/bound_owned_server.json.raw",
+      "sha256": "90385f4bd8705250c705fc774b5c6e75daf5b31aa7e779ab9ba5983e2567c5f6",
+      "role": "result",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/bound_platform_manifest.json.raw",
+      "sha256": "bc6626dcd721a08bd0368b8f46d7960f0be79e5a76e139cb0b100ea75a6376b1",
+      "role": "result",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/entry_calls.jsonl",
+      "sha256": "3d9ab10166164769a459bdd99ba17c77014eb9feac21e84bcf66015abbd7be13",
+      "role": "result",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/input_config.json",
+      "sha256": "06c669da0e006c093628162c555cc77bf790d02a9cabf8d9b97d9f1c22de42ab",
+      "role": "input",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r03/visibility_probe_result.json",
+      "sha256": "12769224a66bb2cf53c1e378468dfc872ee64a5ef25d0dc079a7ab921b5c51aa",
+      "role": "result",
+      "keep_reason": "保留真实板上操作、失败或观察、服务释放及执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r03/source_snapshot/verification/s2b_board_jtag.py",
+      "sha256": "4f69f848f71acb4b2ff7709a4ab40bbb892f0b205137d434f7a5f302805e1f85",
+      "role": "source",
+      "keep_reason": "按实际配置绑定恢复的执行版本。"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r03/source_snapshot/vitis/run_s2b_visibility_probe.py",
+      "sha256": "2015542ac9766110657112030040dd30d0f333223f8d60b5d31348bd65bd9638",
+      "role": "source",
+      "keep_reason": "按实际配置绑定恢复的执行版本。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "实际缓存探针入口",
+      "status": "FAIL",
+      "command": "D:\\Xilinx\\2026.1\\Vitis\\bin\\vitis.bat -s C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\vitis\\run_s2b_visibility_probe.py",
+      "exit_code": 2,
+      "reason": "原生入口结果与启动器码分别保存：FAILED; JtagError('目标数量或类型错误')"
+    },
+    {
+      "name": "完整模型与2B实物验收",
+      "status": "NOT_RUN",
+      "command": null,
+      "exit_code": null,
+      "reason": "visibility0探针范围不批准模型或visibility1平台，独立实物审查仍需完成。"
+    }
+  ],
+  "limitations": [
+    "完整模型/109样本/1000压力/恢复验收未执行，不代表G3–G5。",
+    "入口owned_hw_server_released=false为进程内事实，服务随后由根控外部闭合，两原件均保留。",
+    "Git恢复源码不是即时快照；收集器为归档当前版本。峰值内存未测。"
+  ]
+}

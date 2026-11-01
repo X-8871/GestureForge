@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py",
+    "--mode",
+    "short",
+    "--run-id",
+    "short_20261013_r02"
+  ],
+  "exit_code": 1,
+  "finished_utc8": "2026-10-13T02:15:40.592499+08:00",
+  "head": "e3fb62e2801a834ee1d83637477c4c291cd5fc67",
+  "mode": "short",
+  "run_id": "short_20261013_r02",
+  "runtime": {
+    "platform": "win32",
+    "psutil_path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\__init__.py",
+    "psutil_sha256": "7B6A0675824EB1FA2FF0CB1EB36E358DC454703E51DFA4E9A0E6CCD26A159F0C",
+    "psutil_version": "7.2.2",
+    "python_executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "python_sha256": "4D6F5F81A4BCA11191C4C7C6B43632694D0A4CE74E068619D8FDC161D469859A",
+    "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "source_sha256": {
+    "job_guard.py": "DA4C3114A837C46A59B6196AB9BDF35B5A0AD422454B615A532889D777A3D76A",
+    "s15_ross_job_guard.py": "3005DDDA2C0D2F4A78FD2360E8B4721E21D46ACCF618416381EC5D07D5DA1E31",
+    "test_s15_ross_job_guard.py": "B9DFFDCF4D79A29FB190D39F365950C95EC8C7F5E3008476E60B777AB09427D5"
+  },
+  "started_utc8": "2026-10-13T02:15:40.356216+08:00",
+  "status": "FAIL",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 382, in _accept_record\n    record = self.adapter.decode(raw, self.expected_session_id, now)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 113, in decode\n    raise RossGuardError(\"ROSS session_id与调用方原样session_id不符\")\ns15_ross_job_guard.RossGuardError: ROSS session_id与调用方原样session_id不符\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 622, in main\n    output = run_short(run_root) if args.mode == \"short\" else run_stress(run_root)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 435, in run_short\n    _test_initial_record_failures(run_root, checks)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 298, in _test_initial_record_failures\n    _expect_rejection(name, lambda: fixture.start(**values), checks)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 219, in _expect_rejection\n    callback()\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 298, in <lambda>\n    _expect_rejection(name, lambda: fixture.start(**values), checks)\n                                    ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 110, in start\n    return self.controller.start(self.initial_record(**overrides))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 360, in start\n    self.process_new_heartbeats()\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 610, in process_new_heartbeats\n    self._accept_record(record)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 384, in _accept_record\n    self._fail(f\"ROSS canonical记录拒绝：{error!r}\")\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 339, in _fail\n    raise RossJobGuardError(message)\n          ^^^^^^^^^^^^^^^^^\nNameError: name 'RossJobGuardError' is not defined. Did you mean: 'RossGuardError'?\n"
+}

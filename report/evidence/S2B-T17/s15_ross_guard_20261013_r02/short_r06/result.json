@@ -1,0 +1,32 @@
+{
+  "command": [
+    "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py",
+    "--mode",
+    "short",
+    "--run-id",
+    "short_r06"
+  ],
+  "exit_code": 1,
+  "finished_utc8": "2026-10-13T03:37:58.309499+08:00",
+  "head": "e3fb62e2801a834ee1d83637477c4c291cd5fc67",
+  "mode": "short",
+  "run_id": "short_r06",
+  "runtime": {
+    "platform": "win32",
+    "psutil_path": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psutil\\__init__.py",
+    "psutil_sha256": "7B6A0675824EB1FA2FF0CB1EB36E358DC454703E51DFA4E9A0E6CCD26A159F0C",
+    "psutil_version": "7.2.2",
+    "python_executable": "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "python_sha256": "4D6F5F81A4BCA11191C4C7C6B43632694D0A4CE74E068619D8FDC161D469859A",
+    "python_version": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]"
+  },
+  "source_sha256": {
+    "job_guard.py": "4760240AE9EA311682AE56B277B7312E3A037224A7FBB07953924BC39522FA49",
+    "s15_ross_job_guard.py": "94A4D9138FA6864B1AAB84212CBB3902C40D2A101013FC7B753FDF5E284AE843",
+    "test_s15_ross_job_guard.py": "A339B407425BACC39DD8CEBA9CB712E6D8529CD629EBD6AB7ABD11D1C28928F4"
+  },
+  "started_utc8": "2026-10-13T03:37:40.659847+08:00",
+  "status": "FAIL",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 987, in claim_dispatch\n    ack = dispatch_callback(receipt)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 214, in _dispatch_callback\n    hook(receipt)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 738, in launch_external_publisher\n    raise AssertionError(\"跨进程publisher在dispatch ACK前绕过文件租约\")\nAssertionError: 跨进程publisher在dispatch ACK前绕过文件租约\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 1285, in main\n    output = run_short(run_root)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 1031, in run_short\n    _test_dispatch_publisher_linearization(run_root, checks)\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\test_s15_ross_job_guard.py\", line 741, in _test_dispatch_publisher_linearization\n    fixture.controller.claim_dispatch(\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 990, in claim_dispatch\n    self._fail(f\"外层单次dispatch callback拒绝/失败：{error!r}\")\n  File \"C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\s15_ross_job_guard.py\", line 614, in _fail\n    raise RossJobGuardError(self.failure)\ns15_ross_job_guard.RossJobGuardError: 外层单次dispatch callback拒绝/失败：AssertionError('跨进程publisher在dispatch ACK前绕过文件租约')\n"
+}

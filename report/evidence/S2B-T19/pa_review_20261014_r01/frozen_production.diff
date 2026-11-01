@@ -1,0 +1,529 @@
+diff --git a/verification/s2b_board_jtag.py b/verification/s2b_board_jtag.py
+index 03a3982..6a47722 100644
+--- a/verification/s2b_board_jtag.py
++++ b/verification/s2b_board_jtag.py
+@@ -26,7 +26,7 @@ SLCR_LOCK, SLCR_UNLOCK, SLCR_LOCKSTA = 0xF8000004, 0xF8000008, 0xF800000C
+ PS_VERSION, LEVEL_SHIFTER, FPGA_RESET = 0xF8007080, 0xF8000900, 0xF8000240
+ FPGA0_CLOCK, PLL_STATUS = 0xF8000170, 0xF800010C
+ CSR_SNAPSHOT = tuple(range(0x00C, 0x030, 4)) + (0x050, 0x054, 0x058, 0x05C, 0x060, 0x068, 0x06C, 0x070, 0x074)
+-IDENTITY_KEYS = ("name", "target_ctx", "target_id", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
++IDENTITY_KEYS = ("name", "target_ctx", "parent_ctx", "parent", "jtag_cable_ctx", "jtag_device_ctx",
+                  "jtag_device_name", "jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")
+ # 既有ELF解析器使用同目录绝对导入；兼容模块导入和Vitis脚本两种入口。
+ if str(Path(__file__).absolute().parent) not in sys.path:
+@@ -223,23 +223,38 @@ def postconfig_basis(raw):
+ 
+ 
+ def validate_targets(properties):
+-    """动态 ID 选择唯一同链 APU、双核和 FPGA；不硬编码历史目标ID。"""
+-    require(type(properties) is dict and len(properties) == 4, "目标数量或类型错误")
+-    selected = {}
++    """只接受同链四主体及官方递归枚举暴露的完整双核PA物理访问子目标。"""
++    require(type(properties) is dict and len(properties) in (4, 6), "目标数量或类型错误")
++    selected, physical = {}, []
+     for ctx, row in properties.items():
+-        require(type(row) is dict and row.get("name") in NAMES and row["name"] not in selected, "目标歧义")
++        require(type(row) is dict and row.get("name") in (*NAMES, "PA"), "目标歧义")
+         require(row.get("target_ctx") == ctx and type(row.get("target_id")) is int and row["target_id"] > 0, "目标ID/上下文错误")
+         require(tuple(row.get(k) for k in ("jtag_cable_manufacturer", "jtag_cable_product", "jtag_cable_serial")) == CABLE,
+                 "线缆身份不符")
+         require(all(type(row.get(k)) is str and row[k] for k in ("jtag_cable_ctx", "jtag_device_ctx")), "目标链缺失")
+-        selected[row["name"]] = row
+-    require(set(selected) == set(NAMES) and len({r["target_id"] for r in selected.values()}) == 4, "目标不唯一")
+-    require(len({r["jtag_cable_ctx"] for r in selected.values()}) == 1, "设备不在同一线缆")
++        if row["name"] == "PA":
++            physical.append(row)
++        else:
++            require(row["name"] not in selected, "目标歧义")
++            selected[row["name"]] = row
++    require(set(selected) == set(NAMES) and len({r["target_id"] for r in properties.values()}) == len(properties), "目标不唯一")
++    require(len({r["jtag_cable_ctx"] for r in properties.values()}) == 1, "设备不在同一线缆")
+     apu = selected["APU"]
+     require(apu.get("jtag_device_name") == "arm_dap" and selected[NAMES[3]].get("jtag_device_name") == "xc7z020", "DAP/FPGA器件类型不符")
+     for name in NAMES[1:3]:
+         require(selected[name].get("parent_ctx") == apu["target_ctx"] and selected[name].get("parent") == "APU" and
+                 selected[name]["jtag_device_ctx"] == apu["jtag_device_ctx"] and selected[name].get("jtag_device_name") == "arm_dap", "CPU父链不符")
++    if physical:
++        require(len(physical) == 2, "PA目标必须为完整双核对")
++        for name in NAMES[1:3]:
++            cpu = selected[name]
++            matches = [row for row in physical if row.get("parent_ctx") == cpu["target_ctx"]]
++            require(len(matches) == 1, "PA父核缺失或重复")
++            row = matches[0]
++            # 官方递归原地展开APU的children缓存，parent文字与level是显示副作用；真实父链使用parent_ctx。
++            require(row["target_ctx"] == cpu["target_ctx"] + ".pa" and row.get("parent") == "APU" and
++                    type(row.get("level")) is int and row["level"] == 1, "PA上下文或官方显示属性不符")
++            require(all(row.get(key) == cpu.get(key) for key in set(row) | set(cpu) if key.startswith("jtag_")), "PA线缆或DAP父链不符")
+     return selected
+ 
+ 
+@@ -376,22 +391,29 @@ class JtagController:
+         require(dict(self.session._curchan_obj.remote_peer.attrs) == self.peer, "借用会话被重定向")
+         current = validate_targets(self.call("session.targets.properties", self.session.targets, "--target_properties"))
+         require(all(all(current[name].get(k) == self.selected[name].get(k) for k in IDENTITY_KEYS) for name in NAMES),
+-                "目标链/ID改变，禁止后续操作")
++                "目标上下文/父链改变，禁止后续操作")
++        self.refresh_targets(current)
+         require(self.state("cpu1").startswith("Stopped"), "CPU1未停止")
+         if both:
+             require(self.state("cpu0").startswith("Stopped"), "CPU0未停止")
+         require(self.words(0xF800025C, 1)[0] == 0, "BOOT_MODE不是JTAG=0")
+ 
++    def refresh_targets(self, selected):
++        """仅用当前枚举ID调用公开选择器；实际对象必须精确绑定固定上下文及本会话。"""
++        targets = {}
++        for label, name in zip(("apu", "cpu0", "cpu1", "fpga"), NAMES):
++            row = selected[name]
++            obj = self.call("session.targets." + label, self.session.targets, id=row["target_id"])
++            require(vars(obj).get("_ctx") == row["target_ctx"] and vars(obj).get("_id") == row["target_id"] and
++                    vars(obj).get("_name") == name and vars(obj).get("session") is self.session and
++                    self.session._curtarget is obj, "SDK对象不符合当前上下文或会话")
++            targets[label] = obj
++        self.targets, self.selected = targets, selected
++
+     def select_and_gate(self):
+         """首次仅枚举和只读门禁，Running时拒绝，不自行停止旧应用。"""
+         def action():
+-            self.selected = validate_targets(self.call("session.targets.properties", self.session.targets, "--target_properties"))
+-            for label, name in zip(("apu", "cpu0", "cpu1", "fpga"), NAMES):
+-                row = self.selected[name]
+-                obj = self.call("session.targets." + label, self.session.targets, id=row["target_id"])
+-                require(vars(obj).get("_ctx") == row["target_ctx"] and vars(obj).get("_id") == row["target_id"] and
+-                        vars(obj).get("_name") == name, "SDK对象不符合当前上下文")
+-                self.targets[label] = obj
++            self.refresh_targets(validate_targets(self.call("session.targets.properties", self.session.targets, "--target_properties")))
+             self.gate()
+             self.record["targets"] = self.selected
+             return self.selected
+diff --git a/verification/test_s2b_board_jtag.py b/verification/test_s2b_board_jtag.py
+index 070ad82..a53b8d0 100644
+--- a/verification/test_s2b_board_jtag.py
++++ b/verification/test_s2b_board_jtag.py
+@@ -62,6 +62,18 @@ def target_rows():
+     return rows
+ 
+ 
++def pa_target_rows():
++    """复现r04官方loadhw递归后显示：CPU物理父ctx、APU文字父及level1。"""
++    rows = target_rows()
++    rows["fpga"]["target_id"] = 15
++    for index, ctx in enumerate(("cpu0", "cpu1")):
++        row = copy.deepcopy(rows[ctx])
++        row.update(name="PA", target_ctx=ctx + ".pa", target_id=13 + index,
++                   parent_ctx=ctx, parent="APU", level=1)
++        rows[row["target_ctx"]] = row
++    return rows
++
++
+ def xsa_bytes():
+     """独立最小生成依据fixture；不引用被测常量，不冒充实际XSA。"""
+     generated = "unsigned long ps7GetSiliconVersion(){unsigned long mask=0xF0000000;unsigned long *addr=(unsigned long*)0XF8007080;unsigned long ps_version=(*addr & mask)>>28;return ps_version;}\n"
+@@ -216,7 +228,10 @@ class FakeSession:
+         self.config_status_word = 0
+ 
+     def targets(self, *args, **kwargs):
+-        return copy.deepcopy(self.rows) if args else self.objects[kwargs["id"]]
++        if args:
++            return copy.deepcopy(self.rows)
++        self._curtarget = self.objects[kwargs["id"]]
++        return self._curtarget
+ 
+ 
+ class FakeSerial:
+@@ -322,6 +337,54 @@ class JtagTests(unittest.TestCase):
+     def test_native_target_dynamic_ids_and_real_two_device_shape(self):
+         self.ready(); self.assertEqual(self.controller.targets["cpu0"]._id, 11)
+ 
++    def test_pa_pair_refreshes_fpga_current_id_without_selecting_old_pa_id(self):
++        self.ready()
++        old = self.controller.targets["fpga"]
++        self.session.rows = pa_target_rows()
++        self.session.objects[13] = FakeTarget(self.session, self.session.rows["cpu0.pa"])
++        self.session.objects[14] = FakeTarget(self.session, self.session.rows["cpu1.pa"])
++        self.session.objects[15] = FakeTarget(self.session, self.session.rows["fpga"])
++        self.controller.gate()
++        self.assertEqual(old._id, 13)
++        self.assertEqual(self.controller.targets["fpga"]._id, 15)
++        self.assertEqual(self.controller.targets["fpga"]._ctx, "fpga")
++        self.assertEqual(self.controller.selected["xc7z020"]["target_id"], 15)
++        self.assertFalse(any(row["api"] == "session.targets.fpga" and row["kwargs"] == {"id":13}
++                             for row in self.controller.record["calls"][-8:]))
++
++    def test_dynamic_selection_rejects_wrong_context_id_name_session_or_current_object(self):
++        self.controller.select_and_gate()
++        original = self.session.objects[13]
++        for key, value in (("_ctx", "cpu0.pa"), ("_id", 99), ("_name", "PA"), ("session", object())):
++            with self.subTest(field=key):
++                previous = vars(original)[key]
++                setattr(original, key, value)
++                with self.assertRaises(j.JtagError): self.controller.gate()
++                setattr(original, key, previous)
++        selector = self.session.targets
++        def wrong_current(*args, **kwargs):
++            result = selector(*args, **kwargs)
++            if not args: self.session._curtarget = object()
++            return result
++        self.session.targets = wrong_current
++        with self.assertRaises(j.JtagError): self.controller.gate()
++
++    def test_exact_pa_topology_and_invalid_variants(self):
++        self.assertEqual(set(j.validate_targets(target_rows())), set(j.NAMES))
++        self.assertEqual(set(j.validate_targets(pa_target_rows())), set(j.NAMES))
++        cases = []
++        for key, value in (("name", "VA"), ("parent_ctx", "cpu1"), ("target_ctx", "cpu0.PA"),
++                           ("parent", j.NAMES[1]), ("level", 2), ("level", True),
++                           ("target_id", 10), ("target_id", True), ("jtag_cable_ctx", "other"),
++                           ("jtag_device_ctx", "fpga_device"), ("jtag_device_name", "xc7z020"),
++                           ("jtag_cable_serial", "other")):
++            rows = pa_target_rows(); rows["cpu0.pa"][key] = value; cases.append((key, rows))
++        rows = pa_target_rows(); del rows["cpu1.pa"]; cases.append(("missing", rows))
++        rows = pa_target_rows(); rows["extra"] = dict(rows["fpga"]); cases.append(("extra_hardware", rows))
++        rows = pa_target_rows(); rows["cpu0.pa"] = None; cases.append(("row_type", rows))
++        for label, rows in cases:
++            with self.subTest(fault=label), self.assertRaises(j.JtagError): j.validate_targets(rows)
++
+     def test_pc_nvlist_bounds_and_exact_sdk_arguments(self):
+         self.controller.select_and_gate()
+         for label, target_id in (("cpu0", 11), ("cpu1", 12)):
+@@ -606,7 +669,7 @@ class JtagTests(unittest.TestCase):
+         self.assertFalse(self.controller.record["cold_lifecycle_proven"])
+ 
+     def test_target_context_drift_latches_failure(self):
+-        self.ready(); self.session.rows["cpu1"]["target_id"] = 30
++        self.ready(); self.session.rows["cpu1"]["target_ctx"] = "changed_cpu1"
+         with self.assertRaises(j.JtagError): self.controller.deploy()
+         self.assertTrue(self.controller.failed)
+ 
+diff --git a/verification/test_s2b_visibility_probe.py b/verification/test_s2b_visibility_probe.py
+index 9baed82..a7d4571 100644
+--- a/verification/test_s2b_visibility_probe.py
++++ b/verification/test_s2b_visibility_probe.py
+@@ -139,6 +139,17 @@ class LifecycleTests(unittest.TestCase):
+         self.assertIn(("connect",{"url":"TCP:localhost:3121","server":"hw_server"}),self.session.operations)
+         self.assertEqual(result["cache_probe"]["phase0_raw_hex"][:8],"78563412")
+         self.assertEqual(len(Path(self.config["run_dir"]).joinpath("uart_rx_raw.bin").read_bytes()),result["banner"]["bytes"]+2*(40+40+256))
++    def test_full_mock_lifecycle_after_loadhw_pa_pair_and_fpga_renumbering(self):
++        def setup(*args):
++            self.session.rows=fixture.pa_target_rows()
++            for ctx in ("cpu0.pa","cpu1.pa","fpga"):
++                row=self.session.rows[ctx]
++                self.session.objects[row["target_id"]]=fixture.FakeTarget(self.session,row)
++        result=self.execute(map_setup=setup)
++        self.assertEqual(result["native_exit_code"],0)
++        raw=json.loads((Path(self.config["run_dir"])/"jtag_result.json").read_text(encoding="utf-8"))
++        calls=[row for row in raw["calls"] if row["api"]=="session.targets.fpga"]
++        self.assertTrue(any(row["kwargs"]=={"id":15} for row in calls))
+     def test_sdk_uart_and_cleanup_failures_preserve_originals(self):
+         for scenario in ["start_session","connect","boot","chain","cpu0_stop","init_download","init","fpga","app","banner","cache","serial_open","serial_close","disconnect","dispose","breakpoint_cleanup"]:
+             with self.subTest(scenario=scenario):
+@@ -427,6 +438,14 @@ class SdkBoundaryTests(unittest.TestCase):
+             p.verify_runtime_sources(config)
+             target=object.__new__(modules["xsdb.target"].Target)
+             p.verify_runtime_sources(config,target=target)
++            session=object.__new__(modules["xsdb.session"].Session)
++            modules["xsdb"].debug_session=session;modules["xsdb.xsdb_debug_session"].debug_session_int_obj=session
++            target.session=session
++            p.verify_runtime_sources(config,session,target)
++            target.session=object()
++            with self.assertRaisesRegex(p.VisibilityProbeError,"其他会话"):p.verify_runtime_sources(config,session,target)
++            target.session=session
++            modules["xsdb"].debug_session=None;modules["xsdb.xsdb_debug_session"].debug_session_int_obj=None
+             other_target=object.__new__(modules["xsdb.target"].Target)
+             for kind,replacement in (("foreign_function",lambda *args,**kwargs:{"pc":0}),
+                                      ("wrong_method",target.state),
+@@ -458,6 +477,41 @@ class SdkBoundaryTests(unittest.TestCase):
+             modules["xsdb.session"].Session.connect=lambda **kwargs:None
+             with self.assertRaises(p.VisibilityProbeError):p.verify_runtime_sources(config)
+ 
++    def test_official_public_targets_reselects_current_id_without_mutating_previous_id(self):
++        """执行官方AST中的公开选择路径和Target构造/属性分派，隔离所有TCF与SDK导入。"""
++        target_source=p.SDK_INIT.parent/"target.py"
++        session_source=p.SDK_INIT.parent/"session.py"
++        target_class=next(node for node in ast.parse(target_source.read_text(encoding="utf-8-sig")).body
++                          if isinstance(node,ast.ClassDef) and node.name=="Target")
++        target_class.body=[node for node in target_class.body if isinstance(node,ast.FunctionDef) and node.name in ("__init__","__getattr__")]
++        namespace={"TcfNodeExecContext":object}
++        exec(compile(ast.fix_missing_locations(ast.Module(body=[target_class],type_ignores=[])),str(target_source),"exec"),namespace)
++        official_target=namespace["Target"]
++        ctx="fpga"
++        node=SimpleNamespace(id=ctx,get_run_context_data=lambda:SimpleNamespace(getName=lambda:"xc7z020",getID=lambda:ctx))
++        model=SimpleNamespace(get_node=lambda context:node,launch_node=SimpleNamespace(get_target_context_map=lambda:{15:ctx}))
++        session=SimpleNamespace(_curchan="owned",_targets=[],_model=model,_get_targets=lambda:None,
++                                _Session__get_debug_targets_properties=lambda tgts,jtag:{ctx:{"target_id":15}},
++                                _curchan_obj=SimpleNamespace(getRemoteServices=lambda:[]))
++        session.session=session
++        old=official_target("owned",13,node,session);session._targets=[old]
++        self.assertTrue(callable(old.ctx))
++        function=next(node for cls in ast.parse(session_source.read_text(encoding="utf-8-sig")).body
++                      if isinstance(cls,ast.ClassDef) and cls.name=="Session" for node in cls.body
++                      if isinstance(node,ast.FunctionDef) and node.name=="targets")
++        globals_={"argparse":argparse,"check_int":int,"exec_as_runnable":lambda function:{},
++                  "jtag_service":SimpleNamespace(NAME="Jtag"),"protocol":SimpleNamespace(invokeAndWait=lambda function:function()),
++                  "xsdb":SimpleNamespace(target=SimpleNamespace(Target=official_target),debug_session=session),
++                  "add_function_metadata":lambda *args:None}
++        # 保留官方方法的私有名称改写语义，容器类无需执行任何其他SDK初始化。
++        wrapper=ast.ClassDef(name="Session",bases=[],keywords=[],body=[function],decorator_list=[])
++        exec(compile(ast.fix_missing_locations(ast.Module(body=[wrapper],type_ignores=[])),str(session_source),"exec"),globals_)
++        selected=globals_["Session"].targets(session,id=15)
++        self.assertIsNot(selected,old)
++        self.assertEqual((selected._ctx,selected._id,selected._name),(ctx,15,"xc7z020"))
++        self.assertIs(selected.session,session);self.assertIs(session._curtarget,selected)
++        self.assertEqual(old._id,13)
++
+     def test_native_shared_metadata_and_physical_images_exact(self):
+         names=("xv_pycommontasks","xv_hsmpytasks")
+         files={name:bind(file) for name,file in p.sdk_source_closure().items()}
+@@ -501,16 +555,19 @@ class CsrDebugMapTests(unittest.TestCase):
+         self.write_hwh([self.region])
+         self.calls=[];self.scenario="normal"
+         self.session=SimpleNamespace(_curtarget=None,_curchan="owned",_designtable={},_memmap_ctxs={},_memmaptable={})
+-        self.apu=SimpleNamespace(_ctx="apu",_id=10,_name="APU")
+-        def select(*,id):
++        self.apu=SimpleNamespace(_ctx="apu",_id=10,_name="APU",session=self.session)
++        self.rows=fixture.target_rows()
++        def select(*args,id=None):
++            if args:
++                self.calls.append(("properties",));return copy.deepcopy(self.rows)
+             self.calls.append(("select",id))
+-            selected=self.apu if self.scenario!="wrong_selection" else SimpleNamespace(_ctx="fpga",_id=13,_name="xc7z020")
++            selected=self.apu if self.scenario!="wrong_selection" else SimpleNamespace(_ctx="fpga",_id=13,_name="xc7z020",session=self.session)
+             self.session._curtarget=selected
+             return selected
+         def loadhw(*,hw,mem_ranges):
+             self.assertIs(self.session._curtarget,self.apu)
+             self.calls.append(("loadhw",hw,mem_ranges))
+-            self.session._designtable[hw]={"design":"UNIT_FAKE_DESIGN"}
++            self.session._designtable[hw]={"design":"UNIT_FAKE_DESIGN","targets":["apu"],"channels":["owned"]}
+             if self.scenario=="partial_load":raise RuntimeError("UNIT_PARTIAL_LOAD")
+             value={"base":0x43C00000,"high":0x43C0FFFF,"size":0x10000,"type":"REGISTER","flags":3}
+             entry={"Addr":0x43C00000,"Size":0x10000,"Flags":3}
+@@ -533,7 +590,7 @@ class CsrDebugMapTests(unittest.TestCase):
+         def gate():
+             self.calls.append(("gate",))
+             self.session._curtarget=SimpleNamespace(_ctx="fpga")
+-        self.controller=SimpleNamespace(targets={"apu":self.apu},gate=gate)
++        self.controller=SimpleNamespace(targets={"apu":self.apu},selected=j.validate_targets(self.rows),gate=gate)
+         self.record={"calls":[],"verified_inputs":{"compat_artifacts":{"implemented_xsa":bind(self.binding)}}}
+         self.log=p.Recorder(self.directory/"calls.jsonl",self.record);self.owner={}
+         self.runtime_patch=patch.object(p,"verify_runtime_sources",return_value={"scope":"UNIT_MOCK"})
+@@ -550,6 +607,11 @@ class CsrDebugMapTests(unittest.TestCase):
+         return p.register_csr_debug_map({},self.record,self.log,self.session,self.controller,self.owner)
+     def clear(self):
+         return p.clear_csr_debug_map({},self.record,self.log,self.session,self.owner)
++    def fresh_cleanup_log(self):
++        """每个独立mock卸载使用独占Run目录，保留此前诊断文件而不覆盖。"""
++        self.log.stream.close()
++        folder=Path(tempfile.mkdtemp(prefix="unit_cleanup_",dir=self.directory))
++        self.log=p.Recorder(folder/"calls.jsonl",self.record)
+     def test_exact_window_selects_apu_and_cleans_owned_map(self):
+         self.register()
+         self.assertEqual(self.calls[:2],[("gate",),("select",10)])
+@@ -569,6 +631,7 @@ class CsrDebugMapTests(unittest.TestCase):
+     def test_actual_sdk_mapping_growth_permissions_context_or_absence_rejected(self):
+         for scenario in ("expanded","flags","entry_expanded","entry_flags","file_map","wrong_context","extra","missing"):
+             with self.subTest(scenario=scenario):
++                self.fresh_cleanup_log()
+                 self.scenario=scenario
+                 with self.assertRaises(p.VisibilityProbeError):self.register()
+                 self.assertTrue(self.owner["attempted"])
+@@ -584,6 +647,7 @@ class CsrDebugMapTests(unittest.TestCase):
+         self.scenario="partial_load"
+         with self.assertRaisesRegex(RuntimeError,"UNIT_PARTIAL_LOAD"):self.register()
+         self.assertTrue(self.owner["attempted"]);self.clear()
++        self.fresh_cleanup_log()
+         self.scenario="normal";self.register();self.scenario="cleanup_failure"
+         with self.assertRaisesRegex(RuntimeError,"UNIT_UNLOAD_FAILURE"):self.clear()
+         self.assertEqual(self.record["debug_memory_map"]["cleanup"],"NOT_RUN")
+@@ -592,4 +656,75 @@ class CsrDebugMapTests(unittest.TestCase):
+         with self.assertRaises(p.VisibilityProbeError):self.clear()
+         self.assertFalse(any(row[0]=="unloadhw" for row in self.calls))
+ 
++    def test_cleanup_uses_current_apu_id_after_pa_topology_change(self):
++        self.register()
++        self.rows=fixture.pa_target_rows();self.rows["apu"]["target_id"]=20
++        original=self.apu
++        self.apu=SimpleNamespace(**{**vars(original),"_id":20})
++        self.clear()
++        self.assertEqual(original._id,10)
++        self.assertIn(("select",20),self.calls)
++        self.assertEqual(self.record["debug_memory_map"]["cleanup"],"OWNED_HW_MAP_CLEARED")
++
++    def test_cleanup_rejects_drift_extra_design_or_foreign_target_before_unload(self):
++        self.register()
++        original=copy.deepcopy(self.rows)
++        for kind in ("missing_pa","ctx_drift","extra_design","foreign_session","wrong_id","owner_targets","owner_channels"):
++            with self.subTest(fault=kind):
++                self.rows=copy.deepcopy(original)
++                if kind=="missing_pa":self.rows=fixture.pa_target_rows();del self.rows["cpu1.pa"]
++                if kind=="ctx_drift":self.rows["cpu1"]["parent_ctx"]="different"
++                if kind=="extra_design":self.session._designtable["foreign"]={}
++                if kind=="foreign_session":self.apu.session=object()
++                if kind=="wrong_id":self.apu._id=99
++                design=self.session._designtable[str(self.binding)]
++                if kind=="owner_targets":design["targets"]=["apu","foreign"]
++                if kind=="owner_channels":design["channels"]=["foreign"]
++                with self.assertRaises((p.VisibilityProbeError,p.helpers()[0].JtagError)):self.clear()
++                self.assertFalse(any(row[0]=="unloadhw" for row in self.calls))
++                self.session._designtable.pop("foreign",None);self.apu.session=self.session;self.apu._id=10
++                design.update(targets=["apu"],channels=["owned"])
++
++    def test_delayed_unload_stack_order_and_empty_file_means_no_dump(self):
++        self.register()
++        events=[]
++        def schedule(delay,*,repeat,file):
++            self.assertEqual(delay,30);self.assertFalse(repeat);self.assertFalse(file.closed)
++            events.append("schedule")
++        original=self.apu.unloadhw
++        def unload():events.append("unload");original()
++        self.apu.unloadhw=unload
++        with patch.object(p.faulthandler,"dump_traceback_later",side_effect=schedule),patch.object(p.faulthandler,"cancel_dump_traceback_later",side_effect=lambda:events.append("cancel")):
++            self.clear()
++        self.assertEqual(events,["schedule","unload","cancel"])
++        diagnostic=self.record["debug_memory_map"]["unload_stack_diagnostic"]
++        self.assertEqual(diagnostic["status"],"CANCELLED_WITHOUT_DUMP")
++        self.assertFalse(diagnostic["dump_observed"])
++        self.assertEqual(diagnostic["sha256"],hashlib.sha256(b"").hexdigest())
++
++    def test_unload_exception_still_cancels_and_preserves_original_failure(self):
++        self.register();self.scenario="cleanup_failure"
++        events=[]
++        with patch.object(p.faulthandler,"dump_traceback_later",side_effect=lambda *args,**kwargs:events.append("schedule")),patch.object(p.faulthandler,"cancel_dump_traceback_later",side_effect=lambda:events.append("cancel")):
++            with self.assertRaisesRegex(RuntimeError,"UNIT_UNLOAD_FAILURE"):self.clear()
++        self.assertEqual(events,["schedule","cancel"])
++        self.assertFalse(self.record["debug_memory_map"]["unload_stack_diagnostic"]["dump_observed"])
++
++    def test_stack_schedule_failure_keeps_public_unload_and_reports_failure(self):
++        self.register()
++        with patch.object(p.faulthandler,"dump_traceback_later",side_effect=RuntimeError("UNIT_STACK_SCHEDULE_FAILURE")),patch.object(p.faulthandler,"cancel_dump_traceback_later") as cancel:
++            with self.assertRaisesRegex(p.VisibilityProbeError,"诊断失败"):self.clear()
++        cancel.assert_not_called()
++        self.assertIn(("unloadhw",),self.calls)
++        self.assertEqual(self.record["debug_memory_map"]["unload_stack_diagnostic"]["status"],"FAILED")
++        self.assertTrue(any("UNIT_STACK_SCHEDULE_FAILURE" in row["error"] for row in self.record["cleanup_errors"]))
++
++    def test_stack_cancel_failure_preserves_open_descriptor_and_failure_evidence(self):
++        self.register()
++        with patch.object(p.faulthandler,"dump_traceback_later"),patch.object(p.faulthandler,"cancel_dump_traceback_later",side_effect=RuntimeError("UNIT_STACK_CANCEL_FAILURE")):
++            with self.assertRaisesRegex(p.VisibilityProbeError,"诊断失败"):self.clear()
++        self.assertFalse(self.owner["pending_stack_stream"].closed)
++        self.assertEqual(self.record["debug_memory_map"]["unload_stack_diagnostic"]["status"],"FAILED")
++        self.owner["pending_stack_stream"].close()
++
+ if __name__=="__main__":unittest.main()
+diff --git a/vitis/run_s2b_visibility_probe.py b/vitis/run_s2b_visibility_probe.py
+index b01c968..ea21903 100644
+--- a/vitis/run_s2b_visibility_probe.py
++++ b/vitis/run_s2b_visibility_probe.py
+@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
+ from pathlib import Path
+ import argparse
+ import ast
++import faulthandler
+ import hashlib
+ import importlib
+ import importlib.util
+@@ -27,7 +28,7 @@ ROOT=Path(__file__).absolute().parents[1]
+ TZ=timezone(timedelta(hours=8))
+ SDK_INIT=Path(r"D:\Xilinx\2026.1\Vitis\cli\xsdb\__init__.py")
+ # 固定T16 EOS→生成postconfig→冷CSR候选；此绑定不替代独立G2及实板兼容批准。
+-JTAG_SHA="4f69f848f71acb4b2ff7709a4ab40bbb892f0b205137d434f7a5f302805e1f85"
++JTAG_SHA="248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee"
+ CONFIG_KEYS={"schema_version","source_commit","run_dir","build_details","bindings","compat_review","cold_basis",
+              "owned_hw_server_identity","uart_identity","cpu_seed","dap_seed","response_timeout_seconds","pyserial_files","sdk_files"}
+ ARTIFACT_KEYS={"compiled_xsa","implemented_xsa","init_elf","app_elf","bit","build_details","platform_manifest"}
+@@ -231,6 +232,8 @@ def verify_runtime_sources(config,session=None,target=None):
+     if target is not None:
+         cls=sys.modules["xsdb.target"].Target
+         require(type(target) is cls,"实际target接收器类型或定义模块不符")
++        if session is not None:
++            require(vars(target).get("session") is session,"实际target接收器属于其他会话")
+         for name in ("state","stop","con","dow","bpadd","mrd","mwr","rst","fpga","rrd","loadhw","unloadhw"):
+             require(getattr(getattr(target,name),"__func__",None) is getattr(cls,name),"实际target方法接收器被替换："+name)
+             if name=="rrd":
+@@ -405,10 +408,11 @@ def register_csr_debug_map(config,record,log,session,controller,owner):
+     reference=controller.targets["apu"]
+     apu=log.call("session.select_apu_for_debug_map",session.targets,id=vars(reference)["_id"])
+     require(all(vars(apu).get(key)==vars(reference).get(key) for key in ("_ctx","_id","_name"))
+-            and session._curtarget is apu,"映射接收器与实际选中APU不一致")
++            and vars(apu).get("session") is session and session._curtarget is apu,"映射接收器与实际选中APU不一致")
+     log.call("runtime.verify_debug_map_target",verify_runtime_sources,config,session,apu)
+     require(not session._designtable and not session._memmap_ctxs,"新自有会话已存在硬件映射，拒绝复用")
+-    owner.update(apu=apu,channel=session._curchan,ctx=vars(apu)["_ctx"],attempted=True)
++    owner.update(apu=apu,channel=session._curchan,ctx=vars(apu)["_ctx"],attempted=True,
++                 targets={name:dict(row) for name,row in controller.selected.items()},hw=os.path.realpath(binding["path"]))
+     record["debug_memory_map"]={"status":"ATTEMPTED","implemented_xsa":binding,"hwh_region":region,
+                                 "apu_id":vars(apu)["_id"],"apu_ctx":owner["ctx"],"range":[base,end],"cleanup":"NOT_RUN"}
+     log.call("apu.loadhw.csr_only",apu.loadhw,hw=binding["path"],mem_ranges=[[base,end]])
+@@ -427,13 +431,59 @@ def register_csr_debug_map(config,record,log,session,controller,owner):
+ def clear_csr_debug_map(config,record,log,session,owner):
+     """清理本次自有会话登记的硬件映射；部分失败亦保留真实清理结果。"""
+     if not owner.get("attempted"):return
+-    apu=log.call("session.select_apu_for_map_cleanup",session.targets,id=vars(owner["apu"])["_id"])
+-    require(all(vars(apu).get(key)==vars(owner["apu"]).get(key) for key in ("_ctx","_id","_name"))
+-            and session._curtarget is apu and session._curchan==owner["channel"],"清理映射APU身份不符")
++    j,_=helpers()
++    selected=j.validate_targets(log.call("session.map_cleanup_targets",session.targets,"--target_properties"))
++    require(all(all(selected[name].get(key)==owner["targets"][name].get(key) for key in j.IDENTITY_KEYS)
++                for name in j.NAMES),"清理映射硬件上下文或父链改变")
++    row=selected["APU"]
++    apu=log.call("session.select_apu_for_map_cleanup",session.targets,id=row["target_id"])
++    require(vars(apu).get("_ctx")==owner["ctx"] and vars(apu).get("_id")==row["target_id"] and
++            vars(apu).get("_name")=="APU" and vars(apu).get("session") is session and
++            session._curtarget is apu and session._curchan==owner["channel"],"清理映射APU身份不符")
++    require(set(session._designtable)=={owner["hw"]},"清理映射存在其他硬件设计")
++    design=session._designtable[owner["hw"]]
++    require(("targets" not in design or design["targets"]==[owner["ctx"]]) and
++            ("channels" not in design or design["channels"]==[owner["channel"]]),"清理映射设计所有权改变")
+     log.call("runtime.verify_map_cleanup_target",verify_runtime_sources,config,session,apu)
+-    log.call("apu.unloadhw.owned_map",apu.unloadhw)
++    stack_path=j.exact_path(Path(log.stream.name).parent,directory=True)/"sdk_unload_stack.log"
++    diagnostic={"path":str(stack_path),"delay_seconds":30,"repeat":False,"status":"PLANNED","dump_observed":False}
++    record["debug_memory_map"]["unload_stack_diagnostic"]=diagnostic
++    stream=None;scheduled=False;cancelled=False
++    def diagnostic_error(action,error):
++        """诊断失败独立保存；仍执行公共卸载，禁止冒充SDK清理完成。"""
++        diagnostic.update(status="FAILED",error=repr(error))
++        record.setdefault("cleanup_errors",[]).append({"action":"owned_csr_debug_map.stack_"+action,"error":repr(error)})
++    try:
++        try:
++            stream=stack_path.open("xb")
++            faulthandler.dump_traceback_later(30,repeat=False,file=stream)
++            scheduled=True;diagnostic["status"]="SCHEDULED"
++        except Exception as error:
++            diagnostic_error("schedule",error)
++        log.call("apu.unloadhw.owned_map",apu.unloadhw)
++    finally:
++        if scheduled:
++            try:
++                faulthandler.cancel_dump_traceback_later();cancelled=True
++            except Exception as error:
++                diagnostic_error("cancel",error)
++        if stream is not None:
++            try:
++                stream.flush()
++                raw=stack_path.read_bytes()
++                diagnostic.update(size_bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),dump_observed=bool(raw))
++                if diagnostic["status"]!="FAILED":diagnostic["status"]="STACK_CAPTURED" if raw else "CANCELLED_WITHOUT_DUMP"
++            except Exception as error:
++                diagnostic_error("capture",error)
++            if not scheduled or cancelled:
++                try:stream.close()
++                except Exception as error:diagnostic_error("close",error)
++            else:
++                # 取消失败时保留描述符至自有进程结束，避免尚待执行的全局计时器写入已关闭文件。
++                owner["pending_stack_stream"]=stream
+     require(not session._designtable and not session._memmap_ctxs.get(owner["channel"],{}),"本次硬件映射未清理")
+     record["debug_memory_map"]["cleanup"]="OWNED_HW_MAP_CLEARED"
++    require(diagnostic["status"]!="FAILED","公共卸载已返回且映射已清空，但卸载栈诊断失败")
+ 
+ def run(config):
+     """总控显式传入JSON文件才执行；新Run独占，任何失败留原字节并抛异常。"""
+@@ -559,7 +609,7 @@ def run(config):
+             cleanup("owned_csr_debug_map.clear",clear_csr_debug_map,config=cfg,record=record,log=log,session=session,owner=map_owner)
+             cleanup("session.disconnect",session.disconnect,**({"chan":channel} if channel is not None else {}))
+         if sdk is not None:cleanup("xsdb.dispose",sdk.dispose)
+-        for name in ("uart_rx_raw.bin","uart_tx_headers.bin","jtag_result.json","jtag_calls.jsonl"):
++        for name in ("uart_rx_raw.bin","uart_tx_headers.bin","jtag_result.json","jtag_calls.jsonl","sdk_unload_stack.log"):
+             path=folder/name
+             if path.is_file():record.setdefault("saved_files",{})[name]={"sha256":digest(path),"bytes":path.stat().st_size}
+         record.update(finished_at_utc8=datetime.now(TZ).isoformat(),elapsed_seconds=time.monotonic()-start,native_exit_code=2 if failure or record["status"]=="FAILED" else 0,owned_hw_server_released=False)

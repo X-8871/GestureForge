@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19",
+  "run_id": "visibility1_timing_route_explore_20261014_r01",
+  "source_commit": "aa6fd7248ef9271bbcc79fefe097c78fec8fb36a",
+  "design": {
+    "top": "s2b_inference_wrapper",
+    "part": "xc7z020clg400-2",
+    "clock_mhz": 50,
+    "period_ns": 20,
+    "vivado_version": "2026.1"
+  },
+  "route_experiment": {
+    "input_checkpoint": {
+      "path": "tmp/2B/S2B-T19/visibility1_timing_physopt_20261014_r01/after_physopt.dcp",
+      "sha256": "9893c13a0f4305d4b3e38d89aa8da07329cf2ac4346e2c186a12fc2a844a108e"
+    },
+    "preceding_optimization": "phys_opt_design -directive AggressiveExplore",
+    "command": "route_design -directive Explore -timing_summary",
+    "started_at_utc8": "2026-10-14T11:00:53+08:00",
+    "elapsed_seconds": 393.95,
+    "native_exit_code": 0,
+    "peak_vivado_memory_mb_reported": 2456.949,
+    "output_checkpoint": {
+      "path": "tmp/2B/S2B-T19/visibility1_timing_route_explore_20261014_r01/after_route_explore.dcp",
+      "sha256": "6c6f9476f73f31273729fe5623bf330f0b5b88892750effecc7ebf2199d879c5"
+    }
+  },
+  "timing": {
+    "setup": {
+      "status": "FAIL",
+      "wns_ns": -0.147,
+      "tns_ns": -4.619,
+      "failing_endpoints": 60,
+      "total_endpoints": 15190
+    },
+    "hold": {
+      "status": "PASS",
+      "whs_ns": 0.057,
+      "ths_ns": 0,
+      "failing_endpoints": 0
+    },
+    "pulse_width": {
+      "status": "PASS",
+      "wpws_ns": 8.870,
+      "tpws_ns": 0,
+      "failing_endpoints": 0
+    },
+    "worst_path": {
+      "from": "s2b_inference_i/infer/inst/core/u_network_backend/output_y_cursor_reg[4]/C",
+      "to": "s2b_inference_i/infer/inst/core/u_network_backend/u_maxpool_engine/tap_address_latched_reg[1][6]/D"
+    }
+  },
+  "routing": {
+    "routable_nets": 34036,
+    "fully_routed_nets": 34036,
+    "route_errors": 0
+  },
+  "checks": {
+    "check_timing_categories": 12,
+    "check_timing_nonzero_categories": 0,
+    "methodology_findings": 0,
+    "bitstream_generation": "NOT_RUN_SETUP_TIMING_FAILED",
+    "board_execution": "NOT_RUN"
+  },
+  "xpr_input": {
+    "path": "tmp/2B/S2B-T19/visibility1_build_20261014_r01/project/s2b_inference_candidate.xpr",
+    "sha256": "b26137233bc6449fa8fff7d1427e014facabc1218a65ff6562b1c47ac60adb4c"
+  },
+  "vivado_log": {
+    "path": "tmp/2B/S2B-T19/visibility1_build_20261014_r01/.vivado-ai/vivado_44408813_6cd684ee.log",
+    "sha256": "1199549f21702e5b3ae97f8e7a8270cadaabad875fc582e6d36f169724ad8760"
+  },
+  "report_export_attempt": {
+    "initial_relative_path_attempt_exit_code": 1,
+    "recovery": "使用已核验仓库绝对路径重导出，成功并保留初次路径错误记录；设计未修改。"
+  },
+  "evidence_packaging": {
+    "attempts": [
+      {
+        "exit_code": 1,
+        "status": "CHECKS_FAILED_BEFORE_PROJECT_ROOT_RESOLUTION",
+        "reason": "默认沙箱无法读取工作区父目录元数据；只读检查未完成。"
+      },
+      {
+        "exit_code": 1,
+        "status": "CHECKS_FAILED",
+        "reason": "首次提权只读核验发现XPR清单路径前缀错误，随后按实际文件路径修正。"
+      },
+      {
+        "exit_code": 0,
+        "status": "CHECKS_OK",
+        "scope": "仅证据文件清单及SHA-256包装核对，不代表时序、G0/G4/G5或实物通过。"
+      }
+    ]
+  },
+  "limitations": [
+    "本次仅对既有 phys_opt_design 后的 DCP 继续 Explore 路由，不是新的综合或从零实现运行。",
+    "实际器件速度标记照片显示 XA7Z020，当前工程按厂商文字确认的 XC7Z020-2 目标执行；板上器件身份冲突仍未由本轮关闭。",
+    "该候选的 setup 时序失败，未生成位流、未下载板卡、未执行模型或 2B 实物验收。",
+    "完整峰值内存仅记录 Vivado 报告的进程峰值，系统总内存峰值未测。"
+  ]
+}

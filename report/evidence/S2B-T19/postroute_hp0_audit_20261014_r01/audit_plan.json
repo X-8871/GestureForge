@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "run_id": "postroute_hp0_audit_20261014_r01",
+  "status": "STOPPED_BY_OBJECT_BUDGET",
+  "started_at": "2026-10-14T09:03:09+08:00",
+  "task": "对visibility=0冻结post-route DCP执行有界只读HP0/AxCACHE/响应路径查询",
+  "input": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_launch_prepare_20261012_r02\\project_s15_r01\\s2b_inference_candidate.runs\\impl_1\\s2b_inference_wrapper_postroute_physopt.dcp",
+    "sha256_before": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+    "bytes": 13704328
+  },
+  "environment": {
+    "available_memory_mib_before": 3656,
+    "heavy_vivado_vitis_simulation_or_xsdb_processes": 0,
+    "vivado_session_before": "none",
+    "vivado_mcp_server_processes": 3
+  },
+  "tool": "Vivado 2026.1 Tcl via ROSS",
+  "allowed_operations": [
+    "只读打开既有checkpoint",
+    "查询对象、属性、网络段、叶pin、扇入扇出和分层资源报告",
+    "记录日志、命令、输出、退出状态、耗时和结果哈希"
+  ],
+  "prohibited_operations": [
+    "不运行综合、实现、优化、写位流或重新保存checkpoint",
+    "不修改DCP或源工程，不接触板卡/JTAG/Flash",
+    "不关闭或控制任何非本次新建的Vivado会话"
+  ],
+  "limits": {
+    "hard_timeout_seconds": 300,
+    "max_ps7_cells": 1,
+    "max_ps7_pins": 1024,
+    "max_segments_per_signal": 128,
+    "max_leaf_pins_per_signal": 256,
+    "max_cone_endpoints_per_signal": 256
+  },
+  "stop_conditions": [
+    "输入路径、文件大小或SHA不匹配",
+    "PS7缺失或不唯一",
+    "对象计数超过上限、出现未解释多驱动/桥接/响应来源",
+    "命令累计超过300秒或出现资源异常",
+    "Vivado启动、DCP打开或查询失败"
+  ],
+  "observed_result": {
+    "vivado_session_id": "vivado-20261014-090340-78865791",
+    "vivado_process_id": 9976,
+    "vivado_version": "2026.1 build 6511674",
+    "open_checkpoint_elapsed_seconds": 88.22,
+    "open_checkpoint_peak_memory_mib": 1750.914,
+    "ps7_count": 1,
+    "ps7_name": "s2b_inference_i/ps7/inst/PS7_i",
+    "ps7_ref_name": "PS7",
+    "ps7_loc": "PS7_X0Y0",
+    "unfiltered_ps7_pin_count": 3305,
+    "pin_query_exit_code": 1,
+    "pin_query_output": "PS7_COUNT=1; PS7_PIN_COUNT=3305; STOP: PS7 pin budget exceeded",
+    "checkpoint_modified": false,
+    "session_closed": true,
+    "hardware_execution": "NOT_RUN"
+  },
+  "expected_artifacts": [
+    "audit_plan.json",
+    "execution_receipt.json",
+    "query transcript from ROSS Vivado history",
+    "summarized observations bound to the exact DCP SHA"
+  ],
+  "hardware_execution": "NOT_RUN"
+}

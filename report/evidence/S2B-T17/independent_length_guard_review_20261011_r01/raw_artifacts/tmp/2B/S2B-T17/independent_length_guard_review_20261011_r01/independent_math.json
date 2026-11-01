@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "seed": 291510059,
+  "valid_r": 195028,
+  "positive_length": 351647,
+  "triples": 352806,
+  "exhaustive_all_valid_r_triples": 194806,
+  "zero_masked": 1159,
+  "weight_pairs": 101372,
+  "coverage": "全部正整数C*KH*KW<=4608三因子穷举；U32宽随机100000；0..8193随机50000；20值笛卡尔；每个合法R的OC端点及U32阈值两侧。",
+  "proof": [
+    "零因子由第一分支拒绝，层越界/weight层失配在该分支仍覆盖BAD_RANGE。",
+    "正a,b,c且abc<=U32：ab<=U32，故plane高位检查充分；合法plane32*c32精确64。",
+    "R<=4608蕴含三个正因子和CKH均<=4608；factor32门禁及plane26门禁先保证低13位截取等价。",
+    "非法R不进入长度分支，合法R13*OC32精确45；无需提前MQ容量限制。"
+  ]
+}

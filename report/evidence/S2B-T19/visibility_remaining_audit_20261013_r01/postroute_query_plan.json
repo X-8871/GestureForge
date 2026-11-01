@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "status": "NOT_RUN",
+  "kind": "bounded-postroute-hp0-query-plan/1.0.0",
+  "input": {
+    "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s15_launch_prepare_20261012_r02\\project_s15_r01\\s2b_inference_candidate.runs\\impl_1\\s2b_inference_wrapper_postroute_physopt.dcp",
+    "sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+    "bytes": 13704328
+  },
+  "tool": "Vivado 2026.1 Tcl，仅独占已确认会话或隔离只读会话",
+  "preconditions": [
+    "重新核对精确DCP路径及SHA；不得修改/重保存DCP",
+    "核对活跃Vivado/重型进程与16GiB资源门禁，证明会话归属；本审查不启动Vivado",
+    "新RunId，完整记录Tcl原命令/输出/退出码/版本/用时/采样峰值内存；无重型流程"
+  ],
+  "budget": {
+    "expected_minutes": "2–5（待测）",
+    "hard_timeout_seconds": 300,
+    "max_ps7_cells": 1,
+    "max_ps7_pins": 1024,
+    "max_segments_per_signal": 128,
+    "max_leaf_pins_per_signal": 256,
+    "max_cone_endpoints_per_signal": 256
+  },
+  "sequence": [
+    {
+      "command": "open_checkpoint <精确路径，来自input.path>",
+      "purpose": "加载固定postroute网表，无综合/实现"
+    },
+    {
+      "command": "get_cells -hierarchical -filter {REF_NAME == PS7}",
+      "purpose": "必须唯一PS7；记录NAME/REF_NAME/LOC"
+    },
+    {
+      "command": "get_pins -of_objects <唯一PS7对象>",
+      "purpose": "限定枚举actual NAME/REF_PIN_NAME/DIRECTION，找到实际HP0 AR/AW/R/W/B信号，不猜层次名称"
+    },
+    {
+      "command": "get_nets -segments -of_objects <每个实际HP0 ARCACHE/AWCACHE逐bit pin>",
+      "purpose": "逐bit记录完整segment及leaf driver/load，常量根必须GND/逻辑0，无属性改写者"
+    },
+    {
+      "command": "get_pins -leaf -of_objects <限定segments>; get_cells -of_objects <leaf pins>",
+      "purpose": "记录REF_NAME/REF_PIN_NAME/DIRECTION；拒绝未追踪段、多个driver及未解释LUT/桥"
+    },
+    {
+      "command": "同样逐signal查询HP0 AWVALID/AWREADY/WVALID/WREADY/BVALID/BREADY/BID/BRESP和ARVALID/ARREADY/RVALID/RREADY/RID/RLAST/RRESP",
+      "purpose": "核对全部地址/数据/响应路线同属实际PS7 HP0，GP converter不可误当HP桥"
+    },
+    {
+      "command": "all_fanin -flat -startpoints_only -to <HP0 AW/W/AR实际pins>; all_fanout -flat -endpoints_only -from <HP0 B/R实际pins>",
+      "purpose": "受数量上限约束，关联adapter声明/接受/响应/账本FF及core；保留受控路径图或数据而非布尔结论"
+    },
+    {
+      "command": "report_property <选中的actual cells/pins/nets>; report_utilization -hierarchical",
+      "purpose": "记录模型backend、CONV/MAC/quantizer/route/pool/upsample及状态/输出路径物理保留，不能仅看HWH名或资源总数"
+    }
+  ],
+  "interpretation": [
+    "无早B只指PL路径不自行合成、截留或提前完成最终slave响应；合法AXI3 B可先于AW握手，不能用AXI4 AW-before-B判故障。",
+    "完整AW/W/B真实完成与账本闭合是另一个源逻辑/协议审查项；GP STATUS读不是HP写屏障。",
+    "PS7内DDR slave提交语义依赖已核官方UG585与AXI3非Bufferable依据；物理连线不证明cache维护或DRAM持久性。",
+    "若优化后层次消失，需追踪实际leaf逻辑及启动/HP请求/检测头写路径；无法映射就BLOCKED，不填full_model_core_present=true。",
+    "visibility0查询结果只为现有网表事实。visibility1实际新综合实现后重复查询与STA，不复用C0/ECO作为最终模型证明。"
+  ],
+  "stop_conditions": [
+    "对象缺失/不唯一/超过数量预算",
+    "DCP哈希变化或未知会话归属",
+    "超时/OOM/可用资源越界",
+    "遇到未解释驱动/桥/响应源/属性改写"
+  ],
+  "hardware_execution": "NOT_RUN",
+  "implemented_in_this_audit": false
+}

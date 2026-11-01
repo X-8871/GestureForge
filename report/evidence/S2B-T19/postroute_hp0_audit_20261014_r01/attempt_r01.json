@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "STOPPED_BY_OBJECT_BUDGET",
+  "run_id": "postroute_hp0_audit_20261014_r01",
+  "session_id": "vivado-20261014-090340-78865791",
+  "commands": [
+    {
+      "tcl": "open_checkpoint {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/project_s15_r01/s2b_inference_candidate.runs/impl_1/s2b_inference_wrapper_postroute_physopt.dcp}",
+      "exit_code": 0,
+      "elapsed_seconds": 88.22,
+      "reported_peak_memory_mib": 1750.914,
+      "target_part": "xc7z020clg400-2"
+    },
+    {
+      "tcl": "set ps7 [get_cells -hierarchical -filter {REF_NAME == PS7}]; puts \"PS7_COUNT=[llength $ps7]\"; if {[llength $ps7] != 1} {error \"STOP: PS7 count not one\"}; foreach c $ps7 {puts \"PS7=$c|REF=[get_property REF_NAME $c]|LOC=[get_property LOC $c]\"; set pins [get_pins -of_objects $c]; puts \"PS7_PIN_COUNT=[llength $pins]\"; if {[llength $pins] > 1024} {error \"STOP: PS7 pin budget exceeded\"}; foreach p $pins {set rpn [get_property REF_PIN_NAME $p]; if {[string match *HP0* $rpn]} {puts \"HP0PIN=[get_property NAME $p]|$rpn|[get_property DIRECTION $p]\"}}}",
+      "exit_code": 1,
+      "elapsed_seconds": 0.089,
+      "output": "PS7_COUNT=1\nPS7=s2b_inference_i/ps7/inst/PS7_i|REF=PS7|LOC=PS7_X0Y0\nPS7_PIN_COUNT=3305\nSTOP: PS7 pin budget exceeded"
+    }
+  ],
+  "disposition": "No HP0 pins were iterated after the 1024-object cap was exceeded; the owned Vivado session was closed. A separate run will use an early REF_PIN_NAME filter with a bounded HP0-only result set.",
+  "checkpoint_sha256_before": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83",
+  "hardware_execution": "NOT_RUN"
+}

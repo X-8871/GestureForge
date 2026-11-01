@@ -1,0 +1,521 @@
+{
+  "schema_version": 1,
+  "review_id": "S2B-T17-runtime-compatibility-rebind-20261014-luna2-r01",
+  "verdict": "PASS",
+  "role": "INDEPENDENT_REVIEWER",
+  "scope": "G2_SOFTWARE_ONLY：校核既有visibility0_cache_probe_only兼容事实未漂移，并仅将platform_manifest改绑至经补齐的官方bitgen交付清单。",
+  "limitations": [
+    "未重新执行或重新判定旧回执六项底层工程/运行语义，只核对其严格schema、六项原生布尔PASS、33项源码和7项artifact冻结事实未漂移。",
+    "补充清单CHECKS_OK只证明证据目录与绑定完整，不代表G0/G4/G5或实物验收。",
+    "本复核不访问JTAG、UART、hw_server、Vitis SDK或板卡；不批准板上运行。",
+    "visibility0_cache_probe_only范围不扩展至visibility1、冷恢复、109样本/1000压力或其他运行模式。"
+  ],
+  "version_binding": {
+    "old_runtime_compatibility_receipt": {
+      "path": "report/evidence/S2B-T17/implemented_export_independent_20261013_r01/runtime_compatibility_receipt_r01.json",
+      "sha256": "b5c6ecacc58a4a5490db5374149bf86b1a362f58f12b3577fe47a414872e6d63"
+    },
+    "supplemental_platform_manifest": {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054357Z_ccbeeb35a2053320/delivery_manifest_reconciled_20261014_r01.json",
+      "sha256": "c6bd98ed04624702ce3eb4d06096207982cd4b0f3261c513d882771ddb42ef3b"
+    },
+    "original_platform_manifest": {
+      "path": "report/evidence/S2B-T17/direct_bitgen_20261013T054357Z_ccbeeb35a2053320/delivery_manifest.json",
+      "sha256": "bc6626dcd721a08bd0368b8f46d7960f0be79e5a76e139cb0b100ea75a6376b1"
+    },
+    "source_commit": "ddd4fbe9d981e8365440c0018c40a4aa3c87e210",
+    "review_worktree_head": "7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9",
+    "core_autocrlf": "true",
+    "new_runtime_compatibility_receipt": "report/evidence/S2B-T17/implemented_export_independent_20261014_luna2_r01/runtime_compatibility_receipt_r02.json"
+  },
+  "strict_schema": {
+    "old_receipt_top_level_exact_fields": [
+      "artifacts",
+      "checks",
+      "kind",
+      "role",
+      "schema_version",
+      "scope",
+      "source_sha256",
+      "status",
+      "visibility_parameter"
+    ],
+    "old_receipt_artifact_exact_fields": [
+      "app_elf",
+      "bit",
+      "build_details",
+      "compiled_xsa",
+      "implemented_xsa",
+      "init_elf",
+      "platform_manifest"
+    ],
+    "old_receipt_six_checks_exact_fields": [
+      "full_model_core_present",
+      "postroute_timing_pass",
+      "same_bsp_mmu_macros",
+      "same_ps7_config",
+      "same_ps_init_bytes",
+      "same_uart_ddr_csr_clocks"
+    ],
+    "six_checks_native_booleans_all_true": true,
+    "supplement_top_level_exact_fields": [
+      "checks",
+      "evidence_dir",
+      "files",
+      "interfaces",
+      "interfaces_not_applicable_reason",
+      "limitations",
+      "run_id",
+      "schema_version",
+      "source_commit",
+      "stage",
+      "task_id",
+      "tool_versions"
+    ],
+    "supplement_files": 21,
+    "supplement_checks": 4,
+    "duplicate_json_keys_rejected": true
+  },
+  "source_static_closure": {
+    "receipt_source_count": 33,
+    "independently_rehashed_raw_sha_matches": 33,
+    "platform_check_static_matches_receipt_exactly": true,
+    "platform_static_cli_exit_code": 0,
+    "scoped_git_status_exit_code": 0,
+    "scoped_git_status_clean": true,
+    "scoped_git_diff_head_exit_code": 0,
+    "scoped_git_diff_base_exit_code": 0,
+    "crlf_only_differences": [
+      {
+        "path": "src/s2a_network_descriptor_pkg.sv",
+        "working_tree_sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+        "receipt_sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+        "normalized_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+        "base_blob_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+        "head_blob_sha256": "295df973188878388ff8ef48c50dfacb1fe3d23a169369d737d1babe0507dc14",
+        "normalized_equals_both_blobs": true,
+        "base_blob_equals_head_blob": true
+      },
+      {
+        "path": "src/s2a_conv_tile_engine.sv",
+        "working_tree_sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+        "receipt_sha256": "08fc2789a7eda4047a7496fd93fece44d037dcf1121bab9ac15affecd10025aa",
+        "normalized_sha256": "76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300",
+        "base_blob_sha256": "76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300",
+        "head_blob_sha256": "76ca735b14802e26f0a4b016989e13b43cf8bd904587ccea37651c757d089300",
+        "normalized_equals_both_blobs": true,
+        "base_blob_equals_head_blob": true
+      },
+      {
+        "path": "src/s2a_network_backend.sv",
+        "working_tree_sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+        "receipt_sha256": "93937585df647bf9535248e01416cd8f2337eb6dd0b17adff6fe61194828db55",
+        "normalized_sha256": "3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154",
+        "base_blob_sha256": "3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154",
+        "head_blob_sha256": "3910bc69d1630eff3f8740eed74e03f5328319da24abb3f9e755808afd5ec154",
+        "normalized_equals_both_blobs": true,
+        "base_blob_equals_head_blob": true
+      },
+      {
+        "path": "src/s2a_stage2a_core_ooc.sv",
+        "working_tree_sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+        "receipt_sha256": "2700e71c930062a428634deb5b1e3d3e2d3ff711657bb66995ac2c442560169c",
+        "normalized_sha256": "41f2c7403f6e1fcd2f4837d2118cb8b6af8468e6229554bcd5947adb2d9bb555",
+        "base_blob_sha256": "41f2c7403f6e1fcd2f4837d2118cb8b6af8468e6229554bcd5947adb2d9bb555",
+        "head_blob_sha256": "41f2c7403f6e1fcd2f4837d2118cb8b6af8468e6229554bcd5947adb2d9bb555",
+        "normalized_equals_both_blobs": true,
+        "base_blob_equals_head_blob": true
+      }
+    ]
+  },
+  "artifacts": {
+    "old_receipt_artifacts_count": 7,
+    "old_artifact_paths_hashes_sizes_match": true,
+    "per_artifact": [
+      {
+        "name": "compiled_xsa",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T13\\artifact_recheck_20261011_r01\\s2b_inference_no_bit.xsa",
+        "sha256": "6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7",
+        "size_bytes": 253595
+      },
+      {
+        "name": "implemented_xsa",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\direct_bitgen_20261013T054357Z_ccbeeb35a2053320\\s2b_inference_implemented.xsa",
+        "sha256": "6f2cddd2f8d81d9b8d7ae8987aa446d354cb4b44cd208dfdb336eb24b796c1be",
+        "size_bytes": 921090
+      },
+      {
+        "name": "init_elf",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\init.elf",
+        "sha256": "7314f7eca8df3ea3dc53725219369011827bc108b66a066622c2bb6509ce59cd",
+        "size_bytes": 170392
+      },
+      {
+        "name": "app_elf",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\infer.elf",
+        "sha256": "ea02677a66864164880ad25e4a81508f31c4195708f86fb348bdbc5a8044a14b",
+        "size_bytes": 388432
+      },
+      {
+        "name": "build_details",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T15\\full_build_20261011_r01\\build_details.json",
+        "sha256": "932ac348d4e05268968b745bf45298fda36895aed4b143abb7c1abe1a477db64",
+        "size_bytes": 27215
+      },
+      {
+        "name": "bit",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_20261013_r01\\s2b_inference_implemented.bit",
+        "sha256": "91af1dd86755f5273171361912e1a3602bf574f14cbb637585f8766779eaf4eb",
+        "size_bytes": 4045776
+      },
+      {
+        "name": "platform_manifest",
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\direct_bitgen_20261013T054357Z_ccbeeb35a2053320\\delivery_manifest.json",
+        "sha256": "bc6626dcd721a08bd0368b8f46d7960f0be79e5a76e139cb0b100ea75a6376b1",
+        "size_bytes": 7900
+      }
+    ],
+    "supplement_files_count": 21,
+    "supplement_all_file_hashes_match": true,
+    "old_original_manifest_preserved_in_supplement": true
+  },
+  "receipt_delta": {
+    "only_changed_field": "artifacts.platform_manifest",
+    "new_platform_manifest_path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\direct_bitgen_20261013T054357Z_ccbeeb35a2053320\\delivery_manifest_reconciled_20261014_r01.json",
+    "new_platform_manifest_sha256": "c6bd98ed04624702ce3eb4d06096207982cd4b0f3261c513d882771ddb42ef3b",
+    "all_other_source_artifact_check_fields_identical_to_r01": true
+  },
+  "commands": {
+    "source_binding_audit": {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\audit_bindings.py"
+      ],
+      "native_exit_code": 0,
+      "stdout": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\audit_bindings.stdout.log",
+        "sha256": "ff760d62ee792364b972617324a91d68699884ae391016ff8a3ade77acc61cae",
+        "size_bytes": 599
+      },
+      "machine_readable_result": {
+        "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\source_binding_audit.json",
+        "sha256": "a8083300a5b23fdc3c9167d1fe428323137dc50ce71cd66c09881dc1b931ee8b",
+        "size_bytes": 33872
+      }
+    },
+    "official_checks": [
+      {
+        "name": "supplement_evidence",
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-X",
+          "utf8",
+          "-B",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+          "--mode",
+          "evidence",
+          "--manifest",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\direct_bitgen_20261013T054357Z_ccbeeb35a2053320\\delivery_manifest_reconciled_20261014_r01.json"
+        ],
+        "native_exit_code": 0,
+        "elapsed_seconds": 0.438,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\supplement_evidence.stdout.log",
+          "sha256": "08360b82e4d9caa0fa813fd4666590ef0cb368fc6a7b20bad74a7b02aa3f6228",
+          "size_bytes": 1208
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\supplement_evidence.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      },
+      {
+        "name": "platform_static",
+        "command": [
+          "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+          "-X",
+          "utf8",
+          "-B",
+          "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_s2b_inference_platform.py"
+        ],
+        "native_exit_code": 0,
+        "elapsed_seconds": 0.468,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\platform_static.stdout.log",
+          "sha256": "0b617fab052cf0fa92b5826702a4e13473b76c3e2747b3638f54b57baf0e1187",
+          "size_bytes": 81
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\platform_static.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      }
+    ],
+    "git_scope_checks": [
+      {
+        "name": "git_head",
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "native_exit_code": 0,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_head.stdout.log",
+          "sha256": "032cf476a2b023d2e828f3f0f30f40f2366fc0696601419c049f6ff2b0012cef",
+          "size_bytes": 41
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_head.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      },
+      {
+        "name": "git_core_autocrlf",
+        "command": [
+          "git",
+          "config",
+          "--get",
+          "core.autocrlf"
+        ],
+        "native_exit_code": 0,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_core_autocrlf.stdout.log",
+          "sha256": "a17fcf0a2f50e2d495e4f90ce263410edc183add6c62699a2facbccf60410f74",
+          "size_bytes": 5
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_core_autocrlf.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      },
+      {
+        "name": "git_source_status",
+        "command": [
+          "git",
+          "status",
+          "--short",
+          "--",
+          "src/s2a_network_descriptor_pkg.sv",
+          "src/s2b_maxpool_geometry.sv",
+          "src/int8_maxpool_window.sv",
+          "src/s2b_route_query.sv",
+          "src/int8_upsample_query.sv",
+          "src/s2b_conv_tile_engine.sv",
+          "src/s2b_maxpool_engine.sv",
+          "src/s2b_route_engine.sv",
+          "src/s2b_upsample_engine.sv",
+          "src/s2b_network_backend.sv",
+          "src/s2a_memory_master.sv",
+          "src/s2a_runtime_shell.sv",
+          "src/s2b_stage2b_core.sv",
+          "src/s2a_control_csr.sv",
+          "src/s2b_request_guard.sv",
+          "src/s2b_hp0_word_adapter.sv",
+          "src/s2b_control_csr.sv",
+          "src/s2b_inference_top.sv",
+          "src/int8_maxpool_geometry.sv",
+          "src/int8_route_query.sv",
+          "src/s2a_conv_tile_engine.sv",
+          "src/s2a_maxpool_engine.sv",
+          "src/s2a_route_engine.sv",
+          "src/s2a_upsample_engine.sv",
+          "src/s2a_network_backend.sv",
+          "src/s2a_stage2a_core_ooc.sv",
+          "vivado/s2b_inference_platform.tcl",
+          "vivado/s2b_ps_platform.tcl",
+          "board/s2b_inference_platform.json",
+          "board/s2b_inference_platform.md",
+          "board/ps_platform_fields.json",
+          "verification/check_s2b_inference_platform.py",
+          "verification/test_s2b_conv_feature_address_rtl.py"
+        ],
+        "native_exit_code": 0,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_source_status.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_source_status.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      },
+      {
+        "name": "git_source_diff_head",
+        "command": [
+          "git",
+          "diff",
+          "--exit-code",
+          "7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9",
+          "--",
+          "src/s2a_network_descriptor_pkg.sv",
+          "src/s2b_maxpool_geometry.sv",
+          "src/int8_maxpool_window.sv",
+          "src/s2b_route_query.sv",
+          "src/int8_upsample_query.sv",
+          "src/s2b_conv_tile_engine.sv",
+          "src/s2b_maxpool_engine.sv",
+          "src/s2b_route_engine.sv",
+          "src/s2b_upsample_engine.sv",
+          "src/s2b_network_backend.sv",
+          "src/s2a_memory_master.sv",
+          "src/s2a_runtime_shell.sv",
+          "src/s2b_stage2b_core.sv",
+          "src/s2a_control_csr.sv",
+          "src/s2b_request_guard.sv",
+          "src/s2b_hp0_word_adapter.sv",
+          "src/s2b_control_csr.sv",
+          "src/s2b_inference_top.sv",
+          "src/int8_maxpool_geometry.sv",
+          "src/int8_route_query.sv",
+          "src/s2a_conv_tile_engine.sv",
+          "src/s2a_maxpool_engine.sv",
+          "src/s2a_route_engine.sv",
+          "src/s2a_upsample_engine.sv",
+          "src/s2a_network_backend.sv",
+          "src/s2a_stage2a_core_ooc.sv",
+          "vivado/s2b_inference_platform.tcl",
+          "vivado/s2b_ps_platform.tcl",
+          "board/s2b_inference_platform.json",
+          "board/s2b_inference_platform.md",
+          "board/ps_platform_fields.json",
+          "verification/check_s2b_inference_platform.py",
+          "verification/test_s2b_conv_feature_address_rtl.py"
+        ],
+        "native_exit_code": 0,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_source_diff_head.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_source_diff_head.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      },
+      {
+        "name": "git_source_diff_base",
+        "command": [
+          "git",
+          "diff",
+          "--exit-code",
+          "ddd4fbe9d981e8365440c0018c40a4aa3c87e210",
+          "--",
+          "src/s2a_network_descriptor_pkg.sv",
+          "src/s2b_maxpool_geometry.sv",
+          "src/int8_maxpool_window.sv",
+          "src/s2b_route_query.sv",
+          "src/int8_upsample_query.sv",
+          "src/s2b_conv_tile_engine.sv",
+          "src/s2b_maxpool_engine.sv",
+          "src/s2b_route_engine.sv",
+          "src/s2b_upsample_engine.sv",
+          "src/s2b_network_backend.sv",
+          "src/s2a_memory_master.sv",
+          "src/s2a_runtime_shell.sv",
+          "src/s2b_stage2b_core.sv",
+          "src/s2a_control_csr.sv",
+          "src/s2b_request_guard.sv",
+          "src/s2b_hp0_word_adapter.sv",
+          "src/s2b_control_csr.sv",
+          "src/s2b_inference_top.sv",
+          "src/int8_maxpool_geometry.sv",
+          "src/int8_route_query.sv",
+          "src/s2a_conv_tile_engine.sv",
+          "src/s2a_maxpool_engine.sv",
+          "src/s2a_route_engine.sv",
+          "src/s2a_upsample_engine.sv",
+          "src/s2a_network_backend.sv",
+          "src/s2a_stage2a_core_ooc.sv",
+          "vivado/s2b_inference_platform.tcl",
+          "vivado/s2b_ps_platform.tcl",
+          "board/s2b_inference_platform.json",
+          "board/s2b_inference_platform.md",
+          "board/ps_platform_fields.json",
+          "verification/check_s2b_inference_platform.py",
+          "verification/test_s2b_conv_feature_address_rtl.py"
+        ],
+        "native_exit_code": 0,
+        "stdout": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_source_diff_base.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "stderr": {
+          "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\commands\\git_source_diff_base.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        }
+      }
+    ],
+    "package_checkers": {
+      "status": "PASS",
+      "runs": [
+        {
+          "mode": "inputs",
+          "command": [
+            "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "-X",
+            "utf8",
+            "-B",
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+            "--mode",
+            "inputs",
+            "--manifest",
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\delivery_manifest.json"
+          ],
+          "native_exit_code": 0,
+          "elapsed_seconds": 0.5,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/implemented_export_independent_20261014_luna2_r01/commands/package_inputs.stdout.log",
+            "sha256": "ec4694d5d607835b0ef200a8e1dea41aa5abc6705cb1f3d0986827847e7f6333",
+            "size_bytes": 1395
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/implemented_export_independent_20261014_luna2_r01/commands/package_inputs.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size_bytes": 0
+          },
+          "status": "CHECKS_OK"
+        },
+        {
+          "mode": "evidence",
+          "command": [
+            "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+            "-X",
+            "utf8",
+            "-B",
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\verification\\check_stage_delivery.py",
+            "--mode",
+            "evidence",
+            "--manifest",
+            "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\implemented_export_independent_20261014_luna2_r01\\delivery_manifest.json"
+          ],
+          "native_exit_code": 0,
+          "elapsed_seconds": 0.516,
+          "stdout": {
+            "path": "report/evidence/S2B-T17/implemented_export_independent_20261014_luna2_r01/commands/package_evidence.stdout.log",
+            "sha256": "08e97a2d97f74d4dc7875030d45f3e408b0b5aa662999d5b049812f63541b74e",
+            "size_bytes": 1397
+          },
+          "stderr": {
+            "path": "report/evidence/S2B-T17/implemented_export_independent_20261014_luna2_r01/commands/package_evidence.stderr.log",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size_bytes": 0
+          },
+          "status": "CHECKS_OK"
+        }
+      ]
+    }
+  }
+}

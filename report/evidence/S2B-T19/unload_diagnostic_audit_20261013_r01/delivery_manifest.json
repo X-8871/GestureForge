@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "unload_diagnostic_audit_20261013_r01",
+  "source_commit": "c8742858fbb23331763358775daa44dafb95db94",
+  "evidence_dir": "report/evidence/S2B-T19/unload_diagnostic_audit_20261013_r01",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "仅官方卸载源码只读诊断与真实失败原件审计，不修改或冻结业务/板卡接口。",
+  "tool_versions": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "vitis_sdk_source": "2026.1官方源码，只读无模块执行。"
+  },
+  "files": [
+    {
+      "path": "report/evidence/S2B-T19/unload_diagnostic_audit_20261013_r01/audit.json",
+      "sha256": "2730f7a975371695f07bbf487807f9eb7a16db5a6d2abe3b85100fc02c0c93e1",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/unload_diagnostic_audit_20261013_r01/collect_audit.py",
+      "sha256": "9582e0cfb447782b46f3377488ae4059d3ba67195245209060339e07de5c0762",
+      "role": "source"
+    },
+    {
+      "path": "report/evidence/S2B-T19/unload_diagnostic_audit_20261013_r01/source_sections.json",
+      "sha256": "0390e2143aba6b70cf60805ae9312c52e9368ffdab0f5acc01f4204379fa8ea9",
+      "role": "result"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_execution_20261013_r04/summary.json",
+      "sha256": "c1deb1a3b21f8320c1eb522dffd020dbfad6067618f14aa07b9e9edc04a703e2",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r04/entry_calls.jsonl",
+      "sha256": "40da713a97753785b5b81378d8ae26407fdbee0f6525cc65388e7ff996561e74",
+      "role": "input"
+    },
+    {
+      "path": "report/evidence/S2B-T19/cache_probe_20261013_r04/jtag_result.json",
+      "sha256": "1ad21e5c69a7d1a987b4697a9be38f1721400cd862d4c7927ab02616b9c5ddd7",
+      "role": "input"
+    }
+  ],
+  "checks": [
+    {
+      "name": "read_only_source_audit",
+      "status": "PASS",
+      "command": "C:\\Users\\22061\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe -X utf8 -B C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T19\\unload_diagnostic_audit_20261013_r01\\collect_audit.py",
+      "exit_code": 0
+    },
+    {
+      "name": "r04_unload_root_cause",
+      "status": "BLOCKED",
+      "command": null,
+      "exit_code": null,
+      "reason": "缺少调用内全线程堆栈，实际卡点及根因未证明；需在新授权Run采集。"
+    }
+  ],
+  "limitations": [
+    "诊断方案未实施；真实卡点及根因未关闭。",
+    "本代理提出诊断，不担任相应修复的独立Reviewer。",
+    "其他Developer正在修改四生产/测试文件，本审计不读写其活动差异或给新PA补丁G2。"
+  ]
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\target.py",
+    "sha256": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71",
+    "ranges": [
+      {
+        "start_line": 367,
+        "end_line": 376,
+        "original_source": "    def __update_mem_map(self, chan, ctx):\n        map_list = []\n        if chan not in self.session._memmaptable.keys() or ctx not in self.session._memmaptable[chan].keys():\n            pass\n        else:\n            for id, maps in self.session._memmaptable[chan][ctx].items():\n                for map in maps:\n                    map.update({'ID': str(id)})\n                    map_list.append(map)\n        exec_in_dispatch_thread(self.__get_current_node().get_memmap_node().set, map_list)\n"
+      },
+      {
+        "start_line": 1776,
+        "end_line": 1783,
+        "original_source": "    def _get_all_children_of_the_node(self, node):\n        child_data = exec_as_runnable(get_cache_data, node.get_children())\n        children = child_data['children'] if 'children' in child_data else None\n        if children is not None:\n            for child, child_node in children.copy().items():\n                children.update(self._get_all_children_of_the_node(child_node))\n        return children\n\n"
+      },
+      {
+        "start_line": 2186,
+        "end_line": 2198,
+        "original_source": "\n        ctxs = self._get_all_children_of_the_node(node)\n        ctxs = list(ctxs.keys())\n        ctxs.append(tgt)\n        map = dict()\n        mmap = dict()\n        for ctx in ctxs:\n            if ctx == '' or (chan in memmap_ctxs.keys() and ctx in memmap_ctxs[chan].keys()):\n                continue\n            node = self.session._model.get_nodes()\n            node = node[ctx]\n            rc = exec_as_runnable(self.__get_run_ctx, node).getProperties()\n            if 'CPUType' not in rc.keys():\n"
+      },
+      {
+        "start_line": 2243,
+        "end_line": 2278,
+        "original_source": "                    if len(map):\n                        if chan not in memmaptable:\n                            memmaptable[chan] = dict()\n                        if ctx not in memmaptable:\n                            memmaptable[chan][ctx] = dict()\n                        memmaptable[chan][ctx].update(map)\n                        self.__update_mem_map(chan, ctx)\n\n    def __clear_memmap(self, node, chan, tgt):\n        memmaptable = self.session._memmaptable\n        memmap_ctxs = self.session._memmap_ctxs\n        ctxs = self._get_all_children_of_the_node(node)\n        ctxs = list(ctxs.keys())\n        ctxs.append(tgt)\n        for ctx in ctxs:\n            if ctx == '' or not (chan in memmap_ctxs.keys() and ctx in memmap_ctxs[chan].keys()):\n                continue\n            map = memmaptable[chan][ctx]\n            mmap = memmap_ctxs[chan][ctx]\n            for mem, map_data in mmap.items():\n                base = map_data['base']\n                size = map_data['size']\n                for id, mlist in map.copy().items():\n                    for i in range(0, len(mlist)):\n                        m = mlist[i]\n                        if 'FileName' not in m and m['Addr'] == base and m['Size'] == size:\n                            mlist.pop(i)\n                            if len(mlist) == 0:\n                                map.pop(id)\n                            break\n            if len(map) == 0:\n                memmaptable[chan].pop(ctx)\n                memmap_ctxs[chan].pop(ctx)\n                self.__update_mem_map(chan, ctx)\n                continue\n            self.__update_mem_map(chan, ctx)\n"
+      },
+      {
+        "start_line": 7368,
+        "end_line": 7538,
+        "original_source": "    def loadhw(self, *args, hw=None, mem_ranges=None):\n        \"\"\"\n        loadhw:\n            Load a Vivado HW design, and set the memory map for the current\n            target. If the current target is a parent for a group of\n            processors, memory map is set for all its child processors.\n            If current target is a processor, memory map is set for all the\n            child processors of it's parent. This command returns the HW\n            design object.\n\n        Prototype:\n            :class:`target.loadhw(args, hw, mem_ranges)`\n\n        Optional Arguments:\n            mem_ranges\n                List of memory ranges from which the memory map should be set.\n                Memory map is not set for the addresses outside these ranges.\n                If this option is not specified, then memory map is set for all\n                the addresses in the hardware design.\n\n        Options:\n            -regs\n                Add registers to memory map.\n\n            -list\n                Return a list of open designs for the targets.\n\n        Returns:\n            Design object\n                If the HW design is loaded and memory map is set successfully.\n            Exception:\n                Failed to open hw design.\n\n        Examples:\n            target.loadhw(hw=design.xsa)\n                Load the HW design named design.hdf and set memory map for all\n                the child processors for which xc7z045 is the parent.\n        \"\"\"\n        node = self.__get_current_node()\n        if node is None:\n            raise Exception(f\"Invalid target, select a target using targets function.\") from None\n\n        parser = argparse.ArgumentParser(description='loadhw options')\n        parser.add_argument('-l', '--list', action='store_true', help='List open hw designs')\n        parser.add_argument('-r', '--regs', action='store_true', help='Add registers to memory map')\n        parsed_args = parser.parse_args(tuple(str(arg) for arg in args))\n\n        regs = 1 if parsed_args.regs is True else 0\n        list_arg = 1 if parsed_args.list is True else 0\n        if list_arg:\n            if parsed_args.regs or hw is not None or mem_ranges is not None:\n                raise Exception(f\"--list cannot be used with other args\") from None\n            if len(self.session._designtable) == 0:\n                raise Exception(f\"No HW designs currently open\") from None\n            res = '{0:20s} {1:40s}'.format(\"Targets\", \"DesignFile\")\n            res = res + '\\n{0:20s} {1:40s}'.format(\"=======\", \"==========\")\n            designtable = self.session._designtable\n            ctx_tgt_map = self.session._get_context_target_map()\n            for hw, hw_data in designtable.copy().items():\n                ids = list()\n                design = hw_data['design']\n                for target in hw_data['targets']:\n                    for ctx, target_id in ctx_tgt_map.items():\n                        if ctx == target:\n                            ids.append(str(target_id))\n                            break\n                res = res + '\\n{0:20s} {1:40s}'.format(\", \".join(ids), hw[0:59])\n                pos = 60\n                while len(hw) - pos > 0:\n                    res = res + '\\n{0:20s} {1:61s}'.format('', hw[pos:pos + 60])\n                    pos = pos + 61\n            print(res)\n            return\n        else:\n            if hw is None:\n                raise Exception(f\"HW design is needed to set memory map\") from None\n            hw = os.path.realpath(hw)\n            if not os.path.exists(hw):\n                raise Exception(f\"{hw} file doesnot exist in the path\")\n            if hw not in self.session._designtable or 'design' not in self.session._designtable[hw]:\n                design = HwManager.open_hw_design(hw)\n                self.session._designtable[hw] = dict()\n                self.session._designtable[hw]['design'] = design\n            else:\n                design = self.session._designtable[hw]['design']\n                HwManager.current_hw_design(design)\n\n            if mem_ranges is not None:\n                if len(mem_ranges) == 2 and isinstance(mem_ranges[0], int) and isinstance(mem_ranges[1], int):\n                    mem_ranges = [mem_ranges]\n                for range in mem_ranges:\n                    check_int(range[0])\n                    check_int(range[1])\n                self.session._designtable[hw]['ranges'] = mem_ranges\n            rc = exec_as_runnable(self.__get_run_ctx, node).getProperties()\n            while 'ParentID' in rc and rc['ParentID'] != '':\n                parent_node = node.info.get_node(rc['ParentID'])\n                rc = exec_as_runnable(get_cache_data, parent_node.get_run_context()).getProperties()\n\n            chan = self.session._curchan\n            channels = list()\n            if 'channels' in self.session._designtable[hw]:\n                channels = self.session._designtable[hw]['channels']\n                if chan not in channels:\n                    channels.append(chan)\n            else:\n                channels.append(chan)\n            self.session._designtable[hw]['channels'] = channels\n\n            ctx = self.session._curtarget._ctx\n            tgts = list()\n            if 'targets' in self.session._designtable[hw]:\n                tgts = self.session._designtable[hw]['targets']\n                if ctx not in tgts:\n                    tgts.append(ctx)\n            else:\n                tgts.append(ctx)\n            self.session._designtable[hw]['targets'] = tgts\n\n            self.__set_memmap(chan, ctx, hw, regs)\n            return design\n\n    add_function_metadata('loadhw', 'Set memory map from Vivado design', 'memorymap', 'Target')\n\n    def unloadhw(self):\n        \"\"\"\n        unloadhw:\n            Close the Vivado hardware design which was opened during the loadhw\n            command, and clear the memory map for the current target.\n            If the current target is a parent for a group of processors, the memory\n            map is cleared for all its child processors. If the current target is a\n            processor, the memory map is cleared for all the child processors of its\n            parent. This command does not clear the memory map explicitly set by\n            users through the memmap command.\n\n        Prototype:\n            :class:`target.unloadhw()`\n\n        Returns:\n            Nothing.\n\n        Examples:\n            target.unloadhw()\n        \"\"\"\n        node = self.__get_current_node()\n        if node is None:\n            raise Exception(f\"Invalid target, select a target using targets function.\") from None\n        designtable = self.session._designtable\n        memmap_ctxs = self.session._memmap_ctxs\n        chan = self.session._curchan\n        ctx = self.session._curtarget._ctx\n        rc = exec_as_runnable(self.__get_run_ctx, node).getProperties()\n        while 'ParentID' in rc and rc['ParentID'] != '':\n            ctx = rc.get('ParentID')\n            n = node.info.get_node(rc.get('ParentID'))\n            rc = exec_as_runnable(self.__get_run_ctx, n).getProperties()\n\n        if not chan in memmap_ctxs:\n            return\n        for hw, hw_data in designtable.copy().items():\n            if 'targets' in hw_data:\n                targets = hw_data['targets']\n                if ctx in targets:\n                    self.__clear_memmap(node, chan, ctx)\n                    targets.remove(ctx)\n                    if len(targets) == 0:\n                        hw_data['design'].close()\n                        designtable.pop(hw)\n                    else:\n                        designtable[hw]['targets'] = targets\n                    break\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_utils.py",
+    "sha256": "e1208cd908c7a1a629bc93b9dc7a71d20ed147daefd6ce8fce26306f50c7ff7d",
+    "ranges": [
+      {
+        "start_line": 200,
+        "end_line": 224,
+        "original_source": "def exec_as_runnable(callable_function, arg=None):\n    if threading.currentThread().name == 'TCF Event Dispatcher':\n        raise Exception(\"exec_as_runnable cannot be called from dispatch thread.\") from None\n    run = Runnable(callable_function, arg)\n    protocol.invokeLater(run)\n    with run.sync.cond:\n        run.sync.cond.wait()\n    if run.sync.error is not None:\n        raise Exception(f\"{run.sync.error}\") from None\n    result = run.sync.result\n    del run\n    return result\n\n\ndef exec_in_dispatch_thread(callable_function, *args):\n    if threading.currentThread().name == 'TCF Event Dispatcher':\n        raise Exception(\"exec_in_dispatch_thread cannot be called from dispatch thread.\") from None\n    sync = SyncRequest()\n    protocol.invokeAndWait(callable_function, *args, sync=sync)\n    with sync.cond:\n        sync.cond.wait()\n    if sync.error is not None:\n        raise Exception(f\"{sync.error}\") from None\n    return sync.result\n\n"
+      },
+      {
+        "start_line": 240,
+        "end_line": 246,
+        "original_source": "def get_cache_data(run):\n    node = run.arg\n    if not node.validate(run):\n        return False\n    else:\n        run.sync.done(error=node.getError(), result=node.getData())\n\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\tcf\\util\\sync.py",
+    "sha256": "4f8d78e2e9572065dbcb84b77f2118d07fac059d807420e15f5a256e9c0e25b6",
+    "ranges": [
+      {
+        "start_line": 279,
+        "end_line": 299,
+        "original_source": "class SyncRequest(object):\n    def __init__(self):\n        self.cond = threading.Condition()\n        self.error = None\n        self.result = None\n\n    def done(self, error=None, result=None):\n        self.error = error\n        self.result = result\n        with self.cond:\n            self.cond.notify()\n\n\nclass Runnable(object):\n    def __init__(self, callable_function, arg=None):\n        self.callable = callable_function\n        self.arg = arg\n        self.sync = SyncRequest()\n\n    def __call__(self):\n        return self.callable(self)\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\tcf\\util\\task.py",
+    "sha256": "cf4a91dc259e4190828e305faa13fb77379ece091fb77876382ca8082c2ffef4",
+    "ranges": [
+      {
+        "start_line": 136,
+        "end_line": 158,
+        "original_source": "    def get(self, timeout=None):\n        \"\"\"\n        Waits if necessary for the computation to complete, and then\n        retrieves its result.\n\n        @return the computed result\n        @throws CancellationException if the computation was canceled\n        @throws ExecutionException if the computation threw an\n        exception\n        @throws InterruptedException if the current thread was interrupted\n        while waiting\n        \"\"\"\n        assert not protocol.isDispatchThread()\n        with self._lock:\n            while not self.isDone():\n                self._lock.wait(timeout)\n                if timeout and not self.isDone():\n                    raise TimeoutException(\"Timed out\")\n            if self.__error:\n                raise Exception(\"TCF task aborted\", self.__error)\n            return self.__result\n\n    def isCancelled(self):\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\tcf\\protocol.py",
+    "sha256": "0ef31608908d3e270c97ec16c94dd26ce835e511f2777baa03b4b07111eb917f",
+    "ranges": [
+      {
+        "start_line": 129,
+        "end_line": 159,
+        "original_source": "def invokeAndWait(c, *args, **kwargs):\n    \"\"\"\n    Causes callable to be called in the dispatch thread of the framework.\n    Calling thread is suspended until the method is executed.\n    If invokeAndWait is called from the dispatching thread\n    the callable is executed immediately.\n\n    This method can be invoked from any thread.\n\n    @param c  the callable to be executed on dispatch thread.\n    \"\"\"\n    if _event_queue.isDispatchThread():\n        return c(*args, **kwargs)\n    else:\n        class DoRun():\n            result = None\n\n            def __call__(self):\n                try:\n                    self.result = c(*args, **kwargs)\n                finally:\n                    with runLock:\n                        runLock.notify()\n\n        doRun = DoRun()\n        runLock = threading.Condition()\n        with runLock:\n            _event_queue.invokeLater(doRun)\n            runLock.wait()\n            return doRun.result\n\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_tcf_node_memmap.py",
+    "sha256": "b2d239943a0fa0036db9338a71023e5bc8c1899a4004f1f6b32d72c5a344dc06",
+    "ranges": [
+      {
+        "start_line": 59,
+        "end_line": 79,
+        "original_source": "class TcfNodeMemoryMap(object):\n    def __init__(self, __tcf_node_exec_ctx, channel, id: str):\n        self.id = id\n        self.channel = channel\n        self.node = __tcf_node_exec_ctx\n        # self.__get_memmap_data = self.MemMapGetData(channel, id)\n\n    def set(self, memoryMap, sync=None):\n        mm = self.channel.getRemoteService(memmap_service.NAME)\n\n        class DoneSet(memmap_service.DoneSet):\n            def __init__(self, sync):\n                self.__sync = sync\n\n            def doneSet(self, token, error):\n                if self.__sync is not None:\n                    self.__sync.done(error=error, result=None)\n\n        mm.set(self.id, memoryMap, DoneSet(sync))\n\n    def get(self, sync=None):\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\xsdb\\_tcf_children_exec_context.py",
+    "sha256": "aa6014c9fe0a5af1949437fd4a48f1cecd27215d5d4a6701445654ddd72eb8d4",
+    "ranges": [
+      {
+        "start_line": 83,
+        "end_line": 111,
+        "original_source": "        def startDataRetrieval(self):\n            mem = self.node.channel.getRemoteService(mem_service.NAME)\n            mem_children = self\n\n            class DoneGetChildren(mem_service.DoneGetChildren):\n                def doneGetChildren(self, token, error, context_ids):\n                    data = {}\n                    if mem_children._command is token and error is None:\n                        _logger.debug(' [R] {0:3s} [Memory getChildren] ---- {1}'.format(token.id, context_ids))\n                        for context_id in context_ids:\n                            if context_id in mem_children.node.info.get_nodes().keys():\n                                n = mem_children.node.info.get_node(context_id)\n                            else:\n                                n = xsdb._tcf_node_exec_context.TcfNodeExecContext(mem_children.node, context_id)\n                            assert n.parent == mem_children.node\n                            data.update({context_id: n})\n                            mem_children.node.info.update_nodes(data)\n                    mem_children.set(token, error, data)\n\n            mem_children._command = mem.getChildren(self.node.id, DoneGetChildren())\n            _logger.debug(' [C] {0:3s} [Memory getChildren] ---- {1}'.format(mem_children._command.id, self.node.id))\n            return False\n\n    # ---------------------------------------------------------------------------------------------\n    # ---- RunChildrenTcfChildren -----------------------------------------------------------------\n    # ---------------------------------------------------------------------------------------------\n    class RunChildrenTcfChildren(TcfChildren):\n        def __init__(self, node):\n            super().__init__(node)\n"
+      },
+      {
+        "start_line": 117,
+        "end_line": 163,
+        "original_source": "            run_children = self\n\n            class DoneGetChildren(rc_service.DoneGetChildren):\n                def doneGetChildren(self, token, error, context_ids):\n                    data = {}\n                    if run_children._command is token and error is None:\n                        _logger.debug(' [R] {0:3s} [RunControl getChildren] ---- {1}'.format(token.id, context_ids))\n                        for context_id in context_ids:\n                            if context_id in run_children.node.info.get_nodes().keys():\n                                n = run_children.node.info.get_node(context_id)\n                            else:\n                                n = xsdb._tcf_node_exec_context.TcfNodeExecContext(run_children.node, context_id)\n                            assert n.parent == run_children.node\n                            data.update({context_id: n})\n                            run_children.node.info.update_nodes(data)\n                    run_children.set(token, error, data)\n\n            run_children._command = run.getChildren(self.node.id, DoneGetChildren())\n            _logger.debug(' [C] {0:3s} [RunControl getChildren] ---- {1}'.format(run_children._command.id, self.node.id))\n            return False\n\n    # ---------------------------------------------------------------------------------------------\n    # StartDataRetrieval\n    # ---------------------------------------------------------------------------------------------\n    def startDataRetrieval(self):\n        pending = None\n        if not self.__mem_children.validate():\n            pending = self.__mem_children\n        if not self.__run_children.validate():\n            pending = self.__run_children\n        if pending is not None:\n            pending.wait(self)\n            return False\n        error = self.__mem_children.getError()\n        if error is None:\n            error = self.__run_children.getError()\n        data = {'children': {}, 'mem_children': {}}\n        m1 = self.__mem_children.getData()\n        m2 = self.__run_children.getData()\n        if m1 is not None:\n            data['children'].update(m1)\n            data['mem_children'].update(m1)\n        if m2 is not None:\n            data['children'].update(m2)\n\n        self.set(None, error, data)\n        return True\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\tcf\\EventQueue.py",
+    "sha256": "1d0dc3373463d27feaca7e00f7d5cdc6a00be724c80156ae825591c466681459",
+    "ranges": [
+      {
+        "start_line": 47,
+        "end_line": 65,
+        "original_source": "\n    def __error(self, x):\n        if not self.isShutdown():\n            from . import protocol  # as protocol import this module too\n            protocol.log(\"Unhandled exception in TCF event dispatch\", x)\n\n    def __call__(self):\n        while True:\n            try:\n                with self.__lock:\n                    while not self.__queue:\n                        if self.__is_shutdown:\n                            return\n                        self.__is_waiting = True\n                        self.__lock.wait()\n                    r, args, kwargs = self.__queue.pop(0)\n                r(*args, **kwargs)\n            except Exception as x:\n                self.__error(x)\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\tcf\\services\\remote\\MemoryMapProxy.py",
+    "sha256": "8dfaeb9f4aa51c02cdd621a5eb887230584b5409ca27f15e55d7ae035001cd49",
+    "ranges": [
+      {
+        "start_line": 42,
+        "end_line": 61,
+        "original_source": "    def set(self, contextID, memMap, done):\n        if isinstance(memMap, memorymap.MemoryRegion) or \\\n                isinstance(memMap, dict):\n            memMap = (memMap,)\n        done = self._makeCallback(done)\n        service = self\n\n        class SetCommand(Command):\n            def __init__(self):\n                super(SetCommand, self).__init__(service.channel, service,\n                                                 \"set\", (contextID, memMap))\n\n            def done(self, error, args):\n                if not error:\n                    assert len(args) == 1\n                    error = self.toError(args[0])\n                done.doneSet(self.token, error)\n\n        return SetCommand().token\n\n"
+      }
+    ]
+  },
+  {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\cli\\tcf\\util\\cache.py",
+    "sha256": "98142418fd2303ffaa4ca021301341749ceff4fba66349d05c0663887284fb05",
+    "ranges": [
+      {
+        "start_line": 114,
+        "end_line": 199,
+        "original_source": "        wait list.\n        It is responsibility of clients to check if the state change was one\n        they are waiting for.\n        Clients are not intended to call this method.\n        \"\"\"\n        assert protocol.isDispatchThread()\n        self.__posted = False\n        if self.__waiting_list:\n            arr = self.__waiting_list\n            self.__waiting_list = None\n            for r in tuple(arr):\n                if isinstance(r, DataCache):\n                    r.post()\n                elif isinstance(r, Task) and not r.isDone():\n                    r.run()\n                else:\n                    r()\n\n                arr.remove(r)\n\n            if self.__waiting_list is None:\n                self.__waiting_list = arr\n\n    def wait(self, cb):\n        \"\"\"\n        Add a client call-back to cache wait list.\n        Client call-backs are activated when cache state changes.\n        Call-backs are removed from waiting list after that.\n        It is responsibility of clients to check if the state change was one\n        they are waiting for.\n        @param cb - a call-back object\n        \"\"\"\n        assert protocol.isDispatchThread()\n        assert not self.__disposed\n        assert not self.__valid\n        if cb and not self.isWaiting(cb):\n            if self.__waiting_list is None:\n                self.__waiting_list = []\n            self.__waiting_list.append(cb)\n\n    def isWaiting(self, cb):\n        \"\"\"\n        Return True if a client call-back is waiting for state changes of this\n        cache item.\n        @param cb - a call-back object.\n        @return True if 'cb' is in the wait list.\n        \"\"\"\n        if not self.__waiting_list:\n            return False\n        return cb in self.__waiting_list\n\n    def __validate(self):\n        \"\"\"\n        Initiate data retrieval if the cache is not valid.\n        @return True if the cache is already valid\n        \"\"\"\n        assert protocol.isDispatchThread()\n        if self.__disposed or self._channel.getState() != channel.STATE_OPEN:\n            self._command = None\n            self.__valid = True\n            self.__error = None\n            self.__data = None\n        else:\n            if self._command is not None:\n                return False\n            if not self.__valid and not self.startDataRetrieval():\n                return False\n        assert self.__valid\n        assert self._command is None\n        self.post()\n        return True\n\n    def validate(self, cb=None):\n        \"\"\"\n        If the cache is not valid, initiate data retrieval and\n        add a client call-back to cache wait list.\n        Client call-backs are activated when cache state changes.\n        Call-backs are removed from waiting list after that.\n        It is responsibility of clients to check if the state change was one\n        they are waiting for.\n        If the cache is valid do nothing and return True.\n        @param cb - a call-back object (optional)\n        @return True if the cache is already valid\n        \"\"\"\n        if not self.__validate():\n            self.wait(cb)\n"
+      }
+    ]
+  }
+]

@@ -1,0 +1,43 @@
+{
+  "calls": {
+    "loader.bat": [
+      "call \"%rdi_binroot%/rdiargs.bat\" %*",
+      "set xvredist=%rdi_approot%\\tps\\%rdi_platform%\\xvcredist.exe",
+      "if not [%xil_pa_no_redist_check%] == [1] (",
+      "\"%xvredist%\" -check",
+      "if [!errorlevel!] == [1] (",
+      "if not defined _rdi_setenv_run ("
+    ],
+    "rdiArgs.bat": [
+      "call \"%rdi_binroot%/setupenv.bat\"",
+      "set rdi_platform=win64",
+      "if [%2] == [batch] (",
+      "set rdi_batch_mode=true"
+    ],
+    "setupEnv.bat": [
+      "if defined rdi_setup_env_function (",
+      "call :%rdi_setup_env_function% %*",
+      "set rdi_setup_env_function=",
+      "set rdi_binroot=%~dp0",
+      "call :dirname \"%rdi_binroot%\" rdi_approot"
+    ],
+    "vivado.bat": [
+      "call \"%_rdi_binroot%/setupenv.bat\"",
+      "call \"%rdi_binroot%/setupenv.bat\" \"%rdi_binroot%\" xilinx_vivado",
+      "call \"%rdi_binroot%/loader.bat\" -exec %rdi_prog% %*"
+    ]
+  },
+  "paths": {
+    "loader.bat": "D:\\Xilinx\\2026.1\\Vivado\\bin\\loader.bat",
+    "rdiArgs.bat": "D:\\Xilinx\\2026.1\\Vivado\\bin\\rdiArgs.bat",
+    "setupEnv.bat": "D:\\Xilinx\\2026.1\\Vivado\\bin\\setupEnv.bat",
+    "vivado.bat": "D:\\Xilinx\\2026.1\\Vivado\\bin\\vivado.bat"
+  },
+  "sha256": {
+    "loader.bat": "52D54F63204EC7B5AE54BDED19BB93CDC0339F791FFAB03ACD40899CF67A1D27",
+    "rdiArgs.bat": "C295CEF35EE26D553594CDA8482F6224F3E2BB0A7D64492D3482FF9CDF3F4CFE",
+    "setupEnv.bat": "0F8108B67A75B3957B075C3F87D094FCC63EB7251A27281E7D456024898D881F",
+    "vivado.bat": "A5F91EE867CEA61BE4355CAF9F7A784C6C34351C5C1D1618562DDDA299E38A8B"
+  },
+  "status": "PASS_STATIC_VIVADO_BATCH_CHAIN"
+}

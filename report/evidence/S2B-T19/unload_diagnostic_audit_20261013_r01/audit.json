@@ -1,0 +1,151 @@
+{
+  "status": "DIAGNOSTIC_AUDIT_ONLY_ROOT_CAUSE_NOT_PROVEN",
+  "source_commit": "c8742858fbb23331763358775daa44dafb95db94",
+  "hsi_init": {
+    "path": "D:\\Xilinx\\2026.1\\Vitis\\scripts\\python_pkg\\hsi\\__init__.py",
+    "sha256": "9a162515bfbf40329abb94faafbea31dd0a06442a9c23c874f883c9b94b3228f",
+    "observation": "导入本地扩展xv_hsmpytasks，design.close实现不在本条Python源码内；未加载扩展。"
+  },
+  "observed_r04": {
+    "status": "FAILED_TARGET_TOPOLOGY_AND_UNLOAD_NO_PROGRESS",
+    "entry_final_result": "NOT_WRITTEN",
+    "entry_logical_exit_code": null,
+    "sdk_process_native_exit_code": -1,
+    "launcher_exit_code": 0,
+    "primary_error": "JtagError('目标数量或类型错误')",
+    "last_completed_entry_call": {
+      "time_utc8": "2026-10-13T23:31:01.946587+08:00",
+      "api": "runtime.verify_map_cleanup_target",
+      "status": "RETURNED"
+    },
+    "serial_close_returned": true,
+    "controller_close_returned": true,
+    "official_unload": "NOT_RETURNED；内部递归TCF、MemoryMap.set或HSI.close卡点未知。",
+    "sdk_normal_disconnect_dispose": "NOT_RUN"
+  },
+  "last_completed_calls": [
+    {
+      "time_utc8": "2026-10-13T23:30:53.505609+08:00",
+      "api": "apu.loadhw.csr_only",
+      "status": "RETURNED",
+      "elapsed_seconds": 6.757644500001334
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:00.263333+08:00",
+      "api": "runtime.verify_after_loadhw",
+      "status": "RETURNED",
+      "elapsed_seconds": 1.3131972999981372
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.579280+08:00",
+      "api": "serial.construct_closed",
+      "status": "RETURNED",
+      "elapsed_seconds": 7.040000127744861e-05
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.579435+08:00",
+      "api": "serial.open",
+      "status": "RETURNED",
+      "elapsed_seconds": 0.0688981999992393
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.924912+08:00",
+      "api": "failure_cpu0.state",
+      "status": "RETURNED",
+      "elapsed_seconds": 6.830000347690657e-05
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.925028+08:00",
+      "api": "failure_cpu0.state_after",
+      "status": "RETURNED",
+      "elapsed_seconds": 6.190000203787349e-05
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.925131+08:00",
+      "api": "serial.close",
+      "status": "RETURNED",
+      "elapsed_seconds": 0.0008324000009451993
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.926011+08:00",
+      "api": "controller.close",
+      "status": "RETURNED",
+      "elapsed_seconds": 0.0029309000019566156
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.943597+08:00",
+      "api": "session.select_apu_for_map_cleanup",
+      "status": "RETURNED",
+      "elapsed_seconds": 0.00290560000212281
+    },
+    {
+      "time_utc8": "2026-10-13T23:31:01.946587+08:00",
+      "api": "runtime.verify_map_cleanup_target",
+      "status": "RETURNED",
+      "elapsed_seconds": 1.5651515000026848
+    }
+  ],
+  "source_findings": [
+    {
+      "kind": "FACT",
+      "location": "target.py:2188/2254/367",
+      "statement": "loadhw与unloadhw均使用同一子树递归和MemoryMap更新，无load/unload独有线程机制。"
+    },
+    {
+      "kind": "FACT",
+      "location": "target.py:1776-1783",
+      "statement": "递归children直接引用缓存字典，并将后代合并回该字典；后续调用可能重复访问后代。正常无祖先环的树仍有限，未证明r04存在环或此处卡住。"
+    },
+    {
+      "kind": "FACT",
+      "location": "_utils.py:200-223; sync.py:279-299",
+      "statement": "实际等待使用Runnable/SyncRequest和无超时Condition.wait，无完成谓词；该路径未用Task.get(timeout)。"
+    },
+    {
+      "kind": "INFERENCE_NOT_PROVEN_ON_R04",
+      "location": "_utils.py:203-206/218-220; sync.py:286-290",
+      "statement": "invokeLater或invokeAndWait之后才进入sync等待；若done通知先发生，调用者可能错过通知并永久等待。这是静态可成立的调度风险，尚无r04堆栈证据。"
+    },
+    {
+      "kind": "INFERENCE_NOT_PROVEN_ON_R04",
+      "location": "EventQueue.py:53-65; _utils.py:200-210",
+      "statement": "Runnable执行异常被事件队列记录时，没有通用桥接将异常转给SyncRequest；某些异常可使等待者没有通知。r04是否存在此异常未知。"
+    },
+    {
+      "kind": "FACT",
+      "location": "_tcf_node_memmap.py:66-77; MemoryMapProxy.py:42-60",
+      "statement": "MemoryMap.set异步完成回调才调用sync.done；RPC不完成或dispatcher不处理回调会使上层无超时等待。"
+    },
+    {
+      "kind": "FACT",
+      "location": "target.py:7525-7538",
+      "statement": "清理memmap在design.close之前；缺少调用内堆栈，不能断言已到HSI.close。释放服务未唤醒也不能单独证明HSI卡住。"
+    }
+  ],
+  "minimal_next_diagnostic": {
+    "placement": "仅项目public unloadhw单次调用外层；保留现有所有权及来源门禁。",
+    "steps": [
+      "在新Run目录独占创建unload_thread_stacks.log，以该文件为faulthandler输出并保持文件打开。",
+      "调用前flush一个带UTC+8时间和线程名称的开始marker；调用faulthandler.dump_traceback_later(30,repeat=True,file=stream,exit=False)。",
+      "同一调用线程执行现有public unloadhw；不启动第二个SDK/设备调用，不改官方源码，不绕过门禁。",
+      "返回或异常时finally取消定时dump，再flush并关闭文件；保存返回/异常marker，不把栈采集超时当成SDK返回。",
+      "保留既有外层无进度停止及身份核验。强制停止后明确记录unload/disconnect/dispose是否完成，不伪造最终入口成功。"
+    ],
+    "stack_interpretation": [
+      "主线程位于_get_all_children→exec_as_runnable：子树缓存/调度等待候选。",
+      "主线程位于__update_mem_map→exec_in_dispatch_thread→Condition.wait：MemoryMap回调或错过通知候选。",
+      "主线程位于protocol.invokeAndWait：派发线程尚未返回；同时检查TCF Event Dispatcher堆栈。",
+      "主线程位于design.close：才支持定位至HSI原生调用入口，Python栈仍不能解释原生内部原因。",
+      "dispatcher空闲而主线程等SyncRequest，只能缩小至未收到或错过完成通知；单凭Python栈仍不能区分二者。"
+    ],
+    "limitation": "faulthandler定时线程只采集堆栈，不是安全取消SDK调用，也不证明清理成功。"
+  },
+  "actual_sdk_calls": 0,
+  "actual_hardware_calls": 0,
+  "tests_run": 0,
+  "limitations": [
+    "诊断方案未实施；真实卡点及根因未关闭。",
+    "本代理提出诊断，不担任相应修复的独立Reviewer。",
+    "其他Developer正在修改四生产/测试文件，本审计不读写其活动差异或给新PA补丁G2。"
+  ]
+}

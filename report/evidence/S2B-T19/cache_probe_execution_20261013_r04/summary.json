@@ -1,0 +1,132 @@
+{
+  "status": "FAILED_TARGET_TOPOLOGY_AND_UNLOAD_NO_PROGRESS",
+  "source_commit": "c8742858fbb23331763358775daa44dafb95db94",
+  "entry_final_result": "NOT_WRITTEN",
+  "entry_logical_exit_code": null,
+  "sdk_process_native_exit_code": -1,
+  "launcher_exit_code": 0,
+  "primary_error": "JtagError('目标数量或类型错误')",
+  "system_reset_observed": {
+    "basis": {
+      "path": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T19\\official_reset_basis_20261011_r01\\cold_reset_basis_candidate.json",
+      "sha256": "2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3"
+    },
+    "cold_lifecycle_proven": false,
+    "before": {
+      "boot_mode": 0,
+      "reboot_status": 4194306,
+      "ocm_cfg": 24,
+      "cpu0_pc": 4294967080,
+      "cpu1_pc": 4294967092
+    },
+    "after": {
+      "boot_mode": 0,
+      "reboot_status": 5242882,
+      "ocm_cfg": 24,
+      "cpu0_pc": 4294967080,
+      "cpu1_pc": 4294967092
+    },
+    "meaning": "TCF XilinxReset system-stop实际执行；总控结合官方non-POR范围与实测另行判断统一冷生命周期。"
+  },
+  "target_topology": [
+    {
+      "name": "APU",
+      "target_id": 1,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent_ctx": "",
+      "parent": "",
+      "level": 0,
+      "jtag_cable_serial": "210512180081"
+    },
+    {
+      "name": "ARM Cortex-A9 MPCore #0",
+      "target_id": 2,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "level": 1,
+      "jtag_cable_serial": "210512180081"
+    },
+    {
+      "name": "ARM Cortex-A9 MPCore #1",
+      "target_id": 3,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0",
+      "parent": "APU",
+      "level": 1,
+      "jtag_cable_serial": "210512180081"
+    },
+    {
+      "name": "PA",
+      "target_id": 4,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0.pa",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.0",
+      "parent": "APU",
+      "level": 1,
+      "jtag_cable_serial": "210512180081"
+    },
+    {
+      "name": "PA",
+      "target_id": 5,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1.pa",
+      "parent_ctx": "JTAG-jsn-JTAG-HS1-210512180081-4ba00477-0.1",
+      "parent": "APU",
+      "level": 1,
+      "jtag_cable_serial": "210512180081"
+    },
+    {
+      "name": "xc7z020",
+      "target_id": 6,
+      "target_ctx": "JTAG-jsn-JTAG-HS1-210512180081-23727093-0",
+      "parent_ctx": "",
+      "parent": "",
+      "level": 0,
+      "jtag_cable_serial": "210512180081"
+    }
+  ],
+  "last_completed_entry_call": {
+    "time_utc8": "2026-10-13T23:31:01.946587+08:00",
+    "api": "runtime.verify_map_cleanup_target",
+    "status": "RETURNED"
+  },
+  "serial_close_returned": true,
+  "controller_close_returned": true,
+  "official_unload": "NOT_RETURNED；内部递归TCF、MemoryMap.set或HSI.close卡点未知。",
+  "sdk_normal_disconnect_dispose": "NOT_RUN",
+  "owned_server_closed": {
+    "status": "OWNED_SERVER_CLOSED",
+    "checked_at_utc8": "2026-10-13T23:35:35.1287066+08:00",
+    "identity_checked": true,
+    "native_pid": 10788,
+    "native_exit_code": -1,
+    "native_absent": true,
+    "listeners": [],
+    "launcher_current": null,
+    "hardware_program_execution": "SEE_VISIBILITY_PROBE_RESULT",
+    "target_operations": "本次易失部署与缓存观测，SDK及UART闭合见独立入口运行结果"
+  },
+  "owned_sdk_terminated": {
+    "status": "OWNED_SDK_TERMINATED_AFTER_UNLOAD_NO_PROGRESS",
+    "started_at_utc8": "2026-10-13T23:38:18.0545959+08:00",
+    "finished_at_utc8": "2026-10-13T23:38:18.1452768+08:00",
+    "native_pid": 26300,
+    "native_parent_pid": 3420,
+    "native_birth": "134363790152687010",
+    "native_image": "D:\\Xilinx\\2026.1\\Vivado\\tps\\win64\\python-3.13.0\\python.exe",
+    "native_sha256": "d289b7527fe1a1e18a64da085ab50d319bcbba92ab1d58fa0ac073a1c240fc75",
+    "native_exit_code": -1,
+    "native_absent": true,
+    "last_completed_call": "runtime.verify_map_cleanup_target",
+    "last_completed_at_utc8": "2026-10-13T23:31:01.946587+08:00",
+    "limitation": "public unloadhw未返回，具体内部卡点未知；串口close及controller.close已返回，SDK正常unload/disconnect/dispose未完成，不伪造入口最终结果。"
+  },
+  "ps_init": "NOT_RUN",
+  "pl_download": "NOT_RUN",
+  "cache_probe": "NOT_RUN",
+  "model": "NOT_RUN",
+  "limitations": [
+    "真实串口已打开后关闭；未发模型或缓存操作。",
+    "两核停止与系统复位PC观察不证明统一cold生命周期。",
+    "SDK子进程异常终止并外部释放服务，不冒充正常unload/disconnect/dispose。"
+  ]
+}

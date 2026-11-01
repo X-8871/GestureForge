@@ -1,0 +1,57 @@
+{
+  "stage": "2B",
+  "task_id": "S2B-T19",
+  "run_id": "geometry_xsim_cast_20261014_r01",
+  "source_commit": "aa6fd7248ef9271bbcc79fefe097c78fec8fb36a",
+  "source": {
+    "path": "src/s2b_maxpool_geometry.sv",
+    "sha256": "63c14da1f1586ea1aec69d70dc138f18093853ae60a15dcfb77806ebc1347ad9"
+  },
+  "testbench": {
+    "path": "sources/tb_s2b_fixed_pool_geometry.sv",
+    "sha256": "3ee56f8f443388d8e44e1f39120d7be63345b724e677065752f43f81daf49d2a"
+  },
+  "vectors": {
+    "path": "inputs/fixed_pool_geometry_vectors.dat",
+    "sha256": "28b6a8572f688a7fa45bf92d08311e09acd29f4b0cafa359f50da6c509c8dfee",
+    "legal_coordinates": 605696,
+    "boundary_cases": 18,
+    "total": 605714
+  },
+  "tool": {
+    "vivado": "2026.1",
+    "xsim": "2026.1",
+    "ross": "2026.9.1",
+    "execution": "ROSS Vivado TCL session vivado-20261014-102008-d75083dd"
+  },
+  "commands": [
+    {
+      "command": "exec xvlog -sv -work xil_defaultlib {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/src/s2b_maxpool_geometry.sv} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T19/timing_opt_geometry_r01/tb_s2b_fixed_pool_geometry.sv}",
+      "exit_code": 0
+    },
+    {
+      "command": "exec xelab xil_defaultlib.tb_s2b_fixed_pool_geometry -s s2b_fixed_pool_geom_cast_r01",
+      "exit_code": 0
+    },
+    {
+      "command": "exec xsim s2b_fixed_pool_geom_cast_r01 -R -testplusarg {VECTOR_PATH=C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T19/timing_opt_geometry_r01/fixed_pool_geometry_vectors.dat} -stats",
+      "exit_code": 0
+    },
+    {
+      "command": "exec xelab xil_defaultlib.s2b_maxpool_geometry -s s2b_maxpool_generic_default_cast_r01",
+      "exit_code": 0
+    }
+  ],
+  "result": {
+    "status": "PASS",
+    "marker": "PASS FIXED_POOL_GEOMETRY vectors=605714",
+    "elapsed_seconds": 41.891,
+    "simulator_reported_peak_mib": 227.891,
+    "kernel_reported_peak_kib": 21500
+  },
+  "limitations": [
+    "仅验证固定池化几何组合逻辑和默认通用几何实例的 elaboration；未运行 MaxPool 引擎状态机集成仿真。",
+    "Verilator地址守卫runner因环境缺少psutil未启动；该runner未作为本次XSim通过的依据。",
+    "本次不是综合、布局布线、时序或位流运行；未连接或操作板卡。"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "run_id": "profile_acl_patch_r04",
+  "source_commit": "04e93e6eeda75c1a381ce89f49a3f97b80b69e6b",
+  "source_snapshot": {
+    "verification/s15_direct_vivado_bitgen.py": {
+      "bytes": 134334,
+      "sha256": "1baa2b0475bc5651092a08f6e219b1288696908759e393cbb72d288b70456092"
+    },
+    "verification/test_s15_direct_vivado_bitgen.py": {
+      "bytes": 112782,
+      "sha256": "12496f91894f3834ef08a1f3405f0e2f312237c1bb486fab6470868f9dadeaf3"
+    }
+  },
+  "frozen_bitgen_inputs": {
+    "verification/s15_frozen_dcp_bitgen.tcl": {
+      "bytes": 4036,
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e"
+    },
+    "tmp/2B/S2B-T17/s15_launch_prepare_20261012_r02/project_s15_r01/s2b_inference_candidate.runs/impl_1/s2b_inference_wrapper_postroute_physopt.dcp": {
+      "bytes": 13704328,
+      "sha256": "db2aaf706c99121eada307fec80b4d69b362f1232ff17fcf65f4dd5c0015ad83"
+    }
+  },
+  "checks": {
+    "unit_tests": {
+      "command": "python.exe -B -c unittest.defaultTestLoader.loadTestsFromName('test_s15_direct_vivado_bitgen')",
+      "exit_code": 0,
+      "test_count": 45,
+      "passed": 45,
+      "failed": 0,
+      "fixture_root": "tmp/2B/S2B-T17/pacl_r03"
+    },
+    "py_compile": {
+      "exit_code": 0,
+      "compiled_file_count": 2,
+      "bytecode_output": "tmp/2B/S2B-T17/pacl_compile_r03"
+    },
+    "git_diff_check": {
+      "exit_code": 0,
+      "targets": [
+        "verification/s15_direct_vivado_bitgen.py",
+        "verification/test_s15_direct_vivado_bitgen.py"
+      ]
+    },
+    "real_userprofile_documents_acl": {
+      "status": "PASS_READ_ONLY_REAL_USERPROFILE_AND_DOCUMENTS_ACL_AUDIT",
+      "profile_owner_role": "SYSTEM",
+      "profile_ace_count": 4,
+      "profile_nontrusted_readonly_ace_count": 1,
+      "profile_nontrusted_mutable": false,
+      "documents_owner_matches_execution_user": true,
+      "documents_ace_count": 4,
+      "documents_nontrusted_readonly_ace_count": 1,
+      "documents_nontrusted_mutable": false,
+      "documents_contents_changed": false,
+      "private_profile_created": false
+    },
+    "missing_userprofile_shared_temp": {
+      "status": "PASS_MISSING_USERPROFILE_FAILS_CLOSED_WITHOUT_TEMP_FALLBACK",
+      "temp_contents_unchanged": true
+    }
+  },
+  "vivado_started": false,
+  "bitgen_started": false,
+  "jtag_started": false,
+  "limitations": [
+    "此前一次测试使用过长的证据根目录，目标路径达到265个UTF-16字符而被259字符保护拒绝；该失败运行保留在report/evidence/S2B-T17/profile_acl_patch_r03，当前通过运行改用短夹具根目录。",
+    "Common 17-356 / load_features失败的根因仍未由真实Vivado启动验证；本包只验证隔离APPDATA目录与ACL门禁。"
+  ]
+}

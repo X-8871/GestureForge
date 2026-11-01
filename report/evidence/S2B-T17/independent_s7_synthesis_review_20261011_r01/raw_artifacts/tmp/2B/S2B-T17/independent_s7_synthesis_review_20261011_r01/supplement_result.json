@@ -1,0 +1,188 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "checks": [
+    {
+      "name": "精确根目录checker_evidence",
+      "status": "PASS",
+      "detail": {
+        "expected": 0,
+        "actual": 0,
+        "status": "CHECKS_OK",
+        "errors": []
+      }
+    },
+    {
+      "name": "精确根目录checker_inputs",
+      "status": "PASS",
+      "detail": {
+        "expected": 2,
+        "actual": 2,
+        "status": "CHECKS_FAILED",
+        "errors": [
+          "interfaces[1] 接口未冻结，阻断 inputs 核验",
+          "checks[3] 依赖检查状态为 FAIL，阻断 inputs 核验",
+          "checks[4] 依赖检查状态为 FAIL，阻断 inputs 核验",
+          "checks[6] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[7] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[8] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[9] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[10] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[11] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[12] 依赖检查状态为 NOT_RUN，阻断 inputs 核验",
+          "checks[15] 依赖检查状态为 FAIL，阻断 inputs 核验"
+        ]
+      }
+    },
+    {
+      "name": "history恰好单次synthesis及products",
+      "status": "FAIL",
+      "detail": [
+        {
+          "id": 1,
+          "command": "source -encoding utf-8 -notrace {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/vivado/s2b_inference_platform.tcl}",
+          "code": 0,
+          "elapsed": 0.004,
+          "timestamp": "2026-10-11T20:58:18.781625+08:00"
+        },
+        {
+          "id": 2,
+          "command": "::s2b_inference_platform::run {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/tmp/2B/S2B-T17/s7p1} {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01} {C:/Users/22061/.codex/plugins/cache/amd-ross-agentic-ai-assistant/amd-ross-agentic-ai-assistant/2026.9.1/skills/vivado-ip-configurator/lib/ipcfg.tcl} {C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\s7_root_run_20261011_r01\\.vivado-ai\\vivado_23400231_91fc2051.log}",
+          "code": 1,
+          "elapsed": 30.129,
+          "timestamp": "2026-10-11T20:59:30.5934742+08:00"
+        },
+        {
+          "id": 3,
+          "command": "set_param general.maxThreads 1; if {[get_property PART [current_project]] ne {xc7z020clg400-2}} {error PART_MISMATCH}; if {[get_property TOP [current_fileset]] ne {s2b_inference_wrapper}} {error TOP_MISMATCH}; if {$::s2b_inference_platform::version ne {0.1.7}} {error PROFILE_MISMATCH}; if {[get_property CONFIG.PROFILE_VISIBILITY_PROVEN [get_bd_cells infer]] != 0} {error VISIBILITY_MISMATCH}; if {[llength $::s2b_inference_platform::rtl_sources] != 18} {error RTL_COUNT}; set s7_sources {}; foreach relative $::s2b_inference_platform::rtl_sources {set matches [get_files -quiet [file join {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition} $relative]]; if {[llength $matches] != 1} {error SOURCE_REGISTRATION}; lappend s7_sources [list $relative [lindex $matches 0]]}; set s7_wrapper [get_files -quiet */s2b_inference_wrapper.v]; if {[llength $s7_wrapper] != 1} {error WRAPPER_COUNT}; set s7_setup_path {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/setup_synthesis.tcldict}; if {[file exists $s7_setup_path]} {error SETUP_OVERWRITE}; set s7_f [open $s7_setup_path w]; puts $s7_f [dict create status READY_SINGLE_HEAVY source_count 18 registered_sources $s7_sources wrapper $s7_wrapper top [get_property TOP [current_fileset]] part [get_property PART [current_project]] threads [get_param general.maxThreads] jobs 1 profile $::s2b_inference_platform::version visibility 0 clock_hz 50000000 synth_strategy [get_property STRATEGY [get_runs synth_1]]]; close $s7_f; puts S7_READY_SINGLE_HEAVY",
+          "code": 0,
+          "elapsed": 0.008,
+          "timestamp": "2026-10-11T21:01:34.3054413+08:00"
+        },
+        {
+          "id": 4,
+          "command": "launch_runs synth_1 -jobs 1",
+          "code": 0,
+          "elapsed": 0.646,
+          "timestamp": "2026-10-11T21:04:04.5061043+08:00"
+        },
+        {
+          "id": 5,
+          "command": "wait_on_run synth_1",
+          "code": 0,
+          "elapsed": 241.088,
+          "timestamp": "2026-10-11T21:09:43.0063395+08:00"
+        },
+        {
+          "id": 6,
+          "command": "open_run synth_1",
+          "code": 0,
+          "elapsed": 13.207,
+          "timestamp": "2026-10-11T21:11:12.3779439+08:00"
+        },
+        {
+          "id": 7,
+          "command": "report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 20 -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/timing_summary_synth.rpt}; report_timing -delay_type max -max_paths 30 -sort_by group -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/timing_worst_synth.rpt}; report_utilization -hierarchical -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/utilization_synth.rpt}; report_utilization -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/utilization_flat_synth.rpt}; report_clocks -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/clocks_synth.rpt}; report_exceptions -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/exceptions_synth.rpt}; report_methodology -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/methodology_synth.rpt}; report_drc -file {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/drc_synth.rpt}",
+          "code": 0,
+          "elapsed": 18.736,
+          "timestamp": "2026-10-11T21:16:08.6444944+08:00"
+        },
+        {
+          "id": 8,
+          "command": "write_xdc -type timing {C:/Users/22061/.codex/worktrees/96a3/FPGA_Competition/report/evidence/S2B-T17/s7_platform_20261011_r01/constraints_synth.xdc}; set s7_run_states [dict create]; foreach s7_run [get_runs] {dict set s7_run_states [get_property NAME $s7_run] [dict create status [get_property STATUS $s7_run] progress [get_property PROGRESS $s7_run]]}; dict create project [get_property NAME [current_project]] part [get_property PART [current_project]] top [get_property TOP [current_fileset]] clock_period [get_property PERIOD [get_clocks clk_fpga_0]] runs $s7_run_states impl_strategies [list_property_value STRATEGY [get_runs impl_1]]",
+          "code": 0,
+          "elapsed": 0.64,
+          "timestamp": "2026-10-11T21:16:46.2874552+08:00"
+        },
+        {
+          "id": 9,
+          "command": "close_project",
+          "code": 0,
+          "elapsed": 0.599,
+          "timestamp": "2026-10-11T21:19:01.7307629+08:00"
+        }
+      ]
+    },
+    {
+      "name": "builder1/products0/capture1原FAIL",
+      "status": "PASS",
+      "detail": "真实native与capture区分；原捕获失败不归为STA失败"
+    },
+    {
+      "name": "run状态fivecomplete/impl未启",
+      "status": "PASS",
+      "detail": "INFO: [Timing 38-35] Done setting XDC timing constraints.\r\nproject s2b_inference_candidate part xc7z020clg400-2 top s2b_inference_wrapper clock_period 20.000 runs {synth_1 {status {synth_design Complete!} progress 100%} impl_1 {status {Not started} progress 0%} s2b_inference_rst_fclk0_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_rst_fclk0_0_impl_1 {status {Not started} progress 0%} s2b_inference_ps7_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_ps7_0_impl_1 {status {Not started} progress 0%} s2b_inference_axi_gp0_lite_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_axi_gp0_lite_0_impl_1 {status {Not started} progress 0%} s2b_inference_infer_0_synth_1 {status {synth_design Complete!} progress 100%} s2b_inference_infer_0_impl_1 {status {Not started} progress 0%}} impl_strategies {{Vivado Implementation Defaults} Performance_Auto_1 Performance_Auto_2 Performance_Auto_3 Performance_Explore Performance_ExplorePostRoutePhysOpt Performance_ExploreWithRemap Performance_WLBlockPlacement Performance_WLBlockPlacementFanoutOpt Performance_EarlyBlockPlacement Performance_NetDelay_high Performance_NetDelay_low Performance_Retiming Performance_ExtraTimingOpt Performance_RefinePlacement Performance_SpreadSLLs Performance_BalanceSLLs Performance_BalanceSLRs Performance_HighUtilSLRs Congestion_SpreadLogic_high Congestion_SpreadLogic_medium Congestion_SpreadLogic_low Congestion_SSI_SpreadLogic_high Congestion_SSI_SpreadLogic_low Area_Explore Area_ExploreSequential Area_ExploreWithRemap Power_DefaultOpt Power_ExploreArea Flow_RunPhysOpt Flow_RunPostRoutePhysOpt Flow_RuntimeOptimized Flow_Quick}"
+    },
+    {
+      "name": "project关闭",
+      "status": "PASS",
+      "detail": {
+        "exit_code": 0,
+        "output": "",
+        "task_progress": "1/2: 保存实际50MHz报告并独立核查时序与恢复绑定 (active, 3s)"
+      }
+    },
+    {
+      "name": "命令更正与history逐字符一致",
+      "status": "PASS",
+      "detail": "原reports batch原生码0不改写"
+    },
+    {
+      "name": "精确注册XCI六文件",
+      "status": "PASS",
+      "detail": [
+        "tmp/2B/S2B-T17/s7p1/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/ip/s2b_inference_axi_gp0_lite_0/s2b_inference_axi_gp0_lite_0.xci",
+        "tmp/2B/S2B-T17/s7p1/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/ip/s2b_inference_const_one_0/s2b_inference_const_one_0.xci",
+        "tmp/2B/S2B-T17/s7p1/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/ip/s2b_inference_const_zero_0/s2b_inference_const_zero_0.xci",
+        "tmp/2B/S2B-T17/s7p1/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/ip/s2b_inference_infer_0/s2b_inference_infer_0.xci",
+        "tmp/2B/S2B-T17/s7p1/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/ip/s2b_inference_ps7_0/s2b_inference_ps7_0.xci",
+        "tmp/2B/S2B-T17/s7p1/s2b_inference_candidate.srcs/sources_1/bd/s2b_inference/ip/s2b_inference_rst_fclk0_0/s2b_inference_rst_fclk0_0.xci"
+      ]
+    },
+    {
+      "name": "峰值未测与before原生码不伪填",
+      "status": "PASS",
+      "detail": "ROOTcache无独立before原生返回码文件；before快照由已知SHA与源码Git核验绑定，不补造native码。"
+    },
+    {
+      "name": "初次唯一失败为Reviewer根目录参数",
+      "status": "PASS",
+      "detail": "失败stdout/stderr/native保留；此项已用明确--project-root补核"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s7_platform_20261011_r01\\s7_collection_stage_checker_snapshot.py",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s7_platform_20261011_r01\\s7_collection_delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.6100000000005821
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "-X",
+        "utf8",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s7_platform_20261011_r01\\s7_collection_stage_checker_snapshot.py",
+        "--project-root",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\s7_platform_20261011_r01\\s7_collection_delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 2,
+      "elapsed_seconds": 0.5930000000007567
+    }
+  ]
+}

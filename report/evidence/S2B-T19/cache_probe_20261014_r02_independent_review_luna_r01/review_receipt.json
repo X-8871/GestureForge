@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T19-R02-G2",
+  "status": "PASS",
+  "role": "INDEPENDENT_REVIEWER",
+  "scope": "visibility0_cache_probe_only",
+  "baseline_commit": "7c14ec0a0c8205dabdb4ddb541140ccf20c9c9d9",
+  "reviewed_delivery_manifest": {
+    "path": "report/evidence/S2B-T19/cache_probe_20261014_r02/delivery_manifest.json",
+    "sha256": "643282197da47e1e311df6a3e4336ea8d505d3c47b0c79403a94247ed337a132"
+  },
+  "reviewed_package_files": {
+    "declared": 73,
+    "present_and_sha256_matched": 73,
+    "missing": 0,
+    "mismatched": 0
+  },
+  "checks": [
+    {
+      "name": "冻结清单与全部文件绑定",
+      "status": "PASS",
+      "evidence": "目标 delivery_manifest.json 的 SHA-256 与任务指定值一致；逐项读取清单声明的 73 个文件并重算 SHA-256，73 项均存在且匹配。"
+    },
+    {
+      "name": "官方 evidence checker",
+      "status": "PASS",
+      "evidence": "独立执行 verification/check_stage_delivery.py --mode evidence；原始 stdout 为 CHECKS_OK、errors=[]、warnings=[]，stderr 为空，退出码 0。原始输出及 argv 记录随包绑定。"
+    },
+    {
+      "name": "Vitis、SDK 与 watchdog 结果",
+      "status": "PASS",
+      "evidence": "vitis_execution.json 记录 native_exit_code=0、sdk_native_exit_code=0、sdk_exit_code_missing=false、entry_native_exit_code=0、timeout_reason=null、primary_error=null、server_close_error=null；入口结果为 API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING。"
+    },
+    {
+      "name": "PS 后配置",
+      "status": "PASS",
+      "evidence": "visibility_probe_result.json 的 postconfiguration.status=PASS；两项 MASKWRITE 步骤均为 PASS，结束时 LOCKSTA=1，清理错误为空。"
+    },
+    {
+      "name": "两阶段跨主机缓存响应",
+      "status": "PASS",
+      "evidence": "cache_probe.status=CROSS_MASTER_256_BYTES_MATCHED；phase0_receipt 与 phase1_receipt 均记录 error_code=0、response_code=0，且各自携带一份响应。"
+    },
+    {
+      "name": "编译 XSA、implemented XSA 与实际位流区分",
+      "status": "PASS",
+      "evidence": "banner XSA=6cff0c6a…076a7 对应编译 XSA；verified_inputs.compat_artifacts 分别绑定 implemented XSA=6f2cddd2…96c1be 与 bit=91af1dd8…9eaf4eb；实际 fpga.full.compatibility_default 调用的 bit 路径与该 implemented bit 一致。三份文件均直接重算 SHA-256 并列入本审查交付清单。"
+    },
+    {
+      "name": "UART 命令范围及关闭",
+      "status": "PASS",
+      "evidence": "uart_failed=false、serial_closed=true。四项 uart_events 为两次 TX 与对应 RX；TX op 均为 4（OP_CACHE_PROBE），源码定义 OP_WEIGHTS=1、OP_RUN=2。原始 TX/RX 文件已按冻结清单哈希绑定。"
+    },
+    {
+      "name": "精确归属的 hw_server 关闭",
+      "status": "PASS",
+      "evidence": "hw_server_identity.json 绑定 PID 28440、父 PID 15792、映像路径、命令行、创建时间及映像 SHA。稍后的 server_close.json 记录 identity_checked=true、native_pid=28440、native_absent=true、listeners=[]、status=OWNED_SERVER_CLOSED；close_owned_server.ps1 在关闭前核对进程身份与 3121 监听归属。"
+    },
+    {
+      "name": "验收状态与限制未被扩大",
+      "status": "PASS",
+      "evidence": "主结果仍为 API_OBSERVATIONS_SAVED_ACCEPTANCE_PENDING 且 cold_lifecycle_proven=false；清单将完整模型及 2B 阶段验收列为 NOT_RUN。清单仍说明未完成完整样本/连续推理/CSR 负向、复位与恢复及 G3/G4/G5，且 XA7Z020 丝印与厂商确认 XC7Z020-2 的证据闭环未完成；JTAG 不能证明速度等级。"
+    }
+  ],
+  "time_order_note": "visibility_probe_result.json 在 2026-10-14T08:33:45+08:00 记录 owned_hw_server_released=false；独立关服回执随后于 2026-10-14T08:35:21+08:00 对同一 PID 28440 记录关闭、进程消失且端口无监听。回执保留两个原始时点，不把后续清理状态回填到较早的运行结果。",
+  "unified_cold_reset_lifecycle_assessment": {
+    "verdict": "SUPPORTED_WITHIN_DOCUMENTED_CONTROLLED_RESET_SCOPE",
+    "basis_path": "report/evidence/S2B-T19/official_reset_basis_20261011_r01/cold_reset_basis_candidate.json",
+    "basis_sha256": "2f13aaa73f526e658008dab879df82a90c37a1109eb5c9295924984272b118c3",
+    "runtime_jtag_path": "report/evidence/S2B-T19/cache_probe_20261014_r02/jtag_result.json",
+    "runtime_jtag_sha256": "ae87312922ddfa0e7245cebe8c34666daad4421282dbaeaadf51644ef941bf8f",
+    "platform_artifact_distinction": {
+      "compiled_xsa_path": "report/evidence/S2B-T13/artifact_recheck_20261011_r01/s2b_inference_no_bit.xsa",
+      "compiled_xsa_sha256": "6cff0c6afd009bf051028c4b793cc99c3c0c700002c2fdb2d247a33d2fc076a7",
+      "implemented_xsa_path": "report/evidence/S2B-T17/direct_bitgen_20261013T054357Z_ccbeeb35a2053320/s2b_inference_implemented.xsa",
+      "implemented_xsa_sha256": "6f2cddd2f8d81d9b8d7ae8987aa446d354cb4b44cd208dfdb336eb24b796c1be",
+      "implemented_bit_path": "report/evidence/S2B-T17/implemented_export_20261013_r01/s2b_inference_implemented.bit",
+      "implemented_bit_sha256": "91af1dd86755f5273171361912e1a3602bf574f14cbb637585f8766779eaf4eb",
+      "assessment": "运行 banner 的 XSA 字段绑定编译 XSA；compat_artifacts 单独绑定 implemented XSA，JTAG full.compatibility_default 实际加载同一导出 run 下的 implemented bit，随后配置状态 EOS=1。三者不混作同一 XSA/位流。"
+    },
+    "sequence_evidence": [
+      "required_actual_sequence 的 8 项均有冻结运行证据：双核初态及 system stop 后状态、apu.rst.system.stop 调用和 BOOT_MODE/REBOOT_STATUS/OCM_CFG/PC 前后读取、复位后 EOS=0、OCM init READY_RESULT2_RETURN0（ready_address=0x1d08、result=2、return_code=0）、明确绑定的完整 implemented bit 配置及 EOS=1（CONFIG_STATUS=0x46107FFC）、UART 先打开后运行固定应用且 banner 绑定源码与编译 XSA、8 组稳定 CSR/epoch0/IDLE_PS/PS 所有权/清零账本及两阶段 CPU↔DAP cache probe、最终 CSR/UART 原字节保存并停止 CPU0 后复读 Stopped。",
+      "entry_calls.jsonl 记录 completed_probe_cpu0.state=Running、completed_probe_cpu0.stop 返回、随后 state_after='Stopped: (Suspended)'；visibility_probe_result.json 记录 uart_failed=false、serial_closed=true。",
+      "该组合支持 candidate 定义范围内的 unified_cold_reset_lifecycle 观察序列；它不是物理 POR、断电冷启动、DDR 清零或 DBG_RST 新上升沿证明。候选文档当时的 hardware_execution=NOT_RUN 与原运行 cold_lifecycle_proven=false 继续原样有效，不在本审查中回填或升级。"
+    ],
+    "nonfatal_diagnostic": "jtag_result.json 的 cpu0.con.init 返回成功，但 XSDB deferred_thread 在读取源码行时出现 UnicodeDecodeError（GBK 解码）；READY_RESULT2/return_code/readback、后续配置及缓存观察均有独立结果记录，cleanup_errors 为空。此诊断作为工具日志限制披露，不隐去也不等同于硬件序列失败。"
+  },
+  "limitations": [
+    "本 PASS 仅表示 visibility0 缓存可见性前置探测证据经独立 G2 审查；不是 visibility=1 结果，也不是完整模型或阶段验收。",
+    "观察到的受控 system-reset→READY_RESULT2 初始化→完整 PL 配置 EOS=1→稳定 CSR/cache/UART→CPU0 停止序列支持文档定义范围内的统一复位生命周期解释；cold_lifecycle_proven=false 仍保持，且没有证明物理 POR、断电冷启动、DDR 清零或 DBG_RST 新上升沿。",
+    "完整模型、2B 阶段验收、G3、G4、G5 未完成；不得据此宣称整阶段通过。",
+    "XA7Z020 实物丝印与厂商转述的 XC7Z020-2 型号/速度等级仍待正式证据闭环；JTAG 身份或功能运行不能替代该证明。",
+    "本 Reviewer 仅读取本地冻结证据并运行只读官方清单检查器；没有访问或操作板卡、JTAG、UART、Vivado/Vitis 会话或 hw_server。"
+  ]
+}

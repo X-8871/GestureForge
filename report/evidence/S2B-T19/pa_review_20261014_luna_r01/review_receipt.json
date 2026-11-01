@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "kind": "S2B-T19-independent-software-g2-review",
+  "review_run_id": "pa_review_20261014_luna_r01",
+  "reviewer_runtime": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "xhigh"
+  },
+  "status": "CHANGES_REQUIRED",
+  "scope": "PA/visibility0 software and G2 launcher only",
+  "baseline": {
+    "commit": "c8742858fbb23331763358775daa44dafb95db94",
+    "production_sources": {
+      "verification/s2b_board_jtag.py": "248779cf4281f4f57cf805a46f3546e22e2549663f60d6578c5500b1891ff3ee",
+      "verification/test_s2b_board_jtag.py": "31c195dc402bb41bf37c4b1cbb9c23e9ba959bb2ea70c4c6b7d3bddaa1e51bdb",
+      "vitis/run_s2b_visibility_probe.py": "e2cf60f08a0de90b40eb38599c2b3ed5eb809c7d35b6b16a8de6efd4fe94ec1a",
+      "verification/test_s2b_visibility_probe.py": "58e0a7aadc6691cdeacb956bd336c84bb12373308b52eab715af32e373e835be"
+    },
+    "launcher_r02": {
+      "path": "tmp/2B/S2B-T19/watchdog_prepare_20261013_r01/run_visibility_guarded_r02.ps1",
+      "sha256": "763a8702e354816ebc1def2e9fead485379709657f94fcea2c9478b26e248134"
+    },
+    "service_close_script": {
+      "path": "tmp/2B/S2B-T19/board_run_20261014_r01/close_owned_server.ps1",
+      "sha256": "b66d19f588f607f0067e7fb016f1494a7554a17e4b259d5f84dfc679fea223b5"
+    },
+    "service_start_script": {
+      "path": "tmp/2B/S2B-T19/board_run_20261014_r01/start_owned_server.ps1",
+      "sha256": "6cc35b75563428e5d9784767ed51254847fab06f7c1d149d85825e31c1382f41"
+    },
+    "producer_manifest": {
+      "path": "report/evidence/S2B-T19/pa_target_topology_20261013_r01/delivery_manifest_r02.json",
+      "sha256": "bfe4814d751b3fde14fbc30f3a280ba02cec0d1c0bc24432f34bad2660a37607"
+    }
+  },
+  "pa_software_review": {
+    "status": "PASS_SOFTWARE_G2_ONLY",
+    "findings": [],
+    "reviewed_areas": [
+      "validate_targets严格接受四个主体或主体加成对PA节点，并核对parent_ctx、同一DAP/JTAG链、PA上下文、level、唯一ID和未知节点拒绝。",
+      "目标刷新和清理均使用公开Session.targets(id=current_id)选择器；实现读取SDK对象身份字段作门禁，不写SDK私有ID。",
+      "CSR映射cleanup重选当前APU，绑定本Run硬件设计、channel和context，再通过公共unloadhw；异常记录不覆盖主要卸载错误。",
+      "unload诊断使用单次延迟faulthandler；无dump与失败分别记录，取消失败保持文件描述符直到入口进程结束。"
+    ],
+    "official_vitis_2026_1_sources": {
+      "D:/Xilinx/2026.1/Vitis/cli/xsdb/target.py": "a853cb0a0d86e52bc588b045f648e1184708fc2d35ba2bd3b9eb11847288cf71",
+      "D:/Xilinx/2026.1/Vitis/cli/xsdb/session.py": "e1c85985ada7176182de0b59ddbbc44ecf7cd0047adcc42d94563dbb85da7b7b",
+      "D:/Xilinx/2026.1/Vitis/cli/xsdb/_tcf_children_exec_context.py": "aa6014c9fe0a5af1949437fd4a48f1cecd27215d5d4a6701445654ddd72eb8d4",
+      "D:/Xilinx/2026.1/Vitis/bin/vitis.bat": "9a305c248c966207c3e785d38fe92f01b51aeb1f3450896e8617c10a1a8a56f7"
+    },
+    "evidence": "report/evidence/S2B-T19/pa_review_20261014_luna_r01/source_snapshot/ 与 raw_logs/focused_test_summary.json"
+  },
+  "launcher_review": {
+    "status": "CHANGES_REQUIRED",
+    "findings": [
+      {
+        "id": "W1",
+        "blocking": true,
+        "location": "tmp/2B/S2B-T19/watchdog_prepare_20261013_r01/run_visibility_guarded_r02.ps1:105-114,121-134",
+        "issue": "finally只在timeout或catch捕获primaryError时尝试释放本Run服务和SDK；正常进程退出码是在cleanup分支之后才读取，末尾才因launcher/sdk非零码exit 2。入口run_s2b_visibility_probe.py对VisibilityProbeError明确SystemExit(2)，Vitis 2026.1 vitis.bat直接运行python.exe脚本并以该命令结束。因此一次正常返回的非零失败会写失败码，却跳过服务释放和SDK清理。",
+        "impact": "失败Run可能遗留owned hw_server/3121监听，且cleanup字段不显示尝试或BLOCKED结果；后续重试和进程归属核验受影响。",
+        "close_condition": "在finally清理门禁前可靠采集launcher与SDK退出状态；非零退出同样分别尝试已核验服务释放与SDK闭合，并在最终收据记录两者实际结果。"
+      },
+      {
+        "id": "W2",
+        "blocking": true,
+        "location": "tmp/2B/S2B-T19/board_run_20261014_r01/close_owned_server.ps1:9-25; start_owned_server.ps1:20-36",
+        "issue": "停止hw_server前验证PID、父PID、CreationDate、ExecutablePath、映像SHA和3121监听归属，但没有核对CommandLine；start脚本也未将创建时的CommandLine写入身份收据。",
+        "impact": "服务Stop-Process缺少任务要求的完整命令行身份绑定，无法独立证实当前PID仍对应本Run指定的hw_server调用。",
+        "close_condition": "start时绑定实际命令行，close时在Stop-Process前逐项核对PID、创建时间、父进程身份、映像路径、命令行、映像SHA和独占监听；不匹配时保持BLOCKED。"
+      }
+    ],
+    "checks": {
+      "powershell_parse": "r02 watchdog和本Run close脚本均0 parse errors。",
+      "cmd_batch_quote_mock": "以隔离mock批处理按同一cmd /d /s /c Start-Process形态调用，-s及入口路径按预期到达；预设子进程退出23被原样观察。该检查未调用Vitis或板卡。",
+      "window_style": "r02使用Start-Process -WindowStyle Hidden。"
+    }
+  },
+  "independent_tests": {
+    "command": "C:/Users/22061/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe <review runner> (10 selected unittest cases)",
+    "exit_code": 0,
+    "run": 10,
+    "failures": 0,
+    "errors": 0,
+    "coverage": [
+      "双PA拓扑、FPGA当前ID刷新和旧PA ID拒绝。",
+      "SDK官方AST公开Session.targets选择、正确新Target及旧_id不变。",
+      "清理时重选当前APU、所有权/漂移反例拒绝。",
+      "unload异常后仍取消栈定时器、stack schedule/cancel异常单独失败。"
+    ],
+    "raw_logs": "report/evidence/S2B-T19/pa_review_20261014_luna_r01/raw_logs/"
+  },
+  "producer_manifest_checks": {
+    "evidence_mode": {
+      "status": "CHECKS_OK",
+      "exit_code": 0,
+      "meaning": "仅表示证据包装与绑定完整；清单仍含早期FAIL、NOT_RUN记录。"
+    },
+    "inputs_mode": {
+      "status": "CHECKS_FAILED",
+      "exit_code": 2,
+      "blocking_checks": [
+        "focused_r06_run_result=FAIL",
+        "special_r01_run_result=FAIL",
+        "special_r02_run_result=FAIL",
+        "新PA兼容与卸载栈实板验证=NOT_RUN",
+        "首版包装清单schema检查=FAIL"
+      ]
+    }
+  },
+  "limitations": [
+    "未运行Vitis、XSDB、串口或硬件；当前真实unloadhw原因仍未知。",
+    "本轮证据只覆盖离线软件G2与launcher静态/隔离mock检查，不代表G3/G4/G5。",
+    "PowerShell parse及cmd quoting mock不覆盖真实SDK进程身份采样；launcher W1/W2关闭前不得启动下一次实板Run。"
+  ]
+}

@@ -1,0 +1,1 @@
+set handle [open {C:\Users\22061\.codex\worktrees\96a3\FPGA_Competition\report\evidence\S2B-T17\direct_bitgen_unittest_cwd_fix_20261013_r01\direct_bitgen_fixture_private_appdata_user_init_20261013T000353Z_b6455b7e\user_init_executed.marker} w]; puts $handle executed; close $handle

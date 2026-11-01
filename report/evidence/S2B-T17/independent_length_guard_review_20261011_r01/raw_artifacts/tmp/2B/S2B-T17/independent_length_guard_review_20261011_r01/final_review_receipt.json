@@ -1,0 +1,657 @@
+{
+  "schema_version": 1,
+  "task_id": "S2B-T17-S6-G2",
+  "status": "PASS_G2_ONLY",
+  "reviewer_state": "STOPPED_READ_ONLY_REVIEW_COMPLETE",
+  "finished_utc8": "2026-10-11T19:13:46.128805+08:00",
+  "reviewed_manifest": "report/evidence/S2B-T17/length_guard_20261011_r08/delivery_manifest_r03.json",
+  "reviewed_manifest_sha256": "748cd7d42bf8d3b641aa5d7b606b203ec008b3683c8b5f390185545c423d5bfb",
+  "reviewed_source_commit": "d5ad0e0ad13cc12e870d72434c2eb43b74e44330",
+  "source_baseline_commit": "5cb092dcce3631f310e67228738a674a6a82ce41",
+  "observed_root_head_at_finish": "034e8b41a6a8caa21ed194920e7959bfc5fc4cff",
+  "source_sha256": {
+    "src/s2b_conv_tile_engine.sv": "e8231b045b4b94565cb7b54c1e127878ad1850e88c70298c86af6d74009eebf8",
+    "board/s2b_inference_platform.json": "7e917378851febd4cf6c100fb56a3dd04b2dc21bbe427666b142ab6e25eaa4f3",
+    "board/s2b_inference_platform.md": "865a75fb953ebccae35a6be3e109fe9d8e4ecc737ff9c45fcac30d63f1606374",
+    "vivado/s2b_inference_platform.tcl": "bacd489f904a3f74bc35fb08f8edc540cc0507f4bddb4593a000da364dbd4629",
+    "verification/check_s2b_inference_platform.py": "2a1aab62be5114dd96dd9ffdb2b1137fc7da66fbb5230ea4a8fe0354f12bc651",
+    "verification/test_s2b_conv_validation_rtl.py": "8cacdf97f1295cbe5016fd4728c53d79e300a89a154bf77660116ed1b62e227c",
+    "verification/test_s2b_backend_coordinates_rtl.py": "9549de87642fdad5c642a886de848f0ac4ce823cc2c4d79ff1739da0161942e0",
+    "verification/test_s2b_geometry_specialization_rtl.py": "6ee3ac879ba8c97c3a0fad0097852c18ec617cd29b93a1b3ac9769f84b0b72a9",
+    "verification/test_s2b_route_specialization_rtl.py": "566bd1d8b9d1cadcc08d234bec4a59fed45a8db27850a35b8e28046ca6ce2dd0"
+  },
+  "source_freeze_sha256": "37ed95bb84166a406589ebcba4a23c262e6d390dd1551c446988bcd222ea832b",
+  "source_binding_count": 38,
+  "g1_manifest_bindings": 564,
+  "independent_math": {
+    "status": "PASS",
+    "seed": 291510059,
+    "valid_r": 195028,
+    "positive_length": 351647,
+    "triples": 352806,
+    "exhaustive_all_valid_r_triples": 194806,
+    "zero_masked": 1159,
+    "weight_pairs": 101372,
+    "coverage": "全部正整数C*KH*KW<=4608三因子穷举；U32宽随机100000；0..8193随机50000；20值笛卡尔；每个合法R的OC端点及U32阈值两侧。",
+    "proof": [
+      "零因子由第一分支拒绝，层越界/weight层失配在该分支仍覆盖BAD_RANGE。",
+      "正a,b,c且abc<=U32：ab<=U32，故plane高位检查充分；合法plane32*c32精确64。",
+      "R<=4608蕴含三个正因子和CKH均<=4608；factor32门禁及plane26门禁先保证低13位截取等价。",
+      "非法R不进入长度分支，合法R13*OC32精确45；无需提前MQ容量限制。"
+    ]
+  },
+  "public_cycle_comparison": {
+    "vectors": 21533,
+    "cycles": 178377,
+    "abort_mask": "000fffff",
+    "reset_mask": "000fffff",
+    "response_cases": 24,
+    "raw80": 1
+  },
+  "vector_generation": {
+    "status": "PASS",
+    "original_vectors_recomputed_independently": 5996,
+    "s5_prefix_vectors": 3924,
+    "s4_prefix_vectors": 2871,
+    "extra_vectors": 15537,
+    "total_vectors": 21533,
+    "extra_categories": {
+      "zero_high_overflow_layer_priority": 312,
+      "every_r_weight_u32_sides": 9216,
+      "independent_mixed_width_random": 6000,
+      "address_2pow32_legal_boundary": 9
+    },
+    "seed": 291510059,
+    "scaffold_scope": "只复用公开端口时钟/握手驱动；每条原有黄金独立重算；新刺激不调用Developer oracle。"
+  },
+  "independent_static_negatives": [
+    {
+      "case": "zero_factor_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "e64e19cd8036fa21127ad15dee257c9f483a24361a92965b4b86985057c3018d",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "input_plane_high_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "7293d3702074a4b99db8e908a80e1cd632e45837e53fbd9b68d6b09c75ad326a",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "output_plane_high_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "4d535bfbd937115d40eb157ebbf9130924d86dc177e306ebb5d1a2089e233b98",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "reduction_factor_truncated",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "c528324e86ebe7e7905e008de288c43a6b102e3217c90560d6f38cb67df7ed93",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "reduction_plane_threshold_changed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "827bc454249b6058dd95c9b7f78e558906203570c890d84bf44867f717665575",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "weight_high_bits_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "2ee64d701e6983af72f905343d98c267de4d1236dc53a4041ff61da8833263a3",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "state_gate_removed",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "2df8f23de10f4dd1b33b96faa600aad8535386fda0f65b5b7fa78c97a77c2252",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "generic_kernel_frozen",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "fbdb3215c1f24a499b5fcf4194c675fcd6e285804973ed084a06f5a2d3eff406",
+      "self_reported_sha_updated": true
+    },
+    {
+      "case": "extra_owner_condition",
+      "status": "REJECTED",
+      "message": "派生源存在未授权的额外差异：src/s2b_conv_tile_engine.sv",
+      "mutated_source_sha256": "734040533b0f11124061bb8b1e0bd8b5bccdeba5cae60168c4e6ea661abd8e07",
+      "self_reported_sha_updated": true
+    }
+  ],
+  "lint": {
+    "status": "PASS",
+    "latch": 0,
+    "unoptflat": 0,
+    "multidriven": 0,
+    "scope": "Verilator真实新RTL结构检查；非Vivado综合或STA。",
+    "warnings": {
+      "WIDTHEXPAND": 12,
+      "WIDTHTRUNC": 7,
+      "BLKSEQ": 1,
+      "PROCASSINIT": 2,
+      "UNUSEDSIGNAL": 16,
+      "UNUSEDPARAM": 110
+    }
+  },
+  "lint_warning_audit": {
+    "status": "PASS",
+    "new_numeric_warning_messages": [],
+    "note": "候选数值宽度警告均在旧2A存在；新增三个128位名字的高位UNUSEDSIGNAL源于兼容原时序块，非未赋值或锁存。"
+  },
+  "closed_findings": [
+    {
+      "priority": "P2",
+      "status": "CLOSED",
+      "binding": "report/evidence/S2B-T17/length_guard_20261011_r08/r01_native_exit_correction.json",
+      "sha256": "6f8939908dff0107b2bbacb1a9520a332b9245b1fd795c772269c6c893931eef",
+      "basis": "r01失败事实、宿主1、未捕获native/null与源码推导2分别记录；r03/r04原生capture准确归属；旧r07原件保留。"
+    }
+  ],
+  "blocking_findings": [],
+  "native_commands": [
+    {
+      "name": "lint",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--lint-only",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "--top-module",
+        "tb_s2b_conv_validation",
+        "source/s2a_network_descriptor_pkg.sv",
+        "source/s2a_conv_tile_engine.sv",
+        "source/s2b_conv_tile_engine.sv",
+        "tb_s2b_conv_validation.sv"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\attempt02",
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 0.234,
+      "peak_tree_rss_bytes": 37646336,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/lint.log",
+      "log_sha256": "4e86cf554a82d4e40a4b0bf35a282b3a428f81c406acf6caa4b699eeb67ddea8",
+      "failure": null
+    },
+    {
+      "name": "compile",
+      "command": [
+        "D:\\FPGA_S2A_MSYS2_20261001\\env\\mingw64\\bin\\verilator_bin.exe",
+        "--binary",
+        "--timing",
+        "--timescale",
+        "1ns/1ps",
+        "-Wall",
+        "-Wno-fatal",
+        "-j",
+        "1",
+        "--threads",
+        "1",
+        "--output-split",
+        "10000",
+        "--output-split-cfuncs",
+        "100",
+        "--top-module",
+        "tb_s2b_conv_validation",
+        "--Mdir",
+        "obj_dir",
+        "-MAKEFLAGS",
+        "PYTHON3='\"C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\"'",
+        "-CFLAGS",
+        "-D_GLIBCXX_USE_CXX11_ABI=0 -O1",
+        "source/s2a_network_descriptor_pkg.sv",
+        "source/s2a_conv_tile_engine.sv",
+        "source/s2b_conv_tile_engine.sv",
+        "tb_s2b_conv_validation.sv"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\attempt02",
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 17.141,
+      "peak_tree_rss_bytes": 672534528,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/compile.log",
+      "log_sha256": "6f3756ff352ac1a9476ca072926957a877c82cc5a8c17b1c95a94cd95a588ec4",
+      "failure": null
+    },
+    {
+      "name": "negative_wrong_expected",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\attempt02\\obj_dir\\Vtb_s2b_conv_validation.exe"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\attempt02\\negative_wrong_expected",
+      "native_exit_code": 1,
+      "expected_native_exit_code": 1,
+      "elapsed_seconds": 0.188,
+      "peak_tree_rss_bytes": 4935680,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/negative_wrong_expected.log",
+      "log_sha256": "43cb3dc7b0596d5f59d6526fc7c4bc0da940d5683dabbca8846640e463492676",
+      "failure": null
+    },
+    {
+      "name": "simulation",
+      "command": [
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\attempt02\\obj_dir\\Vtb_s2b_conv_validation.exe"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\attempt02",
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 1.281,
+      "peak_tree_rss_bytes": 5013504,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/simulation.log",
+      "log_sha256": "4b391aed52bacdbdbdb954f3c6b5d4953598c3dea0d1167753ca9968fc627df2",
+      "failure": null
+    },
+    {
+      "name": "g1_evidence",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\length_guard_20261011_r07\\delivery_manifest_r02.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 1.046,
+      "peak_tree_rss_bytes": 24334336,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/g1_evidence.log",
+      "log_sha256": "6e9bfc8163bcec9c5b5ea20dec9ba22987213a4a1c0a1c9159cd3d95275856a6",
+      "failure": null
+    },
+    {
+      "name": "g1_inputs",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\length_guard_20261011_r07\\delivery_manifest_r02.json"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "native_exit_code": 2,
+      "expected_native_exit_code": 2,
+      "elapsed_seconds": 1.063,
+      "peak_tree_rss_bytes": 27762688,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/g1_inputs.log",
+      "log_sha256": "cf722de73a0b89f3287f481d78c46bffc7923228d3eace5b651b5831adc98df9",
+      "failure": null
+    },
+    {
+      "name": "static_checker",
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_s2b_inference_platform.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 0.234,
+      "peak_tree_rss_bytes": 18321408,
+      "sampling_period_seconds": 0.05,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02/static_checker.log",
+      "log_sha256": "0b617fab052cf0fa92b5826702a4e13473b76c3e2747b3638f54b57baf0e1187",
+      "failure": null
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "evidence",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\length_guard_20261011_r08\\delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 0,
+      "expected_native_exit_code": 0,
+      "elapsed_seconds": 1.016,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/r08_evidence.log",
+      "sha256": "b8e3788c110a800c7339cebd6853705aee95988b026b950795e2cf982a67102a"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "verification/check_stage_delivery.py",
+        "--mode",
+        "inputs",
+        "--manifest",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\report\\evidence\\S2B-T17\\length_guard_20261011_r08\\delivery_manifest_r03.json"
+      ],
+      "native_exit_code": 2,
+      "expected_native_exit_code": 2,
+      "elapsed_seconds": 1.046,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/r08_inputs.log",
+      "sha256": "0e34502319d1d702b79a0872dc23aef7e90f07dadd612be3842b82cbdd85f891"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "src/s2b_conv_tile_engine.sv",
+        "board/s2b_inference_platform.json",
+        "board/s2b_inference_platform.md",
+        "vivado/s2b_inference_platform.tcl",
+        "verification/check_s2b_inference_platform.py",
+        "verification/test_s2b_conv_validation_rtl.py",
+        "verification/test_s2b_backend_coordinates_rtl.py",
+        "verification/test_s2b_geometry_specialization_rtl.py",
+        "verification/test_s2b_route_specialization_rtl.py"
+      ],
+      "native_exit_code": 0,
+      "elapsed_seconds": 0.031,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/final_diff_check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "resource_preflight": {
+    "available_ram_bytes": 3117621248,
+    "minimum_ram_bytes": 2147483648,
+    "free_disk_bytes": 27788259328,
+    "running_heavy_processes": [],
+    "heavy_slot": "root授权本Reviewer独占，单job/thread"
+  },
+  "layer0_bound_not_rerun": {
+    "status": "PASS_BOUND_NOT_RERUN",
+    "actual_coverage": {
+      "bytes": 1384448,
+      "input_reads": 583443,
+      "weight_reads": 584064,
+      "output_writes": 1384448,
+      "requests": 2551955,
+      "responses": 2551955,
+      "request_stalls": 6635073,
+      "response_stalls": 6635073,
+      "cycles": 27235743
+    },
+    "golden_sha256": "220499b6b8122c3264bef4d581967d51eedccc9e28813df3e0ff8f8716bc2ed8",
+    "golden_nonzero_bytes": 997763,
+    "golden_unique_values": 111,
+    "cpu_result_status": "PASS",
+    "t25_restored_bytes": 11382150,
+    "reviewer_scope": "绑定原生完整layer0/G1公开逐周期日志、实际编译快照、独立CPU与T25非零gold；未复跑layer0/109。"
+  },
+  "nonconv_bound_not_rerun": [
+    {
+      "run_id": "patch_guard_20261011_r04",
+      "status": "PASS_GEOMETRY_SPECIALIZATION_G1",
+      "consumed_snapshot_sources": [
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\int8_maxpool_geometry.sv",
+          "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\int8_maxpool_window.sv",
+          "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\int8_upsample_query.sv",
+          "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2a_maxpool_engine.sv",
+          "sha256": "3dbb1fd41fbe773debade2629e8e7565554d14051a906466042906bb925de7b7",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2a_upsample_engine.sv",
+          "sha256": "2c08bbc9c1d85e94de448f613617a5d584fe5682d0c4858d550bf377302e195b",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2b_maxpool_engine.sv",
+          "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r04\\source\\s2b_upsample_engine.sv",
+          "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "role": "unchanged_real_nonconv_source"
+        }
+      ],
+      "simulation_sha256": "68b86ee14dfd65abe9b27cc22e42f22db547957a3995cb3d9fdecc6c1676b7de",
+      "coverage": {
+        "pool": 19645,
+        "upsample": 3456,
+        "cycles": 590601,
+        "pool_abort": 127,
+        "upsample_abort": 63
+      },
+      "trace_lines": [],
+      "scope": "绑定S5真实非CONV快照和原生结果；本轮未重跑，CONV控制stub不证明数值。"
+    },
+    {
+      "run_id": "patch_guard_20261011_r05",
+      "status": "PASS_ROUTE_SPECIALIZATION_DIRECT_G1",
+      "consumed_snapshot_sources": [
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\int8_route_query.sv",
+          "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\s2b_route_query.sv",
+          "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\s2a_route_engine.sv",
+          "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r05\\source\\s2b_route_engine.sv",
+          "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
+          "role": "unchanged_real_nonconv_source"
+        }
+      ],
+      "simulation_sha256": "994de8efba005895c11a27d3c9fb3189fb43b493adfb4fdeeb48394b74d50209",
+      "coverage": {
+        "cases": 15816,
+        "queries": 4592720,
+        "cycles": 256784,
+        "abort": 255,
+        "reset": 255
+      },
+      "trace_lines": [],
+      "scope": "绑定S5真实非CONV快照和原生结果；本轮未重跑，CONV控制stub不证明数值。"
+    },
+    {
+      "run_id": "patch_guard_20261011_r06",
+      "status": "PASS_BACKEND_COORDINATES_G1",
+      "consumed_snapshot_sources": [
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2a_network_descriptor_pkg.sv",
+          "sha256": "e83a592d15908474498380bcaedb6db034a2b4e2165af6ea998335351c35f183",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_maxpool_geometry.sv",
+          "sha256": "320c5414e29f33681f96c3667cb068cbcbf319a97827f3531c87092dac073db5",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_maxpool_window.sv",
+          "sha256": "0ea5865e939a691ccb7fea4602fd31211c816d13424ac7c77c89713ff5a15653",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_route_query.sv",
+          "sha256": "6a033547cc6bc40572be5a3253a559f10b21d98a55dc68541bce8b137598bbba",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\int8_upsample_query.sv",
+          "sha256": "488f90c2b7c7e1c3adfd0b6bc939b4c57082daaa334e8db35b78fb7c8f814fc7",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_maxpool_engine.sv",
+          "sha256": "fbb514efc567abf224fe68dc972a23b85abf509322cb18ac0f7cf21740a4f467",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2a_route_engine.sv",
+          "sha256": "4748df19474e6b90e11bb760854311da92ba8d19a5b1d4b12e3d7b2b7968fe44",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_upsample_engine.sv",
+          "sha256": "3c31f389430230674ef3cf9fa77eeee4bc705d77dd4c7065496ce2e70f67c65b",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_network_backend.sv",
+          "sha256": "f2ec38857a395bb823e256aa95cdd2c76604b71452c2e4a0ad316c0b8fc699b6",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_route_query.sv",
+          "sha256": "b7a36db57f27a6d32ae6616b569fb51a4b81a08e171621d495a7f54af602e89c",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2b_route_engine.sv",
+          "sha256": "c8b774b053179f40bb431290880710b46f51d589c2eeb4608a5914ecb6f60f36",
+          "role": "unchanged_real_nonconv_source"
+        },
+        {
+          "path": "tmp\\2B\\S2B-T17\\patch_guard_20261011_r06\\source\\s2_network_backend.sv",
+          "sha256": "6aefa2472a7dc6b142ab2cc8bece7319181b2724c48407db7f0a25812561e82a",
+          "role": "original_S2_control_baseline"
+        }
+      ],
+      "simulation_sha256": "aeddaf6d655b9ece61a4e39d742f8580f1bfe80756d576ab790805c5088a2c18",
+      "coverage": {
+        "boundary_cases": 4980736,
+        "nonconv_layers": 15,
+        "nonconv_outputs": 5234944,
+        "nonconv_requests": 12286976,
+        "cycles": 102468267,
+        "owner_drop_results": 120942
+      },
+      "trace_lines": [
+        "TRACE layer=3 op=2 outputs=346112 requests=692224 cycles=2855426 digest=d3d57ec25e170da5",
+        "TRACE layer=6 op=2 outputs=692224 requests=1384448 cycles=5710850 digest=112f62561ab82c41",
+        "TRACE layer=8 op=2 outputs=1384448 requests=2768896 cycles=11421697 digest=f452e06606323ce5",
+        "TRACE layer=9 op=1 outputs=346112 requests=1730560 cycles=4698286 digest=e5904ee4e7398477",
+        "TRACE layer=11 op=2 outputs=173056 requests=346112 cycles=1427714 digest=81893e9b94f4436c",
+        "TRACE layer=14 op=2 outputs=346112 requests=692224 cycles=2855426 digest=27bed66ef35fbac1",
+        "TRACE layer=16 op=2 outputs=692224 requests=1384448 cycles=5710850 digest=e49c73ad7e8f678d",
+        "TRACE layer=17 op=1 outputs=173056 requests=865280 cycles=2349142 digest=f6cabd25f7a01249",
+        "TRACE layer=19 op=2 outputs=86528 requests=173056 cycles=713855 digest=d0903d8b46f446c5",
+        "TRACE layer=22 op=2 outputs=173056 requests=346112 cycles=1427711 digest=dcb213c5e1bd7136",
+        "TRACE layer=24 op=2 outputs=346112 requests=692224 cycles=2855426 digest=baf69909dc7ceaac",
+        "TRACE layer=25 op=1 outputs=86528 requests=432640 cycles=1174573 digest=7840f56f8c4e36db",
+        "TRACE layer=31 op=2 outputs=43264 requests=86528 cycles=356927 digest=18827f2c3a3d5de5",
+        "TRACE layer=33 op=3 outputs=86528 requests=173056 cycles=552049 digest=8b99f67a9428a2d0",
+        "TRACE layer=34 op=2 outputs=259584 requests=519168 cycles=2141568 digest=81cf63227948b0be"
+      ],
+      "scope": "绑定S5真实非CONV快照和原生结果；本轮未重跑，CONV控制stub不证明数值。"
+    }
+  ],
+  "reviewer_driver_actual_native_receipts": [
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\review_driver.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "started_utc8": "2026-10-11T19:06:59.426371+08:00",
+      "native_exit_code": 0,
+      "elapsed_seconds": 23.172,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/attempt02_driver_stdout.log",
+      "log_sha256": "b6340353058cddac6e5b2308683d096e047de0e696024f0f1d592e5fe814e6c2"
+    },
+    {
+      "command": [
+        "C:\\Users\\22061\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-B",
+        "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition\\tmp\\2B\\S2B-T17\\independent_length_guard_review_20261011_r01\\supplement_review.py"
+      ],
+      "cwd": "C:\\Users\\22061\\.codex\\worktrees\\96a3\\FPGA_Competition",
+      "native_exit_code": 0,
+      "elapsed_seconds": 4.11,
+      "log": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/supplement_stdout.log",
+      "log_sha256": "6a7d7f628bc1d8d454df38ac6f923201845654b8d98f44086b0b02bb1d1cbd97"
+    }
+  ],
+  "initial_reviewer_failure": {
+    "status": "FAIL_REVIEWER_SCRIPT_EOL_ASSERTION",
+    "command": [
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "--noprofile",
+      "--norc",
+      "-c",
+      "/c/Users/22061/AppData/Local/Programs/Python/Python312/python.exe -B tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/review_driver.py"
+    ],
+    "host_exec_exit_code": 1,
+    "native_exit_code": null,
+    "native_capture_scope": "首命令未用原生launcher捕获Python返回，工具给宿主1；Python回溯与review_result确认AssertionError。",
+    "elapsed_host_seconds": 1.5865946,
+    "elapsed_driver_seconds": 1.328,
+    "heavy_runs": 0,
+    "cause": "Reviewer把生成器LF文本与S5原始CRLF向量做原字节比较；已先逐条独立确认5996黄金相符，此失败不是RTL差异。",
+    "repair": "attempt02另建子目录，以G1真实5996向量原始字节为前缀，再补独立刺激；原3924条与S5原字节比较，生成文本关系单独按声明规范EOL比较。",
+    "preserved": [
+      "attempt01_driver.py",
+      "review_result.json",
+      "binding_audit.json",
+      "independent_math.json"
+    ]
+  },
+  "two_always_ff_suffix_sha256": "ee877a55977f50bf27418b40227dd6e8a96e73321f065429ef57a93fd215d8e8",
+  "profile": {
+    "version": "s2b-inference-platform/0.1.6",
+    "physical_interface": "s2b-physical-candidate/0.1.1",
+    "clock_hz": 50000000,
+    "visibility_default": 0
+  },
+  "tool_versions": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "verilator": "Verilator 5.050 2026-07-01 rev vUNKNOWN-built20260702"
+  },
+  "raw_manifest": "tmp/2B/S2B-T17/independent_length_guard_review_20261011_r01/raw_manifest.json",
+  "limits": [
+    "PASS只覆盖S6固定九源及r08修正后的G1证据G2，不代表50MHz综合/STA/postroute/bit/G3/G4/G5。",
+    "完整sample000 layer0的1384448非零gold输出、2551955请求响应及27235743周期仅核对原日志/真实快照/独立CPU和T25绑定，Reviewer未复跑layer0或109整网。",
+    "S5几何/ROUTE/15非CONV真实引擎只核对未变实际源码与快照、冻结模型计数及trace；CONV控制stub不作为CONV数值通过依据。",
+    "旧14源/公开header/两个always_ff及后缀不变；仅合法validation_ok分支锁存精确R并可达后续OUTPUT_SCAN；全宽KH/KW、stride、padding语义不变。",
+    "初次Reviewer的CRLF/LF原字节断言错误FAIL已保留，独立数学及原5996黄金在该次先通过；重试采用全5996原字节和3924原S5字节前缀。",
+    "G1 r01原生退出未直接捕获/null，host1及源码推导2分开；r04实际native2、r06包装失败和r08首次role失败仍保留。",
+    "只在本Run写入；生产九源、STATE、attrs未修改；Git仅只读，未暂存/提交/切分支；ROSS/SDK/串口/板卡动作0。",
+    "新重型仅1次单job/thread编译，2次短仿真含1次故意错误预期；RAM门槛2GiB未降低，运行前无重型进程。",
+    "峰RSS为0.05秒进程树采样，Python生命周期peak_wset另列，非全系统峰；全部Agent工具调用量未测。"
+  ]
+}

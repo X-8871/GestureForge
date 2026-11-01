@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "stage": "2B",
+  "task_id": "S2B-T17",
+  "run_id": "profile_acl_patch_r04",
+  "source_commit": "04e93e6eeda75c1a381ce89f49a3f97b80b69e6b",
+  "evidence_dir": "report/evidence/S2B-T17/profile_acl_patch_r04",
+  "interfaces": [],
+  "interfaces_not_applicable_reason": "本运行修复并审查冻结DCP Bitgen启动器的私有APPDATA父目录ACL门禁，不改变模型、PS/PL、AXI或缓冲区接口。",
+  "files": [
+    {
+      "path": "report/evidence/S2B-T17/profile_acl_patch_r04/acl_audit/missing_userprofile_shared_temp.json",
+      "sha256": "908a6f063287b30200c9cb9afde47d93d8d3a2dd913b64f583eeca298c6958ac",
+      "role": "result",
+      "keep_reason": "记录缺少USERPROFILE时拒绝TEMP/TMP回退且共享临时目录内容未变化。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/profile_acl_patch_r04/acl_audit/real_userprofile_documents.json",
+      "sha256": "392c5cc3218ffdf4d7cea8bd6e0cdea3cc004f9c272bcbdba87823879f09535d",
+      "role": "result",
+      "keep_reason": "保存真实USERPROFILE/Documents只读ACL核验的脱敏角色与ACE摘要。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/profile_acl_patch_r04/git_diff_check_console.txt",
+      "sha256": "2bf9d6973b9ab1a61cb64932f8c4e5128161a68ee388afee42481ebcd91358b5",
+      "role": "log",
+      "keep_reason": "保存目标文件git diff --check的真实输出与退出码。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/profile_acl_patch_r04/py_compile_console.txt",
+      "sha256": "25005252654ab570bad97046491aece09dbe6954f62b832af523793c9113d60d",
+      "role": "log",
+      "keep_reason": "保存两份目标Python文件py_compile成功结果。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/profile_acl_patch_r04/run_summary.json",
+      "sha256": "d9a8c42c409cd9536a56bc10b4f710029a8cf795a307b6baa1b56834448ebd8b",
+      "role": "result",
+      "keep_reason": "汇总源码快照、冻结Bitgen输入、测试结果、ACL只读核验和未执行的硬件步骤。"
+    },
+    {
+      "path": "report/evidence/S2B-T17/profile_acl_patch_r04/unittest_console.txt",
+      "sha256": "29b040454067357e4d0cf2381de67b577b1acace76ccf4dd1ee13d4df14d61ed",
+      "role": "log",
+      "keep_reason": "保存45项Windows启动器回归测试的完整运行输出。"
+    },
+    {
+      "path": "verification/s15_direct_vivado_bitgen.py",
+      "sha256": "1baa2b0475bc5651092a08f6e219b1288696908759e393cbb72d288b70456092",
+      "role": "source"
+    },
+    {
+      "path": "verification/test_s15_direct_vivado_bitgen.py",
+      "sha256": "12496f91894f3834ef08a1f3405f0e2f312237c1bb486fab6470868f9dadeaf3",
+      "role": "source"
+    },
+    {
+      "path": "verification/s15_frozen_dcp_bitgen.tcl",
+      "sha256": "c308050737be891fb47e6b754124ef999f0db7414013b25c65d8b3b63d1cfa1e",
+      "role": "input",
+      "keep_reason": "冻结Bitgen Tcl输入；仅绑定哈希，本轮未执行。"
+    }
+  ],
+  "checks": [
+    {
+      "name": "冻结DCP Bitgen启动器45项回归测试",
+      "status": "PASS",
+      "command": "python.exe -B -c unittest.defaultTestLoader.loadTestsFromName('test_s15_direct_vivado_bitgen'); S15_DIRECT_BITGEN_EVIDENCE_ROOT=tmp/2B/S2B-T17/pacl_r03",
+      "exit_code": 0,
+      "reason": "45项全部通过，包括真实USERPROFILE/Documents只读ACL审计、USERPROFILE缺失时拒绝TEMP回退及Win32子进程/job fixture。"
+    },
+    {
+      "name": "目标Python文件py_compile",
+      "status": "PASS",
+      "command": "python.exe -B -c py_compile.compile(source, cfile=tmp/2B/S2B-T17/pacl_compile_r03)",
+      "exit_code": 0,
+      "reason": "两份冻结目标文件编译成功，字节码隔离在tmp目录。"
+    },
+    {
+      "name": "目标文件git diff --check",
+      "status": "PASS",
+      "command": "git diff --check -- verification/s15_direct_vivado_bitgen.py verification/test_s15_direct_vivado_bitgen.py",
+      "exit_code": 0,
+      "reason": "目标差异无空白错误；Git仅提示工作树LF将来可能转换为CRLF。"
+    },
+    {
+      "name": "真实USERPROFILE与Documents ACL只读审计及缺失环境回归",
+      "status": "PASS",
+      "command": "同一45项目标unittest运行；实际真实目录ACL与缺失USERPROFILE夹具结果见acl_audit/中的脱敏fixture_result文件",
+      "exit_code": 0,
+      "reason": "真实目录只读审计成功；父目录所有者为SYSTEM，所有ACE完整审计，未信任ACE仅只读；Documents内容未变且未创建profile。缺少USERPROFILE时共享TEMP/TMP保持不变。"
+    }
+  ],
+  "limitations": [
+    "此前一次独立测试因证据根过长使合成TclStore目标达到265个UTF-16字符并被259字符保护拒绝；该失败输出保留在report/evidence/S2B-T17/profile_acl_patch_r03。本次完整45项通过使用短夹具根目录。",
+    "Common 17-356 / load_features失败的根因尚未由Vivado实际启动验证；本证据包只验证启动器隔离APPDATA与ACL门禁。",
+    "本轮未启动Vivado、Bitgen、XSDB或JTAG，也未创建或修改真实Documents下的profile。"
+  ],
+  "tool_versions": {
+    "python": "Python 3.12.14",
+    "git": "git version 2.56.0.windows.2",
+    "powershell": "7.6.5",
+    "os": "Microsoft Windows NT 10.0.26200.0"
+  }
+}

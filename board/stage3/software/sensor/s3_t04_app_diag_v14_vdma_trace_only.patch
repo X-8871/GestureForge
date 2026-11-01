@@ -1,0 +1,39 @@
+diff --git a/display_demo.c b/display_demo.c
+index f73f3bd..99006a6 100644
+--- a/display_demo.c
++++ b/display_demo.c
+@@ -664,20 +664,12 @@ int main(void)
+ 			s3_10_5584, s3_10_5584_a, s3_10_5584_rb,
+ 			s3_10_skip ? -2 : s3_10_wr);
+ 	}
+-	/* S3-DIAG12: 打开传感器内置彩条测试图案（0x503D=0x80）。
+-	 * 先回读原值 → 写 → 回读校验；读失败跳过写入并打印 SKIPPED/-2。*/
++	/* S3-DIAG12：只回读彩条控制寄存器，保持当前真实场景输入。*/
+ 	{
+-		u8 s3_12_before = 0, s3_12_rb = 0xFF;
+-		int s3_12_wr;
+-		if (s3_diag5_i2c_read16(0x3C, 0x503D, &s3_12_before) == 0) {
+-			s3_12_wr = i2c_reg16_write(&ps_i2c0, 0x3c, 0x503D, 0x80);
+-			if (s3_diag5_i2c_read16(0x3C, 0x503D, &s3_12_rb) != 0) { s3_12_rb = 0xFF; }
+-		} else {
+-			s3_12_before = 0xFF; s3_12_rb = 0xFF; s3_12_wr = -2;
+-			xil_printf("S3_DIAG12_BARS_SKIPPED reg=503D reason=read_failed\r\n");
+-		}
+-		xil_printf("S3_DIAG12_BARS=503D before=0x%02X after=0x%02X readback=0x%02X write_status=%d\r\n",
+-			s3_12_before, 0x80U, s3_12_rb, s3_12_wr);
++		u8 s3_12_value = 0xFF;
++		int s3_12_read_status = s3_diag5_i2c_read16(0x3C, 0x503D, &s3_12_value);
++		xil_printf("S3_DIAG12_BARS_PRESERVED=1 reg=503D value=0x%02X read_status=%d\r\n",
++			s3_12_value, s3_12_read_status);
+ 	}
+ 	/* S3-DIAG4: 采集 IP 内部有 200M+100M 个 PCLK 周期的上电等待（见 alinx_ov5640.v 的
+ 	 * reset_cnt / fifo_ready_cnt），若不等它就绪就启动 S2MM，会在第一帧落下帧尺寸粘滞错误。*/
+@@ -689,6 +681,8 @@ int main(void)
+ 	xil_printf("S3_DIAG4_WAIT_DONE\r\n");
+ 	vdma_write_status = vdma_write_init(XPAR_AXIVDMA_1_DEVICE_ID,1280 * 3,720,1280 * 3,(unsigned int)dispCtrl.framePtr[dispCtrl.curFrame]);
+ 	xil_printf("S3_DIAG_VDMA_WRITE_STARTED rc=%d\r\n", vdma_write_status);
++	xil_printf("S3_VDMA_TRACE_ONLY_WAIT rc=%d; no later DMA stop requested\r\n", vdma_write_status);
++	for (;;) { sleep(1); }
+ 	/* S3-DIAG11 取帧应用：先做 3 次 64 KB×3 区指纹（t≈5/10/15 s）确认帧在动，
+ 	 * 然后 t≈20 s 停 S2MM 让帧缓冲静止，之后保持 240 s 供整帧导出。*/
+ 	xil_printf("S3_DIAG6_ALGO=sum32+crc32(0xEDB88320) bytes=65536 sites=0x000000,0x080000,0x100000\r\n");

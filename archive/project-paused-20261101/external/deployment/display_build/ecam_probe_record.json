@@ -1,0 +1,59 @@
+{
+  "task": "S5-ECAM-PROBE-OCM",
+  "built_utc8": "2026-10-31T14:00:29+08:00",
+  "purpose": "OCM-only 最小探针：隔离 DDR 因素（不访问 DDR/I2C/帧存/中断/驱动）",
+  "elf": {
+    "path": "build/ecam_probe_ocm.elf",
+    "sha256": "3ec8fd91f937fb2929b2ed78d47975e8d13b1c2344854d2b50e52052f0a352ec",
+    "size_bytes": 129728
+  },
+  "linker_script": {
+    "path": "tools/lscript_probe_ocm.ld",
+    "sha256": "cff2e2bdd6599546c0ac3e200504d4825417f3d0fe092f97303c25b42d8b5929"
+  },
+  "source": {
+    "path": "tools/ecam_probe.c",
+    "sha256": "2d3eed84b037f39bfea8093c9daaf92c8ec2df8df3f93e046f29b27096d7fa47"
+  },
+  "entry": [
+    "0x0"
+  ],
+  "key_symbols": [
+    "00005aac B __bss_end",
+    "00005940 B __bss_start",
+    "000062b0 B _heap_end",
+    "0000c2b0 B _stack",
+    "00000000 T _vector_table"
+  ],
+  "sections": [
+    "[ 1] .text PROGBITS 00000000 001000",
+    "[ 5] .bss NOBITS 00005940 006940",
+    "[ 6] .heap NOBITS 00005aac 006940",
+    "[ 7] .stack NOBITS 000062b0 006940"
+  ],
+  "size_berkeley": "  22848\t      0\t  26992\t  49840\t   c2b0\tD:\\tmp\\lead\\p3b_display_sw_20261030_r01\\build\\ecam_probe_ocm.elf",
+  "cflags": [
+    "-mcpu=cortex-a9",
+    "-mfpu=vfpv3",
+    "-mfloat-abi=hard",
+    "-DSDT",
+    "-Wall",
+    "-Wextra",
+    "-O2",
+    "-g3",
+    "-std=gnu11",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--build-id=none"
+  ],
+  "toolchain": {
+    "gcc": "arm-xilinx-eabi-gcc 13.4.0",
+    "bsp": "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\ps7\\export\\ps7\\sw\\cpu0"
+  },
+  "notes": [
+    "全部 section 落在 OCM [0x00000000,0x00040000)；.vectors 在 0x0，ENTRY=_vector_table",
+    "不访问 DDR：无 0x100000/0x12000000/0x20000000/0x20800000",
+    "无 XIicPs/XGpio/XScuGic；仅 xil_printf + Xil_In32 裸 MMIO",
+    "自检点：cam_rst(0x41200000)/gt(0xF8F00200,04)/2b_csr(0x43C00000)/disp vdma CR(0x43C40000)/uart1 CR,SR(0xE0001000)"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "task": "S5-T01/MVP-infer",
+  "generated_utc8": "2026-11-01T03:36:33+08:00",
+  "base": {
+    "path": "D:\\codex-worktrees\\w4\\vitis\\stage4\\ps\\s4d_ps_app.c",
+    "sha256": "87a639aa4a5d375d3c25472062abe7e7c93fe77b5c08a499726f5c788b7d9f79",
+    "bytes": 64571
+  },
+  "output": {
+    "path": "D:\\tmp\\lead\\mvp_infer_20261031_r01\\src\\s4d_ps_app_mvp.c",
+    "sha256": "f71b58e500ef118f5827414aa03d492df1915b29e1314435bec3168f6330b601",
+    "bytes": 77380,
+    "lines": 1579
+  },
+  "inputs": {
+    "D:\\codex-worktrees\\w4\\vitis\\stage4\\ps\\s4d_sw_preproc.c": {
+      "sha256": "2c645e201785eb5ff1af88fb8723cb96f8bfdc1fc00b399499ccdf7fa87c647a",
+      "bytes": 5544
+    },
+    "D:\\codex-worktrees\\w4\\vitis\\stage4\\ps\\s4d_sw_preproc.h": {
+      "sha256": "45d806ecbdb43f9dacd21658c347dcf36ac564139725f22e4ae5e4895512d8b4",
+      "bytes": 2326
+    },
+    "D:\\codex-worktrees\\w4\\vitis\\stage4\\ps\\s4d_geometry.h": {
+      "sha256": "4bb370c3e97e17cbe2ad230c46862b5e12aa6ef9c72d5b697d814eadc5be52a7",
+      "bytes": 4983
+    },
+    "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\infer\\src\\s2a_ps_decode_nms_reference.c": {
+      "sha256": "cf1904da1b6f9110a957ea788cdb7f9c6b7773d2fd8b7b61779063e5f995d845",
+      "bytes": 11675
+    },
+    "D:\\codex-worktrees\\w4\\tmp\\4\\S4-B-REAL-01\\s4b_ps_tensor_20261023_r13\\bundle_extract\\bundle\\workspace\\infer\\src\\s2a_ps_decode_nms_reference.h": {
+      "sha256": "edd61d7f47e2681ebd3b21f599c9637d41b257f5e0fc7b9b909f7962d758ce47",
+      "bytes": 1135
+    },
+    "D:\\tmp\\lead\\p3b_display_sw_20261030_r01\\src\\s5_result_abi.h": {
+      "sha256": "7eb25a81328439e1344dfae260743240fbabbc2b47a79c996dba0fce67ade353",
+      "bytes": 4873
+    }
+  },
+  "insertions": [
+    {
+      "id": "I1",
+      "what": "include s5_result_abi.h + MVP 宏/发布函数/相机循环"
+    },
+    {
+      "id": "I2",
+      "what": "main() 内 S4D_FRAME_SRC_CAM=1 时进入 s4d_mvp_cam_loop()"
+    }
+  ],
+  "switches": {
+    "S4D_FRAME_SRC_CAM": "1=相机 0x12000000；0=回落原 host-request 注入主循环",
+    "S4D_MVP_RAW_W/H": "相机 raw 几何（默认 1280×720）"
+  }
+}

@@ -1,5 +1,9 @@
 # AX7Z020 Gesture Engineering Workspace
 
+> **项目已暂停（2026-11-01，Wong 决定退出本次竞赛）。** 当前整理目标是保全已有成果，便于以后继续，不再继续开发、训练、综合或上板。恢复从 [RESUME.md](RESUME.md) 开始。
+>
+> 主分支保存工程历史和封存入口；`codex/archive/20261101/*` 分支保存各工作树筛选后的未提交源码/文档快照，均为**未经重新验收的恢复材料**。模型、临时目录中的独有源码和成套部署件见 `archive/project-paused-20261101/`。完整训练图片和大型本地证据不因上传而被删除，也不宣称都已在 GitHub 保存。
+
 本目录保存 Vivado、Vitis、日常验证和构建产物；`docs/obsidian-project/` 保存指定 Obsidian 项目笔记的 Git 快照，原笔记仍在知识库维护。
 
 仓库：https://github.com/X-8871/GestureForge 。同步范围与操作见 [仓库同步说明](docs/仓库同步说明.md)。

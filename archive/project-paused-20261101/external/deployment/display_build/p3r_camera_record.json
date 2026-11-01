@@ -1,0 +1,25 @@
+{
+  "task": "S5-P3R-MVP-FINAL-720-r09",
+  "built_utc8": "2026-11-01T02:50:47+08:00",
+  "basis": "r08：dvpvo 写 720 成功（1ms/10ms 回读 0x02D0）、geom dvpvo=720、TUSER_TLAST=720、TLAST_BEAT=1280",
+  "change": "VDMA VSIZE 727→720（S5_CAM_VDMA_VSIZE=720，0x43C600A0=0x2D0）；保留 dvpvo 写 720 + 1ms/10ms 回读；保留 sr_after_clear/1s 与每 30 帧 frm 行",
+  "unchanged": "HUD、S5RS、302 表其余项、core1（720 行/2764800 B）",
+  "source_sha256": {
+    "src/s5_camera.h": "7f05ac82f413e5a4e1c93b13f56c68480ba2746fd6d339454026ab2bd16423a8",
+    "src/s5_camera.c": "17f9cbf8e7fdd314b1d16df5ab3d766cd0e41f20504f211e2c8818a2d64def1c",
+    "src/s5_display_app.c": "8cce8722985349393ef7446c9b84e4b442a576ee29f592c2d2bda1d08dff8f19"
+  },
+  "variants": {
+    "ecam_diag_v35": {
+      "elf": "s5_display_app_ecam_diag.elf",
+      "sha256": "42d1c53f6508c0ffcd79908620420bdc34ca53e6350af983feb0fc2089ea3fd7",
+      "size_bytes": 485064
+    },
+    "p3r_camera_v35": {
+      "elf": "s5_display_app_p3r_camera.elf",
+      "sha256": "d1ecc0d8592cec2d414dc73e2c47ee19c7e0c1eaf9ff25eefcc93465058e5743",
+      "size_bytes": 397268
+    }
+  },
+  "selftest": "PASS（VDMA 720 断言、frame_bytes=2764800、SR 清、无 RESET、kick 前移、原全部用例）"
+}
